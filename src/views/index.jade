@@ -1,0 +1,11 @@
+extends layout
+
+block content
+	.row
+		.large-12.small-12.columns
+			h1= title
+			p Welcome to #{title}
+
+			//- obj = {foo: 'bar', foo2: 'bar'}
+			//- each val, key in obj
+				li #{key}: #{val}

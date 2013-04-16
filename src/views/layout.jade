@@ -1,0 +1,76 @@
+doctype 5
+
+//if lt IE 7
+	//-html.no-js.lt-ie9.lt-ie8.lt-ie7(lang='en')
+	<html class="no-js lt-ie9 lt-ie7" lang="en">
+
+//if IE 7
+	//-html.no-js.lt-ie9.lt-ie8(lang='en')
+	<html class="no-js lt-ie9 lt-ie8" lang="en">
+
+//if IE 8
+	//-html.no-js.lt-ie9(lang='en')
+	<html class="no-js lt-ie9" lang="en">
+
+//if gt IE 8
+	<!--> <html class="no-js" lang="en"> <!--
+	-<!--> <html lang="en"> <!--
+
+head
+	meta(charset='utf-8')
+	// Set the viewport width to device width for mobile 
+	meta(name='viewport', content='width=device-width')
+	title #{title}
+	// Included CSS Files (Uncompressed) 
+	link(rel='stylesheet', href='stylesheets/foundation.css')
+
+	// Included CSS Files (Compressed) 
+	link(rel='stylesheet', href='stylesheets/foundation.min.css')
+	link(rel='stylesheet', href='stylesheets/app.css')
+	link(rel='stylesheet', href='stylesheets/normalize.css')
+	link(rel='stylesheet', href='stylesheets/global.css')
+
+	// Included JS Files
+	script(src='javascripts/vendor/custom.modernizr.js')
+
+	// IE Fix for HTML5 Tags 
+	//if lt IE 9
+		script(src='http://html5shiv.googlecode.com/svn/trunk/html5.js')
+
+body
+	include includes/navbar
+	block content
+
+	// Included JS Files (Compressed)
+	script(src='http://code.jquery.com/jquery-latest.min.js')
+	//script(src='javascripts/jquery.js')
+	script(src='javascripts/foundation.min.js')
+	// Initialize JS Plugins 
+	script(src='javascripts/app.js')
+
+	script
+		document.write('<script src=' +
+		('__proto__' in {} ? 'javascripts/vendor/zepto' : 'javascripts/vendor/jquery') +
+		'.js><\\/script>')
+	//- script(src='javascripts/foundation/foundation.js')
+	//- script(src='javascripts/foundation/foundation.alerts.js')
+	//- script(src='javascripts/foundation/foundation.clearing.js')
+	//- script(src='javascripts/foundation/foundation.cookie.js')
+	//- script(src='javascripts/foundation/foundation.dropdown.js')
+	//- script(src='javascripts/foundation/foundation.forms.js')
+	//- script(src='javascripts/foundation/foundation.joyride.js')
+	//- script(src='javascripts/foundation/foundation.magellan.js')
+	//- script(src='javascripts/foundation/foundation.orbit.js')
+	//- script(src='javascripts/foundation/foundation.placeholder.js')
+	//- script(src='javascripts/foundation/foundation.reveal.js')
+	//- script(src='javascripts/foundation/foundation.section.js')
+	//- script(src='javascripts/foundation/foundation.tooltips.js')
+	//- script(src='javascripts/foundation/foundation.topbar.js')
+	script
+		$(document).foundation('reveal', {animation: 'fadeAndPop', closeOnBackgroundClick: true});
+		$(document).foundation();
+
+
+	block script
+
+| </html>

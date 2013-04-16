@@ -1,0 +1,9 @@
+{
+  "name": "copywatch",
+  "version": "0.1.0",
+  "private": "true",
+  "dependencies": {
+  	"typechecker": "~2.0.1",
+    "watchr": "~2.4.3"
+  }
+}

@@ -1,0 +1,7 @@
+Messdatenvisualisierung:
+  Implement:
+   ✔ implementiere die copy Funktion des copywatch-Moduls @done (13-04-11 16:30)
+
+Module:
+  Ideen:
+    ☐ Schalte das Data_Parser Modul zwischen das Original- und Copy-File von Copywatch (Ergo: Erzeuge eine einfach lesbare Kopie)

@@ -1,0 +1,28 @@
+//- Mixin to create tabs
+mixin dividerTab(url, name)
+	li.divider
+	mixin tab(url, name)
+
+mixin dropdownTab(url, name, droplist)
+	li.divider
+	li.has-dropdown: a(href=url)= name
+		ul.dropdown
+			each val, key in droplist
+				li: a(href=val)= key
+
+mixin tab(url, name)
+	if(currentURL == url)
+		li.active: a(href=url)= name
+	else
+		li: a(href=url)= name
+
+// Navigationbar
+nav.top-bar
+	ul.title-area
+		li.name
+			h1: a(href='/') Blablablubb
+
+	section.top-bar-section
+		ul.left
+			mixin dividerTab('/index', 'Home')
+			mixin dividerTab('/data', 'Daten')

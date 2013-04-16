@@ -1,0 +1,19 @@
+{
+	"folders":
+	[
+		{
+			"path": "data"
+		},
+		{
+			"path": "src",
+			"file_exclude_patterns": [ "*min.*" ]
+			/*"folder_exclude_patterns": [ "node_modules" ],*/
+		},
+		{
+			"path": ".",
+			"name": "root",
+			"file_exclude_patterns": ["*|*~*.sublime*"],
+			"folder_exclude_patterns": [ "*" ]
+		}
+	]
+}

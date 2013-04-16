@@ -1,0 +1,942 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"set",
+				"setInterval();"
+			],
+			[
+				"watcher",
+				"watcherInstance"
+			],
+			[
+				"console",
+				"console.log();"
+			],
+			[
+				"change",
+				"changeOnce"
+			],
+			[
+				"readFile",
+				"fs.readFile(path, encoding_);"
+			],
+			[
+				"process",
+				"process.cwd();"
+			],
+			[
+				"dis",
+				"disabled"
+			],
+			[
+				"button",
+				"button-group"
+			],
+			[
+				"Custom",
+				"Custom-Rooms"
+			],
+			[
+				"user-",
+				"user-room-name"
+			],
+			[
+				"drop",
+				"dropdownElement"
+			],
+			[
+				"dr",
+				"dropdownTab"
+			],
+			[
+				"st",
+				"stylesheet"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"contents": "/**\n* Module dependencies\n*/\nvar copywatch = require('module/copywatch'),\n	parser = require('module/data_parser'),\n	express = require('express');\n\nvar defaultPort = 3000;\n\n/**\n* Configure the app\n*/\n\nvar app = express();\n\napp.configure(function()\n{\n	app.set('view engine', 'jade');\n	app.set('views', __dirname + '/views');\n\n	//	Middleware compatibility\n	app.use(express.bodyPaser());\n	//	Makes it possible to use app.get and app.delete, rather than use app.post all the time\n	app.use(express.methodOverride());\n	/*  Routes the requests, it would be implicit initialated at the first use of app.get\n	this ensures that routing is done before the static folder is used */\n	app.use(app.router);\n	app.use(express.static(__dirname + '/public'));\n});\n\n/**\n* Starting the app in development mode\n*/\n\napp.configure('development', function()\n{\n	app.use(express.logger('dev'));\n	app.use(express.errorHandler());\n});\n\n/**\n* Routing\n*/\n\nfunction route(route_path, json_obj) \n{\n	json_obj.currentURL = \"/\" + route_path;\n\n	return function(req, res) \n	{\n		res.render(route_path, json_obj);\n	};\n}\n\napp.get('/', route('index', { title: 'Home' }));\napp.get('/home', route('index', { title: 'Home' }));\napp.get('/index', route('index', { title: 'Home' }));\n\n/**\n* Get it running!\n*/\n\nvar server = app.listen(process.env.PORT || defaultPort);\n\nconsole.log(\"SemShow Server is running under %d Port in %s mode\",\n	(process.env.PORT || defaultPort), app.settings.env);",
+			"file": "src/app.js",
+			"file_size": 1507,
+			"file_write_time": 130105070201376100,
+			"settings":
+			{
+				"buffer_size": 1442,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/s.wolf/Documents/WindowsPowerShell/Microsoft.PowerShell_profile.ps1",
+			"settings":
+			{
+				"buffer_size": 3202,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/SideBarEnhancements/messages/11.13.2012.1305.0.txt",
+			"settings":
+			{
+				"buffer_size": 571,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/modules/copywatch/lib/copywatch.js",
+			"settings":
+			{
+				"buffer_size": 6991,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "Packages/JS Validation using Esprima/JsValidate.sublime-build",
+	"command_palette":
+	{
+		"height": 81.0,
+		"selected_items":
+		[
+			[
+				"Remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"Install",
+				"Package Control: Install Package"
+			],
+			[
+				"Powersh",
+				"Set Syntax: Powershell v2"
+			],
+			[
+				"git add",
+				"Git: Add..."
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"TODO",
+				"Show TODOs: Project and open files"
+			],
+			[
+				"Prefre",
+				"Preferences: Settings - User"
+			],
+			[
+				"Todo",
+				"Show TODOs: Project and open files"
+			],
+			[
+				"rem",
+				"BracketHighlighter: Remove Brackets"
+			],
+			[
+				"key",
+				"Preferences: Key Bindings - User"
+			],
+			[
+				"BRacket",
+				"BracketHighlighter: Swap Brackets"
+			],
+			[
+				"find",
+				"FindKeyConflicts: Overlap Conflicts"
+			],
+			[
+				"find ",
+				"FindKeyConflicts: Command Search"
+			],
+			[
+				"Snippet: ",
+				"Snippet: if"
+			],
+			[
+				"if",
+				"Snippet: if"
+			],
+			[
+				"remove pack",
+				"Package Control: Remove Package"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"task new doc",
+				"Tasks: New document"
+			],
+			[
+				"task new",
+				"Tasks: New"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"todo",
+				"Show TODOs: Open files only"
+			],
+			[
+				"book",
+				"Bookmarks: Toggle"
+			],
+			[
+				"bracket",
+				"BracketHighlighter: Swap Brackets"
+			],
+			[
+				"Brack",
+				"BracketHighlighter: Swap Brackets"
+			],
+			[
+				"Remove Brack",
+				"BracketHighlighter: Remove Brackets"
+			],
+			[
+				"Bracket",
+				"BracketHighlighter: Remove Brackets"
+			],
+			[
+				"BracketHigh",
+				"BracketHighlighter: Match Brackets (ignore threshold)"
+			],
+			[
+				"BracketHighl",
+				"BracketHighlighter: Select Bracket Content"
+			],
+			[
+				"jum",
+				"BracketHighlighter: Jump to Right Bracket"
+			],
+			[
+				"Jump to",
+				"BracketHighlighter: Jump to Right Bracket"
+			],
+			[
+				"jump",
+				"BracketHighlighter: Jump to Left Bracket"
+			],
+			[
+				"javascrit",
+				"Set Syntax: JavaScript"
+			],
+			[
+				"settings",
+				"Preferences: Settings - Default"
+			],
+			[
+				"Key user",
+				"Preferences: Key Bindings - User"
+			],
+			[
+				"FindKe",
+				"FindKeyConflicts: Overlap Conflicts"
+			],
+			[
+				"json",
+				"Pretty JSON: Reformat (Pretty Print) JSON"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"javascri",
+				"Set Syntax: JavaScript"
+			],
+			[
+				"node run",
+				"Nodejs::Run::Current File"
+			],
+			[
+				"key bin",
+				"Preferences: Key Bindings - Default"
+			],
+			[
+				"key n",
+				"Preferences: Key Bindings - User"
+			],
+			[
+				"html",
+				"HTML2Jade: Convert selection"
+			],
+			[
+				"install ",
+				"Package Control: Install Package"
+			],
+			[
+				"",
+				"Nodejs::Build Completions"
+			],
+			[
+				"nodejs",
+				"Nodejs::Build Completions"
+			],
+			[
+				"proje",
+				"Project: Save As"
+			],
+			[
+				"project",
+				"Project: Add Folder"
+			],
+			[
+				"set syn java",
+				"Set Syntax: JavaScript"
+			],
+			[
+				"lorem",
+				"Snippet: Lorem ipsum"
+			],
+			[
+				"Lore",
+				"Snippet: Lorem ipsum"
+			],
+			[
+				"lor",
+				"Snippet: Lorem ipsum"
+			]
+		],
+		"width": 464.0
+	},
+	"console":
+	{
+		"height": 125.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": false,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": true,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/Git/Git.sublime-settings",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/messdata.sublime-project",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/package.json",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/TODO.TODO",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/modules/copywatch/lib/copywatch.js",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/modules/data_parser/lib/data_parser.js",
+		"/C/node/src/regtest.js",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/test/data_parser_test.js",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/User/Distraction Free.sublime-settings",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/modules/data_parser/package.json",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/app.js",
+		"/C/node/src/objecttest.js",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/test/test_data.txt",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/User/Default (Windows).sublime-keymap",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/Default/Default (Windows).sublime-keymap",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/test/copywatch_test.js",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/node_modules/watchr/out/lib/watchr.js",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/modules/copywatch/package.json",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/modules/data_parser/index.js",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/test.js",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/test.txt",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/modules/watchmen/lib/copywatch.js",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Settings/Session.sublime_session",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/modules/watchmen/index.js",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/modules/watchmen/package.json",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/test/file_reading4.js",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/node_modules/watchr/bin/watchr",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/node_modules/jade/index.js",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/test/file_reading5.js",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/User/JavaScript.sublime-settings",
+		"/C/Users/s.wolf/Projekte/Seminararbeit/src/Server/app.js",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/server.js",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/EXPRESS/package.json",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/test/file_reading.js",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/test/file_reading2.js",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/test/file_reading3.js",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/test/test.txt",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/data/test1_2012.09.05.txt",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/test/output.js",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/test/test",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/test/test2",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/views/includes/navbar.jade",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/data/Messraum1.txt",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/views/includes/navbar.jade",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/app.js",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/Pretty JSON/Pretty JSON.sublime-settings",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/Nodejs/Nodejs.py",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/nodejsLauncher/nodeLauncher.py",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/nodejsLauncher/nodeLauncher.pyc",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/nodejsLauncher/README.md",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/nodejsLauncher/package-metadata.json",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Server/public/stylesheets/global.css",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Server/public/stylesheets/app.css",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Server/public/javascripts/app.js",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Server/test.jade",
+		"/C/Users/s.wolf/Projekte/0 - Bibliotheken/Foundation/foundation-4.0.9/img/.gitkeep",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Server/views/layout.jade",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Server/public/javascripts/chat/chat.js",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/bachelor.sublime-project",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Server/node_modules/jade/index.js",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Server/node_modules/stylus/bm.js",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Server/node_modules/stylus/index.js",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Server/node_modules/stylus/LICENSE",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Server/node_modules/stylus/package.json",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Server/node_modules/stylus/Readme.md",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Server/node_modules/jade/jade.js",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Server/node_modules/jade/jade.md",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Vorlage (Seminararbeit)/seminar_modules/chat/chat.js",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Vorlage (Seminararbeit)/app.js",
+		"/C/node/src/file.js",
+		"/C/Users/s.wolf/Projekte/Bachelor/src/Vorlage (Seminararbeit)/node_modules/express/node_modules/commander/Readme.md",
+		"/C/Users/s.wolf/AppData/Local/PCGen/PCGen6000/data/alpha/paizo/pathfinder_rpg/advanced_players_guide/pfapg_abilities_archetypes.lst",
+		"/C/Users/s.wolf/Desktop/WDR 2.asx",
+		"/C/Users/s.wolf/AppData/Local/PCGen/PCGen6000/data/alpha/paizo/pathfinder_player_companion/pirates_of_the_inner_sea/potis_abilities_archetypes.lst"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+			"data_parser.js",
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"date",
+			"time",
+			"format",
+			"defaultFormat",
+			"message",
+			"Skip",
+			"extractedDate",
+			"date",
+			"Date",
+			"date",
+			"timePattern",
+			"timeRegEx",
+			"datePattern",
+			"dateFormat",
+			"date",
+			"options.date",
+			"format",
+			"timeRegExStr",
+			"dateRegExStr",
+			"extractedDate",
+			"tSep",
+			"dSep",
+			"tSep",
+			"dSep",
+			"elements",
+			">\"",
+			"\">",
+			"\"<",
+			"\"</\\w+/>\"",
+			"\"</\\w/>\"",
+			"\"</*/>\"",
+			"\"<",
+			"curr",
+			"timeA",
+			"Str",
+			"options",
+			"format",
+			"string",
+			"true",
+			"string",
+			"[<",
+			"year",
+			"month",
+			"options",
+			"second",
+			" \"<hour>\",",
+			"\"<hour>\"",
+			"year",
+			"day",
+			"second",
+			"minute",
+			"hour",
+			"HOUR",
+			"year",
+			"month",
+			"extrDate",
+			"errorHandling",
+			"getCopyExtension",
+			"setCopyExtension",
+			"console",
+			" '",
+			"err",
+			"errorHandling",
+			"ctrl+shift+v",
+			"key",
+			"file",
+			"files",
+			"watchers",
+			"watcher",
+			"temporary",
+			"filepath",
+			"watch",
+			"arguments",
+			"AndCop",
+			"add",
+			"    ",
+			"\"],\n",
+			"\n	",
+			"	{\"",
+			"ctrl+t",
+			"log",
+			"        [",
+			"watcherInstance",
+			"event",
+			"instead",
+			"'test.txt'",
+			"('",
+			"encoding",
+			"fs",
+			"  ",
+			"ctrl+alt+shift",
+			"');\n",
+			"modal",
+			"dd",
+			"');\n",
+			"Rooms",
+			"large",
+			"    ",
+			"list",
+			" #{name}",
+			"normTab",
+			"dropdownElement",
+			"  ",
+			"    ",
+			"tab",
+			"js",
+			"js/foundation",
+			"centered",
+			"six",
+			"two",
+			"ten",
+			"twelve",
+			"seminar_modules",
+			"chat",
+			"proident",
+			"Lorem",
+			"Lipsum",
+			"Lorem",
+			"Special ABil",
+			"Special ABility",
+			"##  FIGHTER",
+			"Special Ability",
+			"Fighter"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"\"",
+			"improvement"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "src/app.js",
+					"settings":
+					{
+						"buffer_size": 1442,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								146,
+								146
+							]
+						],
+						"settings":
+						{
+							"bh_regions":
+							[
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close"
+							],
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/C/Users/s.wolf/Documents/WindowsPowerShell/Microsoft.PowerShell_profile.ps1",
+					"settings":
+					{
+						"buffer_size": 3202,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								437,
+								437
+							]
+						],
+						"settings":
+						{
+							"bh_regions":
+							[
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close"
+							],
+							"syntax": "Packages/PowerShell/Support/PowershellSyntax.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/SideBarEnhancements/messages/11.13.2012.1305.0.txt",
+					"settings":
+					{
+						"buffer_size": 571,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"bh_regions":
+							[
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close"
+							],
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "src/modules/copywatch/lib/copywatch.js",
+					"settings":
+					{
+						"buffer_size": 6991,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3680,
+								3680
+							]
+						],
+						"settings":
+						{
+							"bh_regions":
+							[
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close"
+							],
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 585.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 34.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 100.0
+	},
+	"output.git":
+	{
+		"height": 100.0
+	},
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"",
+				"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/User/Distraction Free.sublime-settings"
+			],
+			[
+				"file",
+				"test/file_reading4.js"
+			],
+			[
+				"2",
+				"data/test1_2012.09.05.txt"
+			],
+			[
+				"a",
+				"/C/Users/s.wolf/Projekte/Bachelor/src/Vorlage (Seminararbeit)/app.js"
+			],
+			[
+				"un",
+				"untitled"
+			],
+			[
+				"ap",
+				"/C/Users/s.wolf/Projekte/Bachelor/src/Vorlage (Seminararbeit)/app.js"
+			],
+			[
+				"lorem",
+				"Lorem ipsum dolor sit amet, consectetur adipisicin"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 158.0,
+	"status_bar_visible": true
+}
