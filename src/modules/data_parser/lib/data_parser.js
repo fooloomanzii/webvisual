@@ -12,7 +12,7 @@ var syntax = {
 };
 
 var defaultOptions = {
-	format: ["date", "time"], 
+	format: ["date", "time"],
 	date: ["day", "month", "year"],
 	dateSeperator: ".",
 	time: ["hour", "minute", "second"],
@@ -42,7 +42,7 @@ function parse(string, seperator, options, callback) {
 	// Just to be sure
 	try {
 		// Initialize the options
-		if(options != null && typeof options === 'object') {
+		if(options !== null && typeof options === 'object') {
 			// General format
 			if(typeof options.format !== 'undefined') {
 				options.format = ( typechecker.isArray(options.format) ? options.format : options.format.split("seperator") );
@@ -107,7 +107,7 @@ function parse(string, seperator, options, callback) {
 		}
 
 		// Push the values into the data.values array - as numbers.
-		for(var i=0; i<values.length; ++i) data.values.push(Number(values[i]));
+		for(i=0; i<values.length; ++i) data.values.push(Number(values[i]));
 
 		return callback(null, data);
 	} catch(err) {

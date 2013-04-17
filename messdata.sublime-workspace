@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"git",
+				"gitignore"
+			],
+			[
 				"set",
 				"setInterval();"
 			],
@@ -60,10 +64,7 @@
 	"buffers":
 	[
 		{
-			"contents": "/**\n* Module dependencies\n*/\nvar copywatch = require('module/copywatch'),\n	parser = require('module/data_parser'),\n	express = require('express');\n\nvar defaultPort = 3000;\n\n/**\n* Configure the app\n*/\n\nvar app = express();\n\napp.configure(function()\n{\n	app.set('view engine', 'jade');\n	app.set('views', __dirname + '/views');\n\n	//	Middleware compatibility\n	app.use(express.bodyPaser());\n	//	Makes it possible to use app.get and app.delete, rather than use app.post all the time\n	app.use(express.methodOverride());\n	/*  Routes the requests, it would be implicit initialated at the first use of app.get\n	this ensures that routing is done before the static folder is used */\n	app.use(app.router);\n	app.use(express.static(__dirname + '/public'));\n});\n\n/**\n* Starting the app in development mode\n*/\n\napp.configure('development', function()\n{\n	app.use(express.logger('dev'));\n	app.use(express.errorHandler());\n});\n\n/**\n* Routing\n*/\n\nfunction route(route_path, json_obj) \n{\n	json_obj.currentURL = \"/\" + route_path;\n\n	return function(req, res) \n	{\n		res.render(route_path, json_obj);\n	};\n}\n\napp.get('/', route('index', { title: 'Home' }));\napp.get('/home', route('index', { title: 'Home' }));\napp.get('/index', route('index', { title: 'Home' }));\n\n/**\n* Get it running!\n*/\n\nvar server = app.listen(process.env.PORT || defaultPort);\n\nconsole.log(\"SemShow Server is running under %d Port in %s mode\",\n	(process.env.PORT || defaultPort), app.settings.env);",
 			"file": "src/app.js",
-			"file_size": 1507,
-			"file_write_time": 130105070201376100,
 			"settings":
 			{
 				"buffer_size": 1442,
@@ -71,11 +72,11 @@
 			}
 		},
 		{
-			"file": "/C/Users/s.wolf/Documents/WindowsPowerShell/Microsoft.PowerShell_profile.ps1",
+			"file": "/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/SublimeLinter/README.md",
 			"settings":
 			{
-				"buffer_size": 3202,
-				"line_ending": "Windows"
+				"buffer_size": 23757,
+				"line_ending": "Unix"
 			}
 		},
 		{
@@ -98,24 +99,28 @@
 	"build_system": "Packages/JS Validation using Esprima/JsValidate.sublime-build",
 	"command_palette":
 	{
-		"height": 81.0,
+		"height": 392.0,
 		"selected_items":
 		[
-			[
-				"Remove",
-				"Package Control: Remove Package"
-			],
 			[
 				"Install",
 				"Package Control: Install Package"
 			],
 			[
-				"Powersh",
-				"Set Syntax: Powershell v2"
+				"Key",
+				"Preferences: Key Bindings - Default"
 			],
 			[
 				"git add",
 				"Git: Add..."
+			],
+			[
+				"Remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"Powersh",
+				"Set Syntax: Powershell v2"
 			],
 			[
 				"install",
@@ -306,7 +311,7 @@
 				"Snippet: Lorem ipsum"
 			]
 		],
-		"width": 464.0
+		"width": 512.0
 	},
 	"console":
 	{
@@ -323,6 +328,17 @@
 	},
 	"file_history":
 	[
+		"/C/Users/s.wolf/Documents/WindowsPowerShell/Microsoft.PowerShell_profile.ps1",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Settings/Session.sublime_session",
+		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/.gitignore",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/User/Default (Windows).sublime-keymap",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/Default/Default (Windows).sublime-keymap",
+		"/C/Users/s.wolf/script",
+		"/C/Users/s.wolf/Welcome s.wolf! Enjoy your day with some fortune",
+		"/C/Users/s.wolf/Error in operator",
+		"/C/Users/s.wolf/True",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/PowershellUtils/setup.py",
+		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/PowershellUtils/setup.pyc",
 		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/Git/Git.sublime-settings",
 		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/messdata.sublime-project",
 		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/User/Preferences.sublime-settings",
@@ -337,8 +353,6 @@
 		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/app.js",
 		"/C/node/src/objecttest.js",
 		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/test/test_data.txt",
-		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/User/Default (Windows).sublime-keymap",
-		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/Default/Default (Windows).sublime-keymap",
 		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/test/copywatch_test.js",
 		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/node_modules/watchr/out/lib/watchr.js",
 		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/modules/copywatch/package.json",
@@ -346,7 +360,6 @@
 		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/test.js",
 		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/test.txt",
 		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/modules/watchmen/lib/copywatch.js",
-		"/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Settings/Session.sublime_session",
 		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/modules/watchmen/index.js",
 		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/src/modules/watchmen/package.json",
 		"/C/Users/s.wolf/Projekte/Messdatenvisualisierung/test/file_reading4.js",
@@ -418,6 +431,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"f12",
 			"date",
 			"time",
 			"format",
@@ -575,8 +589,8 @@
 						"selection":
 						[
 							[
-								146,
-								146
+								474,
+								474
 							]
 						],
 						"settings":
@@ -635,22 +649,28 @@
 				},
 				{
 					"buffer": 1,
-					"file": "/C/Users/s.wolf/Documents/WindowsPowerShell/Microsoft.PowerShell_profile.ps1",
+					"file": "/C/Users/s.wolf/AppData/Roaming/Sublime Text 2/Packages/SublimeLinter/README.md",
 					"settings":
 					{
-						"buffer_size": 3202,
+						"buffer_size": 23757,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								437,
-								437
+								0,
+								0
 							]
 						],
 						"settings":
 						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
 							"bh_regions":
 							[
 								"bh_regex",
@@ -694,7 +714,91 @@
 								"bh_single_quote_open",
 								"bh_single_quote_close"
 							],
-							"syntax": "Packages/PowerShell/Support/PowershellSyntax.tmLanguage"
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"star-property-hack": "warning",
+								"text-indent": "warning",
+								"underscore-property-hack": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"gjslint_ignore":
+							[
+								110
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 2,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_mark_style": "outline",
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"C++": "c",
+								"Python Django": "python",
+								"Ruby on Rails": "ruby"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/Markdown/Markdown.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -714,8 +818,8 @@
 						"selection":
 						[
 							[
-								0,
-								0
+								262,
+								262
 							]
 						],
 						"settings":

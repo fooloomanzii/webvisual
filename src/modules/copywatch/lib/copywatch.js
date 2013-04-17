@@ -58,7 +58,7 @@ function watch(mode, files, options, next) {
 	}
 
 	// Are there any options
-	
+
 
 	if(!typechecker.isArray(files)) {
 		files = new Array(files);
@@ -70,40 +70,45 @@ function watch(mode, files, options, next) {
 		copy(files[i]);
 	}
 
+	// We don't want to define functions inside a loop
+	listenersObj = {
+		log: function(logLevel) {
+			if(logLevel == 'dev') {
+				console.log("Log:", arguments);
+			}
+		},
+		error: errorHandler,
+		change: function(event, path, currStat, prevStat) {
+			// Update event - copy the changes
+			if(event == 'update') {
+				if(mode == 'end') {
+					copy(path, prevStat.size);
+				} else if(mode == 'begin') {
+					copy(path, 0, (currStat.size - prevStat.size));
+				} else if(mode == 'all') {
+					copy(path);
+				}
+			}
+			//  Delete event - delete the copied version
+			else if(event == 'delete') {
+				fs.unlink(path+extension, errorHandler);
+			}
+		}
+	};
+
+	nextObj = function(err, watcherInstance) {
+		++watcherCount;
+
+		// Execute the next function
+		if(next) return next(err);
+	};
+
 	// Iterate through the files and create a watcher for each
-	for(var i=0; i<files.length; ++i) {
+	for(i=0; i<files.length; ++i) {
 		watchers[files[i]] = watchr.watch({
 			path: files[i],
-			listeners: {
-				log: function(logLevel) {
-					if(logLevel == 'dev') {
-						console.log("Log:", arguments);
-					}
-				},
-				error: errorHandler,
-				change: function(event, path, currStat, prevStat) {
-					// Update event - copy the changes
-					if(event == 'update') {
-						if(mode == 'end') {
-							copy(path, prevStat.size);
-						} else if(mode == 'begin') {
-							copy(path, 0, (currStat.size - prevStat.size));
-						} else if(mode == 'all') {
-							copy(path);
-						}
-					}
-					//  Delete event - delete the copied version
-					else if(event == 'delete') {
-						fs.unlink(path+extension, errorHandler);
-					}
-				}
-			},
-			next: function(err, watcherInstance) {
-				++watcherCount;
-
-				// Execute the next function
-				if(next) return next(err);
-			}
+			listeners: listenersObj,
+			next: nextObj
 		});
 	}
 }
@@ -113,7 +118,7 @@ function copy(path, start, end) {
 	// Copys the file
 	if(start && end) {
 		fs.createReadStream(path, {start: start, end: end}).pipe(fs.createWriteStream(path+extension, {start: start, flags: 'a'}));
-	} else if(start) {		
+	} else if(start) {
 		fs.createReadStream(path, {start: start}).pipe(fs.createWriteStream(path+extension, {start: start, flags: 'a'}));
 	} else {
 		fs.createReadStream(path).pipe(fs.createWriteStream(path+extension));
@@ -124,10 +129,10 @@ function copy(path, start, end) {
 		path - path to the file
 		remove - bool value: delete the copy version, or leave it? */
 function unwatch(path, remove, callback) {
-	if(watchers[path] != null) {
-		watchers[path].close;
+	if(watchers[path] !== null) {
+		watchers[path].close();
 		watcherCount--;
-		
+
 		delete watchers[path];
 
 		if(remove) return fs.unlink(path+extension, (callback ? callback : errorHandler));
@@ -139,24 +144,27 @@ function unwatch(path, remove, callback) {
 		remove - bool value: delete the copy versions, or leave them?
 		callback - callback function, gets an array of potential errors */
 function clear(remove, callback) {
-	var errors = new Array();
+	var errors = [];
+
+	// We don't want to define functions in loops
+	handler = function (err) {
+		if(err) errors.push(err);
+
+		/*	When all watchers are destroyed, call the callback.
+			If there is no callback, call the default handler.
+			If there are no errors and no callback, do nothing. */
+			if(watcherCount === 0) return (callback ? callback : errorHandler)(errors.length>0 ? errors : null);
+	};
 
 	for(var path in watchers) {
-		unwatch(path, remove, function(err) {
-			if(err) errors.push(err);
-
-			/*	When all watchers are destroyed, call the callback.
-				If there is no callback, call the default handler.
-				If there are no errors and no callback, do nothing. */
-			if(watcherCount == 0) return (callback ? callback : errorHandler)(errors.length>0 ? errors : null);
-		});
+		unwatch(path, remove, handler);
 	}
 }
 
 /*	Set the extension for the copied files */
 function setExtension(newExtension) {
 	// Rename the old files
-	for(path in watchers) {
+	for(var path in watchers) {
 		fs.renameSync(path+extension, path+newExtension);
 	}
 
@@ -169,7 +177,7 @@ function getExtension() {
 
 function errorHandler(err) {
 	if (err) {
-		if(typechecker.isArray(err) && err.length == 0) {
+		if(typechecker.isArray(err) && err.length === 0) {
 			return;
 		}
 		console.error("An error occured:", err);

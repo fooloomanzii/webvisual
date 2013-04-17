@@ -42,11 +42,11 @@ app.configure('development', function()
 * Routing
 */
 
-function route(route_path, json_obj) 
+function route(route_path, json_obj)
 {
 	json_obj.currentURL = "/" + route_path;
 
-	return function(req, res) 
+	return function(req, res)
 	{
 		res.render(route_path, json_obj);
 	};
