@@ -1,8 +1,8 @@
 /**
 * Module dependencies
 */
-var copywatch = require('module/copywatch'),
-	parser = require('module/data_parser'),
+var copywatch = require('./modules/copywatch'),
+	parser = require('modules/data_parser'),
 	express = require('express');
 
 var defaultPort = 3000;

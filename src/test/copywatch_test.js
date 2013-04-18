@@ -1,24 +1,25 @@
 var copywatch = require('../modules/copywatch'),
 	fs = require('fs');
 
-var file = 'test.txt';
+var file = 'parser_test.txt';
 
-copywatch.watch('begin', file, function() {
-	setInterval(function() {
-		fs.writeFileSync(file, "\r\ntest", {flag: 'a'});
-	}, 1000);
+copywatch.watch('end', file, { parse: true }, function() {
+	/*setInterval(function() {
+		fs.writeFileSync(file, "\r\n13.09.2012,19:37:00,0.000,273.526,-0.010,0.034,22.269", {flag: 'a'});
+	}, 1000);*/
 
-	setTimeout(function() {
+	/*setTimeout(function() {
 		copywatch.setExtension("_copywatch");
-	}, 5000);
+	}, 5000);*/
 
 	setTimeout(function() {
-		copywatch.clear(true, function() {
+		fs.writeFileSync(file, "\r\n13.09.2012,19:37:00,0.000,273.526,-0.010,0.034,22.269", {flag: 'a'});
+	}, 100);
+
+	setTimeout(function() {
+		copywatch.clear(false, function() {
 			console.log("Cleared. Exit now.");
 			process.exit(0);
-		})
-	}, 10000);
+		});
+	}, 1000);
 });
-
-
-

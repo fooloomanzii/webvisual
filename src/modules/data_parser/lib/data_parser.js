@@ -35,12 +35,35 @@ var defaultOptions = {
 					It will be assumed that there is a ":" between each array-element.
 		callback - a callback function, gets a potential error and the generated object (err, data) */
 function parse(string, seperator, options, callback) {
+	'use strict';
+
 	if(typeof options === 'function' && typeof callback === 'undefined') {
 		callback = options;
 	}
 
 	// Just to be sure
 	try {
+		// Define Variables
+		var seperatorFinder, seperatorMatch,
+			tokens, token,
+			fullFormat, format,
+			data, extractedDate,
+			match, shift,
+			values, check_val,
+			i, k;
+
+		// Seperator is unknown? Looks at the end of the string for the last value and takes the seperator which is used before
+		if(seperator === 'unknown') {
+			seperatorFinder = new RegExp("(.)(" + syntax.values.source + ")$");
+
+			seperatorMatch  = string.match(seperatorFinder);
+			if(seperatorMatch !== null && seperatorMatch.length > 1) {
+				seperator = seperatorMatch[1];
+			} else {
+				throw "Invalid String. No Seperator found.";
+			}
+		}
+
 		// Initialize the options
 		if(options !== null && typeof options === 'object') {
 			// General format
@@ -68,24 +91,22 @@ function parse(string, seperator, options, callback) {
 		}
 
 		// Split the string into the tokens
-		var tokens = string.split(seperator);
-		var token;
+		tokens = string.split(seperator);
 
 		// This is just for easier handling
-		var fullFormat = options.format;
-		var format;
+		fullFormat = options.format;
 
 		// The returned data
-		var data = { date: undefined, values: []};
-		var extractedDate = {};
+		data = { date: undefined, values: []};
+		extractedDate = {};
 
-		var match, shift;
-		for(var i=0; i<fullFormat.length; ++i) { // Exclude values
+		// Start the parsing
+		for(i=0; i<fullFormat.length; ++i) { // Exclude values
 			token = tokens[i];
 			format = options[fullFormat[i]]; // Get the correct format (time or date)
 
 			shift = 0;
-			for(var k=0; k<format.length; ++k) {
+			for(k=0; k<format.length; ++k) {
 				match = token.substring(shift).match(syntax[format[k]])[0];
 				extractedDate[format[k]] = match;
 
@@ -94,24 +115,30 @@ function parse(string, seperator, options, callback) {
 		}
 
 		// Extract the values from the tokens
-		var values = tokens.slice(fullFormat.length);
+		values = tokens.slice(fullFormat.length);
 
 		// Create the date
-		if(fullFormat.indexOf("date") != -1 && fullFormat.indexOf("time") != -1) {
+		if(fullFormat.indexOf("date") !== -1 && fullFormat.indexOf("time") !== -1) {
 			// Syntax is Date(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND)
 			data.date = new Date(extractedDate.year, extractedDate.month, extractedDate.day, extractedDate.hour, extractedDate.minute, extractedDate.second);
-		} else if(fullFormat.indexOf("date") != -1) {
+		} else if(fullFormat.indexOf("date") !== -1) {
 			data.date = new Date(extractedDate.year, extractedDate.month, extractedDate.day);
 		} else {
 			data.date = "No date";
 		}
 
 		// Push the values into the data.values array - as numbers.
-		for(i=0; i<values.length; ++i) data.values.push(Number(values[i]));
+		for(i=0; i<values.length; ++i) {
+			check_val = Number(values[i]);
 
-		return callback(null, data);
+			if(!isNaN(check_val)) {
+				data.values.push(check_val);
+			}
+		}
+
+		return callback(undefined, data);
 	} catch(err) {
-		return callback(err, null);
+		return callback(err, undefined);
 	}
 }
 

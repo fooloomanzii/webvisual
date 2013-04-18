@@ -36,106 +36,126 @@ The following events are available to your via the listeners:
 The function returns a watcher instance or a array of watcher if multiple paths were given
 */
 
+//JSLint Options
+/* jshint imment:false */
+// Make the library strict
+// Strict mode, pretty similar to C's -Wall compile option
+(function() {
+'use strict';
+
 // Require
-var	fs = require('fs'),
+var	parser = require('data_parser'),
+	fs = require('fs'),
 	typechecker = require('typechecker'),
-	watchr = require('watchr');
+	watchr = require('watchr'),
 
 // Global variables
-var watchers = {};
-var watcherCount = 0;
-var extension = '_node';
+	watchers = {},
+	watcherCount = 0,
+	extension = '_node',
+	linebreak = ((process.platform === 'win32' || process.platform === 'win64') ? '\r\n' : '\n');
 
 // Functions
-/*	The watch function
-	mode influences the copy mechanism which is used, when the file was updated:
-		'end' - copy the last bytes of the file (the difference between prevStat.size and currStat.size)
-		'begin' - copy the first few bytes of the file (the difference between prevStat.size and currStat.size)
-		'all' - copy the whole file */
-function watch(mode, files, options, next) {
-	if(!(mode == 'end' || mode == 'begin' || mode == 'all')) {
-		throw "Not a valid mode.";
-	}
+// Header
+// function watch(mode, files, options, next) {}
+// function copy(path, start, end) {}
+// function parsecopy(path, start, end, options) {}
+// function unwatch(path, remove, callback) {}
+// function clear(remove, callback) {}
+// function setExtension(extension) {}
+// function getExtension() {}
+// function errorHandler(err) {}
 
-	// Are there any options
-
-
-	if(!typechecker.isArray(files)) {
-		files = new Array(files);
-	}
-	// this.files = files;
-
-	// Make a first copy
-	for(var i=0; i<files.length; ++i) {
-		copy(files[i]);
-	}
-
-	// We don't want to define functions inside a loop
-	listenersObj = {
-		log: function(logLevel) {
-			if(logLevel == 'dev') {
-				console.log("Log:", arguments);
-			}
-		},
-		error: errorHandler,
-		change: function(event, path, currStat, prevStat) {
-			// Update event - copy the changes
-			if(event == 'update') {
-				if(mode == 'end') {
-					copy(path, prevStat.size);
-				} else if(mode == 'begin') {
-					copy(path, 0, (currStat.size - prevStat.size));
-				} else if(mode == 'all') {
-					copy(path);
-				}
-			}
-			//  Delete event - delete the copied version
-			else if(event == 'delete') {
-				fs.unlink(path+extension, errorHandler);
-			}
+/*
+	Default errorhandler
+*/
+function errorHandler(err) {
+	if (err) {
+		if (typechecker.isArray(err) && err.length === 0) {
+			return;
 		}
-	};
-
-	nextObj = function(err, watcherInstance) {
-		++watcherCount;
-
-		// Execute the next function
-		if(next) return next(err);
-	};
-
-	// Iterate through the files and create a watcher for each
-	for(i=0; i<files.length; ++i) {
-		watchers[files[i]] = watchr.watch({
-			path: files[i],
-			listeners: listenersObj,
-			next: nextObj
-		});
+		console.error("An error occured:", err);
 	}
 }
 
-/* Copy a file. start and end are optional */
+/*
+	Copy 
+	Copys a file. start and end are optional
+*/
 function copy(path, start, end) {
+	var readOptions = {}, writeOptions = {};
 	// Copys the file
-	if(start && end) {
-		fs.createReadStream(path, {start: start, end: end}).pipe(fs.createWriteStream(path+extension, {start: start, flags: 'a'}));
-	} else if(start) {
-		fs.createReadStream(path, {start: start}).pipe(fs.createWriteStream(path+extension, {start: start, flags: 'a'}));
-	} else {
-		fs.createReadStream(path).pipe(fs.createWriteStream(path+extension));
+	if (typeof start !== 'undefined' && typeof end !== 'undefined') {
+		readOptions = {start: start, end: end};
+		writeOptions = {start: start, flags: 'a'};
+	} else if (typeof start !== 'undefined') {
+		readOptions = {start: start};
+		writeOptions = {start: start, flags: 'a'};
 	}
+
+	fs.createReadStream(path, readOptions).pipe(fs.createWriteStream(path+extension, writeOptions));
+}
+
+/* 
+	Parseandcopy
+	Parses and copys a file with the data_parser-module.
+*/
+function parsecopy(path, start, end, parse_options) {
+	if (typeof start === 'object' && typeof parse_options === 'undefined') parse_options = start;
+	else if (typeof end === 'object' && typeof parse_options === 'undefined') parse_options = end;
+
+	// Define Variables
+	var readOptions = {}, writeOptions = {}, read, write, i;
+
+	// Copys the file
+	if (typeof start !== 'undefined' && typeof end !== 'undefined') {
+		readOptions = {start: start, end: end};
+		writeOptions = {start: start, flags: 'a'};
+	} else if (typeof start !== 'undefined') {
+		readOptions = {start: start};
+		writeOptions = {start: start, flags: 'a'};
+	}
+
+	readOptions.encoding = 'utf8';
+	writeOptions.encoding = 'utf8';
+
+	read = fs.createReadStream(path, readOptions);
+	write = fs.createWriteStream(path+extension, writeOptions);
+
+	read.on('data', function(data) {
+		var tokens = data.split(linebreak);
+		// if(tokens.length == 1) tokens = tokens[0].split('\n');
+
+		// We don't want to create functions in loops
+		function writeData(err, data) {
+			if(err)	{
+				console.log(err);
+			} else {
+				write.write(JSON.stringify(data) + "\n");
+			}
+		}
+
+		// Parse every line on their own
+		for(i=0; i<tokens.length; ++i) {
+			// console.log(i+": (Length: "+tokens[i].length+") "+tokens[i]);
+			if(tokens[i].length > 1) {
+				parser.parse(tokens[i], 'unknown', parse_options, writeData);
+			}
+		}
+	});
 }
 
 /* Unwatch a file
 		path - path to the file
 		remove - bool value: delete the copy version, or leave it? */
 function unwatch(path, remove, callback) {
-	if(watchers[path] !== null) {
+	if (watchers[path] !== null) {
 		watchers[path].close();
 		watcherCount--;
 
 		delete watchers[path];
 
-		if(remove) return fs.unlink(path+extension, (callback ? callback : errorHandler));
+		if (remove) return fs.unlink(path+extension, (callback || errorHandler));
 		else return callback();
 	}
 }
@@ -144,28 +164,34 @@ function unwatch(path, remove, callback) {
 		remove - bool value: delete the copy versions, or leave them?
 		callback - callback function, gets an array of potential errors */
 function clear(remove, callback) {
-	var errors = [];
+	var errors = [], path, handler;
 
 	// We don't want to define functions in loops
 	handler = function (err) {
-		if(err) errors.push(err);
+		if (err) errors.push(err);
 
 		/*	When all watchers are destroyed, call the callback.
 			If there is no callback, call the default handler.
 			If there are no errors and no callback, do nothing. */
-			if(watcherCount === 0) return (callback ? callback : errorHandler)(errors.length>0 ? errors : null);
+			if (watcherCount === 0) return (callback || errorHandler)(errors.length>0 ? errors : null);
 	};
 
-	for(var path in watchers) {
-		unwatch(path, remove, handler);
+	for (path in watchers) {
+		if(watchers.hasOwnProperty(path)) {
+			unwatch(path, remove, handler);
+		}
 	}
 }
 
 /*	Set the extension for the copied files */
 function setExtension(newExtension) {
+	var path;
+
 	// Rename the old files
-	for(var path in watchers) {
-		fs.renameSync(path+extension, path+newExtension);
+	for (path in watchers) {
+		if(watchers.hasOwnProperty(path)) {
+			fs.renameSync(path+extension, path+newExtension);
+		}
 	}
 
 	extension = newExtension;
@@ -175,12 +201,79 @@ function getExtension() {
 	return extension;
 }
 
-function errorHandler(err) {
-	if (err) {
-		if(typechecker.isArray(err) && err.length === 0) {
-			return;
+/*	
+	Watch
+	mode influences the copy mechanism which is used, when the file was updated:
+		'end' - copy the last bytes of the file (the difference between prevStat.size and currStat.size)
+		'begin' - copy the first few bytes of the file (the difference between prevStat.size and currStat.size)
+		'all' - copy the whole file
+*/
+function watch(mode, files, options, next) {
+	// Define variables
+	var i, copyfunction, listenersObj, nextObj;
+
+	if (!(mode === 'end' || mode === 'begin' || mode === 'all')) {
+		throw "Not a valid mode.";
+	}
+
+	copyfunction = copy;
+	// Are there any options
+	if (typeof options === 'function' && typeof next === 'undefined') {
+		next = options;
+	} else if (options !== null && typeof options === 'object' && options.parse === true) {
+		copyfunction = parsecopy;
+	}
+
+	if (!typechecker.isArray(files)) {
+		files = [files];
+	}
+	// this.files = files;
+
+	// Make a first copy
+	for (i=0; i<files.length; ++i) {
+		copyfunction(files[i]);
+	}
+
+	// We don't want to define functions inside a loop
+	listenersObj = {
+		log: function (logLevel) {
+			if (logLevel === 'dev') {
+				console.log("Log:", arguments);
+			}
+		},
+		error: errorHandler,
+		change: function (event, path, currStat, prevStat) {
+			// Update event - copy the changes
+			if (event === 'update') {
+				if (mode === 'end') {
+					copyfunction(path, prevStat.size, undefined, options.parse_options);
+				} else if (mode === 'begin') {
+					copyfunction(path, 0, (currStat.size - prevStat.size), options.parse_options);
+				} else if (mode === 'all') {
+					copyfunction(path, undefined, undefined, options.parse_options);
+				}
+			}
+			//  Delete event - delete the copied version
+			else if (event === 'delete') {
+				fs.unlink(path+extension, errorHandler);
+			}
 		}
-		console.error("An error occured:", err);
+	};
+
+	nextObj = function (err, watcherInstance) {
+		++watcherCount;
+
+		// Execute the next function
+		if (next) return next(err);
+	};
+
+	// Iterate through the files and create a watcher for each
+	for (i=0; i<files.length; ++i) {
+		watchers[files[i]] = watchr.watch({
+			path: files[i],
+			listeners: listenersObj,
+			next: nextObj
+		});
 	}
 }
 
@@ -190,3 +283,5 @@ module.exports.unwatch = unwatch;
 module.exports.clear = clear;
 module.exports.setExtension = setExtension;
 module.exports.getExtension = getExtension;
+
+})();
