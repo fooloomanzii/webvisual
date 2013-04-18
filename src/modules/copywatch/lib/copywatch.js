@@ -124,7 +124,6 @@ function parsecopy(path, start, end, parse_options) {
 
 	read.on('data', function(data) {
 		var tokens = data.split(linebreak);
-		// if(tokens.length == 1) tokens = tokens[0].split('\n');
 
 		// We don't want to create functions in loops
 		function writeData(err, data) {
