@@ -36,8 +36,6 @@ The following events are available to your via the listeners:
 The function returns a watcher instance or a array of watcher if multiple paths were given
 */
 
-//JSLint Options
-/* jshint imment:false */
 // Make the library strict
 // Strict mode, pretty similar to C's -Wall compile option
 (function() {
@@ -56,15 +54,6 @@ var	parser = require('data_parser'),
 	linebreak = ((process.platform === 'win32' || process.platform === 'win64') ? '\r\n' : '\n');
 
 // Functions
-// Header
-// function watch(mode, files, options, next) {}
-// function copy(path, start, end) {}
-// function parsecopy(path, start, end, options) {}
-// function unwatch(path, remove, callback) {}
-// function clear(remove, callback) {}
-// function setExtension(extension) {}
-// function getExtension() {}
-// function errorHandler(err) {}
 
 /*
 	Default errorhandler
@@ -136,7 +125,6 @@ function parsecopy(path, start, end, parse_options) {
 
 		// Parse every line on their own
 		for(i=0; i<tokens.length; ++i) {
-			// console.log(i+": (Length: "+tokens[i].length+") "+tokens[i]);
 			if(tokens[i].length > 1) {
 				parser.parse(tokens[i], 'unknown', parse_options, writeData);
 			}
@@ -172,7 +160,9 @@ function clear(remove, callback) {
 		/*	When all watchers are destroyed, call the callback.
 			If there is no callback, call the default handler.
 			If there are no errors and no callback, do nothing. */
-			if (watcherCount === 0) return (callback || errorHandler)(errors.length>0 ? errors : null);
+		if (watcherCount === 0) {
+			return (callback || errorHandler)(errors.length>0 ? errors : null);
+		}
 	};
 
 	for (path in watchers) {
@@ -220,13 +210,13 @@ function watch(mode, files, options, next) {
 	if (typeof options === 'function' && typeof next === 'undefined') {
 		next = options;
 	} else if (options !== null && typeof options === 'object' && options.parse === true) {
+		// Parse option
 		copyfunction = parsecopy;
 	}
 
 	if (!typechecker.isArray(files)) {
 		files = [files];
 	}
-	// this.files = files;
 
 	// Make a first copy
 	for (i=0; i<files.length; ++i) {
@@ -283,4 +273,5 @@ module.exports.clear = clear;
 module.exports.setExtension = setExtension;
 module.exports.getExtension = getExtension;
 
+// 'use static'-end
 })();
