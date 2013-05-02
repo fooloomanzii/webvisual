@@ -94,7 +94,7 @@ function parsecopy(path, start, end, parse_options) {
 	else if (typeof end === 'object' && typeof parse_options === 'undefined') parse_options = end;
 
 	// Define Variables
-	var readOptions = {}, writeOptions = {}, read, write, i;
+	var parsedData = [], readOptions = {}, writeOptions = {}, read, write;
 
 	// Copys the file
 	if (typeof start !== 'undefined' && typeof end !== 'undefined') {
@@ -109,26 +109,63 @@ function parsecopy(path, start, end, parse_options) {
 	writeOptions.encoding = 'utf8';
 
 	read = fs.createReadStream(path, readOptions);
-	write = fs.createWriteStream(path+extension, writeOptions);
 
-	read.on('data', function(data) {
+	read.on('error', function(err) {
+		// TODO: Implement errorhandling
+	});
+
+
+	// We don't want to create functions in loops
+	function pushData(err, data) {
+		if(err)	{
+			// TODO: Errorhandling
+			console.log(err);
+		} else {
+			parsedData.push(data);
+		}
+	}
+
+	var tmpBuffer = "", firstRead = true;
+	read.on('readable', function() {
+		var data = read.read();
+
+		// Split the data
 		var tokens = data.split(linebreak);
 
-		// We don't want to create functions in loops
-		function writeData(err, data) {
-			if(err)	{
-				console.log(err);
-			} else {
-				write.write(JSON.stringify(data) + "\n");
-			}
+		// It is possible, that the last "line" of the data isn't complete. So we have to store it and wait for the next readable event
+		if(firstRead) {
+			tmpBuffer = tokens.pop();
+			firstRead = false;
+		} else {
+			// Completes the first tokens element with the stored data from last time ...
+			tokens[0] = tmpBuffer + tokens[0];
+			// ... and saves the last element for the next time
+			tmpBuffer = tokens.pop();
 		}
 
 		// Parse every line on their own
-		for(i=0; i<tokens.length; ++i) {
+		for(var i=0; i<tokens.length; ++i) {
 			if(tokens[i].length > 1) {
-				parser.parse(tokens[i], 'unknown', parse_options, writeData);
+				parser.parse(tokens[i], 'unknown', parse_options, pushData);
 			}
 		}
+	});
+
+	read.on('end', function() {
+		// We still need to add the last stored line in tmpBuffer
+		parser.parse(tmpBuffer, 'unknown', parse_options, pushData);
+
+		// Init the write stream
+		write = fs.createWriteStream(path+extension, writeOptions);
+
+		var writeString = "";
+		// To reduce the write operations, we create a big string with all the data
+		for(var i=0; i<parsedData.length; ++i) {
+			writeString += JSON.stringify(parsedData[i]) + "\n";
+		}
+
+		// Write the data and close the stream
+		write.end(writeString);
 	});
 }
 
