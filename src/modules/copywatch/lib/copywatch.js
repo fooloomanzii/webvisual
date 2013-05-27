@@ -68,7 +68,7 @@ function errorHandler(err) {
 }
 
 /*
-	Copy 
+	Copy
 	Copys a file. start and end are optional
 */
 function copy(path, start, end) {
@@ -85,7 +85,7 @@ function copy(path, start, end) {
 	fs.createReadStream(path, readOptions).pipe(fs.createWriteStream(path+extension, writeOptions));
 }
 
-/* 
+/*
 	Parseandcopy
 	Parses and copys a file with the data_parser-module.
 */
@@ -227,7 +227,7 @@ function getExtension() {
 	return extension;
 }
 
-/*	
+/*
 	Watch
 	mode influences the copy mechanism which is used, when the file was updated:
 		'end' - copy the last bytes of the file (the difference between prevStat.size and currStat.size)

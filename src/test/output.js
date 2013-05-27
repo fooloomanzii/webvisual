@@ -1,5 +1,7 @@
-var i = 10;
+(function(){
+	var i = 10;
 
-while(--i) {
-	process.stdout.write("Test");
-}
+	while(--i) {
+		process.stdout.write("Test");
+	}
+})();

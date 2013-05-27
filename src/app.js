@@ -19,7 +19,7 @@ app.configure(function()
 	app.set('views', __dirname + '/views');
 
 	//	Middleware compatibility
-	// app.use(express.bodyPaser());
+	app.use(express.bodyParser());
 	//	Makes it possible to use app.get and app.delete, rather than use app.post all the time
 	app.use(express.methodOverride());
 	/*  Routes the requests, it would be implicit initialated at the first use of app.get

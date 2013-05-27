@@ -1,5 +1,7 @@
-var num = Number('Bla');
+(function(){
+	var num = Number('Bla');
 
-console.log(num);
-console.log(typeof num);
-console.log(isNaN(num));
+	console.log(num);
+	console.log(typeof num);
+	console.log(isNaN(num));
+})();
