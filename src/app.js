@@ -55,6 +55,7 @@ function route(route_path, json_obj)
 app.get('/', route('index', { title: 'Home' }));
 app.get('/home', route('index', { title: 'Home' }));
 app.get('/index', route('index', { title: 'Home' }));
+app.get('/data', route('data', {title: 'Data'}));
 
 /**
 * Get it running!

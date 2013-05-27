@@ -18,22 +18,25 @@ doctype 5
 
 head
 	meta(charset='utf-8')
-	// Set the viewport width to device width for mobile 
+	// Set the viewport width to device width for mobile
 	meta(name='viewport', content='width=device-width')
 	title #{title}
-	// Included CSS Files (Uncompressed) 
-	link(rel='stylesheet', href='stylesheets/foundation.css')
+	// Included CSS Files (Uncompressed)
+	//- link(rel='stylesheet', href='css/foundation.css')
 
-	// Included CSS Files (Compressed) 
-	link(rel='stylesheet', href='stylesheets/foundation.min.css')
-	link(rel='stylesheet', href='stylesheets/app.css')
-	link(rel='stylesheet', href='stylesheets/normalize.css')
-	link(rel='stylesheet', href='stylesheets/global.css')
+	// Included CSS Files (Compressed)
+	link(rel='stylesheet', href='css/foundation.min.css')
+	link(rel='stylesheet', href='css/app.css')
+	link(rel='stylesheet', href='css/normalize.css')
+	link(rel='stylesheet', href='css/global.css')
+
+	// Own CSS stuff
+	block style
 
 	// Included JS Files
-	script(src='javascripts/vendor/custom.modernizr.js')
+	script(src='js/vendor/custom.modernizr.js')
 
-	// IE Fix for HTML5 Tags 
+	// IE Fix for HTML5 Tags
 	//if lt IE 9
 		script(src='http://html5shiv.googlecode.com/svn/trunk/html5.js')
 
@@ -43,32 +46,34 @@ body
 
 	// Included JS Files (Compressed)
 	script(src='http://code.jquery.com/jquery-latest.min.js')
-	//script(src='javascripts/jquery.js')
-	script(src='javascripts/foundation.min.js')
-	// Initialize JS Plugins 
-	script(src='javascripts/app.js')
+	//script(src='js/jquery.js')
+	//- script(src='js/foundation.min.js')
+	// Initialize JS Plugins
+	script(src='js/app.js')
 
 	script
 		document.write('<script src=' +
-		('__proto__' in {} ? 'javascripts/vendor/zepto' : 'javascripts/vendor/jquery') +
-		'.js><\\/script>')
-	//- script(src='javascripts/foundation/foundation.js')
-	//- script(src='javascripts/foundation/foundation.alerts.js')
-	//- script(src='javascripts/foundation/foundation.clearing.js')
-	//- script(src='javascripts/foundation/foundation.cookie.js')
-	//- script(src='javascripts/foundation/foundation.dropdown.js')
-	//- script(src='javascripts/foundation/foundation.forms.js')
-	//- script(src='javascripts/foundation/foundation.joyride.js')
-	//- script(src='javascripts/foundation/foundation.magellan.js')
-	//- script(src='javascripts/foundation/foundation.orbit.js')
-	//- script(src='javascripts/foundation/foundation.placeholder.js')
-	//- script(src='javascripts/foundation/foundation.reveal.js')
-	//- script(src='javascripts/foundation/foundation.section.js')
-	//- script(src='javascripts/foundation/foundation.tooltips.js')
-	//- script(src='javascripts/foundation/foundation.topbar.js')
+		('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
+		'.js><\/script>')
+	script(src='js/foundation/foundation.js')
+	script(src='js/foundation/foundation.alerts.js')
+	script(src='js/foundation/foundation.clearing.js')
+	script(src='js/foundation/foundation.cookie.js')
+	script(src='js/foundation/foundation.dropdown.js')
+	script(src='js/foundation/foundation.forms.js')
+	script(src='js/foundation/foundation.joyride.js')
+	script(src='js/foundation/foundation.magellan.js')
+	script(src='js/foundation/foundation.orbit.js')
+	script(src='js/foundation/foundation.placeholder.js')
+	script(src='js/foundation/foundation.reveal.js')
+	script(src='js/foundation/foundation.section.js')
+	script(src='js/foundation/foundation.tooltips.js')
+	script(src='js/foundation/foundation.topbar.js')
 	script
-		$(document).foundation('reveal', {animation: 'fadeAndPop', closeOnBackgroundClick: true});
-		$(document).foundation();
+		$(function(){
+			//- $(document).foundation('reveal', {animation: 'fadeAndPop', closeOnBackgroundClick: true});
+			$(document).foundation();
+		});
 
 
 	block script
