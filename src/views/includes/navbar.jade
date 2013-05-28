@@ -13,9 +13,9 @@ mixin dropdownTab(url, name, droplist)
 				li: a(href=val)= key
 
 mixin tab(url, name)
-	if(currentURL == url)
+	- if(locals.currentURL === url)
 		li.active: a(href=url)= name
-	else
+	- else
 		li: a(href=url)= name
 
 // Navigationbar

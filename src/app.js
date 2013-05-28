@@ -2,8 +2,9 @@
 * Module dependencies
 */
 var copywatch = require('./modules/copywatch'),
-	// parser = require('./modules/data_parser'),
-	express = require('express');
+	graph     = require('./modules/graphs'),
+	// parser    = require('./modules/data_parser'),
+	express   = require('express');
 
 var defaultPort = 3000;
 
@@ -13,11 +14,27 @@ var defaultPort = 3000;
 
 var app = express();
 
-app.configure(function()
-{
+var logMode;
+// Logging
+// Development
+app.configure('development', function() {
+	// In development mode write the development log in stdout
+	logMode = 'dev';
+});
+// Production
+app.configure('production', function() {
+	// Otherwise write it in a seperate file
+	logMode = {
+		format : 'default',
+		stream : __dirname + 'log.txt'
+	};
+});
+
+app.configure(function() {
 	app.set('view engine', 'jade');
 	app.set('views', __dirname + '/views');
-
+	// Logging middleware
+	app.use(express.logger(logMode));
 	//	Middleware compatibility
 	app.use(express.bodyParser());
 	//	Makes it possible to use app.get and app.delete, rather than use app.post all the time
@@ -26,15 +43,25 @@ app.configure(function()
 	this ensures that routing is done before the static folder is used */
 	app.use(app.router);
 	app.use(express.static(__dirname + '/public'));
+	// Custom 404 page
+	app.use(function(req, res, next) {
+		res.render('404', {
+			status : 404,
+			title  : 'Oops!'
+		});
+	});
 });
 
-/**
-* Starting the app in development mode
-*/
-
-app.configure('development', function()
-{
-	app.use(express.logger('dev'));
+// Error handler
+// Development
+app.configure('development', function() {
+	app.use(express.errorHandler({
+            dumpExceptions: true,
+            showStack: true
+        }));
+});
+// Production
+app.configure('production', function() {
 	app.use(express.errorHandler());
 });
 
@@ -42,8 +69,7 @@ app.configure('development', function()
 * Routing
 */
 
-function route(route_path, json_obj)
-{
+function route(route_path, json_obj) {
 	json_obj.currentURL = "/" + route_path;
 
 	return function(req, res)
@@ -52,10 +78,14 @@ function route(route_path, json_obj)
 	};
 }
 
-app.get('/', route('index', { title: 'Home' }));
-app.get('/home', route('index', { title: 'Home' }));
-app.get('/index', route('index', { title: 'Home' }));
+app.get(['/', '/home', '/index'], route('index', { title: 'Home' }));
 app.get('/data', route('data', {title: 'Data'}));
+
+/**
+ * "Add" the graphs routing
+ */
+
+graph.graph(app);
 
 /**
 * Get it running!
