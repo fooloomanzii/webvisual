@@ -51,7 +51,10 @@ var	parser = require('data_parser'),
 	watchers = {},
 	watcherCount = 0,
 	extension = '_node',
-	linebreak = ((process.platform === 'win32' || process.platform === 'win64') ? '\r\n' : '\n');
+	// newline = ((process.platform === 'win32' || process.platform === 'win64') ? '\r\n' : '\n');
+	newline = require('os').EOL, // OS specific newline character
+	// Save the OTHER newline ... actually some server use \n\r but this can be ignored here
+	alternativeNL = (newline === '\n' ? '\r\n' : '\n');
 
 // Functions
 
@@ -74,10 +77,10 @@ function errorHandler(err) {
 function copy(path, start, end) {
 	var readOptions = {}, writeOptions = {};
 	// Copys the file
-	if (typeof start !== 'undefined' && typeof end !== 'undefined') {
+	if (start && end) {
 		readOptions = {start: start, end: end};
 		writeOptions = {start: start, flags: 'a'};
-	} else if (typeof start !== 'undefined') {
+	} else if (start) {
 		readOptions = {start: start};
 		writeOptions = {start: start, flags: 'a'};
 	}
@@ -90,17 +93,17 @@ function copy(path, start, end) {
 	Parses and copys a file with the data_parser-module.
 */
 function parsecopy(path, start, end, parse_options) {
-	if (typeof start === 'object' && typeof parse_options === 'undefined') parse_options = start;
-	else if (typeof end === 'object' && typeof parse_options === 'undefined') parse_options = end;
+	if (typeof start === 'object' && parse_options) parse_options = start;
+	else if (typeof end === 'object' && parse_options) parse_options = end;
 
 	// Define Variables
 	var parsedData = [], readOptions = {}, writeOptions = {}, read, write;
 
 	// Copys the file
-	if (typeof start !== 'undefined' && typeof end !== 'undefined') {
+	if (start && end) {
 		readOptions = {start: start, end: end};
 		writeOptions = {start: start, flags: 'a'};
-	} else if (typeof start !== 'undefined') {
+	} else if (start) {
 		readOptions = {start: start};
 		writeOptions = {start: start, flags: 'a'};
 	}
@@ -130,7 +133,9 @@ function parsecopy(path, start, end, parse_options) {
 		var data = read.read();
 
 		// Split the data
-		var tokens = data.split(linebreak);
+		var tokens = data.split(newline);
+		// Split the string again with the alternative newline, if the OS newline didn't work
+		if(tokens.length === 1) tokens = tokens.split(alternativeNL);
 
 		// It is possible, that the last "line" of the data isn't complete. So we have to store it and wait for the next readable event
 		if(firstRead) {
@@ -161,7 +166,7 @@ function parsecopy(path, start, end, parse_options) {
 		var writeString = "";
 		// To reduce the write operations, we create a big string with all the data
 		for(var i=0; i<parsedData.length; ++i) {
-			writeString += JSON.stringify(parsedData[i]) + "\n";
+			writeString += JSON.stringify(parsedData[i]) + newline;
 		}
 
 		// Write the data and close the stream

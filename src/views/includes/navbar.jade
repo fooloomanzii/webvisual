@@ -7,7 +7,6 @@ mixin dropdownTab(url, name, droplist)
 	li.divider
 	li.has-dropdown
 		a(href=url)= name
-		//-<a href=#{url}>#{name}</a>
 		ul.dropdown
 			each val, key in droplist
 				li: a(href=val)= key
@@ -22,10 +21,9 @@ mixin tab(url, name)
 nav.top-bar
 	ul.title-area
 		li.name
-			h1: a(href='/') TITEL
+			h1: a(href='/') TITLE
 
 	section.top-bar-section
 		ul.left
 			mixin dividerTab('/index', 'Home')
-			mixin dividerTab('/data', 'Daten')
-			//- mixin dropdownTab('#', 'Test', {'A': 'a', 'B': 'b'})
+			mixin dividerTab('/data', 'Data')

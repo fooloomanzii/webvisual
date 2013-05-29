@@ -23,12 +23,12 @@ block content
 				a(href='#')#hide-header &#215;
 			hr
 	.row
+		// Navigation area. The user can choose between the different kind of graphs
+		// TODO erzeuge das Navigationsmenue aus den vorhanden Graphen und deren Obertypen
 		.large-3.columns
 			.section-container.accordion(data-section)
 				.section.active
 					p.title(data-section-title): a(href='#start')#start Start
-					//- .content(data-section-content)
-						p Test
 				.section
 					p.title(data-section-title): a(href='#') Graphentyp 1
 					.content(data-section-content)
@@ -53,9 +53,11 @@ block content
 							li: a(href='#type3-sub3').graph-link Subtyp 3.3
 
 
+		// Content area
 		.large-9.columns
 			#start-box
 				p Choose the desired graph in the menu to your left.
+			// The graphs will be here
 			#graph-box(hidden)
 
 block script
