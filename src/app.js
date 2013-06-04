@@ -4,6 +4,7 @@
 var copywatch = require('./modules/copywatch'),
 	graph     = require('./modules/graphs'),
 	// parser    = require('./modules/data_parser'),
+	routes    = require('./routes'),
 	express   = require('express');
 
 var defaultPort = 3000;
@@ -44,7 +45,7 @@ app.configure(function() {
 	app.use(app.router);
 	app.use(express.static(__dirname + '/public'));
 	// Custom 404 page
-	app.use(function(req, res, next) {
+	app.use(function(req, res) {
 		res.render('404', {
 			status : 404,
 			title  : 'Oops!'
@@ -56,30 +57,17 @@ app.configure(function() {
 // Development
 app.configure('development', function() {
 	app.use(express.errorHandler({
-            dumpExceptions: true,
-            showStack: true
-        }));
-});
-// Production
-app.configure('production', function() {
-	app.use(express.errorHandler());
+        dumpExceptions: true,
+        showStack: true
+    }));
 });
 
 /**
 * Routing
 */
 
-function route(route_path, json_obj) {
-	json_obj.currentURL = "/" + route_path;
-
-	return function(req, res)
-	{
-		res.render(route_path, json_obj);
-	};
-}
-
-app.get(['/', '/home', '/index'], route('index', { title: 'Home' }));
-app.get('/data', route('data', {title: 'Data'}));
+app.get(['/', '/home', '/index'], routes.index);
+app.get('/data', routes.data);
 
 /**
  * "Add" the graphs routing

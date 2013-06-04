@@ -22,7 +22,7 @@ head
 	link(rel='stylesheet', href='css/global.css')
 
 	// Own CSS stuff
-	block style
+	//- block style
 
 	// Included JS Files
 	script(src='js/vendor/custom.modernizr.js')
@@ -32,12 +32,12 @@ head
 		script(src='http://html5shiv.googlecode.com/svn/trunk/html5.js')
 
 body
-	include includes/navbar
-	block content
+	//- include includes/navbar
+	//- block content
 
 	// Included JS Files (Compressed)
 	script(src='http://code.jquery.com/jquery-latest.min.js')
-	//script(src='js/jquery.js')
+	//- script(src='js/jquery.js')
 	//- script(src='js/foundation.min.js')
 	// Initialize JS Plugins
 	script(src='js/app.js')
@@ -47,21 +47,21 @@ body
 		('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
 		'.js><\/script>')
 	script(src='js/foundation/foundation.js')
-	script(src='js/foundation/foundation.alerts.js')
-	script(src='js/foundation/foundation.clearing.js')
-	script(src='js/foundation/foundation.cookie.js')
+	//- script(src='js/foundation/foundation.alerts.js')
+	//- script(src='js/foundation/foundation.clearing.js')
+	//- script(src='js/foundation/foundation.cookie.js')
 	script(src='js/foundation/foundation.dropdown.js')
 	script(src='js/foundation/foundation.forms.js')
-	script(src='js/foundation/foundation.joyride.js')
-	script(src='js/foundation/foundation.magellan.js')
-	script(src='js/foundation/foundation.orbit.js')
+	//- script(src='js/foundation/foundation.joyride.js')
+	//- script(src='js/foundation/foundation.magellan.js')
+	//- script(src='js/foundation/foundation.orbit.js')
 	script(src='js/foundation/foundation.placeholder.js')
-	script(src='js/foundation/foundation.reveal.js')
+	//- script(src='js/foundation/foundation.reveal.js')
 	script(src='js/foundation/foundation.section.js')
-	script(src='js/foundation/foundation.tooltips.js')
+	//- script(src='js/foundation/foundation.tooltips.js')
 	script(src='js/foundation/foundation.topbar.js')
 	script
-		$(function(){
+		$(function() {
 			$(document).foundation();
 			//- $(document).foundation('section', {callback: function() {
 			//- 		var tmpEl = $('.accordion .active .content .subcontent');
@@ -76,6 +76,6 @@ body
 		});
 
 
-	block script
+	//- block script
 
 | </html>
