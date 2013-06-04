@@ -54,12 +54,10 @@ $(document).ready(function(){
 
 	// Activate the hide-header function
 	$('#hide-header').click(function() {
-		// $('#header').slideUp('slow');
 		$('#header').animate({
 			height: 'hide',
 			opacity: 'hide'
 		}, 'slow');
-		// $('#header').attr('hidden', '');
 	});
 
 	// Let the graph-links make an ajax call
