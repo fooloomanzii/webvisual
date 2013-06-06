@@ -5,9 +5,11 @@ var copywatch = require('./modules/copywatch'),
 	graph     = require('./modules/graphs'),
 	// parser    = require('./modules/data_parser'),
 	routes    = require('./routes'),
-	express   = require('express');
+	express   = require('express'),
+	fs        = require('fs');
 
-var defaultPort = 3000;
+var defaultPort = 3000,
+	logFile     = fs.createWriteStream(__dirname + '/log.txt', {flags: 'a'});
 
 /**
 * Configure the app
@@ -27,19 +29,20 @@ app.configure('production', function() {
 	// Otherwise write it in a seperate file
 	logMode = {
 		format : 'default',
-		stream : __dirname + 'log.txt'
+		stream : logFile
 	};
 });
 
 app.configure(function() {
 	app.set('view engine', 'jade');
 	app.set('views', __dirname + '/views');
-	// Logging middleware
-	app.use(express.logger(logMode));
 	//	Middleware compatibility
 	app.use(express.bodyParser());
 	//	Makes it possible to use app.get and app.delete, rather than use app.post all the time
 	app.use(express.methodOverride());
+	// Logging middleware
+	// TODO: Dafuer sorgen, dass jede Verbindung nur einmal geloggt wird. Ergo: Irgendwie die statischen Dateien nicht loggen
+	app.use(express.logger(logMode));
 	/*  Routes the requests, it would be implicit initialated at the first use of app.get
 	this ensures that routing is done before the static folder is used */
 	app.use(app.router);
@@ -56,6 +59,9 @@ app.configure(function() {
 // Error handler
 // Development
 app.configure('development', function() {
+	// Make the Jade output readable
+	app.locals.pretty = true;
+
 	app.use(express.errorHandler({
         dumpExceptions: true,
         showStack: true

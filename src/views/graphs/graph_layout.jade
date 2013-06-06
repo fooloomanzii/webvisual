@@ -1,4 +1,15 @@
 h3.subheader= locals.type
 hr
 
-block graph
+- var canvasWidth = 600;
+- var canvasHeight = 250;
+
+block canvas_settings
+
+block before_canvas
+
+canvas#graph(width=canvasWidth, height=canvasHeight) [No canvas support]
+
+block after_canvas
+
+block script

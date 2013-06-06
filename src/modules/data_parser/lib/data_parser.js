@@ -135,7 +135,8 @@
 			// Create the date
 			if(fullFormat.indexOf("date") !== -1 && fullFormat.indexOf("time") !== -1) {
 				// Syntax is Date(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND)
-				data.date = new Date(extractedDate.year, extractedDate.month, extractedDate.day, extractedDate.hour, extractedDate.minute, extractedDate.second);
+				// JavaScript starts the counting of the months at 0, so we have to substract one
+				data.date = new Date(extractedDate.year, (extractedDate.month-1), extractedDate.day, extractedDate.hour, extractedDate.minute, extractedDate.second);
 			} else if(fullFormat.indexOf("date") !== -1) {
 				data.date = new Date(extractedDate.year, extractedDate.month, extractedDate.day);
 			} else {

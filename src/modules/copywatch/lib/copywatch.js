@@ -135,7 +135,7 @@ function parsecopy(path, start, end, parse_options) {
 		// Split the data
 		var tokens = data.split(newline);
 		// Split the string again with the alternative newline, if the OS newline didn't work
-		if(tokens.length === 1) tokens = tokens.split(alternativeNL);
+		if(tokens.length === 1) tokens = tokens[0].split(alternativeNL);
 
 		// It is possible, that the last "line" of the data isn't complete. So we have to store it and wait for the next readable event
 		if(firstRead) {

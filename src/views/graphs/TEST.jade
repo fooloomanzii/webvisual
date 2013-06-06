@@ -1,4 +1,15 @@
 extends graph_layout
 
-block graph
+block before_canvas
 	p Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+
+block script
+	script
+		window.onload = function () {
+			var data = [280, 45, 133, 166, 84, 259, 266, 960, 219, 311, 67, 89];
+
+			var bar = new RGraph.Bar('graph', data);
+			bar.Set('chart.labels', ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);
+			bar.Set('chart.gutter.left', 35);
+			bar.Draw();
+		};
