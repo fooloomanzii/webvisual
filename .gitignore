@@ -1,2 +1,14 @@
+# Packaged Stuff #
+*.exe
+
+# Some folders #
+src/build
+
+# Node Stuff #
 node_modules
+
+# Sublime Stuff #
 *.sublime-workspace
+
+# Tests #
+src/test/live_test.txt
