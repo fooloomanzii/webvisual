@@ -42,19 +42,21 @@ The function returns a watcher instance or a array of watcher if multiple paths 
 'use strict';
 
 // Require
-var	parser = require('data_parser'),
-	fs = require('fs'),
+var fs          = require('fs'),
+	path_util   = require('path'),
+	parser      = require('data_parser'),
 	typechecker = require('typechecker'),
-	watchr = require('watchr'),
+	watchr      = require('watchr'),
 
 // Global variables
-	watchers = {},
-	watcherCount = 0,
-	extension = '_node',
-	// newline = ((process.platform === 'win32' || process.platform === 'win64') ? '\r\n' : '\n');
-	newline = require('os').EOL, // OS specific newline character
+	watchers      = {},
+	watcherCount  = 0,
+	extension     = '_node',
+	newline       = require('os').EOL, // OS specific newline character
+	// <=> newline    = ((process.platform === 'win32' || process.platform === 'win64') ? '\r\n' : '\n');
 	// Save the OTHER newline ... actually some server use \n\r but this can be ignored here
-	alternativeNL = (newline === '\n' ? '\r\n' : '\n');
+	alternativeNL = (newline === '\n' ? '\r\n' : '\n'),
+	errorFile     = './copywatch.err';
 
 // Functions
 
@@ -71,45 +73,55 @@ function errorHandler(err) {
 }
 
 /*
-	Copy
-	Copys a file. start and end are optional
+	checkMode
 */
-function copy(path, start, end) {
-	var readOptions = {}, writeOptions = {};
-	// Copys the file
-	if (start && end) {
-		readOptions = {start: start, end: end};
-		writeOptions = {start: start, flags: 'a'};
-	} else if (start) {
-		readOptions = {start: start};
-		writeOptions = {start: start, flags: 'a'};
+function checkMode(mode) {
+	if (!(mode === 'end' || mode === 'begin' || mode === 'all')) {
+		return new Error("\""+mode+"\" - Not a valid mode.");
 	}
-
-	fs.createReadStream(path, readOptions).pipe(fs.createWriteStream(path+extension, writeOptions));
 }
 
 /*
-	Parseandcopy
-	Parses and copys a file with the data_parser-module.
+	Create read/write options
 */
-function parsecopy(path, start, end, parse_options) {
-	if (typeof start === 'object' && parse_options) parse_options = start;
-	else if (typeof end === 'object' && parse_options) parse_options = end;
+function createOptions(start, end) {
+	var options = {
+		readOptions: {},
+		writeOptions: {}
+	};
 
-	// Define Variables
-	var parsedData = [], readOptions = {}, writeOptions = {}, read, write;
-
-	// Copys the file
+	// Create the options for reading and writing
 	if (start && end) {
-		readOptions = {start: start, end: end};
-		writeOptions = {start: start, flags: 'a'};
+		options.readOptions = {start: start, end: end};
+		options.writeOptions = {start: start, flags: 'a'};
 	} else if (start) {
-		readOptions = {start: start};
-		writeOptions = {start: start, flags: 'a'};
+		options.readOptions = {start: start};
+		options.writeOptions = {start: start, flags: 'a'};
+	}
+
+	return options;
+}
+
+/*
+	parseRead
+	Reads a file and parses the content. The callback-function recieves the data.
+*/
+function parseRead(path, start, end, parse_options, callback) {
+	// Define variables
+	var parsedData = [], read, readOptions;
+
+	// Check for alternative parameters
+	if(typeof start === 'object') {
+		readOptions = start;
+	} else {
+		readOptions = createOptions(start, end).readOptions;
+	}
+
+	if(typeof end === 'function') {
+		callback = end;
 	}
 
 	readOptions.encoding = 'utf8';
-	writeOptions.encoding = 'utf8';
 
 	read = fs.createReadStream(path, readOptions);
 
@@ -122,7 +134,8 @@ function parsecopy(path, start, end, parse_options) {
 	function pushData(err, data) {
 		if(err)	{
 			// TODO: Errorhandling
-			console.log(err);
+			// fs.writeFile(errorFile, ((new Date())+": "+err), {flag: 'a'});
+			console.error(err.message, err.lineNumber);
 		} else {
 			parsedData.push(data);
 		}
@@ -130,10 +143,10 @@ function parsecopy(path, start, end, parse_options) {
 
 	var tmpBuffer = "", firstRead = true;
 	read.on('readable', function() {
-		var data = read.read();
+		var data = read.read(),
 
 		// Split the data
-		var tokens = data.split(newline);
+			tokens = data.split(newline);
 		// Split the string again with the alternative newline, if the OS newline didn't work
 		if(tokens.length === 1) tokens = tokens[0].split(alternativeNL);
 
@@ -150,48 +163,102 @@ function parsecopy(path, start, end, parse_options) {
 
 		// Parse every line on their own
 		for(var i=0; i<tokens.length; ++i) {
-			if(tokens[i].length > 1) {
+			/*	Arbitrary length to ensure the string isnt empty.
+				I choose >2 since the linebreak on win is 2 characters long,
+				so there has to be at least one character in the line */
+			if(tokens[i].length > 2) {
 				parser.parse(tokens[i], 'unknown', parse_options, pushData);
 			}
 		}
 	});
 
 	read.on('end', function() {
-		// We still need to add the last stored line in tmpBuffer
-		parser.parse(tmpBuffer, 'unknown', parse_options, pushData);
-
-		// Init the write stream
-		write = fs.createWriteStream(path+extension, writeOptions);
-
-		var writeString = "";
-		// To reduce the write operations, we create a big string with all the data
-		for(var i=0; i<parsedData.length; ++i) {
-			writeString += JSON.stringify(parsedData[i]) + newline;
+		// We still need to add the last stored line in tmpBuffer, if there is one
+		if(tmpBuffer !== "") {
+			parser.parse(tmpBuffer, 'unknown', parse_options, pushData);
 		}
 
-		// Write the data and close the stream
-		write.end(writeString);
+		if(callback) callback(parsedData);
 	});
 }
 
-/* Unwatch a file
+/*
+	Copy
+	Copys a file. start and end are optional
+*/
+function copy(path, start, end, parse_options, callback) {
+	var options = createOptions(start, end);
+
+	// Give the callback the parsed data, if they are defined
+	if(parse_options && callback) {
+		parseRead(path, start, end, parse_options, callback);
+	}
+
+	fs.createReadStream(path, options.readOptions).pipe(fs.createWriteStream(path+extension, options.writeOptions));
+}
+
+/*
+	Parseandcopy
+	Parses and copys a file with the data_parser-module.
+*/
+function parsecopy(path, start, end, parse_options, callback) {
+	if (typeof start === 'object' && parse_options) parse_options = start;
+	else if (typeof end === 'object' && parse_options) parse_options = end;
+
+	// Define Variables
+	var options, write;
+
+	// Create the read/write options
+	options = createOptions(start, end);
+
+	options.writeOptions.encoding = 'utf8';
+
+	function end(parsedData) {
+		// Init the write stream
+		write = fs.createWriteStream(path+extension, options.writeOptions);
+
+		// var writeString = "";
+		// // To reduce the write operations, we create a big string with all the data
+		// for(var i=0; i<parsedData.length; ++i) {
+		// 	writeString += JSON.stringify(parsedData[i]) + newline;
+		// }
+		var writestring = JSON.stringify(parsedData);
+
+		// Write the data and close the stream
+		write.end(writeString);
+
+		// Make the callback
+		if(callback) callback(parsedData);
+	}
+
+	parseRead(path, options.readOptions, end);
+}
+
+
+/*
+	Unwatch a file
 		path - path to the file
-		remove - bool value: delete the copy version, or leave it? */
+		remove - bool value: delete the copy version, or leave it?
+*/
 function unwatch(path, remove, callback) {
-	if (watchers[path] !== null) {
+	// Make the path an absolute path
+	path = path_util.resolve(path);
+	if (watchers[path] !== undefined) {
 		watchers[path].close();
 		watcherCount--;
 
 		delete watchers[path];
 
 		if (remove) return fs.unlink(path+extension, (callback || errorHandler));
-		else return callback();
+		else if (callback) return callback();
 	}
 }
 
-/*	Unwatch for every watcher, when all watchers are closed the callback is called with a array of potential errors
+/*
+	Unwatch for every watcher, when all watchers are closed the callback is called with a array of potential errors
 		remove - bool value: delete the copy versions, or leave them?
-		callback - callback function, gets an array of potential errors */
+		callback - callback function, gets an array of potential errors
+*/
 function clear(remove, callback) {
 	var errors = [], path, handler;
 
@@ -234,26 +301,47 @@ function getExtension() {
 
 /*
 	Watch
-	mode influences the copy mechanism which is used, when the file was updated:
+	mode influences the copy/parse mechanism which is used, when the file was updated:
 		'end' - copy the last bytes of the file (the difference between prevStat.size and currStat.size)
 		'begin' - copy the first few bytes of the file (the difference between prevStat.size and currStat.size)
 		'all' - copy the whole file
+	options
+		copy_function - a string which describes which function should be used to make a copy of the file
+			'default' - the default, copywatch makes a simple copy
+			'parse' - copywatch will create a parsed copy of the file
+			'none' - the file won't be copied.
+				You still can give copywatch a parse_callback-function, which will recieve the parsed data.
+				If there is not parse_callback-function than copywatch won't watch the file, since there is no point in doing so.
+		parse_callback - a function which recieves the parsed data, when the file was changed
 */
 function watch(mode, files, options, next) {
 	// Define variables
-	var i, copyfunction, listenersObj, nextObj;
-
-	if (!(mode === 'end' || mode === 'begin' || mode === 'all')) {
-		throw "Not a valid mode.";
+	var i, process_function, listenersObj, nextObj,
+	// Do we have a correct mode?
+		err = checkMode(mode);
+	if(err) {
+		if(next) return next(err);
+		else return;
 	}
 
-	copyfunction = copy;
+	process_function = copy;
 	// Are there any options
 	if (typeof options === 'function' && typeof next === 'undefined') {
 		next = options;
-	} else if (options !== null && typeof options === 'object' && options.parse === true) {
-		// Parse option
-		copyfunction = parsecopy;
+	} else if (options !== null && typeof options === 'object') {
+		// Copyparse option
+		if(options.copy_function === 'parse') {
+			process_function = parsecopy;
+		} // None option
+		else if(options.copy_function === 'none') {
+			if(options.parse_callback) {
+				// Just parse the file and give the data to the specified callback
+				process_function = parseRead;
+			} else {
+				// There is no point in doing nothing on a change
+				return;
+			}
+		}
 	}
 
 	if (!typechecker.isArray(files)) {
@@ -262,7 +350,7 @@ function watch(mode, files, options, next) {
 
 	// Make a first copy
 	for (i=0; i<files.length; ++i) {
-		copyfunction(files[i]);
+		process_function(files[i]);
 	}
 
 	// We don't want to define functions inside a loop
@@ -277,11 +365,11 @@ function watch(mode, files, options, next) {
 			// Update event - copy the changes
 			if (event === 'update') {
 				if (mode === 'end') {
-					copyfunction(path, prevStat.size, undefined, options.parse_options);
+					process_function(path, prevStat.size, undefined, options.parse_options, options.parse_callback);
 				} else if (mode === 'begin') {
-					copyfunction(path, 0, (currStat.size - prevStat.size), options.parse_options);
+					process_function(path, 0, (currStat.size - prevStat.size), options.parse_options, options.parse_callback);
 				} else if (mode === 'all') {
-					copyfunction(path, undefined, undefined, options.parse_options);
+					process_function(path, undefined, undefined, options.parse_options, options.parse_callback);
 				}
 			}
 			//  Delete event - delete the copied version
@@ -300,7 +388,7 @@ function watch(mode, files, options, next) {
 
 	// Iterate through the files and create a watcher for each
 	for (i=0; i<files.length; ++i) {
-		watchers[files[i]] = watchr.watch({
+		watchers[path_util.resolve(files[i])] = watchr.watch({
 			path: files[i],
 			listeners: listenersObj,
 			next: nextObj
@@ -308,10 +396,19 @@ function watch(mode, files, options, next) {
 	}
 }
 
+/*
+	Parsewatch
+	Equivalent to watch('all', files, {copy_function: 'none', parse_callback: parse_callback}, next)
+*/
+function parsewatch(files, parse_callback, next) {
+	watch('all', files, {copy_function: 'none', parse_callback: parse_callback}, next);
+}
+
 // Exported functions
-module.exports.watch = watch;
-module.exports.unwatch = unwatch;
-module.exports.clear = clear;
+module.exports.watch        = watch;
+module.exports.parsewatch   = parsewatch;
+module.exports.unwatch      = unwatch;
+module.exports.clear        = clear;
 module.exports.setExtension = setExtension;
 module.exports.getExtension = getExtension;
 
