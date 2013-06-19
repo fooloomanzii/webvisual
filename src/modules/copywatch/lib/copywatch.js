@@ -44,7 +44,7 @@ The function returns a watcher instance or a array of watcher if multiple paths 
 // Require
 var fs          = require('fs'),
 	path_util   = require('path'),
-	parser      = require('data_parser'),
+	parser      = require('../../data_parser'),
 	typechecker = require('typechecker'),
 	watchr      = require('watchr'),
 
@@ -52,8 +52,8 @@ var fs          = require('fs'),
 	watchers      = {},
 	watcherCount  = 0,
 	extension     = '_node',
+	// newline    = ((process.platform === 'win32' || process.platform === 'win64') ? '\r\n' : '\n');
 	newline       = require('os').EOL, // OS specific newline character
-	// <=> newline    = ((process.platform === 'win32' || process.platform === 'win64') ? '\r\n' : '\n');
 	// Save the OTHER newline ... actually some server use \n\r but this can be ignored here
 	alternativeNL = (newline === '\n' ? '\r\n' : '\n'),
 	errorFile     = './copywatch.err';
@@ -77,7 +77,7 @@ function errorHandler(err) {
 */
 function checkMode(mode) {
 	if (!(mode === 'end' || mode === 'begin' || mode === 'all')) {
-		return new Error("\""+mode+"\" - Not a valid mode.");
+		throw "Not a valid mode.";
 	}
 }
 
@@ -103,86 +103,6 @@ function createOptions(start, end) {
 }
 
 /*
-	parseRead
-	Reads a file and parses the content. The callback-function recieves the data.
-*/
-function parseRead(path, start, end, parse_options, callback) {
-	// Define variables
-	var parsedData = [], read, readOptions;
-
-	// Check for alternative parameters
-	if(typeof start === 'object') {
-		readOptions = start;
-	} else {
-		readOptions = createOptions(start, end).readOptions;
-	}
-
-	if(typeof end === 'function') {
-		callback = end;
-	}
-
-	readOptions.encoding = 'utf8';
-
-	read = fs.createReadStream(path, readOptions);
-
-	read.on('error', function(err) {
-		// TODO: Implement errorhandling
-	});
-
-
-	// We don't want to create functions in loops
-	function pushData(err, data) {
-		if(err)	{
-			// TODO: Errorhandling
-			// fs.writeFile(errorFile, ((new Date())+": "+err), {flag: 'a'});
-			console.error(err.message, err.lineNumber);
-		} else {
-			parsedData.push(data);
-		}
-	}
-
-	var tmpBuffer = "", firstRead = true;
-	read.on('readable', function() {
-		var data = read.read(),
-
-		// Split the data
-			tokens = data.split(newline);
-		// Split the string again with the alternative newline, if the OS newline didn't work
-		if(tokens.length === 1) tokens = tokens[0].split(alternativeNL);
-
-		// It is possible, that the last "line" of the data isn't complete. So we have to store it and wait for the next readable event
-		if(firstRead) {
-			tmpBuffer = tokens.pop();
-			firstRead = false;
-		} else {
-			// Completes the first tokens element with the stored data from last time ...
-			tokens[0] = tmpBuffer + tokens[0];
-			// ... and saves the last element for the next time
-			tmpBuffer = tokens.pop();
-		}
-
-		// Parse every line on their own
-		for(var i=0; i<tokens.length; ++i) {
-			/*	Arbitrary length to ensure the string isnt empty.
-				I choose >2 since the linebreak on win is 2 characters long,
-				so there has to be at least one character in the line */
-			if(tokens[i].length > 2) {
-				parser.parse(tokens[i], 'unknown', parse_options, pushData);
-			}
-		}
-	});
-
-	read.on('end', function() {
-		// We still need to add the last stored line in tmpBuffer, if there is one
-		if(tmpBuffer !== "") {
-			parser.parse(tmpBuffer, 'unknown', parse_options, pushData);
-		}
-
-		if(callback) callback(parsedData);
-	});
-}
-
-/*
 	Copy
 	Copys a file. start and end are optional
 */
@@ -190,7 +110,7 @@ function copy(path, start, end, parse_options, callback) {
 	var options = createOptions(start, end);
 
 	// Give the callback the parsed data, if they are defined
-	if(parse_options && callback) {
+	if(parsed_options && callback) {
 		parseRead(path, start, end, parse_options, callback);
 	}
 
@@ -234,6 +154,78 @@ function parsecopy(path, start, end, parse_options, callback) {
 	parseRead(path, options.readOptions, end);
 }
 
+function parseRead(path, start, end, parse_options, callback) {
+	// Define variables
+	var parsedData = [], read, readOptions;
+
+	// Check for alternative parameters
+	if(typeof start === 'object') {
+		readOptions = start;
+	} else {
+		readOptions = createOptions(start, end).readOptions;
+	}
+
+	if(typeof end === 'function') {
+		callback = end;
+	}
+
+	readOptions.encoding = 'utf8';
+
+	read = fs.createReadStream(path, readOptions);
+
+	read.on('error', function(err) {
+		// TODO: Implement errorhandling
+	});
+
+
+	// We don't want to create functions in loops
+	function pushData(err, data) {
+		if(err)	{
+			// TODO: Errorhandling
+			// fs.writeFile(errorFile, ((new Date())+": "+err), {flag: 'a'});
+			console.error(err.message, err.lineNumber);
+		} else {
+			parsedData.push(data);
+		}
+	}
+
+	var tmpBuffer = "", firstRead = true;
+	read.on('readable', function() {
+		var data = read.read();
+
+		// Split the data
+		var tokens = data.split(newline);
+		// Split the string again with the alternative newline, if the OS newline didn't work
+		if(tokens.length === 1) tokens = tokens[0].split(alternativeNL);
+
+		// It is possible, that the last "line" of the data isn't complete. So we have to store it and wait for the next readable event
+		if(firstRead) {
+			tmpBuffer = tokens.pop();
+			firstRead = false;
+		} else {
+			// Completes the first tokens element with the stored data from last time ...
+			tokens[0] = tmpBuffer + tokens[0];
+			// ... and saves the last element for the next time
+			tmpBuffer = tokens.pop();
+		}
+
+		// Parse every line on their own
+		for(var i=0; i<tokens.length; ++i) {
+			if(tokens[i].length > 2) {
+				parser.parse(tokens[i], 'unknown', parse_options, pushData);
+			}
+		}
+	});
+
+	read.on('end', function() {
+		// We still need to add the last stored line in tmpBuffer, if there is one
+		if(tmpBuffer !== "") {
+			parser.parse(tmpBuffer, 'unknown', parse_options, pushData);
+		}
+
+		if(callback) callback(parsedData);
+	});
+}
 
 /*
 	Unwatch a file
@@ -316,13 +308,9 @@ function getExtension() {
 */
 function watch(mode, files, options, next) {
 	// Define variables
-	var i, process_function, listenersObj, nextObj,
-	// Do we have a correct mode?
-		err = checkMode(mode);
-	if(err) {
-		if(next) return next(err);
-		else return;
-	}
+	var i, process_function, listenersObj, nextObj;
+
+	checkMode(mode);
 
 	process_function = copy;
 	// Are there any options
@@ -350,7 +338,7 @@ function watch(mode, files, options, next) {
 
 	// Make a first copy
 	for (i=0; i<files.length; ++i) {
-		process_function(files[i]);
+		process_function(files[i], undefined, undefined, options.parse_options, options.parse_callback);
 	}
 
 	// We don't want to define functions inside a loop
@@ -405,12 +393,14 @@ function parsewatch(files, parse_callback, next) {
 }
 
 // Exported functions
-module.exports.watch        = watch;
-module.exports.parsewatch   = parsewatch;
-module.exports.unwatch      = unwatch;
-module.exports.clear        = clear;
-module.exports.setExtension = setExtension;
-module.exports.getExtension = getExtension;
+module.exports = {
+	watch        : watch,
+	parsewatch   : parsewatch,
+	unwatch      : unwatch,
+	clear        : clear,
+	setExtension : setExtension,
+	getExtension : getExtension
+};
 
 // 'use static'-end
 })();

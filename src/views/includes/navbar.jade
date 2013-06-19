@@ -22,8 +22,11 @@ nav.top-bar
 	ul.title-area
 		li.name
 			h1: a(href='/') TITLE
+		li.toggle-topbar.menu-icon
+			a(href='#'): span
 
 	section.top-bar-section
 		ul.left
 			mixin dividerTab('/index', 'Home')
 			mixin dividerTab('/data', 'Data')
+			mixin dividerTab('/graphs', 'Graphs')

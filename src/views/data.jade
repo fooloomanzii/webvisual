@@ -1,158 +1,17 @@
 extends layout
 
-block style
-	style
-		.data.header {
-			float: left;
-		}
-		.data.subheader {
-			float: right;
-		}
-		a.actice {
-			font-weight:bold;
-		}
-		.hidden, *[hidden] {
-			display:none;
-		}
-
 block content
-	.row#header
-		.large-12.columns
-			h1.data.header Visualization
-			h4.data.subheader
-				a(href='#')#hide-header &#215;
-			hr
 	.row
-		// Navigation area. The user can choose between the different kind of graphs
-		// TODO erzeuge das Navigationsmenue aus den vorhanden Graphen und deren Obertypen
-		.large-3.columns
-			.section-container.accordion(data-section)
-				.section.active
-					p.title(data-section-title): a(href='#start')#start Start
-				.section
-					p.title(data-section-title): a(href='#') Graphentyp 1
-					.content(data-section-content)
-						ul.side-nav
-							li: a(href='#TEST').graph-link TEST
-							li: a(href='#type1-sub1').graph-link Subtyp 1.1
-							li: a(href='#type1-sub2').graph-link Subtyp 1.2
-							li: a(href='#type1-sub3').graph-link Subtyp 1.3
-				.section
-					p.title(data-section-title): a(href='#') Graphentyp 2
-					.content(data-section-content)
-						ul.side-nav
-							li: a(href='#type2-sub1').graph-link Subtyp 2.1
-							li: a(href='#type2-sub2').graph-link Subtyp 2.2
-							li: a(href='#type2-sub3').graph-link Subtyp 2.3
-				.section
-					p.title(data-section-title): a(href='#') Graphentyp 3
-					.content(data-section-content)
-						ul.side-nav
-							li: a(href='#type3-sub1').graph-link Subtyp 3.1
-							li: a(href='#type3-sub2').graph-link Subtyp 3.2
-							li: a(href='#type3-sub3').graph-link Subtyp 3.3
-
-
-		// Content area
-		.large-9.columns
-			#start-box
-				p Choose the desired graph in the menu to your left.
-			// The graphs will be here
-			#graph-box(hidden)
-
+		.small-12.columns
+			h1= locals.title
+		hr
+	for value, i in locals.values
+		.row
+			.small-8.large-3.columns
+				h3.subheader Messwert #{i+1}:
+			.small-4.large-1.pull-9.columns
+				h3(id='value#{i}')=value
 
 block script
+	script(src='/socket.io/socket.io.js')
 	script(src='js/data/data.js')
-
-	// RGraph scripts
-
-	// Basis script
-	script(src='js/rgraph/RGraph.common.core.js')
-
-	// Just needed for dynamic features (eg tooltips)
-	script(src='js/rgraph/RGraph.common.dynamic.js')
-
-	// Just needed for annotating
-	script(src='js/rgraph/RGraph.common.annotate.js')
-
-	// Just needed for context menus
-	script(src='js/rgraph/RGraph.common.context.js')
-
-	// Just needed for visual effects
-	script(src='js/rgraph/RGraph.common.effects.js')
-
-	// Just needed for keys
-	script(src='js/rgraph/RGraph.common.key.js')
-
-	// Just needed for resizing
-	script(src='js/rgraph/RGraph.common.resizing.js')
-
-	// Just needed for tooltips
-	script(src='js/rgraph/RGraph.common.tooltips.js')
-
-	// Just needed for zoom
-	script(src='js/rgraph/RGraph.common.zoom.js')
-
-	// Just needed for Bar charts
-	script(src='js/rgraph/RGraph.bar.js')
-
-	//- // Just needed for Bi-polar charts
-	//- script(src='js/rgraph/RGraph.bipolar.js')
-
-	// Just needed for CornerGauge charts
-	script(src='js/rgraph/RGraph.cornergauge.js')
-
-	// Just needed for Fuel charts
-	script(src='js/rgraph/RGraph.fuel.js')
-
-	//- // Just needed for Funnel charts
-	//- script(src='js/rgraph/RGraph.funnel.js')
-
-	//- // Just needed for Gantt charts
-	//- script(src='js/rgraph/RGraph.gantt.js')
-
-	// Just needed for Gauge charts
-	script(src='js/rgraph/RGraph.gauge.js')
-
-	//- // Just needed for Horizontal Bar charts
-	//- script(src='js/rgraph/RGraph.hbar.js')
-
-	// Just needed for Horizontal Progress bars
-	script(src='js/rgraph/RGraph.hprogress.js')
-
-	// Just needed for LED charts
-	script(src='js/rgraph/RGraph.led.js')
-
-	// Just needed for Line charts
-	script(src='js/rgraph/RGraph.line.js')
-
-	// Just needed for Meter charts
-	script(src='js/rgraph/RGraph.meter.js')
-
-	//- // Just needed for Odometers
-	//- script(src='js/rgraph/RGraph.odo.js')
-
-	//- // Just needed for Pie AND Donut charts
-	//- script(src='js/rgraph/RGraph.pie.js')
-
-	//- // Just needed for Radar charts
-	//- script(src='js/rgraph/RGraph.radar.js')
-
-	//- // Just needed for Rose charts
-	//- script(src='js/rgraph/RGraph.rose.js')
-
-	//- // Just needed for Rscatter charts
-	//- script(src='js/rgraph/RGraph.rscatter.js')
-
-	// Just needed for Scatter charts
-	script(src='js/rgraph/RGraph.scatter.js')
-
-	// Just needed for Thermometer charts
-	script(src='js/rgraph/RGraph.thermometer.js')
-
-	// Just needed for Vertical Progress bars
-	script(src='js/rgraph/RGraph.vprogress.js')
-
-	//- // Just needed for Waterfall charts
-	//- script(src='js/rgraph/RGraph.waterfall.js')
-

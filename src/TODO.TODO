@@ -1,6 +1,11 @@
 Messdatenvisualisierung:
-  Implement:
+  Relevant:
    ✔ implementiere die copy Funktion des copywatch-Moduls @done (13-04-11 16:30)
+   ✔ websockets @done (13-06-07 13:55)
+   ☐ vernuenftige Verarbeitung der geparsten Werte
+  Weniger relevant:
+   ☐ Errorhandling in copywatch
+   ☐ Dem Client den Fehler uebermitteln, wenn einer auftritt
 
 Module:
   Ideen:
