@@ -16,7 +16,7 @@ function route(route_path, json_obj) {
 exports.index = route('index', { title: 'Home' });
 
 // Data
-exports.data = route('data', {title: 'Data', values: [undefined, undefined, undefined]});
+exports.data = route('data', {title: 'Data'});
 
 // Graphs
 exports.graphs = route('graphs', {title: 'Graphs'});
