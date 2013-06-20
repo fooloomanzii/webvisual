@@ -55,10 +55,16 @@ app.configure(function() {
 	app.use(express.static(__dirname + '/public'));
 	// Custom 404 page
 	app.use(function(req, res) {
-		res.render('404', {
-			status : 404,
-			title  : 'Oops!'
-		});
+		res.status(404);
+
+		// Respond with html page
+		if(req.accepts('html')) {
+			res.render('404', {
+				status : 404,
+				title  : 'Oops!'
+			});
+		}
+
 	});
 });
 

@@ -94,9 +94,6 @@ function createOptions(start, end) {
 	if (start && end) {
 		options.readOptions = {start: start, end: end};
 		options.writeOptions = {start: start, flags: 'a'};
-	} else if (start) {
-		options.readOptions = {start: start};
-		options.writeOptions = {start: start, flags: 'a'};
 	}
 
 	return options;
