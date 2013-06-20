@@ -35,9 +35,12 @@ body
 	include includes/navbar
 	block content
 
+	// Include JS Files (Uncompressed)
+	script(src='js/jquery-2.0.2.js')
+
 	// Included JS Files (Compressed)
-	script(src='http://code.jquery.com/jquery-latest.min.js')
-	//- script(src='js/jquery.js')
+	//- script(src='http://code.jquery.com/jquery-latest.min.js')
+	//- script(src='js/jquery-2.0.2.min.js')
 	//- script(src='js/foundation.min.js')
 	// Initialize JS Plugins
 	script(src='js/app.js')
