@@ -3,13 +3,19 @@ mixin dividerTab(url, name)
 	li.divider
 	mixin tab(url, name)
 
-mixin dropdownTab(url, name, droplist)
+mixin dropdownDividerTab(url, name, droplist)
 	li.divider
+	mixin dropdownTab(url, name, droplist)
+
+mixin dropdownTab(url, name, droplist)
 	li.has-dropdown
 		a(href=url)= name
 		ul.dropdown
 			each val, key in droplist
-				li: a(href=val)= key
+				- if(typeof val === 'object')
+					mixin dropdownTab(val.url, key, val.list)
+				- else
+					li: a(href=val)= key
 
 mixin tab(url, name)
 	- if(locals.currentURL === url)
@@ -28,5 +34,31 @@ nav.top-bar
 	section.top-bar-section
 		ul.left
 			mixin dividerTab('/index', 'Home')
-			mixin dividerTab('/data', 'Data')
-			mixin dividerTab('/graphs', 'Graphs')
+			//- mixin dividerTab('/data', 'Data')
+			mixin dropdownDividerTab('/data', 'Data', {'Graphentyp 1': {'url': '#', 'list': {'Subtyp 1.1': '#', 'Subtyp 1.2': '#', 'Subtyp 1.3': '#'}}, 'Graphentyp 2': {'url': '#', 'list': {'Subtyp 2.1': '#', 'Subtyp 2.2': '#', 'Subtyp 2.3': '#'}}, 'Graphentyp 3': {'url': '#', 'list': {'Subtyp 3.1': '#', 'Subtyp 3.2': '#', 'Subtyp 3.3': '#'}}})
+			//- // Data Dropdown
+			//- li.divider
+			//- li.has-dropdown
+				a(href='/data') Data
+				ul.dropdown
+					li: label Graphentypen
+					li.has-dropdown
+						a(href='#') Graphentyp 1
+						ul.dropdown
+							li: a(href='#') Subtyp 1.1
+							li: a(href='#') Subtyp 1.2
+							li: a(href='#') Subtyp 1.3
+					li.has-dropdown
+						a(href='#') Graphentyp 2
+						ul.dropdown
+							li: a(href='#') Subtyp 2.1
+							li: a(href='#') Subtyp 2.2
+							li: a(href='#') Subtyp 2.3
+					li.has-dropdown
+						a(href='#') Graphentyp 3
+						ul.dropdown
+							li: a(href='#') Subtyp 3.1
+							li: a(href='#') Subtyp 3.2
+							li: a(href='#') Subtyp 3.3
+
+			//- mixin dividerTab('/graphs', 'Graphs')
