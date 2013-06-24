@@ -1,6 +1,6 @@
 extends layout
 
-append content
+block content
 	.row
 		.small-12.columns
 			h1= locals.title
@@ -15,6 +15,6 @@ append content
 				.small-4.large-1.pull-9.columns#werte
 					//- h3(id='value#{i}')=value
 
-append script
+block script
 	script(src='/socket.io/socket.io.js')
 	script(src='js/data/data.js')

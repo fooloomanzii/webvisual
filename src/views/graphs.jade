@@ -1,7 +1,7 @@
 extends layout
 
-append style
-	style
+block style
+	style.
 		.data.header {
 			float: left;
 		}
@@ -15,7 +15,7 @@ append style
 			display:none;
 		}
 
-append content
+block content
 	.row#header
 		.large-12.columns
 			h1.data.header Visualization
@@ -61,7 +61,7 @@ append content
 			#graph-box(hidden)
 
 
-append script
+block script
 	script(src='js/graphs/graphs.js')
 
 	// RGraph scripts

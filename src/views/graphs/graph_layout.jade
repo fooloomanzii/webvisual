@@ -1,12 +1,15 @@
-h3.subheader= locals.type
-hr
+extends ../layout
 
-- var canvasWidth = 600;
-- var canvasHeight = 250;
+block content
+	.row
+		.small-12.colums
+			h3.subheader= locals.type
+			hr
 
-block canvas_settings
+			- var canvasWidth = 600;
+			- var canvasHeight = 250;
 
-block canvas
-	canvas#graph(width=canvasWidth, height=canvasHeight) [No canvas support]
+			block canvas_settings
 
-block script
+			block canvas
+				canvas#graph(width=canvasWidth, height=canvasHeight) [No canvas support]
