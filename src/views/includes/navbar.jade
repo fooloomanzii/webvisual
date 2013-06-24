@@ -1,13 +1,8 @@
-//- Mixin to create tabs
-mixin dividerTab(url, name)
-	li.divider
-	mixin tab(url, name)
-
-mixin dropdownDividerTab(url, name, droplist)
+//- mixin dropdownDividerTab(url, name, droplist)
 	li.divider
 	mixin dropdownTab(url, name, droplist)
 
-mixin dropdownTab(url, name, droplist)
+//- mixin dropdownTab(url, name, droplist)
 	li.has-dropdown
 		a(href=url)= name
 		ul.dropdown
@@ -17,11 +12,27 @@ mixin dropdownTab(url, name, droplist)
 				- else
 					li: a(href=val)= key
 
+//- Dropdown Tab mixin
+mixin dropdownTab(url, name)
+	li.has-dropdown
+		a(href=url)= name
+		ul.dropdown
+			block
+
+//- Tab Label mixin
+mixin label(text)
+	li: label= text
+
+//- Usual Tab mixin
 mixin tab(url, name)
 	- if(locals.currentURL === url)
 		li.active: a(href=url)= name
 	- else
 		li: a(href=url)= name
+
+//- Tab divider
+mixin divider
+	li.divider
 
 // Navigationbar
 nav.top-bar
@@ -33,32 +44,25 @@ nav.top-bar
 
 	section.top-bar-section
 		ul.left
-			mixin dividerTab('/index', 'Home')
-			//- mixin dividerTab('/data', 'Data')
-			mixin dropdownDividerTab('/data', 'Data', {'Graphentyp 1': {'url': '#', 'list': {'Subtyp 1.1': '#', 'Subtyp 1.2': '#', 'Subtyp 1.3': '#'}}, 'Graphentyp 2': {'url': '#', 'list': {'Subtyp 2.1': '#', 'Subtyp 2.2': '#', 'Subtyp 2.3': '#'}}, 'Graphentyp 3': {'url': '#', 'list': {'Subtyp 3.1': '#', 'Subtyp 3.2': '#', 'Subtyp 3.3': '#'}}})
-			//- // Data Dropdown
-			//- li.divider
-			//- li.has-dropdown
-				a(href='/data') Data
-				ul.dropdown
-					li: label Graphentypen
-					li.has-dropdown
-						a(href='#') Graphentyp 1
-						ul.dropdown
-							li: a(href='#') Subtyp 1.1
-							li: a(href='#') Subtyp 1.2
-							li: a(href='#') Subtyp 1.3
-					li.has-dropdown
-						a(href='#') Graphentyp 2
-						ul.dropdown
-							li: a(href='#') Subtyp 2.1
-							li: a(href='#') Subtyp 2.2
-							li: a(href='#') Subtyp 2.3
-					li.has-dropdown
-						a(href='#') Graphentyp 3
-						ul.dropdown
-							li: a(href='#') Subtyp 3.1
-							li: a(href='#') Subtyp 3.2
-							li: a(href='#') Subtyp 3.3
+			+divider
+			+tab('/index', 'Home')
 
-			//- mixin dividerTab('/graphs', 'Graphs')
+			dataURL = '/data'
+			+divider
+			+dropdownTab(dataURL, 'Data')
+				+tab(dataURL+'?type=test', 'Test')
+				+dropdownTab('#', 'Graphentyp 1')
+					+label('Type 1 Graphs')
+					+tab(dataURL+'?type=subtype1.1', 'Subtyp 1.1')
+					+tab(dataURL+'?type=subtype1.2', 'Subtyp 1.2')
+					+tab(dataURL+'?type=subtype1.3', 'Subtyp 1.3')
+				+dropdownTab('#', 'Graphentyp 2')
+					+label('Type 2 Graphs')
+					+tab(dataURL+'?type=subtype2.1', 'Subtyp 2.1')
+					+tab(dataURL+'?type=subtype2.2', 'Subtyp 2.2')
+					+tab(dataURL+'?type=subtype2.3', 'Subtyp 2.3')
+				+dropdownTab('#', 'Graphentyp 3')
+					+label('Type 3 Graphs')
+					+tab(dataURL+'?type=subtype3.1', 'Subtyp 3.1')
+					+tab(dataURL+'?type=subtype3.2', 'Subtyp 3.2')
+					+tab(dataURL+'?type=subtype3.3', 'Subtyp 3.3')

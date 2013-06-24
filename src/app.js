@@ -5,16 +5,15 @@
 * Module dependencies
 */
 var copywatch = require('./modules/copywatch'),
-	graph     = require('./modules/graphs'),
-	routes	= require('./routes'),
+	routes    = require('./routes'),
 	express   = require('express'),
-	fs		= require('fs'),
+	fs        = require('fs'),
 // Other variables
-	config = require('./config.json'),
+	config      = require('./config.json'),
 	defaultPort = 3000,
-	logFile	 = __dirname + '/log.txt',
+	logFile     = __dirname + '/log.txt',
 	logMode,
-	file = config.file || 'test.txt';
+	file        = config.file || 'test.txt';
 
 /**
 * Configure the app
@@ -41,6 +40,7 @@ app.configure('production', function() {
 
 app.configure(function() {
 	app.set('view engine', 'jade');
+	app.set('view options', { layout: false });
 	app.set('views', __dirname + '/views');
 	//	Middleware compatibility
 	app.use(express.bodyParser());
@@ -86,13 +86,12 @@ app.configure('development', function() {
 
 app.get(['/', '/home', '/index'], routes.index);
 app.get('/data', routes.data);
-app.get('/graphs', routes.graphs);
 
 /**
 * "Add" the graphs routing
 */
 
-graph.graph(app);
+// graph.graph(app);
 
 /**
 * Socket.io Stuff

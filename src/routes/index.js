@@ -1,4 +1,8 @@
-var copywatch = require('../modules/copywatch');
+(function(){
+'use strict';
+
+var copywatch = require('../modules/copywatch'),
+	fs = require('fs');
 
 /**
  * Route function
@@ -15,8 +19,37 @@ function route(route_path, json_obj) {
 // Home
 exports.index = route('index', { title: 'Home' });
 
-// Data
-exports.data = route('data', {title: 'Data'});
+// Data and Graphs
+// Locals
+var dir      = 'graphs/',
+	views    = __dirname + '/../views',
+	graph404 = '404_graph.jade';
 
-// Graphs
-exports.graphs = route('graphs', {title: 'Graphs'});
+// Graphs routing
+exports.data = function(req, res) {
+	var jadeOpt = {
+			currentURL: '/data',
+			title: 'Data'
+		},
+		path = 'data';
+
+	// Deliver the specified graph
+	if(req.query.type) {
+		// Modify the path
+		path    = dir+req.query.type;
+
+		// Modify the jade object
+		jadeOpt.type = req.query.type;
+
+		// Check if the view exists, otherwise render a 404 message
+		if(!fs.existsSync(views+'/'+path+'.jade')) {
+			res.status(404);
+			path = dir+graph404;
+		}
+	}
+
+	// Render the page
+	res.render(path, jadeOpt);
+};
+
+})();
