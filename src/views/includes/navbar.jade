@@ -17,6 +17,7 @@ mixin dropdownTab(url, name)
 	li.has-dropdown
 		a(href=url)= name
 		ul.dropdown
+			li.show-for-small: a(href=url)= name
 			block
 
 //- Tab Label mixin
@@ -40,7 +41,7 @@ nav.top-bar
 		li.name
 			h1: a(href='/') TITLE
 		li.toggle-topbar.menu-icon
-			a(href='#'): span
+			a(href='#'): span Menu
 
 	section.top-bar-section
 		ul.left
@@ -51,17 +52,17 @@ nav.top-bar
 			+divider
 			+dropdownTab(dataURL, 'Data')
 				+tab(dataURL+'?type=test', 'Test')
-				+dropdownTab('#', 'Graphentyp 1')
+				+dropdownTab('#', 'Graphtype 1')
 					+label('Type 1 Graphs')
 					+tab(dataURL+'?type=subtype1.1', 'Subtyp 1.1')
 					+tab(dataURL+'?type=subtype1.2', 'Subtyp 1.2')
 					+tab(dataURL+'?type=subtype1.3', 'Subtyp 1.3')
-				+dropdownTab('#', 'Graphentyp 2')
+				+dropdownTab('#', 'Graphtype 2')
 					+label('Type 2 Graphs')
 					+tab(dataURL+'?type=subtype2.1', 'Subtyp 2.1')
 					+tab(dataURL+'?type=subtype2.2', 'Subtyp 2.2')
 					+tab(dataURL+'?type=subtype2.3', 'Subtyp 2.3')
-				+dropdownTab('#', 'Graphentyp 3')
+				+dropdownTab('#', 'Graphtype 3')
 					+label('Type 3 Graphs')
 					+tab(dataURL+'?type=subtype3.1', 'Subtyp 3.1')
 					+tab(dataURL+'?type=subtype3.2', 'Subtyp 3.2')
