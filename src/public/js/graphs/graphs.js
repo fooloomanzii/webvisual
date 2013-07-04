@@ -36,6 +36,8 @@ $(document).ready(function(){
 		graphNS.graphResize();
 		redraw();
 	});
+	// Resize for the beginning
+	defaultResize();
 
 	// Activate the hide-header function
 	$('#hide-header').click(function() {

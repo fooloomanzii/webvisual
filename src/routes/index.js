@@ -20,9 +20,9 @@ exports.index = route('index', { title: 'Home' });
 
 // Data and Graphs
 // Locals
-var dir      = 'graphs/',
+var dir      = 'graphs/graphs/',
 	views    = __dirname + '/../views',
-	graph404 = '404_graph.jade';
+	graph404 = '../404_graph.jade';
 
 // Graphs routing
 exports.data = function(req, res) {
@@ -35,7 +35,7 @@ exports.data = function(req, res) {
 	// Deliver the specified graph
 	if(req.query.type) {
 		// Modify the path
-		path    = dir+req.query.type;
+		path = dir+req.query.type;
 
 		// Modify the jade object
 		jadeOpt.type = req.query.type;
