@@ -2,12 +2,42 @@
 	"folders":
 	[
 		{
+			"path": "src/node_modules",
+			"name": "node_modules"
+		},
+		{
 			"path": "data"
 		},
 		{
 			"path": "src",
-			"file_exclude_patterns": [ "*min.*" ]
-			/*"folder_exclude_patterns": [ "node_modules" ],*/
+			"file_exclude_patterns": [ "*min.*" ],
+			"folder_exclude_patterns": [
+				"node_modules",
+				"builds"
+			]
+		},
+		{
+			"path": "src/views",
+			"name": "views"
+		},
+		{
+			"path": "src/public/js",
+			"name": "public/js",
+			"file_exclude_patterns": [
+				"foundation*",
+				"jquery*",
+				"modernizr*",
+				"zepto*"
+			],
+			"folder_exclude_patterns": [
+				"foundation",
+				"rgraph",
+				"vendor"
+			]
+		},
+		{
+			"path": "src/public/css",
+			"name": "public/css"
 		},
 		{
 			"path": ".",
