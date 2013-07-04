@@ -8,12 +8,16 @@ var copywatch = require('./modules/copywatch'),
 	routes    = require('./routes'),
 	express   = require('express'),
 	fs        = require('fs'),
+// Default config
+	def = {
+		file: 'test.txt'
+	},
 // Other variables
 	config      = require('./config.json'),
 	defaultPort = 3000,
 	logFile     = __dirname + '/log.txt',
 	logMode,
-	file        = config.file || 'test.txt';
+	file        = config.file || def.file;
 
 /**
 * Configure the app
@@ -88,12 +92,6 @@ app.get(['/', '/home', '/index'], routes.index);
 app.get('/data', routes.data);
 
 /**
-* "Add" the graphs routing
-*/
-
-// graph.graph(app);
-
-/**
 * Socket.io Stuff
 */
 
@@ -107,7 +105,7 @@ var userCounter = 0,
 	dataSocket = io.of('/data')
 	.on('connection', function() {
 		// Increase the user counter on connection, if it is the first connection, start the watching of the file
-		if(++userCounter == 1) {
+		if(++userCounter === 1) {
 			copywatch.parsewatch(file, function(parsedData) {
 				// If something changes, then send the new data to the client
 				// TODO: Implementiere eine Verarbeitung der Daten, sende nicht immer alles
@@ -123,7 +121,7 @@ var userCounter = 0,
 		}
 	})
 	.on('disconnet', function() {
-		if(--userCounter == 0) {
+		if(--userCounter === 0) {
 			copywatch.unwatch(file);
 		}
 	});

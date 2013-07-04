@@ -1,3 +1,6 @@
+(function(){
+'use strict';
+
 $(document).ready(function() {
 	var dataNamespace = (function() {
 
@@ -10,7 +13,7 @@ $(document).ready(function() {
 					return;
 				}
 
-				// Use the last entry of the array
+				// Use the last entry of the array; this is arbitrary
 				var values = data.pop().values;
 
 				// First call?
@@ -37,11 +40,12 @@ $(document).ready(function() {
 
 
 
-	return
-		// Public stuff
-		{
-			socket: socket;
+	// Public stuff
+	return {
+			socket: socket
 		};
 
 	})();
 });
+
+})();

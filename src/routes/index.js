@@ -1,8 +1,7 @@
 (function(){
 'use strict';
 
-var copywatch = require('../modules/copywatch'),
-	fs = require('fs');
+var fs = require('fs');
 
 /**
  * Route function

@@ -1,25 +1,10 @@
 // Graphs namespace
 graphNS = (function() {
+'use strict';
 // Canvas and contexts
 var can = document.getElementById('graph'),
 	cxt = can.getContext('2d'),
 	graph = $('#graph');
-
-$(document).ready(function(){
-	// Resize the canvas
-	$(window).resize(function() {
-		graphNS.graphResize();
-		redraw();
-	});
-
-	// Activate the hide-header function
-	$('#hide-header').click(function() {
-		$('#header').animate({
-			height: 'hide',
-			opacity: 'hide'
-		}, 'slow');
-	});
-});
 
 function redraw() {
 	if(graphNS.graph === undefined) return;
@@ -45,6 +30,23 @@ function defaultResize() {
 	setHeight($('#canvasDiv').width()/2);
 }
 
+$(document).ready(function(){
+	// Resize the canvas
+	$(window).resize(function() {
+		graphNS.graphResize();
+		redraw();
+	});
+
+	// Activate the hide-header function
+	$('#hide-header').click(function() {
+		$('#header').animate({
+			height: 'hide',
+			opacity: 'hide'
+		}, 'slow');
+	});
+});
+
+// This is the public stuff
 return {
 	graph: undefined,
 	graphResize: defaultResize,
