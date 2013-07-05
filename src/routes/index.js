@@ -37,6 +37,11 @@ exports.data = function(req, res) {
 		// Modify the path
 		path = dir+req.query.type;
 
+		// Modify the title
+		jadeOpt.title = jadeOpt.title + " - "
+			+ req.query.type.charAt(0).toUpperCase()
+			+ req.query.type.slice(1);
+
 		// Modify the jade object
 		jadeOpt.type = req.query.type;
 
