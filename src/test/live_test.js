@@ -3,6 +3,7 @@ var fs = require('fs');
 var file = 'live_test.txt';
 var today;
 var first = true;
+var secplus = 0;
 
 function threeDigitRandom() {
 	return ('' + (10*Math.random())).substr(0,5);
@@ -10,6 +11,7 @@ function threeDigitRandom() {
 
 function getProperString() {
 	today = new Date();
+	var seconds = today.getSeconds() + secplus;
 
 	var tmp = (first?'':'\r\n')
 		+(today.getDate() < 10 ? "0" + today.getDate() : today.getDate())+'.'
@@ -17,7 +19,7 @@ function getProperString() {
 		+today.getFullYear()+';'
 		+(today.getHours()+':'
 		+(today.getMinutes() < 10 ? "0" + today.getMinutes() : today.getMinutes())+':'
-		+(today.getSeconds() < 10 ? "0" + today.getSeconds() : today.getSeconds()))+';'
+		+(seconds < 10 ? "0" + seconds : seconds))+';'
 		+(threeDigitRandom()+';'+threeDigitRandom()+';'+threeDigitRandom());
 
 	first = false;
@@ -30,6 +32,7 @@ function getAmount(count) {
 
 	while(--count > -1) {
 		ret += getProperString();
+		++secplus;
 	}
 
 	return ret;
@@ -38,6 +41,7 @@ function getAmount(count) {
 setInterval(function() {
 	first = true;
 	fs.writeFileSync(file, getAmount(3) , { encoding: 'utf8'});
+	secplus = 0;
 }, 1000);
 
 
