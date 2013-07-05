@@ -6,6 +6,7 @@ var can = document.getElementById('graph'),
 	cxt = (can ? can.getContext('2d') : undefined),
 	graph = $('#graph');
 
+// Show the data div
 function showData() {
 	// Hide the loading message
 	$('#load').fadeOut(undefined, function() {
@@ -66,12 +67,13 @@ $(document).ready(function(){
 
 // This is the public stuff
 return {
-	showData: showData,
+	currentData: undefined,
 	graph: undefined,
 	graphResize: defaultResize,
 	redraw: redraw,
 	setWidth: setWidth,
 	setHeight: setHeight,
+	showData: showData,
 };
 
 })();
