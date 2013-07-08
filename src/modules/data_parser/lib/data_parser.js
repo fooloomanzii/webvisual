@@ -39,6 +39,7 @@ var typechecker = require('typechecker'),
  *	seperator - a single character, seperating the tokens in the string.
  *				alternativly seperator can be undefined, 'unknown' or '?' if the kind of seperator isn't known.
  *				The method then trys to extract the seperator from the string.
+ *				(If your seperator is a '?' then use '\?'.)
  *	options (optional) - a object with several format options:
  *		format - a format array with two elements for the parsing, tokens are "date", "time".
  *				It will be assumed that there is a "seperator" between each array-element.
@@ -72,8 +73,10 @@ function parse(string, seperator, options, callback) {
 			if(seperatorMatch !== null && seperatorMatch.length > 1) {
 				seperator = seperatorMatch[1];
 			} else {
-				throw errorString(string);
+				throw errorString(string, undefined, ((new Error()).lineNumber-3));
 			}
+		} else if(seperator === '\?') {
+			seperator = '?';
 		}
 
 		// Initialize the options
@@ -83,7 +86,7 @@ function parse(string, seperator, options, callback) {
 			if(typeof options.format === 'undefined') {
 				options.format = defaultOptions.format;
 			} else if (!valid("format", options.format)) {
-				throw 'Invalid format. The format has to be an array with two elements for the parsing, tokens are "date", "time".';
+				throw new SyntaxError('Invalid format. The format has to be an array with two elements for the parsing, tokens are "date", "time".');
 			}
 
 			// Date format
@@ -91,7 +94,7 @@ function parse(string, seperator, options, callback) {
 			if(typeof options.date === 'undefined') {
 				options.date = defaultOptions.date;
 			} else if (!valid("date", options.date)) {
-				throw 'Invalid date. The date has to be an array with three elements for the parsing of the date, tokens are "day", "month", "year".';
+				throw new SyntaxError('Invalid date. The date has to be an array with three elements for the parsing of the date, tokens are "day", "month", "year".');
 			}
 
 			// Time format
@@ -99,7 +102,7 @@ function parse(string, seperator, options, callback) {
 			if(typeof options.time === 'undefined') {
 				options.time = defaultOptions.time;
 			} else if(!valid("time", options.time)) {
-				throw 'Invalid time. The time has to be an array with three elements for the parsing of the time, tokens are "hour", "minute", "second".';
+				throw new SyntaxError('Invalid time. The time has to be an array with three elements for the parsing of the time, tokens are "hour", "minute", "second".');
 			}
 		} else {
 			options = defaultOptions;
@@ -137,7 +140,7 @@ function parse(string, seperator, options, callback) {
 		// Create the date
 		if(fullFormat.indexOf("date") !== -1 && fullFormat.indexOf("time") !== -1) {
 			// Syntax is Date(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND)
-			// JavaScript starts the counting of the months at 0, so we have to substract one
+			// JavaScript starts the counting of the months at 0, so we have to substract one (I know, it doesn't make sense)
 			data.date = new Date(extractedDate.year, (extractedDate.month-1), extractedDate.day, extractedDate.hour, extractedDate.minute, extractedDate.second);
 		} else if(fullFormat.indexOf("date") !== -1) {
 			data.date = new Date(extractedDate.year, extractedDate.month, extractedDate.day);
@@ -176,7 +179,7 @@ function valid(type, object) {
 	var bool = true,
 		tmp;
 
-	if(typechecker.isArray(object) && object.length == timeLength) {
+	if(typechecker.isArray(object) && object.length === timeLength) {
 		for(var i=0; (i<object.length && bool); ++i) {
 			tmp = object[i];
 			/*	When the actual element is equal to one of the allowed options
@@ -195,7 +198,7 @@ function valid(type, object) {
 	return bool;
 }
 
-function errString(string, pos) {
+function errString(string, pos, linenumber) {
 	if(pos) {
 		var spaces = "";
 		for(var i=0; i<pos; ++i) {
@@ -203,8 +206,10 @@ function errString(string, pos) {
 		}
 	}
 
-	return (string ? ("\""+string+"\" - ") : "") + "Error. Invalid String." +
-		(pos ? ("\n"+spaces+"^") : "");
+	return new Error(string ? ("\""+string+"\" - ") : "") + "Error. Invalid String." +
+		(pos ? ("\n"+spaces+"^") : "",
+			__filename,
+			linenumber);
 }
 
 
