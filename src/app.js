@@ -108,7 +108,13 @@ var userCounter = 0,
 		// Increase the user counter on connection, if it is the first connection, start the watching of the file
 		if(++userCounter === 1) {
 			firstSend = true;
-			copywatch.parsewatch(file, function(parsedData) {
+			copywatch.parsewatch(file, function(errorData, parsedData) {
+				// Are there errors?
+				if(errorData) {
+					dataSocket.emit('error', {data: errorData});
+				}
+				// Then send the data
+
 				var sendEvent = 'data';
 				// Send the first event, if it is the first parsing
 				if(firstSend) {
