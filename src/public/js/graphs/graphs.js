@@ -45,6 +45,12 @@ function setHeight(height) {
 function defaultResize() {
 	setWidth($('#canvasDiv').width());
 	setHeight($('#canvasDiv').width()/2);
+
+	// Call the additional function
+	if(graphNS.resize) graphNS.resize();
+
+	// Redraw
+	redraw();
 }
 
 $(document).ready(function(){
@@ -70,6 +76,7 @@ return {
 	currentData: undefined,
 	graph: undefined,
 	graphResize: defaultResize,
+	resize: undefined,
 	redraw: redraw,
 	setWidth: setWidth,
 	setHeight: setHeight,
