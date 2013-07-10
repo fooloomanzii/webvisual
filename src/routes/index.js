@@ -8,7 +8,7 @@ var fs   = require('fs'),
  * Route function
  */
 function route(route_path, json_obj) {
-	json_obj.currentURL = "/" + route_path;
+	json_obj.path = "/" + route_path;
 
 	return function(req, res)
 	{
@@ -28,7 +28,7 @@ var views    = path.join(__dirname, '../views'),
 // Graphs routing
 exports.data = function(req, res) {
 	var jadeOpt = {
-			currentURL: '/data',
+			path: req.url,
 			title: 'Data'
 		},
 		jadeFile = 'data';

@@ -14,10 +14,10 @@
 
 //- Dropdown Tab mixin
 mixin dropdownTab(url, name)
-	li.has-dropdown
+	//- li.has-dropdown
+	li(class='has-dropdown'+(locals.path===url?' active':''))
 		a(href=url)= name
 		ul.dropdown
-			li.show-for-small: a(href=url)= name
 			block
 
 //- Tab Label mixin
@@ -26,7 +26,7 @@ mixin label(text)
 
 //- Usual Tab mixin
 mixin tab(url, name)
-	- if(locals.currentURL === url)
+	- if(locals.path === url)
 		li.active: a(href=url)= name
 	- else
 		li: a(href=url)= name
