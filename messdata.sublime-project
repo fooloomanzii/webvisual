@@ -12,8 +12,11 @@
 			"path": "src",
 			"file_exclude_patterns": [ "*min.*" ],
 			"folder_exclude_patterns": [
+				"builds",
 				"node_modules",
-				"builds"
+				"views",
+				"public/js",
+				"public/css"
 			]
 		},
 		{

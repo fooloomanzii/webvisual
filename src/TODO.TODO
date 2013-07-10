@@ -7,6 +7,7 @@ Messdatenvisualisierung:
   Weniger relevant:
    ☐ Errorhandling in copywatch
    ☐ Dem Client den Fehler uebermitteln, wenn einer auftritt
+   ☐ LINE: Zeitliche Skalierung der x-Achse, abhaengig von dem Interval der Messwerte
 
 Module:
   Ideen:
