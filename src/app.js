@@ -100,29 +100,45 @@ io.set('log level', 1);
 
 // User Counter
 var userCounter = 0,
-	currentData = {},
+	currentData = undefined,
+	firstSend,
 // The data socket
 	dataSocket = io.of('/data')
-	.on('connection', function() {
+	.on('connection', function(socket) {
 		// Increase the user counter on connection, if it is the first connection, start the watching of the file
 		if(++userCounter === 1) {
-			copywatch.parsewatch(file, function(parsedData) {
+			firstSend = true;
+			copywatch.parsewatch(file, function(errorData, parsedData) {
+				// Are there errors?
+				if(errorData) {
+					dataSocket.emit('error', {data: errorData});
+				}
+				// Then send the data
+
+				var sendEvent = 'data';
+				// Send the first event, if it is the first parsing
+				if(firstSend) {
+					sendEvent = 'first';
+					firstSend = false;
+				}
 				// If something changes, then send the new data to the client
 				// TODO: Implementiere eine Verarbeitung der Daten, sende nicht immer alles
 				// TODO: Sende dem Client den Fehler, wenn einer auftritt
 				currentData = parsedData;
-				dataSocket.emit('data', {data: currentData});
+				dataSocket.emit(sendEvent, {data: currentData});
 			});
 		}
 		// The copywatch initialization makes a first parse right at the beginning.
 		// This means, that just clients after the first need to get the current data
 		else /*if(userCounter > 1)*/ {
-			dataSocket.emit('data', {data: currentData});
+			socket.emit('first', {data: currentData});
 		}
 	})
 	.on('disconnet', function() {
 		if(--userCounter === 0) {
 			copywatch.unwatch(file);
+			// Reset the firstSend bool
+			firstSend = false;
 		}
 	});
 

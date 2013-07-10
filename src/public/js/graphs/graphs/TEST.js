@@ -3,6 +3,9 @@ $(document).ready(function() {
 
 	graphNS.graph = new RGraph.Bar('graph', data);
 	graphNS.graph.Set('chart.labels', ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);
-	graphNS.graph.Set('chart.gutter.left', 35);
+	// graphNS.graph.Set('chart.gutter.left', 35);
 	graphNS.graph.Draw();
+
+	// Fade the data in
+	graphNS.showData();
 });

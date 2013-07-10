@@ -1,7 +1,8 @@
 (function(){
 'use strict';
 
-var fs = require('fs');
+var fs   = require('fs'),
+	path = require('path');
 
 /**
  * Route function
@@ -20,9 +21,9 @@ exports.index = route('index', { title: 'Home' });
 
 // Data and Graphs
 // Locals
-var dir      = 'graphs/graphs/',
-	views    = __dirname + '/../views',
-	graph404 = '../404_graph.jade';
+var views    = path.join(__dirname, '../views'),
+	graphs   = path.join(views, 'graphs/graphs'),
+	graph404 = path.join(graphs, '../404_graph.jade');
 
 // Graphs routing
 exports.data = function(req, res) {
@@ -30,25 +31,30 @@ exports.data = function(req, res) {
 			currentURL: '/data',
 			title: 'Data'
 		},
-		path = 'data';
+		jadeFile = 'data';
 
 	// Deliver the specified graph
 	if(req.query.type) {
-		// Modify the path
-		path = dir+req.query.type;
+		// Modify the jadeFile
+		jadeFile = path.join(graphs, req.query.type)+'.jade';
+
+		// Modify the title
+		jadeOpt.title = jadeOpt.title + " - "
+			+ req.query.type.charAt(0).toUpperCase()
+			+ req.query.type.slice(1);
 
 		// Modify the jade object
 		jadeOpt.type = req.query.type;
 
 		// Check if the view exists, otherwise render a 404 message
-		if(!fs.existsSync(views+'/'+path+'.jade')) {
+		if(!fs.existsSync(jadeFile)) {
 			res.status(404);
-			path = dir+graph404;
+			jadeFile = graph404;
 		}
 	}
 
 	// Render the page
-	res.render(path, jadeOpt);
+	res.render(jadeFile, jadeOpt);
 };
 
 })();

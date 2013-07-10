@@ -130,30 +130,27 @@ function parsecopy(path, start, end, parse_options, callback) {
 
 	options.writeOptions.encoding = 'utf8';
 
-	function end(parsedData) {
+	function finish(errorData, parsedData) {
 		// Init the write stream
 		write = fs.createWriteStream(path+extension, options.writeOptions);
 
-		// var writeString = "";
-		// // To reduce the write operations, we create a big string with all the data
-		// for(var i=0; i<parsedData.length; ++i) {
-		// 	writeString += JSON.stringify(parsedData[i]) + newline;
-		// }
 		var writestring = JSON.stringify(parsedData);
 
 		// Write the data and close the stream
 		write.end(writeString);
 
 		// Make the callback
-		if(callback) callback(parsedData);
+		if(callback) callback(errorData, parsedData);
 	}
 
-	parseRead(path, options.readOptions, end);
+	parseRead(path, options.readOptions, finish);
 }
 
 function parseRead(path, start, end, parse_options, callback) {
 	// Define variables
-	var parsedData = [], read, readOptions;
+	var parsedData = [],
+		errorData  = [],
+		read, readOptions;
 
 	// Check for alternative parameters
 	if(typeof start === 'object') {
@@ -171,22 +168,24 @@ function parseRead(path, start, end, parse_options, callback) {
 	read = fs.createReadStream(path, readOptions);
 
 	read.on('error', function(err) {
-		// TODO: Implement errorhandling
+		throw new Error("An error occured while reading the file '"+path+"'.\nDetails: "+err);
 	});
 
 
 	// We don't want to create functions in loops
 	function pushData(err, data) {
 		if(err)	{
-			// TODO: Errorhandling
-			// fs.writeFile(errorFile, ((new Date())+": "+err), {flag: 'a'});
-			console.error(err.message, err.lineNumber);
+			errorData.push({
+				file: path,
+				lineNumber: linecount,
+				error: err
+			});
 		} else {
 			parsedData.push(data);
 		}
 	}
 
-	var tmpBuffer = "", firstRead = true;
+	var tmpBuffer = "", firstRead = true, linecount = 0;
 	read.on('readable', function() {
 		var data = read.read();
 
@@ -210,6 +209,8 @@ function parseRead(path, start, end, parse_options, callback) {
 		for(var i=0; i<tokens.length; ++i) {
 			if(tokens[i].length > 2) {
 				parser.parse(tokens[i], 'unknown', parse_options, pushData);
+				// Increase the linecount
+				++linecount;
 			}
 		}
 	});
@@ -220,7 +221,10 @@ function parseRead(path, start, end, parse_options, callback) {
 			parser.parse(tmpBuffer, 'unknown', parse_options, pushData);
 		}
 
-		if(callback) callback(parsedData);
+		// Are there any errors?
+		if(errorData.length === 0) errorData = undefined;
+
+		if(callback) callback(errorData, parsedData);
 	});
 }
 

@@ -1,8 +1,66 @@
-var copywatch = require('../modules/copywatch');
-var file = 'C:/Users/s.wolf/Projekte/Messdatenvisualisierung/src/test/live_test.txt';
+var fs = require('fs');
 
-copywatch.parsewatch(file, console.log, function() {
-	setTimeout(function() {
-		copywatch.unwatch(file);
-	}, 15000);
-});
+var file = 'live_test.txt';
+var today = new Date();
+var first = true;
+// var secplus = 0;
+
+function threeDigitRandom(amount) {
+	var string = '';
+
+	while(--amount > -1) {
+		string += ('' + (10*Math.random())).substr(0,5);
+		if(amount > 0) string += ';';
+	}
+
+	return string;
+}
+
+function getProperString() {
+	today = new Date();
+	var seconds = today.getSeconds()/* + secplus*/;
+
+	var tmp = (first?'':'\r\n')
+		+(today.getDate() < 10 ? "0" + today.getDate() : today.getDate())+'.'
+		+((today.getMonth()+1) < 10 ? "0" + (today.getMonth()+1) : (today.getMonth()+1))+'.'
+		+today.getFullYear()+';'
+		+(today.getHours()+':'
+		+(today.getMinutes() < 10 ? "0" + today.getMinutes() : today.getMinutes())+':'
+		+(seconds < 10 ? "0" + seconds : seconds))+';'
+		+(threeDigitRandom(2));
+
+	first = false;
+
+	return tmp;
+}
+
+function getAmount(count) {
+	var ret = "";
+
+	while(--count > -1) {
+		ret += getProperString();
+		// ++secplus;
+	}
+
+	return ret;
+}
+
+// First write
+// fs.writeFileSync(file, getAmount(10), { encoding: 'utf8'});
+
+setInterval(function() {
+	first = true;
+	var oldContent = fs.readFileSync(file, 'utf8').split('\r\n');
+	var newContent = '';
+
+	for(var i=1; i<oldContent.length; ++i) {
+		newContent += oldContent[i]+'\r\n';
+	} newContent += getAmount(1);
+
+	fs.writeFileSync(file, newContent, { encoding: 'utf8'});
+	// secplus = 0;
+}, 1000);
+
+
+// Clear the file
+// fs.writeFileSync(file, "");

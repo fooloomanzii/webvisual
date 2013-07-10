@@ -3,8 +3,8 @@ extends ../layout
 block content
 	.row#header
 		.small-12.columns
-			- var title = (locals.type.charAt(0).toUpperCase() + locals.type.slice(1))
-			h3.subheader.float-left= title
+			- var header = (locals.type.charAt(0).toUpperCase() + locals.type.slice(1))
+			h3.subheader.float-left= header
 			h4.subheader.float-right
 				a(href='#')#hide-header &#215;
 			hr
@@ -13,10 +13,15 @@ block content
 			block canvas_style
 				height = 300
 
-			block canvas
-				canvas#graph(height=height) [No canvas support]
+			#load
+				center: h4.subheader Messwerte werden geladen ...
+			#data(hidden)
+				block canvas
+					canvas#graph(height=height) [No canvas support]
 
 block script
+	script(src='js/moment/moment.min.js')
+	script(src='/socket.io/socket.io.js')
 	script(src='js/graphs/graphs.js')
 
 	// RGraph scripts
