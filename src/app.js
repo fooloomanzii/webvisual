@@ -100,7 +100,7 @@ io.set('log level', 1);
 
 // User Counter
 var userCounter = 0,
-	currentData = {},
+	currentData = undefined,
 	firstSend,
 // The data socket
 	dataSocket = io.of('/data')
