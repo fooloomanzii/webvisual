@@ -150,7 +150,7 @@ function arrangeData(data) {
 // READY
 $(document).ready(function() {
 	// Set up the Socket.IO connection
-	var socket = io.connect('http://'+window.location.host+'/data')
+	var socket = io.connect('http://'+window.location.host+'/data', {transports: ['xhr-polling']})
 		.on('first', function(message) {
 			if(message === undefined) return;
 
@@ -201,9 +201,12 @@ $(document).ready(function() {
 			graphNS.redraw();
 		});
 
+
 	// Interrupt button
 	$('#interruptButton').click(function() {
-		socket.emit('interrupt', {command: "INTERRUPT"});
+		console.log('test');
+		// socket.emit('interrupt', {command: "INTERRUPT"});
+		socket.send('interrupt');
 	});
 
 	// Resize event; let the labels fit the page width

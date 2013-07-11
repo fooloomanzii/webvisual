@@ -143,7 +143,9 @@ var userCounter = 0,
 			firstSend = false;
 		}
 	})
+	.on('log', function(message) {console.log("Message:", message);})
 	.on('interrupt', function(message) {
+		console.log('Test');
 		fs.writeFile(writeFile, (message.command || "INTERRUPT"), 'utft8');
 	});
 
