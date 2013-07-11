@@ -1,4 +1,12 @@
 extends ../graph_layout
 
+prepend canvas
+	.row
+		.small-12.columns(align='right')#customFormDiv
+			span#noDataLabel.label.alert No Data available.
+			form#linecountForm.custom
+				label Graphs
+				#linecount
+
 append script
 	script(src='js/graphs/graphs/line.js')
