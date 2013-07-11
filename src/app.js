@@ -10,14 +10,16 @@ var copywatch = require('./modules/copywatch'),
 	fs        = require('fs'),
 // Default config
 	def = {
-		file: 'test.txt'
+		readFile: 'test.txt',
+		writeFile: 'command.txt'
 	},
 // Other variables
 	config      = require('./config.json'),
 	defaultPort = 3000,
 	logFile     = __dirname + '/log.txt',
 	logMode,
-	file        = config.file || def.file;
+	readFile    = config.readFile || def.readFile,
+	writeFile   = config.writeFile || def.writeFile;
 
 /**
 * Configure the app
@@ -108,7 +110,7 @@ var userCounter = 0,
 		// Increase the user counter on connection, if it is the first connection, start the watching of the file
 		if(++userCounter === 1) {
 			firstSend = true;
-			copywatch.parsewatch(file, function(errorData, parsedData) {
+			copywatch.parsewatch(readFile, function(errorData, parsedData) {
 				// Are there errors?
 				if(errorData) {
 					dataSocket.emit('error', {data: errorData});
@@ -136,10 +138,13 @@ var userCounter = 0,
 	})
 	.on('disconnet', function() {
 		if(--userCounter === 0) {
-			copywatch.unwatch(file);
+			copywatch.unwatch(readFile);
 			// Reset the firstSend bool
 			firstSend = false;
 		}
+	})
+	.on('interrupt', function(message) {
+		fs.writeFile(writeFile, (message.command || "INTERRUPT"), 'utft8');
 	});
 
 /**

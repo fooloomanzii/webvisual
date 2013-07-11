@@ -64,7 +64,7 @@ function createLabels() {
 
 	// The maximum amount of tooltips is 10; if the window gets smaller these amount is reduced.
 	var maxTooltips = Math.min(10, Math.round($('#data').width()/100)),
-		skip        = parseInt(currentData.length/maxTooltips, 10);
+		skip        = Math.max(1, Math.round(currentData.length/maxTooltips));
 
 	// Save the dates in the dateArray; we want 10 dates max,
 	// equally distributed over the available dates
@@ -200,6 +200,11 @@ $(document).ready(function() {
 			// Redraw
 			graphNS.redraw();
 		});
+
+	// Interrupt button
+	$('#interruptButton').click(function() {
+		socket.emit('interrupt', {command: "INTERRUPT"});
+	});
 
 	// Resize event; let the labels fit the page width
 	graphNS.resize = function() {
