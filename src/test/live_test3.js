@@ -48,6 +48,11 @@ function getAmount(count) {
 // First write
 // fs.writeFileSync(file, getAmount(10), { encoding: 'utf8'});
 function test() {
+	if(fs.readFileSync('../command.txt', 'utf8') === "INTERRUPT") {
+		setTimeout(test, 1000);
+		return;
+	}
+
 	first = true;
 	var oldContent = fs.readFileSync(file, 'utf8').split('\r\n');
 	var newContent = '';
@@ -58,13 +63,11 @@ function test() {
 
 	fs.writeFileSync(file, newContent, { encoding: 'utf8'});
 	// secplus = 0;
-	fs.readFile('../command.txt', 'utf8', function(content) {
-		if(content !== 'INTERRUPT') {
-			setTimeout(test, 1000);
-		}
-	});
+
+	setTimeout(test, 1000);
 }
 
+console.log(__dirname);
 setTimeout(test, 1000);
 
 

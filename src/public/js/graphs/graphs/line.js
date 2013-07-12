@@ -150,57 +150,61 @@ function arrangeData(data) {
 // READY
 $(document).ready(function() {
 	// Set up the Socket.IO connection
-	var socket = io.connect('http://'+window.location.host+'/data', {transports: ['xhr-polling']})
-		.on('first', function(message) {
-			if(message === undefined) return;
+	var socket = io.connect('http://'+window.location.host+'/data', {transports: ['xhr-polling']}),
+		interruptText = "Interrupt",
+		continueText  = "Continue";
 
-			// Arrange the data
-			arrangeData(message.data);
+	// First message
+	socket.on('first', function(message) {
+		if(message === undefined) return;
 
-			// Initialise the linecount button
-			linecountForm();
+		// Arrange the data
+		arrangeData(message.data);
 
-			// Create the graph
-			line = new RGraph.Line("graph", visualizeArray)
-				.Set('linewidth', 2)
-				.Set('title', day)
-				// .Set('title.xaxis.pos', .15)
-				.Set('labels', dateArray)
-				// .Set('gutter.bottom', 45)
-				// .Set('text.size', 11)
-				.Set('tickmarks', 'circle')
-				.Set('tooltips', tooltips)
-				.Set('ymax', 10)
-				.Set('scale.round', true);
+		// Initialise the linecount button
+		linecountForm();
 
-			// Save it in the graph namespace
-			graphNS.graph = line;
+		// Create the graph
+		line = new RGraph.Line("graph", visualizeArray)
+			.Set('linewidth', 2)
+			.Set('title', day)
+			// .Set('title.xaxis.pos', .15)
+			.Set('labels', dateArray)
+			// .Set('gutter.bottom', 45)
+			// .Set('text.size', 11)
+			.Set('tickmarks', 'circle')
+			.Set('tooltips', tooltips)
+			.Set('ymax', 10)
+			.Set('scale.round', true);
 
-			// Draw
-			line.Draw();
+		// Save it in the graph namespace
+		graphNS.graph = line;
 
-			// Show the graph
-			graphNS.showData();
-		})
-		.on('data', function(message) {
-			if(message === undefined) return;
+		// Draw
+		line.Draw();
 
-			// Arrange the data
-			arrangeData(message.data);
+		// Show the graph
+		graphNS.showData();
+	});
+	// New data event
+	socket.on('data', function(message) {
+		if(message === undefined) return;
 
-			// Initialise the linecount button
-			linecountForm();
+		// Arrange the data
+		arrangeData(message.data);
 
-			// Update the graph
-			line.original_data = visualizeArray;
-			line.Set('labels', dateArray)
-				.Set('title', day)
-				.Set('tooltips', tooltips);
+		// Initialise the linecount button
+		linecountForm();
 
-			// Redraw
-			graphNS.redraw();
-		});
+		// Update the graph
+		line.original_data = visualizeArray;
+		line.Set('labels', dateArray)
+			.Set('title', day)
+			.Set('tooltips', tooltips);
 
+		// Redraw
+		graphNS.redraw();
+	});
 
 	// Interrupt button
 	$('#interruptButton').click(function() {

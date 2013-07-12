@@ -55,7 +55,7 @@ app.configure(function() {
 	app.use(express.methodOverride());
 	// Logging middleware
 	// TODO: Dafuer sorgen, dass jede Verbindung nur einmal geloggt wird. Ergo: Irgendwie die statischen Dateien nicht loggen
-	app.use(express.logger(logMode));
+	// app.use(express.logger(logMode));
 	/*  Routes the requests, it would be implicit initialated at the first use of app.get
 	this ensures that routing is done before the static folder is used */
 	app.use(app.router);
@@ -108,6 +108,21 @@ var userCounter = 0,
 // The data socket
 	dataSocket = io.of('/data')
 	.on('connection', function(socket) {
+		// Initialize the other events
+		// Reduces the usercounter and stops the watching of the file if necessary
+		socket.on('disconnect', function() {
+			if(--userCounter === 0) {
+				copywatch.unwatch(readFile);
+				// Reset the firstSend bool
+				firstSend = false;
+			}
+		});
+
+		// Interrupt event; stops the data flow
+		socket.on('interrupt', function(message) {
+			fs.writeFile(writeFile, (message.command || "INTERRUPT"), 'utf8');
+		});
+
 		// Increase the user counter on connection, if it is the first connection, start the watching of the file
 		if(++userCounter === 1) {
 			firstSend = true;
@@ -137,18 +152,6 @@ var userCounter = 0,
 			socket.emit('first', {data: currentData});
 		}
 	})
-	.on('disconnet', function() {
-		if(--userCounter === 0) {
-			copywatch.unwatch(readFile);
-			// Reset the firstSend bool
-			firstSend = false;
-		}
-	})
-	.on('log', function(message) {console.log("Message:", message);})
-	.on('interrupt', function(message) {
-		console.log('Test');
-		fs.writeFile(writeFile, (message.command || "INTERRUPT"), 'utft8');
-	});
 
 /**
 * Get it running!
