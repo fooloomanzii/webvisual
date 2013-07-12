@@ -183,6 +183,9 @@ $(document).ready(function() {
 		// Draw
 		line.Draw();
 
+		// Set the interrupt button text
+		$('#interruptButton').text(message.state ? interruptText : continueText)
+
 		// Show the graph
 		graphNS.showData();
 	});
@@ -208,9 +211,14 @@ $(document).ready(function() {
 
 	// Interrupt button
 	$('#interruptButton').click(function() {
-		console.log('test');
-		// socket.emit('interrupt', {command: "INTERRUPT"});
-		socket.send('interrupt');
+		if($(this).text() === interruptText) {
+			socket.emit('interrupt', {command: "INTERRUPT"});
+			// Change the button text
+			$(this).text(continueText);
+		} else {
+			socket.emit('continue');
+			$(this).text(interruptText, {});
+		}
 	});
 
 	// Resize event; let the labels fit the page width

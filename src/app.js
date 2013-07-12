@@ -12,15 +12,19 @@ var copywatch = require('./modules/copywatch'),
 	def = {
 		readFile: 'test.txt',
 		writeFile: 'command.txt',
-		port: 3000
+		port: 3000,
+		interruptCMD: "INTERRUPT",
+		continueCMD: ""
 	},
 // Other variables
-	config    = require('./config.json'),
-	logFile   = __dirname + '/log.txt',
+	config       = require('./config.json'),
+	logFile      = __dirname + '/log.txt',
 	logMode,
-	port      = config.port || def.port,
-	readFile  = config.readFile || def.readFile,
-	writeFile = config.writeFile || def.writeFile;
+	port         = config.port || def.port,
+	readFile     = config.readFile || def.readFile,
+	writeFile    = config.writeFile || def.writeFile,
+	interruptCMD = config.interruptCMD || def.interruptCMD,
+	continueCMD  = config.continueCMD || def.continueCMD;
 
 /**
 * Configure the app
@@ -105,6 +109,8 @@ io.set('log level', 1);
 var userCounter = 0,
 	currentData = undefined,
 	firstSend,
+// Checks if the interrupt order is set
+	state = true,
 // The data socket
 	dataSocket = io.of('/data')
 	.on('connection', function(socket) {
@@ -120,8 +126,38 @@ var userCounter = 0,
 
 		// Interrupt event; stops the data flow
 		socket.on('interrupt', function(message) {
-			fs.writeFile(writeFile, (message.command || "INTERRUPT"), 'utf8');
+			var cmd;
+			if(message === undefined || message.command === undefined) {
+				cmd = interruptCMD;
+			} else {
+				cmd = message.command;
+			}
+
+			// Write the file with an interrupt command; emits an error to the calling client if something goes wrong
+			fs.writeFile(writeFile, cmd, 'utf8', function(err) {
+				if(err) {
+					socket.emit('error', {data: err});
+					return;
+				} state = false;
+			});
 		});
+		// Continue event; continues the data flow
+		socket.on('continue', function(message) {
+			var cmd;
+			if(message === undefined || message.command === undefined) {
+				cmd = continueCMD;
+			} else {
+				cmd = message.command;
+			}
+
+			// Write the file with an continue command; emits an error to the calling client if something goes wrong
+			fs.writeFile(writeFile, cmd, 'utf8', function(err) {
+				if(err) {
+					socket.emit('error', {data: err});
+					return;
+				} state = true;
+			});
+		})
 
 		// Increase the user counter on connection, if it is the first connection, start the watching of the file
 		if(++userCounter === 1) {
@@ -143,13 +179,13 @@ var userCounter = 0,
 				// TODO: Implementiere eine Verarbeitung der Daten, sende nicht immer alles
 				// TODO: Sende dem Client den Fehler, wenn einer auftritt
 				currentData = parsedData;
-				dataSocket.emit(sendEvent, {data: currentData});
+				dataSocket.emit(sendEvent, {data: currentData, state: state});
 			});
 		}
 		// The copywatch initialization makes a first parse right at the beginning.
 		// This means, that just clients after the first need to get the current data
 		else /*if(userCounter > 1)*/ {
-			socket.emit('first', {data: currentData});
+			socket.emit('first', {data: currentData, state: state});
 		}
 	})
 
