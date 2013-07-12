@@ -11,15 +11,16 @@ var copywatch = require('./modules/copywatch'),
 // Default config
 	def = {
 		readFile: 'test.txt',
-		writeFile: 'command.txt'
+		writeFile: 'command.txt',
+		port: 3000
 	},
 // Other variables
-	config      = require('./config.json'),
-	defaultPort = 3000,
-	logFile     = __dirname + '/log.txt',
+	config    = require('./config.json'),
+	logFile   = __dirname + '/log.txt',
 	logMode,
-	readFile    = config.readFile || def.readFile,
-	writeFile   = config.writeFile || def.writeFile;
+	port      = config.port || def.port,
+	readFile  = config.readFile || def.readFile,
+	writeFile = config.writeFile || def.writeFile;
 
 /**
 * Configure the app
@@ -54,7 +55,7 @@ app.configure(function() {
 	app.use(express.methodOverride());
 	// Logging middleware
 	// TODO: Dafuer sorgen, dass jede Verbindung nur einmal geloggt wird. Ergo: Irgendwie die statischen Dateien nicht loggen
-	// app.use(express.logger(logMode));
+	app.use(express.logger(logMode));
 	/*  Routes the requests, it would be implicit initialated at the first use of app.get
 	this ensures that routing is done before the static folder is used */
 	app.use(app.router);
@@ -153,9 +154,9 @@ var userCounter = 0,
 * Get it running!
 */
 
-server.listen(process.env.PORT || defaultPort);
+server.listen(process.env.PORT || port);
 
 console.log("SemShow Server is running under %d Port in %s mode",
-	(process.env.PORT || defaultPort), app.settings.env);
+	(process.env.PORT || port), app.settings.env);
 
 })();
