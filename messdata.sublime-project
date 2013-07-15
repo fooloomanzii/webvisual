@@ -2,8 +2,10 @@
 	"folders":
 	[
 		{
-			"path": "src/node_modules",
-			"name": "node_modules"
+			"path": "src/node_modules"
+		},
+		{
+			"path": "src/modules"
 		},
 		{
 			"path": "data"
@@ -13,6 +15,7 @@
 			"file_exclude_patterns": [ "*min.*" ],
 			"folder_exclude_patterns": [
 				"builds",
+				"modules",
 				"node_modules",
 				"views",
 				"public/js",

@@ -4,6 +4,7 @@ Messdatenvisualisierung:
    ✔ websockets @done (13-06-07 13:55)
    ☐ vernuenftige Verarbeitung der geparsten Werte: maximale Anzahl an zu sendenden Werten, seperate Verwaltung der Werte Anzahl pro Socket? (Aufwaendig!)
    ☐ abstraktere bereitsstellung der verschiedenen Kommunikationsebenen (anstatt copywatch direkt nutzen, lieber eine Ebene als Kommunikator zwischen schalten. Vereinfacht die Verwendung anderer Protokolle wie z.B. TCP-IP oder aehnliches)
+   ☐ copywatch - watching nicht beenden wenn die Datei geloescht wird
   Weniger relevant:
    ☐ Errorhandling in copywatch
    ☐ Dem Client den Fehler uebermitteln, wenn einer auftritt
@@ -12,3 +13,6 @@ Messdatenvisualisierung:
 Module:
   Ideen:
     ✔ Schalte das Data_Parser Modul zwischen das Original- und Copy-File von Copywatch (Ergo: Erzeuge eine einfach lesbare Kopie) @done (13-05-02 14:39)
+
+Bugfix:
+  ☐ Rueckfallmechanik in App.js, wenn die Datei nicht vorhanden ist
