@@ -22,6 +22,10 @@ $(document).ready(function() {
 		var values = getValues(data);
 		if(values === undefined) return;
 
+		// Clear the area
+		$('#namen').empty();
+		$('#werte').empty();
+
 		// Create the table
 		for(var i=0; i<values.length; ++i) {
 			$('#namen').append('<h3 class="subheader">Messwert '+(i+1)+':</h3>');
