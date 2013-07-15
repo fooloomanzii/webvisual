@@ -27,7 +27,7 @@ function getProperString() {
 		(today.getHours()+':'+
 		(today.getMinutes() < 10 ? "0" + today.getMinutes() : today.getMinutes())+':'+
 		(seconds < 10 ? "0" + seconds : seconds))+';'+
-		(threeDigitRandom(2));
+		(threeDigitRandom(3));
 
 	first = false;
 
@@ -67,7 +67,6 @@ function test() {
 	setTimeout(test, 1000);
 }
 
-console.log(__dirname);
 setTimeout(test, 1000);
 
 
