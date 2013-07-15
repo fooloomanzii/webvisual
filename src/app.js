@@ -10,21 +10,22 @@ var copywatch = require('./modules/copywatch'),
 	fs        = require('fs'),
 // Default config
 	def = {
-		readFile: 'test.txt',
-		writeFile: 'command.txt',
+		read_file: 'test.txt',
+		command_file: 'command.txt',
 		port: 3000,
-		interruptCMD: "INTERRUPT",
-		continueCMD: ""
 	},
 // Other variables
-	config       = require('./config.json'),
-	logFile      = __dirname + '/log.txt',
+	config      = require('./config.json'),
+	logFile     = __dirname + '/log.txt',
 	logMode,
-	port         = config.port || def.port,
-	readFile     = config.readFile || def.readFile,
-	writeFile    = config.writeFile || def.writeFile,
-	interruptCMD = config.interruptCMD || def.interruptCMD,
-	continueCMD  = config.continueCMD || def.continueCMD;
+	port        = config.port || def.port,
+	read_file    = config.read_file || def.read_file,
+	command_file = config.command_file || def.command_file,
+// Command object
+	cmd_txt = {
+		"interrupt": (config.cmd && config.cmd.interrupt) || "INTERRUPT",
+		"continue": (config.cmd && config.cmd.continue) || "CONTINUE"
+	};
 
 /**
 * Configure the app
@@ -105,20 +106,19 @@ app.get('/data', routes.data);
 // Just print warnings
 io.set('log level', 1);
 
-// User Counter
+// Socket variables
 var userCounter = 0,
-	currentData = undefined,
+	currentData,
 	firstSend,
 // Checks if the interrupt order is set
 	state = true,
 // The data socket
-	dataSocket = io.of('/data')
-	.on('connection', function(socket) {
+	dataSocket = io.of('/data').on('connection', function(socket) {
 		// Initialize the other events
 		// Reduces the usercounter and stops the watching of the file if necessary
 		socket.on('disconnect', function() {
 			if(--userCounter === 0) {
-				copywatch.unwatch(readFile);
+				copywatch.unwatch(read_file);
 				// Reset the firstSend bool
 				firstSend = false;
 			}
@@ -162,7 +162,7 @@ var userCounter = 0,
 		// Increase the user counter on connection, if it is the first connection, start the watching of the file
 		if(++userCounter === 1) {
 			firstSend = true;
-			copywatch.parsewatch(readFile, function(errorData, parsedData) {
+			copywatch.parsewatch(read_file, function(errorData, parsedData) {
 				// Are there errors?
 				if(errorData) {
 					dataSocket.emit('error', {data: errorData});
@@ -177,7 +177,6 @@ var userCounter = 0,
 				}
 				// If something changes, then send the new data to the client
 				// TODO: Implementiere eine Verarbeitung der Daten, sende nicht immer alles
-				// TODO: Sende dem Client den Fehler, wenn einer auftritt
 				currentData = parsedData;
 				dataSocket.emit(sendEvent, {data: currentData, state: state});
 			});
@@ -187,7 +186,7 @@ var userCounter = 0,
 		else /*if(userCounter > 1)*/ {
 			socket.emit('first', {data: currentData, state: state});
 		}
-	})
+	});
 
 /**
 * Get it running!
