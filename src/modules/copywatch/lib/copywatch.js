@@ -49,6 +49,10 @@ var fs          = require('fs'),
 	watchr      = require('watchr'),
 
 // Global variables
+	def           = {
+		copy_function: copy,
+		errorHandler: errorHandler
+	},
 	watchers      = {},
 	watcherCount  = 0,
 	extension     = '_node',
@@ -294,10 +298,11 @@ function getExtension() {
 
 /*
 	Watch
-	mode influences the copy/parse mechanism which is used, when the file was updated:
+	mode - mode influences the copy/parse mechanism which is used, when the file was updated:
 		'end' - copy the last bytes of the file (the difference between prevStat.size and currStat.size)
 		'begin' - copy the first few bytes of the file (the difference between prevStat.size and currStat.size)
 		'all' - copy the whole file
+	files - the file or an array of files which should be watched
 	options
 		copy_function - a string which describes which function should be used to make a copy of the file
 			'default' - the default, copywatch makes a simple copy
@@ -305,19 +310,21 @@ function getExtension() {
 			'none' - the file won't be copied.
 				You still can give copywatch a parse_callback-function, which will recieve the parsed data.
 				If there is not parse_callback-function than copywatch won't watch the file, since there is no point in doing so.
+		error_handler - a function which is called when an error occures
 		parse_callback - a function which recieves the parsed data, when the file was changed
 */
 function watch(mode, files, options, next) {
 	// Define variables
-	var i, process_function, listenersObj, nextObj;
+	var i, process_function, listenersObj, nextObj,
+	error_handler = def.errorHandler;
 
 	checkMode(mode);
 
-	process_function = copy;
+	process_function = def.copy_function;
 	// Are there any options
-	if (typeof options === 'function' && typeof next === 'undefined') {
+	if (typeof options === 'function' && next === undefined) {
 		next = options;
-	} else if (options !== null && typeof options === 'object') {
+	} else if (options !== null && typeof options === 'object') { // typeof null === 'object'; yes, it's dumb
 		// Copyparse option
 		if(options.copy_function === 'parse') {
 			process_function = parsecopy;
@@ -331,15 +338,15 @@ function watch(mode, files, options, next) {
 				return;
 			}
 		}
+
+		// Error handler option
+		if(typeof options.error_handler === 'function') {
+			error_handler = options.error_handler;
+		}
 	}
 
 	if (!typechecker.isArray(files)) {
 		files = [files];
-	}
-
-	// Make a first copy
-	for (i=0; i<files.length; ++i) {
-		process_function(files[i], undefined, undefined, options.parse_options, options.parse_callback);
 	}
 
 	// We don't want to define functions inside a loop
@@ -349,10 +356,10 @@ function watch(mode, files, options, next) {
 				console.log("Log:", arguments);
 			}
 		},
-		error: errorHandler,
+		error: error_handler,
 		change: function (event, path, currStat, prevStat) {
 			// Update event - copy the changes
-			if (event === 'update') {
+			if (event === 'update' || event === 'create') {
 				if (mode === 'end') {
 					process_function(path, prevStat.size, undefined, options.parse_options, options.parse_callback);
 				} else if (mode === 'begin') {
@@ -363,11 +370,15 @@ function watch(mode, files, options, next) {
 			}
 			//  Delete event - delete the copied version
 			else if (event === 'delete') {
-				fs.unlink(path+extension, errorHandler);
+				// We don't need to delete the copied file if there is no copied file
+				if(options.copy_function !== 'none') {
+					fs.unlink(path+extension, errorHandler);
+				}
 			}
 		}
 	};
 
+	// The object with the function that will be executed after the watcher was correctly configured
 	nextObj = function (err, watcherInstance) {
 		++watcherCount;
 
@@ -375,12 +386,43 @@ function watch(mode, files, options, next) {
 		if (next) return next(err);
 	};
 
+	// HACK!
+	/*	Since we don't want the watchr to stop watching when the file is deleted,
+		we watch the whole directory while ignoring all the files we don't want to watch.
+		It's a bit ugly but won't mean performance descrease, since watchr still just
+		watches just the one file. */
 	// Iterate through the files and create a watcher for each
+	var currFile, currDir;
 	for (i=0; i<files.length; ++i) {
-		watchers[path_util.resolve(files[i])] = watchr.watch({
-			path: files[i],
-			listeners: listenersObj,
-			next: nextObj
+		currFile = path_util.resolve(files[i]); // Necessary to have the file in scope of the "readdir"-function
+		currDir  = path_util.dirname(currFile);
+		// TODO: Make the retrieval of the dir_files less redundant
+
+		// Check for existance and make a first copy/parse
+		fs.exists(currFile, function(exists) {
+			if(exists === false) {
+				console.warn('"'+currFile+'"', "was not found.\n"+
+					"copywatch now listens for the \"create\"-event and will continue as usual afterwards.");
+			} else {
+				// Make a first copy
+				process_function(currFile, undefined, undefined, options.parse_options, options.parse_callback);
+			}
+		});
+
+		// Get the files of the dir
+		fs.readdir(currDir, function(err, dir_files) {
+			if(err) error_handler(err);
+
+			// Remove the file from the array
+			delete dir_files[ dir_files.indexOf(path_util.basename(currFile)) ];
+
+			// Finally watch the file
+			watchers[currFile] = watchr.watch({
+				path: currDir, // We need to watch the directory in order to not stop watching on delete
+				listeners: listenersObj,
+				next: nextObj,
+				ignorePaths: dir_files
+			});
 		});
 	}
 }
