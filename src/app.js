@@ -112,6 +112,22 @@ var userCounter = 0,
 	firstSend,
 // Checks if the interrupt order is set
 	state = true,
+// A set of commands which can be executed when the command event is fired; the cmd_tmp is used to asign the same function to multiple elements
+	cmd_tmp, cmd_fnct = {
+		"interrupt": (cmd_tmp = function(socket, command) {
+			// Write an interrupt command into the command_file; emits an error to the calling client if something goes wrong
+			fs.writeFile(command_file, cmd_txt[command], 'utf8', function(err) {
+				if(err) {
+					socket.emit('error', {data: err});
+					return;
+				} state = (command !== "interrupt");
+			});
+
+			// TODO: Emit an change event to the other clients notice that the state has changed
+			dataSocket.emit('command', {cmd: command});
+		}),
+		"continue": cmd_tmp
+	},
 // The data socket
 	dataSocket = io.of('/data').on('connection', function(socket) {
 		// Initialize the other events
@@ -124,40 +140,16 @@ var userCounter = 0,
 			}
 		});
 
-		// Interrupt event; stops the data flow
-		socket.on('interrupt', function(message) {
-			var cmd;
-			if(message === undefined || message.command === undefined) {
-				cmd = interruptCMD;
-			} else {
-				cmd = message.command;
+		// Listen for the command event
+		socket.on('command', function(message) {
+			if(message === undefined || message.cmd === undefined) {
+				return;
 			}
 
-			// Write the file with an interrupt command; emits an error to the calling client if something goes wrong
-			fs.writeFile(writeFile, cmd, 'utf8', function(err) {
-				if(err) {
-					socket.emit('error', {data: err});
-					return;
-				} state = false;
-			});
+			var command = message.cmd.toLowerCase();
+			// Execute the given command
+			if(cmd_fnct[command]) cmd_fnct[command](socket, command);
 		});
-		// Continue event; continues the data flow
-		socket.on('continue', function(message) {
-			var cmd;
-			if(message === undefined || message.command === undefined) {
-				cmd = continueCMD;
-			} else {
-				cmd = message.command;
-			}
-
-			// Write the file with an continue command; emits an error to the calling client if something goes wrong
-			fs.writeFile(writeFile, cmd, 'utf8', function(err) {
-				if(err) {
-					socket.emit('error', {data: err});
-					return;
-				} state = true;
-			});
-		})
 
 		// Increase the user counter on connection, if it is the first connection, start the watching of the file
 		if(++userCounter === 1) {
@@ -178,7 +170,7 @@ var userCounter = 0,
 				// If something changes, then send the new data to the client
 				// TODO: Implementiere eine Verarbeitung der Daten, sende nicht immer alles
 				currentData = parsedData;
-				dataSocket.emit(sendEvent, {data: currentData, state: state});
+				dataSocket.emit(sendEvent, {data: currentData});
 			});
 		}
 		// The copywatch initialization makes a first parse right at the beginning.

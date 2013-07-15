@@ -146,13 +146,27 @@ function arrangeData(data) {
 	}
 }
 
-
 // READY
 $(document).ready(function() {
+	// Local variables
+	var button_text = {
+		"interrupt": "Interrupt",
+		"continue": "Continue"
+	},
 	// Set up the Socket.IO connection
-	var socket = io.connect('http://'+window.location.host+'/data', {transports: ['xhr-polling']}),
-		interruptText = "Interrupt",
-		continueText  = "Continue";
+		socket = io.connect('http://'+window.location.host+'/data', {transports: ['xhr-polling']});
+
+	// Some functions
+	function flipButton() {
+		var newText = button_text.interrupt,
+			button = $('#interruptButton');
+
+		if(button.text() === button_text.interrupt) {
+			newText = button_text.continue;
+		}
+
+		button.text(newText)
+	}
 
 	// First message
 	socket.on('first', function(message) {
@@ -184,7 +198,7 @@ $(document).ready(function() {
 		line.Draw();
 
 		// Set the interrupt button text
-		$('#interruptButton').text(message.state ? interruptText : continueText)
+		$('#interruptButton').text(message.state ? button_text.interrupt : button_text.continue)
 
 		// Show the graph
 		graphNS.showData();
@@ -208,17 +222,27 @@ $(document).ready(function() {
 		// Redraw
 		graphNS.redraw();
 	});
+	// Command event; occures on an interrupt and a continue
+	socket.on('command', function(message) {
+		if(message === undefined || message.cmd === undefined) return;
+
+		// The the button text
+		if(message.cmd === "interrupt" || message.cmd === "continue") {
+			flipButton();
+		}
+	});
 
 	// Interrupt button
 	$('#interruptButton').click(function() {
-		if($(this).text() === interruptText) {
-			socket.emit('interrupt', {command: "INTERRUPT"});
-			// Change the button text
-			$(this).text(continueText);
+		var command;
+		if($(this).text() === button_text.interrupt) {
+			command = 'interrupt';
 		} else {
-			socket.emit('continue');
-			$(this).text(interruptText, {});
+			command = 'continue';
 		}
+
+		// Emit the command
+		socket.emit('command', {cmd: command});
 	});
 
 	// Resize event; let the labels fit the page width
