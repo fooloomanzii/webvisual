@@ -16,7 +16,7 @@ $(document).ready(function() {
 		return data.pop().values;
 	}
 
-	var socket = io.connect('http://'+window.location.host+'/data')
+	var socket = io.connect('http://'+window.location.host+'/data');
 	// The first data
 	socket.on('first', function(data) {
 		var values = getValues(data);
@@ -47,8 +47,6 @@ $(document).ready(function() {
 			$('#value'+i).text(values[i]);
 		}
 	});
-
-
 
 	// Public stuff
 	return {

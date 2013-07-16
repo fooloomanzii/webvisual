@@ -111,7 +111,7 @@ var userCounter = 0,
 	currentData,
 	firstSend,
 // Checks if the interrupt order is set
-	state = true,
+	state = (fs.existsSync(command_file) && (fs.readFileSync(command_file, 'utf8') !== cmd_txt.interrupt)),
 // A set of commands which can be executed when the command event is fired; the cmd_tmp is used to asign the same function to multiple elements
 	cmd_tmp, cmd_fnct = {
 		"interrupt": (cmd_tmp = function(socket, command) {
@@ -159,18 +159,27 @@ var userCounter = 0,
 				if(errorData) {
 					dataSocket.emit('error', {data: errorData});
 				}
-				// Then send the data
 
-				var sendEvent = 'data';
-				// Send the first event, if it is the first parsing
+				// Create the event type and the message object
+				var sendEvent = 'data',
+					message   = {
+						data: parsedData
+					};
+
+				// Set the first event and add the state, if it is the first parsing
 				if(firstSend) {
 					sendEvent = 'first';
 					firstSend = false;
+
+					// Set the state
+					message.state = state;
 				}
-				// If something changes, then send the new data to the client
-				// TODO: Implementiere eine Verarbeitung der Daten, sende nicht immer alles
+
+				// Save the new data and ...
 				currentData = parsedData;
-				dataSocket.emit(sendEvent, {data: currentData});
+
+				// ... finally send the data
+				dataSocket.emit(sendEvent, message);
 			});
 		}
 		// The copywatch initialization makes a first parse right at the beginning.
