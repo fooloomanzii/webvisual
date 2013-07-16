@@ -81,7 +81,7 @@ function error_handler(err) {
 */
 function check_mode(mode) {
 	if (!(mode === 'end' || mode === 'begin' || mode === 'all')) {
-		throw "Not a valid mode.";
+		throw new Error(mode+" - Not a valid mode.");
 	}
 }
 
@@ -396,25 +396,9 @@ function watch(mode, files, options, next) {
 		still just watches just the one file. If it's a big directory the startup speed
 		can	suffer a bit, but it shoudln't be too bad. */
 	// Iterate through the files and create a watcher for each
-	var currFile, currDir;
-	for (i=0; i<files.length; ++i) {
-		currFile = path_util.resolve(files[i]); // Necessary to have the file in scope of the "readdir"-function; files[i] doesn't work
-		currDir  = path_util.dirname(currFile);
-
-		// Usually we don't want to make functions in a loop, but here it's necessary to get the right scope
-		// Check for existance and make a first copy/parse
-		fs.exists(currFile, function(exists) {
-			if(exists === false) {
-				console.warn('"'+currFile+'"', "was not found.\n"+
-					"copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
-			} else {
-				// Make a first copy/parse
-				process_function(currFile, undefined, undefined, options.parse_options, options.parse_callback);
-			}
-		});
-
-		// Get the files of the dir
-		fs.readdir(currDir, function(err, dir_files) {
+	var currFile, currDir,
+	// The function that is called, when the contents of the directory are read
+		readdir_callback = function(err, dir_files) {
 			if(err) error_handler(err);
 
 			// Remove the file from the array
@@ -427,7 +411,28 @@ function watch(mode, files, options, next) {
 				next: nextObj,
 				ignorePaths: dir_files
 			});
-		});
+		},
+		// The function that is called, when the existance of the file is known
+		exists_callback = function(exists) {
+			if(exists === false) {
+				console.warn('"'+currFile+'"', "was not found.\n"+
+					"copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
+			} else {
+				// Make a first copy/parse
+				process_function(currFile, undefined, undefined, options.parse_options, options.parse_callback);
+			}
+		};
+
+	// Looping through the given files
+	for (i=0; i<files.length; ++i) {
+		currFile = path_util.resolve(files[i]); // Necessary to have the file in scope of the "readdir"-function; files[i] doesn't work
+		currDir  = path_util.dirname(currFile);
+
+		// Check for existance and make a first copy/parse
+		fs.exists(currFile, exists_callback);
+
+		// Get the files of the dir
+		fs.readdir(currDir, readdir_callback);
 	}
 }
 
