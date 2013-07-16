@@ -10,14 +10,22 @@ var copywatch = require('./modules/copywatch'),
 	fs        = require('fs'),
 // Default config
 	def = {
-		file: 'test.txt'
+		read_file: 'test.txt',
+		command_file: 'command.txt',
+		port: 3000,
 	},
 // Other variables
 	config      = require('./config.json'),
-	defaultPort = 3000,
 	logFile     = __dirname + '/log.txt',
 	logMode,
-	file        = config.file || def.file;
+	port        = config.port || def.port,
+	read_file    = config.read_file || def.read_file,
+	command_file = config.command_file || def.command_file,
+// Command object
+	cmd_txt = {
+		"interrupt": (config.cmd && config.cmd.interrupt) || "INTERRUPT",
+		"continue": (config.cmd && config.cmd.continue) || "CONTINUE"
+	};
 
 /**
 * Configure the app
@@ -98,17 +106,55 @@ app.get('/data', routes.data);
 // Just print warnings
 io.set('log level', 1);
 
-// User Counter
+// Socket variables
 var userCounter = 0,
-	currentData = undefined,
+	currentData,
 	firstSend,
+// Checks if the interrupt order is set
+	state = true,
+// A set of commands which can be executed when the command event is fired; the cmd_tmp is used to asign the same function to multiple elements
+	cmd_tmp, cmd_fnct = {
+		"interrupt": (cmd_tmp = function(socket, command) {
+			// Write an interrupt command into the command_file; emits an error to the calling client if something goes wrong
+			fs.writeFile(command_file, cmd_txt[command], 'utf8', function(err) {
+				if(err) {
+					socket.emit('error', {data: err});
+					return;
+				} state = (command !== "interrupt");
+			});
+
+			// TODO: Emit an change event to the other clients notice that the state has changed
+			dataSocket.emit('command', {cmd: command});
+		}),
+		"continue": cmd_tmp
+	},
 // The data socket
-	dataSocket = io.of('/data')
-	.on('connection', function(socket) {
+	dataSocket = io.of('/data').on('connection', function(socket) {
+		// Initialize the other events
+		// Reduces the usercounter and stops the watching of the file if necessary
+		socket.on('disconnect', function() {
+			if(--userCounter === 0) {
+				copywatch.unwatch(read_file);
+				// Reset the firstSend bool
+				firstSend = false;
+			}
+		});
+
+		// Listen for the command event
+		socket.on('command', function(message) {
+			if(message === undefined || message.cmd === undefined) {
+				return;
+			}
+
+			var command = message.cmd.toLowerCase();
+			// Execute the given command
+			if(cmd_fnct[command]) cmd_fnct[command](socket, command);
+		});
+
 		// Increase the user counter on connection, if it is the first connection, start the watching of the file
 		if(++userCounter === 1) {
 			firstSend = true;
-			copywatch.parsewatch(file, function(errorData, parsedData) {
+			copywatch.parsewatch(read_file, function(errorData, parsedData) {
 				// Are there errors?
 				if(errorData) {
 					dataSocket.emit('error', {data: errorData});
@@ -123,7 +169,6 @@ var userCounter = 0,
 				}
 				// If something changes, then send the new data to the client
 				// TODO: Implementiere eine Verarbeitung der Daten, sende nicht immer alles
-				// TODO: Sende dem Client den Fehler, wenn einer auftritt
 				currentData = parsedData;
 				dataSocket.emit(sendEvent, {data: currentData});
 			});
@@ -131,14 +176,7 @@ var userCounter = 0,
 		// The copywatch initialization makes a first parse right at the beginning.
 		// This means, that just clients after the first need to get the current data
 		else /*if(userCounter > 1)*/ {
-			socket.emit('first', {data: currentData});
-		}
-	})
-	.on('disconnet', function() {
-		if(--userCounter === 0) {
-			copywatch.unwatch(file);
-			// Reset the firstSend bool
-			firstSend = false;
+			socket.emit('first', {data: currentData, state: state});
 		}
 	});
 
@@ -146,9 +184,9 @@ var userCounter = 0,
 * Get it running!
 */
 
-server.listen(process.env.PORT || defaultPort);
+server.listen(process.env.PORT || port);
 
 console.log("SemShow Server is running under %d Port in %s mode",
-	(process.env.PORT || defaultPort), app.settings.env);
+	(process.env.PORT || port), app.settings.env);
 
 })();

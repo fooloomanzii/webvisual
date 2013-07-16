@@ -2,7 +2,9 @@ extends ../graph_layout
 
 prepend canvas
 	.row
-		.small-12.columns(align='right')#customFormDiv
+		.small-6.columns
+			a(href='#', style='margin-top:1ex;')#interruptButton.button.small Interrupt
+		.small-6.columns(align='right')
 			span#noDataLabel.label.alert No Data available.
 			form#linecountForm.custom
 				label Graphs

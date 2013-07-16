@@ -17,7 +17,6 @@ $(document).ready(function() {
 	}
 
 	var socket = io.connect('http://'+window.location.host+'/data');
-
 	// The first data
 	socket.on('first', function(data) {
 		var values = getValues(data);

@@ -64,7 +64,7 @@ function createLabels() {
 
 	// The maximum amount of tooltips is 10; if the window gets smaller these amount is reduced.
 	var maxTooltips = Math.min(10, Math.round($('#data').width()/100)),
-		skip        = parseInt(currentData.length/maxTooltips, 10);
+		skip        = Math.max(1, Math.round(currentData.length/maxTooltips));
 
 	// Save the dates in the dateArray; we want 10 dates max,
 	// equally distributed over the available dates
@@ -146,60 +146,104 @@ function arrangeData(data) {
 	}
 }
 
-
 // READY
 $(document).ready(function() {
+	// Local variables
+	var button_text = {
+		"interrupt": "Interrupt",
+		"continue": "Continue"
+	},
 	// Set up the Socket.IO connection
-	var socket = io.connect('http://'+window.location.host+'/data')
-		.on('first', function(message) {
-			if(message === undefined) return;
+		socket = io.connect('http://'+window.location.host+'/data', {transports: ['xhr-polling']});
 
-			// Arrange the data
-			arrangeData(message.data);
+	// Some functions
+	function flipButton() {
+		var newText = button_text.interrupt,
+			button = $('#interruptButton');
 
-			// Initialise the linecount button
-			linecountForm();
+		if(button.text() === button_text.interrupt) {
+			newText = button_text.continue;
+		}
 
-			// Create the graph
-			line = new RGraph.Line("graph", visualizeArray)
-				.Set('linewidth', 2)
-				.Set('title', day)
-				// .Set('title.xaxis.pos', .15)
-				.Set('labels', dateArray)
-				// .Set('gutter.bottom', 45)
-				// .Set('text.size', 11)
-				.Set('tickmarks', 'circle')
-				.Set('tooltips', tooltips)
-				.Set('ymax', 10)
-				.Set('scale.round', true);
+		button.text(newText)
+	}
 
-			// Save it in the graph namespace
-			graphNS.graph = line;
+	// First message
+	socket.on('first', function(message) {
+		if(message === undefined) return;
 
-			// Draw
-			line.Draw();
+		// Arrange the data
+		arrangeData(message.data);
 
-			// Show the graph
-			graphNS.showData();
-		})
-		.on('data', function(message) {
-			if(message === undefined) return;
+		// Initialise the linecount button
+		linecountForm();
 
-			// Arrange the data
-			arrangeData(message.data);
+		// Create the graph
+		line = new RGraph.Line("graph", visualizeArray)
+			.Set('linewidth', 2)
+			.Set('title', day)
+			// .Set('title.xaxis.pos', .15)
+			.Set('labels', dateArray)
+			// .Set('gutter.bottom', 45)
+			// .Set('text.size', 11)
+			.Set('tickmarks', 'circle')
+			.Set('tooltips', tooltips)
+			.Set('ymax', 10)
+			.Set('scale.round', true);
 
-			// Initialise the linecount button
-			linecountForm();
+		// Save it in the graph namespace
+		graphNS.graph = line;
 
-			// Update the graph
-			line.original_data = visualizeArray;
-			line.Set('labels', dateArray)
-				.Set('title', day)
-				.Set('tooltips', tooltips);
+		// Draw
+		line.Draw();
 
-			// Redraw
-			graphNS.redraw();
-		});
+		// Set the interrupt button text
+		$('#interruptButton').text(message.state ? button_text.interrupt : button_text.continue)
+
+		// Show the graph
+		graphNS.showData();
+	});
+	// New data event
+	socket.on('data', function(message) {
+		if(message === undefined) return;
+
+		// Arrange the data
+		arrangeData(message.data);
+
+		// Initialise the linecount button
+		linecountForm();
+
+		// Update the graph
+		line.original_data = visualizeArray;
+		line.Set('labels', dateArray)
+			.Set('title', day)
+			.Set('tooltips', tooltips);
+
+		// Redraw
+		graphNS.redraw();
+	});
+	// Command event; occures on an interrupt and a continue
+	socket.on('command', function(message) {
+		if(message === undefined || message.cmd === undefined) return;
+
+		// The the button text
+		if(message.cmd === "interrupt" || message.cmd === "continue") {
+			flipButton();
+		}
+	});
+
+	// Interrupt button
+	$('#interruptButton').click(function() {
+		var command;
+		if($(this).text() === button_text.interrupt) {
+			command = 'interrupt';
+		} else {
+			command = 'continue';
+		}
+
+		// Emit the command
+		socket.emit('command', {cmd: command});
+	});
 
 	// Resize event; let the labels fit the page width
 	graphNS.resize = function() {
