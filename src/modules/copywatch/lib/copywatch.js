@@ -191,6 +191,7 @@ function parse_read(path, start, end, parse_options, callback) {
 		}
 	}
 
+	// Reading the stream
 	var tmpBuffer = "", firstRead = true, linecount = 0;
 	read.on('readable', function() {
 		var data = read.read();
@@ -221,6 +222,7 @@ function parse_read(path, start, end, parse_options, callback) {
 		}
 	});
 
+	// End the stream
 	read.on('end', function() {
 		// We still need to add the last stored line in tmpBuffer, if there is one
 		if(tmpBuffer !== "") {
@@ -299,6 +301,83 @@ function getExtension() {
 }
 
 /*
+	Handle the watch options
+*/
+function process_watch_options(options) {
+	var processed_options = {
+		error_handler: def.error_handler,
+		process_function: def.copy_function
+	};
+
+	// Are there any options
+	if (options !== null && typeof options === 'object') { // typeof null === 'object'; yes, it's dumb
+		// Copyfunction option
+		if(options.copy_function === 'parse') {
+			processed_options.process_function = parse_copy;
+		} // None option
+		else if(options.copy_function === 'none') {
+			if(options.parse_callback) {
+				// Just parse the file and give the data to the specified callback
+				processed_options.process_function = parse_read;
+			} else {
+				/*	There is no point in doing nothing on a change.	This probably
+				wasn't the users intention and failing quitly would just confuse. */
+				throw new Error("Configuration error."+
+					"The options specify that copywatch should do nothing on a change,"+
+					" so then there is no point in watching the file. "+
+					"This can't be your intention.");
+			}
+		}
+
+		// Error handler option
+		if(typeof options.error_handler === 'function') {
+			processed_options.error_handler = options.error_handler;
+		}
+	}
+
+	return processed_options;
+}
+
+/*
+	Create the listeners object
+*/
+function create_listeners(options) {
+	return {
+		// The log listener; logs all given arguments except the logLevel on stdout
+		log: function (logLevel) {
+			if (logLevel === 'dev') {
+				console.log("Log:", arguments.slice(1));
+			}
+		},
+		// The error_handler, it is specified in the options object
+		error: options.error_handler,
+		change: function (event, path, currStat, prevStat) {
+			// Update event - copy the changes
+			if (event === 'update' || event === 'create') {
+				if (mode === 'end') {
+					options.process_function(path, prevStat.size, undefined, options.parse_options, options.parse_callback);
+				} else if (mode === 'begin') {
+					options.process_function(path, 0, (currStat.size - prevStat.size), options.parse_options, options.parse_callback);
+				} else if (mode === 'all') {
+					options.process_function(path, undefined, undefined, options.parse_options, options.parse_callback);
+				}
+			}
+			//  Delete event - delete the copied version
+			else if (event === 'delete') {
+				// We don't need to delete the copied file if there is no copied file
+				if(options.copy_function !== 'none') {
+					fs.unlink(path+extension, error_handler);
+				}
+			}
+		}
+	};
+}
+
+/*
+	Create the next object
+*/
+
+/*
 	Watch
 	mode - mode influences the copy/parse mechanism which is used, when the file was updated:
 		'end' - copy the last bytes of the file (the difference between prevStat.size and currStat.size)
@@ -311,75 +390,28 @@ function getExtension() {
 			'parse' - copywatch will create a parsed copy of the file
 			'none' - the file won't be copied.
 				You still can give copywatch a parse_callback-function, which will recieve the parsed data.
-				If there is not parse_callback-function than copywatch won't watch the file, since there is no point in doing so.
+				If there is not parse_callback-function than copywatch will throw an error, since there is
+				no point in watching a file and doing nothing on change.
 		error_handler - a function which is called when an error occures
 		parse_callback - a function which recieves the parsed data, when the file was changed
 */
 function watch(mode, files, options, next) {
 	// Define variables
-	var i, process_function, listenersObj, nextObj,
-	error_handler = def.error_handler;
+	var i, listenersObj, nextObj;
 
+	// Check if the given mode is a valid one
 	check_mode(mode);
 
-	process_function = def.copy_function;
-	// OPTIONS
-	// Are there any options
-	if (typeof options === 'function' && next === undefined) {
-		next = options;
-	} else if (options !== null && typeof options === 'object') { // typeof null === 'object'; yes, it's dumb
-		// Copyparse option
-		if(options.copy_function === 'parse') {
-			process_function = parse_copy;
-		} // None option
-		else if(options.copy_function === 'none') {
-			if(options.parse_callback) {
-				// Just parse the file and give the data to the specified callback
-				process_function = parse_read;
-			} else {
-				// There is no point in doing nothing on a change
-				return;
-			}
-		}
+	// Process the options; use default values if necessary
+	options = process_watch_options(options);
 
-		// Error handler option
-		if(typeof options.error_handler === 'function') {
-			error_handler = options.error_handler;
-		}
-	}
-
+	// Make sure that files are an array (important for later processing)
 	if (!typechecker.isArray(files)) {
 		files = [files];
 	}
 
 	// We don't want to define functions inside a loop
-	listenersObj = {
-		log: function (logLevel) {
-			if (logLevel === 'dev') {
-				console.log("Log:", arguments);
-			}
-		},
-		error: error_handler,
-		change: function (event, path, currStat, prevStat) {
-			// Update event - copy the changes
-			if (event === 'update' || event === 'create') {
-				if (mode === 'end') {
-					process_function(path, prevStat.size, undefined, options.parse_options, options.parse_callback);
-				} else if (mode === 'begin') {
-					process_function(path, 0, (currStat.size - prevStat.size), options.parse_options, options.parse_callback);
-				} else if (mode === 'all') {
-					process_function(path, undefined, undefined, options.parse_options, options.parse_callback);
-				}
-			}
-			//  Delete event - delete the copied version
-			else if (event === 'delete') {
-				// We don't need to delete the copied file if there is no copied file
-				if(options.copy_function !== 'none') {
-					fs.unlink(path+extension, error_handler);
-				}
-			}
-		}
-	};
+	listenersObj = create_listeners(options);
 
 	// The object with the function that will be executed after the watcher was correctly configured
 	nextObj = function (err, watcherInstance) {
@@ -399,9 +431,10 @@ function watch(mode, files, options, next) {
 	var currFile, currDir,
 	// The function that is called, when the contents of the directory are read
 		readdir_callback = function(err, dir_files) {
-			if(err) error_handler(err);
+			if(err) options.error_handler(err);
 
-			// Remove the file from the array
+			// Remove the file from the array;
+			// (the array has the same lenght, but the value for the deleted index is undefined)
 			delete dir_files[ dir_files.indexOf(path_util.basename(currFile)) ];
 
 			// Finally watch the file
@@ -419,7 +452,7 @@ function watch(mode, files, options, next) {
 					"copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
 			} else {
 				// Make a first copy/parse
-				process_function(currFile, undefined, undefined, options.parse_options, options.parse_callback);
+				options.process_function(currFile, undefined, undefined, options.parse_options, options.parse_callback);
 			}
 		};
 
