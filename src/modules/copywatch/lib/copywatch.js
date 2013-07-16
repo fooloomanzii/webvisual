@@ -51,7 +51,7 @@ var fs          = require('fs'),
 // Global variables
 	def           = {
 		copy_function: copy,
-		errorHandler: errorHandler
+		error_handler: error_handler
 	},
 	watchers      = {},
 	watcherCount  = 0,
@@ -65,9 +65,9 @@ var fs          = require('fs'),
 // Functions
 
 /*
-	Default errorhandler
+	Default error_handler
 */
-function errorHandler(err) {
+function error_handler(err) {
 	if (err) {
 		if (typechecker.isArray(err) && err.length === 0) {
 			return;
@@ -77,9 +77,9 @@ function errorHandler(err) {
 }
 
 /*
-	checkMode
+	check_mode
 */
-function checkMode(mode) {
+function check_mode(mode) {
 	if (!(mode === 'end' || mode === 'begin' || mode === 'all')) {
 		throw "Not a valid mode.";
 	}
@@ -88,7 +88,7 @@ function checkMode(mode) {
 /*
 	Create read/write options
 */
-function createOptions(start, end) {
+function create_options(start, end) {
 	var options = {
 		readOptions: {},
 		writeOptions: {}
@@ -108,11 +108,11 @@ function createOptions(start, end) {
 	Copys a file. start and end are optional
 */
 function copy(path, start, end, parse_options, callback) {
-	var options = createOptions(start, end);
+	var options = create_options(start, end);
 
 	// Give the callback the parsed data, if they are defined
 	if(parsed_options && callback) {
-		parseRead(path, start, end, parse_options, callback);
+		parse_read(path, start, end, parse_options, callback);
 	}
 
 	fs.createReadStream(path, options.readOptions).pipe(fs.createWriteStream(path+extension, options.writeOptions));
@@ -122,7 +122,7 @@ function copy(path, start, end, parse_options, callback) {
 	Parseandcopy
 	Parses and copys a file with the data_parser-module.
 */
-function parsecopy(path, start, end, parse_options, callback) {
+function parse_copy(path, start, end, parse_options, callback) {
 	if (typeof start === 'object' && parse_options) parse_options = start;
 	else if (typeof end === 'object' && parse_options) parse_options = end;
 
@@ -130,7 +130,7 @@ function parsecopy(path, start, end, parse_options, callback) {
 	var options, write;
 
 	// Create the read/write options
-	options = createOptions(start, end);
+	options = create_options(start, end);
 
 	options.writeOptions.encoding = 'utf8';
 
@@ -147,10 +147,10 @@ function parsecopy(path, start, end, parse_options, callback) {
 		if(callback) callback(errorData, parsedData);
 	}
 
-	parseRead(path, options.readOptions, finish);
+	parse_read(path, options.readOptions, finish);
 }
 
-function parseRead(path, start, end, parse_options, callback) {
+function parse_read(path, start, end, parse_options, callback) {
 	// Define variables
 	var parsedData = [],
 		errorData  = [],
@@ -160,15 +160,17 @@ function parseRead(path, start, end, parse_options, callback) {
 	if(typeof start === 'object') {
 		readOptions = start;
 	} else {
-		readOptions = createOptions(start, end).readOptions;
+		readOptions = create_options(start, end).readOptions;
 	}
 
 	if(typeof end === 'function') {
 		callback = end;
 	}
 
+	// Set the encoding
 	readOptions.encoding = 'utf8';
 
+	// Create the readstream
 	read = fs.createReadStream(path, readOptions);
 
 	read.on('error', function(err) {
@@ -246,7 +248,7 @@ function unwatch(path, remove, callback) {
 
 		delete watchers[path];
 
-		if (remove) return fs.unlink(path+extension, (callback || errorHandler));
+		if (remove) return fs.unlink(path+extension, (callback || error_handler));
 		else if (callback) return callback();
 	}
 }
@@ -267,7 +269,7 @@ function clear(remove, callback) {
 			If there is no callback, call the default handler.
 			If there are no errors and no callback, do nothing. */
 		if (watcherCount === 0) {
-			return (callback || errorHandler)(errors.length>0 ? errors : null);
+			return (callback || error_handler)(errors.length>0 ? errors : null);
 		}
 	};
 
@@ -316,23 +318,24 @@ function getExtension() {
 function watch(mode, files, options, next) {
 	// Define variables
 	var i, process_function, listenersObj, nextObj,
-	error_handler = def.errorHandler;
+	error_handler = def.error_handler;
 
-	checkMode(mode);
+	check_mode(mode);
 
 	process_function = def.copy_function;
+	// OPTIONS
 	// Are there any options
 	if (typeof options === 'function' && next === undefined) {
 		next = options;
 	} else if (options !== null && typeof options === 'object') { // typeof null === 'object'; yes, it's dumb
 		// Copyparse option
 		if(options.copy_function === 'parse') {
-			process_function = parsecopy;
+			process_function = parse_copy;
 		} // None option
 		else if(options.copy_function === 'none') {
 			if(options.parse_callback) {
 				// Just parse the file and give the data to the specified callback
-				process_function = parseRead;
+				process_function = parse_read;
 			} else {
 				// There is no point in doing nothing on a change
 				return;
@@ -372,7 +375,7 @@ function watch(mode, files, options, next) {
 			else if (event === 'delete') {
 				// We don't need to delete the copied file if there is no copied file
 				if(options.copy_function !== 'none') {
-					fs.unlink(path+extension, errorHandler);
+					fs.unlink(path+extension, error_handler);
 				}
 			}
 		}
@@ -389,22 +392,23 @@ function watch(mode, files, options, next) {
 	// HACK!
 	/*	Since we don't want the watchr to stop watching when the file is deleted,
 		we watch the whole directory while ignoring all the files we don't want to watch.
-		It's a bit ugly but won't mean performance descrease, since watchr still just
-		watches just the one file. */
+		It's a bit ugly but won't mean performance descrease while running, since watchr
+		still just watches just the one file. If it's a big directory the startup speed
+		can	suffer a bit, but it shoudln't be too bad. */
 	// Iterate through the files and create a watcher for each
 	var currFile, currDir;
 	for (i=0; i<files.length; ++i) {
-		currFile = path_util.resolve(files[i]); // Necessary to have the file in scope of the "readdir"-function
+		currFile = path_util.resolve(files[i]); // Necessary to have the file in scope of the "readdir"-function; files[i] doesn't work
 		currDir  = path_util.dirname(currFile);
-		// TODO: Make the retrieval of the dir_files less redundant
 
+		// Usually we don't want to make functions in a loop, but here it's necessary to get the right scope
 		// Check for existance and make a first copy/parse
 		fs.exists(currFile, function(exists) {
 			if(exists === false) {
 				console.warn('"'+currFile+'"', "was not found.\n"+
-					"copywatch now listens for the \"create\"-event and will continue as usual afterwards.");
+					"copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
 			} else {
-				// Make a first copy
+				// Make a first copy/parse
 				process_function(currFile, undefined, undefined, options.parse_options, options.parse_callback);
 			}
 		});
