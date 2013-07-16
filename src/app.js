@@ -111,7 +111,7 @@ var userCounter = 0,
 	currentData,
 	firstSend,
 // Checks if the interrupt order is set
-	state = true,
+	state = (fs.existsSync(command_file) && (fs.readFileSync(command_file, 'utf8') !== cmd_txt.interrupt)),
 // A set of commands which can be executed when the command event is fired; the cmd_tmp is used to asign the same function to multiple elements
 	cmd_tmp, cmd_fnct = {
 		"interrupt": (cmd_tmp = function(socket, command) {
