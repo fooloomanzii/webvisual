@@ -23,8 +23,10 @@
 			]
 		},
 		{
-			"path": "src/views",
-			"name": "views"
+			"path": "src/views"
+		},
+		{
+			"path": "src/test"
 		},
 		{
 			"path": "src/public/js",
