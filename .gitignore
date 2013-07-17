@@ -11,5 +11,5 @@ src/node_modules
 *.sublime-workspace
 
 # Tests #
-src/test/live_test.txt
+src/test/OLD/*.txt
 src/*.txt
