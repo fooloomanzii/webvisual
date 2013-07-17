@@ -4,7 +4,7 @@
 var typechecker = require('typechecker'),
 
 	syntax = {
-		year: /[12][0-9]{3}/, // 1000 - 2999 are valid
+		year: /[1234][0-9]{3}/, // 1000 - 2999 are valid
 		month: /0[1-9]|1[0-2]/, // 01 - 12 are valid
 		day: /0[1-9]|[12][0-9]|3[01]/, // 01 - 31 are valid
 		hour: /[01][0-9]|[0-9]|2[0-3]/, // 00 - 23 are valid
@@ -27,7 +27,6 @@ var typechecker = require('typechecker'),
 		time: ["hour", "minute", "second"]
 };
 
-
 // Functions
 
 /**
@@ -39,7 +38,7 @@ var typechecker = require('typechecker'),
  *	seperator - a single character, seperating the tokens in the string.
  *				alternativly seperator can be undefined, 'unknown' or '?' if the kind of seperator isn't known.
  *				The method then trys to extract the seperator from the string.
- *				(If your seperator is a '?' then use '\?'.)
+ *				(If your seperator is a '?' then use '??'.)
  *	options (optional) - a object with several format options:
  *		format - a format array with two elements for the parsing, tokens are "date", "time".
  *				It will be assumed that there is a "seperator" between each array-element.
@@ -50,8 +49,11 @@ var typechecker = require('typechecker'),
  *	callback - a callback function, gets a potential error or the generated object (err, data)
  */
 function parse(string, seperator, options, callback) {
-	if(typeof options === 'function' && typeof callback === 'undefined') {
+	if(typeof options === 'function' && callback === undefined) {
 		callback = options;
+	} else if(typeof seperator === 'function' && callback === undefined) {
+		callback = seperator;
+		seperator = undefined;
 	}
 
 	// Just to be sure
@@ -62,51 +64,17 @@ function parse(string, seperator, options, callback) {
 			fullFormat, format,
 			data, extractedDate,
 			match, shift,
-			values, check_val,
-			i, k;
+			values, check_val;
 
 		// Seperator is unknown? Looks at the end of the string for the last value and takes the seperator which is used before
 		if(seperator === undefined || seperator === 'unknown' || seperator === '?') {
-			seperatorFinder = new RegExp("(.)(" + syntax.values.source + ")$");
-
-			seperatorMatch  = string.match(seperatorFinder);
-			if(seperatorMatch !== null && seperatorMatch.length > 1) {
-				seperator = seperatorMatch[1];
-			} else {
-				throw errorString(string, undefined, ((new Error()).lineNumber-3));
-			}
-		} else if(seperator === '\?') {
+			seperator = _findSeperator(string);
+		} else if(seperator === '??') {
 			seperator = '?';
 		}
 
 		// Initialize the options
-		if(options !== null && typeof options === 'object') {
-			// General format
-			// Throws a error, if the given format is invalid
-			if(typeof options.format === 'undefined') {
-				options.format = defaultOptions.format;
-			} else if (!valid("format", options.format)) {
-				throw new SyntaxError('Invalid format. The format has to be an array with two elements for the parsing, tokens are "date", "time".');
-			}
-
-			// Date format
-			// Throws a error, if the given format is invalid
-			if(typeof options.date === 'undefined') {
-				options.date = defaultOptions.date;
-			} else if (!valid("date", options.date)) {
-				throw new SyntaxError('Invalid date. The date has to be an array with three elements for the parsing of the date, tokens are "day", "month", "year".');
-			}
-
-			// Time format
-			// Throws a error, if the given format is invalid
-			if(typeof options.time === 'undefined') {
-				options.time = defaultOptions.time;
-			} else if(!valid("time", options.time)) {
-				throw new SyntaxError('Invalid time. The time has to be an array with three elements for the parsing of the time, tokens are "hour", "minute", "second".');
-			}
-		} else {
-			options = defaultOptions;
-		}
+		options = _initializeOptions(options);
 
 		// Split the string into the tokens
 		tokens = string.split(seperator);
@@ -116,40 +84,24 @@ function parse(string, seperator, options, callback) {
 
 		// The returned data
 		data = { date: undefined, values: []};
-		extractedDate = {};
 
-		// Start the parsing
-		for(i=0; i<fullFormat.length; ++i) { // Exclude values
-			token = tokens[i];
-			format = options[fullFormat[i]]; // Get the correct format (time or date)
-
-			shift = 0;
-			for(k=0; k<format.length; ++k) {
-				match = token.substring(shift).match(syntax[format[k]]);
-				if(match.length < 1) throw errorString(token, shift);
-
-				extractedDate[format[k]] = match;
-
-				shift += match.length + 1; // +1 for the seperator
-			}
-		}
+		// Start the parsing - extract the date
+		extractedDate = _parseDate(tokens, options);
 
 		// Extract the values from the tokens
 		values = tokens.slice(fullFormat.length);
 
 		// Create the date
-		if(fullFormat.indexOf("date") !== -1 && fullFormat.indexOf("time") !== -1) {
+		if(fullFormat.indexOf("date") !== -1) {
 			// Syntax is Date(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND)
 			// JavaScript starts the counting of the months at 0, so we have to substract one (I know, it doesn't make sense)
-			data.date = new Date(extractedDate.year, (extractedDate.month-1), extractedDate.day, extractedDate.hour, extractedDate.minute, extractedDate.second);
-		} else if(fullFormat.indexOf("date") !== -1) {
-			data.date = new Date(extractedDate.year, extractedDate.month, extractedDate.day);
+			data.date = _createDate(extractedDate);
 		} else {
 			data.date = "No date";
 		}
 
 		// Push the values into the data.values array - as numbers.
-		for(i=0; i<values.length; ++i) {
+		for(var i=0; i<values.length; ++i) {
 			check_val = Number(values[i]);
 
 			if(!isNaN(check_val)) {
@@ -163,6 +115,116 @@ function parse(string, seperator, options, callback) {
 	}
 }
 
+/*
+	A deep_clone function. A bit dumb, but an efficent way to deep-clone an object.
+*/
+function _deep_clone(obj) {
+	return JSON.parse(JSON.stringify(obj));
+};
+
+/*
+	Initializes the options object
+*/
+function _initializeOptions(options) {
+	var returnOptions;
+
+	if(options !== null && typeof options === 'object') {
+		// returnOptions = JSON.parse(JSON.stringify(options));
+		returnOptions = _deep_clone(options);
+
+		// General format
+		// Throws a error, if the given format is invalid
+		if(options.format === undefined) {
+			returnOptions.format = defaultOptions.format;
+		} else if (!_validate("format", options.format)) {
+			throw new SyntaxError('Invalid format. The format has to be an array with maximum two elements for the parsing, tokens are "date", "time".');
+		}
+
+		// Date format
+		// Throws a error, if the given format is invalid
+		if(options.date === undefined) {
+			returnOptions.date = defaultOptions.date;
+		} else if (!_validate("date", options.date)) {
+			throw new SyntaxError('Invalid date. The date has to be an array with maximum three elements for the parsing of the date, tokens are "day", "month", "year".');
+		}
+
+		// Time format
+		// Throws a error, if the given format is invalid
+		if(options.time === undefined) {
+			returnOptions.time = defaultOptions.time;
+		} else if(!_validate("time", options.time)) {
+			throw new SyntaxError('Invalid time. The time has to be an array with maximum three elements for the parsing of the time, tokens are "hour", "minute", "second".');
+		}
+	} else {
+		returnOptions = defaultOptions;
+	}
+
+	return returnOptions;
+}
+
+/*
+	Find the seperator
+*/
+function _findSeperator(string) {
+	// This regular exprexion looks at the last value of the string an extracts the sign before the value; this should be the seperator
+	var seperatorFinder = new RegExp("(.)(" + syntax.values.source + ")$"),
+		seperatorMatch  = string.match(seperatorFinder),
+		seperator;
+
+	// Did we find a seperator?
+	if(seperatorMatch !== null && seperatorMatch.length > 1) {
+		seperator = seperatorMatch[1];
+	}
+	// If not throw an error
+	else {
+		throw _errString(string);
+	}
+
+	return seperator;
+}
+
+/*
+	Parse the date from the input
+*/
+function _parseDate(tokens, options) {
+	var extractedDate = {},
+		subFormat, match, shift, token;
+
+	for(var i=0; i<options.format.length; ++i) { // Exclude values
+		// The token which will be parsed
+		token = tokens[i];
+		// Format for the parsing of the current token (be it time or date)
+		subFormat = options[options.format[i]];
+		// Throw an error if the subFormat isn't defined
+		if(subFormat === undefined) throw new Error("\""+options.format[i]+"\"-format isn't defined in the given format.");
+
+		// Needed to shift the token around
+		shift = 0;
+		for(var k=0; k<subFormat.length; ++k) {
+			// Throw a regular expression on the token to parse
+			match = token.substring(shift).match(syntax[subFormat[k]]);
+			// If there is no match something went wrong
+			if(match.length < 1) throw _errString(token, shift);
+
+			// Save the match
+			extractedDate[subFormat[k]] = parseInt(match[0], 10);
+
+			// Shift the string
+			shift += match[0].length + 1; // +1 for the seperator
+		}
+	}
+
+	return extractedDate;
+}
+
+/*
+	Create the date out of an object
+*/
+function _createDate(date) {
+	// This is necessary since passing an undefined value to the Date-Constructor results in an invalid
+	return new Date(date.year || 0, ((date.month || 1)-1), date.day || 0, date.hour || 0, date.minute || 0, date.second || 0);
+}
+
 /**
  *	Checks if the given type is valid format object. Types are "format", "date" and "time".
  *
@@ -172,24 +234,32 @@ function parse(string, seperator, options, callback) {
  *
  *	returns boolean
  */
-function valid(type, object) {
+function _validate(type, object) {
 	if(type === undefined || type === null) return false;
-	else if(allowedOptions[type] === undefined) return false;
+
+	type = type.toLowerCase();
+	if(allowedOptions[type] === undefined) return false;
 
 	var bool = true,
-		tmp;
+		// subbool = false,
+		// Clone the array with the allowed options
+		allowed = _deep_clone(allowedOptions[type]),
+		tmp, index;
 
-	if(typechecker.isArray(object) && object.length === timeLength) {
+	if(typechecker.isArray(object)) {
 		for(var i=0; (i<object.length && bool); ++i) {
 			tmp = object[i];
-			/*	When the actual element is equal to one of the allowed options
-				the subbool will be true */
-			for(var k=0; (k<allowedOptions[type].length && !subbool); ++k) {
-				subbool = subbool | (tmp === allowedOptions[type][k]);
+
+			index = allowed.indexOf(tmp);
+			if(index > -1) {
+				// Remove the element from the allowed array
+				allowed.splice(index, 1);
+			} else {
+				bool = false;
 			}
 
-			bool = bool & subbool;
-			subbool = false;
+			// bool = bool & subbool;
+			// subbool = false;
 		}
 	} else {
 		bool = false;
@@ -198,23 +268,32 @@ function valid(type, object) {
 	return bool;
 }
 
-function errString(string, pos, linenumber) {
+function _errString(string, pos) {
+	var spaces = "";
+
 	if(pos) {
-		var spaces = "";
 		for(var i=0; i<pos; ++i) {
 			spaces = spaces + " ";
 		}
 	}
 
-	return new Error(string ? ("\""+string+"\" - ") : "") + "Error. Invalid String." +
-		(pos ? ("\n"+spaces+"^") : "",
-			__filename,
-			linenumber);
+	return new Error((string ? ("\""+string+"\" - ") : "") + "Error. Invalid String." +
+		(pos ? ("\n"+spaces+"^") : ""),
+			__filename);
 }
 
 
 // Module exports
 module.exports = {
+	// Private
+	_createDate: _createDate,
+	_deep_clone: _deep_clone,
+	_errString: _errString,
+	_findSeperator: _findSeperator,
+	_initializeOptions: _initializeOptions,
+	_parseDate: _parseDate,
+	_validate: _validate,
+	// Public
 	parse: parse
 };
 
