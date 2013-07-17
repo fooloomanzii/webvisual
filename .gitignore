@@ -1,6 +1,9 @@
 # Packaged Stuff #
 # *.exe
 
+# Config files
+src/config.json
+
 # Some folders #
 src/build
 

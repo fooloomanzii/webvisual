@@ -306,7 +306,8 @@ function getExtension() {
 function process_watch_options(options) {
 	var processed_options = {
 		error_handler: def.error_handler,
-		process_function: def.copy_function
+		process_function: def.copy_function,
+		parse_callback: options.parse_callback
 	};
 
 	// Are there any options
