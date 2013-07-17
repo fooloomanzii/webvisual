@@ -28,18 +28,7 @@
 		},
 		{
 			"path": "src/public/js",
-			"name": "public/js",
-			"file_exclude_patterns": [
-				"foundation*",
-				"jquery*",
-				"modernizr*",
-				"zepto*"
-			],
-			"folder_exclude_patterns": [
-				"foundation",
-				"rgraph",
-				"vendor"
-			]
+			"name": "public/js"
 		},
 		{
 			"path": "src/public/css",
