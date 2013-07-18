@@ -303,8 +303,9 @@ function getExtension() {
 /*
 	Handle the watch options
 */
-function process_watch_options(options) {
+function create_watch_options(mode, options) {
 	var processed_options = {
+		mode: mode,
 		error_handler: def.error_handler,
 		process_function: def.copy_function,
 		parse_callback: options.parse_callback
@@ -355,11 +356,11 @@ function create_listeners(options) {
 		change: function (event, path, currStat, prevStat) {
 			// Update event - copy the changes
 			if (event === 'update' || event === 'create') {
-				if (mode === 'end') {
+				if (options.mode === 'end') {
 					options.process_function(path, prevStat.size, undefined, options.parse_options, options.parse_callback);
-				} else if (mode === 'begin') {
+				} else if (options.mode === 'begin') {
 					options.process_function(path, 0, (currStat.size - prevStat.size), options.parse_options, options.parse_callback);
-				} else if (mode === 'all') {
+				} else if (options.mode === 'all') {
 					options.process_function(path, undefined, undefined, options.parse_options, options.parse_callback);
 				}
 			}
@@ -404,7 +405,7 @@ function watch(mode, files, options, next) {
 	check_mode(mode);
 
 	// Process the options; use default values if necessary
-	options = process_watch_options(options);
+	options = create_watch_options(mode, options);
 
 	// Make sure that files are an array (important for later processing)
 	if (!typechecker.isArray(files)) {
