@@ -9,26 +9,37 @@ var currentData,
 	tooltips       = [],
 	visualizeState = [true],
 	day,
-	line;
+	line,
+	colors = [
+		'#f00', '#0f0', '#00f',
+		'#f0f', '#ff0', '#0ff',
+		'#000', '#949494', '#FFA600',
+		'#008C10', '#FDBDFF', '#990000'
+	];
 
 /*
 	Shows the linecountForm or an error if no data is there
 */
 function linecountForm() {
-	var graphsList = $('#linecount');
+	var graphsList = $('#linecount'),
+		maxIndex;
 
 	// Empty the current linecountList ...
 	graphsList.empty();
 
 	// ... and initialize it with elements
 	if(valueArray.length > 0) {
-		for(var i=0; i<valueArray.length; ++i) {
-			graphsList.prepend('<label for="box'+(i+1)+'" class="countOption float-right" style="margin-left:1em;">'+
+		// Find the maximum index
+		maxIndex = Math.min(valueArray.length, colors.length);
+
+		for(var i=0; i<maxIndex; ++i) {
+			graphsList.prepend('<label for="box'+(i+1)+'" class="countOption'+
+				(i%6 != 0 ? ' float-right' : '')+'" style="margin-left:1em;">'+
 				'<input type="checkbox" id="box'+(i+1)+'" style="display:none;"/>'+
 				'<span class="custom checkbox'+
 				(visualizeState[i] ? ' checked' : '')+
 				'"></span> '+(i+1)+
-				'</label>')
+				'</label>');
 		} $('.countOption').click(function() {
 			// Get the currently selected value
 			var box = parseInt($(this).text(), 10);
@@ -165,7 +176,7 @@ $(document).ready(function() {
 			newText = button_text.continue;
 		}
 
-		button.text(newText)
+		button.text(newText);
 	}
 
 	// First message
@@ -180,6 +191,7 @@ $(document).ready(function() {
 
 		// Create the graph
 		line = new RGraph.Line("graph", visualizeArray)
+			.Set('colors', ['#f00', '#0f0', '#00f', '#f0f', '#ff0', '#0ff', '#000', '#949494', '#FFA600', '#008C10', '#FDBDFF', '#990000'])
 			.Set('linewidth', 2)
 			.Set('title', day)
 			// .Set('title.xaxis.pos', .15)
@@ -198,7 +210,7 @@ $(document).ready(function() {
 		line.Draw();
 
 		// Set the interrupt button text
-		$('#interruptButton').text(message.state ? button_text.interrupt : button_text.continue)
+		$('#interruptButton').text(message.state ? button_text.interrupt : button_text.continue);
 
 		// Show the graph
 		graphNS.showData();
