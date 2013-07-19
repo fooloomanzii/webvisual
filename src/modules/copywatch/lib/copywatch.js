@@ -82,7 +82,7 @@ function _error_handler(err) {
 */
 function _check_mode(mode) {
 	if (!(mode === 'end' || mode === 'begin' || mode === 'all')) {
-		throw new Error(mode+" - Not a valid mode.");
+		return new Error(mode+" - Not a valid mode.");
 	}
 }
 
@@ -411,10 +411,10 @@ function getExtension() {
 */
 function watch(mode, files, options, next) {
 	// Define variables
-	var i, listenersObj, nextObj;
-
-	// Check if the given mode is a valid one
-	_check_mode(mode);
+	var i, listenersObj, nextObj,
+	// Check if the given mode is a valid one; if not throw an error
+		modeError = check_mode(mode);
+	if(modeError) throw modeError;
 
 	// Process the options; use default values if necessary
 	options = _create_watch_options(mode, options);
