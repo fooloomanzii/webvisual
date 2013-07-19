@@ -48,7 +48,7 @@ function getAmount(count) {
 // First write
 // fs.writeFileSync(file, getAmount(10), { encoding: 'utf8'});
 function test() {
-	if(fs.readFileSync('../command.txt', 'utf8') === "INTERRUPT") {
+	if(fs.readFileSync('../../command.txt', 'utf8') === "INTERRUPT") {
 		setTimeout(test, 1000);
 		return;
 	}
