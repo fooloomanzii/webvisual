@@ -2,7 +2,7 @@
 # *.exe
 
 # Config files
-src/config.json
+# src/config.json
 
 # Some folders #
 src/build
