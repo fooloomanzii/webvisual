@@ -88,7 +88,7 @@ function check_mode(mode) {
 /*
 	Create read/write options
 */
-function create_options(start, end) {
+function file_options(start, end) {
 	var options = {
 		readOptions: {},
 		writeOptions: {}
@@ -108,7 +108,7 @@ function create_options(start, end) {
 	Copys a file. start and end are optional
 */
 function copy(path, start, end, parse_options, callback) {
-	var options = create_options(start, end);
+	var options = file_options(start, end);
 
 	// Give the callback the parsed data, if they are defined
 	if(parsed_options && callback) {
@@ -130,7 +130,7 @@ function parse_copy(path, start, end, parse_options, callback) {
 	var options, write;
 
 	// Create the read/write options
-	options = create_options(start, end);
+	options = file_options(start, end);
 
 	options.writeOptions.encoding = 'utf8';
 
@@ -160,7 +160,7 @@ function parse_read(path, start, end, parse_options, callback) {
 	if(typeof start === 'object') {
 		readOptions = start;
 	} else {
-		readOptions = create_options(start, end).readOptions;
+		readOptions = file_options(start, end).readOptions;
 	}
 
 	if(typeof end === 'function') {
@@ -341,6 +341,29 @@ function create_watch_options(mode, options) {
 }
 
 /*
+	Handles a valid change event.
+*/
+function handle_change(event, path, currStat, prevStat, options) {
+	// Update/create event - process the changes
+	if (event === 'update' || event === 'create') {
+		if (options.mode === 'end') {
+			options.process_function(path, prevStat.size, undefined, options.parse_options, options.parse_callback);
+		} else if (options.mode === 'begin') {
+			options.process_function(path, 0, (currStat.size - prevStat.size), options.parse_options, options.parse_callback);
+		} else if (options.mode === 'all') {
+			options.process_function(path, undefined, undefined, options.parse_options, options.parse_callback);
+		}
+	}
+	//  Delete event - delete the copied version
+	else if (event === 'delete') {
+		// We don't need to delete the copied file if there is no copied file
+		if(options.copy_function !== 'none') {
+			fs.unlink(path+extension, error_handler);
+		}
+	}
+}
+
+/*
 	Create the listeners object
 */
 function create_listeners(options) {
@@ -354,23 +377,10 @@ function create_listeners(options) {
 		// The error_handler, it is specified in the options object
 		error: options.error_handler,
 		change: function (event, path, currStat, prevStat) {
-			// Update event - copy the changes
-			if (event === 'update' || event === 'create') {
-				if (options.mode === 'end') {
-					options.process_function(path, prevStat.size, undefined, options.parse_options, options.parse_callback);
-				} else if (options.mode === 'begin') {
-					options.process_function(path, 0, (currStat.size - prevStat.size), options.parse_options, options.parse_callback);
-				} else if (options.mode === 'all') {
-					options.process_function(path, undefined, undefined, options.parse_options, options.parse_callback);
-				}
-			}
-			//  Delete event - delete the copied version
-			else if (event === 'delete') {
-				// We don't need to delete the copied file if there is no copied file
-				if(options.copy_function !== 'none') {
-					fs.unlink(path+extension, error_handler);
-				}
-			}
+			// If its an event for a file we don't watch, there is no reason to process it
+			if(watchers[path] === undefined) return;
+
+			handle_change(event, path, currStat, prevStat, options);
 		}
 	};
 }
@@ -466,8 +476,12 @@ function watch(mode, files, options, next) {
 		// Check for existance and make a first copy/parse
 		fs.exists(currFile, exists_callback);
 
-		// Get the files of the dir
-		fs.readdir(currDir, readdir_callback);
+		// Finally watch the file
+		watchers[currFile] = watchr.watch({
+			path: currDir, // We need to watch the directory in order to not stop watching on delete
+			listeners: listenersObj,
+			next: nextObj
+		});
 	}
 }
 
