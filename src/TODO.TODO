@@ -6,6 +6,7 @@ Messdatenvisualisierung:
    ☐ Errorhandling in copywatch #modules/copywatch/lib/copywatch.js
    ☐ Dem Client den Fehler uebermitteln, wenn einer auftritt
    ☐ LINE: Zeitliche Skalierung der x-Achse, abhaengig von dem Interval der Messwerte #public/js/graphs/graphs/line.js
+   ☐ LINE: Meldung, wenn nicht alle Datensätze dargestellt werden können (mangels Farben)
 
 Module:
   Ideen:
