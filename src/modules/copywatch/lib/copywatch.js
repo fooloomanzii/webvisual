@@ -408,6 +408,7 @@ function getExtension() {
 				no point in watching a file and doing nothing on change.
 		error_handler - a function which is called when an error occures
 		parse_callback - a function which recieves the parsed data, when the file was changed
+	next - a callback function, that recieves an error, if one occured
 */
 function watch(mode, files, options, next) {
 	// Define variables
