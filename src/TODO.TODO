@@ -1,18 +1,22 @@
 Messdatenvisualisierung:
   Relevant:
-   ✔ implementiere die copy Funktion des copywatch-Moduls @done (13-04-11 16:30)
-   ✔ websockets @done (13-06-07 13:55)
    ☐ vernuenftige Verarbeitung der geparsten Werte: maximale Anzahl an zu sendenden Werten, seperate Verwaltung der Werte Anzahl pro Socket? (Aufwaendig!)
    ☐ abstraktere bereitsstellung der verschiedenen Kommunikationsebenen (anstatt copywatch direkt nutzen, lieber eine Ebene als Kommunikator zwischen schalten. Vereinfacht die Verwendung anderer Protokolle wie z.B. TCP-IP oder aehnliches)
-   ✔ copywatch - watching nicht beenden wenn die Datei geloescht wird @done (13-07-15 13:15)
   Weniger relevant:
-   ☐ Errorhandling in copywatch
+   ☐ Errorhandling in copywatch #modules/copywatch/lib/copywatch.js
    ☐ Dem Client den Fehler uebermitteln, wenn einer auftritt
-   ☐ LINE: Zeitliche Skalierung der x-Achse, abhaengig von dem Interval der Messwerte
+   ☐ LINE: Zeitliche Skalierung der x-Achse, abhaengig von dem Interval der Messwerte #public/js/graphs/graphs/line.js
+   ☐ LINE: Meldung, wenn nicht alle Datensätze dargestellt werden können (mangels Farben)
 
 Module:
   Ideen:
-    ✔ Schalte das Data_Parser Modul zwischen das Original- und Copy-File von Copywatch (Ergo: Erzeuge eine einfach lesbare Kopie) @done (13-05-02 14:39)
 
 Bugfix:
-  ✔ Rueckfallmechanik in App.js, wenn die Datei nicht vorhanden ist @done (13-07-15 13:15) - Durch die copywatch Aenderung bezueglich geloeschter Dateien behoben.
+ ☐ Copywatch Rueckfallmechanik wenn eine weitere unrelevante Datei im Verzeichnis erzeugt wird, dass ueberwacht wird
+＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+Archive:
+ ✔ implementiere die copy Funktion des copywatch-Moduls @done (13-04-11 16:30) @project(Messdatenvisualisierung / Relevant)
+ ✔ websockets @done (13-06-07 13:55) @project(Messdatenvisualisierung / Relevant)
+ ✔ copywatch - watching nicht beenden wenn die Datei geloescht wird @done (13-07-15 13:15) @project(Messdatenvisualisierung / Relevant)
+ ✔ Schalte das Data_Parser Modul zwischen das Original- und Copy-File von Copywatch (Ergo: Erzeuge eine einfach lesbare Kopie) @done (13-05-02 14:39) @project(Module / Ideen)
+ ✔ Rueckfallmechanik in App.js, wenn die Datei nicht vorhanden ist @done (13-07-15 13:15) - Durch die copywatch Aenderung bezueglich geloeschter Dateien behoben. @project(Bugfix)

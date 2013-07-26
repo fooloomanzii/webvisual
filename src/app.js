@@ -135,6 +135,10 @@ var userCounter = 0,
 		socket.on('disconnect', function() {
 			if(--userCounter === 0) {
 				copywatch.unwatch(read_file);
+
+				// Log
+				console.log("Stopped watching \""+read_file+"\"");
+
 				// Reset the firstSend bool
 				firstSend = false;
 			}
@@ -157,6 +161,7 @@ var userCounter = 0,
 			copywatch.parsewatch(read_file, function(errorData, parsedData) {
 				// Are there errors?
 				if(errorData) {
+					console.warn("Error(s) occured:", errorData);
 					dataSocket.emit('error', {data: errorData});
 				}
 
@@ -181,6 +186,9 @@ var userCounter = 0,
 				// ... finally send the data
 				dataSocket.emit(sendEvent, message);
 			});
+
+			// Log
+			console.log("Started watching \""+read_file+"\"");
 		}
 		// The copywatch initialization makes a first parse right at the beginning.
 		// This means, that just clients after the first need to get the current data
@@ -195,7 +203,7 @@ var userCounter = 0,
 
 server.listen(process.env.PORT || port);
 
-console.log("SemShow Server is running under %d Port in %s mode",
+console.log("Server is running under %d Port in %s mode",
 	(process.env.PORT || port), app.settings.env);
 
 })();
