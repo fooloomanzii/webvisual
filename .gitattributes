@@ -1,1 +1,2 @@
 src/config.json filter=irrelevant
+src/test.txt filter=testTXT
