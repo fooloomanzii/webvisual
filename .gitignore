@@ -15,4 +15,4 @@ src/node_modules
 
 # Tests #
 src/test/OLD/*.txt
-# src/*.txt
+src/command.txt
