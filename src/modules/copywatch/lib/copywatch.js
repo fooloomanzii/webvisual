@@ -236,10 +236,12 @@ function _parse_read(path, start, end, parse_options, callback) {
 	Handle the watch options
 */
 function _create_watch_options(mode, options) {
-	var processed_options = {
+	var processed_options =	{
 		mode: mode,
 		error_handler: def.error_handler,
 		process_function: def.copy_function,
+		process_copy: true,
+		process_parse: false,
 		parse_callback: options.parse_callback
 	};
 
@@ -248,17 +250,19 @@ function _create_watch_options(mode, options) {
 		// Copyfunction option
 		if(options.copy_function === 'parse') {
 			processed_options.process_function = _parse_copy;
+			processed_options.process_parse = true;
 		} // None option
 		else if(options.copy_function === 'none') {
 			if(options.parse_callback) {
 				// Just parse the file and give the data to the specified callback
 				processed_options.process_function = _parse_read;
+				processed_options.process_copy = false;
 			} else {
 				/*	There is no point in doing nothing on a change.	This probably
 				wasn't the users intention and failing quitly would just confuse. */
 				throw new Error("Configuration error."+
 					"The options specify that copywatch should do nothing on a change,"+
-					" so then there is no point in watching the file. "+
+					" then there is no point in watching the file. "+
 					"This can't be your intention.");
 			}
 		}
@@ -289,7 +293,7 @@ function _handle_change(event, path, currStat, prevStat, options) {
 	//  Delete event - delete the copied version
 	else if (event === 'delete') {
 		// We don't need to delete the copied file if there is no copied file
-		if(options.copy_function !== 'none') {
+		if(options.process_copy) {
 			fs.unlink(path+extension, _error_handler);
 		}
 	}
