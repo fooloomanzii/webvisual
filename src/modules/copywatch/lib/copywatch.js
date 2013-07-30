@@ -51,7 +51,7 @@ var fs          = require('fs'),
 // Global variables
 	def           = {
 		copy_function: _copy,
-		error_handler: _error_handler
+		watch_error: _error_handler
 	},
 	watchers      = {},
 	watcherCount  = 0,
@@ -96,9 +96,16 @@ function _file_options(start, end) {
 	};
 
 	// Create the options for reading and writing
-	if (start && end) {
-		options.readOptions = {start: start, end: end};
-		options.writeOptions = {start: start, flags: 'a'};
+	if (start) {
+		// Read
+		options.readOptions.start = start;
+		// Write
+		options.writeOptions.start = start;
+		options.writeOptions.flags = 'a';
+	}
+	if(end) {
+		// Read
+		options.readOptions.end = end;
 	}
 
 	return options;
@@ -128,16 +135,26 @@ function _parse_copy(path, start, end, parse_options, callback) {
 	// Create the read/write options
 	options = _file_options(start, end);
 
-	options.writeOptions.encoding = 'utf8';
+	// We don't need the other write stuff, since we overwrite the whole copied file
+	options.writeOptions = {
+		encoding: 'utf8'
+	};
 
 	function finish(errorData, parsedData) {
+		// Check for old data
+		var data = watchers[path].data || [];
+
+		// Append the new data
+		for(var i=0; i<parsedData.length; ++i) {
+			data.push(parsedData[i]);
+		} // Save the data
+		watchers[path].data = data;
+
 		// Init the write stream
 		write = fs.createWriteStream(path+extension, options.writeOptions);
 
-		var writestring = JSON.stringify(parsedData);
-
 		// Write the data and close the stream
-		write.end(writeString);
+		write.end(JSON.stringify(data));
 
 		// Make the callback
 		if(callback) callback(errorData, parsedData);
@@ -152,6 +169,7 @@ function _parse_read(path, start, end, parse_options, callback) {
 		errorData  = [],
 		read, readOptions;
 
+	// console.log(start);
 	// Check for alternative parameters
 	if(typeof start === 'object') {
 		readOptions = start;
@@ -238,7 +256,7 @@ function _parse_read(path, start, end, parse_options, callback) {
 function _create_watch_options(mode, options) {
 	var processed_options =	{
 		mode: mode,
-		error_handler: def.error_handler,
+		watch_error: def.watch_error,
 		process_function: def.copy_function,
 		process_copy: true,
 		process_parse: false,
@@ -260,7 +278,7 @@ function _create_watch_options(mode, options) {
 			} else {
 				/*	There is no point in doing nothing on a change.	This probably
 				wasn't the users intention and failing quitly would just confuse. */
-				throw new Error("Configuration error."+
+				throw new Error("Configuration error.\n"+
 					"The options specify that copywatch should do nothing on a change,"+
 					" then there is no point in watching the file. "+
 					"This can't be your intention.");
@@ -268,8 +286,8 @@ function _create_watch_options(mode, options) {
 		}
 
 		// Error handler option
-		if(typeof options.error_handler === 'function') {
-			processed_options.error_handler = options.error_handler;
+		if(typeof options.watch_error === 'function') {
+			processed_options.watch_error = options.watch_error;
 		}
 	}
 
@@ -294,7 +312,7 @@ function _handle_change(event, path, currStat, prevStat, options) {
 	else if (event === 'delete') {
 		// We don't need to delete the copied file if there is no copied file
 		if(options.process_copy) {
-			fs.unlink(path+extension, _error_handler);
+			fs.unlink(path+extension, options.watch_error);
 		}
 	}
 }
@@ -311,7 +329,7 @@ function _create_listeners(options) {
 			}
 		},
 		// The error_handler, it is specified in the options object
-		error: options.error_handler,
+		error: options.watch_error,
 		change: function (event, path, currStat, prevStat) {
 			// If its an event for a file we don't watch, there is no reason to process it
 			if(watchers[path] === undefined) return;
@@ -343,6 +361,8 @@ function unwatch(path, remove, callback) {
 
 		if (remove) return fs.unlink(path+extension, (callback || _error_handler));
 		else if (callback) return callback();
+	} else {
+		return callback(new Error("No such file is watched."));
 	}
 }
 
@@ -362,7 +382,7 @@ function clear(remove, callback) {
 			If there is no callback, call the default handler.
 			If there are no errors and no callback, do nothing. */
 		if (watcherCount === 0) {
-			return (callback || _error_handler)(errors.length>0 ? errors : null);
+			return (callback || _error_handler)(errors.length>0 ? errors : undefined);
 		}
 	};
 
@@ -398,7 +418,7 @@ function getExtension() {
 		'begin' - copy the first few bytes of the file (the difference between prevStat.size and currStat.size)
 		'all' - copy the whole file
 	files - the file or an array of files which should be watched
-	options
+	[options]
 		copy_function - a string which describes which function should be used to make a copy of the file
 			'default' - the default, copywatch makes a simple copy
 			'parse' - copywatch will create a parsed copy of the file
@@ -406,17 +426,22 @@ function getExtension() {
 				You still can give copywatch a parse_callback-function, which will recieve the parsed data.
 				If there is not parse_callback-function than copywatch will throw an error, since there is
 				no point in watching a file and doing nothing on change.
-		error_handler - a function which is called when an error occures
-		parse_callback - a function which recieves the parsed data, when the file was changed
-	next - a callback function, that recieves an error, if one occured
+		watch_error: an function that gets called, when an error occured during watching
+		parse_callback - a function which recieves the parsed data, when the file was changed. Arguments are err
+			(an potential array of errors) and data (an array of parsed data).
+	[next] - a callback function, that recieves an error, if one occured
 */
 function watch(mode, files, options, next) {
 	// Define variables
 	var i, listenersObj, nextObj,
 	// Check if the given mode is a valid one; if not throw an error
-		modeError = check_mode(mode);
+		modeError = _check_mode(mode);
 	if(modeError) throw modeError;
 
+	if(typeof options === 'function') {
+		next = options;
+		options = {};
+	}
 	// Process the options; use default values if necessary
 	options = _create_watch_options(mode, options);
 
