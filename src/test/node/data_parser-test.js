@@ -1,7 +1,7 @@
 var buster = require('buster'),
 	data_parser = require('../../modules/data_parser');
 
-buster.testCase("Data_parser test", {
+buster.testCase("Data_parser", {
 	setUp: function(done) {
 		var that = this;
 
@@ -25,7 +25,7 @@ buster.testCase("Data_parser test", {
 	}
 });
 
-buster.testCase("Data_parser private test", {
+buster.testCase("Data_parser private", {
 	"_createDate gives a correct date": function() {
 		var date = new Date(),
 			dateObj = {
