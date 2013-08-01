@@ -81,9 +81,22 @@ function _error_handler(err) {
 	Returns a boolean.
 */
 function _check_mode(mode) {
-	if (!(mode === 'end' || mode === 'begin' || mode === 'all')) {
-		return new Error(mode+" - Not a valid mode.");
+	// Is it a string?
+	if(typeof mode === 'string') {
+		// Make it lowercase
+		mode = mode.toLowerCase();
+
+		// and check if it's a valid mode
+		if (!(mode === 'end' || mode === 'begin' || mode === 'all')) {
+			return new Error(mode+" - Not a valid mode.");
+		}
+	} else {
+		return new TypeError("\"mode\" needs to be from type \"string\""+
+			" but it's from type \""+(typeof mode)+"\".");
 	}
+
+	// This isn't necessary; it's just preference (the function returns undefined even without this)
+	return undefined;
 }
 
 /*
@@ -96,16 +109,16 @@ function _file_options(start, end) {
 	};
 
 	// Create the options for reading and writing
-	if (start) {
+	if (start !== undefined) {
 		// Read
 		options.readOptions.start = start;
 		// Write
 		options.writeOptions.start = start;
 		options.writeOptions.flags = 'a';
 	}
-	if(end) {
-		// Read
-		options.readOptions.end = end;
+	if(end !== undefined) {
+		// Read; the -1 are necessary because the file starts at 0 and otherwise it would read 1 byte too mutch
+		options.readOptions.end = end-1;
 	}
 
 	return options;
@@ -184,6 +197,9 @@ function _parse_read(path, start, end, parse_options, callback) {
 	// Set the encoding
 	readOptions.encoding = 'utf8';
 
+	// if(readOptions.end) readOptions.end -= 2;
+	// console.log(readOptions);
+
 	// Create the readstream
 	read = fs.createReadStream(path, readOptions);
 
@@ -208,12 +224,26 @@ function _parse_read(path, start, end, parse_options, callback) {
 	// Reading the stream
 	var tmpBuffer = "", firstRead = true, linecount = 0;
 	read.on('readable', function() {
-		var data = read.read();
+		var data = '',
+			chunk;
+
+		// Read the data in the buffer
+		while(null !== (chunk = read.read())) {
+			data += chunk;
+		}
+
+		// There is no data? Well, wtf but we can't work with no data
+		if(data === '') return;
 
 		// Split the data
 		var tokens = data.split(newline);
 		// Split the string again with the alternative newline, if the OS newline didn't work
 		if(tokens.length === 1) tokens = tokens[0].split(alternativeNL);
+		// Still not multiple lines? Then we just read a partial line. So just add it to the buffer and return.
+		if(tokens.length === 1) {
+			tmpBuffer += tokens[0];
+			return;
+		}
 
 		// It is possible, that the last "line" of the data isn't complete. So we have to store it and wait for the next readable event
 		if(firstRead) {
@@ -237,7 +267,7 @@ function _parse_read(path, start, end, parse_options, callback) {
 	});
 
 	// End the stream
-	read.on('end', function() {
+	read.on('end', function(chunk) {
 		// We still need to add the last stored line in tmpBuffer, if there is one
 		if(tmpBuffer !== "") {
 			parser.parse(tmpBuffer, 'unknown', parse_options, pushData);
