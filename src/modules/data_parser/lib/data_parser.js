@@ -56,6 +56,11 @@ function parse(string, seperator, options, callback) {
 		seperator = undefined;
 	}
 
+	// Check if the string is a string
+	if(typeof string !== 'string') {
+		return callback(new TypeError("string (first argument) has to be from type string."), undefined);
+	}
+
 	// Just to be sure
 	try {
 		// Define Variables
