@@ -2,26 +2,63 @@ var buster = require('buster'),
 	data_parser = require('../../modules/data_parser');
 
 buster.testCase("Data_parser", {
-	setUp: function(done) {
-		var that = this;
+	"parse": {
+		setUp: function(done) {
+			var that = this;
 
-		data_parser.parse("01.01.2013;0:00:00;0.05;0.10;0.15", function(err, data) {
-			that.err = err;
-			that.data = data;
+			data_parser.parse("01.01.2013;0:00:00;0.05;0.10;0.15", function(err, data) {
+				that.err = err;
+				that.data = data;
 
-			// To signal we are done
-			done();
+				// To signal we are done
+				done();
+			});
+		},
+		"does not give an error": function() {
+			refute(this.err);
+		},
+		"gives object": function() {
+			assert(this.data);
+		},
+		"gives object with correct values and date": function() {
+			assert.equals(this.data, {date: new Date("01.01.2013 0:00"), values: [.05, .1, .15]});
+		}
+	},
+	"handles wrong type": function(done) {
+
+		var counter = 3,
+			count = function() {
+				if(--counter === 0) {
+					done();
+				}
+			};
+
+		// Object
+		data_parser.parse({}, function(err, data) {
+			assert.defined(err, "Object:");
+			refute.defined(data, "Object:");
+
+			// Countdown
+			count();
 		});
-	},
 
-	"does not give an error": function() {
-		refute(this.err);
-	},
-	"gives object": function() {
-		assert(this.data);
-	},
-	"gives object with correct values and date": function() {
-		assert.equals(this.data, {date: new Date("01.01.2013 0:00"), values: [.05, .1, .15]});
+		// Array
+		data_parser.parse([], function(err, data) {
+			assert.defined(err, "Array:");
+			refute.defined(data, "Array:");
+
+			// Countdown
+			count();
+		});
+
+		// Number
+		data_parser.parse(42, function(err, data) {
+			assert.defined(err, "Number:");
+			refute.defined(data, "Number:");
+
+			// Countdown
+			count();
+		});
 	}
 });
 
