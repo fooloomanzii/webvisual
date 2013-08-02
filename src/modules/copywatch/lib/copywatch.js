@@ -50,7 +50,10 @@ var fs          = require('fs'),
 
 // Global variables
 	def           = {
-		copy_function: _copy,
+		process: function(string, callback) {
+			callback(undefined, string);
+		},
+		work_function: _copy,
 		watch_error: _error_handler
 	},
 	watchers      = {},
@@ -126,79 +129,71 @@ function _file_options(start, end) {
 
 /*
 	Copy
-	Copys a file. start and end are optional
+	Copies a file. Simple and plain.
 */
-function _copy(path, start, end, parse_options, callback) {
+function _copy(path, start, end) {
 	var options = _file_options(start, end);
 
+	// Copies the file
 	fs.createReadStream(path, options.readOptions).pipe(fs.createWriteStream(path+extension, options.writeOptions));
 }
 
 /*
-	Parseandcopy
-	Parses and copys a file with the data_parser-module.
+	Process copy
+	Copies a file and processes it, if a process function is given.
 */
-function _parse_copy(path, start, end, parse_options, callback) {
-	if (typeof start === 'object' && parse_options) parse_options = start;
-	else if (typeof end === 'object' && parse_options) parse_options = end;
-
+function _process_copy(path, start, end, process, callback) {
 	// Define Variables
-	var options, write;
-
 	// Create the read/write options
-	options = _file_options(start, end);
+	var options = { encoding: 'utf8' },
+		write;
 
-	// We don't need the other write stuff, since we overwrite the whole copied file
-	options.writeOptions = {
-		encoding: 'utf8'
-	};
+	function finish(errorData, processedData) {
+		// Data is the data while arrFn the array function for appending/prepending is
+		var data = watchers[path].data || [],
+			arrFn;
 
-	function finish(errorData, parsedData) {
-		// Check for old data
-		var data = watchers[path].data || [];
+		// Check for the mode
+		if((start !== undefined) && (end !== undefined)) {
+			// Prepend mode
+			arrFn = 'unshift';
+		} else if(start !== undefined) {
+			// Append mode
+			arrFn = 'push';
+		} else {
+			// All mode
+			data = [];
+			arrFn = 'push';
+		}
 
-		// Append the new data
-		for(var i=0; i<parsedData.length; ++i) {
-			data.push(parsedData[i]);
+		// Append/Prepend the new data
+		for(var i=0; i<processedData.length; ++i) {
+			data[arrFn](processedData[i]);
 		} // Save the data
 		watchers[path].data = data;
 
 		// Init the write stream
-		write = fs.createWriteStream(path+extension, options.writeOptions);
+		write = fs.createWriteStream(path+extension, options);
 
 		// Write the data and close the stream
 		write.end(JSON.stringify(data));
 
 		// Make the callback
-		if(callback) callback(errorData, parsedData);
+		if(callback) callback(errorData, processedData);
 	}
 
-	_parse_read(path, options.readOptions, finish);
+	_process_read(path, start, end, process, finish);
 }
 
-function _parse_read(path, start, end, parse_options, callback) {
+function _process_read(path, start, end, process, callback) {
 	// Define variables
-	var parsedData = [],
-		errorData  = [],
-		read, readOptions;
-
-	// console.log(start);
-	// Check for alternative parameters
-	if(typeof start === 'object') {
-		readOptions = start;
-	} else {
-		readOptions = _file_options(start, end).readOptions;
-	}
-
-	if(typeof end === 'function') {
-		callback = end;
-	}
+	var processedData = [],
+		errorData     = [],
+		readOptions   = _file_options(start, end).readOptions,
+		read;
 
 	// Set the encoding
 	readOptions.encoding = 'utf8';
-
-	// if(readOptions.end) readOptions.end -= 2;
-	// console.log(readOptions);
 
 	// Create the readstream
 	read = fs.createReadStream(path, readOptions);
@@ -217,7 +212,7 @@ function _parse_read(path, start, end, parse_options, callback) {
 				error: err
 			});
 		} else {
-			parsedData.push(data);
+			processedData.push(data);
 		}
 	}
 
@@ -256,13 +251,11 @@ function _parse_read(path, start, end, parse_options, callback) {
 			tmpBuffer = tokens.pop();
 		}
 
-		// Parse every line on their own
+		// Process every line on their own
 		for(var i=0; i<tokens.length; ++i) {
-			if(tokens[i].length > 2) {
-				parser.parse(tokens[i], 'unknown', parse_options, pushData);
-				// Increase the linecount
-				++linecount;
-			}
+			process(tokens[i], pushData);
+			// Increase the linecount
+			++linecount;
 		}
 	});
 
@@ -270,13 +263,13 @@ function _parse_read(path, start, end, parse_options, callback) {
 	read.on('end', function(chunk) {
 		// We still need to add the last stored line in tmpBuffer, if there is one
 		if(tmpBuffer !== "") {
-			parser.parse(tmpBuffer, 'unknown', parse_options, pushData);
+			process(tmpBuffer, pushData);
 		}
 
 		// Are there any errors?
 		if(errorData.length === 0) errorData = undefined;
 
-		if(callback) callback(errorData, parsedData);
+		if(callback) callback(errorData, processedData);
 	});
 }
 
@@ -284,44 +277,32 @@ function _parse_read(path, start, end, parse_options, callback) {
 	Handle the watch options
 */
 function _create_watch_options(mode, options) {
-	var processed_options =	{
+	var nOptions =	{
 		mode: mode,
-		watch_error: def.watch_error,
-		process_function: def.copy_function,
-		process_copy: true,
-		process_parse: false,
-		parse_callback: options.parse_callback
+		watch_error: options.watch_error || def.watch_error,
+		work_function: def.work_function,
+		process: options.process || def.process,
+		content: options.content
 	};
 
-	// Are there any options
-	if (options !== null && typeof options === 'object') { // typeof null === 'object'; yes, it's dumb
-		// Copyfunction option
-		if(options.copy_function === 'parse') {
-			processed_options.process_function = _parse_copy;
-			processed_options.process_parse = true;
-		} // None option
-		else if(options.copy_function === 'none') {
-			if(options.parse_callback) {
-				// Just parse the file and give the data to the specified callback
-				processed_options.process_function = _parse_read;
-				processed_options.process_copy = false;
-			} else {
-				/*	There is no point in doing nothing on a change.	This probably
-				wasn't the users intention and failing quitly would just confuse. */
-				throw new Error("Configuration error.\n"+
-					"The options specify that copywatch should do nothing on a change,"+
-					" then there is no point in watching the file. "+
-					"This can't be your intention.");
-			}
+	// copy option; a boolean
+	if(options.copy === false) {
+		if(options.content !== undefined) {
+			// Just process the file and give the data to the specified callback
+			nOptions.work_function = _process_read;
+		} else {
+			/*	There is no point in doing nothing on a change.	This probably
+			wasn't the users intention and failing quitly would just confuse. */
+			return new Error("Configuration error.\n"+
+				"The options specify that copywatch should do nothing on a change,"+
+				" then there is no point in watching the file. "+
+				"This can't be your intention.");
 		}
-
-		// Error handler option
-		if(typeof options.watch_error === 'function') {
-			processed_options.watch_error = options.watch_error;
-		}
+	} else if(options.process !== undefined || options.content !== undefined) {
+		nOptions.work_function = _process_copy;
 	}
 
-	return processed_options;
+	return nOptions;
 }
 
 /*
@@ -331,19 +312,19 @@ function _handle_change(event, path, currStat, prevStat, options) {
 	// Update/create event - process the changes
 	if (event === 'update' || event === 'create') {
 		if (options.mode === 'end') {
-			options.process_function(path, prevStat.size, undefined, options.parse_options, options.parse_callback);
+			options.work_function(path, prevStat.size, undefined, options.process, options.content);
 		} else if (options.mode === 'begin') {
-			options.process_function(path, 0, (currStat.size - prevStat.size), options.parse_options, options.parse_callback);
+			options.work_function(path, 0, (currStat.size - prevStat.size), options.process, options.content);
 		} else if (options.mode === 'all') {
-			options.process_function(path, undefined, undefined, options.parse_options, options.parse_callback);
+			options.work_function(path, undefined, undefined, options.process, options.content);
 		}
 	}
 	//  Delete event - delete the copied version
 	else if (event === 'delete') {
 		// We don't need to delete the copied file if there is no copied file
-		if(options.process_copy) {
-			fs.unlink(path+extension, options.watch_error);
-		}
+		fs.exists(path+extension, function(exists) {
+			if(exists) fs.unlink(path+extension, options.watch_error);
+		});
 	}
 }
 
@@ -443,23 +424,27 @@ function getExtension() {
 
 /*
 	Watch
-	mode - mode influences the copy/parse mechanism which is used, when the file was updated:
+	'mode' - mode influences the copy/parse mechanism which is used, when the file was updated:
 		'end' - copy the last bytes of the file (the difference between prevStat.size and currStat.size)
 		'begin' - copy the first few bytes of the file (the difference between prevStat.size and currStat.size)
 		'all' - copy the whole file
-	files - the file or an array of files which should be watched
-	[options]
-		copy_function - a string which describes which function should be used to make a copy of the file
-			'default' - the default, copywatch makes a simple copy
-			'parse' - copywatch will create a parsed copy of the file
-			'none' - the file won't be copied.
-				You still can give copywatch a parse_callback-function, which will recieve the parsed data.
-				If there is not parse_callback-function than copywatch will throw an error, since there is
+	['files'] - the file or an array of files which should be watched
+	{options}
+		copy - a boolean which states if copywatch should make a copy
+			true - the default, copywatch makes a copy
+			false - the file won't be copied.
+				You will have to give copywatch a content-function (a process-function is optional);
+				the content-function will recieve the file-data on change, so you can work with it.
+				If there is not content-function than copywatch will throw an error, since there is
 				no point in watching a file and doing nothing on change.
-		watch_error: an function that gets called, when an error occured during watching
-		parse_callback - a function which recieves the parsed data, when the file was changed. Arguments are err
-			(an potential array of errors) and data (an array of parsed data).
-	[next] - a callback function, that recieves an error, if one occured
+		watch_error - a function that gets called, when an error occured during watching
+		process - a function which processes each line which is read from the file when a change occures.
+			The processed data will be saved as JSON in an array with every line, so it's easier to reread it from the file.
+			It need to take the following argument: 'string' (the current line), 'callback' (optional - a function
+			that recieves the processed line. Otherwise it will be assumed, that the function returns the data.)
+		content - a function that recieves the whole content of the file, every time a change happens.
+			Arguments are err (an potential array of errors) and data (an array of the (processed) lines).
+	next - a callback function, that recieves an error, if one occured
 */
 function watch(mode, files, options, next) {
 	// Define variables
@@ -473,9 +458,14 @@ function watch(mode, files, options, next) {
 		options = {};
 	}
 	// Process the options; use default values if necessary
-	options = _create_watch_options(mode, options);
+	options = _create_watch_options(mode, options || {});
 
-	// Make sure that files are an array (important for later processing)
+	// Did we recieve an error? If yes, then call the next function with this error
+	if(options instanceof Error) {
+		return next(options);
+	}
+
+	// Make sure that files are an array (important for later process)
 	if (!typechecker.isArray(files)) {
 		files = [files];
 	}
@@ -506,7 +496,7 @@ function watch(mode, files, options, next) {
 					"copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
 			} else {
 				// Make a first copy/parse
-				options.process_function(currFile, undefined, undefined, options.parse_options, options.parse_callback);
+				options.work_function(currFile, undefined, undefined, options.process, options.content);
 			}
 		};
 
@@ -529,11 +519,11 @@ function watch(mode, files, options, next) {
 
 /*
 	Parsewatch
-	Equivalent to watch('all', files, {copy_function: 'none', parse_callback: parse_callback}, next)
+	Equivalent to watch('all', files, {copy: false, content: content}, next)
 */
-function parsewatch(files, parse_callback, next) {
-	watch('all', files, {copy_function: 'none', parse_callback: parse_callback}, next);
-}
+//function parsewatch(files, content, next) {
+//	watch('all', files, {copy: false, content: content}, next);
+//}
 
 // Exported functions
 module.exports = {
@@ -542,14 +532,14 @@ module.exports = {
 	_check_mode: _check_mode,
 	_file_options: _file_options,
 	_copy: _copy,
-	_parse_copy: _parse_copy,
-	_parse_read: _parse_read,
+	_process_copy: _process_copy,
+	_process_read: _process_read,
 	_create_watch_options: _create_watch_options,
 	_handle_change: _handle_change,
 	_create_listeners: _create_listeners,
 	// Public
 	watch        : watch,
-	parsewatch   : parsewatch,
+	// parsewatch   : parsewatch,
 	unwatch      : unwatch,
 	clear        : clear,
 	setExtension : setExtension,
