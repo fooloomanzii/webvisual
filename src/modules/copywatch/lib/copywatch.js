@@ -50,6 +50,7 @@ var fs          = require('fs'),
 
 // Global variables
 	def           = {
+		firstCopy: true,
 		process: function(string, callback) {
 			callback(undefined, string);
 		},
@@ -169,7 +170,7 @@ function _process_copy(path, start, end, process, callback) {
 		// Append/Prepend the new data
 		for(var i=0; i<processedData.length; ++i) {
 			data[arrFn](processedData[i]);
-		} // Save the data
+		} // Save the datas
 		watchers[path].data = data;
 
 		// Init the write stream
@@ -279,15 +280,29 @@ function _process_read(path, start, end, process, callback) {
 function _create_watch_options(mode, options) {
 	var nOptions =	{
 		mode: mode,
+		firstCopy: ((options.firstCopy !== undefined) ? options.firstCopy : def.firstCopy),
 		watch_error: options.watch_error || def.watch_error,
 		work_function: def.work_function,
 		process: options.process || def.process,
 		content: options.content
 	};
 
+	// Helpfunction
+	function isFunction(fn) {
+		return (typeof fn === 'function');
+	}
+
+	// Check if process/content are valid
+	if(options.process && !isFunction(options.process)) {
+		return new TypeError('The process-option needs to be an function.');
+	} if(options.content && !isFunction(options.content)) {
+		return new TypeError('The content-function needs to be an function.');
+	}
+
 	// copy option; a boolean
 	if(options.copy === false) {
-		if(options.content !== undefined) {
+		// It was already checked if content is a valid function
+		if(options.content) {
 			// Just process the file and give the data to the specified callback
 			nOptions.work_function = _process_read;
 		} else {
@@ -298,7 +313,7 @@ function _create_watch_options(mode, options) {
 				" then there is no point in watching the file. "+
 				"This can't be your intention.");
 		}
-	} else if(options.process !== undefined || options.content !== undefined) {
+	} else if(options.process || options.content) {
 		nOptions.work_function = _process_copy;
 	}
 
@@ -309,7 +324,7 @@ function _create_watch_options(mode, options) {
 	Handles a valid change event.
 */
 function _handle_change(event, path, currStat, prevStat, options) {
-	// Update/create event - process the changes
+	// Test/create event - process the changes
 	if (event === 'update' || event === 'create') {
 		if (options.mode === 'end') {
 			options.work_function(path, prevStat.size, undefined, options.process, options.content);
@@ -336,7 +351,8 @@ function _create_listeners(options) {
 		// The log listener; logs all given arguments except the logLevel on stdout
 		log: function (logLevel) {
 			if (logLevel === 'dev') {
-				console.log("Log:", arguments.slice(1));
+				// Arguments isn't a real array
+				console.log("Log:", Array.prototype.slice.call(arguments));
 			}
 		},
 		// The error_handler, it is specified in the options object
@@ -397,11 +413,17 @@ function clear(remove, callback) {
 		}
 	};
 
+	// Was there a single call?
+	var called = false;
 	for (path in watchers) {
 		if(watchers.hasOwnProperty(path)) {
+			called = true;
 			unwatch(path, remove, handler);
 		}
 	}
+
+	// If not, make at least the callback
+	if(!called && callback) callback();
 }
 
 /*	Set the extension for the copied files */
@@ -437,6 +459,7 @@ function getExtension() {
 				the content-function will recieve the file-data on change, so you can work with it.
 				If there is not content-function than copywatch will throw an error, since there is
 				no point in watching a file and doing nothing on change.
+		firstCopy - a boolean which states if a first copy of the file should be made, before the watching starts
 		watch_error - a function that gets called, when an error occured during watching
 		process - a function which processes each line which is read from the file when a change occures.
 			The processed data will be saved as JSON in an array with every line, so it's easier to reread it from the file.
@@ -450,7 +473,9 @@ function watch(mode, files, options, next) {
 	// Define variables
 	var i, listenersObj, nextObj,
 	// Check if the given mode is a valid one; if not throw an error
-		modeError = _check_mode(mode);
+		modeError = _check_mode(mode),
+	// Other stuff
+		currFile, currDir, exists_callback;
 	if(modeError) throw modeError;
 
 	if(typeof options === 'function') {
@@ -487,25 +512,23 @@ function watch(mode, files, options, next) {
 		It's a bit ugly but won't mean performance descrease while running, since watchr
 		still just watches just the one file. If it's a big directory the startup speed
 		can	suffer a bit, but it shoudln't be too bad. */
-	// Iterate through the files and create a watcher for each
-	var currFile, currDir,
-		// The function that is called, when the existance of the file is known
-		exists_callback = function(exists) {
-			if(exists === false) {
-				console.warn('"'+currFile+'"', "was not found.\n"+
-					"copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
-			} else {
-				// Make a first copy/parse
-				options.work_function(currFile, undefined, undefined, options.process, options.content);
-			}
-		};
+	// The function that is called, when the existance of the file is known
+	exists_callback = function(exists) {
+		if(exists === false) {
+			console.warn('"'+currFile+'"', "was not found.\n"+
+				"copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
+		} else if(options.firstCopy) {
+			// Make a first copy/parse
+			options.work_function(currFile, undefined, undefined, options.process, options.content);
+		}
+	};
 
 	// Looping through the given files
 	for (i=0; i<files.length; ++i) {
 		currFile = path_util.resolve(files[i]); // Necessary to have the file in scope of the "readdir"-function; files[i] doesn't work
 		currDir  = path_util.dirname(currFile);
 
-		// Check for existance and make a first copy/parse
+		// Check for existance and make a first copy/parse; if firstCopy == true
 		fs.exists(currFile, exists_callback);
 
 		// Finally watch the file
@@ -527,7 +550,10 @@ function watch(mode, files, options, next) {
 
 // Exported functions
 module.exports = {
-	// Private
+	// Private variables
+	_watcher: watchers,
+	_def: def,
+	// Private functions
 	_error_handler: _error_handler,
 	_check_mode: _check_mode,
 	_file_options: _file_options,
