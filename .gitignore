@@ -15,4 +15,6 @@ src/node_modules
 
 # Tests #
 src/test/OLD/*.txt
+
+# Other files #
 src/command.txt

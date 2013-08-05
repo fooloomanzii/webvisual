@@ -5,6 +5,7 @@
 * Module dependencies
 */
 var copywatch = require('./modules/copywatch'),
+	parser    = require('./modules/data_parser'),
 	routes    = require('./routes'),
 	express   = require('express'),
 	fs        = require('fs'),
@@ -123,7 +124,7 @@ var userCounter = 0,
 				} state = (command !== "interrupt");
 			});
 
-			// TODO: Emit an change event to the other clients notice that the state has changed
+			// Emits the command so the other notice that something happened
 			dataSocket.emit('command', {cmd: command});
 		}),
 		"continue": cmd_tmp
@@ -158,33 +159,37 @@ var userCounter = 0,
 		// Increase the user counter on connection, if it is the first connection, start the watching of the file
 		if(++userCounter === 1) {
 			firstSend = true;
-			copywatch.parsewatch(read_file, function(errorData, parsedData) {
-				// Are there errors?
-				if(errorData) {
-					console.warn("Error(s) occured:", errorData);
-					dataSocket.emit('error', {data: errorData});
+			copywatch.watch('all', read_file, {
+				copy: false,
+				process: parser.parse,
+				content: function(errorData, parsedData) {
+					// Are there errors?
+					if(errorData) {
+						console.warn("Error(s) occured:", errorData);
+						dataSocket.emit('error', {data: errorData});
+					}
+
+					// Create the event type and the message object
+					var sendEvent = 'data',
+						message   = {
+							data: parsedData
+						};
+
+					// Set the first event and add the state, if it is the first parsing
+					if(firstSend) {
+						sendEvent = 'first';
+						firstSend = false;
+
+						// Set the state
+						message.state = state;
+					}
+
+					// Save the new data and ...
+					currentData = parsedData;
+
+					// ... finally send the data
+					dataSocket.emit(sendEvent, message);
 				}
-
-				// Create the event type and the message object
-				var sendEvent = 'data',
-					message   = {
-						data: parsedData
-					};
-
-				// Set the first event and add the state, if it is the first parsing
-				if(firstSend) {
-					sendEvent = 'first';
-					firstSend = false;
-
-					// Set the state
-					message.state = state;
-				}
-
-				// Save the new data and ...
-				currentData = parsedData;
-
-				// ... finally send the data
-				dataSocket.emit(sendEvent, message);
 			});
 
 			// Log
@@ -201,9 +206,9 @@ var userCounter = 0,
 * Get it running!
 */
 
-server.listen(process.env.PORT || port);
+server.listen(port);
 
 console.log("Server is running under %d Port in %s mode",
-	(process.env.PORT || port), app.settings.env);
+	(port), app.settings.env);
 
 })();
