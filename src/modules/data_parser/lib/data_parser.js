@@ -150,9 +150,9 @@ function parse(string, seperator, options, callback) {
 			}
 		}
 
-		return callback(undefined, data);
+		return callback(null, data);
 	} catch(err) {
-		return callback(err, undefined);
+		return callback(err, null);
 	}
 }
 
