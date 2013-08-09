@@ -52,7 +52,7 @@ var fs          = require('fs'),
 	def           = {
 		firstCopy: true,
 		process: function(string, callback) {
-			callback(undefined, string);
+			callback(null, string);
 		},
 		work_function: _copy,
 		watch_error: _error_handler
@@ -206,7 +206,7 @@ function _process_read(path, start, end, process, callback) {
 
 	// We don't want to create functions in loops
 	function pushData(err, data) {
-		if(err)	{
+		if(err)	{ // null == undefined => true; this is used here
 			errorData.push({
 				file: path,
 				lineNumber: linecount,
@@ -268,7 +268,7 @@ function _process_read(path, start, end, process, callback) {
 		}
 
 		// Are there any errors?
-		if(errorData.length === 0) errorData = undefined;
+		if(errorData.length === 0) errorData = null;
 
 		if(callback) callback(errorData, processedData);
 	});

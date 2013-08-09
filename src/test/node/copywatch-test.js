@@ -34,7 +34,7 @@ var error_handler;
 // Make sure, that parse doesn't get bullshit lines
 var parse = function(string, callback) {
 	if(string.length > 2) dp.parse(string, callback);
-	else callback(undefined, string);
+	else callback(null, string);
 };
 
 var cpFile;
@@ -109,7 +109,7 @@ buster.testCase("Copywatch", {
 			extendObj(this.options, {
 				content: function(err, data) {
 					// No error
-					refute.defined(err);
+					assert.isNull(err);
 
 					// And the expected data
 					assert.equals(expectedData[index++], data);
@@ -151,7 +151,7 @@ buster.testCase("Copywatch", {
 			// Start watching
 			watch(mode, file, this.options, function(err) {
 				// Is err defined?
-				assert.defined(err);
+				refute.isNull(err);
 
 				// We are done
 				done();
@@ -172,7 +172,7 @@ buster.testCase("Copywatch", {
 				process: parse,
 				content: function(err, data) {
 					// There shouldn't be an error
-					refute.defined(err);
+					assert.isNull(err);
 
 					setTimeout(function() {
 						var fileContent = fs.readFileSync(cpFile, 'utf8');
@@ -187,7 +187,7 @@ buster.testCase("Copywatch", {
 			});
 
 			var fn = function(err, data) {
-				refute.defined(err);
+				assert.isNull(err);
 
 				parsedContent.push(data);
 			};
@@ -219,7 +219,7 @@ buster.testCase("Copywatch", {
 				process: parse,
 				content: function(err, data) {
 					// There should be errors
-					assert.defined(err);
+					refute.isNull(err);
 
 					if(leave) done();
 				}
@@ -256,7 +256,7 @@ buster.testCase("Copywatch", {
 			extendObj(this.options, {
 				process: parse,
 				content: function(err, data) {
-					refute.defined(err);
+					assert.isNull(err);
 
 					// We have to wait this moment to ensure, that the file already got writen
 					setTimeout(function() {
@@ -306,7 +306,7 @@ buster.testCase("Copywatch", {
 			extendObj(this.options, {
 				process: parse,
 				content: function(err, data) {
-					refute.defined(err);
+					assert.isNull(err);
 
 					// We have to wait this moment to ensure, that the file already got writen
 					setTimeout(function() {
@@ -570,7 +570,7 @@ buster.testCase("Copywatch private", {
 			cw._process_read(file, undefined, undefined, this.echo,
 				function(err, data) {
 					// No errors please
-					refute.defined(err);
+					assert.isNull(err);
 
 					assert.equals(data, that.expectedData);
 

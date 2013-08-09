@@ -90,7 +90,7 @@ function parse(string, seperator, options, callback) {
 
 	// Check if the string is a string
 	if(typeof string !== 'string') {
-		return callback(new TypeError("string (first argument) has to be from type string."), undefined);
+		return callback(new TypeError("string (first argument) has to be from type string."), null);
 	}
 
 	// Just to be sure
@@ -229,7 +229,7 @@ function _findSeperator(string) {
 */
 function _parseDate(tokens, options) {
 	var extractedDate = {},
-		subFormat, match, shift, token;
+		subFormat, match, token;
 
 	for(var i=0; i<options.format.length; ++i) { // Exclude values
 		// The token which will be parsed
@@ -239,11 +239,10 @@ function _parseDate(tokens, options) {
 		// Throw an error if the subFormat isn't defined
 		if(subFormat === undefined) throw new Error("\""+options.format[i]+"\"-format isn't defined in the given format.");
 
-		// Needed to shift the token around
-		shift = 0;
+		// Start parsing
 		for(var k=0; k<subFormat.length; ++k) {
 			// Throw a regular expression on the token to parse
-			match = token.substring(shift).match(syntax[subFormat[k]]);
+			match = token.match(syntax[subFormat[k]]);
 			// If there is no match something went wrong
 			if(match.length < 1) throw _errString(token, shift);
 
@@ -251,7 +250,7 @@ function _parseDate(tokens, options) {
 			extractedDate[subFormat[k]] = parseInt(match[0], 10);
 
 			// Shift the string
-			shift += match[0].length + 1; // +1 for the seperator
+			token = token.substr(match[0].length + 1); // +1 for the seperator
 		}
 	}
 

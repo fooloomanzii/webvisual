@@ -35,8 +35,8 @@ buster.testCase("Data_parser", {
 
 		// Object
 		data_parser.parse({}, function(err, data) {
-			assert.defined(err, "Object:");
-			refute.defined(data, "Object:");
+			refute.isNull(err, "Object:");
+			assert.isNull(data, "Object:");
 
 			// Countdown
 			count();
@@ -44,8 +44,8 @@ buster.testCase("Data_parser", {
 
 		// Array
 		data_parser.parse([], function(err, data) {
-			assert.defined(err, "Array:");
-			refute.defined(data, "Array:");
+			refute.isNull(err, "Array:");
+			assert.isNull(data, "Array:");
 
 			// Countdown
 			count();
@@ -53,8 +53,8 @@ buster.testCase("Data_parser", {
 
 		// Number
 		data_parser.parse(42, function(err, data) {
-			assert.defined(err, "Number:");
-			refute.defined(data, "Number:");
+			refute.isNull(err, "Number:");
+			assert.isNull(data, "Number:");
 
 			// Countdown
 			count();
