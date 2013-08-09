@@ -25,32 +25,64 @@ var typechecker = require('typechecker'),
 		format: ["date", "time"],
 		date: ["day", "month", "year"],
 		time: ["hour", "minute", "second"]
-};
+},
+	// The user can give options with the setOptions-function
+	givenOptions;
 
 // Functions
+
+/**
+ * Sets the parse options. If the parse function doesn't recieve any options this options are used rather than the default options.
+ *
+ * Arguments:
+ * {options} - a object with several format options:
+ *		[format] - a format array with two elements for the parsing, tokens are "date", "time".
+ *				It will be assumed that there is a "seperator" between each array-element.
+ *		[date] - a format array with three elements for the parsing of the date, tokens are "day", "month", "year".
+ *				It will be assumed that there is a "." between each array-element.
+ *		[time] - a format array with three elements for the parsing of the time, tokens are "hour", "minute", "second".
+ *				It will be assumed that there is a ":" between each array-element.
+ * callback - a callback-function that recieves an potential error.
+ */
+function setOptions(options, callback) {
+	try {
+		givenOptions = _initializeOptions(options);
+	} catch(err) {
+		callback(err);
+	} callback(null);
+}
+
+/**
+ * Resets the parse options so the default options are used again.
+ */
+function resetOptions() {
+	givenOptions = undefined;
+}
+
 
 /**
  *	Parse the given string. "Returns" a object, with a date- and a values-property
  *	The default syntax for a string is "day.month.year seperator hour:minute:second seperator values" (ignore the whitespaces)
  *
  *	Arguments:
- *	string - the string to parse
- *	seperator - a single character, seperating the tokens in the string.
+ *	"string" - the string to parse
+ *	'seperator' - a single character, seperating the tokens in the string.
  *				alternativly seperator can be undefined, 'unknown' or '?' if the kind of seperator isn't known.
  *				The method then trys to extract the seperator from the string.
  *				(If your seperator is a '?' then use '??'.)
- *	options (optional) - a object with several format options:
- *		format - a format array with two elements for the parsing, tokens are "date", "time".
+ *	{options} (optional) - a object with several format options:
+ *		[format] - a format array with two elements for the parsing, tokens are "date", "time".
  *				It will be assumed that there is a "seperator" between each array-element.
- *		date - a format array with three elements for the parsing of the date, tokens are "day", "month", "year".
+ *		[date] - a format array with three elements for the parsing of the date, tokens are "day", "month", "year".
  *				It will be assumed that there is a "." between each array-element.
- *		time - a format array with three elements for the parsing of the time, tokens are "hour", "minute", "second".
+ *		[time] - a format array with three elements for the parsing of the time, tokens are "hour", "minute", "second".
  *				It will be assumed that there is a ":" between each array-element.
  *	callback - a callback function, gets a potential error or the generated object (err, data)
  */
 function parse(string, seperator, options, callback) {
 	if(typeof options === 'function' && callback === undefined) {
 		callback = options;
+		options = undefined;
 	} else if(typeof seperator === 'function' && callback === undefined) {
 		callback = seperator;
 		seperator = undefined;
@@ -79,7 +111,11 @@ function parse(string, seperator, options, callback) {
 		}
 
 		// Initialize the options
-		options = _initializeOptions(options);
+		if(options || givenOptions === undefined) {
+			options = _initializeOptions(options);
+		} else {
+			options = givenOptions;
+		}
 
 		// Split the string into the tokens
 		tokens = string.split(seperator);
@@ -299,6 +335,8 @@ module.exports = {
 	_parseDate: _parseDate,
 	_validate: _validate,
 	// Public
+	setOptions: setOptions,
+	resetOptions: resetOptions,
 	parse: parse
 };
 
