@@ -143,7 +143,7 @@ function parse(string, seperator, options, callback) {
 
 		// Push the values into the data.values array - as numbers.
 		for(var i=0; i<values.length; ++i) {
-			check_val = Number(values[i]);
+			check_val = parseFloat(values[i]);
 
 			if(!isNaN(check_val)) {
 				data.values.push(check_val);
@@ -161,7 +161,7 @@ function parse(string, seperator, options, callback) {
 */
 function _deep_clone(obj) {
 	return JSON.parse(JSON.stringify(obj));
-};
+}
 
 /*
 	Initializes the options object
@@ -207,7 +207,7 @@ function _initializeOptions(options) {
 	Find the seperator
 */
 function _findSeperator(string) {
-	// This regular exprexion looks at the last value of the string an extracts the sign before the value; this should be the seperator
+	// This regular exprexion looks at the last value of the string and extracts the sign before the value; this should be the seperator
 	var seperatorFinder = new RegExp("(.)(" + syntax.values.source + ")$"),
 		seperatorMatch  = string.match(seperatorFinder),
 		seperator;
