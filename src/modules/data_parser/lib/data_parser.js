@@ -137,8 +137,6 @@ function parse(string, seperator, options, callback) {
 			// Syntax is Date(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND)
 			// JavaScript starts the counting of the months at 0, so we have to substract one (I know, it doesn't make sense)
 			data.date = _createDate(extractedDate);
-		} else {
-			data.date = "No date";
 		}
 
 		// Push the values into the data.values array - as numbers.
