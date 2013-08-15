@@ -48,7 +48,7 @@ var fs          = require('fs'),
 	typechecker = require('typechecker'),
 	watchr      = require('watchr'),
 
-// Global variables
+// "Global" variables
 	def           = {
 		firstCopy: true,
 		process: function(string, callback) {
@@ -62,9 +62,11 @@ var fs          = require('fs'),
 	extension     = '_node',
 	// newline    = ((process.platform === 'win32' || process.platform === 'win64') ? '\r\n' : '\n');
 	newline       = require('os').EOL, // OS specific newline character
-	// Save the OTHER newline ... actually some server use \n\r but this can be ignored here
+	// Save the OTHER newline ... actually some servers use \n\r but this can be ignored here
 	alternativeNL = (newline === '\n' ? '\r\n' : '\n'),
 	errorFile     = './copywatch.err';
+
+// Functions
 
 // PRIVATE
 
@@ -366,10 +368,6 @@ function _create_listeners(options) {
 	};
 }
 
-/*
-	Create the next object
-*/
-
 // PUBLIC
 
 /*
@@ -413,7 +411,7 @@ function clear(remove, callback) {
 		}
 	};
 
-	// Was there a single call?
+	// Was there a single call? ...
 	var called = false;
 	for (path in watchers) {
 		if(watchers.hasOwnProperty(path)) {
@@ -422,7 +420,7 @@ function clear(remove, callback) {
 		}
 	}
 
-	// If not, make at least the callback
+	// ... if not, make at least the callback
 	if(!called && callback) callback();
 }
 
@@ -540,13 +538,6 @@ function watch(mode, files, options, next) {
 	}
 }
 
-/*
-	Parsewatch
-	Equivalent to watch('all', files, {copy: false, content: content}, next)
-*/
-//function parsewatch(files, content, next) {
-//	watch('all', files, {copy: false, content: content}, next);
-//}
 
 // Exported functions
 module.exports = {
