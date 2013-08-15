@@ -2,7 +2,7 @@ var buster = require('buster'),
 	cw = require('../../modules/copywatch'),
 	dp = require('../../modules/data_parser'),
 	fs = require('fs'),
-	file = 'C:/Users/s.wolf/Projekte/Messdatenvisualisierung/src/test/node/copywatch-test.txt';
+	file = __dirname+'/copywatch-test.txt';
 
 function resetFile() {
 	fs.writeFileSync(file,
