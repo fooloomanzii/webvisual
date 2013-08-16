@@ -448,7 +448,7 @@ function getExtension() {
 		'end' - copy the last bytes of the file (the difference between prevStat.size and currStat.size)
 		'begin' - copy the first few bytes of the file (the difference between prevStat.size and currStat.size)
 		'all' - copy the whole file
-	['files'] - the file or an array of files which should be watched
+	'file' - the file which should be watched
 	{options}
 		copy - a boolean which states if copywatch should make a copy
 			true - the default, copywatch makes a copy
@@ -467,13 +467,14 @@ function getExtension() {
 			Arguments are err (an potential array of errors) and data (an array of the (processed) lines).
 	next - a callback function, that recieves an error, if one occured
 */
-function watch(mode, files, options, next) {
+function watch(mode, file, options, next) {
 	// Define variables
 	var i, listenersObj, nextObj,
 	// Check if the given mode is a valid one; if not throw an error
 		modeError = _check_mode(mode),
 	// Other stuff
-		currFile, currDir, exists_callback;
+		resFile, fileDir;
+
 	if(modeError) throw modeError;
 
 	if(typeof options === 'function') {
@@ -488,12 +489,7 @@ function watch(mode, files, options, next) {
 		return next(options);
 	}
 
-	// Make sure that files are an array (important for later process)
-	if (!typechecker.isArray(files)) {
-		files = [files];
-	}
-
-	// We don't want to define functions inside a loop
+	// Create listeners
 	listenersObj = _create_listeners(options);
 
 	// The object with the function that will be executed after the watcher was correctly configured
@@ -510,32 +506,40 @@ function watch(mode, files, options, next) {
 		It's a bit ugly but won't mean performance descrease while running, since watchr
 		still just watches just the one file. If it's a big directory the startup speed
 		can	suffer a bit, but it shoudln't be too bad. */
-	// The function that is called, when the existance of the file is known
-	exists_callback = function(exists) {
+
+	// Resolve the filename and get the directory
+	resFile = path_util.resolve(file);
+	fileDir = path_util.dirname(resFile);
+
+	// Check for existance and make a first copy/parse; if firstCopy == true
+	fs.exists(resFile, function(exists) {
 		if(exists === false) {
-			console.warn('"'+currFile+'"', "was not found.\n"+
+			console.warn('"'+resFile+'"', "was not found.\n"+
 				"copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
 		} else if(options.firstCopy) {
 			// Make a first copy/parse
-			options.work_function(currFile, undefined, undefined, options.process, options.content);
+			options.work_function(resFile, undefined, undefined, options.process, options.content);
 		}
-	};
+	});
 
-	// Looping through the given files
-	for (i=0; i<files.length; ++i) {
-		currFile = path_util.resolve(files[i]); // Necessary to have the file in scope of the "readdir"-function; files[i] doesn't work
-		currDir  = path_util.dirname(currFile);
+	// Read the directory contents to ignore all files except the one which should be watched
+	// This doesn't ensure that new created files are ignored
+	fs.readdir(fileDir, function(err, files) {
+		if(err) return next(err);
+		var index;
 
-		// Check for existance and make a first copy/parse; if firstCopy == true
-		fs.exists(currFile, exists_callback);
+		// Delete our file from the list; obviously just when it exists
+		index = files.indexOf(file);
+		if(index > -1) files[index] = undefined;
 
 		// Finally watch the file
-		watchers[currFile] = watchr.watch({
-			path: currDir, // We need to watch the directory in order to not stop watching on delete
+		watchers[resFile] = watchr.watch({
+			path: fileDir, // We need to watch the directory in order to not stop watching on delete
+			ignorePaths: files, // The names of alle the files which should be ignored
 			listeners: listenersObj,
 			next: nextObj
 		});
-	}
+	});
 }
 
 
