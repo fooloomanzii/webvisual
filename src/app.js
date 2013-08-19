@@ -159,9 +159,10 @@ var userCounter = 0,
 		// Increase the user counter on connection, if it is the first connection, start the watching of the file
 		if(++userCounter === 1) {
 			firstSend = true;
+			// Start watching the file
 			copywatch.watch('all', read_file, {
-				copy: false,
-				process: parser.parse,
+				copy: false, // We don't need to make a copy of the file
+				process: parser.parse, // The used parse function
 				content: function(errorData, parsedData) {
 					// Are there errors?
 					if(errorData) {
