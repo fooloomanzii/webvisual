@@ -368,6 +368,20 @@ function _create_listeners(options) {
 	};
 }
 
+/*
+	Check if it's a valid file and not something else. Returns an error or null.
+*/
+function _check_file(path) {
+	var return_error = null;
+
+	// Check if it exists and check if the file is actually a file; return an error if it isn't
+	if(fs.existsSync(path) && !fs.statSync(file).isFile()) {
+		return_error = new Error("Expected path to an file but got something else. Copywatch just watches files.");
+	}
+
+	return return_error;
+}
+
 // PUBLIC
 
 /*
@@ -470,12 +484,16 @@ function getExtension() {
 function watch(mode, file, options, next) {
 	// Define variables
 	var i, listenersObj, nextObj,
-	// Check if the given mode is a valid one; if not throw an error
-		modeError = _check_mode(mode),
 	// Other stuff
-		resFile, fileDir;
+		maybeError, resFile, fileDir;
 
-	if(modeError) throw modeError;
+	// Check if the given mode is a valid one; if not throw an error
+	maybeError = _check_mode(mode),
+	if(maybeError) return next(maybeError);
+
+	// Check if it's a valid file
+	maybeError = _check_file(file);
+	if(maybeError) return next(maybeError);
 
 	if(typeof options === 'function') {
 		next = options;
@@ -551,6 +569,7 @@ module.exports = {
 	// Private functions
 	_error_handler: _error_handler,
 	_check_mode: _check_mode,
+	_check_file: _check_file,
 	_file_options: _file_options,
 	_copy: _copy,
 	_process_copy: _process_copy,
