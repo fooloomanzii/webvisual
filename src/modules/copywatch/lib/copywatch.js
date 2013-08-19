@@ -101,8 +101,22 @@ function _check_mode(mode) {
 			" but it's from type \""+(typeof mode)+"\".");
 	}
 
-	// This isn't necessary; it's just preference (the function returns undefined even without this)
-	return undefined;
+	// There is no error
+	return null;
+}
+
+/*
+	Check if it's a valid file and not something else. Returns an error or null.
+*/
+function _check_file(path) {
+	var return_error = null;
+
+	// Check if it exists and check if the file is actually a file; return an error if it isn't
+	if(fs.existsSync(path) && !fs.statSync(path).isFile()) {
+		return_error = new Error("Expected path to an file but got something else. Copywatch just watches files.");
+	}
+
+	return return_error;
 }
 
 /*
@@ -368,20 +382,6 @@ function _create_listeners(options) {
 	};
 }
 
-/*
-	Check if it's a valid file and not something else. Returns an error or null.
-*/
-function _check_file(path) {
-	var return_error = null;
-
-	// Check if it exists and check if the file is actually a file; return an error if it isn't
-	if(fs.existsSync(path) && !fs.statSync(file).isFile()) {
-		return_error = new Error("Expected path to an file but got something else. Copywatch just watches files.");
-	}
-
-	return return_error;
-}
-
 // PUBLIC
 
 /*
@@ -488,7 +488,7 @@ function watch(mode, file, options, next) {
 		maybeError, resFile, fileDir;
 
 	// Check if the given mode is a valid one; if not throw an error
-	maybeError = _check_mode(mode),
+	maybeError = _check_mode(mode);
 	if(maybeError) return next(maybeError);
 
 	// Check if it's a valid file
