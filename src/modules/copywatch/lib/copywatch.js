@@ -547,7 +547,7 @@ function watch(mode, file, options, next) {
 module.exports = {
 	// Private variables
 	_watcher: watchers,
-	_def: def,
+	_default: def,
 	// Private functions
 	_error_handler: _error_handler,
 	_check_mode: _check_mode,
