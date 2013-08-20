@@ -93,7 +93,7 @@ function _check_mode(mode) {
 		mode = mode.toLowerCase();
 
 		// and check if it's a valid mode
-		if (!(mode === 'end' || mode === 'begin' || mode === 'all')) {
+		if (!(mode === 'append' || mode === 'prepend' || mode === 'all')) {
 			return new Error(mode+" - Not a valid mode.");
 		}
 	} else {
@@ -342,9 +342,9 @@ function _create_watch_options(mode, options) {
 function _handle_change(event, path, currStat, prevStat, options) {
 	// Test/create event - process the changes
 	if (event === 'update' || event === 'create') {
-		if (options.mode === 'end') {
+		if (options.mode === 'append') {
 			options.work_function(path, prevStat.size, undefined, options.process, options.content);
-		} else if (options.mode === 'begin') {
+		} else if (options.mode === 'prepend') {
 			options.work_function(path, 0, (currStat.size - prevStat.size), options.process, options.content);
 		} else if (options.mode === 'all') {
 			options.work_function(path, undefined, undefined, options.process, options.content);
@@ -459,8 +459,8 @@ function getExtension() {
 /*
 	Watch
 	'mode' - mode influences the copy/parse mechanism which is used, when the file was updated:
-		'end' - copy the last bytes of the file (the difference between prevStat.size and currStat.size)
-		'begin' - copy the first few bytes of the file (the difference between prevStat.size and currStat.size)
+		'append' - copy the last bytes of the file (the difference between prevStat.size and currStat.size)
+		'prepend' - copy the first few bytes of the file (the difference between prevStat.size and currStat.size)
 		'all' - copy the whole file
 	'file' - the file which should be watched
 	{options}
