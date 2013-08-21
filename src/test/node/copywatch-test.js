@@ -101,7 +101,7 @@ buster.testCase("Copywatch", {
 		"content copy test": function(done) {
 			var mode = 'all',
 				expectedData = [
-					["Dies ist ein Testfile.", "", "Die Inhalte dieser Datei werden kopiert werden."],
+					["Dies ist ein Testfile.", "Die Inhalte dieser Datei werden kopiert werden."],
 					['data']
 				],
 				index = 0;
@@ -250,7 +250,7 @@ buster.testCase("Copywatch", {
 				'13.08.2013;01:02:05;20.905;13.792;8.342',
 				'utf8');
 
-			var mode = 'end',
+			var mode = 'append',
 				leave = false;
 			// Options
 			extendObj(this.options, {
@@ -300,7 +300,7 @@ buster.testCase("Copywatch", {
 				'13.08.2013;01:02:05;20.905;13.792;8.342',
 				'utf8');
 
-			var mode = 'begin',
+			var mode = 'prepend',
 				leave = false;
 			// Options
 			extendObj(this.options, {
@@ -446,11 +446,11 @@ buster.testCase("Copywatch private", {
 	},
 	"_check_mode": {
 		"returns no error": function() {
-			var mode = 'end';
+			var mode = 'append';
 			assert.isNull(cw._check_mode(mode),
 				"Expected no exception with mode "+mode);
 
-			mode = 'begin';
+			mode = 'prepend';
 			assert.isNull(cw._check_mode(mode),
 				"Expected no exception with mode "+mode);
 
@@ -458,7 +458,7 @@ buster.testCase("Copywatch private", {
 			assert.isNull(cw._check_mode(mode),
 				"Expected no exception with mode "+mode);
 
-			mode = 'BEGIN';
+			mode = 'prepend';
 			assert.isNull(cw._check_mode(mode),
 				"Expected no exception with mode "+mode);
 		},
@@ -471,7 +471,7 @@ buster.testCase("Copywatch private", {
 			assert.defined(cw._check_mode(mode),
 				"Expected an exception with mode "+mode);
 
-			mode = 'BEGIN!';
+			mode = 'prepend!';
 			assert.defined(cw._check_mode(mode),
 				"Expected an exception with mode "+mode);
 		}
@@ -551,9 +551,9 @@ buster.testCase("Copywatch private", {
 	},
 	"_process_functions": {
 		setUp: function() {
+			// Empty lines are getting skipped
 			this.expectedData = [
 				"Dies ist ein Testfile.",
-				"",
 				"Die Inhalte dieser Datei werden kopiert werden."
 			];
 
@@ -661,7 +661,7 @@ buster.testCase("Copywatch private", {
 		refute.called(spy);
 
 		// Valid mode
-		options.mode = 'end';
+		options.mode = 'append';
 
 		// Another spy
 		this.spy(fs, 'exists');
