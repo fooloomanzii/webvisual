@@ -24,8 +24,8 @@ var copywatch = require('./modules/copywatch'),
 	command_file = config.command_file || def.command_file,
 // Command object
 	cmd_txt = {
-		"interrupt": (config.cmd && config.cmd.interrupt) || "INTERRUPT",
-		"continue": (config.cmd && config.cmd.continue) || "CONTINUE"
+		"interrupt": ((config.cmd && config.cmd.interrupt) ? config.cmd.interrupt : "INTERRUPT"),
+		"continue": ((config.cmd && config.cmd.continue) ? config.cmd.continue : "CONTINUE")
 	};
 
 /**
