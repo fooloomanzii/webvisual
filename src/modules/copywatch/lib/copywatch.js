@@ -162,8 +162,11 @@ function _copy(path, start, end) {
 function _process_copy(path, start, end, process, callback) {
 	// Define Variables
 	// Create the read/write options
-	var options = { encoding: 'utf8' },
+	var options = _file_options(start,end).writeOptions,
 		write;
+
+	// Set the encoding
+	options.encoding = 'utf8';
 
 	function finish(errorData, processedData) {
 		// Data is the data while arrFn the array function for appending/prepending is
@@ -270,7 +273,8 @@ function _process_read(path, start, end, process, callback) {
 
 		// Process every line on their own
 		for(var i=0; i<tokens.length; ++i) {
-			process(tokens[i], pushData);
+			// Skip empty lines
+			if(tokens[i].length > 0) process(tokens[i], pushData);
 			// Increase the linecount
 			++linecount;
 		}
