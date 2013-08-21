@@ -481,7 +481,8 @@ function getExtension() {
 			The processed data will be saved as JSON in an array with every line, so it's easier to reread it from the file.
 			It need to take the following argument: 'string' (the current line), 'callback' (optional - a function
 			that recieves the processed line. Otherwise it will be assumed, that the function returns the data.)
-		content - a function that recieves the whole content of the file, every time a change happens.
+		content - a function that recieves the whole content of the file, either parsed (if a process function was given) or in raw form,
+			every time a change happens.
 			Arguments are err (an potential array of errors) and data (an array of the (processed) lines).
 	next - a callback function, that recieves an error, if one occured
 */
