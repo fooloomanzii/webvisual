@@ -11,7 +11,7 @@ var copywatch = require('./modules/copywatch'),
 	fs        = require('fs'),
 // Default config
 	def = {
-		read_file: 'test.txt',
+		read_file: 'data.txt',
 		command_file: 'command.txt',
 		port: 3000,
 	},
