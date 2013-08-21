@@ -2,6 +2,9 @@
 'use strict';
 
 $(document).ready(function() {
+	// Start progress bar
+	NProgress.start();
+
 	var dataNS = (function() {
 
 	// Return the values out of the data object
@@ -34,8 +37,9 @@ $(document).ready(function() {
 
 		// Hide the loading message
 		$('#load').fadeOut(undefined, function() {
-			// Show the data
-			$('#data').fadeIn();
+			// Show the data and finish progress bar
+			$('#data').fadeIn(undefined,
+				NProgress.done);
 		});
 	});
 	socket.on('data', function(data) {

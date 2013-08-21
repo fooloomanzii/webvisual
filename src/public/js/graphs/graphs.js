@@ -10,8 +10,9 @@ var can = document.getElementById('graph'),
 function showData() {
 	// Hide the loading message
 	$('#load').fadeOut(undefined, function() {
-		// Show the data
-		$('#data').fadeIn();
+		// Show the data and finish progress bar
+		$('#data').fadeIn(undefined,
+			NProgress.done);
 	});
 }
 
@@ -54,6 +55,9 @@ function defaultResize() {
 }
 
 $(document).ready(function(){
+	// Start progress bar
+	NProgress.start();
+
 	// Resize the canvas
 	$(window).resize(function() {
 		graphNS.graphResize();
