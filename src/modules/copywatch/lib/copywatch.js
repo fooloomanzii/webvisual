@@ -93,7 +93,7 @@ function _check_mode(mode) {
 		mode = mode.toLowerCase();
 
 		// and check if it's a valid mode
-		if (!(mode === 'end' || mode === 'begin' || mode === 'all')) {
+		if (!(mode === 'append' || mode === 'prepend' || mode === 'all')) {
 			return new Error(mode+" - Not a valid mode.");
 		}
 	} else {
@@ -101,8 +101,22 @@ function _check_mode(mode) {
 			" but it's from type \""+(typeof mode)+"\".");
 	}
 
-	// This isn't necessary; it's just preference (the function returns undefined even without this)
-	return undefined;
+	// There is no error
+	return null;
+}
+
+/*
+	Check if it's a valid file and not something else. Returns an error or null.
+*/
+function _check_file(path) {
+	var return_error = null;
+
+	// Check if it exists and check if the file is actually a file; return an error if it isn't
+	if(fs.existsSync(path) && !fs.statSync(path).isFile()) {
+		return_error = new Error("Expected path to an file but got something else. Copywatch just watches files.");
+	}
+
+	return return_error;
 }
 
 /*
@@ -148,8 +162,11 @@ function _copy(path, start, end) {
 function _process_copy(path, start, end, process, callback) {
 	// Define Variables
 	// Create the read/write options
-	var options = { encoding: 'utf8' },
+	var options = _file_options(start,end).writeOptions,
 		write;
+
+	// Set the encoding
+	options.encoding = 'utf8';
 
 	function finish(errorData, processedData) {
 		// Data is the data while arrFn the array function for appending/prepending is
@@ -256,7 +273,8 @@ function _process_read(path, start, end, process, callback) {
 
 		// Process every line on their own
 		for(var i=0; i<tokens.length; ++i) {
-			process(tokens[i], pushData);
+			// Skip empty lines
+			if(tokens[i].length > 0) process(tokens[i], pushData);
 			// Increase the linecount
 			++linecount;
 		}
@@ -328,9 +346,9 @@ function _create_watch_options(mode, options) {
 function _handle_change(event, path, currStat, prevStat, options) {
 	// Test/create event - process the changes
 	if (event === 'update' || event === 'create') {
-		if (options.mode === 'end') {
+		if (options.mode === 'append') {
 			options.work_function(path, prevStat.size, undefined, options.process, options.content);
-		} else if (options.mode === 'begin') {
+		} else if (options.mode === 'prepend') {
 			options.work_function(path, 0, (currStat.size - prevStat.size), options.process, options.content);
 		} else if (options.mode === 'all') {
 			options.work_function(path, undefined, undefined, options.process, options.content);
@@ -445,10 +463,10 @@ function getExtension() {
 /*
 	Watch
 	'mode' - mode influences the copy/parse mechanism which is used, when the file was updated:
-		'end' - copy the last bytes of the file (the difference between prevStat.size and currStat.size)
-		'begin' - copy the first few bytes of the file (the difference between prevStat.size and currStat.size)
+		'append' - copy the last bytes of the file (the difference between prevStat.size and currStat.size)
+		'prepend' - copy the first few bytes of the file (the difference between prevStat.size and currStat.size)
 		'all' - copy the whole file
-	['files'] - the file or an array of files which should be watched
+	'file' - the file which should be watched
 	{options}
 		copy - a boolean which states if copywatch should make a copy
 			true - the default, copywatch makes a copy
@@ -463,18 +481,24 @@ function getExtension() {
 			The processed data will be saved as JSON in an array with every line, so it's easier to reread it from the file.
 			It need to take the following argument: 'string' (the current line), 'callback' (optional - a function
 			that recieves the processed line. Otherwise it will be assumed, that the function returns the data.)
-		content - a function that recieves the whole content of the file, every time a change happens.
+		content - a function that recieves the whole content of the file, either parsed (if a process function was given) or in raw form,
+			every time a change happens.
 			Arguments are err (an potential array of errors) and data (an array of the (processed) lines).
 	next - a callback function, that recieves an error, if one occured
 */
-function watch(mode, files, options, next) {
+function watch(mode, file, options, next) {
 	// Define variables
 	var i, listenersObj, nextObj,
-	// Check if the given mode is a valid one; if not throw an error
-		modeError = _check_mode(mode),
 	// Other stuff
-		currFile, currDir, exists_callback;
-	if(modeError) throw modeError;
+		maybeError, resFile, fileDir;
+
+	// Check if the given mode is a valid one; if not throw an error
+	maybeError = _check_mode(mode);
+	if(maybeError) return next(maybeError);
+
+	// Check if it's a valid file
+	maybeError = _check_file(file);
+	if(maybeError) return next(maybeError);
 
 	if(typeof options === 'function') {
 		next = options;
@@ -488,12 +512,7 @@ function watch(mode, files, options, next) {
 		return next(options);
 	}
 
-	// Make sure that files are an array (important for later process)
-	if (!typechecker.isArray(files)) {
-		files = [files];
-	}
-
-	// We don't want to define functions inside a loop
+	// Create listeners
 	listenersObj = _create_listeners(options);
 
 	// The object with the function that will be executed after the watcher was correctly configured
@@ -510,32 +529,40 @@ function watch(mode, files, options, next) {
 		It's a bit ugly but won't mean performance descrease while running, since watchr
 		still just watches just the one file. If it's a big directory the startup speed
 		can	suffer a bit, but it shoudln't be too bad. */
-	// The function that is called, when the existance of the file is known
-	exists_callback = function(exists) {
+
+	// Resolve the filename and get the directory
+	resFile = path_util.resolve(file);
+	fileDir = path_util.dirname(resFile);
+
+	// Check for existance and make a first copy/parse; if firstCopy == true
+	fs.exists(resFile, function(exists) {
 		if(exists === false) {
-			console.warn('"'+currFile+'"', "was not found.\n"+
+			console.warn('"'+resFile+'"', "was not found.\n"+
 				"copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
 		} else if(options.firstCopy) {
 			// Make a first copy/parse
-			options.work_function(currFile, undefined, undefined, options.process, options.content);
+			options.work_function(resFile, undefined, undefined, options.process, options.content);
 		}
-	};
+	});
 
-	// Looping through the given files
-	for (i=0; i<files.length; ++i) {
-		currFile = path_util.resolve(files[i]); // Necessary to have the file in scope of the "readdir"-function; files[i] doesn't work
-		currDir  = path_util.dirname(currFile);
+	// Read the directory contents to ignore all files except the one which should be watched
+	// This doesn't ensure that new created files are ignored
+	fs.readdir(fileDir, function(err, files) {
+		if(err) return next(err);
+		var index;
 
-		// Check for existance and make a first copy/parse; if firstCopy == true
-		fs.exists(currFile, exists_callback);
+		// Delete our file from the list; obviously just when it exists
+		index = files.indexOf(file);
+		if(index > -1) files[index] = undefined;
 
 		// Finally watch the file
-		watchers[currFile] = watchr.watch({
-			path: currDir, // We need to watch the directory in order to not stop watching on delete
+		watchers[resFile] = watchr.watch({
+			path: fileDir, // We need to watch the directory in order to not stop watching on delete
+			ignorePaths: files, // The names of alle the files which should be ignored
 			listeners: listenersObj,
 			next: nextObj
 		});
-	}
+	});
 }
 
 
@@ -543,10 +570,11 @@ function watch(mode, files, options, next) {
 module.exports = {
 	// Private variables
 	_watcher: watchers,
-	_def: def,
+	_default: def,
 	// Private functions
 	_error_handler: _error_handler,
 	_check_mode: _check_mode,
+	_check_file: _check_file,
 	_file_options: _file_options,
 	_copy: _copy,
 	_process_copy: _process_copy,

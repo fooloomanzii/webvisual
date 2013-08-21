@@ -447,19 +447,19 @@ buster.testCase("Copywatch private", {
 	"_check_mode": {
 		"returns no error": function() {
 			var mode = 'end';
-			refute.defined(cw._check_mode(mode),
+			assert.isNull(cw._check_mode(mode),
 				"Expected no exception with mode "+mode);
 
 			mode = 'begin';
-			refute.defined(cw._check_mode(mode),
+			assert.isNull(cw._check_mode(mode),
 				"Expected no exception with mode "+mode);
 
 			mode = 'all';
-			refute.defined(cw._check_mode(mode),
+			assert.isNull(cw._check_mode(mode),
 				"Expected no exception with mode "+mode);
 
 			mode = 'BEGIN';
-			refute.defined(cw._check_mode(mode),
+			assert.isNull(cw._check_mode(mode),
 				"Expected no exception with mode "+mode);
 		},
 		"returns an error": function() {
@@ -474,6 +474,32 @@ buster.testCase("Copywatch private", {
 			mode = 'BEGIN!';
 			assert.defined(cw._check_mode(mode),
 				"Expected an exception with mode "+mode);
+		}
+	},
+	"_check_file": {
+		"returns no error": function() {
+			var path = __filename;
+
+			// There shoudln't be an error
+			assert.isNull(cw._check_file(path),
+				"Expected no exception with path "+path);
+		},
+		"returns an error": function() {
+			var path;
+
+			// undefined path
+			assert.defined(cw._check_file(path),
+				"Expected exception with path "+path);
+
+			// nonsense path
+			path = 'A/B/C/D';
+			assert.defined(cw._check_file(path),
+				"Expected exception with path "+path);
+
+			// Directory path
+			path = __dirname;
+			assert.defined(cw._check_file(path),
+				"Expected exception with path "+path);
 		}
 	},
 	"_file_options creates correct object": function() {
@@ -593,7 +619,7 @@ buster.testCase("Copywatch private", {
 				firstCopy: true,
 				mode: 'all',
 				watch_error: options.watch_error,
-				process: cw._def.process,
+				process: cw._default.process,
 				content: content,
 				work_function: cw._process_read
 			};

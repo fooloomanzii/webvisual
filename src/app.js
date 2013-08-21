@@ -11,7 +11,7 @@ var copywatch = require('./modules/copywatch'),
 	fs        = require('fs'),
 // Default config
 	def = {
-		read_file: 'test.txt',
+		read_file: 'data.txt',
 		command_file: 'command.txt',
 		port: 3000,
 	},
@@ -24,8 +24,8 @@ var copywatch = require('./modules/copywatch'),
 	command_file = config.command_file || def.command_file,
 // Command object
 	cmd_txt = {
-		"interrupt": (config.cmd && config.cmd.interrupt) || "INTERRUPT",
-		"continue": (config.cmd && config.cmd.continue) || "CONTINUE"
+		"interrupt": ((config.cmd && config.cmd.interrupt) ? config.cmd.interrupt : "INTERRUPT"),
+		"continue": ((config.cmd && config.cmd.continue) ? config.cmd.continue : "CONTINUE")
 	};
 
 /**
@@ -159,9 +159,10 @@ var userCounter = 0,
 		// Increase the user counter on connection, if it is the first connection, start the watching of the file
 		if(++userCounter === 1) {
 			firstSend = true;
+			// Start watching the file
 			copywatch.watch('all', read_file, {
-				copy: false,
-				process: parser.parse,
+				copy: false, // We don't need to make a copy of the file
+				process: parser.parse, // The used parse function
 				content: function(errorData, parsedData) {
 					// Are there errors?
 					if(errorData) {
