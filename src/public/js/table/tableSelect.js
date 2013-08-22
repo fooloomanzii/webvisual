@@ -25,9 +25,11 @@
 			socket.on('first', function(data) {
 				values = getValues(data);
 				if(values === undefined) return;
-
+				
+				// Better interface for the select box
 				$('#sel').customSelect();
-				// Create the table
+				
+				// Fill the select box
 				for(var i=0; i<parseInt(values.length/2, 10); ++i) {
 					$('#sel').append(jQuery('<option />', {'value': i, text: 'Wert '+(i+1)}));
 				}

@@ -12,42 +12,53 @@ var currentData,
 	day,
 	line,
 	colors = [
-		'#f00', '#0f0', '#00f',
-		'#f0f', '#ff0', '#0ff',
-		'#000', '#949494', '#FFA600',
-		'#008C10', '#FDBDFF', '#990000'
-	];
+	    '#0000dd','#dd0000','#21B6A8','#87907D','#ec6d66',
+	    '#177F75','#B6212D','#B67721','#da2d8b','#7F5417',
+	    '#FF8000','#61e94c','#FFCC00','#68BD66','#179CE8',
+	    '#30769E','#758a09','#00CCFF','#FFC080','#4086AA',
+	    '#0000AA','#AA6363','#AA9900','#1A8BC0','#758a09',
+	    '#dd3100','#af2a30','#179999','#a92e03','#f30320',
+	    '#579108','#ce9135','#acd622','#e46e46','#53747d',
+	    '#36a62a','#12c639','#f51b2b','#985d27','#3595d5',
+	    '#c28551','#d52192','#695faf','#de2426','#295d5a',
+	    '#824b2d','#e82a3c','#fcd11a','#2b4c04','#3011fd',
+	    '#af2a30','#c456d1','#025df6','#0ab24f','#c0d962',
+	    '#62369f','#fb453c','#0487a4','#ce9e07','#2b407e'
+	],
+	currentSelection=-1;
 
 /*
 	Shows the linecountForm or an error if no data is there
 */
-function linecountForm() {
-	var graphsList = $('#linecount'),
-		maxIndex;
-
-	// Empty the current linecountList ...
-	graphsList.empty();
-
-	// ... and initialize it with elements
+function selectBox() {
+	var box=$('#selectBox')
+	
+	// Better interface for the select box
+	box.customSelect();
+	
+	//Initialize select box with elements
 	if(valueArray.length > 0) {
-		// Find the maximum index
-		maxIndex = Math.min(valueArray.length, colors.length);
+		
+		var maxIndex = Math.min(valueArray.length, colors.length);
+		
+		// Fill the select box
+		for(var i=0; i<parseInt(maxIndex/2, 10); ++i) {
+			box.append(jQuery('<option />', {'value': i, text: 'Wertepaar '+(i+1)}));
+		}
+		$('#selectBox option').eq(0).prop('selected', true);
 
-		for(var i=0; i<maxIndex; ++i) {
-			graphsList.prepend('<label for="box'+(i+1)+'" class="countOption'+
-				(i%6 != 0 ? ' float-right' : '')+'" style="margin-left:1em;">'+
-				'<input type="checkbox" id="box'+(i+1)+'" style="display:none;"/>'+
-				'<span class="custom checkbox'+
-				(visualizeState[i] ? ' checked' : '')+
-				'"></span> '+(i+1)+
-				'</label>');
-		} $('.countOption').click(function() {
-			// Get the currently selected value
-			var box = parseInt($(this).text(), 10);
-
-			// Switch the state
-			visualizeState[box-1] = !visualizeState[box-1];
-
+		// Handle the Dropdown selection
+		box.on('change', function (e) {
+			var i = $(this).val();
+			
+			if(currentSelection!=-1){
+				visualizeState[currentSelection*2] = false;
+				visualizeState[currentSelection*2+1] = false;
+			}
+			visualizeState[i*2] = true;
+			visualizeState[i*2+1] = true;
+			currentSelection=i;
+			
 			// Create the visualization array
 			initializeVisualizationArray();
 
@@ -59,12 +70,17 @@ function linecountForm() {
 		});
 
 		// Show the form and hide the error
-		$('#linecountForm').removeClass('hidden');
-		$('#noDataLabel').addClass('hidden');
+		$('#noDataLabel').fadeOut(undefined, function() {
+			// Show the data and finish progress bar
+			$('.customSelect').fadeIn(undefined,
+				NProgress.done);
+		});
 	} else {
-		// Hide the form and show the error
-		$('#linecountForm').addClass('hidden');
-		$('#noDataLabel').removeClass('hidden');
+		$('.customSelect').fadeOut(undefined, function() {
+			// Show the data and finish progress bar
+			$('#noDataLabel').fadeIn(undefined,
+				NProgress.done);
+		});
 	}
 }
 
@@ -134,7 +150,7 @@ function arrangeData(data) {
 			currVal = data[k].values.pop();
 
 			// Check if the current value is bigger than the max val
-			if(currVal > yMax) yMax = 2*yMax;
+			if(currVal > yMax) yMax = currVal;
 
 			valueArray[i].push(currVal);
 		}
@@ -214,16 +230,16 @@ $(document).ready(function() {
 	// First message
 	socket.on('first', function(message) {
 		if(message === undefined) return;
-
+		
 		// Arrange the data
 		arrangeData(message.data);
-
-		// Initialise the linecount button
-		linecountForm();
+		
+		// Initialise the select box
+		selectBox();
 
 		// Create the graph
 		line = new RGraph.Line("graph", visualizeArray)
-			.Set('colors', ['#f00', '#0f0', '#00f', '#f0f', '#ff0', '#0ff', '#000', '#949494', '#FFA600', '#008C10', '#FDBDFF', '#990000'])
+			.Set('colors', colors)
 			.Set('linewidth', 2)
 			.Set('title', day)
 			// .Set('title.xaxis.pos', .15)
@@ -243,6 +259,9 @@ $(document).ready(function() {
 
 		// Set the interrupt button text
 		$('#interruptButton').text(message.state ? button_text.interrupt : button_text.continue);
+		
+		// Trigger change of the select to show the values at start
+		$('#selectBox').trigger('change');
 
 		// Show the graph
 		graphNS.showData();
