@@ -158,11 +158,35 @@ function arrangeData(data) {
 	// Make the tooltips
 	tooltips = [];
 	for(var i=0; i<valueArray.length; ++i) {
+		tooltips[i] = [];
 		for(var k=0; k<valueArray[i].length; ++k) {
 			// Save the values in the tooltips
-			tooltips.push(""+valueArray[i][k]);
+			tooltips[i].push(""+valueArray[i][k]);
 		}
 	}
+}
+
+// This function returns the proper tooltip for the graph
+// Index is the index of the tooltip of the visible graphs starting at 0
+function getTooltip(index) {
+	var curr;
+
+	// We have to find the tooltip from the tooltips of the visible graphs, so we have to skip the invisible ones
+	for(var i=0; i<tooltips.length; ++i) {
+		// Check if the graph is visible; if not then skip this one
+		if(!visualizeState[i]) continue;
+
+		// Save the current array for easier handling
+		curr = tooltips[i];
+
+		// If index is smaller than the length of the current tooltip array, we have reached the correct graph
+		if(index < curr.length) return curr[index];
+
+		// If not, we reduce the index
+		index -= curr.length;
+	}
+
+	// We didn't find a tooltip, so we return nothing
 }
 
 // READY
@@ -207,7 +231,7 @@ $(document).ready(function() {
 			// .Set('gutter.bottom', 45)
 			// .Set('text.size', 11)
 			.Set('tickmarks', 'circle')
-			.Set('tooltips', tooltips)
+			.Set('tooltips', getTooltip)
 			.Set('ymax', yMax)
 			.Set('scale.round', true);
 
@@ -237,7 +261,6 @@ $(document).ready(function() {
 		line.original_data = visualizeArray;
 		line.Set('labels', dateArray)
 			.Set('title', day)
-			.Set('tooltips', tooltips)
 			.Set('ymax', yMax);
 
 		// Redraw
