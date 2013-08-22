@@ -80,7 +80,7 @@ function createLabels() {
 
 	// Save the dates in the dateArray; we want 10 dates max,
 	// equally distributed over the available dates
-	for(var i=currentData.length-1; i>0; i-=skip) {
+	for(var i=currentData.length-1; i>=0; i-=skip) {
 		dateArray.unshift(moment(currentData[i].date).format("HH:mm:ss"));
 	}
 }
