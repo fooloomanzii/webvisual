@@ -43,14 +43,13 @@ nav.top-bar
 		li.toggle-topbar.menu-icon
 			a(href='#'): span Menu
 
+	dataURL = '/data'
 	section.top-bar-section
 		ul.left
 			+divider
 			+tab('/index', 'Home')
-
-			dataURL = '/data'
 			+divider
-			+dropdownTab(dataURL, 'Data')
+			+dropdownTab('#', 'Graphs')
 				+tab(dataURL+'?type=test', 'Test')
 				+tab(dataURL+'?type=line', 'Line Graph')
 				//- +dropdownTab('#', 'Graphtype 1')
@@ -68,3 +67,8 @@ nav.top-bar
 					+tab(dataURL+'?type=subtype3.1', 'Subtyp 3.1')
 					+tab(dataURL+'?type=subtype3.2', 'Subtyp 3.2')
 					+tab(dataURL+'?type=subtype3.3', 'Subtyp 3.3')
+					+divider
+			+divider
+			+dropdownTab(dataURL, 'Tables')
+				+tab('/schritt1', 'Schritt1')
+				+tab('/schritt2', 'Schritt2')

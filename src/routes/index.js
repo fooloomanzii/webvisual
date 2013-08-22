@@ -57,4 +57,13 @@ exports.data = function(req, res) {
 	res.render(jadeFile, jadeOpt);
 };
 
+//Schritt 1
+exports.schritt1 = route('schritt1', { title: 'Schritt 1' });
+
+//Schritt 2
+exports.schritt2 = route('schritt2', { title: 'Schritt 2' });
+
+//Schritt 2
+exports.schritt2g = route('schritt2g', { title: 'Line Graph' });
+
 })();

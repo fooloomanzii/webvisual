@@ -63,10 +63,6 @@
         if ($(e.target).data('dropdown')) {
           return;
         }
-        if (parent.length > 0 && ($(e.target).is('[data-dropdown-content]') || $.contains(parent.first()[0], e.target))) {
-          e.stopPropagation();
-          return;
-        }
 
         self.close.call(self, $('[data-dropdown-content]'));
       });
