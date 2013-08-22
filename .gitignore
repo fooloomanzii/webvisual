@@ -18,3 +18,4 @@ src/test/OLD/*.txt
 
 # Other files #
 src/command.txt
+src/data.txt
