@@ -98,7 +98,8 @@ app.configure('development', function() {
 */
 
 app.get(['/', '/home', '/index'], routes.index);
-app.get('/data', routes.data);
+app.get('/graph', routes.graph);
+app.get('/table', routes.table);
 
 /**
 * Socket.io Stuff
