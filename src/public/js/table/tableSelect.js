@@ -2,6 +2,8 @@
 	'use strict';
 
 	$(document).ready(function() {
+		// Start progress bar
+		NProgress.start();
 
 		var s2NS = (function() {
 
@@ -37,8 +39,9 @@
 
 				// Hide the loading message
 				$('#load').fadeOut(undefined, function() {
-					// Show the data
-					$('#data').fadeIn();
+					// Show the data and finish progress bar
+					$('#data').fadeIn(undefined,
+						NProgress.done);
 				});
 			});
 

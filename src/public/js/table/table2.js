@@ -2,6 +2,9 @@
 	'use strict';
 
 	$(document).ready(function() {
+		// Start progress bar
+		NProgress.start();
+
 		var s1NS = (function() {
 
 			// Return the values out of the data object
@@ -28,11 +31,11 @@
 					jQuery('<h3 />', {'id': 'value'+(i*2), text: values[i*2]}).appendTo('#werte1');
 					jQuery('<h3 />', {'id': 'value'+(i*2+1), text: values[i*2+1]}).appendTo('#werte2');
 				}
-
 				// Hide the loading message
 				$('#load').fadeOut(undefined, function() {
-					// Show the data
-					$('#data').fadeIn();
+					// Show the data and finish progress bar
+					$('#data').fadeIn(undefined,
+						NProgress.done);
 				});
 			})
 			socket.on('data', function(data) {
