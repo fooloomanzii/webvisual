@@ -23,15 +23,17 @@ exports.index = route('index', { title: 'Home' });
 // Locals
 var views    = path.join(__dirname, '../views'),
 	graphs   = path.join(views, 'graphs/graphs'),
-	graph404 = path.join(graphs, '../404_graph.jade');
+	graph404 = path.join(graphs, '../404_graph.jade'),
+	tables   = path.join(views, 'tables/tables'),
+	table404 = path.join(tables, '../404_table.jade');
 
 // Graphs routing
-exports.data = function(req, res) {
+exports.graph = function(req, res) {
 	var jadeOpt = {
 			path: req.url,
-			title: 'Data'
+			title: 'Graph'
 		},
-		jadeFile = 'data';
+		jadeFile = path.join(graphs, 'graph')+'.jade';
 
 	// Deliver the specified graph
 	if(req.query.type) {
@@ -57,13 +59,42 @@ exports.data = function(req, res) {
 	res.render(jadeFile, jadeOpt);
 };
 
-//Schritt 1
-exports.schritt1 = route('schritt1', { title: 'Schritt 1' });
+//Tables routing
+exports.table = function(req, res) {
+	var jadeOpt = {
+			path: req.url,
+			title: 'Table'
+		},
+		jadeFile = path.join(tables, 'table')+'.jade';
 
-//Schritt 2
-exports.schritt2 = route('schritt2', { title: 'Schritt 2' });
+	// Deliver the specified graph
+	if(req.query.type) {
+		// Modify the jadeFile
+		jadeFile = path.join(tables, 'table'+req.query.type)+'.jade';
 
-//Schritt 2
-exports.schritt2g = route('schritt2g', { title: 'Line Graph' });
+		// Modify the title
+		if(req.query.type=="2"){
+			jadeOpt.title = "2 Cols Table";
+		} else if (req.query.type=="Select"){
+			jadeOpt.title = "Table with select option";
+		} else {
+			jadeOpt.title = jadeOpt.title + " - "
+			+ req.query.type.charAt(0).toUpperCase()
+			+ req.query.type.slice(1);
+		}
+
+		// Modify the jade object
+		jadeOpt.type = req.query.type;
+
+		// Check if the view exists, otherwise render a 404 message
+		if(!fs.existsSync(jadeFile)) {
+			res.status(404);
+			jadeFile = table404;
+		}
+	}
+
+	// Render the page
+	res.render(jadeFile, jadeOpt);
+};
 
 })();

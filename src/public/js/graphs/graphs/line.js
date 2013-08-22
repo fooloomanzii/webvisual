@@ -8,6 +8,7 @@ var currentData,
 	dateArray      = [],
 	tooltips       = [],
 	visualizeState = [true],
+	yMax = 10,
 	day,
 	line,
 	colors = [
@@ -114,7 +115,7 @@ function arrangeData(data) {
 	/*	Create a large enough array to store the values of each sensor;
 		since there can "pop up" new values from a new sensor at any time,
 		or old ones disappear, it is necessary to check for the amount of
-		values on both endes of the data array and pick the maximum. */
+		values on both ends of the data array and pick the maximum. */
 	valueArray = new Array(Math.max(data[0].values.length, data[data.length-1].values.length));
 
 	// Save the current day
@@ -123,12 +124,19 @@ function arrangeData(data) {
 	// Create the labels
 	createLabels();
 
+	var currVal;
 	// Get the values out of the data
-	for(var i=0; i<valueArray.length; ++i) {
+	// We need to iterate through the values array from behind, so we have the first values for the first graph
+	for(var i=valueArray.length-1; i>=0; --i) {
 		valueArray[i] = [];
 		// Get the last element and push it in the valueArray
 		for(var k=0; k<data.length; ++k) {
-			valueArray[i].push(data[k].values.pop());
+			currVal = data[k].values.pop();
+
+			// Check if the current value is bigger than the max val
+			if(currVal > yMax) yMax = 2*yMax;
+
+			valueArray[i].push(currVal);
 		}
 	}
 	/*
@@ -200,7 +208,7 @@ $(document).ready(function() {
 			// .Set('text.size', 11)
 			.Set('tickmarks', 'circle')
 			.Set('tooltips', tooltips)
-			.Set('ymax', 10)
+			.Set('ymax', yMax)
 			.Set('scale.round', true);
 
 		// Save it in the graph namespace
@@ -229,7 +237,8 @@ $(document).ready(function() {
 		line.original_data = visualizeArray;
 		line.Set('labels', dateArray)
 			.Set('title', day)
-			.Set('tooltips', tooltips);
+			.Set('tooltips', tooltips)
+			.Set('ymax', yMax);
 
 		// Redraw
 		graphNS.redraw();
