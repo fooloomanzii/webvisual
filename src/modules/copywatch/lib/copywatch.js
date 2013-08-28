@@ -373,7 +373,7 @@ function _create_listeners(options) {
 		// The error_handler, it is specified in the options object
 		error: options.watch_error,
 		change: function (event, path, currStat, prevStat) {
-			// If its an event for a file we don't watch, there is no reason to process it
+			// If its an event for a file we don't watch, there is no reason to process it; this should actually never happen it's just an extra ensurance
 			if(watchers[path] === undefined) return;
 
 			_handle_change(event, path, currStat, prevStat, options);
@@ -485,7 +485,7 @@ function watch(mode, file, options, next) {
 	// Define variables
 	var i, listenersObj, nextObj,
 	// Other stuff
-		maybeError, resFile, fileDir;
+		maybeError, baseName, resFile, fileDir;
 
 	// Check if the given mode is a valid one; if not throw an error
 	maybeError = _check_mode(mode);
@@ -525,7 +525,8 @@ function watch(mode, file, options, next) {
 		still just watches just the one file. If it's a big directory the startup speed
 		can	suffer a bit, but it shoudln't be too bad. */
 
-	// Resolve the filename and get the directory
+	// Get the base filename, resolve it and get the directory
+	baseName = path_util.basename(file);
 	resFile = path_util.resolve(file);
 	fileDir = path_util.dirname(resFile);
 
@@ -540,23 +541,12 @@ function watch(mode, file, options, next) {
 		}
 	});
 
-	// Read the directory contents to ignore all files except the one which should be watched
-	// This doesn't ensure that new created files are ignored
-	fs.readdir(fileDir, function(err, files) {
-		if(err) return next(err);
-		var index;
-
-		// Delete our file from the list; obviously just when it exists
-		index = files.indexOf(file);
-		if(index > -1) files[index] = undefined;
-
-		// Finally watch the file
-		watchers[resFile] = watchr.watch({
-			path: fileDir, // We need to watch the directory in order to not stop watching on delete
-			ignorePaths: files, // The names of alle the files which should be ignored
-			listeners: listenersObj,
-			next: nextObj
-		});
+	// Finally watch the file
+	watchers[resFile] = watchr.watch({
+		path: fileDir, // We need to watch the directory in order to not stop watching on delete
+		ignoreCustomPatterns: new RegExp('^(?!.*'+baseName+'$)'), // The RegExp which ensures that just our file is watched
+		listeners: listenersObj,
+		next: nextObj
 	});
 }
 
