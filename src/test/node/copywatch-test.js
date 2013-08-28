@@ -72,6 +72,30 @@ buster.testCase("Copywatch", {
 				done();
 			});
 		},
+		"ignores different files test": function(done) {
+			var mode = 'all',
+				diffFile = './DIFFERENT_FILE',
+				cwFile = diffFile+cw.getExtension();
+
+			watch(mode, file, this.options, function(err) {
+				// Is err defined?
+				assert.isNull(err);
+
+				// Write a DIFFERENT file
+				fs.writeFileSync(diffFile, 'data', 'utf8');
+
+				// Wait if copywatch realises the change (it shouldn't)
+				setTimeout(function() {
+					refute(fs.existsSync(cwFile), "The file \""+cwFile+"\" shouldn't exist.");
+
+					// Delete the file
+					fs.unlinkSync(diffFile);
+
+					// We are done
+					done();
+				}, 50)
+			})
+		},
 		"default copy test": function(done) {
 			var mode = 'all';
 			extendObj(this.options, { firstCopy: false });
