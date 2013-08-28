@@ -237,7 +237,7 @@ function _process_read(path, start, end, process, callback) {
 	}
 
 	// Reading the stream
-	var tmpBuffer = "", firstRead = true, linecount = 0;
+	var tmpBuffer = "", linecount = 0;
 	read.on('readable', function() {
 		var data = '',
 			chunk;
@@ -261,15 +261,10 @@ function _process_read(path, start, end, process, callback) {
 		}
 
 		// It is possible, that the last "line" of the data isn't complete. So we have to store it and wait for the next readable event
-		if(firstRead) {
-			tmpBuffer = tokens.pop();
-			firstRead = false;
-		} else {
-			// Completes the first tokens element with the stored data from last time ...
-			tokens[0] = tmpBuffer + tokens[0];
-			// ... and saves the last element for the next time
-			tmpBuffer = tokens.pop();
-		}
+		// Complete the first tokens element with the stored data ...
+		tokens[0] = tmpBuffer + tokens[0];
+		// ... and saves the last element for the next time
+		tmpBuffer = tokens.pop();
 
 		// Process every line on their own
 		for(var i=0; i<tokens.length; ++i) {
