@@ -525,9 +525,11 @@ function watch(mode, file, options, next) {
 		still just watches just the one file. If it's a big directory the startup speed
 		can	suffer a bit, but it shoudln't be too bad. */
 
-	// Get the base filename, resolve it and get the directory
+	// Gets the basename of the file ("/c/node/script.js" would result in "script.js")
 	baseName = path_util.basename(file);
+	// Creates an absolute path ("../../node/script.js" could result in "/c/node/script.js")
 	resFile = path_util.resolve(file);
+	// The directory of the file ("/c/node/script.js" would result in "/c/node")
 	fileDir = path_util.dirname(resFile);
 
 	// Check for existance and make a first copy/parse; if firstCopy == true
@@ -544,7 +546,7 @@ function watch(mode, file, options, next) {
 	// Finally watch the file
 	watchers[resFile] = watchr.watch({
 		path: fileDir, // We need to watch the directory in order to not stop watching on delete
-		ignoreCustomPatterns: new RegExp('^(?!.*'+baseName+'$)'), // The RegExp which ensures that just our file is watched
+		ignoreCustomPatterns: new RegExp('^(?!.*'+baseName+'$)'), // The RegExp which ensures that just our file is watched and nothing else
 		listeners: listenersObj,
 		next: nextObj
 	});
