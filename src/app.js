@@ -53,7 +53,6 @@ app.configure('production', function() {
 
 app.configure(function() {
 	app.set('view engine', 'jade');
-	app.set('view options', { layout: false });
 	app.set('views', __dirname + '/views');
 	//	Middleware compatibility
 	app.use(express.bodyParser());
