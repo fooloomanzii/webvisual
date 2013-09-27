@@ -8,7 +8,7 @@
 src/build
 
 # Node Stuff #
-src/node_modules
+node_modules
 
 # Sublime Stuff #
 *.sublime-workspace
