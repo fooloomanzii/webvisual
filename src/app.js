@@ -9,6 +9,7 @@ var copywatch = require('./modules/copywatch'),
 	routes    = require('./routes'),
 	express   = require('express'),
 	fs        = require('fs'),
+	_         = require('underscore'),
 // Default config
 	def = {
 		read_file: 'data.txt',
@@ -41,14 +42,30 @@ var app = express(),
 app.configure('development', function() {
 	// In development mode write the development log in stdout
 	logMode = 'dev';
+
+	// Make the Jade output readable and add the environment specification
+	_.extend(app.locals, {
+		env: 'development',
+		pretty: true,
+	});
+
+
+	// Error Handler
+	app.use(express.errorHandler({
+		dumpExceptions: true,
+		showStack: true
+	}));
 });
 // Production
 app.configure('production', function() {
-	// Otherwise write it in a seperate file
+	// In production mode write the log in a seperate file
 	logMode = {
 		format : 'default',
 		stream : fs.createWriteStream(logFile, {flags: 'a'})
 	};
+
+	// Set the environment specification for jade
+	app.locals.env = 'production';
 });
 
 app.configure(function() {
@@ -80,17 +97,6 @@ app.configure(function() {
 	});
 });
 
-// Development config
-app.configure('development', function() {
-	// Make the Jade output readable
-	app.locals.pretty = true;
-
-	// Error Handler
-	app.use(express.errorHandler({
-		dumpExceptions: true,
-		showStack: true
-	}));
-});
 
 /**
 * Routing
