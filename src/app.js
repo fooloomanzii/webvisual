@@ -35,9 +35,17 @@ var app    = express(),
 	server = require('http').createServer(app),
 	io     = require('socket.io').listen(server);
 
-// Logging
 // Development
 app.configure('development', function() {
+	// Make the Jade output readable
+	app.locals.pretty = true;
+
+	// Error Handler
+	app.use(express.errorHandler({
+		dumpExceptions: true,
+		showStack: true
+	}));
+
 	// In development mode write the development log in stdout
 	logMode = 'dev';
 
@@ -54,6 +62,7 @@ app.configure('development', function() {
 		showStack: true
 	}));
 });
+
 // Production
 app.configure('production', function() {
 	// In production mode write the log in a seperate file
