@@ -8,9 +8,13 @@ var currentData,
 	dateArray      = [],
 	tooltips       = [],
 	visualizeState = [true],
-	yMax = 10,
+	yMax,
+	xMax,
+	numhlines = 8,
+	numvlines = 10,
+	//angle,
 	day,
-	line,
+	line, scatter, combo,
 	colors = [
 	    '#0000dd','#dd0000','#21B6A8','#87907D','#ec6d66',
 	    '#177F75','#B6212D','#B67721','#da2d8b','#7F5417',
@@ -32,9 +36,6 @@ var currentData,
 */
 function selectBox() {
 	var box=$('#selectBox')
-	
-	// Better interface for the select box
-	box.customSelect();
 	
 	//Initialize select box with elements
 	if(valueArray.length > 0) {
@@ -90,15 +91,22 @@ function selectBox() {
 function createLabels() {
 	dateArray = [];
 
-	// The maximum amount of tooltips is 10; if the window gets smaller these amount is reduced.
-	var maxTooltips = Math.min(10, Math.round($('#data').width()/100)),
-		skip        = Math.max(1, Math.round(currentData.length/maxTooltips));
+	/*// The maximum amount of tooltips is 10; if the window gets smaller these amount is reduced.
+	var maxTooltips = Math.min(10, Math.round($('#data').width()/80)),
+		skip        = Math.max(1, Math.round(currentData.length/maxTooltips)),
+		numhlines = Math.min(10, Math.round($('#data').height()/50));
 
 	// Save the dates in the dateArray; we want 10 dates max,
 	// equally distributed over the available dates
 	for(var i=currentData.length-1; i>=0; i-=skip) {
-		dateArray.unshift(moment(currentData[i].date).format("HH:mm:ss"));
+		dateArray.unshift([moment(currentData[i].date).format("HH:mm:ss"),i]);
 	}
+	numvlines = dateArray.length;*/
+	for(var i=0; i<currentData.length; i++) {
+		dateArray.push([moment(currentData[i].date).format("HH:mm:ss"), i]);
+	}
+	numvlines = dateArray.length-1;
+	xMax=numvlines;
 }
 
 /*
@@ -141,6 +149,8 @@ function arrangeData(data) {
 	createLabels();
 
 	var currVal;
+	//(re)initialize height;
+	yMax = 1;
 	// Get the values out of the data
 	// We need to iterate through the values array from behind, so we have the first values for the first graph
 	for(var i=valueArray.length-1; i>=0; --i) {
@@ -150,7 +160,7 @@ function arrangeData(data) {
 			currVal = data[k].values.pop();
 
 			// Check if the current value is bigger than the max val
-			if(currVal > yMax) yMax = currVal;
+			if(currVal > yMax) yMax = currVal - currVal%numhlines + numhlines;
 
 			valueArray[i].push(currVal);
 		}
@@ -207,26 +217,9 @@ function getTooltip(index) {
 
 // READY
 $(document).ready(function() {
-	// Local variables
-	var button_text = {
-		"interrupt": "Interrupt",
-		"continue": "Continue"
-	},
 	// Set up the Socket.IO connection
-		socket = io.connect('http://'+window.location.host+'/data', {transports: ['xhr-polling']});
-
-	// Some functions
-	function flipButton() {
-		var newText = button_text.interrupt,
-			button = $('#interruptButton');
-
-		if(button.text() === button_text.interrupt) {
-			newText = button_text.continue;
-		}
-
-		button.text(newText);
-	}
-
+	var socket = io.connect('http://'+window.location.host+'/data', {transports: ['xhr-polling']});
+	
 	// First message
 	socket.on('first', function(message) {
 		if(message === undefined) return;
@@ -234,37 +227,59 @@ $(document).ready(function() {
 		// Arrange the data
 		arrangeData(message.data);
 		
+		// Better interface for the select box
+		$('#selectBox').customSelect();
+		
 		// Initialise the select box
 		selectBox();
-
+         	
 		// Create the graph
-		line = new RGraph.Line("graph", visualizeArray)
+		scatter = new RGraph.Scatter('graph', [])
+			.Set('labels', dateArray)
+			.Set('ymax', yMax)
+			.Set('xmax', xMax)
+			.Set('scale.round', true)
+			.Set('background.grid.autofit.numhlines', numhlines)
+			.Set('background.grid.autofit.numvlines', numvlines)
+			.Set('ylabels.count', numhlines)
+			.Set('numyticks',numhlines*2)
+         	.Set('numxticks',numvlines)
+         	.Set('noendtick.bottom',false);
+         	
+         			
+		line = new RGraph.Line('graph', visualizeArray)
 			.Set('colors', colors)
 			.Set('linewidth', 2)
 			.Set('title', day)
+			.Set('ylabels',false)
+			.Set('numyticks',0)
+			.Set('numxticks',0)
 			// .Set('title.xaxis.pos', .15)
-			.Set('labels', dateArray)
 			// .Set('gutter.bottom', 45)
 			// .Set('text.size', 11)
+			.Set('background.grid.hlines',false)
+			.Set('background.grid.vlines',false)
 			.Set('tickmarks', 'circle')
 			.Set('tooltips', getTooltip)
 			.Set('ymax', yMax)
-			.Set('scale.round', true);
+			.Set('xmax', xMax)
+			//.Set('scale.round', true);
+         	
 
-		// Save it in the graph namespace
-		graphNS.graph = line;
-
+		//combo = new RGraph.CombinedChart(scatter, line);
 		// Draw
 		line.Draw();
-
-		// Set the interrupt button text
-		$('#interruptButton').text(message.state ? button_text.interrupt : button_text.continue);
+		scatter.Draw();
+		
+		// Save it in the graph namespace
+		graphNS.graph = [scatter,line];
 		
 		// Trigger change of the select to show the values at start
 		$('#selectBox').trigger('change');
-
+		
 		// Show the graph
 		graphNS.showData();
+		
 	});
 	// New data event
 	socket.on('data', function(message) {
@@ -273,45 +288,25 @@ $(document).ready(function() {
 		// Arrange the data
 		arrangeData(message.data);
 
-		// Initialise the linecount button
-		linecountForm();
-
 		// Update the graph
 		line.original_data = visualizeArray;
-		line.Set('labels', dateArray)
-			.Set('title', day)
+		scatter.Set('labels', dateArray)
+				.Set('ymax', yMax)
+				.Set('background.grid.autofit.numvlines', numvlines)
+						
+		line.Set('title', day)
 			.Set('ymax', yMax);
 
 		// Redraw
 		graphNS.redraw();
 	});
-	// Command event; occures on an interrupt and a continue
-	socket.on('command', function(message) {
-		if(message === undefined || message.cmd === undefined) return;
-
-		// The the button text
-		if(message.cmd === "interrupt" || message.cmd === "continue") {
-			flipButton();
-		}
-	});
-
-	// Interrupt button
-	$('#interruptButton').click(function() {
-		var command;
-		if($(this).text() === button_text.interrupt) {
-			command = 'interrupt';
-		} else {
-			command = 'continue';
-		}
-
-		// Emit the command
-		socket.emit('command', {cmd: command});
-	});
 
 	// Resize event; let the labels fit the page width
 	graphNS.resize = function() {
 		createLabels();
-		line.Set('labels', dateArray);
+		line.Set('labels', dateArray)
+		.Set('chart.background.grid.autofit.numvlines', numvlines)				
+		.Set('chart.numxticks',numvlines);
 	};
 });
 

@@ -24,8 +24,16 @@ var copywatch = require('./modules/copywatch'),
 	command_file = config.command_file || def.command_file,
 // Command object
 	cmd_txt = {
-		"interrupt": ((config.cmd && config.cmd.interrupt) ? config.cmd.interrupt : "INTERRUPT"),
-		"continue": ((config.cmd && config.cmd.continue) ? config.cmd.continue : "CONTINUE")
+		"off": ((config.cmd && config.cmd.off) ? config.cmd.off : "OFF"),
+		"on": ((config.cmd && config.cmd.on) ? config.cmd.on : "ON")
+	},
+// Function that receives errors
+	errfunc = function(err) {
+		if(err) {
+			console.log('error');
+			socket.emit('error', {data: err});
+			return;
+		}
 	};
 
 /**
@@ -112,24 +120,68 @@ io.set('log level', 1);
 var userCounter = 0,
 	currentData,
 	firstSend,
-// Checks if the interrupt order is set
-	state = (fs.existsSync(command_file) && (fs.readFileSync(command_file, 'utf8') !== cmd_txt.interrupt)),
+	states={},
+// Checks the funktions_file for new funktions and command_file for avaliable states
+	checkstates = function() {
+		var stt_tmp={},
+			line_tmp;
+			
+		for(var i in config.functions) {
+			states[config.functions[i]]=true;
+		}
+		fs.readFile(command_file, 'utf8', function (err, data){
+			if(err) errfunc(err);
+			data.toString().split(/\r\n|\r|\n/).forEach(function (line) {
+				if(line=="") return;
+				line_tmp=line.split(':');
+				if(line_tmp.length!=2) return;
+				stt_tmp[line_tmp[0]]=line_tmp[1];
+			})
+		});
+		fs.writeFile(command_file, "", function(err){
+			if(err) errfunc(err);
+		});
+		for(var element in states) {
+			if(stt_tmp[element]) states[element]=(stt_tmp[element] !== cmd_txt.off);		
+			fs.appendFile(command_file, element+":"+(states[element]?cmd_txt.on:cmd_txt.off)+'\r\n', 'utf8', function(err){
+				if(err) errfunc(err);
+			});
+		}
+	},
 // A set of commands which can be executed when the command event is fired; the cmd_tmp is used to asign the same function to multiple elements
 	cmd_tmp, cmd_fnct = {
-		"interrupt": (cmd_tmp = function(socket, command) {
-			// Write an interrupt command into the command_file; emits an error to the calling client if something goes wrong
-			fs.writeFile(command_file, cmd_txt[command], 'utf8', function(err) {
-				if(err) {
-					socket.emit('error', {data: err});
-					return;
-				} state = (command !== "interrupt");
+		"off": (cmd_tmp = function(socket, command) {
+			// Write an command into the command_file 
+			states[command[0]] = (command[1] !== "off");
+			fs.writeFile(command_file, "", function(err){
+				if(err) errfunc(err);
 			});
-
+			for(var element in states) {
+				fs.appendFile(command_file, element+":"+(states[element]?cmd_txt.on:cmd_txt.off)+'\r\n', 'utf8', function(err){
+					if(err) errfunc(err);
+				});
+			}
 			// Emits the command so the other notice that something happened
-			dataSocket.emit('command', {cmd: command});
+			optionsSocket.emit('command', {cmd: command});
 		}),
-		"continue": cmd_tmp
+		"on": cmd_tmp
 	},
+// The options socket
+	optionsSocket = io.of('/options').on('connection', function(socket) {
+		// Listen for the command event
+		socket.on('command', function(message) {
+			if(message === undefined || message.cmd === undefined) {
+				return;
+			}
+			var command = message.cmd;
+			// Execute the given command
+			
+			if(cmd_fnct[command[1]]) cmd_fnct[command[1]](socket, command);
+		});
+		
+		// Send the data
+		socket.emit('data', {states: states});		
+	}),
 // The data socket
 	dataSocket = io.of('/data').on('connection', function(socket) {
 		// Initialize the other events
@@ -144,17 +196,6 @@ var userCounter = 0,
 				// Reset the firstSend bool
 				firstSend = false;
 			}
-		});
-
-		// Listen for the command event
-		socket.on('command', function(message) {
-			if(message === undefined || message.cmd === undefined) {
-				return;
-			}
-
-			var command = message.cmd.toLowerCase();
-			// Execute the given command
-			if(cmd_fnct[command]) cmd_fnct[command](socket, command);
 		});
 
 		// Increase the user counter on connection, if it is the first connection, start the watching of the file
@@ -181,9 +222,6 @@ var userCounter = 0,
 					if(firstSend) {
 						sendEvent = 'first';
 						firstSend = false;
-
-						// Set the state
-						message.state = state;
 					}
 
 					// Save the new data and ...
@@ -200,17 +238,18 @@ var userCounter = 0,
 		// The copywatch initialization makes a first parse right at the beginning.
 		// This means, that just clients after the first need to get the current data
 		else /*if(userCounter > 1)*/ {
-			socket.emit('first', {data: currentData, state: state});
+			socket.emit('first', {data: currentData});
 		}
 	});
 
 /**
 * Get it running!
 */
+checkstates();
 
 server.listen(port);
 
 console.log("Server is running under %d Port in %s mode",
-	(port), app.settings.env);
+	port, app.settings.env);
 
 })();

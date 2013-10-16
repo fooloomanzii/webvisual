@@ -19,6 +19,7 @@ head
 	link(rel='stylesheet', href='css/global.css')
 	link(rel='stylesheet', href='css/nprogress.css')
 	link(rel='stylesheet', href='css/customSelect.css')
+	link(rel='stylesheet', href='css/options.css')
 
 	// Own CSS stuff
 	block style
@@ -33,12 +34,16 @@ head
 body
 	include includes/navbar
 	block content
+	include includes/options
 
 	// Include JS Files (Uncompressed)
 	script(src='js/jquery-2.0.2.js')
 	script(src='js/nprogress.js')
 	script.
 		NProgress.configure({ trickleRate: 0.02, trickleSpeed: 200 });
+	script(src='/socket.io/socket.io.js')
+	script(src='js/options.js')	
+	
 
 	// Included JS Files (Compressed)
 	//- script(src='http://code.jquery.com/jquery-latest.min.js')
@@ -61,7 +66,7 @@ body
 	//- script(src='js/foundation/foundation.magellan.js')
 	//- script(src='js/foundation/foundation.orbit.js')
 	script(src='js/foundation/foundation.placeholder.js')
-	//- script(src='js/foundation/foundation.reveal.js')
+	script(src='js/foundation/foundation.reveal.js')
 	script(src='js/foundation/foundation.section.js')
 	//- script(src='js/foundation/foundation.tooltips.js')
 	script(src='js/foundation/foundation.topbar.js')
@@ -70,7 +75,6 @@ body
 		$(function() {
 			$(document).foundation();
 		});
-
 
 	block script
 

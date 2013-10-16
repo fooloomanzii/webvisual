@@ -41,9 +41,13 @@ exports.graph = function(req, res) {
 		jadeFile = path.join(graphs, req.query.type)+'.jade';
 
 		// Modify the title
-		jadeOpt.title = jadeOpt.title + " - "
+		if (req.query.type=="graph"){
+			jadeOpt.title = "Graph";
+		} else {
+			jadeOpt.title = jadeOpt.title + " - "
 			+ req.query.type.charAt(0).toUpperCase()
 			+ req.query.type.slice(1);
+		}
 
 		// Modify the jade object
 		jadeOpt.type = req.query.type;
@@ -70,12 +74,12 @@ exports.table = function(req, res) {
 	// Deliver the specified graph
 	if(req.query.type) {
 		// Modify the jadeFile
-		jadeFile = path.join(tables, 'table'+req.query.type)+'.jade';
+		jadeFile = path.join(tables, req.query.type)+'.jade';
 
 		// Modify the title
-		if(req.query.type=="2"){
-			jadeOpt.title = "2 Cols Table";
-		} else if (req.query.type=="Select"){
+		if(req.query.type=="twoCols"){
+			jadeOpt.title = "2 Columns Table";
+		} else if (req.query.type=="select"){
 			jadeOpt.title = "Table with select option";
 		} else {
 			jadeOpt.title = jadeOpt.title + " - "

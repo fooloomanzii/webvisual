@@ -31,7 +31,6 @@ block content
 
 block script
 	script(src='js/moment/moment.min.js')
-	script(src='/socket.io/socket.io.js')
 	script(src='js/graphs/graphs.js')
 
 	// RGraph scripts
@@ -125,3 +124,7 @@ block script
 
 	//- // Just needed for Waterfall charts
 	//- script(src='js/rgraph/RGraph.waterfall.js')
+			
+	// Just needed for additional axes
+	script(src='js/rgraph/RGraph.drawing.xaxis.js')
+	script(src='js/rgraph/RGraph.drawing.yaxis.js')
