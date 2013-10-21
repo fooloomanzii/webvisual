@@ -12,16 +12,22 @@ head
 
 	if locals.env == 'development'
 		// Included CSS Files (Uncompressed)
-		link(rel='stylesheet', href='css/foundation.css')
-		link(rel='stylesheet', href='css/app.css')
 		link(rel='stylesheet', href='css/normalize.css')
-		link(rel='stylesheet', href='css/global.css')
-		link(rel='stylesheet', href='css/nprogress.css')
+		link(rel='stylesheet', href='css/foundation.css')
 		link(rel='stylesheet', href='css/customSelect.css')
+		link(rel='stylesheet', href='css/nprogress.css')
+		link(rel='stylesheet', href='css/global.css')
+		link(rel='stylesheet', href='css/app.css')
 	else
 		// Included CSS Files (Compressed)
+		//- link(rel='stylesheet', href='css/normalize.min.css')
+		//- link(rel='stylesheet', href='css/foundation.min.css')
+		//- link(rel='stylesheet', href='css/app.min.css')
+		//- link(rel='stylesheet', href='css/global.min.css')
+		//- link(rel='stylesheet', href='css/nprogress.min.css')
+		//- link(rel='stylesheet', href='css/customSelect.min.css')
 		link(rel='stylesheet', href='min/depend.min.css')
-		link(rel='stylesheet', href='min/personal.min.css')
+		link(rel='stylesheet', href='min/custom.min.css')
 
 	// Own CSS stuff
 	block style
