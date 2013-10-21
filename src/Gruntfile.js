@@ -77,7 +77,11 @@ module.exports = function(grunt) {
 					{
 						expand: true,
 						cwd: depend+'/js/',
-						src: '**/*min.js',
+						src: [
+							'**/*min.js',
+							// Foundation vendor stuff
+							'vendor/*.js'
+						],
 						dest: target+'/js/'
 					},
 					{
@@ -137,7 +141,11 @@ module.exports = function(grunt) {
 		open: {
 			start: {
 				app: 'node',
-				path: './'
+				path: './app.js'
+			},
+			view: {
+				path: 'http://localhost:3000/'
+			}
 		},
 		// Minify js files
 		uglify: {
