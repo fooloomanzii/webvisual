@@ -9,5 +9,9 @@ prepend canvas
 			select#selectBox
 
 append script
-	script(src='js/graphs/graphs/select.js')
 	script(src='js/jquery.customSelect.min.js')
+
+	if locals.env == 'development'
+		script(src='js/graphs/graphs/select.js')
+	else
+		script(src='js/graphs/graphs/select.min.js')

@@ -11,4 +11,7 @@ prepend canvas
 				#linecount
 
 append script
-	script(src='js/graphs/graphs/line.js')
+	if locals.env == 'development'
+		script(src='js/graphs/graphs/line.js')
+	else
+		script(src='js/graphs/graphs/line.min.js')

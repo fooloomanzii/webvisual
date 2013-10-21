@@ -22,5 +22,9 @@ block content
 						
 block script
 	script(src='/socket.io/socket.io.js')
-	script(src='js/table/tableSelect.js')
 	script(src='js/jquery.customSelect.min.js')
+
+	if locals.env == 'development'
+		script(src='js/table/tableSelect.js')
+	else
+		script(src='js/table/tableSelect.min.js')

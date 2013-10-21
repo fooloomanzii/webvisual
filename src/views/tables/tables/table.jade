@@ -17,4 +17,8 @@ block content
 
 block script
 	script(src='/socket.io/socket.io.js')
-	script(src='js/table/table.js')
+
+	if locals.env == 'development'
+		script(src='js/table/table.js')
+	else
+		script(src='js/table/table.min.js')
