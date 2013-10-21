@@ -134,13 +134,29 @@ module.exports = function(grunt) {
 		cssmin: {
 			combine: {
 				files: [
-					// Minify dependencies css and personal css
-					{ src: [depend+'/css/**/*.css', '!'+depend+'/css/**/*min.css'], dest: target+'/min/depend.min.css' },
-					{ src: [source+'/css/**/*.css', '!'+source+'/css/**/*min.css'], dest: target+'/min/personal.min.css' }
+					// Minify dependencies css and custom css
+					{
+						src: [
+							depend+'/css/normalize.css',
+							depend+'/css/foundation.css',
+							depend+'/css/customSelect.css',
+							depend+'/css/nprogress.css'
+						],
+						dest: target+'/min/depend.min.css'
+					},
+					{ src: [source+'/css/**/*.css', '!'+source+'/css/**/*min.css'], dest: target+'/min/custom.min.css' }
 				]
 			},
 			seperate: {
 				files: [
+					{
+						expand: true,
+						cwd: depend+'/css/',
+						filter: minifiedFilter,
+						src: [ '**/*.css', '!**/*min.css' ],
+						ext: '.min.css',
+						dest: target+'/css/'
+					},
 					{
 						expand: true,
 						cwd: source+'/css/',
@@ -150,6 +166,14 @@ module.exports = function(grunt) {
 						dest: target+'/css/'
 					}
 				]
+			}
+		},
+		env: {
+			development: {
+				NODE_ENV: 'development'
+			},
+			production: {
+				NODE_ENV: 'production'
 			}
 		},
 		open: {
@@ -187,6 +211,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-cssmin');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-env');
 	grunt.loadNpmTasks('grunt-open');
 
 
@@ -210,12 +235,17 @@ module.exports = function(grunt) {
 			// Invalid argument
 			if(!(env === 'dev' || env === 'development' || env === 'prod' || env === 'production')) {
 				grunt.fail.warn("Invalid argument: "+env);
+			} else if(env === 'dev') {
+				env = 'development';
+			} else if(env === 'prod') {
+				env = 'production';
 			}
 
 			// Execute the tasks
 			grunt.task.run(
 				[
 					'compile:'+env,
+					'env:'+env,
 					'open'
 				]
 			);
