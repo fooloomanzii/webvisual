@@ -8,15 +8,22 @@ module.exports = function(grunt) {
 		depend = './public-dep',
 		target = './public';
 
-	function minifyFilter(src) {
+	function minifiedFilter(src) {
 		var dir  = path.dirname(src),
 			type = path.extname(src),
 			file = path.basename(src, type);
 
-		// console.log(src, dir, type, file);
-
-		// Use already minified versions, if they are available
+		// FALSE for files which have a minified version
 		return !(grunt.file.exists(dir, file+'.min'+type));
+	}
+
+	function nonminifiedFilter(src) {
+		var dir  = path.dirname(src),
+			type = path.extname(src),
+			file = path.basename(src, '.min'+type);
+
+		// FALSE for files which have a non minified version
+		return !(grunt.file.exists(dir, file+type));
 	}
 
 	// Project configuration.
@@ -42,6 +49,13 @@ module.exports = function(grunt) {
 			},
 			"development-js": {
 				files: [
+					{ // Ensure the js files get copied which aren't available non minified
+						expand: true,
+						cwd: depend+'/js/',
+						filter: nonminifiedFilter,
+						src: '*.min.js',
+						dest: target+'/js/'
+					},
 					{
 						expand: true,
 						cwd: depend+'/js/',
@@ -130,7 +144,7 @@ module.exports = function(grunt) {
 					{
 						expand: true,
 						cwd: source+'/css/',
-						filter: minifyFilter,
+						filter: minifiedFilter,
 						src: [ '**/*.css', '!**/*min.css' ],
 						ext: '.min.css',
 						dest: target+'/css/'
@@ -155,7 +169,7 @@ module.exports = function(grunt) {
 					{
 						expand: true,
 						cwd: source+'/js/',
-						filter: minifyFilter,
+						filter: minifiedFilter,
 						src: [
 							'**/*.js',
 							'!**/*.min.js'
