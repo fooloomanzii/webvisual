@@ -6,6 +6,10 @@
 
 # Some folders #
 src/build
+# Ignore public js css and min
+src/public/css
+src/public/js
+src/public/min
 
 # Node Stuff #
 node_modules
