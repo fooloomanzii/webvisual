@@ -11,18 +11,16 @@ var copywatch = require('./modules/copywatch'),
 	fs        = require('fs'),
 	_         = require('underscore'),
 // Default config
-	def = {
+	defaults = {
 		read_file: 'data.txt',
 		command_file: 'command.txt',
 		port: 3000,
 	},
 // Other variables
-	config      = require('./config.json'),
+// Configuration, uses default values, if necessary
+	config      = _.defaults(require('./config.json'), defaults),
 	logFile     = __dirname + '/log.txt',
 	logMode,
-	port        = config.port || def.port,
-	read_file    = config.read_file || def.read_file,
-	command_file = config.command_file || def.command_file,
 // Command object
 	cmd_txt = {
 		"interrupt": ((config.cmd && config.cmd.interrupt) ? config.cmd.interrupt : "INTERRUPT"),
@@ -33,9 +31,9 @@ var copywatch = require('./modules/copywatch'),
 * Configure the app
 */
 
-var app = express(),
+var app    = express(),
 	server = require('http').createServer(app),
-	io = require('socket.io').listen(server);
+	io     = require('socket.io').listen(server);
 
 // Logging
 // Development
@@ -107,7 +105,7 @@ app.get('/graph', routes.graph);
 app.get('/table', routes.table);
 
 /**
-* Socket.io Stuff
+* Configure Socket.io
 */
 
 // Just print warnings
@@ -117,13 +115,13 @@ io.set('log level', 1);
 var userCounter = 0,
 	currentData,
 	firstSend,
-// Checks if the interrupt order is set
-	state = (fs.existsSync(command_file) && (fs.readFileSync(command_file, 'utf8') !== cmd_txt.interrupt)),
+// Checks if the interrupt order is set; reading synchonusly isn't a problem here, since this just happens on startup
+	state = (fs.existsSync(config.command_file) && (fs.readFileSync(config.command_file, 'utf8') !== cmd_txt.interrupt)),
 // A set of commands which can be executed when the command event is fired; the cmd_tmp is used to asign the same function to multiple elements
 	cmd_tmp, cmd_fnct = {
 		"interrupt": (cmd_tmp = function(socket, command) {
 			// Write an interrupt command into the command_file; emits an error to the calling client if something goes wrong
-			fs.writeFile(command_file, cmd_txt[command], 'utf8', function(err) {
+			fs.writeFile(config.command_file, cmd_txt[command], 'utf8', function(err) {
 				if(err) {
 					socket.emit('error', {data: err});
 					return;
@@ -213,9 +211,9 @@ var userCounter = 0,
 * Get it running!
 */
 
-server.listen(port);
+server.listen(config.port);
 
 console.log("Server is running under %d Port in %s mode",
-	(port), app.settings.env);
+	config.port, app.settings.env);
 
 })();
