@@ -13,7 +13,7 @@
 		// Rearranges the table with states of funktions.
 		function arrangeStates(states) {
 			for (var state in states){
-				$('#functions').append('<tr id="'+state+'" class="function">'+
+				$('#funcTBody').append('<tr id="'+state+'">'+
 						'<td class="funcName">'+state+'</td>'+
 						'<td><a value="'+state+'" class="custom state button">'+(states[state]?'Off':'On')+'</a></td>'+
 						'<td><div>'+(states[state]?'On':'Off')+'</div></td>'+

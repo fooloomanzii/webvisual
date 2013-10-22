@@ -33,20 +33,20 @@
 .button::-moz-focus-inner {
 	border: 0;
 }
-table {
+#funcTable {
 	border-collapse: collapse;
 	border-style: hidden;
 }
-table td, table th {
+#funcTable td, #funcTable th {
 	border: 1px solid #c7c7c7;
 }
-#functions th{
+#funcTBody th{
 	font-size: 16px;
 }
-#functions td {
+#funcTBody td {
 	font: 16px sans-serif;
 }
-#functions .funcName {
+#funcTBody .funcName {
 	font: 24px sans-serif;
 	padding-top: 0;
 	padding-bottom: 0;

@@ -11,8 +11,8 @@ var copywatch = require('./modules/copywatch'),
 	fs        = require('fs'),
 // Default config
 	def = {
-		read_file: 'data.txt',
-		command_file: 'command.txt',
+		data_file: 'data.txt',
+		command_file: 'commands.json',
 		port: 3000,
 	},
 // Other variables
@@ -20,20 +20,19 @@ var copywatch = require('./modules/copywatch'),
 	logFile     = __dirname + '/log.txt',
 	logMode,
 	port        = config.port || def.port,
-	read_file    = config.read_file || def.read_file,
+	data_file    = config.data_file || def.data_file,
 	command_file = config.command_file || def.command_file,
+	commands,
 // Command object
 	cmd_txt = {
-		"off": ((config.cmd && config.cmd.off) ? config.cmd.off : "OFF"),
-		"on": ((config.cmd && config.cmd.on) ? config.cmd.on : "ON")
+		"on": ((config.states && config.states[0]) ? config.states[0] : "ON"),
+		"off": ((config.states && config.states[1]) ? config.states[1] : "OFF")
 	},
 // Function that receives errors
-	errfunc = function(err) {
-		if(err) {
-			console.log('error');
-			socket.emit('error', {data: err});
-			return;
-		}
+	errfunc = function(err,socket) {
+		console.log('error');
+		socket.emit('error', {data: err});
+		return;
 	};
 
 /**
@@ -121,50 +120,52 @@ var userCounter = 0,
 	currentData,
 	firstSend,
 	states={},
-// Checks the funktions_file for new funktions and command_file for avaliable states
+// Checks the funktions_file for new functions and command_file for available states
 	checkstates = function() {
-		var stt_tmp={},
-			line_tmp;
-			
-		for(var i in config.functions) {
-			states[config.functions[i]]=true;
-		}
-		fs.readFile(command_file, 'utf8', function (err, data){
-			if(err) errfunc(err);
-			data.toString().split(/\r\n|\r|\n/).forEach(function (line) {
-				if(line=="") return;
-				line_tmp=line.split(':');
-				if(line_tmp.length!=2) return;
-				stt_tmp[line_tmp[0]]=line_tmp[1];
-			})
-		});
-		fs.writeFile(command_file, "", function(err){
-			if(err) errfunc(err);
-		});
-		for(var element in states) {
-			if(stt_tmp[element]) states[element]=(stt_tmp[element] !== cmd_txt.off);		
-			fs.appendFile(command_file, element+":"+(states[element]?cmd_txt.on:cmd_txt.off)+'\r\n', 'utf8', function(err){
-				if(err) errfunc(err);
-			});
-		}
-	},
-// A set of commands which can be executed when the command event is fired; the cmd_tmp is used to asign the same function to multiple elements
-	cmd_tmp, cmd_fnct = {
-		"off": (cmd_tmp = function(socket, command) {
-			// Write an command into the command_file 
-			states[command[0]] = (command[1] !== "off");
-			fs.writeFile(command_file, "", function(err){
-				if(err) errfunc(err);
-			});
-			for(var element in states) {
-				fs.appendFile(command_file, element+":"+(states[element]?cmd_txt.on:cmd_txt.off)+'\r\n', 'utf8', function(err){
-					if(err) errfunc(err);
+		fs.exists(command_file, function(exists) {
+			if (!exists) {
+				console.log("File '"+command_file+"' don't exists. This file will be created");
+				fs.writeFile(command_file, "", function(err2){
+					if(err2) errfunc(err2,socket);
 				});
 			}
+		});			
+		commands = JSON.parse(fs.readFileSync(command_file, 'utf8', function (err) {
+			  if (err) {
+				  console.log("Can't read file ''"+command_file+"'");
+				  errfunc(err,socket);
+			  }
+		}));
+		if(!commands.functions){
+			commands.functions={};
+		}		
+		for(var func in config.functions) {
+			if(commands.functions[func]){
+				states[func]=(commands.functions[func] !== cmd_txt.off);
+			} else {
+				states[func]=(config.functions[func] !== cmd_txt.off);
+				commands.functions[func]=(states[func]?cmd_txt.on:cmd_txt.off);
+			}
+		}
+		
+		fs.writeFile(command_file, JSON.stringify(commands, null, "\t"), function(err){
+			if(err) errfunc(err,socket);
+		});
+	},
+// A set of commands which can be executed when the command event is fired; the cmd_tmp is used to asign the same function to multiple elements
+	cmd_onoff, cmd_fnct = {
+		"off": (cmd_onoff = function(socket, command) {
+			//Changes the state
+			states[command[0]] = (command[1] !== "off");			
+			// Write an command into the config
+			commands.functions[command[0]]=command[1];	
+			fs.writeFile(command_file, JSON.stringify(commands, null, "\t"), function(err){
+				if(err) errfunc(err,socket);
+			});
 			// Emits the command so the other notice that something happened
 			optionsSocket.emit('command', {cmd: command});
 		}),
-		"on": cmd_tmp
+		"on": cmd_onoff
 	},
 // The options socket
 	optionsSocket = io.of('/options').on('connection', function(socket) {
@@ -188,10 +189,10 @@ var userCounter = 0,
 		// Reduces the usercounter and stops the watching of the file if necessary
 		socket.on('disconnect', function() {
 			if(--userCounter === 0) {
-				copywatch.unwatch(read_file);
+				copywatch.unwatch(data_file);
 
 				// Log
-				console.log("Stopped watching \""+read_file+"\"");
+				console.log("Stopped watching \""+data_file+"\"");
 
 				// Reset the firstSend bool
 				firstSend = false;
@@ -202,7 +203,7 @@ var userCounter = 0,
 		if(++userCounter === 1) {
 			firstSend = true;
 			// Start watching the file
-			copywatch.watch('all', read_file, {
+			copywatch.watch('all', data_file, {
 				copy: false, // We don't need to make a copy of the file
 				process: parser.parse, // The used parse function
 				content: function(errorData, parsedData) {
@@ -222,6 +223,7 @@ var userCounter = 0,
 					if(firstSend) {
 						sendEvent = 'first';
 						firstSend = false;
+						message.locals = config.locals;
 					}
 
 					// Save the new data and ...
@@ -233,12 +235,12 @@ var userCounter = 0,
 			});
 
 			// Log
-			console.log("Started watching \""+read_file+"\"");
+			console.log("Started watching \""+data_file+"\"");
 		}
 		// The copywatch initialization makes a first parse right at the beginning.
 		// This means, that just clients after the first need to get the current data
 		else /*if(userCounter > 1)*/ {
-			socket.emit('first', {data: currentData});
+			socket.emit('first', {data: currentData, locals: config.locals});
 		}
 	});
 
@@ -246,7 +248,6 @@ var userCounter = 0,
 * Get it running!
 */
 checkstates();
-
 server.listen(port);
 
 console.log("Server is running under %d Port in %s mode",

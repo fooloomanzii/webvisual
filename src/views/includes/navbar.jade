@@ -50,10 +50,6 @@ nav.top-bar
 			+divider
 			+tab('/index', 'Home')
 			+divider
-			+tab(graphURL+'?type=graph', 'Graph')
-			+divider
-			+dropdownTab(tableURL, 'Table')
-				+tab(tableURL+'?type=twoCols', '2 Columns')
-				+tab(tableURL+'?type=select', 'Select')
+			+tab(tableURL, 'Table')
 			+divider
 			li: a#optionsButton(data-reveal-id="optModal") Options

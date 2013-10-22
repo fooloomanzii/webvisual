@@ -22,7 +22,12 @@
 .hidden, *[hidden] {
 	display:none;
 }
-
+.under {
+	color: blue;
+}
+.over {
+	color: red;
+}
 
 
 /* -----------------------------------------

@@ -2,7 +2,8 @@
 'use strict';
 
 var fs   = require('fs'),
-	path = require('path');
+	path = require('path'),
+	config = require('../config.json');
 
 /**
  * Route function
@@ -67,25 +68,15 @@ exports.graph = function(req, res) {
 exports.table = function(req, res) {
 	var jadeOpt = {
 			path: req.url,
-			title: 'Table'
+			title: (config.locals&&config.locals.table&&config.locals.table.title)?
+					(config.locals.table.title):'Table'
 		},
 		jadeFile = path.join(tables, 'table')+'.jade';
 
-	// Deliver the specified graph
+	// Deliver the specified table
 	if(req.query.type) {
 		// Modify the jadeFile
 		jadeFile = path.join(tables, req.query.type)+'.jade';
-
-		// Modify the title
-		if(req.query.type=="twoCols"){
-			jadeOpt.title = "2 Columns Table";
-		} else if (req.query.type=="select"){
-			jadeOpt.title = "Table with select option";
-		} else {
-			jadeOpt.title = jadeOpt.title + " - "
-			+ req.query.type.charAt(0).toUpperCase()
-			+ req.query.type.slice(1);
-		}
 
 		// Modify the jade object
 		jadeOpt.type = req.query.type;
@@ -95,6 +86,20 @@ exports.table = function(req, res) {
 			res.status(404);
 			jadeFile = table404;
 		}
+	}
+		
+	// Modify the title
+	if(req.query.value){
+		if(config.locals&&config.locals.table){
+			if(config.locals.table.rows&&config.locals.table.rows[req.query.value]){
+				jadeOpt.title+=" - "+config.locals.table.rows[req.query.value];
+			} else if(config.locals.table.unnamedRow){
+				jadeOpt.title+=" - "+config.locals.table.unnamedRow+"_"+req.query.value;
+			}
+		} else {
+			jadeOpt.title+=" - Value_"+req.query.value;
+		}
+
 	}
 
 	// Render the page
