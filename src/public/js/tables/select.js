@@ -99,7 +99,7 @@
 		if(!data || data.length === 0) return;
 		
 		// Get last line from values-Array
-		valuesArray = message.data.pop().values;
+		valuesArray = data.pop().values;
 
 		// Set new values
 		var i = $('#sel').val()*2;
@@ -122,12 +122,10 @@
 			socket.on('first', function(message) {
 				if(message === undefined) return;
 				
-				// Better interface for the select box
-				$('#sel').customSelect();
-				
 				//arrange labels, limits and data
 				arrangeLocals(message.locals);
 				arrangeData(message.data);
+				
 
 				// Trigger the change to show the values at start
 				$('#sel option').eq(firstSelect()).prop('selected', true);
@@ -140,6 +138,9 @@
 					$('#data').fadeIn(undefined,
 						NProgress.done);
 				});
+				
+				// Better interface for the selection box
+				$('#sel').customSelect();
 			});
 
 			// Next data

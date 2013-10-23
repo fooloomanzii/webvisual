@@ -17,5 +17,4 @@ src/node_modules
 src/test/OLD/*.txt
 
 # Other files #
-src/command.txt
-src/data.txt
+src/command.json

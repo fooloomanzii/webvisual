@@ -1,6 +1,6 @@
 span.customSelect { 
 	text-align: left;
-	font:2vmin sans-serif;
+	font:18px sans-serif;
 	background:#fff url(../img/customSelect-arrow.png) right center no-repeat;
 	border:1px solid #ddd;
 	color:#555;
@@ -9,7 +9,6 @@ span.customSelect {
 	-webkit-border-radius: 2px;
 	border-radius: 2px 2px;
 	height: 2em;
-	width: 20vmin;
 }
 .customSelect.customSelectHover {
 	border-color:#c7c7c7;
@@ -22,8 +21,11 @@ span.customSelect {
 .customSelect.customSelectOpen {
 	border-color:Black;
 }
+.hasCustomSelect {
+	padding: 5px;
+}
 .hasCustomSelect option {
-	padding:0px 9px 2px;
+	padding: 0px 9px 2px;
 }
 
 /* -----------------------------------------

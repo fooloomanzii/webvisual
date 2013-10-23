@@ -100,6 +100,7 @@
 		for(var i=0; i<valuesArray.length; i++) {
 			if($('#value'+i)){
 				$('#value'+i).removeClass();
+				$('#value'+i).text(valuesArray[i]);
 				$('#value'+i).addClass(checkColor(i));
 			}
 		}

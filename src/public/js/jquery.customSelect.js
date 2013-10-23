@@ -10,6 +10,35 @@
 
 (function ($) {
     'use strict';
+    
+    String.prototype.width = function() {
+    	var fs = $('span.customSelect').css('font-size'),
+    	ff = $('span.customSelect').css('font-family'),
+    	o = $('<div>' + this + '</div>')
+    	.css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden', 'font-size': fs, 'font-family': ff})
+    	.appendTo($('body')),
+    	w = o.width();
+
+    	o.remove();
+
+    	return w;
+    }
+
+    function getWidth(select)
+    {
+    	var maxlength = 0;
+    	var maxWidth = 0;
+    	var mySelect = document.getElementById(select.attr('id'));
+    	for (var i=0; i<mySelect.options.length;i++)
+    	{
+    		if (mySelect[i].text.length>maxlength)
+    		{
+    			maxlength = mySelect[i].text.length;
+    			maxWidth = mySelect[i].text.width();
+    		}
+    	}
+    	select.width(maxWidth+20);
+    }
 
     $.fn.extend({
         customSelect: function (options) {
@@ -49,8 +78,7 @@
             return this.each(function () {
                 var $select = $(this),
                     customSelectInnerSpan = $('<span />').addClass(getClass('Inner')),
-                    customSelectSpan = $('<span />'),
-										position = $select.position(); 
+                    customSelectSpan = $('<span />');
 
                 $select.after(customSelectSpan.append(customSelectInnerSpan));
                 
@@ -68,17 +96,15 @@
                     .on('update', function () {
 						changed($select,customSelectSpan);
 						
-                        var selectBoxWidth = parseInt($select.outerWidth(), 10) -
-                                (parseInt(customSelectSpan.outerWidth(), 10) -
-                                    parseInt(customSelectSpan.width(), 10));
+						getWidth($select);
+                        var selectBoxWidth = $select.width();
 						
 						// Set to inline-block before calculating outerHeight
 						customSelectSpan.css({
-														width : customSelectSpan.css("width"),
-														height: customSelectSpan.css("height"),
+							width:   selectBoxWidth+29,
                             display: 'inline-block'
                         });
-						
+
                         var selectBoxHeight = customSelectSpan.outerHeight();
 
                         if ($select.attr('disabled')) {
@@ -88,14 +114,14 @@
                         }
 
                         customSelectInnerSpan.css({
-                            width:   customSelectSpan.css("width"),
+                            width:   $select.width(),
                             display: 'inline-block'
                         });
 
                         $select.css({
                             '-webkit-appearance': 'menulist-button',
-                            width :               customSelectSpan.css("width"),
                             position:             'absolute',
+                            width:                selectBoxWidth+29,
                             opacity:              0,
                             height:               selectBoxHeight,
                             fontSize:             customSelectSpan.css('font-size')
@@ -110,7 +136,7 @@
                             $select.blur();
                             $select.focus();
                         }else{
-                            if(e.which==13||e.which==27||e.which==9){
+                            if(e.which==13||e.which==27){
                                 changed($select,customSelectSpan);
                             }
                         }
