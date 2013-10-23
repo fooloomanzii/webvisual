@@ -10,6 +10,10 @@ Messdatenvisualisierung:
     ☐ LINE: Zeitliche Skalierung der x-Achse, abhaengig von dem Interval der Messwerte #public/js/graphs/graphs/line.js
     ☐ LINE: Meldung, wenn nicht alle Datensätze dargestellt werden können (mangels Farben)
 
+   Mail:
+    ☐ Alarmemail bei Überschreitung, max einmal täglich
+    ☐ Einmal täglich Statusmail mit aktuellen Werten
+
 Module:
   Ideen:
    ☐ Eigenes Modul (connect.js?) erstellen, das eine passende Zusatzebene bereitstellt
