@@ -3,6 +3,7 @@
 	
 	var numCols,
 		labelsArray={ //default-Values
+			"PageTitle":"Table",
 			"title":"",
 			"corner":"",
 			"cols":[],
@@ -28,6 +29,9 @@
 	function arrangeLocals(locals){
 		if(locals){
 			if(locals.table){
+				if(locals.table.title){
+					labelsArray.pageTitle=locals.table.title;
+				}
 				if(locals.table.colors){
 					if(locals.table.colors.under) {
 						$('body').prepend('<style> .under { color: ' + locals.table.colors.under + ' } </style>');
@@ -58,9 +62,9 @@
 				limitsArray=locals.limits;
 			}
 		}
-		
-		// Set the title
-		$('#title').html('<h1>'+labelsArray.title+'</h1>');
+	
+		//Set the title of the Page
+		document.title=labelsArray.pageTitle;
 		// Resolve the number of columns
 		numCols=(Object.keys(labelsArray.cols).length||1);
 		// Set labels in the first row
@@ -131,6 +135,8 @@
 				$('#sel option').eq(firstSelect()).prop('selected', true);
 				$('#sel').trigger('change');
 				
+				// Better interface for the selection box
+				$('#sel').customSelect();
 
 				// Hide the loading message
 				$('#load').fadeOut(undefined, function() {
@@ -138,9 +144,6 @@
 					$('#data').fadeIn(undefined,
 						NProgress.done);
 				});
-				
-				// Better interface for the selection box
-				$('#sel').customSelect();
 			});
 
 			// Next data
@@ -151,6 +154,10 @@
 			
 			// Handle the Dropdown selection
 			$('#sel').on('change', function (e) {
+				//C hange the title of the Page
+				document.title=labelsArray.pageTitle+" - "+$('#sel option:selected').text();
+				// Change the local title
+				$('#title').text(labelsArray.title+" - "+$('#sel option:selected').text());
 				var i = $(this).val()*2;
 				$('#werte').html(jQuery('<h3 />', {'id': 'value'+(i), 'class': checkColor(i), 
 					'text': valuesArray[i]}));

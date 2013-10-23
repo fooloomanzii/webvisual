@@ -3,6 +3,7 @@
 
 	var numCols,
 		labelsArray={ //default-Values
+			"PageTitle":"Table",
 			"title":"",
 			"corner":"",
 			"cols":[],
@@ -16,6 +17,9 @@
 	function arrangeLocals(locals){
 		if(locals){
 			if(locals.table){
+				if(locals.table.title){
+					labelsArray.pageTitle=locals.table.title;
+				}
 				if(locals.table.colors){
 					if(locals.table.colors.under) {
 						$('body').prepend('<style> .under { color: ' + locals.table.colors.under + ' } </style>');
@@ -47,9 +51,10 @@
 			}
 		}
 		
-		
-		// Set the title
-		$('#title').html('<h1>'+labelsArray.title+'</h1>');
+		//Set the title of the Page
+		document.title=labelsArray.pageTitle;
+		// Set the local title
+		$('#title').text(labelsArray.title);
 		// Resolve the number of columns
 		numCols=(Object.keys(labelsArray.cols).length||1);
 		// Set labels in the first row
@@ -58,7 +63,7 @@
 		// Create the array of labels for the values
 		for(var i = 1; i<numCols; i++){
 			$('#valCols').append('<th><h3 class="subheader">'+labelsArray.cols[i]+'</h3></th>');
-		}		
+		}	
 	}
 	
 	// Check if the value at given position stay in the limits

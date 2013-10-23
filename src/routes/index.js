@@ -87,20 +87,6 @@ exports.table = function(req, res) {
 			jadeFile = table404;
 		}
 	}
-		
-	// Modify the title
-	if(req.query.value){
-		if(config.locals&&config.locals.table){
-			if(config.locals.table.rows&&config.locals.table.rows[req.query.value]){
-				jadeOpt.title+=" - "+config.locals.table.rows[req.query.value];
-			} else if(config.locals.table.unnamedRow){
-				jadeOpt.title+=" - "+config.locals.table.unnamedRow+"_"+req.query.value;
-			}
-		} else {
-			jadeOpt.title+=" - Value_"+req.query.value;
-		}
-
-	}
 
 	// Render the page
 	res.render(jadeFile, jadeOpt);
