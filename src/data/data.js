@@ -1,3 +1,4 @@
+// jshint unused:false
 'use strict';
 
 var
@@ -8,25 +9,52 @@ var
 	mailer   = require('nodemailer'),
 	mongoose = require('mongoose'),
 	net      = require('net'),
+	pathing  = require('path'),
 	_        = require('underscore'),
 // Mailer variables and log in information
 	mail, icsMail = require('./mail.json'),
 // Class
 	EventEmitter = require('events').EventEmitter,
-	DataHandler;
+	DataHandler,
+// Config & Co
+	connectionDefaults = {
+		"db": {
+			// Default DB configuration
+		},
+		"file": {
+			// Default file: Same dir as the "master" script
+			path: pathing.join(__dirname, 'data.txt')
+		},
+		"tcp": {
+			// Default TCP configuration
+		}
+	},
+	// All connect functions for the different connection types
+	connectionFn = {
+		"db": null,
+		"file": null,
+		"tcp": null
+	},
+	messages = {
+		ConnectionConfigType : "Expected simple object as config-value for connection.",
+		ConnectionType       : function(connectionType) {
+			return "The given connection type \""+connectionType+"\" is invalid. Valid types are: "+_(connectionFn).functions();
+		},
+		TypeErrorMsg         : function(expectedType, forWhat, recievedType) {
+			// Returns a descriptive message dependend on the arguments
+			return "Expected \""+expectedType+"\"-type"+
+			(forWhat ? " for "+forWhat : "")+
+			(recievedType ? ", recieved \""+recievedType+"\"" : "")+".";
+		}
+	};
 
 DataHandler = (function(_Super) {
-	var
-		// Create the object with the connection functions
-		connectionFn = {
-			"db": null,
-			"file": null,
-			"tcp": null
-		},
-		defaults = {
+	// jshint validthis:true
+	var defaults = {
 			connection: ['file']
 		};
 
+	// jshint newcap: false
 	// Constructor
 	function _Class(config) {
 		// Ensure the constructor was called correctly with 'new'
@@ -39,7 +67,7 @@ DataHandler = (function(_Super) {
 		_(config).defaults(defaults);
 
 		// Validate and process the connections
-		this.connect(config.connection)
+		this.connect(config.connection);
 	}
 
 	// Inherit from EventEmitter
@@ -63,11 +91,10 @@ DataHandler = (function(_Super) {
 	/////////////
 	// Methods //
 	/////////////
-
-	function _connect(connections) {
-		// TODO: Make isNativeObject function
+	function _connect(connection) {
+		var connectionConfig = {};
 		// Check if the connection option is an object but not an array
-		if(_(connections).isObject() || !_(connections).isArray()) {
+		if(_(connection).isObject() || !_(connection).isArray()) {
 			// If it's an object, then the object keys specify the connection to use while the values should be config objects
 			// for the specified connection
 			// Example:
@@ -78,73 +105,67 @@ DataHandler = (function(_Super) {
 			//		...
 			//	}
 			// }
-			connections = _(connections).pairs();
 
-			// connections is now an array with subarrays consisting from 2 values: KEY and VALUE from the old object;
-			// The KEY is always a string while the VALUE should be an object
-			_(connections).each(function( value ) {
-				// It should be an object but not an array
-				if(! _(value).isObject() || _(value).isArray() ) {
-					throw TypeError("Expected simple object as config-value for connection.");
+			// Save another ref on the config object
+			connectionConfig = connection;
+
+			// Ensure the values of the connection keys are actually proper objects (not arrays, numbers, strings or whatever)
+			_(connection).each(function( config ) {
+				// Allowed values are: null, undefined, object (but not an array)
+				if( config && (! _(config).isObject() || _(config).isArray()) ) {
+					throw TypeError(messages.WrongConnectionConfigType);
 				}
 			});
+
+			// Overwrite the connection variable to ensure it's a simple string array; necessary for further processing
+			connection = _(connection).keys();
 		}
-		// Otherwise ensure it's an array
-		else if(!_(connections).isArray()) {
-			connections = [ connections ];
+		// Ensure it's an array, if it's not an object
+		else if(!_(connection).isArray()) {
+			connection = [ connection ];
 		}
 
-		// Ensure connections is an array of strings or key, value pair arrays and an appropriate connection function exists; if not throw an error
-		_(connections).each( function( value ) {
-			var type = typeof value;
 
-			// Check if it's an key, value pair array; ensure value is actually the connection type string
-			if(type === 'object' && !(_(value).isArray()) {
-				// First value: Type; Second value: config object
-				value = value[0];
-			}
+		// Fill the connectionConfig with default values, if necessary
+		_(connectionConfig).defaults(connectionDefaults);
+
+
+		// Ensure the array of strings describe actually valid connection types; throw an error in case of an invalid type
+		_(connection).each( function( value ) {
+			var	objType  = typeof value;
 
 			// Check for correct type
 			// Is it a string which describes a valid connection function?
-			if(type === 'string' && !_(connectionFn[value]).isFunction()) {
-				throw new Error("The given connection type ("+value+") is invalid. Valid types are: "+_(connectionFn).functions());
+			if(objType === 'string' && !_(connectionFn[value.toLowerCase()]).isFunction()) {
+				throw new Error(messages.ConnectionType(objType));
 			}
-			// It's not an correct string? Well, wtf is it?
+			// Invalid type
 			else {
-				throw new TypeError("Expected type of string for the 'connections' option, recieved '"+type+"'.");
+				throw new TypeError(messages.TypeErrorMsg('string', '"connection" option', objType));
 			}
 		});
 
+
 		// Execute the necessary connection functions which are saved in the connectionsFn object
-		_(connections).each( function( funcCall ) {
-			var connectionConfig;
-
-			// Check if it's an key, value pair array
-			if(_(funcCall).isArray()) {
-				// The second argument is the config object for the connection function
-				connectionConfig = funcCall[1];
-				// Ensure funcCall is an string pointing to the correct function
-				funcCall = funcCall[0];
-			}
-
-			// Execute the connection function
-			connectionFn[funcCall](connectionConfig);
+		_(connection).each( function( value ) {
+			// Execute the connection function with configuration
+			// TODO: Save the connections
+			connectionFn[value.toLowerCase()](connectionConfig[value]);
 		});
 	}
 
 	return _Class;
 })(EventEmitter);
 
-
-// TODO: Ermoegliche Konfiguration der Verbindungswege
-/**
- * Configure Copywatch and start watching
- */
-copywatch.watch('all', read_file, {
-	copy: false, // We don't need to make a copy of the file
-	process: parser.parse, // The used parse function
-	content: validateData
-});
+// jshint ignore:start
+function fileConnect(config) {
+	copywatch.watch('all', read_file, {
+		copy: false, // We don't need to make a copy of the file
+		process: parser.parse, // The used parse function
+		content: validateData
+	});
+}
+// jshint ignore:end
 
 /**
  * Configure the mail system
