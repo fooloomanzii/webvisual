@@ -106,8 +106,10 @@ DataHandler = (function(_Super) {
 			//	}
 			// }
 
-			// Save another ref on the config object
-			connectionConfig = connection;
+			// Save a reference with lower case keys
+			for(var key in connection) {
+				connectionConfig[key.toLowerCase()] = connection[key];
+			}
 
 			// Ensure the values of the connection keys are actually proper objects (not arrays, numbers, strings or whatever)
 			_(connection).each(function( config ) {
@@ -118,7 +120,7 @@ DataHandler = (function(_Super) {
 			});
 
 			// Overwrite the connection variable to ensure it's a simple string array; necessary for further processing
-			connection = _(connection).keys();
+			connection = _(connectionConfig).keys();
 		}
 		// Ensure it's an array, if it's not an object
 		else if(!_(connection).isArray()) {
@@ -131,18 +133,27 @@ DataHandler = (function(_Super) {
 
 
 		// Ensure the array of strings describe actually valid connection types; throw an error in case of an invalid type
-		_(connection).each( function( value ) {
+		// Also ensure that the keys are actually all lower case
+		connection = _(connection).map( function( value ) {
 			var	objType  = typeof value;
 
 			// Check for correct type
-			// Is it a string which describes a valid connection function?
-			if(objType === 'string' && !_(connectionFn[value.toLowerCase()]).isFunction()) {
-				throw new Error(messages.ConnectionType(objType));
+			if(objType === 'string') {
+				// This conversion is possibly redundant, if the connection argument was an object; but whatever
+				value = value.toLowerCase();
+
+				// Is it a string which describes a valid connection function? if not, throw an error
+				if(!_(connectionFn[value]).isFunction()) {
+					throw new Error(messages.ConnectionType(objType));
+				}
 			}
 			// Invalid type
 			else {
 				throw new TypeError(messages.TypeErrorMsg('string', '"connection" option', objType));
 			}
+
+			// Return the ensured lower case string
+			return value;
 		});
 
 
@@ -150,7 +161,7 @@ DataHandler = (function(_Super) {
 		_(connection).each( function( value ) {
 			// Execute the connection function with configuration
 			// TODO: Save the connections
-			connectionFn[value.toLowerCase()](connectionConfig[value]);
+			connectionFn[value](connectionConfig[value]);
 		});
 	}
 
