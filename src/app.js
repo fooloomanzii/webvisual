@@ -2,14 +2,14 @@
 'use strict';
 
 /**
-* Module dependencies
-*/
-var copywatch = require('./modules/copywatch'),
-	parser    = require('./modules/data_parser'),
-	routes    = require('./routes'),
+ * Module dependencies
+ */
+var routes    = require('./routes'),
 	express   = require('express'),
 	fs        = require('fs'),
 	_         = require('underscore'),
+// Class variables
+	DataHandler = require('./data').DataHandler,
 // Default config
 	defaults = {
 		read_file: 'data.txt',
@@ -28,8 +28,8 @@ var copywatch = require('./modules/copywatch'),
 	};
 
 /**
-* Configure the app
-*/
+ * Configure the app
+ */
 
 var app    = express(),
 	server = require('http').createServer(app),
@@ -106,12 +106,13 @@ app.configure(function() {
 
 
 /**
-* Routing
-*/
+ * Routing
+ */
 
 app.get(['/', '/home', '/index'], routes.index);
 app.get('/graph', routes.graph);
 app.get('/table', routes.table);
+
 
 /**
 * Configure Socket.io
@@ -121,9 +122,7 @@ app.get('/table', routes.table);
 io.set('log level', 1);
 
 // Socket variables
-var userCounter = 0,
-	currentData,
-	firstSend,
+var currentData = null,
 // Checks if the interrupt order is set; reading synchonusly isn't a problem here, since this just happens on startup
 	state = (fs.existsSync(config.command_file) && (fs.readFileSync(config.command_file, 'utf8') !== cmd_txt.interrupt)),
 // A set of commands which can be executed when the command event is fired; the cmd_tmp is used to asign the same function to multiple elements
@@ -144,20 +143,6 @@ var userCounter = 0,
 	},
 // The data socket
 	dataSocket = io.of('/data').on('connection', function(socket) {
-		// Initialize the other events
-		// Reduces the usercounter and stops the watching of the file if necessary
-		socket.on('disconnect', function() {
-			if(--userCounter === 0) {
-				copywatch.unwatch(read_file);
-
-				// Log
-				console.log("Stopped watching \""+read_file+"\"");
-
-				// Reset the firstSend bool
-				firstSend = false;
-			}
-		});
-
 		// Listen for the command event
 		socket.on('command', function(message) {
 			if(message === undefined || message.cmd === undefined) {
@@ -169,56 +154,34 @@ var userCounter = 0,
 			if(cmd_fnct[command]) cmd_fnct[command](socket, command);
 		});
 
-		// Increase the user counter on connection, if it is the first connection, start the watching of the file
-		if(++userCounter === 1) {
-			firstSend = true;
-			// Start watching the file
-			copywatch.watch('all', read_file, {
-				copy: false, // We don't need to make a copy of the file
-				process: parser.parse, // The used parse function
-				content: function(errorData, parsedData) {
-					// Are there errors?
-					if(errorData) {
-						console.warn("Error(s) occured:", errorData);
-						dataSocket.emit('error', {data: errorData});
-					}
-
-					// Create the event type and the message object
-					var sendEvent = 'data',
-						message   = {
-							data: parsedData
-						};
-
-					// Set the first event and add the state, if it is the first parsing
-					if(firstSend) {
-						sendEvent = 'first';
-						firstSend = false;
-
-						// Set the state
-						message.state = state;
-					}
-
-					// Save the new data and ...
-					currentData = parsedData;
-
-					// ... finally send the data
-					dataSocket.emit(sendEvent, message);
-				}
-			});
-
-			// Log
-			console.log("Started watching \""+read_file+"\"");
-		}
-		// The copywatch initialization makes a first parse right at the beginning.
-		// This means, that just clients after the first need to get the current data
-		else /*if(userCounter > 1)*/ {
-			socket.emit('first', {data: currentData, state: state});
-		}
+		// Send a first data set
+		socket.emit('first', {
+			data  : currentData,
+			state : state
+		});
 	});
 
+
 /**
-* Get it running!
-*/
+ * Establish data connection
+ */
+var connections = new DataHandler({
+	// Use the default configuration
+	connection: [ 'file' ],
+	listener: {
+		data: function(type, data) {
+			// Save the current data
+			currentData = data;
+
+			// Send it
+			dataSocket.emit('data', { data: data });
+		}
+	}
+});
+
+/**
+ * Get it running!
+ */
 
 server.listen(config.port);
 
