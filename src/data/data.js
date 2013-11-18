@@ -161,7 +161,7 @@ DataHandler = (function(_Super) {
 		this._addListener(config.listener);
 	}
 
-	// Extend with properties
+	// Extend with properties; null values are just place holder for instantiated properties
 	_(_Class.prototype).extend({
 		_emitter    : null,
 		_connections: {}
@@ -175,8 +175,8 @@ DataHandler = (function(_Super) {
 	/**
 	 * Adds the given listeners to the data and the error event.
 	 * @param {Object} listener A object with the listeners to add, valid listeners are 'data' and 'error'.
-	 *                          The default 'data'-listener just prints the recieved arguments, while the default
-	 *                          'error'-listener throws the recieved error.
+	 *                          The default 'data'-listener just prints the received arguments, while the default
+	 *                          'error'-listener throws the received error.
 	 */
 	_Class.prototype._addListener = function(listener) {
 		// Check if the listener object is actually a function; in this case the function is assumed to be the 'data'-listener
@@ -193,16 +193,16 @@ DataHandler = (function(_Super) {
 	};
 
 	/**
-	 * Creates an emitter function that recieves a potential error and the new data.
+	 * Creates an emitter function that receives a potential error and the new data.
 	 * The function emits this error/data as an event with the given type information.
 	 *
-	 * @param  {String} type The connection type from whom the data was recieved
-	 * @return {Function}    An emitter function that emits recieved data/error with the specified type information
+	 * @param  {String} type The connection type from whom the data was received
+	 * @return {Function}    An emitter function that emits received data/error with the specified type information
 	 */
 	_Class.prototype._createEmitter = function(type) {
 		var self = this;
 
-		// Return a function that recieves an potential error and the data;
+		// Return a function that receives an potential error and the data;
 		// emits a fitting event with the given type information
 		return function(error, data) {
 			if(error) self._emitter.emit('error', type, error);
@@ -212,7 +212,7 @@ DataHandler = (function(_Super) {
 	};
 
 	/**
-	 * THE connect function. Recieves a configuration object or a list of connections and establishes the connections.
+	 * THE connect function. Receives a configuration object or a list of connections and establishes the connections.
 	 * The connections get saved in the "private" _connections object of the DataHandler instance.
 	 *
 	 * @param  {Object / Array} connection A object where the keys specify the connection type and the value is the configuration
@@ -292,7 +292,7 @@ DataHandler = (function(_Super) {
 			// Add the resulting connection object to the "private" _connection object of the instance
 			self._connections[type] = connectionFn[type].connect(
 				connectionConfig[type],
-				// Create a suitable emitter function for the type, this ensures that the correct events get emitted on data occurence
+				// Create a suitable emitter function for the type, this ensures that the correct events get emitted on data occurrence
 				self._createEmitter(type)
 			);
 		});
