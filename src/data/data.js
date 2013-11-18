@@ -1,3 +1,37 @@
+/**
+ * HOW TO USE
+ *
+ * The DataHandler class. This class is used to handle data connections and the incoming data with ease.
+ * @param  {Object} config A configuration object with the following options:
+ *     @attr  {Array/Object} connection
+ *         A array or object with a list of connections to use. If an array is used, the module will use default
+ *         configuration for the connections. Alternatively you can use the object format to add your own custom
+ *         configuration for the connection.
+ *         In this case the keys represent the connection type while you can add objects as value for further configuration.
+ *         Example:
+ *         {
+ *           db: {
+ *             option1: 1,
+ *             option2: 2
+ *           },
+ *           file: {
+ *             option1: 'a',
+ *             option2: 'b'
+ *           }
+ *         }
+ *     @attr  {Function/Object} listener
+ *         The attributes of this object can be used to add listener on the various events of the DataHandler.
+ *         Valid listener are:
+ *         data
+ *             Will be called when new data arrives, the arguments it receives are:
+ *                 type - The connection type as string (db, file etc.)
+ *                 data - The data as object or array (for multiple data)
+ *         error
+ *             Will be called when an error occurs. Receives the following arguments:
+ *                 type - The connection type as string (db, file etc.)
+ *                 error - The error as object or array (for multiple errors)
+ */
+
 // jshint unused:false
 'use strict';
 
