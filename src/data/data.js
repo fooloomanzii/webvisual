@@ -130,7 +130,7 @@ connectionFn.tcp = {
  * To handle incoming data listeners can be bound to the 'data' event.
  * It is possible to create a instance for multiple connection-types.
  */
-DataHandler = (function(_Super) {
+DataHandler = (function() {
 	// jshint validthis:true
 	var defaults = {
 			connection : ['file'],
@@ -299,7 +299,16 @@ DataHandler = (function(_Super) {
 	};
 
 	return _Class;
-})(EventEmitter);
+})();
+
+
+////////////
+// Export //
+////////////
+
+module.export = {
+	DataHandler: DataHandler
+};
 
 /**
  * Configure the mail system
