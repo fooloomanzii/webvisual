@@ -37,12 +37,12 @@
 
 var
 // Own modules
-	copywatch = require('../modules/copywatch'),
+	copywatch   = require('../modules/copywatch'),
+	data_parser = require('../modules/data_parser'),
 // Node modules
 	mailer   = require('nodemailer'),
 	mongoose = require('mongoose'),
 	net      = require('net'),
-	pathing  = require('path'),
 	_        = require('underscore'),
 // Mailer variables and log in information
 	mail, icsMail = require('./mail.json'),
@@ -60,9 +60,9 @@ var
 			// The watching mode ('all', 'append', 'prepend')
 			mode: 'all',
 			// Default file: Same dir as the "master" script
-			path: pathing.join(__dirname, 'data.txt'),
+			path: 'data.txt',
 			// The default parse function from the data_parser module
-			process: require('./modules/data_parser').parse
+			process: data_parser.parse
 		},
 		"tcp": {
 			// TODO: Default TCP configuration
@@ -141,7 +141,7 @@ connectionFn.file = {
 		config.content = emitter;
 
 		// Create the instance and return it
-		return copywatch.watch(config);
+		return copywatch.watch(config.mode, config.path, config);
 	}
 };
 
@@ -257,7 +257,7 @@ DataHandler = (function() {
 		var connectionConfig = {},
 			self = this;
 		// Check if the connection option is an object but not an array
-		if(_(connection).isObject() || !_(connection).isArray()) {
+		if(_(connection).isObject() && !_(connection).isArray()) {
 			// If it's an object, then the object keys specify the connection to use while the values should be config objects
 			// for the specified connection
 			// Example:
@@ -278,7 +278,7 @@ DataHandler = (function() {
 			_(connection).each(function( config ) {
 				// Allowed values are: null, undefined, object (but not an array)
 				if( config && (! _(config).isObject() || _(config).isArray()) ) {
-					throw TypeError(messages.functions.ConnectionConfigTypeMsg);
+					throw TypeError(messages.ConnectionConfigTypeMsg);
 				}
 			});
 
@@ -306,8 +306,8 @@ DataHandler = (function() {
 				value = value.toLowerCase();
 
 				// Is it a string which describes a valid connection function? if not, throw an error
-				if(!_(connectionFn[value]).isFunction()) {
-					throw new Error(messages.functions.ConnectionTypeMsgFn(objType));
+				if(_(connectionFn[value]).isUndefined()) {
+					throw new Error(messages.functions.ConnectionTypeMsgFn(value));
 				}
 			}
 			// Invalid type
@@ -340,7 +340,7 @@ DataHandler = (function() {
 // Export //
 ////////////
 
-module.export = {
+module.exports = {
 	DataHandler: DataHandler
 };
 
