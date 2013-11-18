@@ -4,7 +4,6 @@
 var
 // Own modules
 	copywatch = require('../modules/copywatch'),
-	parser    = require('./modules/data_parser'),
 // Node modules
 	mailer   = require('nodemailer'),
 	mongoose = require('mongoose'),
@@ -19,39 +18,128 @@ var
 // Config & Co
 	connectionDefaults = {
 		"db": {
-			// Default DB configuration
+			// TODO: Default DB configuration
 		},
 		"file": {
+			// We don't need to make a copy of the file
+			copy: false,
+			// The watching mode ('all', 'append', 'prepend')
+			mode: 'all',
 			// Default file: Same dir as the "master" script
-			path: pathing.join(__dirname, 'data.txt')
+			path: pathing.join(__dirname, 'data.txt'),
+			// The default parse function from the data_parser module
+			process: require('./modules/data_parser').parse
 		},
 		"tcp": {
-			// Default TCP configuration
+			// TODO: Default TCP configuration
 		}
 	},
-	// All connect functions for the different connection types
+	// All connect and close functions for the different connection types; the functions are added at a later point
 	connectionFn = {
-		"db": null,
-		"file": null,
-		"tcp": null
+		db: {
+			close   : null,
+			connect : null
+		},
+		file: {
+			close   : null,
+			connect : null
+		},
+		tcp: {
+			close   : null,
+			connect : null
+		}
 	},
 	messages = {
-		ConnectionConfigType : "Expected simple object as config-value for connection.",
-		ConnectionType       : function(connectionType) {
-			return "The given connection type \""+connectionType+"\" is invalid. Valid types are: "+_(connectionFn).functions();
-		},
-		TypeErrorMsg         : function(expectedType, forWhat, recievedType) {
-			// Returns a descriptive message dependend on the arguments
-			return "Expected \""+expectedType+"\"-type"+
-			(forWhat ? " for "+forWhat : "")+
-			(recievedType ? ", recieved \""+recievedType+"\"" : "")+".";
+		ConnectionConfigTypeMsg : "Expected simple object as config-value for connection.",
+		functions: {
+			ConnectionTypeMsgFn     : function(connectionType) {
+				return "The given connection type \""+connectionType+"\" is invalid. Valid types are: "+_(connectionFn).functions();
+			},
+			DataErrorMsgFn          : function(type, error) {
+				return _(error).reduce(function(memo, value) {
+					// Use the 'toString'-method, if available, to create a easier to read message
+					return '\n'+(typeof value.toString === 'function' ? value.toString() : value);
+				}, "Recieved a single or multiple errors from the connection '"+type+"'.");
+			},
+			TypeErrorMsgFn          : function(expectedType, forWhat, recievedType) {
+				// Returns a descriptive message dependend on the arguments
+				return "Expected \""+expectedType+"\"-type"+
+				(forWhat ? " for "+forWhat : "")+
+				(recievedType ? ", recieved \""+recievedType+"\"" : "")+".";
+			},
+			UnknownErrorMsgFn       : function() {
+				return _(arguments).reduce(function(memo, value) {
+					// Use the 'toString'-method, if available, to create a easier to read message
+					return '\n'+(typeof value.toString === 'function' ? value.toString() : value);
+				}, "Unknown error occured. For more information see additional arguments:");
+			}
 		}
 	};
 
+
+/////////////////////////////////
+// Static connection functions //
+/////////////////////////////////
+
+/**
+ * The database connect function. Establishes a connection to a specified database.
+ * @param  {Object} config The configuration for the database connection
+ * @return {Object}        A database connection object
+ */
+connectionFn.db = {
+	// TODO: Add close function
+	close   : function() {},
+	connect : function(config, emitter) {
+		return null;
+	}
+};
+
+/**
+ * The file watch connect function. Enables the watching and processing of a file.
+ * @param  {Object} config The configuration for the watching
+ * @return {Object}        An instance of the copywatch module
+ */
+connectionFn.file = {
+	// TODO: Add close function
+	close   : function() {},
+	connect : function(config, emitter) {
+		// Add the function which recieves the parsed data; calls the emitter
+		config.content = emitter;
+
+		// Create the instance and return it
+		return copywatch.watch(config);
+	}
+};
+
+/**
+ * The TCP connect function. Establishes a TCP connection to the specified address.
+ * @param  {Object} config The configuration for the TCP connection
+ * @return {Object}        A TCP connection object
+ */
+connectionFn.tcp = {
+	// TODO: Add close function
+	close   : function() {},
+	connect : function(config, emitter) {
+		return null;
+	}
+};
+
+
+/**
+ * The data handler class. This module returns an instance of this class for possible connections.
+ * To handle incoming data listeners can be bound to the 'data' event.
+ * It is possible to create a instance for multiple connection-types.
+ */
 DataHandler = (function(_Super) {
 	// jshint validthis:true
 	var defaults = {
-			connection: ['file']
+			connection : ['file'],
+			listener   : {
+				error : function(type, err) {
+					throw new Error(messages.functions.DataErrorMsgFn(type, err));
+				},
+				data  : console.log
+			}
 		};
 
 	// jshint newcap: false
@@ -60,39 +148,80 @@ DataHandler = (function(_Super) {
 		// Ensure the constructor was called correctly with 'new'
 		if( !(this instanceof _Class) ) return new _Class(config);
 
-		// Call super constructor, if defined
-		if(_Class._super) _Class._super.call(this);
-
 		// Use defaults for undefined values
 		_(config).defaults(defaults);
 
+		// Add a instance of the EventEmitter
+		this._emitter = new EventEmitter();
+
 		// Validate and process the connections
-		this.connect(config.connection);
+		this._connect(config.connection);
+
+		// Process the given listener
+		this._addListener(config.listener);
 	}
 
-	// Inherit from EventEmitter
-	_Class._super = _Super;
-	_Class.prototype = Object.create(_Super.prototype, {
-		constructor: {
-			value: _Class,
-			enumerable: false,
-			writable: true,
-			configurable: true
-		}
-	});
-
-	// Extend with methods
+	// Extend with properties
 	_(_Class.prototype).extend({
-		connect: _connect,
+		_emitter    : null,
+		_connections: {}
 	});
-
 
 
 	/////////////
 	// Methods //
 	/////////////
-	function _connect(connection) {
-		var connectionConfig = {};
+
+	/**
+	 * Adds the given listeners to the data and the error event.
+	 * @param {Object} listener A object with the listeners to add, valid listeners are 'data' and 'error'.
+	 *                          The default 'data'-listener just prints the recieved arguments, while the default
+	 *                          'error'-listener throws the recieved error.
+	 */
+	_Class.prototype._addListener = function(listener) {
+		// Check if the listener object is actually a function; in this case the function is assumed to be the 'data'-listener
+		if(typeof listener === 'function') {
+			listener = { data: listener };
+		}
+		// Use default values, if necessary
+		_(listener).defaults(defaults.listener);
+
+		// Add the data listener
+		this._emitter.on('data', listener.data);
+		// Add the error listener
+		this._emitter.on('error', listener.error);
+	};
+
+	/**
+	 * Creates an emitter function that recieves a potential error and the new data.
+	 * The function emits this error/data as an event with the given type information.
+	 *
+	 * @param  {String} type The connection type from whom the data was recieved
+	 * @return {Function}    An emitter function that emits recieved data/error with the specified type information
+	 */
+	_Class.prototype._createEmitter = function(type) {
+		var self = this;
+
+		// Return a function that recieves an potential error and the data;
+		// emits a fitting event with the given type information
+		return function(error, data) {
+			if(error) self._emitter.emit('error', type, error);
+
+			self._emitter.emit('data', type, data);
+		};
+	};
+
+	/**
+	 * THE connect function. Recieves a configuration object or a list of connections and establishes the connections.
+	 * The connections get saved in the "private" _connections object of the DataHandler instance.
+	 *
+	 * @param  {Object / Array} connection A object where the keys specify the connection type and the value is the configuration
+	 *                             OR
+	 *                             A simple array which specifies which connections should be established.
+	 */
+	_Class.prototype._connect = function(connection) {
+		var connectionConfig = {},
+			self = this;
 		// Check if the connection option is an object but not an array
 		if(_(connection).isObject() || !_(connection).isArray()) {
 			// If it's an object, then the object keys specify the connection to use while the values should be config objects
@@ -115,7 +244,7 @@ DataHandler = (function(_Super) {
 			_(connection).each(function( config ) {
 				// Allowed values are: null, undefined, object (but not an array)
 				if( config && (! _(config).isObject() || _(config).isArray()) ) {
-					throw TypeError(messages.WrongConnectionConfigType);
+					throw TypeError(messages.functions.ConnectionConfigTypeMsg);
 				}
 			});
 
@@ -144,12 +273,12 @@ DataHandler = (function(_Super) {
 
 				// Is it a string which describes a valid connection function? if not, throw an error
 				if(!_(connectionFn[value]).isFunction()) {
-					throw new Error(messages.ConnectionType(objType));
+					throw new Error(messages.functions.ConnectionTypeMsgFn(objType));
 				}
 			}
 			// Invalid type
 			else {
-				throw new TypeError(messages.TypeErrorMsg('string', '"connection" option', objType));
+				throw new TypeError(messages.functions.TypeErrorMsgFn('string', '"connection" option', objType));
 			}
 
 			// Return the ensured lower case string
@@ -158,32 +287,26 @@ DataHandler = (function(_Super) {
 
 
 		// Execute the necessary connection functions which are saved in the connectionsFn object
-		_(connection).each( function( value ) {
-			// Execute the connection function with configuration
-			// TODO: Save the connections
-			connectionFn[value](connectionConfig[value]);
+		_(connection).each( function( type ) {
+			// Execute the connection function with configuration; ensure it is called in the this-context of the DataHandler
+			// Add the resulting connection object to the "private" _connection object of the instance
+			self._connections[type] = connectionFn[type].connect(
+				connectionConfig[type],
+				// Create a suitable emitter function for the type, this ensures that the correct events get emitted on data occurence
+				self._createEmitter(type)
+			);
 		});
-	}
+	};
 
 	return _Class;
 })(EventEmitter);
-
-// jshint ignore:start
-function fileConnect(config) {
-	copywatch.watch('all', read_file, {
-		copy: false, // We don't need to make a copy of the file
-		process: parser.parse, // The used parse function
-		content: validateData
-	});
-}
-// jshint ignore:end
 
 /**
  * Configure the mail system
  * We are using an account from a mail provider (like GMail) to send mails.
  * This ensures, that the mails don't get marked as spam.
  */
-mail = mailer.createTransport("SMTP", {
-	service: "Gmail",
-	auth: icsMail
-});
+// mail = mailer.createTransport("SMTP", {
+// 	service: "Gmail",
+// 	auth: icsMail
+// });
