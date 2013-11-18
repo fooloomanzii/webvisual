@@ -167,7 +167,6 @@ connectionFn.tcp = {
 DataHandler = (function() {
 	// jshint validthis:true
 	var defaults = {
-			connection : ['file'],
 			listener   : {
 				error : function(type, err) {
 					throw new Error(messages.functions.DataErrorMsgFn(type, err));
