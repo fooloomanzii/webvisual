@@ -1,10 +1,11 @@
 Messdatenvisualisierung:
   Relevant:
    ☐ vernuenftige Verarbeitung der geparsten Werte: maximale Anzahl an zu sendenden Werten, seperate Verwaltung der Werte Anzahl pro Socket? (Aufwaendig!)
+   ☐ Kein Konsolenfenster im Produktionsmodus
 
   Weniger relevant:
    ☐ Dem Client den Fehler uebermitteln, wenn einer auftritt
-   ☐ Navigationsleiste durchgehend anzeigen. Seiteninhalte per AJAX nachladen
+   ☐ Navigationsleiste durchgehend anzeigen. Seiteninhalte per AJAX nachladen (Singlepage Applikation!)
 
    Graphen:
     ☐ LINE: Zeitliche Skalierung der x-Achse, abhaengig von dem Interval der Messwerte #public/js/graphs/graphs/line.js
