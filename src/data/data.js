@@ -71,40 +71,40 @@ var
 	// All connect and close functions for the different connection types; the functions are added at a later point
 	connectionFn = {
 		db: {
-			close   : null,
-			connect : null
+			close:   null,
+			connect: null
 		},
 		file: {
-			close   : null,
-			connect : null
+			close:   null,
+			connect: null
 		},
 		tcp: {
-			close   : null,
-			connect : null
+			close:   null,
+			connect: null
 		}
 	},
 	messages = {
-		ConnectionConfigTypeMsg : "Expected simple object as config-value for connection.",
+		ConnectionConfigTypeMsg: "Expected simple object as config-value for connection.",
 		functions: {
-			ConnectionTypeMsgFn     : function(connectionType) {
+			ConnectionTypeMsgFn: function(connectionType) {
 				return "The given connection type \""+connectionType+"\" is invalid. Valid types are: "+_(connectionFn).functions();
 			},
-			DataErrorMsgFn          : function(type, error) {
+			DataErrorMsgFn: function(type, error) {
 				return _(error).reduce(function(memo, value) {
 					// Use the 'toString'-method, if available, to create a easier to read message
-					return '\n'+(typeof value.toString === 'function' ? value.toString() : value);
+					return memo+'\n'+(typeof value.toString === 'function' ? value.toString() : value);
 				}, "Recieved a single or multiple errors from the connection '"+type+"'.");
 			},
-			TypeErrorMsgFn          : function(expectedType, forWhat, recievedType) {
+			TypeErrorMsgFn: function(expectedType, forWhat, recievedType) {
 				// Returns a descriptive message dependend on the arguments
 				return "Expected \""+expectedType+"\"-type"+
 				(forWhat ? " for "+forWhat : "")+
 				(recievedType ? ", recieved \""+recievedType+"\"" : "")+".";
 			},
-			UnknownErrorMsgFn       : function() {
+			UnknownErrorMsgFn: function() {
 				return _(arguments).reduce(function(memo, value) {
 					// Use the 'toString'-method, if available, to create a easier to read message
-					return '\n'+(typeof value.toString === 'function' ? value.toString() : value);
+					return memo+'\n'+(typeof value.toString === 'function' ? value.toString() : value);
 				}, "Unknown error occured. For more information see additional arguments:");
 			}
 		}
@@ -122,8 +122,8 @@ var
  */
 connectionFn.db = {
 	// TODO: Add close function
-	close   : function() {},
-	connect : function(config, emitter) {
+	close:   function() {},
+	connect: function(config, emitter) {
 		return null;
 	}
 };
@@ -135,8 +135,8 @@ connectionFn.db = {
  */
 connectionFn.file = {
 	// TODO: Add close function
-	close   : function() {},
-	connect : function(config, emitter) {
+	close:   function() {},
+	connect: function(config, emitter) {
 		// Add the function which recieves the parsed data; calls the emitter
 		config.content = emitter;
 
@@ -152,8 +152,8 @@ connectionFn.file = {
  */
 connectionFn.tcp = {
 	// TODO: Add close function
-	close   : function() {},
-	connect : function(config, emitter) {
+	close:   function() {},
+	connect: function(config, emitter) {
 		return null;
 	}
 };
@@ -167,11 +167,11 @@ connectionFn.tcp = {
 DataHandler = (function() {
 	// jshint validthis:true
 	var defaults = {
-			listener   : {
-				error : function(type, err) {
+			listener: {
+				error: function(type, err) {
 					throw new Error(messages.functions.DataErrorMsgFn(type, err));
 				},
-				data  : console.log
+				data: console.log
 			}
 		};
 
