@@ -108,7 +108,12 @@ var
 				}, "Unknown error occured. For more information see additional arguments:");
 			}
 		}
-	};
+	},
+	// A list of valid events
+	validEvents = [
+		"error",
+		"data"
+	];
 
 
 /////////////////////////////////
@@ -200,10 +205,28 @@ DataHandler = (function() {
 		_connections: {}
 	});
 
+	////////////////////
+	// Public Methods //
+	////////////////////
 
-	/////////////
-	// Methods //
-	/////////////
+	/**
+	 * Adds the given listener to the specified event. The function checks if the event name is an allowed name.
+	 * Alias: on
+	 * @param  {String} eventName
+	 * @param  {Function} listener
+	 */
+	_Class.prototype.addListener = _Class.prototype.on = function(eventName, listener) {
+		// Check if the given event is actually a valid one ('data' or 'error')
+		if(!_(validEvents).contains(eventName)) return;
+
+		// Add the listener to the event
+		this._emitter.on(eventName, listener);
+	};
+
+
+	/////////////////////
+	// Private Methods //
+	/////////////////////
 
 	/**
 	 * Adds the given listeners to the data and the error event.
