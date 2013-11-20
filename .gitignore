@@ -24,3 +24,6 @@ src/test/OLD/*.txt
 src/command.txt
 src/data.txt
 src/log.txt
+
+# Mail login #
+src/config/mail.json
