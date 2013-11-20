@@ -1,4 +1,3 @@
-(function(){
 'use strict';
 
 /**
@@ -187,5 +186,3 @@ server.listen(config.port);
 
 console.log("Server is running under %d Port in %s mode",
 	config.port, app.settings.env);
-
-})();
