@@ -3,10 +3,11 @@
 /**
  * Module dependencies
  */
-var routes    = require('./routes'),
-	express   = require('express'),
-	fs        = require('fs'),
-	_         = require('underscore'),
+
+var routes  = require('./routes'),
+	express = require('express'),
+	fs      = require('fs'),
+	_       = require('underscore'),
 // Class variables
 	DataHandler = require('./data').DataHandler,
 // Default config
@@ -17,8 +18,8 @@ var routes    = require('./routes'),
 	},
 // Other variables
 // Configuration, uses default values, if necessary
-	config      = _.defaults(require('./config.json'), defaults),
-	logFile     = __dirname + '/log.txt',
+	config  = _.defaults(require('./config.json'), defaults),
+	logFile = __dirname + '/log.txt',
 	logMode,
 // Command object
 	cmd_txt = {
@@ -42,7 +43,7 @@ app.configure('development', function() {
 	// Error Handler
 	app.use(express.errorHandler({
 		dumpExceptions: true,
-		showStack: true
+		showStack:      true
 	}));
 
 	// In development mode write the development log in stdout
@@ -50,7 +51,7 @@ app.configure('development', function() {
 
 	// Make the Jade output readable and add the environment specification
 	_.extend(app.locals, {
-		env: 'development',
+		env:    'development',
 		pretty: true,
 	});
 
@@ -58,7 +59,7 @@ app.configure('development', function() {
 	// Error Handler
 	app.use(express.errorHandler({
 		dumpExceptions: true,
-		showStack: true
+		showStack:      true
 	}));
 });
 
@@ -66,8 +67,8 @@ app.configure('development', function() {
 app.configure('production', function() {
 	// In production mode write the log in a seperate file
 	logMode = {
-		format : 'default',
-		stream : fs.createWriteStream(logFile, {flags: 'a'})
+		format: 'default',
+		stream: fs.createWriteStream(logFile, {flags: 'a'})
 	};
 
 	// Set the environment specification for jade
@@ -95,8 +96,8 @@ app.configure(function() {
 		// Respond with html page
 		if(req.accepts('html')) {
 			res.render('404', {
-				status : 404,
-				title  : 'Oops!'
+				status: 404,
+				title:  'Oops!'
 			});
 		}
 
@@ -155,8 +156,8 @@ var currentData = null,
 
 		// Send a first data set
 		socket.emit('first', {
-			data  : currentData,
-			state : state
+			data:  currentData,
+			state: state
 		});
 	});
 
