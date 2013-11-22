@@ -4,28 +4,48 @@
  * Module dependencies
  */
 
-var routes  = require('./routes'),
-	express = require('express'),
-	fs      = require('fs'),
-	_       = require('underscore'),
+var dataModule = require('./data'),
+	routes     = require('./routes'),
+	express    = require('express'),
+	fs         = require('fs'),
+	_          = require('underscore'),
 // Class variables
-	DataHandler = require('./data').DataHandler,
+	DataChecker = dataModule.DataChecker,
+	DataHandler = dataModule.DataHandler,
 // Default config
 	defaults = {
+		connections: [ 'file' ],
 		read_file: 'data.txt',
 		command_file: 'command.txt',
 		port: 3000,
 	},
+	threshholdDefaults = {
+		file: {
+			max: 5,
+			min: -10
+		}
+	},
 // Other variables
+	checker = {},
 // Configuration, uses default values, if necessary
-	config  = _.defaults(require('./config.json'), defaults),
-	logFile = __dirname + '/log.txt',
+	config     = _.defaults(require('./config/config.json'), defaults),
+	logFile    = __dirname + '/log.txt',
 	logMode,
+	threshhold = _.defaults(require('./config/threshhold.json'), threshholdDefaults),
 // Command object
 	cmd_txt = {
 		"interrupt": ((config.cmd && config.cmd.interrupt) ? config.cmd.interrupt : "INTERRUPT"),
 		"continue": ((config.cmd && config.cmd.continue) ? config.cmd.continue : "CONTINUE")
 	};
+
+/**
+ * Extend Underscore
+ */
+_.mixin({
+	exclone: function(object, extra) {
+		return _(object).chain().clone().extend(extra).value();
+	}
+});
 
 /**
  * Configure the app
@@ -113,6 +133,12 @@ app.get(['/', '/home', '/index'], routes.index);
 app.get('/graph', routes.graph);
 app.get('/table', routes.table);
 
+/**
+ * Initialise the different DataChecker
+ */
+_(config.connections).each(function(value) {
+	checker[value] = new DataChecker(threshhold[value]);
+});
 
 /**
 * Configure Socket.io
@@ -167,15 +193,19 @@ var currentData = null,
  */
 var connections = new DataHandler({
 	// Use the default configuration
-	connection: [ 'file' ],
+	connection: config.connections,
 	listener: {
-		data: function(type, data) {
-			// Save the current data
-			currentData = data;
+		data: [
 
-			// Send it
-			dataSocket.emit('data', { data: data });
-		}
+			// SocketIO Listener
+			function(type, data) {
+				// Save the current data
+				currentData = data;
+
+				// Send it
+				dataSocket.emit('data', { data: data });
+			}
+		]
 	}
 });
 
