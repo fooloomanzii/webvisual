@@ -40,12 +40,11 @@ var
 	copywatch   = require('../modules/copywatch'),
 	data_parser = require('../modules/data_parser'),
 // Node modules
-	mailer   = require('nodemailer'),
 	mongoose = require('mongoose'),
 	net      = require('net'),
 	_        = require('underscore'),
 // Mailer variables and log in information
-	mail, icsMail = require('./mail.json'),
+	// mail, icsMail = require('./mail.json'),
 // Class
 	EventEmitter = require('events').EventEmitter,
 	DataHandler,
@@ -115,6 +114,52 @@ var
 		"data"
 	];
 
+// Extend Underscore
+_.mixin({
+	/**
+	 * Creates an array from the given thing. Or returns it if it's already an array.
+	 * @param  thing   Literally anything. Whatever it is, this function creates an array out of it.
+	 * @return {Array} An array which contains the thing, or the thing itself, if it was already an array.
+	 */
+	makeArray: function(thing) {
+		// Test if the thing is already an array
+		if(_(thing).isArray()) return thing;
+		else if(_(thing).isUndefined()) return [];
+		else return [ thing ];
+	},
+	// Iterates over an object and executes the iterator function on every key
+	mapKeys: function(object, iterator) {
+		return _.object(
+			_(object).map(function(value, key) {
+				return [iterator(key), value];
+			})
+		);
+	},
+	// Iterates over an object and executes the iterator function on every value
+	mapValues: function(object, iterator) {
+		return _.object(
+			_(object).map(function(value, key) {
+				return [key, iterator(value)];
+			})
+		);
+	},
+	// Iterates over an object and executes the iterator functions on the keys and values
+	mapObject: function(object, keyIterator, valueIterator) {
+		return _.object(
+			_(object).map(function(value, key) {
+				return [keyIterator(key), valueIterator(value)];
+			})
+		);
+	},
+	// String manipulation
+	toLowerCase: function(string) {
+		if(typeof string === 'string') return string.toLowerCase();
+	},
+	toUpperCase: function(string) {
+		if(typeof string === 'string') return string.toUpperCase();
+	},
+});
+
 
 /////////////////////////////////
 // Static connection functions //
@@ -127,26 +172,38 @@ var
  */
 connectionFn.db = {
 	// TODO: Add close function
-	close:   function() {},
+	close: function() {},
 	connect: function(config, emitter) {
 		return null;
 	}
 };
 
-/**
- * The file watch connect function. Enables the watching and processing of a file.
- * @param  {Object} config The configuration for the watching
- * @return {Object}        An instance of the copywatch module
- */
+
 connectionFn.file = {
-	// TODO: Add close function
-	close:   function() {},
+	/**
+	 * Ends the watching of the specified file.
+	 * @param  {Object}   config   Configuration object which contains the necessary information
+	 *                             to end the connection
+	 * @param  {Function} callback A callback function which recieves a potential error.
+	 */
+	close: function(config, callback) {
+		// End the watching
+		copywatch.unwatch(config.path, config.remove, callback);
+	},
+	/**
+	 * The file watch connect function. Enables the watching and processing of a file.
+	 * @param  {Object} config The configuration for the watching
+	 * @return {Object}        Contains the necessary data to end the watcher
+	 */
 	connect: function(config, emitter) {
 		// Add the function which recieves the parsed data; calls the emitter
 		config.content = emitter;
 
-		// Create the instance and return it
-		return copywatch.watch(config.mode, config.path, config);
+		// Start watching the file
+		copywatch.watch(config.mode, config.path, config);
+
+		// Return the necessary data to end the watcher
+		return { path: config.path, remove: config.copy };
 	}
 };
 
@@ -157,7 +214,7 @@ connectionFn.file = {
  */
 connectionFn.tcp = {
 	// TODO: Add close function
-	close:   function() {},
+	close: function() {},
 	connect: function(config, emitter) {
 		return null;
 	}
@@ -235,6 +292,8 @@ DataHandler = (function() {
 	 *                          'error'-listener throws the received error.
 	 */
 	_Class.prototype._addListener = function(listener) {
+		var self = this;
+
 		// Check if the listener object is actually a function; in this case the function is assumed to be the 'data'-listener
 		if(typeof listener === 'function') {
 			listener = { data: listener };
@@ -242,10 +301,12 @@ DataHandler = (function() {
 		// Use default values, if necessary
 		_(listener).defaults(defaults.listener);
 
-		// Add the data listener
-		this._emitter.on('data', listener.data);
-		// Add the error listener
-		this._emitter.on('error', listener.error);
+		// Ensure the listener properties are arrays of listeners
+		listener = _(listener).mapValues(_.makeArray);
+
+		// Add the listener
+		_(listener.data).each(function(listener) { self._emitter.on('data', listener); });
+		_(listener.error).each(function(listener) { self._emitter.on('error', listener); });
 	};
 
 	/**
@@ -261,6 +322,7 @@ DataHandler = (function() {
 		// Return a function that receives an potential error and the data;
 		// emits a fitting event with the given type information
 		return function(error, data) {
+			// TODO: Array or not array?
 			if(error) self._emitter.emit('error', type, error);
 
 			self._emitter.emit('data', type, data);
@@ -292,9 +354,7 @@ DataHandler = (function() {
 			// }
 
 			// Save a reference with lower case keys
-			for(var key in connection) {
-				connectionConfig[key.toLowerCase()] = connection[key];
-			}
+			connectionConfig = _(connection).mapKeys(_.toLowerCase);
 
 			// Ensure the values of the connection keys are actually proper objects (not arrays, numbers, strings or whatever)
 			_(connection).each(function( config ) {
@@ -365,13 +425,3 @@ DataHandler = (function() {
 module.exports = {
 	DataHandler: DataHandler
 };
-
-/**
- * Configure the mail system
- * We are using an account from a mail provider (like GMail) to send mails.
- * This ensures, that the mails don't get marked as spam.
- */
-// mail = mailer.createTransport("SMTP", {
-// 	service: "Gmail",
-// 	auth: icsMail
-// });
