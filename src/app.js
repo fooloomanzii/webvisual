@@ -183,6 +183,10 @@ var userCounter = 0,
 		// Send the data
 		socket.emit('data', {states: states});		
 	}),
+// The config socket
+	configSocket = io.of('/config').on('connection', function(socket){
+		socket.emit('data', {locals: config.locals});	
+	}),
 // The data socket
 	dataSocket = io.of('/data').on('connection', function(socket) {
 		// Initialize the other events
@@ -223,7 +227,6 @@ var userCounter = 0,
 					if(firstSend) {
 						sendEvent = 'first';
 						firstSend = false;
-						message.locals = config.locals;
 					}
 
 					// Save the new data and ...
@@ -240,7 +243,7 @@ var userCounter = 0,
 		// The copywatch initialization makes a first parse right at the beginning.
 		// This means, that just clients after the first need to get the current data
 		else /*if(userCounter > 1)*/ {
-			socket.emit('first', {data: currentData, locals: config.locals});
+			socket.emit('first', {data: currentData});
 		}
 	});
 

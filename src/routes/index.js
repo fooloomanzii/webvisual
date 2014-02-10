@@ -69,7 +69,7 @@ exports.table = function(req, res) {
 	var jadeOpt = {
 			path: req.url,
 			title: (config.locals&&config.locals.table&&config.locals.table.title)?
-					(config.locals.table.title):'Table'
+					(config.locals.table.title):'Datatable'
 		},
 		jadeFile = path.join(tables, 'table')+'.jade';
 

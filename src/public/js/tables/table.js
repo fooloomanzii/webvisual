@@ -51,12 +51,18 @@
 			}
 		}
 		
-		//Set the title of the Page
+		// Set the title of the Page
 		document.title=labelsArray.pageTitle;
 		// Set the local title
 		$('#title').text(labelsArray.title);
 		// Resolve the number of columns
 		numCols=(Object.keys(labelsArray.cols).length||1);
+		
+		// Clear the Table
+		$('#valueTable').html('<tbody id="valueTBody"></tbody>');
+		$('#valueTBody').html('<tr id="valCols"></tr>');
+		$('#valCols').html('<th id="valCorner" class="valGroup"></th>');
+		
 		// Set labels in the first row
 		$('#valCorner').append('<h3 class="sub">'+labelsArray.corner+'</h3>');
 		$('#valCols').append('<th><h3 class="subheader">'+(labelsArray.cols[0]||'')+'</h3></th>');
@@ -115,13 +121,21 @@
 		// Start progress bar
 		NProgress.start();
 
-		var socket = io.connect('http://'+window.location.host+'/data')
+		var configSocket = io.connect('http://'+window.location.host+'/config');
+		
+		// Receive the data
+		configSocket.on('data', function(message) {
+			if(message === undefined) return;
+			// Arrange labels and limits
+			arrangeLocals(message.locals);
+		});
+		
+		var dataSocket = io.connect('http://'+window.location.host+'/data');
 		// The first data
-		socket.on('first', function(message) {
+		dataSocket.on('first', function(message) {
 			if(message === undefined) return;
 
-			//arrange labels, limits and data
-			arrangeLocals(message.locals);
+			// Arrange the data
 			arrangeData(message.data);
 			
 			$('.valRow').on('click', function (e) {
@@ -137,14 +151,14 @@
 		});
 		
 		// Next data
-		socket.on('data', function(message) {
+		dataSocket.on('data', function(message) {
 			if(message === undefined) return;
 			renewValues(message.data);
 		});
 		
 		// Public stuff
 		return {
-			socket: socket
+			socket: dataSocket
 		};
 	});
 

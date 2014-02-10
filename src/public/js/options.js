@@ -8,7 +8,7 @@
 			"on": "On"
 		},
 		// Set up the Socket.IO connection
-			socket = io.connect('http://'+window.location.host+'/options');
+		optSocket = io.connect('http://'+window.location.host+'/options');
 		
 		// Rearranges the table with states of funktions.
 		function arrangeStates(states) {
@@ -29,7 +29,7 @@
 				}
 		
 				// Emit the command
-				socket.emit('command', {cmd: command});
+				optSocket.emit('command', {cmd: command});
 			});
 		}
 		
@@ -48,14 +48,14 @@
 		}
 		
 		// Receive the data
-		socket.on('data', function(message) {
+		optSocket.on('data', function(message) {
 			if(message === undefined) return;
 			// Arrange the Table with states of functions
 			arrangeStates(message.states);	
 		});
 		
 		// Command event; occurs on an 'on' or 'off'
-		socket.on('command', function(message) {
+		optSocket.on('command', function(message) {
 			if(message === undefined || message.cmd === undefined) return;
 	
 			// The the button text

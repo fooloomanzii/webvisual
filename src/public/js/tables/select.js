@@ -63,10 +63,13 @@
 			}
 		}
 	
-		//Set the title of the Page
+		// Set the title of the Page
 		document.title=labelsArray.pageTitle;
 		// Resolve the number of columns
 		numCols=(Object.keys(labelsArray.cols).length||1);
+		
+		// Clear the old labels
+		$('#signs').html("");	
 		// Set labels in the first row
 		$('#signs').append('<h3 class="subheader">'+(labelsArray.cols[0]||'')+'</h3>');
 		// Create the array of labels for the values
@@ -90,6 +93,8 @@
 		
 		// Use the last entry of the array; this is arbitrary
 		valuesArray = data.pop().values;
+		// Clear the old values
+		$('#sel').html("");
 		
 		// Fill the select box
 		for(var i=0; i<parseInt(valuesArray.length/numCols, 10); ++i) {
@@ -120,23 +125,30 @@
 	$(document).ready(function() {
 		// Start progress bar
 		NProgress.start();
-
-			var socket = io.connect('http://'+window.location.host+'/data');
+			
+			var configSocket = io.connect('http://'+window.location.host+'/config');
+			
+			// Receive the data
+			configSocket.on('data', function(message) {
+				if(message === undefined) return;
+				// Arrange labels and limits
+				arrangeLocals(message.locals);
+			});
+			
+			var dataSocket = io.connect('http://'+window.location.host+'/data');
 			// The first data
-			socket.on('first', function(message) {
+			dataSocket.on('first', function(message) {
 				if(message === undefined) return;
 				
-				//arrange labels, limits and data
-				arrangeLocals(message.locals);
+				// Arrange the data
 				arrangeData(message.data);
 				
-
 				// Trigger the change to show the values at start
 				$('#sel option').eq(firstSelect()).prop('selected', true);
 				$('#sel').trigger('change');
-				
+					
 				// Better interface for the selection box
-				$('#sel').customSelect();
+				if($('.customSelect').length <= 0) $('#sel').customSelect();
 
 				// Hide the loading message
 				$('#load').fadeOut(undefined, function() {
@@ -147,7 +159,7 @@
 			});
 
 			// Next data
-			socket.on('data', function(message) {
+			dataSocket.on('data', function(message) {
 				if(message === undefined) return;
 				renewValues(message.data)
 			});
@@ -172,7 +184,7 @@
 
 			// Public stuff
 			return {
-				socket: socket
+				socket: dataSocket
 			};
 	});
 
