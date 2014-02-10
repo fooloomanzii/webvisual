@@ -3,7 +3,7 @@
 
 var fs   = require('fs'),
 	path = require('path'),
-	config = require('../config.json');
+	config = require('../config/config.json');
 
 /**
  * Route function

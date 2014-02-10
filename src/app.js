@@ -14,14 +14,9 @@ var dataModule = require('./data'),
 	DataHandler = dataModule.DataHandler,
 // Default config
 	defaults = {
-<<<<<<< HEAD
+		connections: [ 'file' ],
 		data_file: 'data.txt',
 		command_file: 'commands.json',
-=======
-		connections: [ 'file' ],
-		read_file: 'data.txt',
-		command_file: 'command.txt',
->>>>>>> upstream/data
 		port: 3000,
 	},
 	threshholdDefaults = {
@@ -36,14 +31,11 @@ var dataModule = require('./data'),
 	config     = _.defaults(require('./config/config.json'), defaults),
 	logFile    = __dirname + '/log.txt',
 	logMode,
-<<<<<<< HEAD
 	port        = config.port || defaults.port,
 	data_file    = config.data_file || defaults.data_file,
 	command_file = config.command_file || defaults.command_file,
 	commands,
-=======
 	threshhold = _.defaults(require('./config/threshhold.json'), threshholdDefaults),
->>>>>>> upstream/data
 // Command object
 	cmd_txt = {
 		"on": ((config.states && config.states[0]) ? config.states[0] : "ON"),
