@@ -9,19 +9,21 @@ var copywatch = require('./modules/copywatch'),
 	routes    = require('./routes'),
 	express   = require('express'),
 	fs        = require('fs'),
+	_         = require('underscore'),
 // Default config
-	def = {
+	defaults = {
 		data_file: 'data.txt',
 		command_file: 'commands.json',
 		port: 3000,
 	},
 // Other variables
-	config      = require('./config.json'),
+// Configuration, uses default values, if necessary
+	config      = _.defaults(require('./config.json'), defaults),
 	logFile     = __dirname + '/log.txt',
 	logMode,
-	port        = config.port || def.port,
-	data_file    = config.data_file || def.data_file,
-	command_file = config.command_file || def.command_file,
+	port        = config.port || defaults.port,
+	data_file    = config.data_file || defaults.data_file,
+	command_file = config.command_file || defaults.command_file,
 	commands,
 // Command object
 	cmd_txt = {
@@ -39,28 +41,52 @@ var copywatch = require('./modules/copywatch'),
 * Configure the app
 */
 
-var app = express(),
+var app    = express(),
 	server = require('http').createServer(app),
-	io = require('socket.io').listen(server);
+	io     = require('socket.io').listen(server);
 
-// Logging
 // Development
 app.configure('development', function() {
+	// Make the Jade output readable
+	app.locals.pretty = true;
+
+	// Error Handler
+	app.use(express.errorHandler({
+		dumpExceptions: true,
+		showStack: true
+	}));
+
 	// In development mode write the development log in stdout
 	logMode = 'dev';
+
+	// Make the Jade output readable and add the environment specification
+	_.extend(app.locals, {
+		env: 'development',
+		pretty: true,
+	});
+
+
+	// Error Handler
+	app.use(express.errorHandler({
+		dumpExceptions: true,
+		showStack: true
+	}));
 });
+
 // Production
 app.configure('production', function() {
-	// Otherwise write it in a seperate file
+	// In production mode write the log in a seperate file
 	logMode = {
 		format : 'default',
 		stream : fs.createWriteStream(logFile, {flags: 'a'})
 	};
+
+	// Set the environment specification for jade
+	app.locals.env = 'production';
 });
 
 app.configure(function() {
 	app.set('view engine', 'jade');
-	app.set('view options', { layout: false });
 	app.set('views', __dirname + '/views');
 	//	Middleware compatibility
 	app.use(express.bodyParser());
@@ -88,17 +114,6 @@ app.configure(function() {
 	});
 });
 
-// Development config
-app.configure('development', function() {
-	// Make the Jade output readable
-	app.locals.pretty = true;
-
-	// Error Handler
-	app.use(express.errorHandler({
-		dumpExceptions: true,
-		showStack: true
-	}));
-});
 
 /**
 * Routing
@@ -109,7 +124,7 @@ app.get('/graph', routes.graph);
 app.get('/table', routes.table);
 
 /**
-* Socket.io Stuff
+* Configure Socket.io
 */
 
 // Just print warnings
@@ -120,7 +135,8 @@ var userCounter = 0,
 	currentData,
 	firstSend,
 	states={},
-// Checks the funktions_file for new functions and command_file for available states
+// Checks the funktions_file for new functions and command_file for available states; 
+// reading synchonusly isn't a problem here, since this just happens on startup
 	checkstates = function() {
 		fs.exists(command_file, function(exists) {
 			if (!exists) {
@@ -152,7 +168,7 @@ var userCounter = 0,
 			if(err) errfunc(err,socket);
 		});
 	},
-// A set of commands which can be executed when the command event is fired; the cmd_tmp is used to asign the same function to multiple elements
+// A set of commands which can be executed when the command event is fired; the cmd_onoff is used to assign the same function to multiple elements
 	cmd_onoff, cmd_fnct = {
 		"off": (cmd_onoff = function(socket, command) {
 			//Changes the state

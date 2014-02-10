@@ -36,4 +36,8 @@ block content
 				table#valueTable
 
 block script
-	script(src='js/tables/table.js')
+
+	if locals.env == 'development'
+		script(src='js/table/table.js')
+	else
+		script(src='js/table/table.min.js')

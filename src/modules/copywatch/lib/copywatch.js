@@ -49,7 +49,7 @@ var fs          = require('fs'),
 	watchr      = require('watchr'),
 
 // "Global" variables
-	def           = {
+	_default    = {
 		firstCopy: true,
 		process: function(string, callback) {
 			callback(null, string);
@@ -57,13 +57,10 @@ var fs          = require('fs'),
 		work_function: _copy,
 		watch_error: _error_handler
 	},
-	watchers      = {},
-	watcherCount  = 0,
-	extension     = '_node',
-	// newline    = ((process.platform === 'win32' || process.platform === 'win64') ? '\r\n' : '\n');
-	newline       = require('os').EOL, // OS specific newline character
-	// Save the OTHER newline ... actually some servers use \n\r but this can be ignored here
-	alternativeNL = (newline === '\n' ? '\r\n' : '\n'),
+	_watchers     = {},
+	_watcherCount = 0,
+	_extension    = '_node',
+	newline       = /\r\n|\n\r|\n/, // Every possible newline character
 	errorFile     = './copywatch.err';
 
 // Functions
@@ -152,7 +149,7 @@ function _copy(path, start, end) {
 	var options = _file_options(start, end);
 
 	// Copies the file
-	fs.createReadStream(path, options.readOptions).pipe(fs.createWriteStream(path+extension, options.writeOptions));
+	fs.createReadStream(path, options.readOptions).pipe(fs.createWriteStream(path+_extension, options.writeOptions));
 }
 
 /*
@@ -170,7 +167,7 @@ function _process_copy(path, start, end, process, callback) {
 
 	function finish(errorData, processedData) {
 		// Data is the data while arrFn the array function for appending/prepending is
-		var data = watchers[path].data || [],
+		var data = _watchers[path].data || [],
 			arrFn;
 
 		// Check for the mode
@@ -190,10 +187,10 @@ function _process_copy(path, start, end, process, callback) {
 		for(var i=0; i<processedData.length; ++i) {
 			data[arrFn](processedData[i]);
 		} // Save the datas
-		watchers[path].data = data;
+		_watchers[path].data = data;
 
 		// Init the write stream
-		write = fs.createWriteStream(path+extension, options);
+		write = fs.createWriteStream(path+_extension, options);
 
 		// Write the data and close the stream
 		write.end(JSON.stringify(data));
@@ -252,9 +249,7 @@ function _process_read(path, start, end, process, callback) {
 
 		// Split the data
 		var tokens = data.split(newline);
-		// Split the string again with the alternative newline, if the OS newline didn't work
-		if(tokens.length === 1) tokens = tokens[0].split(alternativeNL);
-		// Still not multiple lines? Then we just read a partial line. So just add it to the buffer and return.
+		// No multiple lines? Then we just read a partial line, add it to the buffer and return.
 		if(tokens.length === 1) {
 			tmpBuffer += tokens[0];
 			return;
@@ -295,10 +290,10 @@ function _process_read(path, start, end, process, callback) {
 function _create_watch_options(mode, options) {
 	var nOptions =	{
 		mode: mode,
-		firstCopy: ((options.firstCopy !== undefined) ? options.firstCopy : def.firstCopy),
-		watch_error: options.watch_error || def.watch_error,
-		work_function: def.work_function,
-		process: options.process || def.process,
+		firstCopy: ((options.firstCopy !== undefined) ? options.firstCopy : _default.firstCopy),
+		watch_error: options.watch_error || _default.watch_error,
+		work_function: _default.work_function,
+		process: options.process || _default.process,
 		content: options.content
 	};
 
@@ -352,8 +347,8 @@ function _handle_change(event, path, currStat, prevStat, options) {
 	//  Delete event - delete the copied version
 	else if (event === 'delete') {
 		// We don't need to delete the copied file if there is no copied file
-		fs.exists(path+extension, function(exists) {
-			if(exists) fs.unlink(path+extension, options.watch_error);
+		fs.exists(path+_extension, function(exists) {
+			if(exists) fs.unlink(path+_extension, options.watch_error);
 		});
 	}
 }
@@ -374,7 +369,7 @@ function _create_listeners(options) {
 		error: options.watch_error,
 		change: function (event, path, currStat, prevStat) {
 			// If its an event for a file we don't watch, there is no reason to process it; this should actually never happen it's just an extra ensurance
-			if(watchers[path] === undefined) return;
+			if(_watchers[path] === undefined) return;
 
 			_handle_change(event, path, currStat, prevStat, options);
 		}
@@ -391,13 +386,13 @@ function _create_listeners(options) {
 function unwatch(path, remove, callback) {
 	// Make the path an absolute path
 	path = path_util.resolve(path);
-	if (watchers[path] !== undefined) {
-		watchers[path].close();
-		watcherCount--;
+	if (_watchers[path] !== undefined) {
+		_watchers[path].close();
+		_watcherCount--;
 
-		delete watchers[path];
+		delete _watchers[path];
 
-		if (remove) return fs.unlink(path+extension, (callback || _error_handler));
+		if (remove) return fs.unlink(path+_extension, (callback || _error_handler));
 		else if (callback) return callback();
 	} else {
 		return callback(new Error("No such file is watched."));
@@ -405,7 +400,7 @@ function unwatch(path, remove, callback) {
 }
 
 /*
-	Unwatch for every watcher, when all watchers are closed the callback is called with a array of potential errors
+	Unwatch for every watcher, when all _watchers are closed the callback is called with a array of potential errors
 		remove - bool value: delete the copy versions, or leave them?
 		callback - callback function, gets an array of potential errors
 */
@@ -416,18 +411,18 @@ function clear(remove, callback) {
 	handler = function (err) {
 		if (err) errors.push(err);
 
-		/*	When all watchers are destroyed, call the callback.
+		/*	When all _watchers are destroyed, call the callback.
 			If there is no callback, call the default handler.
 			If there are no errors and no callback, do nothing. */
-		if (watcherCount === 0) {
+		if (_watcherCount === 0) {
 			return (callback || _error_handler)(errors.length>0 ? errors : undefined);
 		}
 	};
 
 	// Was there a single call? ...
 	var called = false;
-	for (path in watchers) {
-		if(watchers.hasOwnProperty(path)) {
+	for (path in _watchers) {
+		if(_watchers.hasOwnProperty(path)) {
 			called = true;
 			unwatch(path, remove, handler);
 		}
@@ -437,22 +432,22 @@ function clear(remove, callback) {
 	if(!called && callback) callback();
 }
 
-/*	Set the extension for the copied files */
+/*	Set the _extension for the copied files */
 function setExtension(newExtension) {
 	var path;
 
 	// Rename the old files
-	for (path in watchers) {
-		if(watchers.hasOwnProperty(path)) {
-			fs.renameSync(path+extension, path+newExtension);
+	for (path in _watchers) {
+		if(_watchers.hasOwnProperty(path)) {
+			fs.renameSync(path+_extension, path+newExtension);
 		}
 	}
 
-	extension = newExtension;
+	_extension = newExtension;
 }
-/*	Get the current extension */
+/*	Get the current _extension */
 function getExtension() {
-	return extension;
+	return _extension;
 }
 
 /*
@@ -512,7 +507,7 @@ function watch(mode, file, options, next) {
 
 	// The object with the function that will be executed after the watcher was correctly configured
 	nextObj = function (err, watcherInstance) {
-		++watcherCount;
+		++_watcherCount;
 
 		// Execute the next function
 		if (next) return next(err);
@@ -544,7 +539,7 @@ function watch(mode, file, options, next) {
 	});
 
 	// Finally watch the file
-	watchers[resFile] = watchr.watch({
+	_watchers[resFile] = watchr.watch({
 		path: fileDir, // We need to watch the directory in order to not stop watching on delete
 		ignoreCustomPatterns: new RegExp('^(?!.*'+baseName+'$)'), // The RegExp which ensures that just our file is watched and nothing else
 		listeners: listenersObj,
@@ -556,8 +551,8 @@ function watch(mode, file, options, next) {
 // Exported functions
 module.exports = {
 	// Private variables
-	_watcher: watchers,
-	_default: def,
+	_watcher: _watchers,
+	_default: _default,
 	// Private functions
 	_error_handler: _error_handler,
 	_check_mode: _check_mode,

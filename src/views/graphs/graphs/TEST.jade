@@ -4,4 +4,7 @@ prepend canvas
 	p Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
 
 append script
-	script(type='text/javascript', src='js/graphs/graphs/TEST.js')
+	if locals.env == 'development'
+		script(type='text/javascript', src='js/graphs/graphs/TEST.js')
+	else
+		script(type='text/javascript', src='js/graphs/graphs/TEST.min.js')

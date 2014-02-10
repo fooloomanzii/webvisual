@@ -6,9 +6,13 @@
 
 # Some folders #
 src/build
+# Ignore public js css and min
+src/public/css
+src/public/js
+src/public/min
 
 # Node Stuff #
-src/node_modules
+node_modules
 
 # Sublime Stuff #
 *.sublime-workspace
@@ -17,4 +21,10 @@ src/node_modules
 src/test/OLD/*.txt
 
 # Other files #
+<<<<<<< HEAD
 src/command.json
+=======
+src/command.txt
+src/data.txt
+src/log.txt
+>>>>>>> upstream/develop

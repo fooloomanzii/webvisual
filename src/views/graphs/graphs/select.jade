@@ -1,0 +1,17 @@
+extends ../graph_layout
+
+prepend canvas
+	.row
+		.small-6.columns
+			a(href='#', style='margin-top:1ex;')#interruptButton.button.small Interrupt
+		.small-6.columns(align='right')
+			span#noDataLabel.label.alert No Data available.
+			select#selectBox
+
+append script
+	script(src='js/jquery.customSelect.min.js')
+
+	if locals.env == 'development'
+		script(src='js/graphs/graphs/select.js')
+	else
+		script(src='js/graphs/graphs/select.min.js')

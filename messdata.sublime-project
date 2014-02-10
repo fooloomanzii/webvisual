@@ -2,6 +2,43 @@
 	"folders":
 	[
 		{
+			"path": ".",
+			"name": "root",
+			"file_exclude_patterns": ["*|*~*.sublime*"],
+			"folder_exclude_patterns": [ "*" ]
+		},
+		{
+			"path": "src/test"
+		},
+		{
+			"path": "src",
+			// "file_exclude_patterns": [ "*min.*" ],
+			"folder_exclude_patterns": [
+				"build",
+				"modules",
+				"node_modules",
+				"public",
+				"public-dep",
+				"public-src",
+				"test",
+				"views"
+			]
+		},
+		{
+			"path": "src/views"
+		},
+		{
+			"path": "src/public"
+		},
+		{
+			"path": "src/public-dep",
+			"name": "public (Dependencies)"
+		},
+		{
+			"path": "src/public-src",
+			"name": "public (Source)"
+		},
+		{
 			"path": "src/node_modules"
 		},
 		{
@@ -9,38 +46,6 @@
 		},
 		{
 			"path": "data"
-		},
-		{
-			"path": "src",
-			"file_exclude_patterns": [ "*min.*" ],
-			"folder_exclude_patterns": [
-				"builds",
-				"modules",
-				"node_modules",
-				"views",
-				"public/js",
-				"public/css"
-			]
-		},
-		{
-			"path": "src/views"
-		},
-		{
-			"path": "src/test"
-		},
-		{
-			"path": "src/public/js",
-			"name": "public/js"
-		},
-		{
-			"path": "src/public/css",
-			"name": "public/css"
-		},
-		{
-			"path": ".",
-			"name": "root",
-			"file_exclude_patterns": ["*|*~*.sublime*"],
-			"folder_exclude_patterns": [ "*" ]
 		}
 	]
 }
