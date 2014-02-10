@@ -1,30 +1,49 @@
-(function(){
 'use strict';
 
 /**
-* Module dependencies
-*/
-var copywatch = require('./modules/copywatch'),
-	parser    = require('./modules/data_parser'),
-	routes    = require('./routes'),
-	express   = require('express'),
-	fs        = require('fs'),
-	_         = require('underscore'),
+ * Module dependencies
+ */
+
+var dataModule = require('./data'),
+	routes     = require('./routes'),
+	express    = require('express'),
+	fs         = require('fs'),
+	_          = require('underscore'),
+// Class variables
+	DataChecker = dataModule.DataChecker,
+	DataHandler = dataModule.DataHandler,
 // Default config
 	defaults = {
+<<<<<<< HEAD
 		data_file: 'data.txt',
 		command_file: 'commands.json',
+=======
+		connections: [ 'file' ],
+		read_file: 'data.txt',
+		command_file: 'command.txt',
+>>>>>>> upstream/data
 		port: 3000,
 	},
+	threshholdDefaults = {
+		file: {
+			max: 5,
+			min: -10
+		}
+	},
 // Other variables
+	checker = {},
 // Configuration, uses default values, if necessary
-	config      = _.defaults(require('./config.json'), defaults),
-	logFile     = __dirname + '/log.txt',
+	config     = _.defaults(require('./config/config.json'), defaults),
+	logFile    = __dirname + '/log.txt',
 	logMode,
+<<<<<<< HEAD
 	port        = config.port || defaults.port,
 	data_file    = config.data_file || defaults.data_file,
 	command_file = config.command_file || defaults.command_file,
 	commands,
+=======
+	threshhold = _.defaults(require('./config/threshhold.json'), threshholdDefaults),
+>>>>>>> upstream/data
 // Command object
 	cmd_txt = {
 		"on": ((config.states && config.states[0]) ? config.states[0] : "ON"),
@@ -38,8 +57,17 @@ var copywatch = require('./modules/copywatch'),
 	};
 
 /**
-* Configure the app
-*/
+ * Extend Underscore
+ */
+_.mixin({
+	exclone: function(object, extra) {
+		return _(object).chain().clone().extend(extra).value();
+	}
+});
+
+/**
+ * Configure the app
+ */
 
 var app    = express(),
 	server = require('http').createServer(app),
@@ -53,7 +81,7 @@ app.configure('development', function() {
 	// Error Handler
 	app.use(express.errorHandler({
 		dumpExceptions: true,
-		showStack: true
+		showStack:      true
 	}));
 
 	// In development mode write the development log in stdout
@@ -61,7 +89,7 @@ app.configure('development', function() {
 
 	// Make the Jade output readable and add the environment specification
 	_.extend(app.locals, {
-		env: 'development',
+		env:    'development',
 		pretty: true,
 	});
 
@@ -69,7 +97,7 @@ app.configure('development', function() {
 	// Error Handler
 	app.use(express.errorHandler({
 		dumpExceptions: true,
-		showStack: true
+		showStack:      true
 	}));
 });
 
@@ -77,8 +105,8 @@ app.configure('development', function() {
 app.configure('production', function() {
 	// In production mode write the log in a seperate file
 	logMode = {
-		format : 'default',
-		stream : fs.createWriteStream(logFile, {flags: 'a'})
+		format: 'default',
+		stream: fs.createWriteStream(logFile, {flags: 'a'})
 	};
 
 	// Set the environment specification for jade
@@ -106,8 +134,8 @@ app.configure(function() {
 		// Respond with html page
 		if(req.accepts('html')) {
 			res.render('404', {
-				status : 404,
-				title  : 'Oops!'
+				status: 404,
+				title:  'Oops!'
 			});
 		}
 
@@ -116,12 +144,19 @@ app.configure(function() {
 
 
 /**
-* Routing
-*/
+ * Routing
+ */
 
 app.get(['/', '/home', '/index'], routes.index);
 app.get('/graph', routes.graph);
 app.get('/table', routes.table);
+
+/**
+ * Initialise the different DataChecker
+ */
+_(config.connections).each(function(value) {
+	checker[value] = new DataChecker(threshhold[value]);
+});
 
 /**
 * Configure Socket.io
@@ -263,13 +298,34 @@ var userCounter = 0,
 		}
 	});
 
+
 /**
-* Get it running!
-*/
+ * Establish data connection
+ */
+var connections = new DataHandler({
+	// Use the default configuration
+	connection: config.connections,
+	listener: {
+		data: [
+
+			// SocketIO Listener
+			function(type, data) {
+				// Save the current data
+				currentData = data;
+
+				// Send it
+				dataSocket.emit('data', { data: data });
+			}
+		]
+	}
+});
+
+/**
+ * Get it running!
+ */
+
 checkstates();
 server.listen(port);
 
 console.log("Server is running under %d Port in %s mode",
 	port, app.settings.env);
-
-})();
