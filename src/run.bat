@@ -13,6 +13,7 @@ goto:eof
 :INSTALL
 echo Install packages. This can take a moment ...
 start /B /WAIT cmd /C "npm install" >NUL 2>&1
+start /B /WAIT cmd /C "npm install -g grunt-cli" >NUL 2>&1
 echo.
 echo Packages installed. Start server now.
 echo.
@@ -20,7 +21,7 @@ goto:eof
 
 :START
 title Messdatenvisualierung (Server)
-node app.js
+grunt
 
 PAUSE
 goto:eof

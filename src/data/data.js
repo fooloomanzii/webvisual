@@ -187,6 +187,8 @@ connectionFn.file = {
 	 * @param  {Function} callback A callback function which recieves a potential error.
 	 */
 	close: function(config, callback) {
+		// Log
+		console.log("Stopped watching \""+config.path+"\"");
 		// End the watching
 		copywatch.unwatch(config.path, config.remove, callback);
 	},
@@ -196,6 +198,9 @@ connectionFn.file = {
 	 * @return {Object}        Contains the necessary data to end the watcher
 	 */
 	connect: function(config, emitter) {
+		// Log
+		console.log("Started watching \""+config.path+"\"");
+		
 		// Add the function which recieves the parsed data; calls the emitter
 		config.content = emitter;
 

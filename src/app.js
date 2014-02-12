@@ -9,6 +9,8 @@ var dataModule = require('./data'),
 	express    = require('express'),
 	fs         = require('fs'),
 	_          = require('underscore'),
+	copywatch   = require('./modules/copywatch'),
+	parser = require('./modules/data_parser'),
 // Class variables
 	DataChecker = dataModule.DataChecker,
 	DataHandler = dataModule.DataHandler,
@@ -19,7 +21,7 @@ var dataModule = require('./data'),
 		command_file: 'commands.json',
 		port: 3000,
 	},
-	threshholdDefaults = {
+	thresholdDefaults = {
 		file: {
 			max: 5,
 			min: -10
@@ -31,11 +33,8 @@ var dataModule = require('./data'),
 	config     = _.defaults(require('./config/config.json'), defaults),
 	logFile    = __dirname + '/log.txt',
 	logMode,
-	port        = config.port || defaults.port,
-	data_file    = config.data_file || defaults.data_file,
-	command_file = config.command_file || defaults.command_file,
 	commands,
-	threshhold = _.defaults(require('./config/threshhold.json'), threshholdDefaults),
+	threshold = _.defaults(require('./config/threshold.json'), thresholdDefaults),
 // Command object
 	cmd_txt = {
 		"on": ((config.states && config.states[0]) ? config.states[0] : "ON"),
@@ -147,7 +146,7 @@ app.get('/table', routes.table);
  * Initialise the different DataChecker
  */
 _(config.connections).each(function(value) {
-	checker[value] = new DataChecker(threshhold[value]);
+	checker[value] = new DataChecker(threshold[value]);
 });
 
 /**
@@ -165,17 +164,17 @@ var userCounter = 0,
 // Checks the funktions_file for new functions and command_file for available states; 
 // reading synchonusly isn't a problem here, since this just happens on startup
 	checkstates = function() {
-		fs.exists(command_file, function(exists) {
+		fs.exists(config.command_file, function(exists) {
 			if (!exists) {
-				console.log("File '"+command_file+"' don't exists. This file will be created");
-				fs.writeFile(command_file, "", function(err2){
+				console.log("File '"+config.command_file+"' don't exists. This file will be created");
+				fs.writeFile(config.command_file, "", function(err2){
 					if(err2) errfunc(err2,socket);
 				});
 			}
 		});			
-		commands = JSON.parse(fs.readFileSync(command_file, 'utf8', function (err) {
+		commands = JSON.parse(fs.readFileSync(config.command_file, 'utf8', function (err) {
 			  if (err) {
-				  console.log("Can't read file ''"+command_file+"'");
+				  console.log("Can't read file ''"+config.command_file+"'");
 				  errfunc(err,socket);
 			  }
 		}));
@@ -191,7 +190,7 @@ var userCounter = 0,
 			}
 		}
 		
-		fs.writeFile(command_file, JSON.stringify(commands, null, "\t"), function(err){
+		fs.writeFile(config.command_file, JSON.stringify(commands, null, "\t"), function(err){
 			if(err) errfunc(err,socket);
 		});
 	},
@@ -199,14 +198,14 @@ var userCounter = 0,
 	cmd_onoff, cmd_fnct = {
 		"off": (cmd_onoff = function(socket, command) {
 			//Changes the state
-			states[command[0]] = (command[1] !== "off");			
-			// Write an command into the config
-			commands.functions[command[0]]=command[1];	
-			fs.writeFile(command_file, JSON.stringify(commands, null, "\t"), function(err){
-				if(err) errfunc(err,socket);
-			});
+			states[command[0]] = (command[1] !== "off");	
 			// Emits the command so the other notice that something happened
 			optionsSocket.emit('command', {cmd: command});
+			// Write a command into the config
+			commands.functions[command[0]]=command[1];	
+			fs.writeFile(config.command_file, JSON.stringify(commands, null, "\t"), function(err){
+				if(err) errfunc(err,socket);
+			});
 		}),
 		"on": cmd_onoff
 	},
@@ -231,63 +230,11 @@ var userCounter = 0,
 		socket.emit('data', {locals: config.locals});	
 	}),
 // The data socket
-	dataSocket = io.of('/data').on('connection', function(socket) {
-		// Initialize the other events
-		// Reduces the usercounter and stops the watching of the file if necessary
-		socket.on('disconnect', function() {
-			if(--userCounter === 0) {
-				copywatch.unwatch(data_file);
-
-				// Log
-				console.log("Stopped watching \""+data_file+"\"");
-
-				// Reset the firstSend bool
-				firstSend = false;
-			}
+	dataSocket = io.of('/data').on('connection', function(socket) {	
+		// Send a first data set
+		socket.emit('first', {
+			data: currentData
 		});
-
-		// Increase the user counter on connection, if it is the first connection, start the watching of the file
-		if(++userCounter === 1) {
-			firstSend = true;
-			// Start watching the file
-			copywatch.watch('all', data_file, {
-				copy: false, // We don't need to make a copy of the file
-				process: parser.parse, // The used parse function
-				content: function(errorData, parsedData) {
-					// Are there errors?
-					if(errorData) {
-						console.warn("Error(s) occured:", errorData);
-						dataSocket.emit('error', {data: errorData});
-					}
-
-					// Create the event type and the message object
-					var sendEvent = 'data',
-						message   = {
-							data: parsedData
-						};
-
-					// Set the first event and add the state, if it is the first parsing
-					if(firstSend) {
-						sendEvent = 'first';
-						firstSend = false;
-					}
-
-					// Save the new data and ...
-					currentData = parsedData;
-
-					// ... finally send the data
-					dataSocket.emit(sendEvent, message);
-				}
-			});
-
-			// Log
-			console.log("Started watching \""+data_file+"\"");
-		}
-		// The copywatch initialization makes a first parse right at the beginning.
-		// This means, that just clients after the first need to get the current data
-		else /*if(userCounter > 1)*/ {
-			socket.emit('first', {data: currentData});
-		}
 	});
 
 
@@ -317,7 +264,7 @@ var connections = new DataHandler({
  */
 
 checkstates();
-server.listen(port);
+server.listen(config.port);
 
-console.log("Server is running under %d Port in %s mode",
-	port, app.settings.env);
+console.log("Server is running under Port %d in %s mode",
+		config.port, app.settings.env);

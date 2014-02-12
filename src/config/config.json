@@ -33,12 +33,12 @@
 				    "5":"Irgendwas"
 				},
 				"unnamedRow":"Wert"
-			},
-			"colors":{
-				"comment":"code or name. ex: #FF0000 or red",
-				"under":"#013ADF", 
-				"over":"red"
 			}
+		},
+		"colors":{
+			"comment":"code or name. ex: #FF0000 or red",
+			"under":"#013ADF", 
+			"over":"red"
 		}
 	}
 }
