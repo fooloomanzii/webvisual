@@ -6,6 +6,8 @@
 
 # Some folders #
 src/build
+src/public/css
+src/public/js
 
 # Node Stuff #
 src/node_modules

@@ -20,8 +20,9 @@ echo.
 goto:eof
 
 :START
+start /B /WAIT cmd /C grunt >NUL 2>&1
 title Messdatenvisualierung (Server)
-grunt
+node ./app.js
 
 PAUSE
 goto:eof

@@ -267,25 +267,6 @@ DataHandler = (function() {
 		_connections: {}
 	});
 
-	////////////////////
-	// Public Methods //
-	////////////////////
-
-	/**
-	 * Adds the given listener to the specified event. The function checks if the event name is an allowed name.
-	 * Alias: on
-	 * @param  {String} eventName
-	 * @param  {Function} listener
-	 */
-	_Class.prototype.addListener = _Class.prototype.on = function(eventName, listener) {
-		// Check if the given event is actually a valid one ('data' or 'error')
-		if(!_(validEvents).contains(eventName)) return;
-
-		// Add the listener to the event
-		this._emitter.on(eventName, listener);
-	};
-
-
 	/////////////////////
 	// Private Methods //
 	/////////////////////
@@ -406,17 +387,55 @@ DataHandler = (function() {
 			return value;
 		});
 
+		////////////////////
+		// Public Methods //
+		////////////////////
 
-		// Execute the necessary connection functions which are saved in the connectionsFn object
-		_(connection).each( function( type ) {
-			// Execute the connection function with configuration; ensure it is called in the this-context of the DataHandler
-			// Add the resulting connection object to the "private" _connection object of the instance
-			self._connections[type] = connectionFn[type].connect(
-				connectionConfig[type],
-				// Create a suitable emitter function for the type, this ensures that the correct events get emitted on data occurrence
-				self._createEmitter(type)
-			);
-		});
+		/**
+		 * Adds the given listener to the specified event. The function checks if the event name is an allowed name.
+		 * Alias: on
+		 * @param  {String} eventName
+		 * @param  {Function} listener
+		 */
+		_Class.prototype.addListener = _Class.prototype.on = function(eventName, listener) {
+			// Check if the given event is actually a valid one ('data' or 'error')
+			if(!_(validEvents).contains(eventName)) return;
+
+			// Add the listener to the event
+			this._emitter.on(eventName, listener);
+		};
+		
+		/**
+		 * Established all connections
+		 */
+		_Class.prototype.connect = function() {
+			// Execute the necessary connection functions which are saved in the connectionsFn object
+			_(connection).each( function( type ) {
+				// Execute the connection function with configuration; ensure it is called in the this-context of the DataHandler
+				// Add the resulting connection object to the "private" _connection object of the instance
+				self._connections[type] = connectionFn[type].connect(
+					connectionConfig[type],
+					// Create a suitable emitter function for the type, this ensures that the correct events get emitted on data occurrence
+					self._createEmitter(type)
+				);
+			});
+		};
+		
+		/**
+		 * Closes all connections
+		 */
+		_Class.prototype.close = function() {
+			// Execute the necessary connection functions which are saved in the connectionsFn object
+			_(connection).each( function( type ) {
+				// Execute the connection function with configuration; ensure it is called in the this-context of the DataHandler
+				// Add the resulting connection object to the "private" _connection object of the instance
+				self._connections[type] = connectionFn[type].close(
+					connectionConfig[type],
+					// Create a suitable emitter function for the type, this ensures that the correct events get emitted on data occurrence
+					self._createEmitter(type)
+				);
+			});
+		};
 	};
 
 	return _Class;

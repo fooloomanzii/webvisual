@@ -216,7 +216,7 @@ module.exports = function(grunt) {
 
 
 	// Default task(s).
-	grunt.registerTask('default', ['compile:development', 'open']);
+	grunt.registerTask('default', ['compile:development']);
 
 	// Alias tasks
 	// Copy
