@@ -62,6 +62,16 @@ var app    = express(),
 	server = require('http').createServer(app),
 	io     = require('socket.io').listen(server);
 
+server.on('error', function (e) {
+	  if (e.code == 'EADDRINUSE') {
+	    console.log('Address in use, retrying...');
+	    setTimeout(function () {
+	      server.close();
+	      server.listen(PORT, HOST);
+	    }, 1000);
+	  }
+	});
+
 // Development
 app.configure('development', function() {
 	// Make the Jade output readable
@@ -168,22 +178,33 @@ var userCounter = 0,
 		//if command file exists, read the data from there
 		if(fs.existsSync(config.command_file)) {
 			try{
-				commands = JSON.parse(fs.readFile(config.command_file, 'utf8', function (err) {
-					  if (err) {
-						  console.log("Can't read file ''"+config.command_file+"'");
-						  errfunc(err,socket);
-					  }
-				}));
+				commands = JSON.parse(fs.readFileSync(config.command_file, 'utf8'));
 			} catch (err) {
-				//the data is wrong JSON
-			    console.log("wrong JSON");
+				if (err.code == 'EBUSY') { //the file is busy
+					console.log("Can't read file ''"+config.command_file+"'");
+				} else { //the file has incorrect JSON data, the backup will be made
+					var newname = config.command_file+'.bak',
+						i=1;
+					while(fs.existsSync(newname)){
+						newname=config.command_file+'.bak_'+i;
+						i++;
+					}
+					fs.renameSync(config.command_file,newname)
+				    console.log("File "+config.command_file+" has incorrect JSON data and was renamed to "+newname);
+				}
 			}
-		}
+		} 
+		// be sure, that functions are there
 		if(!commands.functions){
 			commands.functions={};
 		}
+		// Check all existing states from command_file. 
+		// If command_file hasen't any function or the state is wrong, it will be checked in config. 
+		// Wrong states in config will become a value 'true'.
 		for(var func in config.functions) {
-			if(commands.functions[func]){
+			if(commands.functions[func] &&
+					(commands.functions[func]===cmd_txt.on ||
+							commands.functions[func]===cmd_txt.off)){
 				states[func]=(commands.functions[func] !== cmd_txt.off);
 			} else {
 				states[func]=(config.functions[func] !== cmd_txt.off);
