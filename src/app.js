@@ -17,7 +17,7 @@ var dataModule = require('./data'),
 		connections: [ 'file' ],
 		data_file: 'data.txt',
 		command_file: 'commands.json',
-		port: 3000,
+		port: 3000
 	},
 	thresholdDefaults = {
 		file: {
@@ -163,20 +163,22 @@ var userCounter = 0,
 // Checks the funktions_file for new functions and command_file for available states;
 // reading synchonusly isn't a problem here, since this just happens on startup
 	checkstates = function() {
-		fs.exists(config.command_file, function(exists) {
-			if (!exists) {
-				console.log("File '"+config.command_file+"' don't exists. This file will be created");
-					fs.writeFile(config.command_file, "", function(err2){
-					if(err2) errfunc(err2,socket);
-				});
+		var commands={};
+		
+		//if command file exists, read the data from there
+		if(fs.existsSync(config.command_file)) {
+			try{
+				commands = JSON.parse(fs.readFile(config.command_file, 'utf8', function (err) {
+					  if (err) {
+						  console.log("Can't read file ''"+config.command_file+"'");
+						  errfunc(err,socket);
+					  }
+				}));
+			} catch (err) {
+				//the data is wrong JSON
+			    console.log("wrong JSON");
 			}
-		});
-		commands = JSON.parse(fs.readFileSync(config.command_file, 'utf8', function (err) {
-			  if (err) {
-				  console.log("Can't read file ''"+config.command_file+"'");
-				  errfunc(err,socket);
-			  }
-		}));
+		}
 		if(!commands.functions){
 			commands.functions={};
 		}
@@ -188,10 +190,11 @@ var userCounter = 0,
 				commands.functions[func]=(states[func]?cmd_txt.on:cmd_txt.off);
 			}
 		}
-
-		fs.writeFile(config.command_file, JSON.stringify(commands, null, "\t"), function(err){
-			if(err) errfunc(err,socket);
-		});
+		try{
+			fs.writeFileSync(config.command_file, JSON.stringify(commands, null, "\t"));
+		} catch (err) {
+		    console.log(err);
+		}
 	},
 // A set of commands which can be executed when the command event is fired; the cmd_onoff is used to assign the same function to multiple elements
 	cmd_onoff, cmd_fnct = {
@@ -279,6 +282,7 @@ var userCounter = 0,
 		}
 		
 	});	
+
 
 /**
  * Get it running!
