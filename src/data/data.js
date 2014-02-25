@@ -37,6 +37,7 @@
 
 var
 // Own modules
+	connect	    = require('../modules/connect'),
 	copywatch   = require('../modules/copywatch'),
 	data_parser = require('../modules/data_parser'),
 // Node modules
@@ -63,8 +64,15 @@ var
 			// The default parse function from the data_parser module
 			process: data_parser.parse
 		},
-		"tcp": {
-			// TODO: Default TCP configuration
+		"udp": {
+			// We don't need to make a copy of the data
+			copy: false,
+			// The watching mode ('all', 'append', 'prepend')
+			mode: 'append',
+			// Default port for receiving the data from the source
+			port: 4000,
+			// The default parse function from the data_parser module
+			process: data_parser.parse
 		}
 	},
 	// All connect and close functions for the different connection types; the functions are added at a later point
@@ -212,16 +220,32 @@ connectionFn.file = {
 	}
 };
 
-/**
- * The TCP connect function. Establishes a TCP connection to the specified address.
- * @param  {Object} config The configuration for the TCP connection
- * @return {Object}        A TCP connection object
- */
-connectionFn.tcp = {
-	// TODO: Add close function
+connectionFn.udp = {
+	/**
+	 * Ends the listening of the specified UDP.
+	 * @param  {Object}   config   Configuration object which contains the necessary information
+	 *                             to end the connection
+	 * @param  {Function} callback A callback function which recieves a potential error.
+	 */
 	close: function() {},
+
+	/**
+	 * The UDP connect function. Establishes a UDP listener to the specified address.
+	 * @param  {Object} config The configuration for the UDP connection
+	 * @return {Object}        A UDP connection object
+	 */
 	connect: function(config, emitter) {
-		return null;
+		// Log
+		console.log("Started watching \""+config.port+"\"");
+		
+		// Add the function which recieves the parsed data; calls the emitter
+		config.content = emitter;
+
+		// Start watching the file
+		connect.watch(config.port, config);
+
+		// Return the necessary data to end the watcher
+		return { port: config.port, remove: config.copy };
 	}
 };
 
@@ -430,9 +454,7 @@ DataHandler = (function() {
 				// Execute the connection function with configuration; ensure it is called in the this-context of the DataHandler
 				// Add the resulting connection object to the "private" _connection object of the instance
 				self._connections[type] = connectionFn[type].close(
-					connectionConfig[type],
-					// Create a suitable emitter function for the type, this ensures that the correct events get emitted on data occurrence
-					self._createEmitter(type)
+					connectionConfig[type]
 				);
 			});
 		};

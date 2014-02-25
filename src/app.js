@@ -14,7 +14,7 @@ var dataModule = require('./data'),
 	DataHandler = dataModule.DataHandler,
 // Default config
 	defaults = {
-		connections: [ 'file' ],
+		connections: [ 'udp' ],
 		data_file: 'data.txt',
 		command_file: 'commands.json',
 		port: 3000
@@ -153,9 +153,9 @@ app.get('/table', routes.table);
 /**
  * Initialise the different DataChecker
  */
-_(config.connections).each(function(value) {
+/*_(config.connections).each(function(value) {
 	checker[value] = new DataChecker(threshold[value]);
-});
+});*/
 
 /**
 * Configure Socket.io
