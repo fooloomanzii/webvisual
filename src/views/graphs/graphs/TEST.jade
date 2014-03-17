@@ -1,10 +1,10 @@
 extends ../graph_layout
 
 prepend canvas
-	p Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+  p Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
 
 append script
-	if locals.env == 'development'
-		script(type='text/javascript', src='js/graphs/graphs/TEST.js')
-	else
-		script(type='text/javascript', src='js/graphs/graphs/TEST.min.js')
+  if locals.env == 'development'
+    script(type='text/javascript', src='js/graphs/graphs/TEST.js')
+  else
+    script(type='text/javascript', src='js/graphs/graphs/TEST.min.js')

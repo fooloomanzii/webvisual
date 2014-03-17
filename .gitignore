@@ -18,6 +18,9 @@ src/node_modules
 # Tests #
 src/test/OLD/*.txt
 
+# Logs #
+*.log
+
 # Other files #
 
 # Mail login #

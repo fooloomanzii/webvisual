@@ -42,7 +42,7 @@
         expose  : '<div class="joyride-expose-wrapper"></div>',
         exposeCover: '<div class="joyride-expose-cover"></div>'
       },
-      exposeAddClass  	: ''		// One or more space-separated class names to be added to exposed element
+      exposeAddClass    : ''    // One or more space-separated class names to be added to exposed element
     },
 
     settings : {},

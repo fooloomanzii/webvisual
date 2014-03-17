@@ -1,5 +1,5 @@
 var fs = require('fs'),
-	file = './lock_test.txt';
+  file = './lock_test.txt';
 
 var stream = fs.createWriteStream(file);
 

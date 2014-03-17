@@ -4,95 +4,95 @@ doctype
 |<!--[if gt IE 8]><!--><html class="no-js" lang="en"><!--<![endif]-->
 
 head
-	meta(charset='utf-8')
-	// Set the viewport width to device width for mobile
-	meta(name='viewport', content='width=device-width')
-	- var title = (locals.title.charAt(0).toUpperCase() + locals.title.slice(1))
-	title #{title}
+  meta(charset='utf-8')
+  // Set the viewport width to device width for mobile
+  meta(name='viewport', content='width=device-width')
+  - var title = (locals.title.charAt(0).toUpperCase() + locals.title.slice(1))
+  title #{title}
 
-	if locals.env == 'development'
-		// Included CSS Files (Uncompressed)
-		link(rel='stylesheet', href='css/normalize.css')
-		link(rel='stylesheet', href='css/foundation.css')
-		link(rel='stylesheet', href='css/customSelect.css')
-		link(rel='stylesheet', href='css/nprogress.css')
-		link(rel='stylesheet', href='css/global.css')
-		link(rel='stylesheet', href='css/app.css')
-		link(rel='stylesheet', href='css/options.css')
-	else
-		// Included CSS Files (Compressed)
-		//- link(rel='stylesheet', href='css/normalize.min.css')
-		//- link(rel='stylesheet', href='css/foundation.min.css')
-		//- link(rel='stylesheet', href='css/app.min.css')
-		//- link(rel='stylesheet', href='css/global.min.css')
-		//- link(rel='stylesheet', href='css/nprogress.min.css')
-		//- link(rel='stylesheet', href='css/customSelect.min.css')
-		link(rel='stylesheet', href='min/depend.min.css')
-		link(rel='stylesheet', href='min/custom.min.css')
+  if locals.env == 'development'
+    // Included CSS Files (Uncompressed)
+    link(rel='stylesheet', href='css/normalize.css')
+    link(rel='stylesheet', href='css/foundation.css')
+    link(rel='stylesheet', href='css/customSelect.css')
+    link(rel='stylesheet', href='css/nprogress.css')
+    link(rel='stylesheet', href='css/global.css')
+    link(rel='stylesheet', href='css/app.css')
+    link(rel='stylesheet', href='css/options.css')
+  else
+    // Included CSS Files (Compressed)
+    //- link(rel='stylesheet', href='css/normalize.min.css')
+    //- link(rel='stylesheet', href='css/foundation.min.css')
+    //- link(rel='stylesheet', href='css/app.min.css')
+    //- link(rel='stylesheet', href='css/global.min.css')
+    //- link(rel='stylesheet', href='css/nprogress.min.css')
+    //- link(rel='stylesheet', href='css/customSelect.min.css')
+    link(rel='stylesheet', href='min/depend.min.css')
+    link(rel='stylesheet', href='min/custom.min.css')
 
-	// Own CSS stuff
-	block style
+  // Own CSS stuff
+  block style
 
-	// Foundation relevant js
-	script(src='js/vendor/custom.modernizr.js')
+  // Foundation relevant js
+  script(src='js/vendor/custom.modernizr.js')
 
-	// IE Fix for HTML5 Tags
-	//if lt IE 9
-		script(src='http://html5shiv.googlecode.com/svn/trunk/html5.js')
+  // IE Fix for HTML5 Tags
+  //if lt IE 9
+    script(src='http://html5shiv.googlecode.com/svn/trunk/html5.js')
 
 body
-	include includes/navbar
-	block content
-	include includes/options
+  include includes/navbar
+  block content
+  include includes/options
 
-	if locals.env == 'development'
-		// Include JS Files (Uncompressed)
-		script(src='js/jquery/jquery-2.0.2.js')
-		script(src='js/nprogress/nprogress.js')
-		script(src='js/options.js')	
+  if locals.env == 'development'
+    // Include JS Files (Uncompressed)
+    script(src='js/jquery/jquery-2.0.2.js')
+    script(src='js/nprogress/nprogress.js')
+    script(src='js/options.js')  
 
-		// Initialize JS Plugins
-		script(src='/socket.io/socket.io.js')
-		script(src='js/app.js')
+    // Initialize JS Plugins
+    script(src='/socket.io/socket.io.js')
+    script(src='js/app.js')
 
-		// Foundation scripts
-		script(src='js/foundation/foundation.js')
-		//- script(src='js/foundation/foundation.alerts.js')
-		//- script(src='js/foundation/foundation.clearing.js')
-		//- script(src='js/foundation/foundation.cookie.js')
-		script(src='js/foundation/foundation.dropdown.js')
-		script(src='js/foundation/foundation.forms.js')
-		//- script(src='js/foundation/foundation.joyride.js')
-		//- script(src='js/foundation/foundation.magellan.js')
-		//- script(src='js/foundation/foundation.orbit.js')
-		script(src='js/foundation/foundation.placeholder.js')
-		//- script(src='js/foundation/foundation.reveal.js')
-		script(src='js/foundation/foundation.section.js')
-		//- script(src='js/foundation/foundation.tooltips.js')
-		script(src='js/foundation/foundation.topbar.js')
-		script(src='js/foundation/foundation.interchange.js')
-	else
-		// Included JS Files (Compressed)
-		//- script(src='http://code.jquery.com/jquery-latest.min.js')
-		script(src='js/jquery/jquery-2.0.2.min.js')
-		script(src='js/foundation/foundation.min.js')
-		script(src='js/nprogress/nprogress.min.js')
-		script(src='js/app.min.js')
+    // Foundation scripts
+    script(src='js/foundation/foundation.js')
+    //- script(src='js/foundation/foundation.alerts.js')
+    //- script(src='js/foundation/foundation.clearing.js')
+    //- script(src='js/foundation/foundation.cookie.js')
+    script(src='js/foundation/foundation.dropdown.js')
+    script(src='js/foundation/foundation.forms.js')
+    //- script(src='js/foundation/foundation.joyride.js')
+    //- script(src='js/foundation/foundation.magellan.js')
+    //- script(src='js/foundation/foundation.orbit.js')
+    script(src='js/foundation/foundation.placeholder.js')
+    //- script(src='js/foundation/foundation.reveal.js')
+    script(src='js/foundation/foundation.section.js')
+    //- script(src='js/foundation/foundation.tooltips.js')
+    script(src='js/foundation/foundation.topbar.js')
+    script(src='js/foundation/foundation.interchange.js')
+  else
+    // Included JS Files (Compressed)
+    //- script(src='http://code.jquery.com/jquery-latest.min.js')
+    script(src='js/jquery/jquery-2.0.2.min.js')
+    script(src='js/foundation/foundation.min.js')
+    script(src='js/nprogress/nprogress.min.js')
+    script(src='js/app.min.js')
 
 
-	//- script.
-	//- 	document.write('<script src=' +
-	//- 	('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
-	//- 	'.js><\/script>')
-	
-	// Configure the NProgress bar and init foundation js
-	script.
-		NProgress.configure({ trickleRate: 0.02, trickleSpeed: 200 });
-		
-		$(function() {
-			$(document).foundation();
-		});
+  //- script.
+  //-   document.write('<script src=' +
+  //-   ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
+  //-   '.js><\/script>')
+  
+  // Configure the NProgress bar and init foundation js
+  script.
+    NProgress.configure({ trickleRate: 0.02, trickleSpeed: 200 });
+    
+    $(function() {
+      $(document).foundation();
+    });
 
-	block script
+  block script
 
 |</html>

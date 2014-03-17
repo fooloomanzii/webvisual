@@ -13,20 +13,20 @@
    Shared Styles
 ----------------------------------------- */
 .float-left {
-	float: left;
+  float: left;
 }
 .float-right {
-	float: right;
+  float: right;
 }
 
 .hidden, *[hidden] {
-	display:none;
+  display:none;
 }
 .under {
-	color: blue;
+  color: blue;
 }
 .over {
-	color: red;
+  color: red;
 }
 
 

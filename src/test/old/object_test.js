@@ -1,25 +1,25 @@
 (function(){
-	/*var object = {test: 'test'};
+  /*var object = {test: 'test'};
 
-	console.log(object);
+  console.log(object);
 
-	var object2 = { a: 'abc', b: 'def' };
-	for(var prop in object2) {
-		object[prop] = object2[prop];
-	}
+  var object2 = { a: 'abc', b: 'def' };
+  for(var prop in object2) {
+    object[prop] = object2[prop];
+  }
 
-	console.log(object);*/
+  console.log(object);*/
 
-	/*function test() {
-		console.log(test);
-		// console.log(test.foo);
-	}
+  /*function test() {
+    console.log(test);
+    // console.log(test.foo);
+  }
 
-	test.foo = 'bar';
+  test.foo = 'bar';
 
-	test();*/
+  test();*/
 
-	var object = { foo: "bar" };
+  var object = { foo: "bar" };
 
-	console.log(JSON.stringify(object));
+  console.log(JSON.stringify(object));
 })();

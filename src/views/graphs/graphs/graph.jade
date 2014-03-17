@@ -1,11 +1,11 @@
 extends ../graph_layout
 
 prepend canvas
-	.row
-		span#noDataLabel.label.alert No Data available.
-		select#selectBox
-	
+  .row
+    span#noDataLabel.label.alert No Data available.
+    select#selectBox
+  
 
 append script
-	script(src='js/graphs/graphs/'+locals.type+'.js')
-	script(src='js/jquery.customSelect.min.js')
+  script(src='js/graphs/graphs/'+locals.type+'.js')
+  script(src='js/jquery.customSelect.min.js')

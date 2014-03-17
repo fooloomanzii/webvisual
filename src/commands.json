@@ -1,7 +1,7 @@
 {
 	"functions": {
-		"Motor": "off",
-		"Pumpe": "on",
-		"comment": "on"
+		"comment": "on",
+		"Motor": "on",
+		"Pumpe": "off"
 	}
 }

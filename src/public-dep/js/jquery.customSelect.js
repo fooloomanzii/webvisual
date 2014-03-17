@@ -12,32 +12,32 @@
     'use strict';
     
     String.prototype.width = function() {
-    	var fs = $('span.customSelect').css('font-size'),
-    	ff = $('span.customSelect').css('font-family'),
-    	o = $('<div>' + this + '</div>')
-    	.css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden', 'font-size': fs, 'font-family': ff})
-    	.appendTo($('body')),
-    	w = o.width();
+      var fs = $('span.customSelect').css('font-size'),
+      ff = $('span.customSelect').css('font-family'),
+      o = $('<div>' + this + '</div>')
+      .css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden', 'font-size': fs, 'font-family': ff})
+      .appendTo($('body')),
+      w = o.width();
 
-    	o.remove();
+      o.remove();
 
-    	return w;
+      return w;
     }
 
     function getWidth(select)
     {
-    	var maxlength = 0;
-    	var maxWidth = 0;
-    	var mySelect = document.getElementById(select.attr('id'));
-    	for (var i=0; i<mySelect.options.length;i++)
-    	{
-    		if (mySelect[i].text.length>maxlength)
-    		{
-    			maxlength = mySelect[i].text.length;
-    			maxWidth = mySelect[i].text.width();
-    		}
-    	}
-    	select.width(maxWidth+20);
+      var maxlength = 0;
+      var maxWidth = 0;
+      var mySelect = document.getElementById(select.attr('id'));
+      for (var i=0; i<mySelect.options.length;i++)
+      {
+        if (mySelect[i].text.length>maxlength)
+        {
+          maxlength = mySelect[i].text.length;
+          maxWidth = mySelect[i].text.width();
+        }
+      }
+      select.width(maxWidth+20);
     }
 
     $.fn.extend({
@@ -61,9 +61,9 @@
                 customSelectSpanInner.html(html);
                 
                 if (currentSelected.attr('disabled')) {
-                	customSelectSpan.addClass(getClass('DisabledOption'));
+                  customSelectSpan.addClass(getClass('DisabledOption'));
                 } else {
-                	customSelectSpan.removeClass(getClass('DisabledOption'));
+                  customSelectSpan.removeClass(getClass('DisabledOption'));
                 }
                 
                 setTimeout(function () {
@@ -94,14 +94,14 @@
                 $select
                     .addClass('hasCustomSelect')
                     .on('update', function () {
-						changed($select,customSelectSpan);
-						
-						getWidth($select);
+            changed($select,customSelectSpan);
+            
+            getWidth($select);
                         var selectBoxWidth = $select.width();
-						
-						// Set to inline-block before calculating outerHeight
-						customSelectSpan.css({
-							width:   selectBoxWidth+29,
+            
+            // Set to inline-block before calculating outerHeight
+            customSelectSpan.css({
+              width:   selectBoxWidth+29,
                             display: 'inline-block'
                         });
 

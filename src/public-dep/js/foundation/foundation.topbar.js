@@ -273,12 +273,12 @@
             $window = $(window);
             var offst = this.outerHeight($('.top-bar'));
         //Whe resize elements of the page on windows resize. Must recalculate distance
-		$(window).resize(function() {
+    $(window).resize(function() {
             clearTimeout(t_top);
-			t_top = setTimeout (function() {
-				distance = $(klass).offset().top;
-			},105);
-		});
+      t_top = setTimeout (function() {
+        distance = $(klass).offset().top;
+      },105);
+    });
           $window.scroll(function() {
             if ($window.scrollTop() > (distance)) {
               $(klass).addClass("fixed");

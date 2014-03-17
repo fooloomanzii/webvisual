@@ -1,28 +1,28 @@
 extends ../../layout
 
 block style
-	link(rel='stylesheet', href='css/table.css')
-	
+  link(rel='stylesheet', href='css/table.css')
+  
 block content
-	.row
-		.small-12.columns
-			h1#title		
-		hr		
-	.row
-		.small-12.columns
-			#load
-				center: h4.subheader Messwerte werden geladen ...
-			#data(style='display:none;')
-				table#valueTable
-					tr
-						td
-							a.custom.button#toTable Full Table
-						td
-							select#sel
-					tr
-						td#signs
-						td#werte 
-						
+  .row
+    .small-12.columns
+      h1#title    
+    hr    
+  .row
+    .small-12.columns
+      #load
+        center: h4.subheader Messwerte werden geladen ...
+      #data(style='display:none;')
+        table#valueTable
+          tr
+            td
+              a.custom.button#toTable Full Table
+            td
+              select#sel
+          tr
+            td#signs
+            td#werte 
+            
 block script
-	script(src='js/table/'+locals.type+'.js')
-	script(src='js/jquery.customSelect.js')
+  script(src='js/table/'+locals.type+'.js')
+  script(src='js/jquery.customSelect.js')

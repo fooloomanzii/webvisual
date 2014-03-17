@@ -1,51 +1,9 @@
-// WATCHR DOKU
-/*
-user watcher with watchr.watch(config). Available configurations are:
-  path - a single path to watch
-  paths - an array of paths to watch
-  listener - a single change listener to fire when a change occurs
-  listeners - an array of listeners to fire when a change occurs, overloaded to accept the following values:
-    changeListener a single change listener
-    [changeListener] - an array of change listeners
-    {eventName:eventListener} - an object keyed with the event names and valued with a single event listener
-    {eventName:[eventListener]} - an object keyed with the event names and valued with an array of event listeners
-  next - (optional, defaults to null) a completion callback to fire once the watcher have been setup, arguments are:
-    when using the path configuration option: err, watcherInstance
-    when using the paths configuration option: err, [watcherInstance,...]
-  stat - (optional, defaults to null) a file stat object to use for the path, instead of fetching a new one
-  interval - (optional, defaults to 5007) for systems that poll to detect file changes, how often should it poll in millseconds
-  persistent - (optional, defaults to true) whether or not we should keep the node process alive for as long as files are still being watched
-  duplicateDelay - (optional, defaults to 1000) sometimes events will fire really fast, this delay is set in place so we don't fire the same event within the timespan. Set to falsey to perform no duplicate detection.
-  preferredMethods - (optional, defaults to ['watch','watchFile']) which order should we prefer our watching methods to be tried?
-  ignorePaths - (optional, defaults to false) an array of full paths to ignore
-  ignoreHiddenFiles - (optional, defaults to false) whether or not to ignored files which filename starts with a .
-  ignoreCommonPatterns - (optional, defaults to true) whether or not to ignore common undesirable file patterns (e.g. .svn, .git, .DS_Store, thumbs.db, etc)
-  ignoreCustomPatterns - (optional, defaults to null) any custom ignore patterns that you would also like to ignore along with the common patterns
-
-The following events are available to your via the listeners:
-
-  log - for debugging, receives the arguments logLevel ,args...
-  error - for gracefully listening to error events, receives the arguments err
-    you should always have an error listener, otherwise node.js's behavior is to throw the error and possibly crash your application, see #40
-  watching - for when watching of the path has completed, receives the arguments err, isWatching
-  change - for listening to change events, receives the arguments changeType, fullPath, currentStat, previousStat, received arguments will be:
-    for updated files: 'update', fullPath, currentStat, previousStat
-    for created files: 'create', fullPath, currentStat, null
-    for deleted files: 'delete', fullPath, null, previousStat
-
-The function returns a watcher instance or a array of watcher if multiple paths were given
-*/
-
-// Make the library strict
-// Strict mode, pretty similar to C's -Wall compile option
-(function() {
+//(function() {
 'use strict';
 
 // Require
-var fs          = require('fs'),
-  path_util   = require('path'),
+var parser      = require('../../data_parser'),
   typechecker = require('typechecker'),
-  watchr      = require('watchr'),
 
 // "Global" variables
   _default    = {
@@ -53,14 +11,26 @@ var fs          = require('fs'),
     process: function(string, callback) {
       callback(null, string);
     },
-    work_function: _copy,
+    work_function: _process_copy,
     watch_error: _error_handler
   },
   _watchers     = {},
   _watcherCount = 0,
   _extension    = '_node',
   newline       = /\r\n|\n\r|\n/, // Every possible newline character
-  errorFile     = './copywatch.err';
+  errorFile     = './udp.err';
+
+var udpsocket = require('dgram').createSocket('udp4');
+
+udpsocket.on('message', function(message, rinfo) {
+  console.log('server got message: "' + message + '" from ' + rinfo.address + ':' + rinfo.port);
+  });
+udpsocket.on('listening', function() {
+  var address = udpsocket.address();
+    console.log('server listening on ' + address.address + ':' + address.port );
+});
+
+udpsocket.bind(4000);
 
 // Functions
 
@@ -101,64 +71,50 @@ function _check_mode(mode) {
   return null;
 }
 
+
 /*
-  Check if it's a valid file and not something else. Returns an error or null.
+  Check if the given port is valid and is not used. Returns a callback function.
+  Second argument of callback is true if the port is used
 */
-function _check_file(path) {
-  var return_error = null;
-
-  // Check if it exists and check if the file is actually a file; return an error if it isn't
-  if(fs.existsSync(path) && !fs.statSync(path).isFile()) {
-    return_error = new Error("Expected path to an file but got something else. Copywatch just watches files.");
-  }
-
-  return return_error;
+function _check_port(port) {
+  var net = require('net')
+  var tester = net.createServer()
+  .once('error', function (err) {
+    if (err.code != 'EADDRINUSE') 
+      return new Error("An error occured: "+err);
+    else 
+      return new Error("Port "+port+" is in use");
+  })
+  .once('listening', function() {
+    tester.close();
+    return null;
+  })
+  .listen(port)
 }
 
 /*
-  Create read/write options
+  Create file write options
 */
-function _file_options(start, end) {
-  var options = {
-    readOptions: {},
-    writeOptions: {}
-  };
+function _write_options(start) {
+  var options = { };
 
-  // Create the options for reading and writing
+  // Only for append or prepend
   if (start !== undefined) {
-    // Read
-    options.readOptions.start = start;
-    // Write
-    options.writeOptions.start = start;
-    options.writeOptions.flags = 'a';
-  }
-  if(end !== undefined) {
-    // Read; the -1 are necessary because the file starts at 0 and otherwise it would read 1 byte too mutch
-    options.readOptions.end = end-1;
-  }
+    options.start = start;
+    options.flags = 'a';
+  } 
 
   return options;
 }
 
 /*
-  Copy
-  Copies a file. Simple and plain.
-*/
-function _copy(path, start, end) {
-  var options = _file_options(start, end);
-
-  // Copies the file
-  fs.createReadStream(path, options.readOptions).pipe(fs.createWriteStream(path+_extension, options.writeOptions));
-}
-
-/*
   Process copy
-  Copies a file and processes it, if a process function is given.
+  Copies a data and processes it, if a process function is given.
 */
 function _process_copy(path, start, end, process, callback) {
   // Define Variables
   // Create the read/write options
-  var options = _file_options(start,end).writeOptions,
+  var options = _write_options(start),
     write;
 
   // Set the encoding
@@ -198,18 +154,15 @@ function _process_copy(path, start, end, process, callback) {
     if(callback) callback(errorData, processedData);
   }
 
-  _process_read(path, start, end, process, finish);
+  _process_read(start, end, process, finish);
 }
 
-function _process_read(path, start, end, process, callback) {
+function _process_read(start, end, process, callback) {
   // Define variables
   var processedData = [],
     errorData     = [],
-    readOptions   = _file_options(start, end).readOptions,
+    encoding = 'utf8',
     read;
-
-  // Set the encoding
-  readOptions.encoding = 'utf8';
 
   // Create the readstream
   read = fs.createReadStream(path, readOptions);
@@ -304,7 +257,8 @@ function _create_watch_options(mode, options) {
   // Check if process/content are valid
   if(options.process && !isFunction(options.process)) {
     return new TypeError('The process-option needs to be an function.');
-  } if(options.content && !isFunction(options.content)) {
+  } 
+  if(options.content && !isFunction(options.content)) {
     return new TypeError('The content-function needs to be an function.');
   }
 
@@ -336,11 +290,11 @@ function _handle_change(event, path, currStat, prevStat, options) {
   // Test/create event - process the changes
   if (event === 'update' || event === 'create') {
     if (options.mode === 'append') {
-      options.work_function(path, prevStat.size, undefined, options.process, options.content);
+      options.work_function(path, prevStat.size, options.process, options.content);
     } else if (options.mode === 'prepend') {
-      options.work_function(path, 0, (currStat.size - prevStat.size), options.process, options.content);
+      options.work_function(path, 0, options.process, options.content);
     } else if (options.mode === 'all') {
-      options.work_function(path, undefined, undefined, options.process, options.content);
+      options.work_function(path, undefined, options.process, options.content);
     }
   }
   //  Delete event - delete the copied version
@@ -475,18 +429,18 @@ function getExtension() {
       Arguments are err (an potential array of errors) and data (an array of the (processed) lines).
   next - a callback function, that recieves an error, if one occured
 */
-function watch(mode, file, options, next) {
+function watch(mode, port, options, next) {
   // Define variables
   var i, listenersObj, nextObj,
   // Other stuff
-    maybeError, baseName, resFile, fileDir;
+    maybeError, baseName, destFile, fileDir;
 
   // Check if the given mode is a valid one; if not throw an error
   maybeError = _check_mode(mode);
   if(maybeError) return next(maybeError);
 
-  // Check if it's a valid file
-  maybeError = _check_file(file);
+  // Check if port not in use
+  maybeError = _check_port(port);
   if(maybeError) return next(maybeError);
 
   if(typeof options === 'function') {
