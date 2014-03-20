@@ -1,4 +1,4 @@
-//(function() {
+(function() {
 'use strict';
 
 //Require
@@ -244,28 +244,28 @@ function unwatch() {
 
 /*
   Watch
-  {options}
-     ATTENSION: If there is not content-function and log is false than connect 
-       will throw an error, since there is no point in watching a file and 
-       doing nothing on change.
-    content - a function that becomes a message data, either parsed (if a 
-      process function was given) or in raw form, every time a change happens.
-    process - a function which processes each line from a received message. 
-      It need to take the following argument: 'string' (the current line), 
-      'callback' (optional - a function that receives the processed line. 
-      Otherwise it will be assumed, that the function returns the data.)
-      Arguments are err (an potential array of errors) and data 
-      (an array of the (processed) lines).
     port - the port to be watched
-    log - a boolean which states if connect should log the messages to the file
-      true - the default, connect writes a log
-      false - the messages won't be logged.
-    mode - mode says how to write the received messages to the file:
-      'append' - write messages to the end of the file
-      'prepend' - write messages to the start of the file
-      'all' - overwrite the whole file with every new message
-    watch_error - a function that gets called, 
-      when an error occurred during watching
+    {options}
+       ATTENSION: If there is not content-function and log is false than connect 
+         will throw an error, since there is no point in watching a file and 
+         doing nothing on change.
+      content - a function that becomes a message data, either parsed (if a 
+        process function was given) or in raw form, every time a change happens.
+      process - a function which processes each line from a received message. 
+        It need to take the following argument: 'string' (the current line), 
+        'callback' (optional - a function that receives the processed line. 
+        Otherwise it will be assumed, that the function returns the data.)
+        Arguments are err (an potential array of errors) and data 
+        (an array of the (processed) lines).
+      log - a boolean which states if connect should log the messages to the file
+        true - the default, connect writes a log
+        false - the messages won't be logged.
+      mode - mode says how to write the received messages to the file:
+        'append' - write messages to the end of the file
+        'prepend' - write messages to the start of the file
+        'all' - overwrite the whole file with every new message
+      watch_error - a function that gets called, 
+        when an error occurred during watching
 */
 function watch(port, options) {
   var maybeError, _lastPeer;
@@ -311,4 +311,4 @@ module.exports = {
   unwatch      : unwatch
 };
 
-//})();
+})();

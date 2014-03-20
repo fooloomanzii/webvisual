@@ -233,9 +233,9 @@ connectionFn.udp = {
   },
 
   /**
-   * The UDP connect function. Establishes a UDP listener to the specified address.
+   * The UDP connect function. Establishes a UDP listener to the specified port.
    * @param  {Object} config The configuration for the UDP connection
-   * @return {Object}        A UDP connection object
+   * @return {Object} An UDP connection object
    */
   connect: function(config, emitter) {  
     

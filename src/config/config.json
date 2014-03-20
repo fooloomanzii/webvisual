@@ -13,11 +13,6 @@
 	"locals":{
 	  "dataTimeLabel":"Letzte Zeit",
 	  "timeFormat":"dd.MM.yyyy HH:mm:ss",
-		"limits":{
-			"comment":"count starts from pos 0",
-			"1":[2,7],
-			"5":[6,9]
-		},
 		"table":{
 			"title":"Table",
 			"labels":{

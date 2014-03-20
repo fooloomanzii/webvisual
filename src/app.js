@@ -10,7 +10,7 @@ var dataModule = require('./data'),
   fs         = require('fs'),
   _          = require('underscore'),
 // Class variables
-  DataChecker = dataModule.DataChecker,
+  threshold   = dataModule.threshold,
   DataHandler = dataModule.DataHandler,
 // Default config
   defaults = {
@@ -19,24 +19,11 @@ var dataModule = require('./data'),
     command_file: 'commands.json',
     port: 3000
   },
-  thresholdDefaults = {
-    file: {
-      max: 5,
-      min: -10
-    },
-    udp: {
-      max: 5,
-      min: -10
-    }
-  },
-// Other variables
-  checker = {},
 // Configuration, uses default values, if necessary
   config     = _.defaults(require('./config/config.json'), defaults),
   logFile    = __dirname + '/log.txt',
   logMode,
   commands,
-  threshold = _.defaults(require('./config/threshold.json'), thresholdDefaults),
 // Command object
   cmd_txt = {
     "on": ((config.states && config.states[0]) ? config.states[0] : "ON"),
@@ -124,7 +111,8 @@ app.configure(function() {
   //  Makes it possible to use app.get and app.delete, rather than use app.post all the time
   app.use(express.methodOverride());
   // Logging middleware
-  // TODO: Dafuer sorgen, dass jede Verbindung nur einmal geloggt wird. Ergo: Irgendwie die statischen Dateien nicht loggen
+  // TODO: Dafuer sorgen, dass jede Verbindung nur einmal geloggt wird. 
+  // Ergo: Irgendwie die statischen Dateien nicht loggen
   // app.use(express.logger(logMode));
   /*  Routes the requests, it would be implicit initialated at the first use of app.get
   this ensures that routing is done before the static folder is used */
@@ -155,13 +143,6 @@ app.get('/graph', routes.graph);
 app.get('/table', routes.table);
 
 /**
- * Initialise the different DataChecker
- */
-_(config.connections).each(function(value) {
-  checker[value] = new DataChecker(threshold[value]);
-});
-
-/**
 * Configure Socket.io
 */
 
@@ -170,7 +151,7 @@ io.set('log level', 1);
 
 // Socket variables
 var userCounter = 0,
-  currentData,
+  currentData = {},
   waitFirst = true,
   states={},
   connections,
@@ -194,7 +175,8 @@ var userCounter = 0,
             i++;
           }
           fs.renameSync(config.command_file,newname)
-            console.log("File "+config.command_file+" has incorrect JSON data and was renamed to "+newname);
+            console.log("File "+config.command_file+
+                " has incorrect JSON data and was renamed to "+newname);
         }
       }
     } 
@@ -203,7 +185,8 @@ var userCounter = 0,
       commands.functions={};
     }
     // Check all existing states from command_file. 
-    // If command_file hasen't any function or the state is wrong, it will be checked in config. 
+    // If command_file hasen't any function or the state is wrong, 
+    // it will be checked in config. 
     // Wrong states in config will become a value 'true'.
     for(var func in config.functions) {
       if(commands.functions[func] &&
@@ -221,7 +204,8 @@ var userCounter = 0,
         console.log(err);
     }
   },
-// A set of commands which can be executed when the command event is fired; the cmd_onoff is used to assign the same function to multiple elements
+// A set of commands which can be executed when the command event is fired; 
+// the cmd_onoff is used to assign the same function to multiple elements
   cmd_onoff, cmd_fnct = {
     "off": (cmd_onoff = function(socket, command) {
       //Changes the state
@@ -230,7 +214,8 @@ var userCounter = 0,
       optionsSocket.emit('command', {cmd: command});
       // Write a command into the config
       commands.functions[command[0]]=command[1];
-      fs.writeFile(config.command_file, JSON.stringify(commands, null, "\t"), function(err){
+      fs.writeFile(config.command_file, JSON.stringify(commands, null, "\t"), 
+          function(err){
         if(err) errfunc(err,socket);
       });
     }),
@@ -277,12 +262,15 @@ var userCounter = 0,
             sendEvent = 'first';
             waitFirst = false;
           }
+          
+          // Check for threshold variances and save it
+          currentData.variances=threshold.getVariances(data);
   
           // Save the current data
-          currentData = data;
+          currentData.data=data;
   
           // ... finally send the data
-          dataSocket.emit(sendEvent, { data: data });
+          dataSocket.emit(sendEvent, currentData);
         }
       ]
     }
@@ -292,9 +280,7 @@ var userCounter = 0,
     // Wait till first data will be sent or receive the current data 
     // as 'first' for every Client
     if (!waitFirst) {
-      socket.emit('first', {
-        data : currentData
-      });
+      socket.emit('first', currentData);
     } else {
       socket.emit('wait');
     }

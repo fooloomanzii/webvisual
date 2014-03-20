@@ -13,7 +13,7 @@
       "unnamedRow":"Value"
     },
     valuesArray,
-    limitsArray={};
+    limitsArray;
   
   // Arrange locals from Configuration data out of the data object
   function arrangeLocals(locals){
@@ -56,9 +56,6 @@
           }
         }
       }
-      if(locals.limits){
-        limitsArray=locals.limits;
-      }
     }
     
     // Set the title of the Page
@@ -90,21 +87,24 @@
   
   // Check if the value at given position stay in the limits
   function checkColor(pos){
-    if(limitsArray[pos]&&limitsArray[pos].length==2){
-      if (valuesArray[pos]<limitsArray[pos][0]) return 'under';
-      if (valuesArray[pos]>limitsArray[pos][1]) return 'over';
+    if(limitsArray && limitsArray.length==2){
+      if (limitsArray[0][pos]) return 'under';
+      if (limitsArray[1][pos]) return 'over';
     }
     return "";
   }
   
   // Arrange the values out of the data object
-  function arrangeData(data){
+  function arrangeData(data, variances){
     if(!data || data.length == 0 ) return;
     
     var tmp;
-    data=data.pop();
+    
+    // Get the threshold variances
+    limitsArray = variances;
 
     // Use the last entry of the array; this is arbitrary
+    data=data.pop();
     valuesArray = data.values;
     $('#dataTime').text($.format.toBrowserTimeZone(
         data.date,labelsArray.timeFormat));
@@ -124,8 +124,11 @@
   }
   
   // Renew the values layout with that out of the data object
-  function renewValues(data){
+  function renewValues(data, variances){
     if(!data || data.length == 0 ) return; 
+    
+    limitsArray = variances;
+    
     data=data.pop();
     
     valuesArray = data.values;
@@ -172,7 +175,7 @@
           $.format.toBrowserTimeZone($.now(),labelsArray.timeFormat))
 
       // Arrange the received data
-      arrangeData(message.data);
+      arrangeData(message.data, message.variances);
       
       $('.valRow').on('click', function (e) {
         window.location.search='?type=select&value='+$(this).attr('value');
@@ -194,7 +197,7 @@
       $('#lastRTime').text(
           $.format.toBrowserTimeZone($.now(),labelsArray.timeFormat))
       
-      renewValues(message.data);
+      renewValues(message.data, message.variances);
     });
     
     // Mistaken data
