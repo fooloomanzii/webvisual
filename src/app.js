@@ -297,3 +297,15 @@ server.listen(config.port);
 
 console.log("Server is running under Port %d in %s mode",
     config.port, app.settings.env);
+
+process.on('uncaughtException', function(err) {
+  server.close();
+});
+
+process.on('SIGTERM', function(err) {
+  server.close();
+});
+
+process.on('exit', function(err) {
+  server.close();
+});

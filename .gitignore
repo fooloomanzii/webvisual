@@ -22,6 +22,8 @@ src/test/OLD/*.txt
 *.log
 
 # Other files #
+*desktop.ini
+*thumbs.db
 
 # Mail login #
 src/config/mail.json
