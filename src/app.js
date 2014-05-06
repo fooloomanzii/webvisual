@@ -7,6 +7,8 @@
 var dataModule = require('./data'),
   routes     = require('./routes'),
   express    = require('express'),
+	errorHandler = require('express-error-handler'),
+	
   fs         = require('fs'),
   _          = require('underscore'),
 // Class variables
@@ -64,12 +66,12 @@ server.on('error', function (e) {
   });
 
 // Development
-app.configure('development', function() {
+if ( app.get('env') == 'development' ) {
   // Make the Jade output readable
   app.locals.pretty = true;
 
   // Error Handler
-  app.use(express.errorHandler({
+  app.use(errorHandler({
     dumpExceptions: true,
     showStack:      true
   }));
@@ -82,65 +84,52 @@ app.configure('development', function() {
     env:    'development',
     pretty: true,
   });
-
-
-  // Error Handler
-  app.use(express.errorHandler({
-    dumpExceptions: true,
-    showStack:      true
-  }));
-});
+}
 
 // Production
-app.configure('production', function() {
-  // In production mode write the log in a seperate file
-  logMode = {
-    format: 'default',
-    stream: fs.createWriteStream(logFile, {flags: 'a'})
-  };
+if ( app.get('env') == 'production' ) {
+	// In production mode write the log in a seperate file
+	logMode = {
+		format: 'default',
+		stream: fs.createWriteStream(logFile, {flags: 'a'})
+	};
 
-  // Set the environment specification for jade
-  app.locals.env = 'production';
-});
+	// Set the environment specification for jade
+	app.locals.env = 'production';
+}
 
-app.configure(function() {
-  app.set('view engine', 'jade');
-  app.set('views', __dirname + '/views');
-  //  Middleware compatibility
-  app.use(express.bodyParser());
-  //  Makes it possible to use app.get and app.delete, rather than use app.post all the time
-  app.use(express.methodOverride());
-  // Logging middleware
-  // TODO: Dafuer sorgen, dass jede Verbindung nur einmal geloggt wird. 
-  // Ergo: Irgendwie die statischen Dateien nicht loggen
-  // app.use(express.logger(logMode));
-  /*  Routes the requests, it would be implicit initialated at the first use of app.get
-  this ensures that routing is done before the static folder is used */
-  app.use(app.router);
-  app.use(express.static(__dirname + '/public'));
-  // Custom 404 page
-  app.use(function(req, res) {
-    res.status(404);
-
-    // Respond with html page
-    if(req.accepts('html')) {
-      res.render('404', {
-        status: 404,
-        title:  'Oops!'
-      });
-    }
-
-  });
-});
-
-
-/**
+// Configure all environments
+	app.set('view engine', 'jade');
+	app.set('views', __dirname + '/views');
+	// Logging middleware
+	// TODO: Dafuer sorgen, dass jede Verbindung nur einmal geloggt wird. 
+	// Ergo: Irgendwie die statischen Dateien nicht loggen
+	// app.use(express.logger(logMode));
+	
+	/**
  * Routing
  */
 
 app.get(['/', '/home', '/index'], routes.index);
 app.get('/graph', routes.graph);
-app.get('/table', routes.table);
+app.get('/table', routes.table);	
+
+// Path to static folder
+app.use(express.static(__dirname + '/public'));
+// Custom 404 page
+app.use(function(req, res) {
+	res.status(404);
+
+	// Respond with html page
+	if(req.accepts('html')) {
+		res.render('404', {
+			status: 404,
+			title:  'Oops!'
+		});
+	}
+
+});
+
 
 /**
 * Configure Socket.io

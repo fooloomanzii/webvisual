@@ -1,7 +1,6 @@
 @echo off
 
 rem Get Admin Rights for the Service creation
-rem "%~dp0" is the path to the current directory
 
 :: BatchGotAdmin
 :-------------------------------------
@@ -16,7 +15,7 @@ if '%errorlevel%' NEQ '0' (
 
 :UACPrompt
     echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
-    echo UAC.ShellExecute "%~s0", "", "", "runas", 1 >> "%temp%\getadmin.vbs"
+    echo UAC.ShellExecute "%~f0", "", "", "runas", 1 >> "%temp%\getadmin.vbs"
 
     "%temp%\getadmin.vbs"
     exit /B
@@ -44,11 +43,23 @@ start /B /WAIT cmd /C "cd %~dp0 & grunt" >NUL 2>&1
 title Messdatenvisualierung (Server)
 echo Server is launching. Please wait...
 
-sc create scadaserver binPath= "C:\windows\system32\cmd.exe /k node %~dp0app.js" type= own start= demand >NUL 2>&1
+set win=%systemroot%
+
+sc create scadaserver binPath= "%win%\system32\cmd.exe /k node %~dp0app.js" type= own start= demand >NUL 2>&1
 sc start scadaserver >NUL 2>&1
 sc delete scadaserver >NUL 2>&1
+
+rem check if server is running or not
+tasklist /FI "IMAGENAME eq node.exe" 2>NUL | find /I /N "node.exe">NUL
+if "%ERRORLEVEL%"=="0" goto RUNNING
+
+:ERROR
+echo Server has some errors! 
+pause
+goto:eof
+
+:RUNNING
 echo Server has started! 
 echo To exit the server, kill the system process "node.exe"
-
 pause
 goto:eof
