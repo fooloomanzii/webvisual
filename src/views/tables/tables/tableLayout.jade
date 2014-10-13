@@ -1,0 +1,42 @@
+extends ../../layout
+
+block style
+  link(rel='stylesheet', href='css/table.css')
+  block tablestyle
+    
+block content
+  .row
+    .small-8.columns
+      h1#title
+    .small-4.columns
+      #dataTimeForm(style='display:none;')
+        h5
+          #dataTimeLabel Last Time
+          #dataTime
+    hr
+  .row
+    .small-6.columns
+      #load
+        center: h4.subheader Messwerte werden geladen ...
+      #data(style='display:none;')
+        table#valueTable
+    .small-6.columns
+      #lastTimeForm 
+        h5#lastTimeLabel Aktualisierungszeiten:
+        h6
+          #rightTimeLabel richtige Nachricht:
+          #lastRTime
+          #wrongTimeLabel falsche Nachricht:
+          #lastWTime    
+          
+  //reveal window for beyonds        
+  div#excModal.reveal-modal.tiny
+    #exceeds
+    a.close-reveal-modal 
+      &#215
+  a#excLink(data-reveal-id='excModal')
+          
+block script
+  script(src='js/dateFormat.js')
+  script(src='js/jquery.dateFormat.js')
+  block tablescript

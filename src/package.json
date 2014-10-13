@@ -5,16 +5,14 @@
   "dependencies": {
     "express": "~4.1.1",
 		"express-error-handler": "~0.5.4",
+		"fs": "*",
     "jade": "~0.31",
     "socket.io": "~0.9",
-		"mongoose": "~3.8.6",
+		"merge-defaults" : "*",
 		"net": "1.0.2",
-    "underscore": "~1.5.2",
-		"typechecker" : ">2.0.0"
+    "underscore": "~1.7.0"
   },
   "devDependencies": {
-    "buster": "~0.6",
-    "buster-win": ">= 0.0.9",
     "grunt": "~0.4.1",
     "grunt-contrib-uglify": "~0.2.4",
     "grunt-contrib-copy": "~0.4.1",
@@ -25,6 +23,6 @@
   },
   "engines": {
     "node": "0.10.x",
-    "npm": "1.2.x"
+    "npm": "1.4.x"
   }
 }

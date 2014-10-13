@@ -3,7 +3,6 @@
 
 // Require
 var parser      = require('../../data_parser'),
-  typechecker = require('typechecker'),
 
 // "Global" variables
   _default    = {
@@ -41,7 +40,7 @@ udpsocket.bind(4000);
 */
 function _error_handler(err) {
   if (err) {
-    if (typechecker.isArray(err) && err.length === 0) {
+    if (Array.isArray(err) && err.length === 0) {
       return;
     }
     console.error("An error occured: ", err);

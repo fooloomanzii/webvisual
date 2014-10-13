@@ -1,9 +1,7 @@
 (function(){
 'use strict';
 // Variables
-var typechecker = require('typechecker'),
-
-  syntax = {
+var syntax = {
     year: /[1234][0-9]{3}/, // 1000 - 2999 are valid
     month: /0[1-9]|1[0-2]/, // 01 - 12 are valid
     day: /0[1-9]|[12][0-9]|3[01]/, // 01 - 31 are valid
@@ -163,7 +161,7 @@ function _validate(type, object) {
     allowed = _deep_clone(allowedOptions[type]),
     tmp, index;
 
-  if(typechecker.isArray(object)) {
+  if($.isArray(object)) {
     for(var i=0; (i<object.length && bool); ++i) {
       tmp = object[i];
 

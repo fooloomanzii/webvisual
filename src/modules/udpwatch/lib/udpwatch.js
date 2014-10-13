@@ -4,7 +4,6 @@
 //Require
 var udpsocket   = require('dgram').createSocket('udp4'),
     fs          = require('fs'),
-    typechecker = require('typechecker'),
 
 //"Global" variables
     _default    = {
@@ -28,7 +27,7 @@ var udpsocket   = require('dgram').createSocket('udp4'),
 */
 function _error_handler(err) {
   if (err) {
-    if (typechecker.isArray(err) && err.length === 0) {
+    if ($.isArray(err) && err.length === 0) {
       return;
     }
     console.error("An error occured: ", err);
@@ -108,7 +107,7 @@ function _log(message, peer, options) {
 }
 
 /* Runs a process_msg function with upgraded callback, 
- * which additionally writes the message to the file. 
+ * that additionally writes the message to the log-file. 
  * */
 function _process_log(message, peer, options, callback) { 
   function finish(errorData, processedData) {

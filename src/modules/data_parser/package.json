@@ -1,8 +1,5 @@
 {
 	"name": "data_parser",
 	"version": "0.1.0",
-	"private": "true",
-	"dependencies": {
-		"typechecker": "~2.0.1"
-	}
+	"private": "true"
 }

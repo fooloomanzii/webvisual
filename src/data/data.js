@@ -40,8 +40,8 @@ var
   udpwatch    = require('../modules/udpwatch'),
   copywatch   = require('../modules/copywatch'),
   data_parser = require('../modules/data_parser'),
+  path_util   = require('path'),
 // Node modules
-  mongoose = require('mongoose'),
   net      = require('net'),
   _        = require('underscore'),
 // Mailer variables and log in information
@@ -60,13 +60,13 @@ var
       // The watching mode ('all', 'append', 'prepend')
       mode: 'all',
       // Default file: Same dir as the "master" script
-      path: 'data.txt',
+      path: __dirname+'/../data.txt',
       // The default parse function from the data_parser module
       process: data_parser.parse
     },
     "udp": {
       // We don't need to make a copy of the data
-      log: true,
+      log: false,
       // The watching mode ('all', 'append', 'prepend')
       mode: 'append',
       // Default port for receiving the data from the source
@@ -207,7 +207,7 @@ connectionFn.file = {
    */
   connect: function(config, emitter) {
     // Log
-    console.log("Started watching \""+config.path+"\"");
+    console.log("Started watching \""+path_util.basename(config.path)+"\"");
     
     // Add the function which recieves the parsed data; calls the emitter
     config.content = emitter;
@@ -466,7 +466,6 @@ DataHandler = (function() {
 
   return _Class;
 })();
-
 
 ////////////
 // Export //

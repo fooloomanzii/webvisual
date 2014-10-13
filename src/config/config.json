@@ -1,4 +1,6 @@
 {
+  "connections": [ "file" , "udp" ],
+  "port": 3000,
 	"data_file":"data.txt",
 	"comment":"at this time only 2 states are avaliable",
 	"states":[
@@ -11,26 +13,27 @@
 		"Pumpe":"off"
 	},
 	"locals":{
-	  "dataTimeLabel":"Letzte Zeit",
+	  "dataTimeLabel":"Letzte Nachricht",
 	  "timeFormat":"dd.MM.yyyy HH:mm:ss",
-		"table":{
-			"title":"Table",
-			"labels":{
-				"title":"2 Columns Table",
-				"corner":"CLIENT",
-				"cols":[
-					"Oben",
-					"Unten"
-				],
-				"rows":{
-					"comment":"count starts from pos 0",
-				    "0":"Motor",
-				    "1":"Pumpe",
-				    "2":"Heizung",
-				    "5":"Irgendwas"
-				},
-				"unnamedRow":"Wert"
-			}
+	  "data":{   
+	    "typeWidth":2,
+	    "subtypes":[
+	      "Oben",
+	      "Unten"
+	    ],
+	    "types":{
+	      "comment":"count starts from pos 0",
+	      "0":"Motor",
+	      "1":"Pumpe",
+	      "2":"Heizung",
+	      "5":"Irgendwas"
+	    }
+	  },
+		"table":{ 
+		  "pageTitle":"Table",
+			"title":"2 Columns Table",
+			"corner":"CLIENT",
+			"unnamedRow":"Wert"
 		},
 		"colors":{
 			"comment":"code or name. ex: #FF0000 or red",

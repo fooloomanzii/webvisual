@@ -3,26 +3,44 @@
 /**
  * Module dependencies
  */
-
 var dataModule = require('./data'),
   routes     = require('./routes'),
+  mailHelper = new require('./modules/mailhelper')(),
   express    = require('express'),
 	errorHandler = require('express-error-handler'),
-	
   fs         = require('fs'),
   _          = require('underscore'),
+  defaultsDeep = require('merge-defaults'), //extended _.defaults
 // Class variables
   threshold   = dataModule.threshold,
   DataHandler = dataModule.DataHandler,
 // Default config
   defaults = {
-    connections: [ 'udp' ],
-    data_file: 'data.txt',
+    connections: [],
     command_file: 'commands.json',
-    port: 3000
+    port: 3000,
+    locals:{
+      dataTimeLabel:"Last Message",
+      timeFormat:"dd.MM.yyyy HH:mm:ss",
+      data:{      
+        types:{},
+        typeWidth:1,
+        subtypes:[],
+      },
+      table:{
+        pageTitle:"Table",
+        title:"Table",
+        corner:"",
+        unnamedRow:"Value"
+      },
+      colors:{
+        under:"#013ADF", 
+        over:"red"
+      }
+    }
   },
 // Configuration, uses default values, if necessary
-  config     = _.defaults(require('./config/config.json'), defaults),
+  config     = defaultsDeep(require('./config/config.json'), defaults),
   logFile    = __dirname + '/log.txt',
   logMode,
   commands,
@@ -47,6 +65,12 @@ _.mixin({
   }
 });
 
+mailHelper.init({
+  from: 'SCADA <webvisual.test@gmail.com>', // sender address
+  to: 'dagnarus@live.ru', // list of receivers
+  subject: 'Data'
+ });
+
 /**
  * Configure the app
  */
@@ -57,12 +81,17 @@ var app    = express(),
 
 server.on('error', function (e) {
     if (e.code == 'EADDRINUSE') {
-      console.log('Address in use, retrying...');
+      console.log('Port '+config.port+' in use, retrying...');
+      console.log("Please check if \"node.exe\" is not already running on this port.");
       setTimeout(function () {
-        server.close();
-        server.listen(PORT, HOST);
+        if(running) server.close();
+        server.listen(config.port);
       }, 1000);
     }
+  })
+  .once('listening', function() {
+    console.log("Server is running under Port %d in %s mode",
+        config.port, app.settings.env);
   });
 
 // Development
@@ -106,7 +135,7 @@ if ( app.get('env') == 'production' ) {
 	// Ergo: Irgendwie die statischen Dateien nicht loggen
 	// app.use(express.logger(logMode));
 	
-	/**
+/**
  * Routing
  */
 
@@ -145,9 +174,9 @@ var userCounter = 0,
   states={},
   connections,
 // Checks the funktions_file for new functions and command_file for available states;
-// reading synchonusly isn't a problem here, since this just happens on startup
+// reading synchronously isn't a problem here, since this just happens on startup
   checkstates = function() {
-    var commands={};
+    commands={};
     
     //if command file exists, read the data from there
     if(fs.existsSync(config.command_file)) {
@@ -226,6 +255,8 @@ var userCounter = 0,
     // Send the data
     socket.emit('data', {states: states});
   }),
+  
+  
 // The config socket
   configSocket = io.of('/config').on('connection', function(socket){
     socket.emit('data', {locals: config.locals});
@@ -236,13 +267,15 @@ var userCounter = 0,
     connection: config.connections,
     listener: {
       error: function(type, err) {
-        //here is the space for reactions on the mistaken data
-        dataSocket.emit('mistake', { data: err });
+        dataSocket.emit('mistake', { data: err, time: new Date()});
       },
       data: [
   
         // SocketIO Listener
         function(type, data) {
+          
+          // Store the current message time
+          currentData.time=new Date();
           
           var sendEvent = 'data';
   
@@ -252,8 +285,19 @@ var userCounter = 0,
             waitFirst = false;
           }
           
-          // Check for threshold variances and save it
-          currentData.variances=threshold.getVariances(data);
+          // Check for threshold exceeds and save it
+          currentData.exceeds=threshold.getExceeds(data, function(exceeds){
+            var unders=exceeds[0].reduce(function(a, b) {return a+b}),
+                overs=exceeds[1].reduce(function(a, b) {return a+b});
+            var exceedsStr="";
+            if(unders){
+              exceedsStr+="Items under the threshold: "+unders;
+            }
+            if(overs){
+              exceedsStr+="Items over the threshold: "+overs;
+            }
+            console.log(exceedsStr);
+          });
   
           // Save the current data
           currentData.data=data;
@@ -276,25 +320,49 @@ var userCounter = 0,
     
   });  
 
-
 /**
  * Get it running!
  */
-checkstates();
-connections.connect();
-server.listen(config.port);
+checkstates(); // check states of options
+connections.connect(); // establish all connections
+server.listen(config.port); // get the server running
+/* TODO change to logger
+ * mailHelper.startDelayed(1000, function(){
+  if(error){
+    console.log('Mailing error: ' + error);
+  }else{
+    console.log('E-Mail sent: ' + info.response);
+  }
+});*/
 
-console.log("Server is running under Port %d in %s mode",
-    config.port, app.settings.env);
-
+/**
+ * Handle various process events
+ */
 process.on('uncaughtException', function(err) {
-  server.close();
+  try {
+    server.close();
+  } catch (e) {
+    if(e.message !== 'Not running')
+      throw e;
+  }
+  throw err;
 });
 
-process.on('SIGTERM', function(err) {
-  server.close();
+/* SIGINT can usually be generated with Ctrl-C */
+process.on('SIGINT', function(err) {
+  try {
+    server.close();
+  } catch (err) {
+    if(err.message !== 'Not running')
+      throw err;
+  }
 });
 
 process.on('exit', function(err) {
-  server.close();
+  try {
+    server.close();
+  } catch (err) {
+    if(err.message !== 'Not running')
+      throw err;
+  }
 });

@@ -1,57 +1,7 @@
-extends ../../layout
+extends tableLayout
 
-block style
-  link(rel='stylesheet', href='css/table.css')
-  
-block style
-  style.
-    .sub {
-      font-weight: normal;
-      color: #1E90FF;
-    }
-    #valueTable{
-      border-style: hidden;
-    }
-    .valRow:hover{
-      background: #D8D8D8;
-    }
-    #valCols{
-      border-bottom: 1px solid #2a73a6;
-    }
-    .valGroup{
-      border-right: 1px solid #2a73a6;
-    }
-
-    
-block content
-  .row
-    .small-8.columns
-      h1#title
-    .small-4.columns
-      #dataTimeForm(style='display:none;')
-        h5
-          #dataTimeLabel Last Time
-          #dataTime
-    hr
-  .row
-    .small-6.columns
-      center: h4.subheader#load Messwerte werden geladen ...
-      #data(style='display:none;')
-        table#valueTable
-    .small-6.columns
-      #lastTimeForm 
-        h5#lastTimeLabel Aktualisierungszeiten:
-        h6
-          #rightTimeLabel richtige Nachricht:
-          #lastRTime
-          #wrongTimeLabel falsche Nachricht:
-          #lastWTime    
-
-block script
-  script(src='js/dateFormat.js')
-  script(src='js/jquery.dateFormat.js')
-
+block tablescript
   if locals.env == 'development'
-    script(src='js/table/table.js')
+    script(src='js/table/table.js',type='text/javascript')
   else
     script(src='js/table/table.min.js')

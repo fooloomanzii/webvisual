@@ -2,16 +2,10 @@
   'use strict';
   
   var numCols,
-    labelsArray={ //default-Values
-      "PageTitle":"Table",
-      "title":"",
-      "corner":"",
-      "cols":[],
-      "rows":{},
-      "unnamedRow":"Value"
-    },
+    labelsArray,
     valuesArray,
-    limitsArray={};
+    exceedsArray,
+    sel;
 
   // Check which value need to be chosen at the start
   function firstSelect(){
@@ -28,68 +22,87 @@
   // Arrange locals from Configuration data out of the data object
   function arrangeLocals(locals){
     if(locals){
-      if(locals.table){
-        if(locals.table.title){
-          labelsArray.pageTitle=locals.table.title;
-        }
-        if(locals.table.colors){
-          if(locals.table.colors.under) {
-            $('body').prepend('<style> .under { color: ' + locals.table.colors.under + ' } </style>');
-          }
-          if(locals.table.colors.over) {
-            $('body').prepend('<style> .over { color: ' + locals.table.colors.over + ' } </style>');
-          }
-        }
-        if(locals.table.labels){
-          if(locals.table.labels.title) {
-            labelsArray.title=locals.table.labels.title;
-          }
-          if(locals.table.labels.corner) {
-            labelsArray.corner=locals.table.labels.corner;
-          }
-          if(locals.table.labels.cols) {
-            labelsArray.cols=locals.table.labels.cols;
-          }
-          if(locals.table.labels.rows) {
-            labelsArray.rows=locals.table.labels.rows;
-          }
-          if(locals.table.labels.unnamedRow) {
-            labelsArray.unnamedRow=locals.table.labels.unnamedRow;
-          }
-        }
-      }
-      if(locals.limits){
-        limitsArray=locals.limits;
-      }
+      labelsArray=locals
+      $('body').prepend('<style> .under { color: ' + 
+          locals.colors.under + ' } </style>');
+      $('body').prepend('<style> .over { color: ' + 
+          locals.colors.over + ' } </style>');
+    } else {
+      //TODO some message;
     }
   
     // Set the title of the Page
-    document.title=labelsArray.pageTitle;
-    // Resolve the number of columns
-    numCols=(Object.keys(labelsArray.cols).length||1);
+    document.title=labelsArray.table.pageTitle;
+    // Date & Time from the last Message
+    $('#dataTimeLabel').text(labelsArray.dataTimeLabel)
+    $('#dataTime').text("...");
     
-    // Clear the old labels
-    $('#signs').html("");  
-    // Set labels in the first row
-    $('#signs').append('<h3 class="subheader">'+(labelsArray.cols[0]||'')+'</h3>');
+    // Clear the Table
+    $('#valueTable').html('<tr id="tableHead"></tr><tr id="valCols"></tr>');
+    $('#tableHead').html('<td><a id="toTable" class="custom button">Full Table</a></td>');
+    
+    $('#tableHead').append('<td><select id="sel"></select></td>');
+    
+    $('#valCols').html('<td id="signs"></td><td id="werte"></td>');  
+    
+    // Resolve the number of columns
+    numCols=labelsArray.data.typeWidth;
+    if(numCols<1) numCols=1;
     // Create the array of labels for the values
-    for(var i = 1; i<numCols; i++){
-      $('#signs').append('<h3 class="subheader">'+labelsArray.cols[i]+'</h3>');
+    for(var i = 0; i<numCols; i++){
+      $('#signs').append('<h3 class="subheader">'+ (labelsArray.data.subtypes[i]||i+1)+'</h3>');
     }    
   }
   
   // Check if the value at given position stay in the limits
   function checkColor(pos){
-    if(limitsArray[pos]&&limitsArray[pos].length==2){
-      if (valuesArray[pos]<limitsArray[pos][0]) return 'under';
-      if (valuesArray[pos]>limitsArray[pos][1]) return 'over';
+    if(exceedsArray && exceedsArray.length==2){
+      if (exceedsArray[0][pos]) return 'under';
+      if (exceedsArray[1][pos]) return 'over';
     }
     return "";
   }
   
+//Handle the exceeds and if there any, show them
+  function showExceeds(){
+    var exceedsHTML="";
+    var i;
+    var pos = $.inArray(true,exceedsArray[0]);
+    if(pos > -1){ 
+      exceedsHTML += "Under the threshold:<br><ul>";
+      while(pos > -1){
+        exceedsHTML+="<li>";
+        i=parseInt(pos/numCols, 10);
+        exceedsHTML+=(labelsArray.data.types[i]||labelsArray.table.unnamedRow+' '+(i+1));
+        exceedsHTML+=", "+(labelsArray.data.subtypes[pos%numCols]||(pos%numCols)+1)+";<br>";
+        exceedsHTML+="</li>";
+        pos = $.inArray(true,exceedsArray[0],pos+1);
+      }
+      exceedsHTML+="</ul>";
+    }
+    pos = $.inArray(true,exceedsArray[1]);
+    if(pos > -1){ 
+      exceedsHTML += "Over the threshold:<br><ul>";
+      while(pos > -1){
+        exceedsHTML+="<li>";
+        i=parseInt(pos/numCols, 10);
+        exceedsHTML+=(labelsArray.data.types[i]||labelsArray.table.unnamedRow+' '+(i+1));
+        exceedsHTML+=", "+(labelsArray.data.subtypes[pos%numCols]||(pos%numCols)+1)+";<br>";
+        exceedsHTML+="</li>";
+        pos = $.inArray(true,exceedsArray[1],pos+1);
+      }
+      exceedsHTML+="</ul>";
+    }
+    $('#exceeds').html(exceedsHTML);
+    if(exceedsHTML) $('#excLink').click();
+  }
+  
   // Arrange the values out of the data object
-  function arrangeData(data){
+  function arrangeData(data, exceeds){
     if(!data || data.length === 0) return;
+    
+    // Get the threshold exceeds
+    exceedsArray = exceeds;
     
     // Use the last entry of the array; this is arbitrary
     valuesArray = data.pop().values;
@@ -99,13 +112,17 @@
     // Fill the select box
     for(var i=0; i<parseInt(valuesArray.length/numCols, 10); ++i) {
       $('#sel').append(jQuery('<option />', {'value': i, 
-        text: (labelsArray.rows[i]||labelsArray.unnamedRow+' '+(i+1))}));
+        text: (labelsArray.data.types[i]||labelsArray.table.unnamedRow+' '+(i+1))}));
     }
   }
   
   // Renew the values layout with that out of the data object
-  function renewValues(data){
+  function renewValues(data, exceeds){
     if(!data || data.length === 0) return;
+    
+    // Get the threshold exceeds
+    exceedsArray = exceeds;
+    showExceeds();
     
     // Get last line from values-Array
     valuesArray = data.pop().values;
@@ -114,8 +131,8 @@
     var i = $('#sel').val()*2;
     $('#value'+i).removeClass();
     $('#value'+i).text(valuesArray[i]);
-    $('#value'+i).addClass(checkColor(i++));
-    
+    $('#value'+i).addClass(checkColor(i));
+    i++;
     $('#value'+i).removeClass();
     $('#value'+i).text(valuesArray[i]);
     $('#value'+i).addClass(checkColor(i));
@@ -127,60 +144,79 @@
     NProgress.start();
       
       var configSocket = io.connect('http://'+window.location.host+'/config');
+      var dataSocket;
       
-      // Receive the data
+      // Receive config data (labels etc.)
       configSocket.on('data', function(message) {
         if(message === undefined) return;
         // Arrange labels and limits
         arrangeLocals(message.locals);
-      });
-      
-      var dataSocket = io.connect('http://'+window.location.host+'/data');
-      // The first data
-      dataSocket.on('first', function(message) {
-        if(message === undefined) return;
         
-        // Arrange the data
-        arrangeData(message.data);
-        
-        // Trigger the change to show the values at start
-        $('#sel option').eq(firstSelect()).prop('selected', true);
-        $('#sel').trigger('change');
+     // Connect to the data socket only if config data is received
+        dataSocket = io.connect('http://'+window.location.host+'/data');
+        // The first data
+        dataSocket.on('first', function(message) {
+          if(message === undefined) return;
           
-        // Better interface for the selection box
-        if($('.customSelect').length <= 0) $('#sel').customSelect();
+          // Set the time Label
+          $('#lastRTime').text(
+              $.format.toBrowserTimeZone(message.time,labelsArray.timeFormat))
+              
+          // Arrange the data
+          arrangeData(message.data, message.exceeds);
+          
+          // Trigger the change to show the values at start
+          $('#sel option').eq(firstSelect()).prop('selected', true);
+          $('#sel').trigger('change');
+            
+          // Better interface for the selection box
+          if($('.customSelect').length <= 0) $('#sel').customSelect();
 
-        // Hide the loading message
-        $('#load').fadeOut(undefined, function() {
-          // Show the data and finish progress bar
-          $('#data').fadeIn(undefined,
-            NProgress.done);
+          // Hide the loading message
+          $('#load').fadeOut(undefined, function() {
+            // Show the data and finish progress bar
+            $('#data').fadeIn(undefined,
+              NProgress.done);
+          });
+        });
+
+        // Next data
+        dataSocket.on('data', function(message) {
+          if(message === undefined) return;
+          
+          // Set the time Label
+          $('#lastRTime').text(
+              $.format.toBrowserTimeZone(message.time,labelsArray.timeFormat))
+              
+          renewValues(message.data, message.exceeds)
+        });  
+        
+        // Mistaken data
+        dataSocket.on('mistake', function(message) {
+          // Set the time Label
+          $('#lastWTime').text(
+              $.format.toBrowserTimeZone(message.time,labelsArray.timeFormat))
+        });
+      
+        // Handle the Button, that leads to the full Table
+        $('#toTable').on('click',function(e){
+          window.location.search="";
+          });
+        
+        // Handle the Dropdown selection
+        $('#sel').on('change', function (e) {
+          //C hange the title of the Page
+          document.title=labelsArray.table.pageTitle+" - "+$('#sel option:selected').text();
+          // Change the local title
+          $('#title').text(labelsArray.table.title+" - "+$('#sel option:selected').text());
+          var i = $(this).val()*2;
+          $("#werte").html($('<h3 />', {'id': 'value'+i, 'class': checkColor(i), 
+            'text': valuesArray[i]}));
+          $('<h3 />', {'id': 'value'+(++i), 'class': checkColor(i), 
+            'text': valuesArray[i]}).appendTo('#werte');
         });
       });
-
-      // Next data
-      dataSocket.on('data', function(message) {
-        if(message === undefined) return;
-        renewValues(message.data)
-      });
       
-      // Handle the Dropdown selection
-      $('#sel').on('change', function (e) {
-        //C hange the title of the Page
-        document.title=labelsArray.pageTitle+" - "+$('#sel option:selected').text();
-        // Change the local title
-        $('#title').text(labelsArray.title+" - "+$('#sel option:selected').text());
-        var i = $(this).val()*2;
-        $('#werte').html(jQuery('<h3 />', {'id': 'value'+(i), 'class': checkColor(i), 
-          'text': valuesArray[i]}));
-        jQuery('<h3 />', {'id': 'value'+(++i), 'class': checkColor(i), 
-          'text': valuesArray[i]}).appendTo('#werte');
-      });
-      
-      // Handle the click Button, that leads to the full Table
-      $('#toTable').on('click',function(e){
-        window.location.search="";
-        });
 
       // Public stuff
       return {

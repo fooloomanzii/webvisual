@@ -42,9 +42,8 @@ The function returns a watcher instance or a array of watcher if multiple paths 
 'use strict';
 
 // Require
-var fs          = require('fs'),
+var fs        = require('fs'),
   path_util   = require('path'),
-  typechecker = require('typechecker'),
   watchr      = require('watchr'),
 
 // "Global" variables
@@ -71,7 +70,7 @@ var fs          = require('fs'),
 */
 function _error_handler(err) {
   if (err) {
-    if (typechecker.isArray(err) && err.length === 0) {
+    if ($.isArray(err) && err.length === 0) {
       return;
     }
     console.error("An error occured: ", err);
@@ -335,6 +334,7 @@ function _create_watch_options(mode, options) {
 function _handle_change(event, path, currStat, prevStat, options) {
   // Test/create event - process the changes
   if (event === 'update' || event === 'create') {
+    console.log(path+' was updated');
     if (options.mode === 'append') {
       options.work_function(path, prevStat.size, undefined, options.process, options.content);
     } else if (options.mode === 'prepend') {
@@ -345,6 +345,7 @@ function _handle_change(event, path, currStat, prevStat, options) {
   }
   //  Delete event - delete the copied version
   else if (event === 'delete') {
+    console.log(path+' was deleted');
     // We don't need to delete the copied file if there is no copied file
     fs.exists(path+_extension, function(exists) {
       if(exists) fs.unlink(path+_extension, options.watch_error);
