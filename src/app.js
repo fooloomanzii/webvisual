@@ -5,7 +5,7 @@
  */
 var dataModule = require('./data'),
   routes     = require('./routes'),
-  mailHelper = new require('./modules/mailhelper')(),
+  mailHelper = new require('./modules/mailhelper')('exceeds'),
   express    = require('express'),
 	errorHandler = require('express-error-handler'),
   fs         = require('fs'),
@@ -70,6 +70,8 @@ mailHelper.init({
   to: 'dagnarus@live.ru', // list of receivers
   subject: 'Data'
  });
+mailHelper.setType('html');
+mailHelper.setDelay(1000);
 
 /**
  * Configure the app
@@ -192,8 +194,8 @@ var userCounter = 0,
             newname=config.command_file+'.bak_'+i;
             i++;
           }
-          fs.renameSync(config.command_file,newname)
-            console.log("File "+config.command_file+
+          fs.renameSync(config.command_file,newname);
+          console.log("File "+config.command_file+
                 " has incorrect JSON data and was renamed to "+newname);
         }
       }
@@ -287,16 +289,38 @@ var userCounter = 0,
           
           // Check for threshold exceeds and save it
           currentData.exceeds=threshold.getExceeds(data, function(exceeds){
-            var unders=exceeds[0].reduce(function(a, b) {return a+b}),
-                overs=exceeds[1].reduce(function(a, b) {return a+b});
-            var exceedsStr="";
-            if(unders){
-              exceedsStr+="Items under the threshold: "+unders;
+            var exceedsHTML="", numCols=config.locals.data.typeWidth;
+            var i;
+            var pos = exceeds[0].indexOf(true);
+            if(pos > -1){ 
+              exceedsHTML += "Under the threshold:<br><ul>";
+              while(pos > -1){
+                exceedsHTML+="<li>";
+                i=parseInt(pos/numCols, 10);
+                exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
+                exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
+                exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
+                exceedsHTML+="</li>";
+                pos = exceeds[0].indexOf(true,pos+1);
+              }
+              exceedsHTML+="</ul>";
             }
-            if(overs){
-              exceedsStr+="Items over the threshold: "+overs;
+            pos = exceeds[1].indexOf(true);
+            if(pos > -1){ 
+              exceedsHTML += "Over the threshold:<br><ul>";
+              while(pos > -1){
+                exceedsHTML+="<li>";
+                i=parseInt(pos/numCols, 10);
+                exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
+                exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
+                exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
+                exceedsHTML+="</li>";
+                pos = exceeds[1].indexOf(true,pos+1);
+              }
+              exceedsHTML+="</ul>";
             }
-            console.log(exceedsStr);
+            if(exceedsHTML) exceedsHTML=currentData.time+":<br>"+exceedsHTML;
+            mailHelper.appendMsg(exceedsHTML);
           });
   
           // Save the current data
@@ -326,14 +350,13 @@ var userCounter = 0,
 checkstates(); // check states of options
 connections.connect(); // establish all connections
 server.listen(config.port); // get the server running
-/* TODO change to logger
- * mailHelper.startDelayed(1000, function(){
+mailHelper.startDelayed(function(error,info){
   if(error){
     console.log('Mailing error: ' + error);
   }else{
     console.log('E-Mail sent: ' + info.response);
   }
-});*/
+});
 
 /**
  * Handle various process events

@@ -25,15 +25,14 @@ function getExceeds(data, exceedsHandler){
   // iterate through all data values
   for(var i=0; i<n; i++) {
     for(var j=funclen*i; j<funclen*(i+1);j++){
-      // Compare with defaults
-      if(limits.default && limits.default.length==2 ){
-        exceeds[0][j]=(data[tmp].values[j]<limits.default[0]);
-        exceeds[1][j]=(data[tmp].values[j]>limits.default[1]);
-      }
       // Compare with special thresholds
       if(limits[i] && limits[i].length==2){
         exceeds[0][j]=(data[tmp].values[j]<limits[i][0]);
         exceeds[1][j]=(data[tmp].values[j]>limits[i][1]);
+      // Compare with defaults
+      }else if (limits.defaults && limits.defaults.length==2 ){
+        exceeds[0][j]=(data[tmp].values[j]<limits.defaults[0]);
+        exceeds[1][j]=(data[tmp].values[j]>limits.defaults[1]);
       }
     }
   }

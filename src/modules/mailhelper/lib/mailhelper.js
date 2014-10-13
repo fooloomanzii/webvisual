@@ -3,7 +3,9 @@
 
 var nodemailer = require('nodemailer'),
     smtpTransport = require('nodemailer-smtp-transport'),
-    _ = require('underscore');
+    _ = require('underscore'),
+    fs = require('fs'),
+    EventEmitter = require('events').EventEmitter;
     //emailRegex = '/^[a-z][a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,4}$/i'
 
 var MailHelper = (function() {
@@ -11,10 +13,16 @@ var MailHelper = (function() {
         from: 'SCADA <webvisual.test@gmail.com>', // sender address
         subject: 'Node.js Mail', // Subject line
       },
-      delay = 1*60*1000, //delay in milliseconds
-      options,
-      type='text',
-      transporter = nodemailer.createTransport(smtpTransport({
+      logDir='../',
+      currFileName='currMsg',
+      lastFileName='lastMsg',
+      fileExt='log';
+  
+  // initialize Object variables with default values
+  _Class.prototype.delay = 5*60*1000; //delay in milliseconds
+  _Class.prototype.type='text';
+  _Class.prototype.shippList={};
+  _Class.prototype.transporter = nodemailer.createTransport(smtpTransport({
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,
@@ -23,58 +31,98 @@ var MailHelper = (function() {
             pass: '148148148'
         }
       }));
-
-  //Constructor
-  function _Class(config) {
-    // Ensure the constructor was called correctly with 'new'
-    if( !(this instanceof _Class) ) return new _Class(config);
+  
+  //Configure Emitter
+  _Class.prototype._emitter = new EventEmitter();
+  
+  _Class.prototype._emitter.on('appendMsg', function(message){
+    if(typeof(message.msg) == 'undefined') return;
+    fs.appendFileSync(message.currFile, message.msg);
+  });
+  
+  _Class.prototype._emitter.on('sendMsg', function(message){
+    if(!fs.existsSync(message.self.currFile))
+      return message.cb(null,{response: "Nothing to Send."});
     
+    var curr = new Date().getTime(),
+        path = message.self.lastFile(curr),
+        mailOptions = JSON.parse(JSON.stringify(message.self.options));
+    fs.renameSync(message.self.currFile, path);
+    fs.readFile(path, function (err, data) {
+      if (err) {
+        //TODO handle error
+      }
+      if(!data) return message.cb(null,{response: "Nothing to Send."});
+      mailOptions[message.self.type]=data;
+      message.self.transporter.sendMail(mailOptions, function(err,info){
+        if(err){       
+          //TODO may be multiply tries to send this mail
+        } else {
+          fs.unlink(path, function (err) {
+            if (err) {
+              //TODO handle error
+            }
+            console.log('successfully deleted '+path);
+          });
+        }
+        message.cb(err,info);
+      });
+    });
+  });
+  
+  // Constructor
+  function _Class(id, config) {
+    // Ensure the constructor was called correctly with 'new'
+    if( !(this instanceof _Class) ) return new _Class(id, config);
+    
+    this.id = id;
+    if(!fs.existsSync(logDir+this.id)) fs.mkdirSync(logDir+this.id);
+    this.currFile=logDir+this.id+'/'+currFileName+'.'+fileExt;
+    this.lastFile = function(suff){
+      return logDir+this.id+'/'+lastFileName+'.'+suff+'.'+fileExt;
+    };
     this.init(config);
   }
   
   // Re-/Initialize object with new options
   _Class.prototype.init = function(config) {
     // The threshhold value
-    if(config) options = _.defaults(config,defaults);
-    else options = defaults;
+    if(config) this.options = _.defaults(config,defaults);
+    else this.options = defaults;
+    //TODO do sth. if lastMsg exists
+  };
+  
+  // Get id of current Object
+  _Class.prototype.getId = function() {
+    return this.id;
   };
   
   // ptype: 'html' or 'text' for HTML <-> Plain Text Mesages
-  _Class.prototype.setType = function(ptype) {
-    type=ptype;
+  _Class.prototype.setType = function(type) {
+    if(type === 'html'||type === 'text')
+      this.type=type;
+  };
+  
+  _Class.prototype.appendMsg = function(msg) {
+    this._emitter.emit('appendMsg', {currFile: this.currFile, msg: msg});
   };
  
-  /* Send a message
-   * msg: Not empty String
-   * type: 'html'/'text'
+  /* Send a stored message
    * callback(err,info): function to handle the response
    */
-  _Class.prototype.sendMsg = function(msg, type, callback){
-    var cb;
-    if(callback && typeof(callback) == 'function'){
-      if(!msg){
-        callback('Empty Message!', null);
-        return;
-      }
-      cb=callback;
-    }
-    if(type){
-      if(type === 'html'||type === 'text')
-        options[type]=msg;
-      else if(typeof(type) == 'function'){
-        if(!msg){
-          type('Empty Message!', null);
-          return;
-        }
-        options.text=msg;
-        cb=type;
-      }
-    } else {
-      options.text=msg;
-    }
-    if(!msg) return;
-    transporter.sendMail(options, cb);
-  }
+  _Class.prototype.sendMsg = function(callback){
+    this._emitter.emit('sendMsg', {self: this, cb: callback});
+  };
+  
+  _Class.prototype.setDelay = function(delay){
+    if(delay<1000) return;
+    this.delay=delay;
+  };
+  
+  _Class.prototype.startDelayed = function(callback){
+    var self=this;
+    setInterval(function(){self.sendMsg(callback);},this.delay);
+  };
   
   // Send a message of Plain Text Type 
   _Class.prototype.sendText = function(msg, callback) {
@@ -82,11 +130,11 @@ var MailHelper = (function() {
       if(callback) callback('Empty Message!', null);
       return;
     }
-    options.text=msg;
+    this.options.text=msg;
     if((callback && typeof(callback) == 'function')){
-      transporter.sendMail(options, callback);
+      this.transporter.sendMail(options, callback);
     } else {
-      transporter.sendMail(options);
+      this.transporter.sendMail(options);
     }    
   };
   
@@ -98,41 +146,40 @@ var MailHelper = (function() {
     }
     options.html=msg;
     if((callback && typeof(callback) == 'function')){
-      transporter.sendMail(options, callback);
+      this.transporter.sendMail(options, callback);
     } else {
-      transporter.sendMail(options);
+      tthis.ransporter.sendMail(options);
     }  
   };
   
   // Add an e-mail to the list of receivers (cannot be empty)
   _Class.prototype.addTo = function(to) {
     if(!to) return;
-    if(options.to) options.to+=", ";
-    options.to+=to;
+    if(this.options.to) this.options.to+=", ";
+    this.options.to+=to;
   };
   
   // Set new list of receivers (cannot be empty)
   _Class.prototype.setTo = function(to) {
     if(!to) return;
-    options.to=to;
+    this.options.to=to;
   };
   
   // Set new subject
   _Class.prototype.setSubject = function(subj) {
-    if(!subj) return;
-    options.subject=subj;
+    if(typeof(subj) == 'undefined') return;
+    this.options.subject=subj;
   };
   
   // Set new transporter
-  _Class.prototype.setTransporter = function(transp) {
-    if(!transp) return;
-    transporter=transp;
+  _Class.prototype.setTransporter = function(transporter) {
+    if(!transporter) return;
+    this.transporter=transporter;
   };
   
   //make a MailHelper to a Class
   return _Class;
 })();
-
 
 // Module exports
 module.exports = MailHelper;

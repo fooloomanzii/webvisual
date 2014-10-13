@@ -9,13 +9,14 @@
   // Arrange locals from Configuration data out of the data object
   function arrangeLocals(locals){
     if(locals){
-      labelsArray=locals
+      labelsArray=locals;
       $('body').prepend('<style> .under { color: ' + 
           locals.colors.under + ' } </style>');
       $('body').prepend('<style> .over { color: ' + 
           locals.colors.over + ' } </style>');
     } else {
       //TODO some message;
+      throw new Error("No locals received!");
     }
     
     // Set the title of the Page
@@ -53,7 +54,8 @@
     return "";
   }
   
-  //Handle the exceeds and if there any, show them
+  // Handle the exceeds and if there any, show them
+  //be sure, that exceedsArray was initialized
   function showExceeds(){
     var exceedsHTML="";
     var i;
@@ -64,7 +66,8 @@
         exceedsHTML+="<li>";
         i=parseInt(pos/numCols, 10);
         exceedsHTML+=(labelsArray.data.types[i]||labelsArray.table.unnamedRow+' '+(i+1));
-        exceedsHTML+=", "+(labelsArray.data.subtypes[pos%numCols]||(pos%numCols)+1)+";<br>";
+        exceedsHTML+=", "+(labelsArray.data.subtypes[pos%numCols]||(pos%numCols)+1);
+        exceedsHTML+=": "+valuesArray[pos]+";<br>";
         exceedsHTML+="</li>";
         pos = $.inArray(true,exceedsArray[0],pos+1);
       }
@@ -77,7 +80,8 @@
         exceedsHTML+="<li>";
         i=parseInt(pos/numCols, 10);
         exceedsHTML+=(labelsArray.data.types[i]||labelsArray.table.unnamedRow+' '+(i+1));
-        exceedsHTML+=", "+(labelsArray.data.subtypes[pos%numCols]||(pos%numCols)+1)+";<br>";
+        exceedsHTML+=", "+(labelsArray.data.subtypes[pos%numCols]||(pos%numCols)+1);
+        exceedsHTML+=": "+valuesArray[pos]+";<br>";
         exceedsHTML+="</li>";
         pos = $.inArray(true,exceedsArray[1],pos+1);
       }
@@ -88,6 +92,7 @@
   }
   
   // Arrange the values out of the data object
+  // be sure, that labelsArray was initialized
   function arrangeData(data, exceeds){
     if(!data || data.length == 0 ) return;
     
@@ -120,12 +125,11 @@
   function renewValues(data, exceeds){
     if(!data || data.length == 0 ) return; 
     
-    exceedsArray = exceeds;
-    showExceeds();
-    
     data=data.pop();
     
     valuesArray = data.values;
+    exceedsArray = exceeds;
+    showExceeds();
     $('#dataTime').text($.format.toBrowserTimeZone(
         data.date,labelsArray.timeFormat));
     
@@ -145,7 +149,7 @@
     NProgress.start();
 
     var configSocket = io.connect('http://'+window.location.host+'/config');
-    var dataSocket;
+    var dataSocket = null;
     
     // Receive config data (labels etc.)
     configSocket.on('data', function(message) {
@@ -159,8 +163,8 @@
       // Waiting status
       dataSocket.on('wait', function() {
         // Change the loading message
-        $('#load').text("Seit Start des Servers war noch nichts empfangen...")
-      })
+        $('#load').text("Seit Start des Servers war noch nichts empfangen...");
+      });
       
       // The first data
       dataSocket.on('first', function(message) {
@@ -168,7 +172,7 @@
         
         // Set the time Label
         $('#lastRTime').text(
-            $.format.toBrowserTimeZone(message.time,labelsArray.timeFormat))
+            $.format.toBrowserTimeZone(message.time,labelsArray.timeFormat));
 
         // Arrange the received data
         arrangeData(message.data, message.exceeds);
@@ -191,7 +195,7 @@
         
         // Set the time Label
         $('#lastRTime').text(
-            $.format.toBrowserTimeZone(message.time,labelsArray.timeFormat))
+            $.format.toBrowserTimeZone(message.time,labelsArray.timeFormat));
         
         renewValues(message.data, message.exceeds);
       });
@@ -200,7 +204,7 @@
       dataSocket.on('mistake', function(message) {
         // Set the time Label
         $('#lastWTime').text(
-            $.format.toBrowserTimeZone(message.time,labelsArray.timeFormat))
+            $.format.toBrowserTimeZone(message.time,labelsArray.timeFormat));
       });
     });
     

@@ -74,7 +74,8 @@
         exceedsHTML+="<li>";
         i=parseInt(pos/numCols, 10);
         exceedsHTML+=(labelsArray.data.types[i]||labelsArray.table.unnamedRow+' '+(i+1));
-        exceedsHTML+=", "+(labelsArray.data.subtypes[pos%numCols]||(pos%numCols)+1)+";<br>";
+        exceedsHTML+=", "+(labelsArray.data.subtypes[pos%numCols]||(pos%numCols)+1);
+        exceedsHTML+=": "+valuesArray[pos]+";<br>";
         exceedsHTML+="</li>";
         pos = $.inArray(true,exceedsArray[0],pos+1);
       }
@@ -87,7 +88,8 @@
         exceedsHTML+="<li>";
         i=parseInt(pos/numCols, 10);
         exceedsHTML+=(labelsArray.data.types[i]||labelsArray.table.unnamedRow+' '+(i+1));
-        exceedsHTML+=", "+(labelsArray.data.subtypes[pos%numCols]||(pos%numCols)+1)+";<br>";
+        exceedsHTML+=", "+(labelsArray.data.subtypes[pos%numCols]||(pos%numCols)+1);
+        exceedsHTML+=": "+valuesArray+";<br>";
         exceedsHTML+="</li>";
         pos = $.inArray(true,exceedsArray[1],pos+1);
       }
