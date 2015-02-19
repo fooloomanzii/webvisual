@@ -19,9 +19,6 @@ exit
 :UPDATE
 echo Install packages. This can take a moment ...
 start /WAIT cmd /C "cd %~dp0 & npm.cmd update"
-echo Packages installed. Start server now.
-echo.
-pause
 goto:eof
 
 :END

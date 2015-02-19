@@ -350,13 +350,18 @@ var userCounter = 0,
 checkstates(); // check states of options
 connections.connect(); // establish all connections
 server.listen(config.port); // get the server running
-mailHelper.startDelayed(function(error,info){
+
+/*mailHelper.startDelayed(function(error,info){
   if(error){
     console.log('Mailing error: ' + error);
   }else{
-    console.log('E-Mail sent: ' + info.response);
+    if(info.response) console.log('E-Mail sent: ' + info.response  );
+    else{
+      for( var i in info.pending[0].recipients[0]) console.log(i);
+      console.log('E-Mail sent: ' + info.pending[0].recipients[0]  );
+    }
   }
-});
+});*/
 
 /**
  * Handle various process events

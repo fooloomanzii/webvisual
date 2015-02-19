@@ -3,6 +3,7 @@
 
 var nodemailer = require('nodemailer'),
     smtpTransport = require('nodemailer-smtp-transport'),
+    directTransport = require('nodemailer-direct-transport'),
     _ = require('underscore'),
     fs = require('fs'),
     EventEmitter = require('events').EventEmitter;
@@ -22,7 +23,8 @@ var MailHelper = (function() {
   _Class.prototype.delay = 5*60*1000; //delay in milliseconds
   _Class.prototype.type='text';
   _Class.prototype.shippList={};
-  _Class.prototype.transporter = nodemailer.createTransport(smtpTransport({
+  _Class.prototype.transporter = nodemailer.createTransport(
+      smtpTransport({
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,
@@ -30,7 +32,8 @@ var MailHelper = (function() {
             user: 'webvisual.test@gmail.com',
             pass: '148148148'
         }
-      }));
+      })
+   );
   
   //Configure Emitter
   _Class.prototype._emitter = new EventEmitter();

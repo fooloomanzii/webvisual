@@ -1,6 +1,6 @@
 @echo off
 call init.bat
-call grunt
+echo Packages installed.
 
 title Messdatenvisualierung (Server)
 echo Server is launching. Please wait...
