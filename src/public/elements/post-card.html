@@ -1,0 +1,119 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../bower_components/paper-dropdown/paper-dropdown.html">
+<link rel="import" href="../bower_components/core-menu/core-menu.html">
+<link rel="import" href="../bower_components/core-collapse/core-collapse.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+<link rel="import" href="../bower_components/paper-button/paper-button-base.html">
+
+<polymer-element name="post-card" attributes="raised recenteringTouch fill" extends="paper-button-base" role="button" touch-action='none'>
+  <template>
+    <style>
+      :host {
+        position: relative;
+        background: #ffffff;
+        color: #1d1d1d;
+        border-radius: 5px;
+        overlay: hidden;
+        display: inline-block;
+        z-index: 0;
+        box-sizing: border-box;
+        padding: 8px;
+        margin: 4px;
+        outline: none;
+      }
+
+      :host(:hover) {
+        /*background-color: rgba(118, 193, 123, 0.15);*/
+        outline: none;
+      }
+
+      div {
+        line-height: 1em;
+      }
+
+      #bg, #shadow {
+        border-radius: inherit;
+      }
+
+      #ripple {
+        color: #669db4;
+        pointer-events: none;
+      }
+
+      #head {
+        font-size: 0.7rem;
+        margin-left: 1rem;
+
+      }
+      #cardmenu {
+        width: 40px;
+      }
+
+      #cardcontentsection {
+        color: #333333;
+        background: rgba(255, 255, 255, 0);
+        height: 100%;
+      }
+
+    </style>
+
+
+    <paper-shadow id="shadow" z="1" fit animated></paper-shadow>
+
+    <section id="cardmain" class="button-content" relative layout horizontal center-center>
+
+      <section id="cardcontentsection" vertical layout>
+
+        <div id="head">{{headline}}</div>
+        <div id="cardcontent">
+
+          <content></content>
+
+        </div>
+
+      </section>
+
+      <template if="{{editable}}"
+        <core-collapse id="cardmenu">
+          <paper-menu-button id="dropdown">
+            <paper-icon-button icon="menu" mini></paper-icon-button>
+            <paper-dropdown layered>
+              <core-menu class="menu">
+                  <paper-item>Optionen</paper-item>
+                  <paper-item>Löschen</paper-item>
+              </core-menu>
+            </paper-dropdown>
+          </paper-menu-button>
+          <paper-icon-button icon="alarm-add" mini></paper-icon-button>
+        </core-collapse>
+      </template>
+    </section>
+
+  </template>
+
+  <script>
+
+  Polymer('post-card',{
+    ready: function() {
+
+    },
+
+    publish: {
+      headline: "",
+      recenteringTouch: true,
+      editable: false
+    },
+
+    toggleMenu: function() {
+      if(this.editable) {
+        this.$.cardmenu.toggle();
+      }
+    },
+
+  });
+  </script>
+</polymer-element>

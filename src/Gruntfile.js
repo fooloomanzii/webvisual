@@ -93,8 +93,6 @@ module.exports = function(grunt) {
             cwd: depend+'/js/',
             src: [
               '**/*min.js',
-              // Foundation vendor stuff
-              'vendor/*.js'
             ],
             dest: target+'/js/'
           },

@@ -1,0 +1,62 @@
+<script src="../bower_components/webcomponentsjs/webcomponents.js"></script>
+
+<link rel='import' href='../bower_components/core-animated-pages/core-animated-pages.html'>
+<link rel='import' href='../bower_components/core-scroll-header-panel/core-scroll-header-panel.html'>
+<link rel='import' href='../bower_components/core-toolbar/core-toolbar.html'>
+<link rel='import' href='../bower_components/paper-icon-button/paper-icon-button.html'>
+<link rel='import' href='../bower_components/core-image/core-image.html'>
+<link rel='import' href='../bower_components/paper-tabs/paper-tabs.html'>
+<link rel='import' href='../bower_components/paper-tab/paper-tab.html'>
+
+<polymer-element name="animated-navbar">
+  <template>
+    <core-scroll-header-panel condenses condensedHeaderHeight='64px'>
+      <core-animated-pages selected="{{page}}" transitions="cross-fade-all">
+
+        <section name="small">
+          <core-toolbar>
+            <paper-icon-button id='navicon' icon='menu'  core-drawer-toggle></paper-icon-button>
+            <core-image id='logo' src='../img/Logo_FZ_Juelich_Weiss.svg' style="background-color: #005B82;"  preload  fade></core-image>
+            <div flex></div>
+            <paper-icon-button id='more-icon' icon='filter-list' on-tap="{{transition}}"></paper-icon-button>
+          </core-toolbar>
+        </section>
+
+        <section name="large">
+          <core-toolbar class="medium-tall">
+            <paper-icon-button id='navicon' icon='menu'  core-drawer-toggle></paper-icon-button>
+            <core-image id='logo' src='../img/Logo_FZ_Juelich_Weiss.svg' style="background-color: #005B82;"  preload  fade></core-image>
+            <div flex></div>
+            <paper-icon-button id='moreicon' icon='filter-list' on-tap="{{transition}}"></paper-icon-button>
+            <paper-tabs id='tabs' class='bottom fit' selected='all' scrollable>
+              <paper-tab name='all'> Alle </paper-tab>
+              <paper-tab name='favorites'> Favouriten </paper-tab>
+              <paper-tab name='row'> Tabellen </paper-tab>
+              <paper-tab name='warning'> Überwachung </paper-tab>
+              <paper-tab name='graphs'> Graphen </paper-tab>
+            <paper-tabs>
+          </core-toolbar>
+        </section>
+
+      </core-animated-pages>
+
+      <content></content>
+    </core-scroll-header-panel>
+  </template>
+  <script>
+
+    Polymer('animated-navbar', {
+
+      page: 0,
+
+      transition: function(e) {
+        if (this.page === 0) {
+          this.page = 1;
+        } else {
+          this.page = 0;
+        }
+      }
+    });
+
+  </script>
+</polymer-element>

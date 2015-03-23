@@ -3,7 +3,6 @@
 
 $(document).ready(function() {
   // Start progress bar
-  NProgress.start();
 
   var dataNS = (function() {
 
@@ -38,8 +37,7 @@ $(document).ready(function() {
     // Hide the loading message
     $('#load').fadeOut(undefined, function() {
       // Show the data and finish progress bar
-      $('#data').fadeIn(undefined,
-        NProgress.done);
+      $('#data').fadeIn(undefined);
     });
   });
   socket.on('data', function(data) {

@@ -5,12 +5,25 @@
 #valueTable{
   border-style: hidden;
 }
-.valRow:hover{
-  background: #D8D8D8;
+td:hover{
+  background: #e24848;
 }
 #valCols{
-  border-bottom: 1px solid #2a73a6;
+  border-bottom: 1px solid #669db4;
 }
 .valGroup{
-  border-right: 1px solid #2a73a6;
+  border-right: 1px solid #669db4;
+}
+
+div {
+  margin: 0px;
+  line-height: 2rem;
+}
+
+.collapsible-header {
+  height: 2rem;
+}
+
+td, th {
+  padding: 0.5rem;
 }

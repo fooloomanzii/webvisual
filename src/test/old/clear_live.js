@@ -1,1 +1,0 @@
-require('fs').writeFileSync("live_test.txt", "");

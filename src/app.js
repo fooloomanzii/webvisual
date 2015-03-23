@@ -22,7 +22,27 @@ var dataModule = require('./data'),
     locals:{
       dataTimeLabel:"Last Message",
       timeFormat:"dd.MM.yyyy HH:mm:ss",
-      data:{      
+
+      typeWidth:2,
+
+      types: [
+        {"room":"",
+          "kind":"",
+          "subtypes":[{"var":"x" , "unit":"", "threshold": []},
+                      {"var":"x" , "unit":"", "threshold": []}]}
+        ],
+
+      unnamedType : {"room" : "Raum nicht definiert", "kind" : "Datenmessung "},
+      unnamedSubtype : {"var":"x" , "unit":"", "threshold": []},
+
+      colors:{
+        "under":"#c6ff00",
+        "over":"#ff1744",
+        "header":[
+          {"room":"Raum nicht definiert","color":"#9a9a9a"}
+        ]
+      },
+      data:{
         types:{},
         typeWidth:1,
         subtypes:[],
@@ -33,10 +53,6 @@ var dataModule = require('./data'),
         corner:"",
         unnamedRow:"Value"
       },
-      colors:{
-        under:"#013ADF", 
-        over:"red"
-      }
     }
   },
 // Configuration, uses default values, if necessary
@@ -133,17 +149,16 @@ if ( app.get('env') == 'production' ) {
 	app.set('view engine', 'jade');
 	app.set('views', __dirname + '/views');
 	// Logging middleware
-	// TODO: Dafuer sorgen, dass jede Verbindung nur einmal geloggt wird. 
+	// TODO: Dafuer sorgen, dass jede Verbindung nur einmal geloggt wird.
 	// Ergo: Irgendwie die statischen Dateien nicht loggen
 	// app.use(express.logger(logMode));
-	
+
 /**
  * Routing
  */
 
 app.get(['/', '/home', '/index'], routes.index);
-app.get('/graph', routes.graph);
-app.get('/table', routes.table);	
+app.get('/table', routes.table);
 
 // Path to static folder
 app.use(express.static(__dirname + '/public'));
@@ -179,7 +194,7 @@ var userCounter = 0,
 // reading synchronously isn't a problem here, since this just happens on startup
   checkstates = function() {
     commands={};
-    
+
     //if command file exists, read the data from there
     if(fs.existsSync(config.command_file)) {
       try{
@@ -199,14 +214,14 @@ var userCounter = 0,
                 " has incorrect JSON data and was renamed to "+newname);
         }
       }
-    } 
+    }
     // be sure, that functions are there
     if(!commands.functions){
       commands.functions={};
     }
-    // Check all existing states from command_file. 
-    // If command_file hasen't any function or the state is wrong, 
-    // it will be checked in config. 
+    // Check all existing states from command_file.
+    // If command_file hasen't any function or the state is wrong,
+    // it will be checked in config.
     // Wrong states in config will become a value 'true'.
     for(var func in config.functions) {
       if(commands.functions[func] &&
@@ -224,7 +239,7 @@ var userCounter = 0,
         console.log(err);
     }
   },
-// A set of commands which can be executed when the command event is fired; 
+// A set of commands which can be executed when the command event is fired;
 // the cmd_onoff is used to assign the same function to multiple elements
   cmd_onoff, cmd_fnct = {
     "off": (cmd_onoff = function(socket, command) {
@@ -234,7 +249,7 @@ var userCounter = 0,
       optionsSocket.emit('command', {cmd: command});
       // Write a command into the config
       commands.functions[command[0]]=command[1];
-      fs.writeFile(config.command_file, JSON.stringify(commands, null, "\t"), 
+      fs.writeFile(config.command_file, JSON.stringify(commands, null, "\t"),
           function(err){
         if(err) errfunc(err,socket);
       });
@@ -257,8 +272,8 @@ var userCounter = 0,
     // Send the data
     socket.emit('data', {states: states});
   }),
-  
-  
+
+
 // The config socket
   configSocket = io.of('/config').on('connection', function(socket){
     socket.emit('data', {locals: config.locals});
@@ -271,78 +286,78 @@ var userCounter = 0,
       error: function(type, err) {
         dataSocket.emit('mistake', { data: err, time: new Date()});
       },
-      data: [
-  
-        // SocketIO Listener
-        function(type, data) {
-          
-          // Store the current message time
-          currentData.time=new Date();
-          
-          var sendEvent = 'data';
-  
-          // Set the first event and add the state, if it is the first parsing
-          if(waitFirst) {
-            sendEvent = 'first';
-            waitFirst = false;
-          }
-          
-          // Check for threshold exceeds and save it
-          currentData.exceeds=threshold.getExceeds(data, function(exceeds){
-            var exceedsHTML="", numCols=config.locals.data.typeWidth;
-            var i;
-            var pos = exceeds[0].indexOf(true);
-            if(pos > -1){ 
-              exceedsHTML += "Under the threshold:<br><ul>";
-              while(pos > -1){
-                exceedsHTML+="<li>";
-                i=parseInt(pos/numCols, 10);
-                exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
-                exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
-                exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
-                exceedsHTML+="</li>";
-                pos = exceeds[0].indexOf(true,pos+1);
-              }
-              exceedsHTML+="</ul>";
-            }
-            pos = exceeds[1].indexOf(true);
-            if(pos > -1){ 
-              exceedsHTML += "Over the threshold:<br><ul>";
-              while(pos > -1){
-                exceedsHTML+="<li>";
-                i=parseInt(pos/numCols, 10);
-                exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
-                exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
-                exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
-                exceedsHTML+="</li>";
-                pos = exceeds[1].indexOf(true,pos+1);
-              }
-              exceedsHTML+="</ul>";
-            }
-            if(exceedsHTML) exceedsHTML=currentData.time+":<br>"+exceedsHTML;
-            mailHelper.appendMsg(exceedsHTML);
-          });
-  
-          // Save the current data
-          currentData.data=data;
-  
-          // ... finally send the data
-          dataSocket.emit(sendEvent, currentData);
+    data: [
+
+      // SocketIO Listener
+      function(type, data) {
+
+        // Store the current message time
+        currentData.time=new Date();
+
+        var sendEvent = 'data';
+
+        // Set the first event and add the state, if it is the first parsing
+        if(waitFirst) {
+          sendEvent = 'first';
+          waitFirst = false;
         }
-      ]
+
+        // Check for threshold exceeds and save it
+        currentData.exceeds=threshold.getExceeds(data, function(exceeds){
+          var exceedsHTML="", numCols=config.locals.data.typeWidth;
+          var i;
+          var pos = exceeds[0].indexOf(true);
+          if(pos > -1){
+            exceedsHTML += "Under the threshold:<br><ul>";
+            while(pos > -1){
+              exceedsHTML+="<li>";
+              i=parseInt(pos/numCols, 10);
+              exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
+              exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
+              exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
+              exceedsHTML+="</li>";
+              pos = exceeds[0].indexOf(true,pos+1);
+            }
+            exceedsHTML+="</ul>";
+          }
+          pos = exceeds[1].indexOf(true);
+          if(pos > -1){
+            exceedsHTML += "Over the threshold:<br><ul>";
+            while(pos > -1){
+              exceedsHTML+="<li>";
+              i=parseInt(pos/numCols, 10);
+              exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
+              exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
+              exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
+              exceedsHTML+="</li>";
+              pos = exceeds[1].indexOf(true,pos+1);
+            }
+            exceedsHTML+="</ul>";
+          }
+          if(exceedsHTML) exceedsHTML=currentData.time+":<br>"+exceedsHTML;
+          mailHelper.appendMsg(exceedsHTML);
+        });
+
+        // Save the current data
+        currentData.data=data;
+
+        // ... finally send the data
+        dataSocket.emit(sendEvent, currentData);
+      }
+    ]
     }
   }),
 // The data socket
   dataSocket = io.of('/data').on('connection', function(socket) {
-    // Wait till first data will be sent or receive the current data 
+    // Wait till first data will be sent or receive the current data
     // as 'first' for every Client
     if (!waitFirst) {
       socket.emit('first', currentData);
     } else {
       socket.emit('wait');
     }
-    
-  });  
+
+  });
 
 /**
  * Get it running!
@@ -361,7 +376,7 @@ server.listen(config.port); // get the server running
       console.log('E-Mail sent: ' + info.pending[0].recipients[0]  );
     }
   }
-});*/
+});
 
 /**
  * Handle various process events

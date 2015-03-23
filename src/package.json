@@ -1,16 +1,17 @@
 {
-  "name": "WebVisual",
+  "name": "webvisual",
   "version": "0.4.1",
   "private": "true",
   "dependencies": {
     "express": "~4.1.1",
-		"express-error-handler": "~0.5.4",
-		"fs": "*",
+    "express-error-handler": "~0.5.4",
+    "fs": "*",
     "jade": "~0.31",
-    "socket.io": "~0.9",
-		"merge-defaults" : "*",
-		"net": "1.0.2",
-    "underscore": "~1.7.0"
+    "socket.io": "~0.9.17",
+    "merge-defaults": "*",
+    "net": "1.0.2",
+    "underscore": "~1.7.0",
+    "lodash-node": "~3.4.0"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
