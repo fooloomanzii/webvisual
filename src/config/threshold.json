@@ -1,0 +1,10 @@
+{
+  "comments":["count starts from pos 0.",
+  		"'default' sets default thresholds. ",
+  		"If there are no default thresholds, ",
+  		"please remove 'default' or just leave it empty"
+  ],
+  "defaults":[0,15],
+  "1":[2,7],
+  "5":[6,16]
+}

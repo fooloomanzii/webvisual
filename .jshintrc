@@ -1,0 +1,6 @@
+{
+	"node": true,
+	"smarttabs": true,
+	"undef": true,
+	"unused": true
+}

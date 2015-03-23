@@ -1,0 +1,94 @@
+{
+  "connections": [ "file" , "udp" ],
+  "port": 3000,
+	"data_file":"data.txt",
+	"states":[
+		"on",
+		"off"
+	],
+	"functions":{
+		"comment":" name : first state ",
+		"Motor":"on",
+		"Pumpe":"off"
+	},
+	"locals":{
+	  "dataTimeLabel":"Letzte Nachricht",
+	  "timeFormat":"dd.MM.yyyy HH:mm:ss",
+
+    "typeWidth":2,
+
+    "types": [
+      {"room":"Raum A",
+        "kind":"Chlor",
+        "subtypes":[{"var":"Druck" , "unit":"mPa", "threshold": [2,10]},
+                    {"var":"Temperatur" , "unit":"°C", "threshold": [2,11]}]},
+      {"room":"Raum B",
+        "kind":"Sauerstoff",
+        "subtypes":[{"var":"Druck" , "unit":"mPa", "threshold": [2,5]},
+                    {"var":"Temperatur" , "unit":"°C", "threshold": [2,5]}]},
+      {"room":"Gaslager",
+        "kind":"Stickstoff",
+        "subtypes":[{"var":"Druck" , "unit":"mPa", "threshold": [2,8]},
+                    {"var":"Volumen" , "unit":"cm³", "threshold": [2,7]}]},
+      {"room":"Raum B",
+        "kind":"Helium",
+        "subtypes":[{"var":"Druck" , "unit":"mPa", "threshold": [1,5]},
+                    {"var":"Temperatur" , "unit":"°C", "threshold": [0,3]}]},
+      {"room":"Raum A",
+        "kind":"Xenon",
+        "subtypes":[{"var":"Dichte" , "unit":"g/cm³", "threshold": [2,4]},
+                    {"var":"Temperatur" , "unit":"°C"}]},
+      {"room":"Raum A",
+        "kind":"Wasserstoff",
+        "subtypes":[{"var":"Volumen" , "unit":"cm³", "threshold": [2,5]},
+                    {"var":"Temperatur" , "unit":"°C", "threshold": [2,5]}]},
+      {"room":"Keller",
+        "kind":"Kohlenmonoxid",
+        "subtypes":[{"var":"Druck" , "unit":"mPa", "threshold": [1,5]},
+                    {"var":"Temperatur" , "unit":"°C", "threshold": [2,5]}]},
+      {"room":"Keller",
+        "kind":"Kohlendioxid",
+        "subtypes":[{"var":"Druck" , "unit":"mPa", "threshold": [4,5]},
+                    {"var":"Volumen" , "unit":"cm³", "threshold": [2,5]}]},
+      {"room":"Raum A",
+        "kind":"Schwefelgas",
+        "subtypes":[{"var":"Druck" , "unit":"mPa", "threshold": [0,5]},
+                    {"var":"Temperatur" , "unit":"°C", "threshold": [2,5]}]}
+      ],
+
+    "unnamedType" : {"room" : "Raum nicht definiert", "kind" : "Datenmessung "},
+    "unnamedSubtype" : {"var":"x" , "unit":"", "threshold": []},
+
+    "colors":{
+      "under":"rgba(232, 20, 255, 0.8)",
+      "over":"rgba(255, 22, 72, 0.8)",
+      "header":[
+        {"room":"Raum A","color":""},
+        {},
+        {},
+        {}
+      ]
+    },
+
+		"table":{
+		  "pageTitle":"Table",
+			"title":"2 Columns Table",
+			"corner":"",
+			"unnamedRow":"Wert"
+		},
+    "data":{
+      "typeWidth":2,
+      "subtypes":[
+        "Position",
+        "Wert"
+      ],
+      "types":{
+        "comment":"count starts from pos 0",
+        "0":"Motor",
+        "1":"Pumpe",
+        "2":"Heizung",
+        "5":"Irgendwas"
+      }
+    }
+	}
+}

@@ -19,4 +19,3 @@ src/test/node/copywatch-test.txt text eol=LF
 
 # Other stuff
 src/config.json filter=irrelevant
-src/data.txt filter=testTXT

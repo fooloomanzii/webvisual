@@ -16,3 +16,4 @@ Options in the config.json-file:
 
  		The command to continue the data flow
  		continue: STRING
+  }

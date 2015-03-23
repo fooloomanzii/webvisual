@@ -13,16 +13,21 @@
    Shared Styles
 ----------------------------------------- */
 .float-left {
-	float: left;
+  float: left;
 }
 .float-right {
-	float: right;
+  float: right;
 }
 
 .hidden, *[hidden] {
-	display:none;
+  display:none;
 }
-
+.under {
+  color: blue;
+}
+.over {
+  color: red;
+}
 
 
 /* -----------------------------------------
