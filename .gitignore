@@ -5,15 +5,9 @@
 # src/config.json
 
 # Some folders #
-src/build
-src/public-dep
-src/public-src
 
 # Node Stuff #
 src/node_modules
-
-# Sublime Stuff #
-*.sublime-workspace
 
 # Tests #
 src/test/OLD/*.txt

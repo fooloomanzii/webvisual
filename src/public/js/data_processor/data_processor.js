@@ -105,7 +105,7 @@
   //***** Load the Configuration in the Data Object
   function arrangeLabels(locals) {
     if (!locals) { // Check for Existence
-      throw new Error("Keine Konfiguration vorhanden"); 
+      throw new Error("Keine Konfiguration vorhanden");
       return;
     }
     else {
@@ -117,7 +117,7 @@
     // Set the '#dataTime' of the last Message
     $('#dataTime').text("");
 
-    // Set the Number of different Variables and Columns 'numCols' respectively 
+    // Set the Number of different Variables and Columns 'numCols' respectively
     numCols = locals.typeWidth;
 
     if (numCols < 1) {
@@ -141,8 +141,6 @@
 
     // Set the Arrays of Exceeds 'exceedsArray'
     var exceedsArray = exceeds;
-
-    // Read the last Line of the Data File
 
     // Set the Array of Values 'valuesArray' and Array of Timestamps 'dateArray'
     for (var i=0; i<data.length; i++) {
