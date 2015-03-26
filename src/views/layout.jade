@@ -198,7 +198,7 @@ body(unresolved, fullbleed, vertical, layout)
 
     core-scroll-header-panel#headerPanel(main,fixed)
       core-toolbar#mainheader
-        paper-icon-button#navicon(icon='dashboard', core-drawer-toggle)
+        paper-icon-button#navicon(icon='menu', core-drawer-toggle)
         core-image#logo(src='img/Logo_FZ_Juelich_Weiss.svg',style="background-color: #005B82;", preload, fade)
         div(flex)
         paper-icon-button#morebutton(icon='filter-list', onclick="document.querySelector('#submenu').toggle()")
@@ -209,7 +209,7 @@ body(unresolved, fullbleed, vertical, layout)
           paper-tab(name='row', href='/table') Tabellen
           paper-tab(name='warning') Überwachung
           paper-tab(name='graphs') Graphen
-      section#maincontent(scroller)
+      section#maincontent(scroller, center-justified, horizontal, layout)
         block content
 
   // jQuery

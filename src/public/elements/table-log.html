@@ -25,6 +25,7 @@
         outline: none;
         font-size: 1em;
         width: 100%;
+        user-select: none;
       }
 
       .selector {
@@ -62,8 +63,17 @@
       }
 
       th, td {
-        padding: 8px 5px;
-        font-size: 0.8em;
+        padding: 6px 5px 4px;
+        font-size: 0.9em;
+        font-weight: 300;
+      }
+
+      .grouptitle {
+        padding: 1.5em 1em 0em;
+        font-size: 0.7em;
+        background: white;
+        font-style: oblique;
+        font-weight: 700;
       }
 
     </style>
@@ -150,7 +160,7 @@
 
         var a = "active";
         for (var i=0; i<keys.length; i++) {
-          htmlcode += '<section class="grouptitle">' + keys[i] + '</section>' +
+          htmlcode += '<section class="grouptitle">' + keys[i] + '</section>' + '<hr>' +
             '<section><table class="striped hoverable centered">' + theadCreate(groupTitle) +
             tbodyCreate(vals[i],groupTitle) + '</table></section>';
           a = "";
