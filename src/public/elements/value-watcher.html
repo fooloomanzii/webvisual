@@ -1,14 +1,76 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<polymer-element name="value-watcher" attributes="data type var unit color-too-low color-too-high exceeds">
-
-  <style>
-    :host {
-
-    }
-  </style>
-
+<polymer-element name="value-watcher" attributes="data type var unit colorLow colorHigh exceeds">
   <template>
+
+    <style>
+      :host {
+        position: relative;
+        background: white;
+        color: #1d1d1d;
+        border-radius: 5px;
+        overlay: hidden;
+        display: inline-block;
+        z-index: 0;
+        box-sizing: border-box;
+        outline: none;
+      }
+
+      .main, #shadow {
+        border-radius: inherit;
+      }
+
+      .typeSection {
+        padding: 0.5em 0.5em 0.4em;
+        font-size: 0.9em;
+        font-style: oblique;
+        font-weight: 300;
+      }
+
+      .contentSection {
+
+      }
+
+      .valueSection {
+        padding: 0.4em 0.5em 0.4em 0.5em;
+        font-size: 1.5em;
+        font-style: normal;
+        font-weight: 700;
+      }
+
+      .unitSection {
+        padding-left: 0.1em;
+        font-size: 0.5em;
+        font-style: oblique;
+        font-weight: 500;
+      }
+
+      .varSection {
+        padding: 0.4em 0.5em 0.5em;
+        font-size: 0.75em;
+        font-style: oblique;
+        font-weight: 300;
+      }
+    </style>
+
+    <paper-shadow id="shadow" z="1" fit animated></paper-shadow>
+
+    <section class="main" style="background: {{color}};" relative vertical layout>
+
+      <section class="typeSection" horizontal layout start-justified>
+        <div>{{type}}</div>
+      </section>
+
+      <section class="valueSection" horizontal layout center-justified>
+        1567.85
+        <span class="unitSection">{{unit}}</span>
+      </section>
+
+      <section class="varSection" horizontal layout center-justified>
+        <div>{{var}}</div>
+      </section>
+
+    </section>
 
   </template>
 
@@ -16,10 +78,13 @@
   <script>
 
     Polymer('value-watcher', {
+
+
         publish: {
           exceeds: null,
-          color-too-low: ,
-          color-too-high: ,
+          colorLow: '',
+          colorHigh: '',
+          color: 'rgba(178, 49, 49, 0.54)',
           data: [ {'date': '13.06.2013 10:20:02', 'value': 1000, 'exceeds': null},
                   {'date': '13.06.2013 10:21:02', 'value': 1004.2, 'exceeds': null},
                   {'date': '13.06.2013 10:22:02', 'value': 1002, 'exceeds': null},

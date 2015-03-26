@@ -1,4 +1,5 @@
 link(rel='import', href='elements/post-card.html')
+link(rel='import', href='elements/value-watcher.html')
 
 mixin cardboard(title)
   post-card(headline=title)
@@ -7,7 +8,8 @@ mixin cardboard(title)
     else
       No content provided
 
-+cardboard('Hello world')
++cardboard()
+  value-watcher
 
 +cardboard('Hello world')
   p This is my

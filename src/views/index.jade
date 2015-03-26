@@ -1,8 +1,12 @@
 link(rel='import', href='elements/post-card.html')
+link(rel='import', href='elements/value-watcher.html')
+  
 extends layout
 
 block content
+
   post-card#p3(headline="Test-Postcard")
+    value-watcher()
     include inhalt
 
 block script
