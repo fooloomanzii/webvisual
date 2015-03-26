@@ -1,26 +1,24 @@
+<script src="../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+<script src="../bower_components/jquery/dist/jquery.min.js"></script>
+<script src='../js/underscore/underscore.js'></script>
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/core-icon-button/core-icon-button.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
-
-<script type="text/javascript" src="../../bower_components/jquery/dist/jquery.min.js"></script>
-<script src='../js/underscore/underscore.js'></script>
-<script src='../js/materialize.js'></script>
 
 <polymer-element name="table-log" attributes="turned collapsed">
 
   <template>
-    <link type='text/css' rel='stylesheet' href='../css/materialize.min.css' media='all'>
+
     <style>
+      [unresolved] {
+        opacity: 0;
+      }
+
       :host {
         color: #1d1d1d;
-        border-radius: 5px;
         overlay: hidden;
         z-index: 0;
-        padding: 8px;
-        margin: 4px;
         outline: none;
         font-size: 1em;
         width: 100%;
@@ -59,8 +57,8 @@
         border-radius: 5px;
       }
 
-      paper-tabs /deep/ paper-tab:hover {
-        background: rgba(255, 255, 255, 0.15);
+      paper-tabs /deep/ paper-tab :hover {
+        background: rgba(255, 255, 255, 0.50);
       }
 
       th, td {
@@ -79,30 +77,30 @@
 
     </style>
 
-    <section id="tabs" relative>
-      <paper-tabs id="tableselect" selected="{{selected}}" scrollable>
-        <paper-tab>Alle</paper-tab>
-        <paper-tab>Datum</paper-tab>
-        <paper-tab>Raum</paper-tab>
-        <paper-tab>Typ</paper-tab>
-        <paper-tab>Wert</paper-tab>
-      </paper-tabs>
-    </section>
+    <section vertical layout>
+      <section id="tabs" relative>
+        <paper-tabs id="tableselect" selected="{{selected}}" scrollable>
+          <paper-tab>Alle</paper-tab>
+          <paper-tab>Datum</paper-tab>
+          <paper-tab>Raum</paper-tab>
+          <paper-tab>Typ</paper-tab>
+          <paper-tab>Wert</paper-tab>
+        </paper-tabs>
+      </section>
 
-    <section id="main" flex>
+      <section id="main" flex>
 
+      </section>
     </section>
   </template>
 
 
   <script>
 
-    var vals = "";
-
     Polymer('table-log',{
 
       ready: function() {
-        // Verknüpfung der Daten mit dem Element
+        // connect to the data from data-processor, when it is loaded
         $(document).on('dataLoaded', function(event, data) {
             var arr = _.sortBy(data.content,'date').reverse();
             arr = _.sortBy(arr,'var');
@@ -117,24 +115,20 @@
         data: [],
         selected: 1
       },
-
-      dataChanged: function() {
-        this.$.main.innerHTML = groupedTable(this.data,this.selected);
-      },
-
-      selectedChanged: function() {
-        this.$.main.innerHTML = groupedTable(this.data,this.selected);
-      },
-
-      sort: function(){
-        alert("sort");
-      },
+      //
+      // dataChanged: function() {
+      //   this.$.main.innerHTML = groupedTable(this.data,this.selected);
+      // },
+      //
+      // selectedChanged: function() {
+      //   this.$.main.innerHTML = groupedTable(this.data,this.selected);
+      // },
 
       domReady: function() {
-        // $(this.$.rich).markItUp(mySettings);
       }
     });
 
+      // Menu Items and titles of a head of table
     title = {
         "all": "Alle", /*spezielles Attribut für dieses Element*/
         "date": "Datum",
@@ -144,6 +138,7 @@
         "value": "Wert"
     };
 
+      // grouping the table
     function groupedTable(arr,sel) {
 
       if (sel === 0) {
@@ -170,6 +165,7 @@
       return htmlcode;
     }
 
+      // create head of a table
     function theadCreate(ex) {
       var tabletitle = title;
       tabletitle = _.values(_.omit(tabletitle,ex,'all'));
@@ -184,6 +180,7 @@
       return htmlcode;
     }
 
+      //create body of a table
     function tbodyCreate(arr,ex) {
       var line = [];
       htmlcode = "<tbody>";
@@ -203,12 +200,6 @@
 
       htmlcode += "</tbody>";
       return htmlcode;
-    }
-
-    function regCollapsible() {
-        $('.collapsible').collapsible({
-          accordion : true
-        });
     }
 
   </script>

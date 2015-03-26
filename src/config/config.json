@@ -72,23 +72,7 @@
 
 		"table":{
 		  "pageTitle":"Table",
-			"title":"2 Columns Table",
-			"corner":"",
-			"unnamedRow":"Wert"
-		},
-    "data":{
-      "typeWidth":2,
-      "subtypes":[
-        "Position",
-        "Wert"
-      ],
-      "types":{
-        "comment":"count starts from pos 0",
-        "0":"Motor",
-        "1":"Pumpe",
-        "2":"Heizung",
-        "5":"Irgendwas"
-      }
+			"title":"Tabelle"
     }
 	}
 }
