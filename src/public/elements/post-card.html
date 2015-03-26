@@ -46,11 +46,12 @@
 
       #head {
         font-size: 0.9em;
+        font-weight: 150;
         padding: 0.3em 1.4em 0.3em;
-        margin-bottom: 0.5em;
-        background: #669db4;
+        margin-bottom: 0.3em;
         color: #f1f1f1;
-        border-radius: 10px;
+        background: #669db4;
+        border-radius: 5px;
       }
       #cardmenu {
         width: 40px;
@@ -71,7 +72,9 @@
 
       <section id="cardcontentsection" vertical layout>
 
-        <div id="head">{{headline}}</div>
+        <template if={{headline}}>
+          <div id="head">{{headline}}</div>
+        </template>
         <div id="cardcontent">
 
           <content></content>

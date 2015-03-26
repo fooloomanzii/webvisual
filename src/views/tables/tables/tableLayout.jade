@@ -11,37 +11,6 @@ block content
 
   post-card(headline="")
     table-log  
-  //- ul.collapsible(data-collapsible='accordion')
-  //-   li
-  //-     div.collapsible-header.active
-  //-       #dataTimeForm
-  //-         #dataTime
-  //-     div.collapsible-body
-  //-       #load
-  //-         center: h1.subheader Messwerte werden geladen ...
-  //-       table.hoverable#valueTable
-  //-   li
-  //-     div.collapsible-header
-  //-       #lastTimeLabel Aktualisierungszeiten
-  //-     div.collapsible-body
-  //-       table
-  //-         tr
-  //-           td
-  //-             #rightTimeLabel richtige Nachricht:
-  //-           td
-  //-             #lastRTime
-  //-         tr
-  //-           td
-  //-             #wrongTimeLabel falsche Nachricht:
-  //-           td
-  //-             #lastWTime    
-  //- 
-  //- //reveal window for beyonds        
-  //- div#excModal.reveal-modal.tiny
-  //-   #exceeds
-  //-   a.close-reveal-modal 
-  //-     &#215
-  //- a#excLink(data-reveal-id='excModal')
           
 block script
 
@@ -51,8 +20,5 @@ block script
   script(src='js/jquery.dateFormat.js')
 
   block tablescript
-script.
-  $(document).ready(function(){
-    $('.collapsible').collapsible({accordion: true});
-  });
+
     
