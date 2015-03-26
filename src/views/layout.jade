@@ -8,13 +8,13 @@ head
   title #{title}
 
   //-  Materialize CSS Style Framework
-  //- link(type='text/css', rel='stylesheet', href='css/materialize.min.css', media='all')
+  link(type='text/css', rel='stylesheet', href='css/materialize.min.css', media='all')
 
 
   block style
 
   //- Polymer-Elements
-  script(src='bower_components/webcomponentsjs/webcomponents.min.js')
+  script(src='bower_components/webcomponentsjs/webcomponents.js')
   link(rel='import', href='bower_components/polymer/polymer.html')
   link(rel='import', href='bower_components/font-roboto/roboto.html')
   link(rel='import', href='bower_components/core-scroll-header-panel/core-scroll-header-panel.html')
@@ -76,11 +76,16 @@ head
       font-weight: 200;
     }
 
-    core-header-panel::shadow #headerBg {
-      background-color: #005B82;
+    core-header-panel {
+      heigth: 100%;
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: #eee;
     }
 
-    
     core-toolbar {
       color: #f1f1f1;
       background-color: #005B82;
@@ -101,7 +106,7 @@ head
     }
     
     paper-tabs /deep/ paper-tab::shadow #ink {
-      color: #669db4;
+      color: #f1f1f1;
       }
       
     paper-tabs /deep/ paper-icon-button {
@@ -113,10 +118,10 @@ head
     }
     
     paper-tabs /deep/ paper-tab:hover {
-      background: rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.15);
     }
     
-    paper-item /deep/ .button-content {
+    paper-item::shadow .button-content {
       color: #2c2c2c;
       margin: 5px;
     }
@@ -126,15 +131,17 @@ head
       width: 100%;
       margin: 0px 0px 4px 0px;
     }
+    paper-item:hover {
+      background: rgba(255, 255, 255, 0.50);
+    }
     
-    paper-item :hover {
-      background: rgba(255, 255, 255, 0.75);
+    paper-item::shadow #ripple {
+      color: black;
     }
     
     img {
       height: 48px;
     }
-    
     
     [drawer] {
       background: rgba(255, 255, 255, 0.75);
@@ -166,7 +173,7 @@ body(unresolved, fullbleed, vertical, layout)
     core-header-panel(drawer, onclick="document.querySelector('core-drawer-panel').togglePanel();")
       core-selector#mainmenu(selected='0',valueattr="name")
         a(href='/index', target='_top') 
-          paper-item#mainmenubutton(name='m1',raised='true') 
+          paper-item#mainmenubutton(name='m1',raised) 
             core-icon(icon='apps')
             | Übersicht
         a(href='/table', target='_top') 
@@ -177,7 +184,7 @@ body(unresolved, fullbleed, vertical, layout)
     core-header-panel#headerPanel(main,fixed)
       core-toolbar#mainheader
         paper-icon-button#navicon(icon='menu', core-drawer-toggle)
-        img(src='img/Logo_FZ_Juelich_Weiss.svg')
+        img(src='img/Logo_FZ_Juelich_Weiss.svg',style="background-color: #005B82;")
         div(flex)
         paper-icon-button#morebutton(icon='filter-list', onclick="document.querySelector('#submenu').toggle()")
       core-collapse#submenu()
