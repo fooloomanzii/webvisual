@@ -1,0 +1,34 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<polymer-element name="value-watcher" attributes="data type var unit color-too-low color-too-high exceeds">
+
+  <style>
+    :host {
+
+    }
+  </style>
+
+  <template>
+
+  </template>
+
+
+  <script>
+
+    Polymer('value-watcher', {
+        publish: {
+          exceeds: null,
+          color-too-low: ,
+          color-too-high: ,
+          data: [ {'date': '13.06.2013 10:20:02', 'value': 1000, 'exceeds': null},
+                  {'date': '13.06.2013 10:21:02', 'value': 1004.2, 'exceeds': null},
+                  {'date': '13.06.2013 10:22:02', 'value': 1002, 'exceeds': null},
+                  {'date': '13.06.2013 10:23:02', 'value': 1001.1, 'exceeds': null}],
+          type: 'Stickstoff',
+          var: 'Druck',
+          unit: 'mPa'
+        }
+    });
+
+  </script>
+</polymer-element>

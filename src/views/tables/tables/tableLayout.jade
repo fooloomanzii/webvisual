@@ -1,35 +1,40 @@
 extends ../../layout
 
+link(rel='import', href='elements/post-card.html')
+link(rel='import', href='elements/table-log.html')
+
 block style
-  link(rel='stylesheet', href='css/table.css')
-  block tablestyle
+  //- link(rel='stylesheet', href='css/table.css')
+  //- block tablestyle
     
 block content
-  
-  ul.collapsible(data-collapsible='accordion')
-    li
-      div.collapsible-header.active
-        #dataTimeForm
-          #dataTime
-      div.collapsible-body
-        #load
-          center: h1.subheader Messwerte werden geladen ...
-        table.hoverable#valueTable
-    li
-      div.collapsible-header
-        #lastTimeLabel Aktualisierungszeiten
-      div.collapsible-body
-        table
-          tr
-            td
-              #rightTimeLabel richtige Nachricht:
-            td
-              #lastRTime
-          tr
-            td
-              #wrongTimeLabel falsche Nachricht:
-            td
-              #lastWTime    
+
+  post-card(headline="Tabelle")
+    table-log  
+  //- ul.collapsible(data-collapsible='accordion')
+  //-   li
+  //-     div.collapsible-header.active
+  //-       #dataTimeForm
+  //-         #dataTime
+  //-     div.collapsible-body
+  //-       #load
+  //-         center: h1.subheader Messwerte werden geladen ...
+  //-       table.hoverable#valueTable
+  //-   li
+  //-     div.collapsible-header
+  //-       #lastTimeLabel Aktualisierungszeiten
+  //-     div.collapsible-body
+  //-       table
+  //-         tr
+  //-           td
+  //-             #rightTimeLabel richtige Nachricht:
+  //-           td
+  //-             #lastRTime
+  //-         tr
+  //-           td
+  //-             #wrongTimeLabel falsche Nachricht:
+  //-           td
+  //-             #lastWTime    
   //- 
   //- //reveal window for beyonds        
   //- div#excModal.reveal-modal.tiny

@@ -2,9 +2,8 @@ link(rel='import', href='elements/post-card.html')
 extends layout
 
 block content
-  post-card
-    p Welcome to #{title}
-  include inhalt
+  post-card#p3(headline="Test-Postcard")
+    include inhalt
 
 block script
   script(src='js/dateFormat.js')
