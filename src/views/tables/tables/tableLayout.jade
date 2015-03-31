@@ -1,8 +1,5 @@
 extends ../../layout
 
-link(rel='import', href='elements/post-card.html')
-link(rel='import', href='elements/table-log.html')
-
 block style
   //- link(rel='stylesheet', href='css/table.css')
   //- block tablestyle
@@ -10,15 +7,11 @@ block style
 block content
 
   post-card(headline="")
-    table-log  
+    table-logtwo
+  //- post-card(headline="")
+  //-   table-log  
           
 block script
-
-  script(src='js/materialize.js')  
-  script(src='js/dateFormat.js')
-  script(src='js/jquery/jquery-2.1.3.js')
-  script(src='js/jquery.dateFormat.js')
-
   block tablescript
 
     

@@ -8,7 +8,7 @@ head
   title #{title}
 
   //-  Materialize CSS Style Framework
-  link(type='text/css', rel='stylesheet', href='css/materialize.min.css', media='all')
+  //- link(type='text/css', rel='stylesheet', href='css/materialize.min.css', media='all')
 
 
   block style
@@ -38,7 +38,8 @@ head
     
   link(rel='import', href='elements/post-card.html')
   link(rel='import', href='elements/table-log.html')
-
+  link(rel='import', href='elements/table-logtwo.html')
+  link(rel='import', href='elements/value-watcher.html')  
   //- Polymer style
   style.
     @font-face {
@@ -211,7 +212,7 @@ body(unresolved, fullbleed, vertical, layout)
   
   script.
     
-    // Console Log, that Script was excecuted    
+    // Console Log, that Script is excecuted    
     console.log('jade excecuted');
     
   block script
