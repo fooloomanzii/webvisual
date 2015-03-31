@@ -92,7 +92,7 @@
         </paper-tabs>
       </section>
 
-      <section id="main" flex>
+      <section id="main">
 
       </section>
     </section>
@@ -119,7 +119,7 @@
         data: [],
         selected: 1
       },
-      
+
       dataChanged: function() {
         this.$.main.innerHTML = groupedTable(this.data,this.selected);
       },
