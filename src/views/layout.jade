@@ -38,7 +38,6 @@ head
     
   link(rel='import', href='elements/post-card.html')
   link(rel='import', href='elements/table-log.html')
-  link(rel='import', href='elements/table-logtwo.html')
   link(rel='import', href='elements/value-watcher.html')  
   
   //- Style
@@ -64,8 +63,15 @@ head
       font-style: normal;
     }
     
+    @font-face {
+      font-family: Roboto-Light;
+      src: url('css/fonts/Roboto-Light.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    
     html,body {
-      background-color: #E5E5E5;
+      background: #E5E5E5;
       font-family: 'Roboto-Regular';
       font-size: 1rem;
       font-weight: 200;
@@ -203,7 +209,7 @@ body(unresolved, fullbleed, vertical, layout)
   script(src='js/jquery/jquery-2.1.3.js')
   
   // Underscore
-  script(src='../js/underscore/underscore.js')
+  script(src='js/underscore/underscore.js')
 
   //- // Material Design
   //- script(src='js/materialize.js')

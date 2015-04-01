@@ -67,12 +67,38 @@
         font-weight: 300;
       }
 
+      th {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+
+        -o-user-select: none;
+        user-select: none;
+        cursor: pointer;
+      }
+
+      td {
+        text-align: left;
+      }
+
+      table {
+        width: 100%;
+      }
+
       .grouptitle {
         padding: 1.5em 1em 0em;
         font-size: 0.7em;
-        background: white;
+        background: transparent;
         font-style: oblique;
         font-weight: 700;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+
+        -o-user-select: none;
+        user-select: none;
+
+        cursor: default;
       }
 
     </style>
@@ -100,105 +126,229 @@
     Polymer('table-log',{
 
       ready: function() {
+        this.sortingSelected();
       },
 
       publish: {
         tab: [],
         data: [],
-        selected: 1
+        selected: 1,
+        titleTable: {
+          "all": "Alle",
+          "date": "Datum",
+          "room": "Raum",
+          "kind": "Typ",
+          "var": "Methode",
+          "value": "Wert"
+        },
+        sortedRow: {
+          "date": false,
+          "room": false,
+          "kind": false,
+          "var": false,
+          "value": false
+        },
+        sortSelected: "date",
+        groupSelected: "date"
       },
 
       dataChanged: function() {
-        this.injectBoundHTML(groupedTable(this.data,this.selected), this.$.main);
+        this.injectBoundHTML(this.groupedTable(this.data,this.selected), this.$.main);
       },
 
       selectedChanged: function() {
-        this.injectBoundHTML(groupedTable(this.data,this.selected), this.$.main);
+        this.injectBoundHTML(this.groupedTable(this.data,this.selected), this.$.main);
       },
 
-      domReady: function() {
+      sort: function(e, detail, sender) {
+        this.data = this.sortingSelected(sender.getAttribute('id'),this.data);
+      },
+
+      sortingSelected: function(sel,arr) {
+
+        if (sel && arr) {
+          var direction;
+
+          if (this.sortSelected == sel) {
+            this.sortedRow[sel] = !this.sortedRow[sel];
+            direction = (this.sortedRow[sel]) ? 1 : -1;
+
+          }
+          else {
+            this.sortSelected = sel;
+            this.sortedRow[sel] = true;
+            direction = 1;
+          }
+
+          var arrSort = [];
+
+          arrSort = arr.sort(
+            function(left, right) {
+              if (left[sel] > right[sel]) return 1*direction;
+              if (left[sel] < right[sel]) return -1*direction;
+              if (left[sel] == right[sel]) {
+                if (left.date > right.date) return -1;
+                if (left.date < right.date) return 1;
+                return 0;
+              }
+          });;
+        }
+        return arrSort;
+      },
+
+      groupedTable: function(arr,sel) {
+        if (sel === 0) {
+          var htmlcode = "<table>" +
+            this.theadCreate() + this.tbodyCreate(arr) + "</table>";
+          this.groupSelected = "";
+        }
+        else {
+          var groupTitle = _.keys(this.titleTable)[sel];
+          this.groupSelected = groupTitle;
+          arr = _.sortBy(arr,groupTitle);
+
+          var groupedData = _.groupBy(arr,groupTitle);
+
+          var keys = _.keys(groupedData);
+          var vals = _.values(groupedData);
+
+          var htmlcode = "";
+
+          var a = "active";
+          for (var i=0; i<keys.length; i++) {
+            htmlcode += '<section class="grouptitle">' + keys[i] + '</section>' + '<hr>' +
+              '<section><table>' + this.theadCreate(groupTitle) +
+              this.tbodyCreate(vals[i],groupTitle) + '</table></section>';
+            a = "";
+          }
+        }
+        return htmlcode;
+      },
+
+      theadCreate: function(ex) {
+        table_keys  = _.keys(_.omit(this.titleTable,ex,'all'));
+        table_title = _.values(_.omit(this.titleTable,ex,'all'));
+
+        htmlcode = "<thead>";
+        var sortSign = "";
+
+        for (var i=0; i<table_title.length; i++) {
+          if(table_keys[i] == this.sortSelected) {
+            if(this.sortedRow[this.sortSelected]) {
+              sortSign = " ▴ ";
+              sortStyle = "font-family: Roboto-Light;border: thin dotted #1d1d1d;";
+            }
+            else {
+              sortSign = " ▾ ";
+              sortStyle = "font-family: Roboto-Light;border: thin dotted #1d1d1d;";
+            }
+          }
+          else {
+            sortSign = "";
+            sortStyle = "";
+          }
+          htmlcode += "<th on-click='{{sort}}' id='" + table_keys[i] + "'' style='"+ sortStyle + "'>"+table_title[i]+sortSign+"</th>";
+        }
+
+        htmlcode += "</thead>";
+        return htmlcode;
+      },
+
+      tbodyCreate: function(arr,ex) {
+        var line = [];
+        htmlcode = "<tbody>";
+
+        for (var i=0; i<arr.length; i++) {
+          line = _.omit(arr[i],ex);
+          htmlcode += "<tr>";
+
+          if (line.date) {htmlcode += "<td>" + line.date + "</td>";}
+          if (line.room) {htmlcode += "<td>" + line.room + "</td>";}
+          if (line.kind) {htmlcode += "<td>" + line.kind + "</td>";}
+          if (line.var) {htmlcode += "<td>" + line.var + "</td>";}
+          if (line.value) {htmlcode += "<td style='background:" + line.color + ";'>" + line.value + " " + line.unit + "</td>";}
+
+          htmlcode += "</tr>";
+        }
+
+        htmlcode += "</tbody>";
+        return htmlcode;
       }
+
+
     });
 
-      // Menu Items and titles of a head of table
-    title = {
-        "all": "Alle", /*spezielles Attribut für dieses Element*/
-        "date": "Datum",
-        "room": "Raum",
-        "kind": "Typ",
-        "var": "Methode",
-        "value": "Wert"
-    };
+    ;
 
-      // grouping the table
-    function groupedTable(arr,sel) {
-
-      if (sel === 0) {
-        var htmlcode = "<table class='striped hoverable centered'>" + theadCreate() +
-          tbodyCreate(arr) + "</table>";
-      }
-      else {
-        var groupTitle = _.keys(title)[sel];
-
-        arr = _.sortBy(arr,'date').reverse();
-        if (sel!==1) {
-          arr = _.sortBy(arr,groupTitle);
-        }
-
-        var groupedData = _.groupBy(arr,groupTitle);
-
-        var keys = _.keys(groupedData);
-        var vals = _.values(groupedData);
-
-        var htmlcode = "";
-
-        var a = "active";
-        for (var i=0; i<keys.length; i++) {
-          htmlcode += '<section class="grouptitle">' + keys[i] + '</section>' + '<hr>' +
-            '<section><table class="striped hoverable centered">' + theadCreate(groupTitle) +
-            tbodyCreate(vals[i],groupTitle) + '</table></section>';
-          a = "";
-        }
-      }
-      return htmlcode;
-    }
-
-      // create head of a table
-    function theadCreate(ex) {
-      var tabletitle = title;
-      tabletitle = _.values(_.omit(tabletitle,ex,'all'));
-
-      htmlcode = "<thead>";
-
-      for (var i=0; i<tabletitle.length; i++) {
-        htmlcode += "<th on-click='{{sort}}'>"+tabletitle[i]+"</th>";
-      }
-
-      htmlcode += "</thead>";
-      return htmlcode;
-    }
-
-      //create body of a table
-    function tbodyCreate(arr,ex) {
-      var line = [];
-      htmlcode = "<tbody>";
-
-      for (var i=0; i<arr.length; i++) {
-        line = _.omit(arr[i],ex);
-        htmlcode += "<tr>";
-
-        if (line.date) {htmlcode += "<td>" + line.date + "</td>";}
-        if (line.room) {htmlcode += "<td>" + line.room + "</td>";}
-        if (line.kind) {htmlcode += "<td>" + line.kind + "</td>";}
-        if (line.var) {htmlcode += "<td>" + line.var + "</td>";}
-        if (line.value) {htmlcode += "<td style='background:" + line.color + ";'>" + line.value + " " + line.unit + "</td>";}
-
-        htmlcode += "</tr>";
-      }
-
-      htmlcode += "</tbody>";
-      return htmlcode;
-    }
+    //   // grouping the table
+    // function groupedTable(arr,sel) {
+    //
+    //   if (sel === 0) {
+    //     var htmlcode = "<table class='striped hoverable centered'>" + theadCreate() +
+    //       tbodyCreate(arr) + "</table>";
+    //   }
+    //   else {
+    //     var groupTitle = _.keys(title)[sel];
+    //
+    //     arr = _.sortBy(arr,'date').reverse();
+    //     if (sel!==1) {
+    //       arr = _.sortBy(arr,groupTitle);
+    //     }
+    //
+    //     var groupedData = _.groupBy(arr,groupTitle);
+    //
+    //     var keys = _.keys(groupedData);
+    //     var vals = _.values(groupedData);
+    //
+    //     var htmlcode = "";
+    //
+    //     var a = "active";
+    //     for (var i=0; i<keys.length; i++) {
+    //       htmlcode += '<section class="grouptitle">' + keys[i] + '</section>' + '<hr>' +
+    //         '<section><table class="striped hoverable centered">' + theadCreate(groupTitle) +
+    //         tbodyCreate(vals[i],groupTitle) + '</table></section>';
+    //       a = "";
+    //     }
+    //   }
+    //   return htmlcode;
+    // }
+    //
+    //   // create head of a table
+    // function theadCreate(ex) {
+    //   var tabletitle = title;
+    //   tabletitle = _.values(_.omit(tabletitle,ex,'all'));
+    //
+    //   htmlcode = "<thead>";
+    //
+    //   for (var i=0; i<tabletitle.length; i++) {
+    //     htmlcode += "<th on-click='{{sort}}'>"+tabletitle[i]+"</th>";
+    //   }
+    //
+    //   htmlcode += "</thead>";
+    //   return htmlcode;
+    // }
+    //
+    //   //create body of a table
+    // function tbodyCreate(arr,ex) {
+    //   var line = [];
+    //   htmlcode = "<tbody>";
+    //
+    //   for (var i=0; i<arr.length; i++) {
+    //     line = _.omit(arr[i],ex);
+    //     htmlcode += "<tr>";
+    //
+    //     if (line.date) {htmlcode += "<td>" + line.date + "</td>";}
+    //     if (line.room) {htmlcode += "<td>" + line.room + "</td>";}
+    //     if (line.kind) {htmlcode += "<td>" + line.kind + "</td>";}
+    //     if (line.var) {htmlcode += "<td>" + line.var + "</td>";}
+    //     if (line.value) {htmlcode += "<td style='background:" + line.color + ";'>" + line.value + " " + line.unit + "</td>";}
+    //
+    //     htmlcode += "</tr>";
+    //   }
+    //
+    //   htmlcode += "</tbody>";
+    //   return htmlcode;
+    // }
 
   </script>
 
