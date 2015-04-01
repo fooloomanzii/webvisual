@@ -209,12 +209,15 @@
         }
       }
     }
+
       // Creation of an Object, so it can be assigned to the Eventhandler (dirty)
     var dataStringObject = {content: dataStringArray};
 
     // Triggering of an Event for the Document 'dataLoaded' to show,
     // that Data Values are ready for the delivery
     $(document).triggerHandler("dataLoaded", dataStringObject);
+      // bind data to "table-log"-Element
+    $('table-log').attr('data', JSON.stringify(dataStringArray));
   }
 
 

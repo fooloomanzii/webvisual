@@ -1,12 +1,8 @@
-<script src="../bower_components/webcomponentsjs/webcomponents.min.js"></script>
-<script src="../bower_components/jquery/dist/jquery.min.js"></script>
-<script src='../js/underscore/underscore.js'></script>
-
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 
-<polymer-element name="table-log" attributes="turned collapsed">
+<polymer-element name="table-log" attributes="">
 
   <template>
 
@@ -104,14 +100,6 @@
     Polymer('table-log',{
 
       ready: function() {
-        // connect to the data from data-processor, when it is loaded
-        $(document).on('dataLoaded', function(event, data) {
-            var arr = _.sortBy(data.content,'date').reverse();
-            arr = _.sortBy(arr,'var');
-            arr = _.sortBy(arr,'kind');
-            arr = _.sortBy(arr,'room');
-            $('table-log').attr('data', JSON.stringify(arr));
-        });
       },
 
       publish: {
@@ -121,11 +109,11 @@
       },
 
       dataChanged: function() {
-        this.$.main.innerHTML = groupedTable(this.data,this.selected);
+        this.injectBoundHTML(groupedTable(this.data,this.selected), this.$.main);
       },
 
       selectedChanged: function() {
-        this.$.main.innerHTML = groupedTable(this.data,this.selected);
+        this.injectBoundHTML(groupedTable(this.data,this.selected), this.$.main);
       },
 
       domReady: function() {
@@ -151,6 +139,12 @@
       }
       else {
         var groupTitle = _.keys(title)[sel];
+
+        arr = _.sortBy(arr,'date').reverse();
+        if (sel!==1) {
+          arr = _.sortBy(arr,groupTitle);
+        }
+
         var groupedData = _.groupBy(arr,groupTitle);
 
         var keys = _.keys(groupedData);
