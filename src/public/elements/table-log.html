@@ -1,6 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
 
 <polymer-element name="table-log" attributes="">
 
@@ -13,6 +14,7 @@
 
       :host {
         color: #1d1d1d;
+        font-family: Roboto-Regular;
         overlay: hidden;
         z-index: 0;
         outline: none;
@@ -46,7 +48,7 @@
       }
 
       paper-tab::shadow #ink {
-        color: #f1f1f1;
+        color: rgba(245, 245, 245, 0.25);
         }
 
       paper-tabs /deep/ paper-icon-button {
@@ -61,24 +63,18 @@
         background: rgba(255, 255, 255, 0.50);
       }
 
+      paper-item:hover {
+        background: rgba(0, 93, 130, 0.2);
+      }
+
+      paper-item::shadow #ripple {
+        color: #00ca35;
+      }
+
       th, td {
         padding: 6px 5px 4px;
         font-size: 0.9em;
         font-weight: 300;
-      }
-
-      th {
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-
-        -o-user-select: none;
-        user-select: none;
-        cursor: pointer;
-      }
-
-      td {
-        text-align: left;
       }
 
       table {
@@ -88,9 +84,10 @@
       .grouptitle {
         padding: 1.5em 1em 0em;
         font-size: 0.7em;
+        font-family: Roboto-Medium;
         background: transparent;
         font-style: oblique;
-        font-weight: 700;
+        font-weight: 500;
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
@@ -165,14 +162,12 @@
       },
 
       sortingSelected: function(sel,arr) {
-
         if (sel && arr) {
           var direction;
 
           if (this.sortSelected == sel) {
             this.sortedRow[sel] = !this.sortedRow[sel];
             direction = (this.sortedRow[sel]) ? 1 : -1;
-
           }
           else {
             this.sortSelected = sel;
@@ -236,18 +231,18 @@
           if(table_keys[i] == this.sortSelected) {
             if(this.sortedRow[this.sortSelected]) {
               sortSign = " ▴ ";
-              sortStyle = "font-family: Roboto-Light;border: thin dotted #1d1d1d;";
+              sortStyle = "font-family: Roboto-Light;";
             }
             else {
               sortSign = " ▾ ";
-              sortStyle = "font-family: Roboto-Light;border: thin dotted #1d1d1d;";
+              sortStyle = "font-family: Roboto-Light;";
             }
           }
           else {
             sortSign = "";
             sortStyle = "";
           }
-          htmlcode += "<th on-click='{{sort}}' id='" + table_keys[i] + "'' style='"+ sortStyle + "'>"+table_title[i]+sortSign+"</th>";
+          htmlcode += "<th on-click='{{sort}}' id='" + table_keys[i] + "'' style='"+ sortStyle + "'><paper-item>"+table_title[i]+sortSign+"</paper-item></th>";
         }
 
         htmlcode += "</thead>";

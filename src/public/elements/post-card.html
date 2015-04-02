@@ -27,7 +27,6 @@
       }
 
       :host(:hover) {
-        /*background-color: rgba(118, 193, 123, 0.15);*/
         outline: none;
       }
 
@@ -40,7 +39,7 @@
       }
 
       #ripple {
-        color: #669db4;
+        color: #c8c8c8;
         pointer-events: none;
       }
 
@@ -111,7 +110,9 @@
     publish: {
       headline: "",
       recenteringTouch: false,
-      editable: false
+      editable: false,
+      raised: true,
+      fill: true
     },
 
     toggleMenu: function() {

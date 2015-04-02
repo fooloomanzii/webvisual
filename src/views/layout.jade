@@ -114,8 +114,8 @@ head
     }
     
     paper-tabs /deep/ paper-tab::shadow #ink {
-      color: #f1f1f1;
-      }
+      color: rgba(245, 245, 245, 0.25);
+    }
       
     paper-tabs /deep/ paper-icon-button {
       color: #f1f1f1;
@@ -137,14 +137,17 @@ head
     paper-item {
       border-radius: 5px;
       width: 100%;
-      margin: 0px 0px 4px 0px;
+      margin: 4px;
+      color: #1d1d1d;
+      background: transparent;
+      text-decoration: none;
     }
     paper-item:hover {
       background: rgba(255, 255, 255, 0.50);
     }
     
     paper-item::shadow #ripple {
-      color: black;
+      color: #345475;
     }
     
     img {
@@ -170,9 +173,8 @@ head
       margin: 0.8em;
     }
     
-    a > * {
-      color: inherit;
-      background: inherit;
+    a > paper-item {
+
     }
     
 body(unresolved, fullbleed, vertical, layout)
