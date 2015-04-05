@@ -17,7 +17,7 @@
 @media only screen {
   :host {
     padding: 0.6em;
-    margin: 0.2em;
+    margin: 0.3em;
   }
 }
 
@@ -35,14 +35,15 @@
 
 @media only screen and (max-width : 420px) {
   :host {
-    padding: 0.3em;
+    padding: 0.35em;
+    margin: 0.15em;
   }
 }
 
 @media only screen and (max-width : 380px) {
   :host {
-    padding: 0.2em;
-    margin: 0.1em;
+    padding: 0.3em;
+
   }
 }
 

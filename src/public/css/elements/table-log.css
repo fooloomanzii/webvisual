@@ -99,7 +99,7 @@ paper-item {
     font-size: 0.8em;
   }
   paper-tab {
-    min-width: 50px;
+    min-width: 72px;
     max-height: 48px;
   }
   td {
@@ -112,6 +112,10 @@ paper-item {
   td, paper-item, paper-tabs, host {
     font-size: 0.8em;
   }
+  paper-tab {
+    min-width: 65px;
+    max-height: 48px;
+  }
   td {
     font-size: 0.7em;
     padding: 0.2em 0.2em 0.2em;
@@ -120,9 +124,10 @@ paper-item {
 
 @media only screen and (max-width : 380px) {
   td, paper-item, paper-tabs, host {
-    font-size: 0.65em;
+    font-size: 0.6em;
   }
-  paper-tabs {
+  paper-tab {
+    min-width: 50px;
     max-height: 42px;
   }
   paper-items {
