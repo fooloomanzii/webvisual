@@ -11,59 +11,7 @@
 
 <polymer-element name="post-card" extends="paper-button-base" role="button">
   <template>
-    <style>
-      :host {
-        position: relative;
-        background: #ffffff;
-        color: #1d1d1d;
-        border-radius: 5px;
-        overlay: hidden;
-        display: inline-block;
-        z-index: 0;
-        box-sizing: border-box;
-        padding: 0.5em;
-        margin: 0.2em;
-        outline: none;
-      }
-
-      :host(:hover) {
-        outline: none;
-      }
-
-      div {
-        line-height: 1em;
-      }
-
-      #bg, #shadow {
-        border-radius: inherit;
-      }
-
-      #ripple {
-        color: #c8c8c8;
-        pointer-events: none;
-      }
-
-      #head {
-        font-size: 0.9em;
-        font-weight: 150;
-        padding: 0.5em 1.2em 0.6em;
-        margin-bottom: 0.3em;
-        color: #f1f1f1;
-        background: #669db4;
-        border-radius: 5px;
-      }
-      #cardmenu {
-        width: 40px;
-      }
-
-      #cardcontentsection {
-        color: #333333;
-        background: rgba(255, 255, 255, 0);
-        height: 100%;
-      }
-
-    </style>
-
+    <link rel="stylesheet" type='text/css' href="../css/elements/post-card.css">
 
     <paper-shadow id="shadow" z="1" fit animated></paper-shadow>
 

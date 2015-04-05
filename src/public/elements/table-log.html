@@ -2,107 +2,17 @@
 <link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/core-collapse/core-collapse.html">
 
 <polymer-element name="table-log" attributes="">
 
   <template>
 
-    <style>
-      [unresolved] {
-        opacity: 0;
-      }
-
-      :host {
-        color: #1d1d1d;
-        font-family: Roboto-Regular;
-        overlay: hidden;
-        z-index: 0;
-        outline: none;
-        font-size: 1em;
-        width: 100%;
-        user-select: none;
-      }
-
-      .selector {
-        background: white;
-      }
-
-      paper-icon-button::shadow #ripple {
-        color: #f1f1f1;
-      }
-
-      paper-tabs {
-        color: #f1f1f1;
-        background: #669db4;
-        text-transform: uppercase;
-        font-family: 'Roboto-Regular';
-        font-size: 0.9em;
-        border-radius: 5px;
-        font-weight: 150;
-      }
-
-      paper-tabs::shadow #selectionBar {
-        background-color: #f1f1f1;
-        height: 3px;
-        border-radius: 5px;
-      }
-
-      paper-tab::shadow #ink {
-        color: rgba(245, 245, 245, 0.25);
-        }
-
-      paper-tabs /deep/ paper-icon-button {
-        color: #f1f1f1;
-      }
-
-      paper-tabs /deep/ paper-tab {
-        border-radius: 5px;
-      }
-
-      paper-tabs /deep/ paper-tab :hover {
-        background: rgba(255, 255, 255, 0.50);
-      }
-
-      paper-item:hover {
-        background: rgba(0, 93, 130, 0.2);
-      }
-
-      paper-item::shadow #ripple {
-        color: #00ca35;
-      }
-
-      th, td {
-        padding: 6px 5px 4px;
-        font-size: 0.9em;
-        font-weight: 300;
-      }
-
-      table {
-        width: 100%;
-      }
-
-      .grouptitle {
-        padding: 1.5em 1em 0em;
-        font-size: 0.7em;
-        font-family: Roboto-Medium;
-        background: transparent;
-        font-style: oblique;
-        font-weight: 500;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-
-        -o-user-select: none;
-        user-select: none;
-
-        cursor: default;
-      }
-
-    </style>
+    <link rel="stylesheet" type='text/css' href="../css/elements/table-log.css">
 
     <section vertical layout>
       <section id="tabs" relative>
-        <paper-tabs id="tableselect" selected="{{selected}}" scrollable>
+        <paper-tabs id="tableselect" selected="{{selected}}">
           <paper-tab>Alle</paper-tab>
           <paper-tab>Datum</paper-tab>
           <paper-tab>Raum</paper-tab>
@@ -146,7 +56,8 @@
           "value": false
         },
         sortSelected: "date",
-        groupSelected: "date"
+        groupSelected: "date",
+        collapseActive: 0
       },
 
       dataChanged: function() {
@@ -154,7 +65,13 @@
       },
 
       selectedChanged: function() {
+        this.collapseActive = 0;
         this.injectBoundHTML(this.groupedTable(this.data,this.selected), this.$.main);
+      },
+
+      toggleCollapse: function(e, detail, sender){
+        sender.nextElementSibling.toggle();
+        this.collapseActive = sender.tabIndex;
       },
 
       sort: function(e, detail, sender) {
@@ -209,12 +126,14 @@
 
           var htmlcode = "";
 
-          var a = "active";
+          var a;
           for (var i=0; i<keys.length; i++) {
-            htmlcode += '<section class="grouptitle">' + keys[i] + '</section>' + '<hr>' +
-              '<section><table>' + this.theadCreate(groupTitle) +
-              this.tbodyCreate(vals[i],groupTitle) + '</table></section>';
-            a = "";
+
+            a = (i == this.collapseActive) ? "opened" : "";
+
+            htmlcode += '<paper-item class="groupTitle" on-tap="{{toggleCollapse}}" id="grouptitle' + i + '" tabIndex="' + i + '">'
+              + keys[i] + '</paper-item>' + '<core-collapse duration="1" id="collapse' + i + '" ' + a + '> <table>'
+              + this.theadCreate(groupTitle) + this.tbodyCreate(vals[i],groupTitle) + '</table></core-collapse>';
           }
         }
         return htmlcode;
@@ -242,7 +161,7 @@
             sortSign = "";
             sortStyle = "";
           }
-          htmlcode += "<th on-click='{{sort}}' id='" + table_keys[i] + "'' style='"+ sortStyle + "'><paper-item>"+table_title[i]+sortSign+"</paper-item></th>";
+          htmlcode += "<th on-click='{{sort}}' class='tableTitle' id='" + table_keys[i] + "'' style='"+ sortStyle + "'><paper-item class='tableHead'>"+table_title[i]+sortSign+"</paper-item></th>";
         }
 
         htmlcode += "</thead>";
@@ -269,82 +188,7 @@
         htmlcode += "</tbody>";
         return htmlcode;
       }
-
-
     });
-
-    ;
-
-    //   // grouping the table
-    // function groupedTable(arr,sel) {
-    //
-    //   if (sel === 0) {
-    //     var htmlcode = "<table class='striped hoverable centered'>" + theadCreate() +
-    //       tbodyCreate(arr) + "</table>";
-    //   }
-    //   else {
-    //     var groupTitle = _.keys(title)[sel];
-    //
-    //     arr = _.sortBy(arr,'date').reverse();
-    //     if (sel!==1) {
-    //       arr = _.sortBy(arr,groupTitle);
-    //     }
-    //
-    //     var groupedData = _.groupBy(arr,groupTitle);
-    //
-    //     var keys = _.keys(groupedData);
-    //     var vals = _.values(groupedData);
-    //
-    //     var htmlcode = "";
-    //
-    //     var a = "active";
-    //     for (var i=0; i<keys.length; i++) {
-    //       htmlcode += '<section class="grouptitle">' + keys[i] + '</section>' + '<hr>' +
-    //         '<section><table class="striped hoverable centered">' + theadCreate(groupTitle) +
-    //         tbodyCreate(vals[i],groupTitle) + '</table></section>';
-    //       a = "";
-    //     }
-    //   }
-    //   return htmlcode;
-    // }
-    //
-    //   // create head of a table
-    // function theadCreate(ex) {
-    //   var tabletitle = title;
-    //   tabletitle = _.values(_.omit(tabletitle,ex,'all'));
-    //
-    //   htmlcode = "<thead>";
-    //
-    //   for (var i=0; i<tabletitle.length; i++) {
-    //     htmlcode += "<th on-click='{{sort}}'>"+tabletitle[i]+"</th>";
-    //   }
-    //
-    //   htmlcode += "</thead>";
-    //   return htmlcode;
-    // }
-    //
-    //   //create body of a table
-    // function tbodyCreate(arr,ex) {
-    //   var line = [];
-    //   htmlcode = "<tbody>";
-    //
-    //   for (var i=0; i<arr.length; i++) {
-    //     line = _.omit(arr[i],ex);
-    //     htmlcode += "<tr>";
-    //
-    //     if (line.date) {htmlcode += "<td>" + line.date + "</td>";}
-    //     if (line.room) {htmlcode += "<td>" + line.room + "</td>";}
-    //     if (line.kind) {htmlcode += "<td>" + line.kind + "</td>";}
-    //     if (line.var) {htmlcode += "<td>" + line.var + "</td>";}
-    //     if (line.value) {htmlcode += "<td style='background:" + line.color + ";'>" + line.value + " " + line.unit + "</td>";}
-    //
-    //     htmlcode += "</tr>";
-    //   }
-    //
-    //   htmlcode += "</tbody>";
-    //   return htmlcode;
-    // }
-
   </script>
 
 </polymer-element>

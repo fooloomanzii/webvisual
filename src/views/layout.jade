@@ -5,15 +5,151 @@ head
   // Meta-Tag: Set the viewport
   meta(name='viewport', charset='utf-8', content='width=device-width, initial-scale=1, user-scalable=yes')
   - var title = (locals.title.charAt(0).toUpperCase() + locals.title.slice(1))
-  title #{title}
+  title #{title}  
+  
+  //- Custom Style
+  link(href='css/index.css', type='text/css', rel='stylesheet')
+    
+  //- // Custom Style
+  //- style.
+  //-   @font-face {
+  //-     font-family: Roboto-Medium;
+  //-     src: url('fonts/Roboto-Medium.ttf') format('truetype');
+  //-     font-weight: normal;
+  //-     font-style: normal;
+  //-   }
+  //- 
+  //-   @font-face {
+  //-     font-family: Roboto-Regular;
+  //-     src: url('fonts/Roboto-Regular.ttf') format('truetype');
+  //-     font-weight: normal;
+  //-     font-style: normal;
+  //-   }
+  //- 
+  //-   @font-face {
+  //-     font-family: Roboto-Thin;
+  //-     src: url('fonts/Roboto-Thin.ttf') format('truetype');
+  //-     font-weight: normal;
+  //-     font-style: normal;
+  //-   }
+  //- 
+  //-   @font-face {
+  //-     font-family: Roboto-Light;
+  //-     src: url('fonts/Roboto-Light.ttf') format('truetype');
+  //-     font-weight: normal;
+  //-     font-style: normal;
+  //-   }
+  //- 
+  //-   html,body {
+  //-     background: #E5E5E5;
+  //-     font-family: 'Roboto-Regular';
+  //-     font-size: 1rem;
+  //-     font-weight: 300;
+  //-     line-height: 1em;
+  //-   }
+  //- 
+  //-   core-header-panel {
+  //-     heigth: 100%;
+  //-     position: absolute;
+  //-     background-color: #eee;
+  //-   }
+  //- 
+  //-   core-toolbar#mainheader {
+  //-     color: #f1f1f1;
+  //-     background-color: #005B82;
+  //-     position: relative;
+  //-     box-sizing: border-box;
+  //-   }
+  //- 
+  //-   paper-tabs {
+  //-     color: #f1f1f1;
+  //-     background: #669DB4;
+  //-     text-transform: uppercase;
+  //-     font-family: 'Roboto-Regular';
+  //-     font-size: 1em;
+  //-   }
+  //- 
+  //-   paper-tabs::shadow #selectionBar {
+  //-     background-color: #f1f1f1;
+  //-     height: 3px;
+  //-     border-radius: 5px;
+  //-   }
+  //- 
+  //-   paper-tabs /deep/ paper-tab::shadow #ink {
+  //-     color: rgba(245, 245, 245, 0.25);
+  //-   }
+  //- 
+  //-   paper-tabs /deep/ paper-icon-button {
+  //-     color: #f1f1f1;
+  //-   }
+  //- 
+  //-   paper-tabs /deep/ paper-tab {
+  //-     border-radius: 5px;
+  //-   }
+  //- 
+  //-   paper-tabs /deep/ paper-tab:hover {
+  //-     background: rgba(255, 255, 255, 0.15);
+  //-   }
+  //- 
+  //-   paper-item#mainmenubutton {
+  //-     border-radius: 5px;
+  //-     width: 100%;
+  //-     margin: 4px;
+  //-     color: #1d1d1d;
+  //-     background: transparent;
+  //-     text-decoration: none;
+  //-     border: thin solid #7c7c7c;
+  //-   }
+  //- 
+  //-   paper-item#mainmenubutton:hover {
+  //-     background: rgba(0, 203, 40, 0.15);
+  //-   }
+  //- 
+  //-   paper-item#mainmenubutton::shadow #ripple {
+  //-     color: #345475;
+  //-   }
+  //- 
+  //-   [drawer] {
+  //-     background: rgba(255, 255, 255, 0.75);
+  //-     border-radius: 0px;
+  //-     font-family: 'Roboto-Regular';
+  //-     font-size: 1em;
+  //-   }
+  //- 
+  //-   [drawer]::shadow #mainContainer {
+  //-     margin-right: 8px;
+  //-     padding: 4px;
+  //-   }
+  //- 
+  //-   img#logo {
+  //-     height: 48px;
+  //-   }
+  //- 
+  //-   @media only screen {
+  //-     #maincontent {
+  //-       margin: 0.8em;
+  //-     }
+  //-   }
+  //- 
+  //-   @media only screen and (max-width : 650px) {
+  //-     #maincontent {
+  //-       margin: 0.5em;
+  //-     }
+  //-   }
+  //- 
+  //-   @media only screen and (max-width : 420px) {
+  //-     #maincontent {
+  //-       margin: 0.35em;
+  //-     }
+  //-   }
+  //- 
+  //-   @media only screen and (max-width : 380px) {
+  //-     #maincontent {
+  //-       margin: 0.25em;
+  //-     }
+  //-   }
 
-  //-  Materialize CSS Style Framework
-  //- link(type='text/css', rel='stylesheet', href='css/materialize.min.css', media='all')
-
-
-  block style
-
-  //- Polymer-Elements
+  //- Polymer-Elements Imports
   script(src='bower_components/webcomponentsjs/webcomponents.js')
   link(rel='import', href='bower_components/polymer/polymer.html')
   link(rel='import', href='bower_components/font-roboto/roboto.html')
@@ -36,146 +172,11 @@ head
   link(rel='import', href='bower_components/paper-ripple/paper-ripple.html')
   link(rel='import', href='bower_components/core-scroll-threshold/core-scroll-threshold.html')
     
+  // Custom-Elements Imports
   link(rel='import', href='elements/post-card.html')
   link(rel='import', href='elements/table-log.html')
   link(rel='import', href='elements/value-watcher.html')  
-  
-  //- Style
-  style.
-    @font-face {
-      font-family: Roboto-Medium;
-      src: url('css/fonts/Roboto-Medium.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-    }
-    
-    @font-face {
-      font-family: Roboto-Regular;
-      src: url('css/fonts/Roboto-Regular.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-    }
-    
-    @font-face {
-      font-family: Roboto-Thin;
-      src: url('css/fonts/Roboto-Thin.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-    }
-    
-    @font-face {
-      font-family: Roboto-Light;
-      src: url('css/fonts/Roboto-Light.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-    }
-    
-    html,body {
-      background: #E5E5E5;
-      font-family: 'Roboto-Regular';
-      font-size: 1rem;
-      font-weight: 200;
-      line-height: 1em;
-    }
-    
-    div {
-      font-family: 'Roboto-Regular';
-      font-size: 1rem;
-      font-weight: 200;
-    }
 
-    core-header-panel {
-      heigth: 100%;
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      background-color: #eee;
-    }
-
-    core-toolbar {
-      color: #f1f1f1;
-      background-color: #005B82;
-    }
-    
-    paper-tabs {
-      color: #f1f1f1;
-      background: #669DB4;
-      text-transform: uppercase;
-      font-family: 'Roboto-Regular';
-      font-size: 0.9em;
-    }
-    
-    paper-tabs::shadow #selectionBar {
-      background-color: #f1f1f1;
-      height: 3px;
-      border-radius: 5px;
-    }
-    
-    paper-tabs /deep/ paper-tab::shadow #ink {
-      color: rgba(245, 245, 245, 0.25);
-    }
-      
-    paper-tabs /deep/ paper-icon-button {
-      color: #f1f1f1;
-    }
-    
-    paper-tabs /deep/ paper-tab {
-      border-radius: 5px;
-    }
-    
-    paper-tabs /deep/ paper-tab:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
-    
-    paper-item::shadow .button-content {
-      color: #2c2c2c;
-      margin: 5px;
-    }
-    
-    paper-item {
-      border-radius: 5px;
-      width: 100%;
-      margin: 4px;
-      color: #1d1d1d;
-      background: transparent;
-      text-decoration: none;
-    }
-    paper-item:hover {
-      background: rgba(255, 255, 255, 0.50);
-    }
-    
-    paper-item::shadow #ripple {
-      color: #345475;
-    }
-    
-    img {
-      height: 48px;
-    }
-    
-    [drawer] {
-      background: rgba(255, 255, 255, 0.75);
-      margin: 0px;
-      left: 8px;
-      top: 8px;
-      border-radius: 0px;
-      font-family: 'Roboto-Regular';
-      font-size: 1em;
-    }
-    
-    [drawer]::shadow #mainContainer {
-      margin: 8px;
-      padding: 4px;
-    }
-    
-    #maincontent {
-      margin: 0.8em;
-    }
-    
-    a > paper-item {
-
-    }
     
 body(unresolved, fullbleed, vertical, layout)
 
@@ -194,7 +195,7 @@ body(unresolved, fullbleed, vertical, layout)
     core-header-panel#headerPanel(main,fixed)
       core-toolbar#mainheader
         paper-icon-button#navicon(icon='menu', core-drawer-toggle)
-        img(src='img/Logo_FZ_Juelich_Weiss.svg',style="background-color: #005B82;")
+        img#logo(src='img/Logo_FZ_Juelich_Weiss.svg',style="background-color: #005B82;")
         div(flex)
         paper-icon-button#morebutton(icon='filter-list', onclick="document.querySelector('#submenu').toggle()")
       core-collapse#submenu()
@@ -209,12 +210,11 @@ body(unresolved, fullbleed, vertical, layout)
 
   // jQuery
   script(src='js/jquery/jquery-2.1.3.js')
-  
+  script(src='js/dateFormat.js')
+  script(src='js/jquery.dateFormat.js')
+
   // Underscore
   script(src='js/underscore/underscore.js')
-
-  //- // Material Design
-  //- script(src='js/materialize.js')
     
   // Eigene Scripte
   script(src='js/data_processor/data_processor.js')      
