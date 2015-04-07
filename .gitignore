@@ -21,3 +21,4 @@ src/test/OLD/*.txt
 
 # Mail login #
 src/config/mail.json
+*.prefs
