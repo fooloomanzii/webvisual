@@ -24,7 +24,7 @@ paper-tabs {
 
 paper-tabs::shadow #selectionBar {
   background-color: #f1f1f1;
-  height: 3px;
+  height: 2px;
   border-radius: 5px;
 }
 
@@ -98,13 +98,18 @@ paper-item {
   td, paper-item, paper-tabs, host {
     font-size: 0.8em;
   }
+  paper-tabs {
+    max-height: 48px;
+  }
   paper-tab {
     min-width: 72px;
-    max-height: 48px;
+  }
+  paper-item {
+    max-heigth: 36px;
   }
   td {
     font-size: 0.75em;
-    padding: 0.25em 0.3em 0.25em;
+    padding: 0.25em 0.35em 0.25em;
   }
 }
 
@@ -112,13 +117,15 @@ paper-item {
   td, paper-item, paper-tabs, host {
     font-size: 0.8em;
   }
+  paper-tabs {
+    max-height: 42px;
+  }
   paper-tab {
     min-width: 65px;
-    max-height: 48px;
   }
   td {
     font-size: 0.7em;
-    padding: 0.2em 0.2em 0.2em;
+    padding: 0.15em 0.2em 0.15em;
   }
 }
 
@@ -126,16 +133,15 @@ paper-item {
   td, paper-item, paper-tabs, host {
     font-size: 0.6em;
   }
+  paper-tabs {
+    max-height: 36px;
+  }
   paper-tab {
     min-width: 50px;
-    max-height: 42px;
-  }
-  paper-items {
-    max-heigth: 36px;
   }
   td {
     font-size: 0.6em;
-    padding: 0.1em 0.1em 0.1em;
+    padding: 0.1em 0.15em 0.1em;
   }
 }
 
