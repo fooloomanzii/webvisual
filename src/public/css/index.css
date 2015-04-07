@@ -144,14 +144,14 @@ a > paper-item {
 
 @font-face {
   font-family: Roboto-Light;
-  src: url('fonts/Dosis-Regular.ttf') format('truetype');
+  src: url('fonts/Roboto-Light.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: Dosis;
-  src: url('fonts/Roboto-Light.ttf') format('truetype');
+  src: url('fonts/Dosis-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -173,6 +173,13 @@ a > paper-item {
 @font-face {
   font-family: Roboto-Condensed;
   src: url('fonts/RobotoCondensed-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Roboto-Condensed-Light;
+  src: url('fonts/RobotoCondensed-Light.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
