@@ -65,6 +65,9 @@ paper-item {
   font-weight: 500;
 }
 
+td#values {
+}
+
 @media only screen {
   paper-item, paper-tabs, host {
     font-size: 1em;
