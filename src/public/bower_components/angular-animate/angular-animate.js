@@ -1,5 +1,9 @@
 /**
+<<<<<<< HEAD
  * @license AngularJS v1.3.13
+=======
+ * @license AngularJS v1.3.15
+>>>>>>> develop
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */

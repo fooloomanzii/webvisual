@@ -1,6 +1,10 @@
 {
   "name": "google-code-prettify",
+<<<<<<< HEAD
   "version": "1.0.3",
+=======
+  "version": "1.0.4",
+>>>>>>> develop
   "main": [
     "./bin/prettify.min.css",
     "./bin/prettify.min.js"
@@ -14,11 +18,19 @@
     "Makefile"
   ],
   "homepage": "https://github.com/tcollard/google-code-prettify",
+<<<<<<< HEAD
   "_release": "1.0.3",
   "_resolution": {
     "type": "version",
     "tag": "v1.0.3",
     "commit": "0b242858d7f704d9cba6db4c37d5eba00e2c718f"
+=======
+  "_release": "1.0.4",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.0.4",
+    "commit": "80478ff92dec68d56498bad7451546d11c15e541"
+>>>>>>> develop
   },
   "_source": "git://github.com/tcollard/google-code-prettify.git",
   "_target": "*",

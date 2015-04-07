@@ -1,0 +1,185 @@
+[unresolved] {
+  opacity: 0;
+}
+
+html,body {
+  background: #E5E5E5;
+  font-family: 'Roboto-Regular';
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1em;
+}
+
+core-header-panel {
+  heigth: 100%;
+  position: absolute;
+  background-color: #eee;
+}
+
+core-toolbar {
+  color: #f1f1f1;
+  background-color: #005B82;
+}
+
+paper-tabs {
+  color: #f1f1f1;
+  background: #669DB4;
+  text-transform: uppercase;
+  font-family: 'Roboto-Regular';
+  font-size: 1em;
+}
+
+paper-tabs::shadow #selectionBar {
+  background-color: #f1f1f1;
+  height: 3px;
+  border-radius: 5px;
+}
+
+paper-tabs /deep/ paper-tab::shadow #ink {
+  color: rgba(245, 245, 245, 0.25);
+}
+
+paper-tabs /deep/ paper-icon-button {
+  color: #f1f1f1;
+}
+
+paper-tabs /deep/ paper-tab {
+  border-radius: 5px;
+}
+
+paper-tabs /deep/ paper-tab:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+paper-item#mainmenubutton {
+  border-radius: 5px;
+  width: 100%;
+  margin: 4px;
+  color: #1d1d1d;
+  background: transparent;
+  text-decoration: none;
+  border: thin solid #bcbcbc;
+}
+
+paper-item#mainmenubutton:hover {
+  background: rgba(0, 203, 40, 0.15);
+}
+
+paper-item#mainmenubutton::shadow #ripple {
+  color: #00ca35;
+}
+
+[drawer] {
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 0px;
+  font-family: 'Roboto-Regular';
+}
+
+[drawer]::shadow #mainContainer {
+  margin-right: 8px;
+  padding: 4px;
+}
+
+img#logo {
+  height: 48px;
+}
+
+@media only screen {
+  #maincontent {
+    margin: 1em;
+  }
+}
+
+@media only screen and (max-width : 650px) {
+  #maincontent {
+    margin: 0.6em;
+  }
+  paper-item#mainmenubutton {
+    font-size: 0.9em;
+  }
+}
+
+@media only screen and (max-width : 420px) {
+  #maincontent {
+    margin: 0.5em;
+  }
+  paper-item#mainmenubutton {
+    font-size: 0.8em;
+  }
+}
+
+@media only screen and (max-width : 380px) {
+  #maincontent {
+    margin: 0.4em;
+  }
+  paper-item#mainmenubutton {
+    font-size: 0.7em;
+  }
+}
+
+a > paper-item {
+  border: thin solid #9f9f9f;
+}
+
+@font-face {
+  font-family: Roboto-Medium;
+  src: url('fonts/Roboto-Medium.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Roboto-Regular;
+  src: url('fonts/Roboto-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Roboto-Thin;
+  src: url('fonts/Roboto-Thin.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Roboto-Light;
+  src: url('fonts/Roboto-Light.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Dosis;
+  src: url('fonts/Dosis-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Open-Sans-Condensed;
+  src: url('fonts/OpenSans-CondLight.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Open-Sans-Condensed-Italic;
+  src: url('fonts/OpenSans-CondLightItalic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Roboto-Condensed;
+  src: url('fonts/RobotoCondensed-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Roboto-Condensed-Light;
+  src: url('fonts/RobotoCondensed-Light.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}

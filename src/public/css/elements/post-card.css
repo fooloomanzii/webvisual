@@ -1,0 +1,86 @@
+[unresolved] {
+  opacity: 0;
+}
+
+:host {
+  position: relative;
+  background: #ffffff;
+  color: #1d1d1d;
+  border-radius: 5px;
+  overlay: hidden;
+  display: inline-block;
+  z-index: 0;
+  box-sizing: border-box;
+  outline: none;
+}
+
+@media only screen {
+  :host {
+    padding: 0.6em;
+    margin: 0.3em;
+  }
+}
+
+@media only screen and (max-width : 640px) {
+  :host {
+    padding: 0.5em;
+  }
+}
+
+@media only screen and (max-width : 480px) {
+  :host {
+    padding: 0.4em;
+  }
+}
+
+@media only screen and (max-width : 420px) {
+  :host {
+    padding: 0.35em;
+    margin: 0.15em;
+  }
+}
+
+@media only screen and (max-width : 380px) {
+  :host {
+    padding: 0.3em;
+
+  }
+}
+
+:host(:hover) {
+  outline: none;
+}
+
+div {
+  line-height: 1em;
+}
+
+#bg, #shadow {
+  border-radius: inherit;
+}
+
+#ripple {
+  color: #c8c8c8;
+  pointer-events: none;
+}
+
+#head {
+  font-style: Roboto-Thin;
+  font-size: 0.9em;
+  font-weight: 150;
+  padding: 0.5em 1.2em 0.6em;
+  margin-bottom: 0.3em;
+  color: #f1f1f1;
+  background: #669db4;
+  border-radius: 5px;
+}
+
+#cardmenu {
+  width: 40px;
+}
+
+#cardcontentsection {
+  color: #333333;
+  background: rgba(255, 255, 255, 0);
+  height: 100%;
+}

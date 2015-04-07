@@ -9,6 +9,7 @@
 <link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
 <link rel="import" href="../bower_components/paper-button/paper-button-base.html">
 
+<<<<<<< HEAD
 <polymer-element name="post-card" attributes="raised recenteringTouch fill" extends="paper-button-base" role="button" touch-action='none'>
   <template>
     <style>
@@ -69,6 +70,21 @@
       <section id="cardcontentsection" vertical layout>
 
         <div id="head">{{headline}}</div>
+=======
+<polymer-element name="post-card" extends="paper-button-base" role="button">
+  <template>
+    <link rel="stylesheet" type='text/css' href="../css/elements/post-card.css">
+
+    <paper-shadow id="shadow" z="1" fit animated></paper-shadow>
+
+    <section id="cardmain" class="button-content" relative layout horizontal center>
+
+      <section id="cardcontentsection" vertical layout>
+
+        <template if={{headline}}>
+          <div id="head">{{headline}}</div>
+        </template>
+>>>>>>> develop
         <div id="cardcontent">
 
           <content></content>
@@ -104,8 +120,15 @@
 
     publish: {
       headline: "",
+<<<<<<< HEAD
       recenteringTouch: true,
       editable: false
+=======
+      recenteringTouch: false,
+      editable: false,
+      raised: true,
+      fill: true
+>>>>>>> develop
     },
 
     toggleMenu: function() {

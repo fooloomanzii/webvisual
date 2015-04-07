@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/core-icon-button/core-icon-button.html">
@@ -83,12 +84,41 @@
 
     <section id="main" flex>
 
+=======
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/core-collapse/core-collapse.html">
+
+<polymer-element name="table-log" attributes="">
+
+  <template>
+
+    <link rel="stylesheet" type='text/css' href="../css/elements/table-log.css" />
+
+    <section vertical layout>
+      <section id="tabs" relative>
+        <paper-tabs id="tableselect" selected="{{selected}}">
+          <paper-tab>{{titleTable.all}}</paper-tab>
+          <paper-tab>{{titleTable.date}}</paper-tab>
+          <paper-tab>{{titleTable.room}}</paper-tab>
+          <paper-tab>{{titleTable.kind}}</paper-tab>
+          <paper-tab>{{titleTable.value}}</paper-tab>
+        </paper-tabs>
+      </section>
+
+      <section id="main">
+
+      </section>
+>>>>>>> develop
     </section>
   </template>
 
 
   <script>
 
+<<<<<<< HEAD
     var vals = "";
 
     Polymer('table-log',{
@@ -102,11 +132,18 @@
             arr = _.sortBy(arr,'room');
             $('table-log').attr('data', JSON.stringify(arr));
         });
+=======
+    Polymer('table-log',{
+
+      ready: function() {
+        this.sortingSelected();
+>>>>>>> develop
       },
 
       publish: {
         tab: [],
         data: [],
+<<<<<<< HEAD
         selected: 1
       },
 
@@ -203,6 +240,158 @@
         });
     }
 
+=======
+        selected: 1,
+        titleTable: {
+          "all": "Alle",
+          "date": "Datum",
+          "room": "Raum",
+          "kind": "Typ",
+          "var": "Methode",
+          "value": "Wert"
+        },
+        sortedRow: {
+          "date": false,
+          "room": false,
+          "kind": false,
+          "var": false,
+          "value": false
+        },
+        sortSelected: "date",
+        groupSelected: "date",
+        collapseActive: 0
+      },
+
+      dataChanged: function() {
+        this.injectBoundHTML(this.groupedTable(this.data,this.selected), this.$.main);
+      },
+
+      selectedChanged: function() {
+        this.collapseActive = 0;
+        this.injectBoundHTML(this.groupedTable(this.data,this.selected), this.$.main);
+      },
+
+      toggleCollapse: function(e, detail, sender){
+        sender.nextElementSibling.toggle();
+        this.collapseActive = sender.tabIndex;
+      },
+
+      sort: function(e, detail, sender) {
+        this.data = this.sortingSelected(sender.getAttribute('id'),this.data);
+      },
+
+      sortingSelected: function(sel,arr) {
+        if (sel && arr) {
+          var direction;
+
+          if (this.sortSelected == sel) {
+            this.sortedRow[sel] = !this.sortedRow[sel];
+            direction = (this.sortedRow[sel]) ? 1 : -1;
+          }
+          else {
+            this.sortSelected = sel;
+            this.sortedRow[sel] = true;
+            direction = 1;
+          }
+
+          var arrSort = [];
+
+          arrSort = arr.sort(
+            function(left, right) {
+              if (left[sel] > right[sel]) return 1*direction;
+              if (left[sel] < right[sel]) return -1*direction;
+              if (left[sel] == right[sel]) {
+                if (left.date > right.date) return -1;
+                if (left.date < right.date) return 1;
+                return 0;
+              }
+          });;
+        }
+        return arrSort;
+      },
+
+      groupedTable: function(arr,sel) {
+        if (sel === 0) {
+          var htmlcode = "<table>" +
+            this.theadCreate() + this.tbodyCreate(arr) + "</table>";
+          this.groupSelected = "";
+        }
+        else {
+          var groupTitle = _.keys(this.titleTable)[sel];
+          this.groupSelected = groupTitle;
+          arr = _.sortBy(arr,groupTitle);
+
+          var groupedData = _.groupBy(arr,groupTitle);
+
+          var keys = _.keys(groupedData);
+          var vals = _.values(groupedData);
+
+          var htmlcode = "";
+
+          var a;
+          for (var i=0; i<keys.length; i++) {
+
+            a = (i == this.collapseActive) ? "opened" : "";
+
+            htmlcode += '<paper-item class="groupTitle" on-tap="{{toggleCollapse}}" id="grouptitle' + i + '" tabIndex="' + i + '">'
+              + keys[i] + '</paper-item>' + '<core-collapse duration="1" id="collapse' + i + '" ' + a + '> <table>'
+              + this.theadCreate(groupTitle) + this.tbodyCreate(vals[i],groupTitle) + '</table></core-collapse>';
+          }
+        }
+        return htmlcode;
+      },
+
+      theadCreate: function(ex) {
+        table_keys  = _.keys(_.omit(this.titleTable,ex,'all'));
+        table_title = _.values(_.omit(this.titleTable,ex,'all'));
+
+        htmlcode = "<thead>";
+        var sortSign = "";
+
+        for (var i=0; i<table_title.length; i++) {
+          if(table_keys[i] == this.sortSelected) {
+            if(this.sortedRow[this.sortSelected]) {
+              sortSign = " ▴ ";
+              sortStyle = "font-family: Roboto-Light;";
+            }
+            else {
+              sortSign = " ▾ ";
+              sortStyle = "font-family: Roboto-Light;";
+            }
+          }
+          else {
+            sortSign = "";
+            sortStyle = "";
+          }
+          htmlcode += "<th on-click='{{sort}}' class='tableTitle' id='" + table_keys[i] + "'' style='"+ sortStyle + "'><paper-item class='tableHead'>"+table_title[i]+sortSign+"</paper-item></th>";
+        }
+
+        htmlcode += "</thead>";
+        return htmlcode;
+      },
+
+      tbodyCreate: function(arr,ex) {
+        var line = [];
+        htmlcode = "<tbody>";
+
+        for (var i=0; i<arr.length; i++) {
+          line = _.omit(arr[i],ex);
+          htmlcode += "<tr>";
+
+          if (line.date) {htmlcode += "<td>" + line.date + "</td>";}
+          if (line.room) {htmlcode += "<td>" + line.room + "</td>";}
+          if (line.kind) {htmlcode += "<td>" + line.kind + "</td>";}
+          if (line.var) {htmlcode += "<td>" + line.var + "</td>";}
+          if (line.value) {htmlcode += "<td id='values' style='background:" + line.color + ";'>" + line.value + " " + line.unit + "</td>";}
+
+          htmlcode += "</tr>";
+        }
+
+        htmlcode += "</tbody>";
+        return htmlcode;
+      }
+    });
+>>>>>>> develop
   </script>
 
 </polymer-element>
