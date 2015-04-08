@@ -7,7 +7,7 @@
 # Some folders #
 
 # Node Stuff #
-# src/node_modules
+src/node_modules
 
 # Tests #
 src/test/OLD/*.txt
