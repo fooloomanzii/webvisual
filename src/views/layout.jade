@@ -36,7 +36,8 @@ head
   // Custom-Elements Imports
   link(rel='import', href='elements/post-card.html')
   link(rel='import', href='elements/table-log.html')
-  link(rel='import', href='elements/value-watcher.html')  
+  link(rel='import', href='elements/value-watcher.html')
+  link(rel='import', href='elements/language-element.html')
 
     
 body(unresolved, fullbleed, vertical, layout)
@@ -58,6 +59,7 @@ body(unresolved, fullbleed, vertical, layout)
         paper-icon-button#navicon(icon='menu', core-drawer-toggle)
         img#logo(src='img/Logo_FZ_Juelich_Weiss.svg',style="background-color: #005B82;")
         div(flex)
+        language-element
         paper-icon-button#morebutton(icon='filter-list', onclick="document.querySelector('#submenu').toggle()")
       core-collapse#submenu()
         paper-tabs#tabs(valueattr="name", selected="all", self-end, scrollable)

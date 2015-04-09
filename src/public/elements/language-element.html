@@ -1,0 +1,58 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/core-menu/core-menu.html">
+<link rel="import" href="../bower_components/core-collapse/core-collapse.html">
+<link rel="import" href="../bower_components/paper-dropdown/paper-dropdown.html">
+
+<polymer-element name="language-element">
+  <template>
+    <style>
+      paper-dropdown {
+        overflow: none;
+        top: 38px;
+        heigth: 100px;
+      }
+    </style>
+
+    <section id="cardmain" class="button-content" relative layout horizontal center>
+
+      <paper-menu-button>
+        <paper-icon-button icon="menu" label="de" class="colored"></paper-icon-button>
+        <paper-dropdown class="dropdown">
+
+            <paper-icon-button icon="menu" class="colored"></paper-icon-button>
+            <paper-icon-button icon="menu" class="colored"></paper-icon-button>
+            <paper-icon-button icon="menu" class="colored"></paper-icon-button>
+            <paper-icon-button icon="menu" class="colored"></paper-icon-button>
+            <paper-icon-button icon="menu" class="colored"></paper-icon-button>
+
+        </paper-dropdown>
+      </paper-menu-button>
+
+
+      </section>
+
+  </template>
+
+  <script>
+
+  Polymer('language-element',{
+    ready: function() {
+
+    },
+
+    publish: {
+      recenteringTouch: false,
+      raised: true,
+      fill: true
+    },
+
+    toggleMenu: function() {
+      this.toggle();
+    },
+
+  });
+  </script>
+</polymer-element>

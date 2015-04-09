@@ -222,7 +222,7 @@
     $('table-log').attr('data', JSON.stringify(dataStringArray));
 
       // bind language Array too language selector
-    // $('language-selector').attr.('data', JSON.stringify(languageArray));
+    // $('language-element').attr.('data', JSON.stringify(languageArray));
   }
 
 
