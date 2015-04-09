@@ -7,7 +7,7 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
-// @version 0.6.0
+// @version 0.5.5
 if (typeof WeakMap === "undefined") {
   (function() {
     var defineProperty = Object.defineProperty;
@@ -95,35 +95,26 @@ window.HTMLImports = window.HTMLImports || {
   }
   function watchImportsLoad(callback, doc) {
     var imports = doc.querySelectorAll("link[rel=import]");
-    var parsedCount = 0, importCount = imports.length, newImports = [], errorImports = [];
-    function checkDone() {
-      if (parsedCount == importCount && callback) {
-        callback({
-          allImports: imports,
-          loadedImports: newImports,
-          errorImports: errorImports
-        });
+    var loaded = 0, l = imports.length;
+    function checkDone(d) {
+      if (loaded == l && callback) {
+        callback();
       }
     }
     function loadedImport(e) {
       markTargetLoaded(e);
-      newImports.push(this);
-      parsedCount++;
+      loaded++;
       checkDone();
     }
-    function errorLoadingImport(e) {
-      errorImports.push(this);
-      parsedCount++;
-      checkDone();
-    }
-    if (importCount) {
-      for (var i = 0, imp; i < importCount && (imp = imports[i]); i++) {
+    if (l) {
+      for (var i = 0, imp; i < l && (imp = imports[i]); i++) {
         if (isImportLoaded(imp)) {
-          parsedCount++;
-          checkDone();
+          loadedImport.call(imp, {
+            target: imp
+          });
         } else {
           imp.addEventListener("load", loadedImport);
-          imp.addEventListener("error", errorLoadingImport);
+          imp.addEventListener("error", loadedImport);
         }
       }
     } else {
@@ -173,11 +164,11 @@ window.HTMLImports = window.HTMLImports || {
       }
     })();
   }
-  whenReady(function(detail) {
+  whenReady(function() {
     HTMLImports.ready = true;
     HTMLImports.readyTime = new Date().getTime();
     var evt = rootDocument.createEvent("CustomEvent");
-    evt.initCustomEvent("HTMLImportsLoaded", true, true, detail);
+    evt.initCustomEvent("HTMLImportsLoaded", true, true, {});
     rootDocument.dispatchEvent(evt);
   });
   scope.IMPORT_LINK_TYPE = IMPORT_LINK_TYPE;
@@ -205,23 +196,20 @@ HTMLImports.addModule(function(scope) {
   var CSS_URL_REGEXP = /(url\()([^)]*)(\))/g;
   var CSS_IMPORT_REGEXP = /(@import[\s]+(?!url\())([^;]*)(;)/g;
   var path = {
-    resolveUrlsInStyle: function(style, linkUrl) {
+    resolveUrlsInStyle: function(style) {
       var doc = style.ownerDocument;
       var resolver = doc.createElement("a");
-      style.textContent = this.resolveUrlsInCssText(style.textContent, linkUrl, resolver);
+      style.textContent = this.resolveUrlsInCssText(style.textContent, resolver);
       return style;
     },
-    resolveUrlsInCssText: function(cssText, linkUrl, urlObj) {
-      var r = this.replaceUrls(cssText, urlObj, linkUrl, CSS_URL_REGEXP);
-      r = this.replaceUrls(r, urlObj, linkUrl, CSS_IMPORT_REGEXP);
+    resolveUrlsInCssText: function(cssText, urlObj) {
+      var r = this.replaceUrls(cssText, urlObj, CSS_URL_REGEXP);
+      r = this.replaceUrls(r, urlObj, CSS_IMPORT_REGEXP);
       return r;
     },
-    replaceUrls: function(text, urlObj, linkUrl, regexp) {
+    replaceUrls: function(text, urlObj, regexp) {
       return text.replace(regexp, function(m, pre, url, post) {
         var urlPath = url.replace(/["']/g, "");
-        if (linkUrl) {
-          urlPath = new URL(urlPath, linkUrl).href;
-        }
         urlObj.href = urlPath;
         urlPath = urlObj.href;
         return pre + "'" + urlPath + "'" + post;
@@ -489,7 +477,6 @@ HTMLImports.addModule(function(scope) {
     parseStyle: function(elt) {
       var src = elt;
       elt = cloneStyle(elt);
-      src.__appliedElement = elt;
       elt.__importElement = src;
       this.parseGeneric(elt);
     },
