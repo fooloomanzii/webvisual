@@ -6,8 +6,7 @@
       valuesArray = [],   // from Datafile (z.Z. data.txt)       // Data Values Array
       exceedsArray = [],  // will be calculated (boolean Values) // Array for the Exceeds
       dateArray = [];     // will be readout (in Date-Format)    // Array for Timestamps (cf. Lines of Datafile)
-      combinedData = [];  // will be created                     // Combining Data
-      languageArray = []; // from config/config.json             // Translation of elements in other languages
+      combinedData = [];  // will be created                     // Zusammenlegung der Daten
 
     // Data Examples:
     //
@@ -120,7 +119,6 @@
 
     // Set the Number of different Variables and Columns 'numCols' respectively
     numCols = locals.typeWidth;
-    languageArray = locals.language;
 
     if (numCols < 1) {
       numCols = 1;
@@ -220,9 +218,6 @@
     $(document).triggerHandler("dataLoaded", dataStringObject);
       // bind data to "table-log"-Element
     $('table-log').attr('data', JSON.stringify(dataStringArray));
-
-      // bind language Array too language selector
-    // $('language-selector').attr.('data', JSON.stringify(languageArray));
   }
 
 
