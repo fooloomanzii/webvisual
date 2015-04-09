@@ -68,6 +68,19 @@
         {},
         {}
       ]
+    },
+
+    "language": {
+      "types": ["en","de","fr","es","ru"],
+      "elements": {
+        "all": ["all","Alle","","",""],
+        "date": ["date","Datum","","",""],
+        "room": ["room","Raum","","",""],
+        "kind": ["kind","Typ","","",""],
+        "var": ["method","Methode","","",""],
+        "value": ["value","Wert","","",""]
+      }
     }
+
 	}
 }
