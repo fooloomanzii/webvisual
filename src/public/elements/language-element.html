@@ -44,7 +44,7 @@
       language : ["en","de","fr","es","ru"]
     },
 
-    //TODO: migrating element requires different event-handling (easier)
+    //TODO: migrating element to new polymer version requires different event-handling (easier)
     selectedChanged : function() {
         this.fire('languageChanged', {language: this.selected});
     }
