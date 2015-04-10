@@ -1,34 +1,65 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
 <link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/core-menu/core-menu.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/core-collapse/core-collapse.html">
-<link rel="import" href="../bower_components/paper-dropdown/paper-dropdown.html">
+<link rel="import" href="../bower_components/core-selector/core-selector.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
 
 <polymer-element name="language-element">
   <template>
     <style>
-      paper-dropdown {
-        overflow: none;
-        top: 38px;
-        heigth: 100px;
+      :host {
+      }
+      section.drop {
+        color: #f1f1f1;
+        background: #669db4;
+        border-radius: 5px;
+      }
+      core-collapse.dropdown {
+        z-index: 12;
+        position: fixed;
+      }
+      paper-item {
+        height: 40px;
+        min-width: 40px;
+        background: none;
+        text-transform: lowercase;
+        font-family: Roboto-Thin;
+        font-style: italic;
+        font-size: 0.7em;
+        font-weight: 100;
+        border-radius: 20px;
+      }
+      paper-item:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+      paper-item::shadow #ripple {
+        color: #00ca35;
+      }
+      paper-item.inner {
+        font-style: normal;
+        border-radius: 0px;
       }
     </style>
 
     <section id="cardmain" class="button-content" relative layout horizontal center>
 
       <paper-menu-button>
-        <paper-icon-button icon="menu" label="de" class="colored"></paper-icon-button>
-        <paper-dropdown class="dropdown">
+        <paper-item>{{selected}}</paper-item>
 
-            <paper-icon-button icon="menu" class="colored"></paper-icon-button>
-            <paper-icon-button icon="menu" class="colored"></paper-icon-button>
-            <paper-icon-button icon="menu" class="colored"></paper-icon-button>
-            <paper-icon-button icon="menu" class="colored"></paper-icon-button>
-            <paper-icon-button icon="menu" class="colored"></paper-icon-button>
+        <core-collapse class="dropdown">
+          <core-selector>
+            <section class="drop">
+              <template repeat="{{l in language}}">
+                <paper-item class="inner">{{l}}</paper-item>
+              </template>
+            </section>
+            <paper-shadow></paper-shadow>
+          </core-selector>
+        </core-collapse>
 
-        </paper-dropdown>
       </paper-menu-button>
 
 
@@ -44,9 +75,8 @@
     },
 
     publish: {
-      recenteringTouch: false,
-      raised: true,
-      fill: true
+      selected : "de",
+      language : ["en","de","fr","es","ru"]
     },
 
     toggleMenu: function() {

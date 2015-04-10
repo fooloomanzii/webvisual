@@ -61,6 +61,15 @@ paper-item#mainmenubutton {
   border: thin solid #bcbcbc;
 }
 
+paper-icon-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+}
+
+paper-icon-button::shadow #ripple {
+  color: #00ca35;
+}
+
 paper-item#mainmenubutton:hover {
   background: rgba(0, 203, 40, 0.15);
 }
