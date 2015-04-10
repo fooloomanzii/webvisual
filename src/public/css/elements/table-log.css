@@ -29,7 +29,7 @@ paper-tabs::shadow #selectionBar {
 }
 
 paper-tab::shadow #ink {
-  color: rgba(245, 245, 245, 0.25);
+  color: #b7d8e0;
   }
 
 paper-tabs /deep/ paper-icon-button {

@@ -1,0 +1,73 @@
+:host {
+}
+
+paper-dropdown-menu {
+  color: #f1f1f1;
+  text-transform: lowercase;
+  text-overflow: ellipsis;
+  text-align: center;
+  font-family: Roboto-Thin;
+  font-style: normal;
+  font-size: 0.8em;
+  font-weight: 100;
+  border-bottom: 0px solid #f1f1f1;
+  padding-left: 0.3em;
+  width: 3em;
+}
+
+paper-dropdown-menu::shadow #label,
+paper-dropdown-menu::shadow #arrow {
+  color: #f1f1f1;
+}
+
+#ripple {
+  color: 669DB4;
+}
+
+paper-item {
+  height: 3em;
+  min-width: 3em;
+  width: 100%;
+  background: rgba(255, 255, 255, 0);
+  border-bottom: thin solid transparent;
+  font-size: 0.95em;
+  font-weight: 100;
+  text-overflow: ellipsis;
+}
+paper-item.core-selected {
+  color: #f1f1f1;
+  background: rgba(255, 255, 255, 0.15);
+  border-bottom: thin solid #f1f1f1;
+  font-family: Roboto-Light;
+  font-weight: 100;
+}
+paper-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+paper-item::shadow #ripple {
+  color: #00ca35;
+}
+
+core-menu {
+  margin: 0em;
+  overflow: hidden;
+}
+core-collapse {
+  position: absolute;
+  top: 1.8em;
+  left: -0.5em;
+  width: 4.3em;
+  /* using z-index, can create problems in layout fo other elements
+      solution can be to increase z-index in other elements*/
+  z-index: 1;
+}
+.card {
+  background: #669DB4;
+  margin: 0.5em;
+  border-radius: 0em 0em 5px 5px;
+}
+.list {
+  border-radius: 0em 0em 5px 5px;
+  padding-bottom: 0.15em;
+}

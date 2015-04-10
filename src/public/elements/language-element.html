@@ -1,69 +1,33 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
-<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/core-menu/core-menu.html">
 <link rel="import" href="../bower_components/core-collapse/core-collapse.html">
-<link rel="import" href="../bower_components/core-selector/core-selector.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+<link rel="import" href="../bower_components/paper-ripple/paper-ripple.html">
 
 <polymer-element name="language-element">
   <template>
-    <style>
-      :host {
-      }
-      section.drop {
-        color: #f1f1f1;
-        background: #669db4;
-        border-radius: 5px;
-      }
-      core-collapse.dropdown {
-        z-index: 12;
-        position: fixed;
-      }
-      paper-item {
-        height: 40px;
-        min-width: 40px;
-        background: none;
-        text-transform: lowercase;
-        font-family: Roboto-Thin;
-        font-style: italic;
-        font-size: 0.7em;
-        font-weight: 100;
-        border-radius: 20px;
-      }
-      paper-item:hover {
-        background: rgba(255, 255, 255, 0.15);
-      }
-      paper-item::shadow #ripple {
-        color: #00ca35;
-      }
-      paper-item.inner {
-        font-style: normal;
-        border-radius: 0px;
-      }
-    </style>
+    <link rel="stylesheet" type='text/css' href="../css/elements/language-element.css">
 
-    <section id="cardmain" class="button-content" relative layout horizontal center>
+    <paper-dropdown-menu label="de">
+      <paper-ripple id="ripple" fit></paper-ripple>
+      <core-collapse class="dropdown">
 
-      <paper-menu-button>
-        <paper-item>{{selected}}</paper-item>
+        <section class="card" relative>
+          <paper-shadow class="list" z-level="5">
 
-        <core-collapse class="dropdown">
-          <core-selector>
-            <section class="drop">
-              <template repeat="{{l in language}}">
-                <paper-item class="inner">{{l}}</paper-item>
+            <core-menu class="list" selected={{selected}} center-justified>
+              <template repeat="{{language}}">
+                <paper-item class="inner">{{}}</paper-item>
               </template>
-            </section>
-            <paper-shadow></paper-shadow>
-          </core-selector>
-        </core-collapse>
+            </core-menu>
 
-      </paper-menu-button>
+          </paper-shadow>
+        </section>
 
-
-      </section>
+      </core-collapse>
+    </paper-dropdown-menu>
 
   </template>
 
@@ -71,17 +35,19 @@
 
   Polymer('language-element',{
     ready: function() {
-
+      this.selected = "1";
+      console.log("le ready");
     },
 
     publish: {
-      selected : "de",
+      selected : "",
       language : ["en","de","fr","es","ru"]
     },
 
-    toggleMenu: function() {
-      this.toggle();
-    },
+    //TODO: migrating element requires different event-handling (easier)
+    selectedChanged : function() {
+        this.fire('languageChanged', {language: this.selected});
+    }
 
   });
   </script>
