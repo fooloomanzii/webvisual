@@ -8,7 +8,7 @@ paper-dropdown-menu {
   text-align: center;
   font-family: Roboto-Thin;
   font-style: normal;
-  font-size: 0.8em;
+  font-size: 0.7em;
   font-weight: 100;
   border-bottom: 1px solid #f1f1f1;
   padding-left: 0.3em;
@@ -29,15 +29,16 @@ paper-item {
   min-width: 3em;
   width: 100%;
   background: rgba(255, 255, 255, 0);
-  border-bottom: 0px solid transparent;
+  border-left: 2px solid transparent;
   font-size: 0.95em;
   font-weight: 100;
   text-overflow: ellipsis;
+  text-align: center;
 }
 paper-item.core-selected {
   color: #f1f1f1;
   background: rgba(255, 255, 255, 0.25);
-  border-bottom: 0px solid #f1f1f1;
+  border-left: 2px solid #f1f1f1;
   font-family: Roboto-Light;
   font-weight: 100;
 }
@@ -55,7 +56,7 @@ core-menu {
 }
 core-collapse {
   position: absolute;
-  top: 2.3em;
+  top: 2.5em;
   left: -0.5em;
   width: 4.3em;
   /* using z-index, can create problems in layout fo other elements
@@ -65,9 +66,9 @@ core-collapse {
 .card {
   background: #669DB4;
   margin: 0em 0.5em 1em 0.5em;
-  border-radius: 0em 0em 5px 5px;
+  border-radius: 0em 0em 3px 3px;
 }
 .list {
-  border-radius: 0em 0em 5px 5px;
+  border-radius: 0em 0em 3px 3px;
   padding-bottom: 0em;
 }

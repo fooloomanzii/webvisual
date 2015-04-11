@@ -32,7 +32,7 @@ paper-tabs {
 paper-tabs::shadow #selectionBar {
   background-color: #f1f1f1;
   height: 3px;
-  border-radius: 5px;
+  border-radius: 3px;
 }
 
 paper-tabs /deep/ paper-tab::shadow #ink {
@@ -44,7 +44,7 @@ paper-tabs /deep/ paper-icon-button {
 }
 
 paper-tabs /deep/ paper-tab {
-  border-radius: 5px;
+  border-radius: 3px;
 }
 
 paper-tabs /deep/ paper-tab:hover {
@@ -52,7 +52,7 @@ paper-tabs /deep/ paper-tab:hover {
 }
 
 paper-item#mainmenubutton {
-  border-radius: 5px;
+  border-radius: 3px;
   width: 100%;
   margin: 4px;
   color: #1d1d1d;
