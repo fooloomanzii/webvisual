@@ -153,3 +153,17 @@ td#values {
 table {
   width: 100%;
 }
+
+@font-face {
+  font-family: Roboto-Regular;
+  src: url('fonts/Roboto-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Roboto-Light;
+  src: url('fonts/Roboto-Light.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}

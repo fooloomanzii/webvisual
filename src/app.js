@@ -41,18 +41,7 @@ var dataModule = require('./data'),
         "header":[
           {"room":"Raum nicht definiert","color":"#9a9a9a"}
         ]
-      },
-      data:{
-        types:{},
-        typeWidth:1,
-        subtypes:[],
-      },
-      table:{
-        pageTitle:"Table",
-        title:"Table",
-        corner:"",
-        unnamedRow:"Value"
-      },
+      }
     }
   },
 // Configuration, uses default values, if necessary
