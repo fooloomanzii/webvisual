@@ -163,6 +163,7 @@
 
       // Create the Labels for the Type Table 'types', if no Labels are defined in 'config.json'
       // (Room 'room' & Type of the Measurement or other Labels 'kind')
+
       for(var j = 1; j <= (data[i].values.length / numCols); j++){
         if (!labelsArray.types[j-1]) {
           labelsArray.types.push(
@@ -172,6 +173,12 @@
               {"var":labelsArray.unnamedSubtype.var + k,"unit":labelsArray.unnamedSubtype.unit,"threshold":labelsArray.unnamedSubtype.threshold});
           }
         }
+      }
+    }
+
+    for (var i=0; i<data.length; i++) {
+      for (var j=0; j<data[i].length; j++) {
+        
       }
     }
 
