@@ -293,6 +293,7 @@ var userCounter = 0,
 
         // Check for threshold exceeds and save it
         currentData.exceeds=threshold.getExceeds(data, function(exceeds){
+          // TODO: new exceeds handling in server
           // var exceedsHTML="", numCols=config.locals.data.typeWidth;
           // var i;
           // var pos = exceeds[0].indexOf(true);
