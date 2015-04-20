@@ -176,60 +176,36 @@
       }
     }
 
-    dataSeperatedByValue = [];
+    // Join Data to the Object, which is used by the website
+    dataStringArray = [];
     for (var i=0; i<dateArray.length; i++) {
       for (var j=0; j<valuesArray[i].length; j++) {
+      // l, k are for typed and subtypes
         l = parseInt(j / numCols);
         k = j % numCols;
-        if(!dataSeperatedByValue[j]) {
-          dataSeperatedByValue.push({ "id":      labelsArray.types[l].id.toString(),
-                                      "room":    labelsArray.types[l].room.toString(),
-                                      "kind":    labelsArray.types[l].kind.toString(),
-                                      "var"    : labelsArray.types[l].subtypes[k].var.toString(),
-                                      "unit"   : labelsArray.types[l].subtypes[k].unit.toString(),
-                                      "data":[]})
+      // Color picking by Exceeds
+        var color = "";
+        if (exceedsArray[i][j] === true) {
+          color = labelsArray.colors.over;
         }
-        dataSeperatedByValue[j].data.push({"date":    dateArray[i].toString(),
-                                           "value":   valuesArray[i][j],
-                                           "exceeds": exceedsArray[i][j]
-                                           })
-      }
-    }
-
-    // 1. Junction in 'combinedData'
-    combinedData = {labels: labelsArray.types, colors: labelsArray.colors, data: []}
-    for (var i=0; i<data.length; i++) {
-      combinedData.data.push({"date" : dateArray[i],
-                              "values" : valuesArray[i],
-                              "exceeds" : exceedsArray[i]});
-    }
-
-    // 2. Creation of a single Array with all Data Values
-    var dataStringArray = [];
-    for (var i=0; i<data.length; i++) {
-      for (var j=0; j<labelsArray.types.length; j++) {
-        for (var k=0; k<numCols; k++) {
-          if (labelsArray.types[j] && valuesArray[i][j*numCols+k]) {
-            var color = "";
-            var exceeds = "";
-            if (exceedsArray[i][j*numCols+k] === true) {
-              color = labelsArray.colors.over;
-              var exceeds = true;
-            }
-            else if (exceedsArray[i][j*numCols+k] === false) {
-              color = labelsArray.colors.under;
-              var exceeds = false;
-            }
-            dataStringArray.push({"date"   : dateArray[i].toString(),
-                                  "room"   : labelsArray.types[j].room.toString(),
-                                  "kind"   : labelsArray.types[j].kind.toString(),
-                                  "var"    : labelsArray.types[j].subtypes[k].var.toString(),
-                                  "value"  : valuesArray[i][j*numCols+k],
-                                  "unit"   : labelsArray.types[j].subtypes[k].unit.toString(),
-                                  "color"  : color.toString(),
-                                  "exceeds": exceeds});
-          }
+        else if (exceedsArray[i][j] === false) {
+          color = labelsArray.colors.under;
         }
+      // head-data of measuring-points
+        if(!dataStringArray[j]) {
+          dataStringArray.push({"id":      labelsArray.types[l].id.toString(),
+                                "room":    labelsArray.types[l].room.toString(),
+                                "kind":    labelsArray.types[l].kind.toString(),
+                                "var" :    labelsArray.types[l].subtypes[k].var.toString(),
+                                "unit":    labelsArray.types[l].subtypes[k].unit.toString(),
+                                "data":    [] })
+        }
+      // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored
+        dataStringArray[j].data.push({"date":    dateArray[i].toString(),
+                                      "value":   valuesArray[i][j],
+                                      "exceeds": exceedsArray[i][j],
+                                      "color": color
+                                    })
       }
     }
 
@@ -240,7 +216,7 @@
     // that Data Values are ready for the delivery
     $(document).triggerHandler("dataLoaded", dataStringObject);
       // bind data to "table-log"-Element
-    $('table-log').attr('data', JSON.stringify(dataStringArray));
+    $('table-log').attr('receive', JSON.stringify(dataStringArray));
 
       // bind language Array too language selector
     // $('language-element').attr.('data', JSON.stringify(languageArray));
