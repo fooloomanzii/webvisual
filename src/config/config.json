@@ -65,7 +65,7 @@
                     {"var":"Temperatur" , "unit":"°C", "threshold": [2,5]}]}
       ],
 
-    "unnamedType" : { "id":"127.148.138.0", "room" : "Raum nicht definiert", "kind" : "Datenmessung "},
+    "unnamedType" : { "id":"0.0.0.0", "room" : "Raum nicht definiert", "kind" : "Datenmessung "},
     "unnamedSubtype" : {"var":"x" , "unit":"", "threshold": []},
 
     "colors":{

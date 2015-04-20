@@ -167,7 +167,7 @@
       for(var j = 1; j <= (data[i].values.length / numCols); j++){
         if (!labelsArray.types[j-1]) {
           labelsArray.types.push(
-            {"room":labelsArray.unnamedType.room,"kind":labelsArray.unnamedType.kind+j,"subtypes":[]});
+            {"id": labelsArray.unnamedType.id, "room":labelsArray.unnamedType.room,"kind":labelsArray.unnamedType.kind+j,"subtypes":[]});
           for(var k = 1; k<=numCols; k++){
             labelsArray.types[j-1].subtypes.push(
               {"var":labelsArray.unnamedSubtype.var + k,"unit":labelsArray.unnamedSubtype.unit,"threshold":labelsArray.unnamedSubtype.threshold});
@@ -176,9 +176,23 @@
       }
     }
 
-    for (var i=0; i<data.length; i++) {
-      for (var j=0; j<data[i].length; j++) {
-        
+    dataSeperatedByValue = [];
+    for (var i=0; i<dateArray.length; i++) {
+      for (var j=0; j<valuesArray[i].length; j++) {
+        l = parseInt(j / numCols);
+        k = j % numCols;
+        if(!dataSeperatedByValue[j]) {
+          dataSeperatedByValue.push({ "id":      labelsArray.types[l].id.toString(),
+                                      "room":    labelsArray.types[l].room.toString(),
+                                      "kind":    labelsArray.types[l].kind.toString(),
+                                      "var"    : labelsArray.types[l].subtypes[k].var.toString(),
+                                      "unit"   : labelsArray.types[l].subtypes[k].unit.toString(),
+                                      "data":[]})
+        }
+        dataSeperatedByValue[j].data.push({"date":    dateArray[i].toString(),
+                                           "value":   valuesArray[i][j],
+                                           "exceeds": exceedsArray[i][j]
+                                           })
       }
     }
 
