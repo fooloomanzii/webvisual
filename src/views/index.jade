@@ -14,7 +14,7 @@ block content
     document.addEventListener("dataLoaded", function(event){
       console.log("dataLoaded ready");
       vw = document.getElementById("vw1");
-      vw.setAttribute("data",JSON.stringify(event.detail[0].data))
-      $('#vw2').attr('data', JSON.stringify(event.detail[1].data));
+      //- vw.setAttribute("values",JSON.stringify(event.detail[0]))
+      $('#vw1').attr('values', JSON.stringify(event.detail[1]));
 
     });
