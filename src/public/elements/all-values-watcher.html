@@ -1,0 +1,55 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="value-watcher.html">
+<link rel="import" href="post-card.html">
+
+<polymer-element name="all-values-watcher">
+  <template>
+
+    <style>
+      :host {
+        position: relative;
+        color: #1d1d1d;
+        overlay: hidden;
+        display: inline-block;
+        z-index: 0;
+        box-sizing: border-box;
+        outline: none;
+        font-family: 'Roboto-Regular';
+      }
+
+      post-card {
+      }
+
+      value-watcher {
+      }
+
+    </style>
+
+
+    <section class="main" relative horizontal layout wrap>
+
+    </section>
+
+  </template>
+
+
+  <script>
+
+    Polymer('all-values-watcher', {
+        ready: function() {
+        },
+
+        publish: {
+          groupedBy: "room",
+          data: [],
+        },
+
+        dataChanged: function() {
+        },
+
+        groupedByChanged: function() {
+        }
+    });
+
+  </script>
+</polymer-element>

@@ -1,6 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<polymer-element name="value-watcher" attributes="data type var unit colorLow colorHigh exceeds">
+<polymer-element name="value-watcher">
   <template>
 
     <style>
@@ -34,11 +34,13 @@
       }
 
       .valueSection {
-        padding: 0.4em 0.2em 0.3em 0.2em;
+        padding: 0.4em 0.2em 0.4em 0.2em;
         font-size: 2.5em;
         font-family: 'Roboto-Condensed-Light';
         font-style: normal;
         font-weight: 300;
+        border-bottom: thin dotted #424242;
+        border-top: thin dotted #424242;
       }
 
       .unitSection {
@@ -47,9 +49,23 @@
         font-family: 'Roboto-Condensed-Light';
         font-weight: 100;
       }
-
-      .varSection, .dateSection {
-        padding: 0.4em 0.5em 0.5em;
+      .exceedsSection {
+        padding: 0.4em 0.5em 0em;
+        font-weight: 300;
+      }
+      .dateSection {
+        font-family: 'Roboto-Condensed-Light';
+        font-style: italic;
+        font-size: 0.65em;
+      }
+      .exceedsValueSection {
+        padding-left: 0.5em;
+        font-family: 'Roboto-Condensed-Light';
+        font-style: normal;
+        font-size: 0.75em;
+      }
+      .varSection {
+        padding: 0.2em 0.5em 0.5em;
         font-size: 0.75em;
         font-family: 'Roboto-Light';
         font-style: italic;
@@ -65,13 +81,17 @@
         <div>{{values.kind}}</div>
       </section>
 
-      <section class="valueSection" style="background: {{color}};" horizontal layout center-justified>
+      <section class="valueSection" horizontal layout center-justified>
         {{value}}
         <span class="unitSection">{{values.unit}}</span>
       </section>
 
-      <section style="background: linear-gradient(0deg, transparent, {{color}});" horizontal layout center-justified>
+      <section class="exceedsSection" horizontal layout center-justified>
         <div class="dateSection">{{exceedsDate}}</div>
+        <div class="exceedsValueSection">{{exceedsValue}}</div>
+      </section>
+
+      <section horizontal layout center-justified>
         <div class="varSection">{{values.var}}</div>
       </section>
 
@@ -84,14 +104,14 @@
 
     Polymer('value-watcher', {
         ready: function() {
-          this.dataChanged();
         },
 
         publish: {
           exceeds: null,
           exceedsDate: '',
-          colorLow: '#1b3ae7',
-          colorHigh: '#ec3245',
+          exceedsValue: '',
+          colorLow: 'linear-gradient(180deg, rgba(232, 20, 255, 0.8), rgba(232, 20, 255, 0.7), rgba(232, 20, 255, 0.8))',
+          colorHigh: 'linear-gradient(180deg, rgba(255, 22, 72, 0.8), rgba(255, 22, 72, 0.7), rgba(255, 22, 72, 0.8))',
           color: 'linear-gradient(180deg, transparent, #f1f1f1, transparent)',
           values: { kind: 'Stickstoff',
                     var: 'Druck',
@@ -109,14 +129,15 @@
             if (this.values.data[i].exceeds !==null) {
               this.exceeds = this.values.data[i].exceeds;
               this.exceedsDate = this.values.data[i].date;
-              this.value = this.values.data[i].value;
-              window.focus();
+              this.exceedsValue = "" + this.values.data[i].value + this.values.unit;
+              window.self.focus();
             }
           }
           if (this.exceeds ==null) {
             this.exceedsDate = '';
-            this.value = this.values.data[this.values.data.length-1].value;
           }
+          // always takes the last value in array
+          this.value = this.values.data[this.values.data.length-1].value;
         },
 
         exceedsChanged: function() {
