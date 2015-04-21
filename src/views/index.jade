@@ -3,6 +3,18 @@ extends layout
 
 block content
 
-  post-card#p3(headline="Test-Postcard")
-    value-watcher()
-    include inhalt
+  post-card#pc1(headline="Test-Postcard")
+    value-watcher#vw1
+    value-watcher#vw2
+    value-watcher#vw3
+    value-watcher#vw4
+    //- include inhalt
+
+  script
+    document.addEventListener("dataLoaded", function(event){
+      console.log("dataLoaded ready");
+      vw = document.getElementById("vw1");
+      vw.setAttribute("data",JSON.stringify(event.detail[0].data))
+      $('#vw2').attr('data', JSON.stringify(event.detail[1].data));
+
+    });

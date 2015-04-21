@@ -22,6 +22,7 @@
         <template if={{headline}}>
           <div id="head">{{headline}}</div>
         </template>
+
         <div id="cardcontent">
 
           <content></content>
@@ -29,23 +30,7 @@
         </div>
 
       </section>
-
-      <template if="{{editable}}"
-        <core-collapse id="cardmenu">
-          <paper-menu-button id="dropdown">
-            <paper-icon-button icon="menu" mini></paper-icon-button>
-            <paper-dropdown layered>
-              <core-menu class="menu">
-                  <paper-item>Optionen</paper-item>
-                  <paper-item>Löschen</paper-item>
-              </core-menu>
-            </paper-dropdown>
-          </paper-menu-button>
-          <paper-icon-button icon="alarm-add" mini></paper-icon-button>
-        </core-collapse>
-      </template>
     </section>
-
   </template>
 
   <script>

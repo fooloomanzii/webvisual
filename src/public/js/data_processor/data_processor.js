@@ -214,7 +214,8 @@
 
     // Triggering of an Event for the Document 'dataLoaded' to show,
     // that Data Values are ready for the delivery
-    $(document).triggerHandler("dataLoaded", dataStringObject);
+    var event = new CustomEvent("dataLoaded", { "detail": dataStringArray });
+    document.dispatchEvent(event);
       // bind data to "table-log"-Element
     $('table-log').attr('receive', JSON.stringify(dataStringArray));
 

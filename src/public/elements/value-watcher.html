@@ -15,6 +15,7 @@
         box-sizing: border-box;
         outline: none;
         font-family: 'Roboto-Regular';
+        margin: 0.2em;
       }
 
       .main, #shadow {
@@ -47,7 +48,7 @@
         font-weight: 100;
       }
 
-      .varSection {
+      .varSection, .dateSection {
         padding: 0.4em 0.5em 0.5em;
         font-size: 0.75em;
         font-family: 'Roboto-Light';
@@ -58,19 +59,20 @@
 
     <paper-shadow id="shadow" z="1" fit animated></paper-shadow>
 
-    <section class="main" style="background: {{color}};" relative vertical layout>
+    <section class="main"relative vertical layout>
 
-      <section class="typeSection" horizontal layout start-justified>
+      <section class="typeSection" style="background: linear-gradient(180deg, transparent, {{color}});" horizontal layout start-justified>
         <div>{{type}}</div>
       </section>
 
-      <section class="valueSection" horizontal layout center-justified>
-        1567.85
+      <section class="valueSection" style="background: {{color}};" horizontal layout center-justified>
+        {{value}}
         <span class="unitSection">{{unit}}</span>
       </section>
 
-      <section class="varSection" horizontal layout center-justified>
-        <div>{{dateExceeded}} {{var}}</div>
+      <section style="background: linear-gradient(0deg, transparent, {{color}});" horizontal layout center-justified>
+        <div class="dateSection">{{dateExceeded}}</div>
+        <div class="varSection">{{var}}</div>
       </section>
 
     </section>
@@ -81,14 +83,16 @@
   <script>
 
     Polymer('value-watcher', {
-
+        ready: function() {
+          this.dataChanged();
+        },
 
         publish: {
           exceeds: null,
           dateExceeded: '',
           colorLow: '#1b3ae7',
           colorHigh: '#ec3245',
-          color: 'rgba(178, 49, 49, 0.54)',
+          color: '#f1f1f1',
           data: [ {'date': '13.06.2013 10:20:02', 'value': 1000, 'exceeds': null},
                   {'date': '13.06.2013 10:21:02', 'value': 1004.2, 'exceeds': null},
                   {'date': '13.06.2013 10:22:02', 'value': 1002, 'exceeds': null},
@@ -100,11 +104,17 @@
         },
 
         dataChanged: function() {
-          for (d in this.data) {
-            if (d.exceeds !==null) {
-              this.exceeds = d.exceeds;
+          for (var i=0; i<this.data.length; i++) {
+            if (this.data[i].exceeds !==null) {
+              this.exceeds = this.data[i].exceeds;
+              this.dateExceeded = this.data[i].date;
+              this.value = this.data[i].value;
+              window.focus();
             }
-
+          }
+          if (this.exceeds ==null) {
+            this.dateExceeded = '';
+            this.value = this.data[this.data.length-1].value;
           }
         },
 
