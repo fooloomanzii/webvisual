@@ -1,5 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="value-watcher.html">
+
+<link rel="import" href="../bower_components/core-layout-grid/core-layout-grid.html">
+<link rel="import" href="value-sign.html">
 <link rel="import" href="post-card.html">
 
 <polymer-element name="value-sign-collection">
@@ -10,25 +12,33 @@
         position: relative;
         color: #1d1d1d;
         overlay: hidden;
-        display: inline-block;
         z-index: 0;
-        box-sizing: border-box;
         outline: none;
         font-family: 'Roboto-Regular';
+        height: 100vh;
       }
 
       post-card {
       }
 
-      value-watcher {
+      post-card /deep/ paper-item#head {
+        font-size: 1.5em;
+      }
+
+      post-card /deep/ div#cardContent {
+      }
+
+      value-sign {
+        height: 7.68em;
       }
 
     </style>
 
 
-    <section class="main" relative horizontal layout wrap>
+    <div id="main">
 
-    </section>
+
+    </div>
 
   </template>
 
@@ -40,14 +50,29 @@
         },
 
         publish: {
-          groupedBy: "room",
+          group: "room",
+          receive: [],
           data: [],
+        },
+
+        receiveChanged: function() {
+          var htmlcode = "";
+          this.data = _.groupBy(this.receive,this.group);
+          for (item in this.data) {
+            htmlcode += "<post-card headline='" + item + "'>";
+            for (content in this.data[item]) {
+              htmlcode += "<value-sign values='" + JSON.stringify(this.data[item][content]) + "'></value-sign>"
+            }
+            htmlcode += "</post-card>";
+          }
+          this.injectBoundHTML(htmlcode,this.$.main);
         },
 
         dataChanged: function() {
         },
 
-        groupedByChanged: function() {
+        groupChanged: function() {
+          this.receiveChanged();
         }
     });
 

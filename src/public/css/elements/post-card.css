@@ -16,14 +16,14 @@
 
 @media only screen {
   :host {
-    padding: 0.6em;
-    margin: 0.3em;
+    padding: 0.5em;
+    margin: 0.25em;
   }
 }
 
 @media only screen and (max-width : 640px) {
   :host {
-    padding: 0.5em;
+    padding: 0.45em;
   }
 }
 
@@ -51,10 +51,6 @@
   outline: none;
 }
 
-div {
-  line-height: 1em;
-}
-
 #bg, #shadow {
   border-radius: inherit;
 }
@@ -64,23 +60,30 @@ div {
   pointer-events: none;
 }
 
-#head {
-  font-family: Roboto-Thin;
+paper-item#head {
+  font-family: Roboto-Light;
   font-size: 0.9em;
-  font-weight: 150;
-  padding: 0.5em 1.2em 0.6em;
-  margin-bottom: 0.3em;
+  font-weight: 300;
+
+  margin-bottom: 0.25em;
+  background: #669DB4;
   color: #f1f1f1;
-  background: #669db4;
+  width: 100%;
+  /*border-bottom: thin dotted #424242;*/
   border-radius: 3px;
 }
-
-#cardmenu {
-  width: 40px;
+paper-item#head :hover {
+  background: rgba(0, 203, 40, 0.30);
 }
 
-#cardcontentsection {
-  color: #333333;
+paper-item#head::shadow #ripple {
+  color: #00ca35;
+}
+
+#cardMain {
   background: rgba(255, 255, 255, 0);
-  height: 100%;
+}
+
+#cardContent {
+
 }

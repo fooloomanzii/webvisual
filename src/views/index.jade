@@ -3,18 +3,12 @@ extends layout
 
 block content
 
-  post-card#pc1(headline="Test-Postcard")
-    value-sign#vw1
-    value-sign#vw2
-    value-sign#vw3
-    value-sign#vw4
+  value-sign-collection
     //- include inhalt
 
-  script
+  script.
     document.addEventListener("dataLoaded", function(event){
       console.log("dataLoaded ready");
-      vw = document.getElementById("vw1");
-      vw.setAttribute("values",JSON.stringify(event.detail[0]))
-      $('#vw2').attr('values', JSON.stringify(event.detail[1]));
+      $("value-sign-collection").attr("receive", JSON.stringify(event.detail));
 
     });

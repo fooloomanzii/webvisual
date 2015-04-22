@@ -6,7 +6,6 @@
     <style>
       :host {
         position: relative;
-        background: white;
         color: #1d1d1d;
         border-radius: 5px;
         overlay: hidden;
@@ -15,7 +14,7 @@
         box-sizing: border-box;
         outline: none;
         font-family: 'Roboto-Regular';
-        margin: 0.2em;
+        margin: 0.15em;
       }
 
       .main, #shadow {
@@ -50,7 +49,7 @@
         font-weight: 100;
       }
       .exceedsSection {
-        padding: 0.4em 0.5em 0em;
+        padding: 0em 0.5em 0.3em;
         font-weight: 300;
       }
       .dateSection {
@@ -65,7 +64,7 @@
         font-size: 0.75em;
       }
       .varSection {
-        padding: 0.2em 0.5em 0.5em;
+        padding: 0.4em 0.5em 0.2em;
         font-size: 0.75em;
         font-family: 'Roboto-Light';
         font-style: italic;
@@ -86,14 +85,16 @@
         <span class="unitSection">{{values.unit}}</span>
       </section>
 
-      <section class="exceedsSection" horizontal layout center-justified>
-        <div class="dateSection">{{exceedsDate}}</div>
-        <div class="exceedsValueSection">{{exceedsValue}}</div>
-      </section>
-
-      <section horizontal layout center-justified>
+      <section horizontal layout center-justified center>
         <div class="varSection">{{values.var}}</div>
       </section>
+
+      <template if="{{exceeds!==null}}">
+        <section class="exceedsSection" horizontal layout center-justified>
+          <div class="dateSection">{{exceedsDate}}</div>
+          <div class="exceedsValueSection">{{exceedsValue}}</div>
+        </section>
+      </template>
 
     </section>
 
@@ -110,9 +111,9 @@
           exceeds: null,
           exceedsDate: '',
           exceedsValue: '',
-          colorLow: 'linear-gradient(180deg, rgba(232, 20, 255, 0.8), rgba(232, 20, 255, 0.7), rgba(232, 20, 255, 0.8))',
-          colorHigh: 'linear-gradient(180deg, rgba(255, 22, 72, 0.8), rgba(255, 22, 72, 0.7), rgba(255, 22, 72, 0.8))',
-          color: 'linear-gradient(180deg, transparent, #f1f1f1, transparent)',
+          colorLow: 'linear-gradient(180deg, rgba(62, 20, 255, 0.85), rgba(62, 20, 255, 0.75), rgba(62, 20, 255, 0.90))',
+          colorHigh: 'linear-gradient(180deg, rgba(255, 21, 41, 0.85), rgba(255, 21, 41, 0.75), rgba(255, 21, 41, 0.90))',
+          color: 'linear-gradient(180deg, white, #f1f1f1, white)',
           values: { kind: '',
                     var: '',
                     unit: '',

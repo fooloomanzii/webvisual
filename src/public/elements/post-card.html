@@ -15,21 +15,19 @@
 
     <paper-shadow id="shadow" z="1" fit animated></paper-shadow>
 
-    <section id="cardmain" class="button-content" relative layout horizontal center>
-
-      <section id="cardcontentsection" vertical layout>
+    <section id="cardMain" class="button-content" relative>
 
         <template if={{headline}}>
-          <div id="head">{{headline}}</div>
+          <paper-item id="head" on-hold="{{toggleCollapse}}">{{headline}}</paper-item>
         </template>
 
-        <div id="cardcontent">
+        <core-collapse id="cardCollapse" opened>
+            <div id="cardContent" wrap>
 
-          <content></content>
+              <content></content>
 
-        </div>
-
-      </section>
+            </div>
+        <core-collapse>
     </section>
   </template>
 
@@ -48,10 +46,8 @@
       fill: true
     },
 
-    toggleMenu: function() {
-      if(this.editable) {
-        this.$.cardmenu.toggle();
-      }
+    toggleCollapse: function() {
+      this.$.cardCollapse.toggle();
     },
 
   });
