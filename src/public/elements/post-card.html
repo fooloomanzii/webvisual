@@ -13,7 +13,9 @@
   <template>
     <link rel="stylesheet" type='text/css' href="../css/elements/post-card.css">
 
-    <paper-shadow id="shadow" z="1" fit animated></paper-shadow>
+    <template if="{{!noshadow}}">
+      <paper-shadow id="shadow" z="1" fit animated></paper-shadow>
+    </template>
 
     <template if={{headline&&top}}>
       <paper-item id="head" class="top" on-hold="{{toggleCollapse}}">{{headline}}</paper-item>
@@ -32,7 +34,7 @@
     <template if={{!top&&headline}}>
       <paper-item id="head" class="bottom" on-hold="{{toggleCollapse}}">{{headline}}</paper-item>
     </template>
-    
+
   </template>
 
   <script>
@@ -43,6 +45,7 @@
     },
 
     publish: {
+      noshadow: false,
       headline: "",
       recenteringTouch: false,
       editable: false,
