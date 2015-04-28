@@ -73,7 +73,7 @@
       }
     </style>
 
-    <template if="{{shadow}}">
+    <template if="{{!noshadow}}">
       <paper-shadow id="shadow" z="1" fit animated></paper-shadow>
     </template>
 
@@ -113,7 +113,7 @@
         },
 
         publish: {
-          shadow: false,
+          noshadow: false,
           exceeds: null,
           exceedsDate: '',
           exceedsValue: '',
