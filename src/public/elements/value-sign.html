@@ -30,6 +30,8 @@
       }
 
       .contentSection {
+        border-bottom: thin dotted #424242;
+        border-top: thin dotted #424242;
       }
 
       .valueSection {
@@ -38,8 +40,6 @@
         font-family: 'Roboto-Condensed-Light';
         font-style: normal;
         font-weight: 300;
-        border-bottom: thin dotted #424242;
-        border-top: thin dotted #424242;
       }
 
       .unitSection {
@@ -64,7 +64,7 @@
         font-size: 0.75em;
       }
       .varSection {
-        padding: 0.4em 0.5em 0.2em;
+        padding: 0.2em 0.5em 0.3em;
         font-size: 0.75em;
         font-family: 'Roboto-Light';
         font-style: italic;
@@ -80,21 +80,23 @@
         <div>{{values.kind}}</div>
       </section>
 
-      <section class="valueSection" horizontal layout center-justified>
-        {{value}}
-        <span class="unitSection">{{values.unit}}</span>
+      <section class="contentSection" vertical layout center-justified>
+        <section class="valueSection" horizontal layout center-justified>
+          {{value}}
+          <span class="unitSection">{{values.unit}}</span>
+        </section>
+
+        <template if="{{exceeds!==null}}">
+          <section class="exceedsSection" horizontal layout center-justified>
+            <div class="dateSection">{{exceedsDate}}</div>
+            <div class="exceedsValueSection">{{exceedsValue}}</div>
+          </section>
+        </template>
       </section>
 
-      <section horizontal layout center-justified center>
+      <section horizontal layout center-justified>
         <div class="varSection">{{values.var}}</div>
       </section>
-
-      <template if="{{exceeds!==null}}">
-        <section class="exceedsSection" horizontal layout center-justified>
-          <div class="dateSection">{{exceedsDate}}</div>
-          <div class="exceedsValueSection">{{exceedsValue}}</div>
-        </section>
-      </template>
 
     </section>
 
