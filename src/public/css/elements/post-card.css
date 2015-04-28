@@ -64,12 +64,9 @@ paper-item#head {
   font-family: Roboto-Light;
   font-size: 0.9em;
   font-weight: 300;
-
-  margin-bottom: 0.25em;
   background: #669DB4;
   color: #f1f1f1;
   width: 100%;
-  /*border-bottom: thin dotted #424242;*/
   border-radius: 3px;
 }
 paper-item#head :hover {
@@ -78,6 +75,14 @@ paper-item#head :hover {
 
 paper-item#head::shadow #ripple {
   color: #00ca35;
+}
+
+paper-item.top {
+  margin-bottom: 0.15em;
+}
+
+paper-item.bottom{
+  margin-top: 0.15em;
 }
 
 #cardMain {

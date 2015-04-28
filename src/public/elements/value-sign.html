@@ -14,7 +14,8 @@
         box-sizing: border-box;
         outline: none;
         font-family: 'Roboto-Regular';
-        margin: 0.15em;
+        margin: 0.2em;
+        height: 100%;
       }
 
       .main, #shadow {
@@ -130,7 +131,6 @@
               this.exceeds = this.values.data[i].exceeds;
               this.exceedsDate = this.values.data[i].date;
               this.exceedsValue = "" + this.values.data[i].value + this.values.unit;
-              window.self.focus();
             }
           }
           if (this.exceeds ==null) {
@@ -138,6 +138,8 @@
           }
           // always takes the last value in array
           this.value = this.values.data[this.values.data.length-1].value;
+          window.focus();
+          window.blur();
         },
 
         exceedsChanged: function() {

@@ -29,7 +29,7 @@
       }
 
       value-sign {
-        height: 7.68em;
+        height: 7.4em;
       }
 
     </style>
@@ -59,7 +59,7 @@
           var htmlcode = "";
           this.data = _.groupBy(this.receive,this.group);
           for (item in this.data) {
-            htmlcode += "<post-card headline='" + item + "'>";
+            htmlcode += "<post-card headline='" + item + "' top>";
             for (content in this.data[item]) {
               htmlcode += "<value-sign values='" + JSON.stringify(this.data[item][content]) + "'></value-sign>"
             }

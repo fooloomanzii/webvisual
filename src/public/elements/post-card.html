@@ -15,13 +15,12 @@
 
     <paper-shadow id="shadow" z="1" fit animated></paper-shadow>
 
+    <template if={{headline&&top}}>
+      <paper-item id="head" class="top" on-hold="{{toggleCollapse}}">{{headline}}</paper-item>
+    </template>
+
     <section id="cardMain" class="button-content" relative>
-
-        <template if={{headline}}>
-          <paper-item id="head" on-hold="{{toggleCollapse}}">{{headline}}</paper-item>
-        </template>
-
-        <core-collapse id="cardCollapse" opened>
+        <core-collapse id="cardCollapse" opened duration="1">
             <div id="cardContent" wrap>
 
               <content></content>
@@ -29,6 +28,9 @@
             </div>
         <core-collapse>
     </section>
+    <template if={{!top&&headline}}>
+      <paper-item id="head" class="bottom" on-hold="{{toggleCollapse}}">{{headline}}</paper-item>
+    </template>
   </template>
 
   <script>
@@ -43,7 +45,8 @@
       recenteringTouch: false,
       editable: false,
       raised: true,
-      fill: true
+      fill: true,
+      top: false
     },
 
     toggleCollapse: function() {
