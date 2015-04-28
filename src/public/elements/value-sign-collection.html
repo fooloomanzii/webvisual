@@ -61,7 +61,7 @@
           for (item in this.data) {
             htmlcode += "<post-card headline='" + item + "' top>";
             for (content in this.data[item]) {
-              htmlcode += "<value-sign values='" + JSON.stringify(this.data[item][content]) + "'></value-sign>"
+              htmlcode += "<value-sign shadow values='" + JSON.stringify(this.data[item][content]) + "'></value-sign>"
             }
             htmlcode += "</post-card>";
           }

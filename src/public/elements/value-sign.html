@@ -73,7 +73,9 @@
       }
     </style>
 
-    <paper-shadow id="shadow" z="1" fit animated></paper-shadow>
+    <template if="{{shadow}}">
+      <paper-shadow id="shadow" z="1" fit animated></paper-shadow>
+    </template>
 
     <section class="main" relative vertical layout style="background: {{color}};">
 
@@ -111,6 +113,7 @@
         },
 
         publish: {
+          shadow: false,
           exceeds: null,
           exceedsDate: '',
           exceedsValue: '',
