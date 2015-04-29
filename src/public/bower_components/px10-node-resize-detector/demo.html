@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>px10-element-resize-detector Demo</title>
+
+    <script src="../webcomponentsjs/webcomponents.js"></script>
+    <link rel="import" href="../polymer/polymer.html">
+    <link rel="import" href="px10-element-resize-detector.html">
+    <style>
+
+        body {
+            font-family: RobotoDraft, 'Helvetica Neue', Helvetica, Arial;
+        }
+
+        #messages {
+            position: fixed;
+            margin-right: 100px;
+            margin-top: 20px;
+            right:0;
+            top:0;
+        }
+        #wrap {
+            margin: 20px 0 0;
+            background: #f0f0f0;
+            border: 1px solid #d0d0d0;
+        }
+        #list {
+            display: block;
+            margin: 10px;
+            background: #CAE8F9;
+            position: relative;
+        }
+
+        #targetDiv {
+            width:300px;
+            height:100px;
+            background:red;
+            position: relative;
+        }
+    </style>
+</head>
+
+<body unresolved>
+
+<button id="changeTargetDivWidth">Change target Div Width</button>
+<br>
+<br>
+
+<div id="messages">Messages go here</div>
+<div id="targetDiv">Click on the button above
+    <px10-element-resize-detector></px10-element-resize-detector>
+</div>
+
+<br>
+<br>
+<br>
+<br>
+
+<button id="trigger">Trigger Resize</button>
+
+<section id="wrap">
+    <ul id="list">
+        <li>I'm an unordered list</li>
+        <li>I was last resized:</li>
+        <li id="resize_time">No resizing detected yet!</li>
+        <px10-element-resize-detector></px10-element-resize-detector>
+    </ul>
+</section>
+
+<script>
+    addEventListener('polymer-ready', function(event) {
+        var divSizeDetector = document.querySelector("#targetDiv px10-element-resize-detector");
+        var listSizeDetector = document.querySelector("#list px10-element-resize-detector");
+
+        var targetDiv = document.getElementById("targetDiv");
+        var changeTargetDivWidth = document.getElementById("changeTargetDivWidth");
+        var messages = document.getElementById("messages");
+
+        var trigger = document.getElementById('trigger');
+        var wrap = document.getElementById('wrap');
+        var list = document.getElementById('list');
+
+        trigger.addEventListener('click', function(){
+            list.style.margin = (Math.floor(Math.random() * 80) + 1) + 'px';
+        }, false);
+
+        divSizeDetector.addEventListener("resize",function(event){
+            messages.innerHTML="targetDiv size changed."+Date.now() / 1000 + ' seconds from the epoch';
+        });
+
+        changeTargetDivWidth.addEventListener("click",function(event){
+            var computedStyle = getComputedStyle(targetDiv);
+            var width = parseFloat(computedStyle.width);
+            (width===300)?width=400:width=300;
+            targetDiv.style.width=width+"px";
+        });
+
+        var time = document.getElementById('resize_time');
+        listSizeDetector.addEventListener("resize",function(event){
+            time.innerHTML = Date.now() / 1000 + ' seconds from the epoch'
+        });
+
+    });
+</script>
+
+</body>
+
+</html>

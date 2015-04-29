@@ -39,8 +39,8 @@ head
   link(rel='import', href='elements/value-sign.html')
   link(rel='import', href='elements/value-sign-collection.html')
   link(rel='import', href='elements/language-select.html')
-
-    
+  link(rel='import', href='elements/music-demo.html')
+          
 body(unresolved, fullbleed, vertical, layout)
 
   core-drawer-panel(forceNarrow)
@@ -69,7 +69,7 @@ body(unresolved, fullbleed, vertical, layout)
           paper-tab(name='row', href='/table') Tabellen
           paper-tab(name='warning') Überwachung
           paper-tab(name='graphs') Graphen
-      section#maincontent(scroller, horizontal, layout, wrap)
+      section#maincontent(vertical, layout, wrap)
         block content
 
   // jQuery

@@ -1,0 +1,65 @@
+<!-- MIT Licensed -->
+
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+Add this element to any other node you need to be notified when its size changes. The node can be inside a
+another polymer element or on the page.
+
+##### Example
+    <div>
+          <px10-element-resize-detector></px10-element-resize-detector>
+    </div>
+
+or inside other elements
+
+    <px10-element-resize-detector target="{{}}" on-resize="{{resize}}">
+    </px10-element-resize-detector>
+
+@element px10-element-resize-detector
+@homepage https://github.com/PX10/px10-element-resize-detector
+-->
+
+<!--
+Fired when the target element gets resized.
+@event resize
+-->
+
+<!--
+If this element is used inside other elements set this property to {{}} otherwise do not set
+this property.
+@property target
+@type Node
+@default undefined
+-->
+
+<polymer-element name="px10-element-resize-detector" attributes="target" constructor="PX10ElementResizeDetector">
+
+<template>
+
+    <style>
+
+        :host {
+            display: block;
+            position: relative;
+            left:0;
+            top:0;
+            width:100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        object {
+            height: 100%;
+            width: 100%;
+        }
+
+    </style>
+    <object type="text/html" on-load={{loaded}} id="detector"></object>
+</template>
+
+<script src="px10-element-resize-detector.js"></script>
+
+</polymer-element>

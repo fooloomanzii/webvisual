@@ -6,7 +6,7 @@
   position: relative;
   background: #ffffff;
   color: #1d1d1d;
-  border-radius: 5px;
+  border-radius: 3px;
   overlay: hidden;
   display: inline-block;
   z-index: 0;
@@ -69,7 +69,7 @@ paper-item#head {
   background: #669DB4;
   color: #f1f1f1;
   width: 100%;
-  border-radius: 3px;
+  border-radius: 3px 3px 0px 0px;
 }
 paper-item#head :hover {
   background: rgba(0, 203, 40, 0.30);

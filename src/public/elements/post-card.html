@@ -20,10 +20,9 @@
     <template if={{headline&&top}}>
       <paper-item id="head" class="top" on-hold="{{toggleCollapse}}">{{headline}}</paper-item>
     </template>
-
     <section id="cardMain" class="button-content" relative>
         <core-collapse id="cardCollapse" opened duration="1">
-            <div id="cardContent" wrap>
+            <div id="cardContent" horizontal center-justified layout wrap>
 
               <content></content>
 

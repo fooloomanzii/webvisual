@@ -1,6 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
 <link rel="import" href="../bower_components/core-menu/core-menu.html">
+<link rel="import" href="../bower_components/core-overlay/core-overlay.html">
 <link rel="import" href="../bower_components/core-collapse/core-collapse.html">
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
@@ -12,8 +13,8 @@
 
     <paper-dropdown-menu label="de">
       <paper-ripple id="ripple" fit></paper-ripple>
-      <core-collapse class="dropdown">
 
+      <core-collapse class="dropdown">
         <section class="card" relative>
           <paper-shadow class="list" z="1">
 
@@ -25,10 +26,9 @@
 
           </paper-shadow>
         </section>
-
       </core-collapse>
-    </paper-dropdown-menu>
 
+    </paper-dropdown-menu>
   </template>
 
   <script>
