@@ -7,7 +7,7 @@
 
     <style>
       .chip-container {
-
+        font-size: 2vmin;
       }
 
       .chip {
@@ -22,8 +22,8 @@
       }
 
       .chip-top {
-        width: 10em;
-        height: 10em;
+        min-width: 17.5vmin;
+        height: 17.5vmin;
       }
 
       .chip-bottom {
@@ -40,7 +40,7 @@
       }
 
       .card {
-        height: 25em;
+        height: 30vmin;
         border-radius: 3px;
         text-align: start;
         overflow: hidden;
@@ -49,7 +49,7 @@
       }
 
       .card-left {
-        width: 25em;
+        width: 30vmin;
       }
 
       .card-right {
@@ -58,17 +58,17 @@
 
       .card-icon {
         border-radius: 50%;
-        width: 60px;
-        height: 60px;
+        width: 10vmin;
+        height: 10vmin;
         margin-right: 16px;
       }
 
       .card-album-title {
-        font-size: 2em;
+        font-size: 4vmin;
       }
     </style>
 
-    <core-animated-pages selected="{{page}}" transitions="hero-transition" on-core-animated-pages-transition-end="{{complete}}">
+    <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade" on-core-animated-pages-transition-end="{{complete}}">
 
       <section>
 
@@ -78,7 +78,7 @@
 
             <div class="chip" hero-id="{{item.artist}}-{{item.album}}" hero?="{{selectedAlbum === item }}">
               <div class="chip-top" style="background:{{item.color}};" hero-id="{{item.artist}}-{{item.album}}-art" hero?="{{selectedAlbum === item}}"></div>
-              <div class="chip-bottom">
+              <div class="chip-bottom" cross-fade>
                 <div class="chip-album-title">{{item.album}}</div>
                 <div class="chip-artist">{{item.artist}}</div>
               </div>
@@ -93,7 +93,7 @@
 
         <div class="card" layout horizontal hero-id="{{selectedAlbum.artist}}-{{selectedAlbum.album}}" hero on-tap="{{transition}}">
           <div class="card-left" style="background:{{selectedAlbum.color}};" hero-id="{{selectedAlbum.artist}}-{{selectedAlbum.album}}-art" hero></div>
-          <div class="card-right" flex>
+          <div class="card-right" flex cross-fade>
             <div layout horizontal center>
               <div>
                 <div class="card-icon" style="background:{{selectedAlbum.color}};"></div>
@@ -114,6 +114,9 @@
   <script>
 
     Polymer('music-demo', {
+
+      ready: function(){
+      },
 
       page: 0,
 

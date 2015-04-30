@@ -24,7 +24,9 @@ head
   link(rel='import', href='bower_components/core-image/core-image.html')
   link(rel='import', href='bower_components/core-selector/core-selector.html')  
   link(rel='import', href='bower_components/core-overlay/core-overlay.html') 
-    
+
+  link(rel='import', href='bower_components/core-animation/core-animation.html')
+  link(rel='import', href='bower_components/core-animation/core-animation-group.html') 
   link(rel='import', href='bower_components/paper-button/paper-button.html')
   link(rel='import', href='bower_components/paper-tabs/paper-tabs.html')
   link(rel='import', href='bower_components/paper-tabs/paper-tab.html')
@@ -57,8 +59,8 @@ body(unresolved, fullbleed, vertical, layout)
 
     core-header-panel#headerPanel(main,fixed)
       core-toolbar#mainheader
-        paper-icon-button#navicon(icon='menu', core-drawer-toggle)
-        img#logo(src='img/Logo_FZ_Juelich_Weiss.svg',style="background-color: #005B82;")
+        paper-icon-button#navicon(icon='menu', core-drawer-toggle)            
+        img#logo(src='img/Logo_FZ_Juelich_Weiss.svg',style="background-color: #005B82;")          
         div(flex)
         language-select
         paper-icon-button#morebutton(icon='filter-list', onclick="document.querySelector('#submenu').toggle()")
@@ -69,7 +71,7 @@ body(unresolved, fullbleed, vertical, layout)
           paper-tab(name='row', href='/table') Tabellen
           paper-tab(name='warning') Überwachung
           paper-tab(name='graphs') Graphen
-      section#maincontent(vertical, layout, wrap)
+      section#maincontent()
         block content
 
   // jQuery
@@ -87,7 +89,6 @@ body(unresolved, fullbleed, vertical, layout)
   script(src='/socket.io/socket.io.js')
   
   script.
-    
     // Console Log, that Script is excecuted    
     console.log('jade excecuted');
     
