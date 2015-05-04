@@ -3,7 +3,8 @@ extends layout
 
 block content
 
-  music-demo()
+  value-collection-demo()
+  //- music-demo()
   //- value-sign-collection()
     //- include inhalt
 
@@ -11,5 +12,6 @@ block content
     document.addEventListener("dataLoaded", function(event){
       console.log("dataLoaded ready");
       $("value-sign-collection").attr("receive", JSON.stringify(event.detail));
+      $("value-collection-demo").attr("items", JSON.stringify(event.detail));
 
     });
