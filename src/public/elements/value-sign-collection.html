@@ -30,7 +30,7 @@
       }
 
       value-sign {
-        margin: 0.2em;
+        padding: 0.2em;
         border-radius: 0em;
       }
 
@@ -63,7 +63,7 @@
           for (item in this.data) {
             htmlcode += "<post-card headline='" + item + "' top>";
             for (content in this.data[item]) {
-              htmlcode += "<value-sign noshadow values='" + JSON.stringify(this.data[item][content]) + "'></value-sign>"
+              htmlcode += "<value-sign showShadow showKind showVar showExceed values='" + JSON.stringify(this.data[item][content]) + "'></value-sign>"
             }
             htmlcode += "</post-card>";
           }

@@ -10,22 +10,23 @@
     <style>
       .chip-container {
         font-size: 2vmin;
+        padding: 0.5em 0.5em 0em 0.5em;
       }
 
       .chip {
         display: inline-block;
         position: relative;
-        border-radius: 3px;
+        border-top-left-radius: 3px;
         margin: 0.25em;
         overflow: hidden;
         text-align: start;
-        background-color: #fff;
+        background-color: white;
         box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.16);
       }
 
       .chip-top {
-        min-width: 17.5vmin;
-        height: 17.5vmin;
+        width: 17.5vmin;
+        height: 12.5vmin;
       }
 
       .chip-bottom {
@@ -38,49 +39,52 @@
       }
 
       #details {
-        padding: 0em 0em 0em;
+        padding: 0em;
       }
 
       .card {
         height: 30vmin;
         border-radius: 3px;
-        /*text-align: start;
-        overflow: hidden;*/
         background: white;
         box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.19);
       }
 
       .card-left {
-        width: 30vmin;
+        width: 40vmin;
+        font-size: 4vmin;
       }
 
       .card-right {
-        padding: 1.5em;
-      }
-
-      .card-icon {
-        border-radius: 50%;
-        width: 10vmin;
-        height: 10vmin;
-        margin-right: 16px;
+        font-size: 2vmin;
+        margin-left: 1em;
+        padding: 0.5em;
+        line-height: 1.5;
       }
 
       .card-album-title {
-        font-size: 4vmin;
+        font-size: 3vmin;
+      }
+
+      value-sign {
+        display: flex;
+        border-radius: inherit;
       }
     </style>
 
-    <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade slide-up scale-up" on-core-animated-pages-transition-end="{{complete}}">
+    <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade slide-up scale-up slide-from-right" on-core-animated-pages-transition-end="{{complete}}">
 
       <section cross-fade>
 
-        <div class="chip-container" hero-p on-tap="{{transition}}">
+        <div class="chip-container" hero-p>
 
           <template repeat="{{items as item}}">
-
-            <value-sign class="chip" hero-id="{{item.room}}-{{item.kind}}" hero?="{{selectedItem === item }}" values="{{item}}" slide-up>
-            </value-sign>
-
+            <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" hero>
+              <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}" hero  on-tap="{{transition}}"></value-sign>
+              <div class="chip-bottom" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-content">
+                <div class="chip-album-title">{{item.kind}}</div>
+                <div class="chip-artist">{{item.var}}</div>
+              </div>
+            </div>
           </template>
 
         </div>
@@ -88,13 +92,10 @@
 
       <section id="details" hero-p >
 
-        <div class="card" layout horizontal hero-id="{{selectedItem.room}}-{{selectedItem.kind}}" hero on-tap="{{transition}}">
-          <value-sign class="card-left" color="{{selectedItem.color}}" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-art" values="{{selectedItem}}"></value-sign>
-          <div class="card-right" flex hero>
+        <div class="card" layout horizontal hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}" slide-from-right on-tap="{{transition}}">
+          <value-sign class="card-left" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-sign" values="{{selectedItem}}" hero></value-sign>
+          <div class="card-right" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-content" hero flex>
             <div layout horizontal center>
-              <div>
-                <div class="card-icon" style="background:{{selectedItem.color}};"></div>
-              </div>
               <div flex>
                 <div class="card-album-title">{{selectedItem.room}}</div>
                 <div class="card-album-artist">{{selectedItem.kind}}</div>
@@ -103,6 +104,19 @@
           </div>
         </div>
 
+        <div class="chip-container">
+          <template repeat="{{items as item}}">
+            <template if="{{selectedItem !== item}}">
+              <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" hero on-tap="{{transition}}">
+                <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-art" values="{{item}}" hero></value-sign>
+                <div class="chip-bottom" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-content">
+                  <div class="chip-album-title">{{item.kind}}</div>
+                  <div class="chip-artist">{{item.var}}</div>
+                </div>
+              </div>
+            </template>
+          </template>
+        <div>
       </section>
 
     </core-animated-pages>
@@ -128,8 +142,8 @@
       },
 
       transition: function(e) {
-        if (this.page === 0 && e.target.templateInstance.model.item) {
-          this.selectedItem = e.target.templateInstance.model.item;
+        if (this.page === 0) {
+          this.selectedItem = e.target.values;
           this.page = 1;
         } else {
           this.page = 0;
