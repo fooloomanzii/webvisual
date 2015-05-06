@@ -17,22 +17,24 @@
       <paper-shadow id="shadow" z="1" fit animated></paper-shadow>
     </template>
 
-    <template if={{headline&&top}}>
-      <paper-item id="head" class="top" on-hold="{{toggleCollapse}}">{{headline}}</paper-item>
-    </template>
-    <section id="cardMain" class="button-content" relative>
-        <core-collapse id="cardCollapse" opened duration="1">
-            <div id="cardContent" horizontal center-justified layout wrap>
+    <section id="outer">
+      <template if={{headline&&top}}>
+        <paper-item id="head" class="top" on-hold="{{toggleCollapse}}">{{headline}}</paper-item>
+      </template>
+      <section id="cardMain" class="button-content" relative>
+          <core-collapse id="cardCollapse" opened duration="1">
+              <div id="cardContent" horizontal center-justified layout wrap>
 
-              <content></content>
+                <content></content>
 
-            </div>
-        <core-collapse>
+              </div>
+          <core-collapse>
+      </section>
+
+      <template if={{!top&&headline}}>
+        <paper-item id="head" class="bottom" on-hold="{{toggleCollapse}}">{{headline}}</paper-item>
+      </template>
     </section>
-
-    <template if={{!top&&headline}}>
-      <paper-item id="head" class="bottom" on-hold="{{toggleCollapse}}">{{headline}}</paper-item>
-    </template>
 
   </template>
 

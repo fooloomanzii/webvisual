@@ -8,12 +8,21 @@
   <template>
 
     <style>
+      :host {
+        overflow: hidden;
+        font-family: 'Roboto-Regular';
+      }
+
       .chip-container {
-        font-size: 2vmin;
-        padding: 0.5em 0.5em 0em 0.5em;
+        padding: 0.5em;
+        display: inline-block;
+        z-index: 0;
+        box-sizing: border-box;
+        height: 100%;
       }
 
       .chip {
+        font-size: 2vmin;
         display: inline-block;
         position: relative;
         border-top-left-radius: 3px;
@@ -25,8 +34,8 @@
       }
 
       .chip-top {
-        width: 17.5vmin;
-        height: 12.5vmin;
+        width: 18vmin;
+        height: 13.5vmin;
       }
 
       .chip-bottom {
@@ -34,17 +43,13 @@
         line-height: 1.5;
       }
 
-      .chip-album-title {
+      .chip-kind {
+        font-size: 1em;
         font-weight: bold;
-      }
-
-      #details {
-        padding: 0em;
       }
 
       .card {
         height: 30vmin;
-        border-radius: 3px;
         background: white;
         box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.19);
       }
@@ -61,7 +66,7 @@
         line-height: 1.5;
       }
 
-      .card-album-title {
+      .card-room {
         font-size: 3vmin;
       }
 
@@ -71,18 +76,17 @@
       }
     </style>
 
-    <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade slide-up scale-up slide-from-right" on-core-animated-pages-transition-end="{{complete}}">
+    <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade tile-cascade" on-core-animated-pages-transition-end="{{complete}}">
 
-      <section cross-fade>
-
-        <div class="chip-container" hero-p>
+      <section id="all">
+        <div class="chip-container">
 
           <template repeat="{{items as item}}">
             <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" hero>
-              <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}" hero  on-tap="{{transition}}"></value-sign>
-              <div class="chip-bottom" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-content">
-                <div class="chip-album-title">{{item.kind}}</div>
-                <div class="chip-artist">{{item.var}}</div>
+              <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}" hero on-tap="{{transition}}"></value-sign>
+              <div class="chip-bottom" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-content" cross-fade>
+                <div class="chip-kind">{{item.kind}}</div>
+                <div class="chip-var">{{item.var}}</div>
               </div>
             </div>
           </template>
@@ -90,15 +94,14 @@
         </div>
       </section>
 
-      <section id="details" hero-p >
-
-        <div class="card" layout horizontal hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}" slide-from-right on-tap="{{transition}}">
-          <value-sign class="card-left" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-sign" values="{{selectedItem}}" hero></value-sign>
-          <div class="card-right" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-content" hero flex>
+      <section id="details">
+        <div class="card" layout horizontal hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}" hero?="{{selectedAlbum === item }}" tile-cascade?="{{selectedAlbum != item }}">
+          <value-sign class="card-left" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-sign" list-cascade?="{{page == 2}}" hero?="{{page == 1}}" values="{{selectedItem}}" on-tap="{{transition}}"></value-sign>
+          <div class="card-right" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-content" cross-fade flex>
             <div layout horizontal center>
               <div flex>
-                <div class="card-album-title">{{selectedItem.room}}</div>
-                <div class="card-album-artist">{{selectedItem.kind}}</div>
+                <div class="card-room">{{selectedItem.room}}</div>
+                <div class="card-kind">{{selectedItem.kind}}</div>
               </div>
             </div>
           </div>
@@ -107,16 +110,44 @@
         <div class="chip-container">
           <template repeat="{{items as item}}">
             <template if="{{selectedItem !== item}}">
-              <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" hero on-tap="{{transition}}">
-                <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-art" values="{{item}}" hero></value-sign>
-                <div class="chip-bottom" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-content">
-                  <div class="chip-album-title">{{item.kind}}</div>
-                  <div class="chip-artist">{{item.var}}</div>
+              <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" hero>
+                <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" hero values="{{item}}" on-tap="{{movingToAnother}}"></value-sign>
+                <div class="chip-bottom" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-content" cross-fade>
+                  <div class="chip-kind">{{item.kind}}</div>
+                  <div class="chip-var">{{item.var}}</div>
                 </div>
               </div>
             </template>
           </template>
-        <div>
+        </div>
+      </section>
+
+      <section id="more">
+        <div class="card" layout horizontal hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}" hero?="{{selectedAlbum === item }}" tile-cascade?="{{selectedAlbum != item }}">
+          <value-sign class="card-left" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-sign" list-cascade?="{{page == 2}}" hero?="{{page == 1}}" values="{{selectedItem}}" on-tap="{{transition}}"></value-sign>
+          <div class="card-right" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-content" cross-fade flex>
+            <div layout horizontal center>
+              <div flex>
+                <div class="card-room">{{selectedItem.room}}</div>
+                <div class="card-kind">{{selectedItem.kind}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chip-container">
+          <template repeat="{{items as item}}">
+            <template if="{{selectedItem !== item}}">
+              <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}">
+                <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}" on-tap="{{movingToAnother}}"></value-sign>
+                <div class="chip-bottom" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-content" hero>
+                  <div class="chip-kind">{{item.kind}}</div>
+                  <div class="chip-var">{{item.var}}</div>
+                </div>
+              </div>
+            </template>
+          </template>
+        </div>
       </section>
 
     </core-animated-pages>
@@ -145,8 +176,23 @@
         if (this.page === 0) {
           this.selectedItem = e.target.values;
           this.page = 1;
-        } else {
+        }
+        else {
           this.page = 0;
+        }
+      },
+
+      movingNext: function(e) {
+
+      },
+
+      movingToAnother: function(e) {
+        this.selectedItem = e.target.values;
+        if (this.page === 1) {
+          this.page = 2;
+        }
+        else {
+          this.page = 1;
         }
       }
     });

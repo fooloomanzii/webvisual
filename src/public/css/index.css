@@ -93,6 +93,9 @@ img#logo {
   height: 48px;
 }
 
+#maincontent {
+}
+
 @media only screen {
   /*#maincontent {
     margin: 1em;
