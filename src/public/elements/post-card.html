@@ -13,7 +13,7 @@
   <template>
     <link rel="stylesheet" type='text/css' href="../css/elements/post-card.css">
 
-    <template if="{{!noshadow}}">
+    <template if="{{showShadow}}">
       <paper-shadow id="shadow" z="1" fit animated></paper-shadow>
     </template>
 
@@ -23,7 +23,7 @@
       </template>
       <section id="cardMain" class="button-content" relative>
           <core-collapse id="cardCollapse" opened duration="1">
-              <div id="cardContent" horizontal center-justified layout wrap>
+              <div id="cardContent">
 
                 <content></content>
 
@@ -46,7 +46,7 @@
     },
 
     publish: {
-      noshadow: false,
+      showShadow: true,
       headline: "",
       recenteringTouch: false,
       editable: false,

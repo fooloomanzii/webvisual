@@ -11,6 +11,7 @@
       :host {
         overflow: hidden;
         font-family: 'Roboto-Regular';
+        color: #1d1d1d;
       }
 
       .chip-container {
@@ -19,14 +20,15 @@
         z-index: 0;
         box-sizing: border-box;
         height: 100%;
+        user-select: none;
       }
 
       .chip {
-        font-size: 2vmin;
+        margin: 0.25em;
+        font-size: 1.75vmin;
         display: inline-block;
         position: relative;
         border-top-left-radius: 3px;
-        margin: 0.25em;
         overflow: hidden;
         text-align: start;
         background-color: white;
@@ -34,8 +36,8 @@
       }
 
       .chip-top {
-        width: 18vmin;
-        height: 13.5vmin;
+        width: 16vmin;
+        height: 12vmin;
       }
 
       .chip-bottom {
@@ -49,25 +51,26 @@
       }
 
       .card {
-        height: 30vmin;
+        height: 24vmin;
         background: white;
         box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.19);
       }
 
       .card-left {
-        width: 40vmin;
-        font-size: 4vmin;
+        width: 32vmin;
+        font-size: 3vmin;
       }
 
       .card-right {
-        font-size: 2vmin;
+        font-size: 1.75vmin;
         margin-left: 1em;
+        margin-top: 0.5em;
         padding: 0.5em;
         line-height: 1.5;
       }
 
       .card-room {
-        font-size: 3vmin;
+        font-size: 2.5vmin;
       }
 
       value-sign {
@@ -75,30 +78,42 @@
         border-radius: inherit;
       }
 
+      post-card /deep/ paper-item#head  {
+        margin-bottom: 0.4em;
+        font-size: 2.25vmin;
+      }
+
+      post-card {
+        background: rgba(255, 255, 255, 0.5);
+      }
+
     </style>
 
-    <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade cascade-transition" on-core-animated-pages-transition-end="{{complete}}">
+    <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade slide-one-way" on-core-animated-pages-transition-end="{{complete}}">
 
       <section id="all">
         <div class="chip-container">
-          <template repeat="{{items as item}}">
-            <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" hero on-tap="{{transition}}">
-              <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}" hero></value-sign>
-              <div class="chip-bottom" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-content" cross-fade>
-                <div class="chip-kind">{{item.kind}}</div>
-                <div class="chip-var">{{item.var}}</div>
-              </div>
-              <paper-ripple class="circle" initialOpacity="0.15" fit></paper-ripple>
-            </div>
-
+          <template repeat="{{items, i in data}}">
+            <post-card headline="{{groupTitles[i]}}" hero-id="{{groupTitles[i]}}" hero showShadow="false">
+              <template repeat="{{items as item}}">
+                <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" hero on-tap="{{transition}}">
+                  <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}" hero></value-sign>
+                  <div class="chip-bottom" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-content" hero>
+                    <div class="chip-kind">{{item.kind}}</div>
+                    <div class="chip-var">{{item.var}}</div>
+                  </div>
+                  <paper-ripple class="circle fill" initialOpacity="0.10" fill fit></paper-ripple>
+                </div>
+              </template>
+            </post-card>
           </template>
         </div>
       </section>
 
       <section id="details">
-        <div class="card" layout horizontal hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}" hero>
-          <value-sign class="card-left" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-sign" hero values="{{selectedItem}}" on-tap="{{transition}}"></value-sign>
-          <div class="card-right" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-content" cross-fade flex>
+        <div class="card" layout horizontal hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}" hero?="{{previous == 0}}" slide-one-way?="{{previous != 2}}" cross-fade>
+          <value-sign class="card-left" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-sign" hero?="{{previous == 0}}" slide-one-way?="{{previous != 2}}" values="{{selectedItem}}" on-tap="{{transition}}"></value-sign>
+          <div class="card-right" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-content" hero?="{{previous == 0}}" slide-one-way?="{{previous != 2}}" cross-fade flex>
             <div layout horizontal center>
               <div flex>
                 <div class="card-room">{{selectedItem.room}}</div>
@@ -109,46 +124,52 @@
         </div>
 
         <div class="chip-container">
-          <template repeat="{{items as item}}">
-            <template if="{{selectedItem !== item}}">
-              <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" hero  on-tap="{{movingToAnother}}">
-                <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}" hero></value-sign>
-                <div class="chip-bottom" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-content" cross-fade>
-                  <div class="chip-kind">{{item.kind}}</div>
-                  <div class="chip-var">{{item.var}}</div>
-                </div>
-                <paper-ripple class="circle" initialOpacity="0.15" fit></paper-ripple>
-              </div>
-            </template>
+          <template repeat="{{items, i in data}}">
+            <post-card headline="{{groupTitles[i]}}" hero-id="{{groupTitles[i]}}" showShadow="false" hero>
+              <template repeat="{{items as item}}">
+
+                  <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" on-tap="{{movingToAnother}}" hero>
+                      <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}" hero></value-sign>
+                      <div class="chip-bottom" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-content" hero>
+                        <div class="chip-kind">{{item.kind}}</div>
+                        <div class="chip-var">{{item.var}}</div>
+                      </div>
+                      <paper-ripple class="circle fill" initialOpacity="0.10" fill fit></paper-ripple>
+                  </div>
+
+              </template>
+            </post-card>
           </template>
         </div>
       </section>
 
       <section id="more">
-        <div class="card" layout horizontal hero-id="{{nextItem.room}}-{{nextItem.kind}}-{{nextItem.var}}" hero>
-          <value-sign class="card-left" hero-id="{{nextItem.room}}-{{nextItem.kind}}-{{nextItem.var}}-sign" hero values="{{nextItem}}" on-tap="{{transition}}"></value-sign>
-          <div class="card-right" hero-id="{{nextItem.room}}-{{nextItem.kind}}-{{nextItem.var}}-content" cross-fade flex>
+        <div class="card" layout horizontal hero-id="{{nextItem.room}}-{{nextItem.kind}}-{{nextItem.var}}" slide-one-way cross-fade>
+          <value-sign class="card-left" hero-id="{{nextItem.room}}-{{nextItem.kind}}-{{nextItem.var}}-sign" slide-one-way values="{{nextItem}}" on-tap="{{transition}}"></value-sign>
+          <div class="card-right" hero-id="{{nextItem.room}}-{{nextItem.kind}}-{{nextItem.var}}-content" slide-one-way cross-fade flex>
             <div layout horizontal center>
               <div flex>
-                <div class="card-room">{{selectedItem.room}}</div>
-                <div class="card-kind">{{selectedItem.kind}}</div>
+                <div class="card-room">{{nextItem.room}}</div>
+                <div class="card-kind">{{nextItem.kind}}</div>
               </div>
             </div>
           </div>
         </div>
 
         <div class="chip-container">
-          <template repeat="{{items as item}}">
-            <template if="{{nextItem !== item}}">
-              <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" hero on-tap="{{movingToAnother}}" >
-                <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}" hero></value-sign>
-                <div class="chip-bottom" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-content" cross-fade>
-                  <div class="chip-kind">{{item.kind}}</div>
-                  <div class="chip-var">{{item.var}}</div>
-                </div>
-                <paper-ripple class="circle" initialOpacity="0.15" fit></paper-ripple>
-              </div>
-            </template>
+          <template repeat="{{items, i in data}}">
+            <post-card headline="{{groupTitles[i]}}" hero-id="{{groupTitles[i]}}" showShadow="false" hero>
+              <template repeat="{{items as item}}">
+                  <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" on-tap="{{movingToAnother}}" hero>
+                      <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}" hero></value-sign>
+                      <div class="chip-bottom" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-content" hero>
+                        <div class="chip-kind">{{item.kind}}</div>
+                        <div class="chip-var">{{item.var}}</div>
+                      </div>
+                      <paper-ripple class="circle fill" initialOpacity="0.10" fit></paper-ripple>
+                  </div>
+              </template>
+            </post-card>
           </template>
         </div>
       </section>
@@ -164,21 +185,32 @@
       },
 
       publish: {
-        items: []
+        receive: [],
+        data: [],
+        groupBy: "room",
+        groupTitles: []
       },
 
       page: 0,
+      previous: 0,
 
       selectedItem: null,
       nextItem: null,
 
-      itemsChanged: function() {
-        console.log("loads value collection");
+      receiveChanged: function() {
+        this.data = _.values(_.groupBy(this.receive,this.groupBy));
+        this.groupTitles = _.keys(_.groupBy(this.receive,this.groupBy));
       },
 
       transition: function(e) {
-        if (this.page === 0) {
-          this.selectedItem = e.target.parentElement.firstElementChild.values;
+        var target = e.target.parentElement.firstElementChild.values;
+        // Sometimes mistaken target
+        if (!target) {
+          target = e.target.firstElementChild.values;
+        }
+
+        if (this.page == 0) {
+          this.selectedItem = target;
           this.page = 1;
         }
         else {
@@ -186,20 +218,38 @@
         }
       },
 
-      movingNext: function(e) {
-
-      },
-
       movingToAnother: function(e) {
+        console.log(e.target);
+        var target = e.target.parentElement.firstElementChild.values;
+        // Sometimes mistaken target
+        if (!target) {
+          target = e.target.firstElementChild.values;
+        }
+
         if (this.page === 1) {
-          this.nextItem = e.target.parentElement.firstElementChild.values;
-          this.page = 2;
+          if (this.selectedItem == target) {
+            this.page = 0;
+          }
+          else {
+            this.nextItem = target;
+            this.page = 2;
+          }
         }
         else if (this.page === 2) {
-          this.selectedItem = e.target.parentElement.firstElementChild.values;
-          this.page = 1;
+          if (this.nextItem == target) {
+            this.page = 0;
+          }
+          else {
+            this.selectedItem = target;
+            this.page = 1;
+          }
         }
+      },
+
+      complete: function() {
+        this.previous = this.page;
       }
+
     });
 
   </script>
