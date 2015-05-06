@@ -1,4 +1,5 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link href="../bower_components/paper-ripple/paper-ripple.html" rel="import">
 
 <polymer-element name="value-sign">
   <template>
@@ -17,6 +18,7 @@
       }
 
       .main, #shadow {
+        position: relative;
         border-radius: inherit;
         padding-top: 0.4em;
         padding-bottom: 0.4em;
@@ -82,7 +84,7 @@
     </template>
 
     <section class="main" vertical layout style="background: {{color}};">
-
+      <paper-ripple class="circle fill" initialOpacity="0.10" fit></paper-ripple>
       <template if={{showKind}} >
         <section class="kindSection" horizontal layout start-justified>
           <div>{{values.kind}}</div>
@@ -156,8 +158,6 @@
           }
           // always takes the last value in array
           this.value = this.values.data[this.values.data.length-1].value;
-          window.focus();
-          window.blur();
         },
 
         exceedsChanged: function() {
