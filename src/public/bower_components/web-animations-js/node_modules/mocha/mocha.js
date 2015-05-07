@@ -241,7 +241,7 @@ var JsDiff = (function() {
       var ret = [];
 
       ret.push('Index: ' + fileName);
-      ret.push('===================================================================');
+      ret.push('====');
       ret.push('--- ' + fileName + (typeof oldHeader === 'undefined' ? '' : '\t' + oldHeader));
       ret.push('+++ ' + fileName + (typeof newHeader === 'undefined' ? '' : '\t' + newHeader));
 

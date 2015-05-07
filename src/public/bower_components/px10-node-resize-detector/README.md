@@ -1,5 +1,5 @@
 px10-element-resize-detector
-============
+=====
 
 Polymer element that can be included in other polymer elements or inside any other html element on the page and it 
 fires a resize event when the target element size changes.

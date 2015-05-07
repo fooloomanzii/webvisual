@@ -208,6 +208,9 @@
                                   "color"  : color.toString(),
                                   "exceeds": exceeds});
           }
+        }
+      }
+    }
     // Join Data to the Object, which is used by the website
     dataStringArray = [];
     for (var i=0; i<dateArray.length; i++) {
@@ -255,7 +258,4 @@
       // bind language Array too language selector
     // $('language-element').attr.('data', JSON.stringify(languageArray));
   }
-
-
-
-})();
+});

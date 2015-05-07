@@ -1,5 +1,5 @@
 d3-line-chart
-============
+=====
 
 [![Bower version](https://badge.fury.io/bo/d3-line-chart.svg)](http://badge.fury.io/bo/d3-line-chart)
 

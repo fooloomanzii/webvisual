@@ -1644,7 +1644,7 @@ body {
   margin: 0; }
 
 /* HTML5 display definitions
-   ========================================================================== */
+   ==== */
 /**
  * Correct `block` display not defined for any HTML5 element in IE 8/9.
  * Correct `block` display not defined for `details` or `summary` in IE 10/11
@@ -1680,7 +1680,7 @@ audio:not([controls]) {
   display: none; }
 
 /* Links
-   ========================================================================== */
+   ==== */
 /**
  * Remove the gray background color from active links in IE 10.
  */
@@ -1694,7 +1694,7 @@ a:active, a:hover {
   outline: 0; }
 
 /* Text-level semantics
-   ========================================================================== */
+   ==== */
 /**
  * Address styling not present in IE 8/9/10/11, Safari, and Chrome.
  */
@@ -1750,7 +1750,7 @@ sub {
   bottom: -0.25em; }
 
 /* Embedded content
-   ========================================================================== */
+   ==== */
 /**
  * Remove border when inside `a` element in IE 8/9/10.
  */
@@ -1764,7 +1764,7 @@ svg:not(:root) {
   overflow: hidden; }
 
 /* Grouping content
-   ========================================================================== */
+   ==== */
 /**
  * Address margin not present in IE 8/9 and Safari.
  */
@@ -1793,7 +1793,7 @@ code, kbd, pre, samp {
   font-size: 1em; }
 
 /* Forms
-   ========================================================================== */
+   ==== */
 /**
  * Known limitation: by default, Chrome and Safari on OS X allow very limited
  * styling of `select`, unless a `border` property is set.
@@ -1934,7 +1934,7 @@ optgroup {
   font-weight: bold; }
 
 /* Tables
-   ========================================================================== */
+   ==== */
 /**
  * Remove most spacing between table cells.
  */
@@ -2547,7 +2547,7 @@ span.badge {
   font-weight: normal;
   font-variant: normal;
   text-transform: none;
-  /* Better Font Rendering =========== */
+  /* Better Font Rendering ==== */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale; }
 
@@ -7330,9 +7330,9 @@ ul.side-nav .collapsible-body li.active, ul.side-nav.fixed .collapsible-body li.
       .slider ul.indicators li.indicator-item.active {
         background-color: #4CAF50; }
 
-/* ==========================================================================
+/* ====
    $BASE-PICKER
-   ========================================================================== */
+   ==== */
 /**
  * Note: the root picker element should *NOT* be styled more than what's here.
  */
@@ -7488,9 +7488,9 @@ ul.side-nav .collapsible-body li.active, ul.side-nav.fixed .collapsible-body li.
 /**
  * For `large` screens, transform into an inline picker.
  */
-/* ==========================================================================
+/* ====
    CUSTOM MATERIALIZE STYLES
-   ========================================================================== */
+   ==== */
 .picker__input.picker__input--active {
   border-color: #E3F2FD; }
 
@@ -7504,9 +7504,9 @@ ul.side-nav .collapsible-body li.active, ul.side-nav.fixed .collapsible-body li.
     bottom: auto; }
  }
 
-/* ==========================================================================
+/* ====
    $BASE-DATE-PICKER
-   ========================================================================== */
+   ==== */
 /**
  * The picker box.
  */
@@ -7734,9 +7734,9 @@ ul.side-nav .collapsible-body li.active, ul.side-nav.fixed .collapsible-body li.
 .picker__button--today[disabled]:before {
   border-top-color: #aaaaaa; }
 
-/* ==========================================================================
+/* ====
    CUSTOM MATERIALIZE STYLES
-   ========================================================================== */
+   ==== */
 .picker__box {
   border-radius: 2px;
   overflow: hidden; }
@@ -7839,9 +7839,9 @@ ul.side-nav .collapsible-body li.active, ul.side-nav.fixed .collapsible-body li.
 button.picker__today:focus, button.picker__clear:focus, button.picker__close:focus {
   background-color: #a1ded8; }
 
-/* ==========================================================================
+/* ====
    $BASE-TIME-PICKER
-   ========================================================================== */
+   ==== */
 /**
  * The list of times.
  */
@@ -7933,9 +7933,9 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
 .picker--time .picker__button--clear:hover:before, .picker--time .picker__button--clear:focus:before {
   color: #ffffff; }
 
-/* ==========================================================================
+/* ====
    $DEFAULT-TIME-PICKER
-   ========================================================================== */
+   ==== */
 /**
  * The frame the bounds the time picker.
  */

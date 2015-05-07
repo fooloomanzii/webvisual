@@ -1,5 +1,5 @@
 core-dropdown-menu
-==================
+====
 
 owner: @morethanreal
 

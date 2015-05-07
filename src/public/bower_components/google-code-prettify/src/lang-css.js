@@ -46,14 +46,14 @@
 //    [languageId0, ..., languageIdN])
 
 // Langugage IDs
-// =============
+// ======
 // The language IDs are typically the file extensions of source files for
 // that language so that users can syntax highlight arbitrary files based
 // on just the extension.  This is heuristic, but works pretty well in
 // practice.
 
 // Patterns
-// ========
+// =
 // Lexers are typically implemented as a set of regular expressions.
 // The SimpleLexer function takes regular expressions, styles, and some
 // pragma-info and produces a lexer.  A token description looks like
@@ -92,7 +92,7 @@
 // This mechanism gives us both lookahead, lookbehind, and language embedding.
 
 // Shortcut Patterns
-// =================
+// ===
 // A shortcut pattern is one that is tried before other patterns if the first
 // character in the token is in the string of characters.
 // This very effectively lets us make quick correct decisions for common token

@@ -1,5 +1,5 @@
 paper-dropdown-menu
-===================
+=====
 
 owner: @morethanreal
 

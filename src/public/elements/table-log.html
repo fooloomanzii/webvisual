@@ -1,90 +1,3 @@
-<<<<<<< HEAD
-
-<link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/core-icon-button/core-icon-button.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
-<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
-
-<script type="text/javascript" src="../../bower_components/jquery/dist/jquery.min.js"></script>
-<script src='../js/underscore/underscore.js'></script>
-<script src='../js/materialize.js'></script>
-
-<polymer-element name="table-log" attributes="turned collapsed">
-
-  <template>
-    <link type='text/css' rel='stylesheet' href='../css/materialize.min.css' media='all'>
-    <style>
-      :host {
-        color: #f1f1f1;
-        position: relative;
-        color: #333333;
-        border-radius: 5px;
-        overlay: hidden;
-        display: inline-block;
-        z-index: 0;
-        box-sizing: border-box;
-        padding: 8px;
-        margin: 4px;
-        outline: none;
-        font-size: 1em;
-        width: 100%;
-      }
-
-      .selector {
-        background: white;
-      }
-
-      paper-tabs {
-        color: #1d1d1d;
-        background: linear-gradient(rgba(255, 255, 255, 0),rgba(0, 93, 130, 0.5));
-        text-transform: uppercase;
-        font-family: 'Roboto-Regular';
-        font-size: 0.6em;
-      }
-
-      paper-tabs::shadow #selectionBar {
-        background-color: #005B82;
-        height: 3px;
-        border-radius: 5px;
-      }
-
-      paper-tabs /deep/ paper-tab::shadow #ink {
-        color: #669db4;
-        }
-
-      paper-tabs /deep/ paper-icon-button {
-        color: #1d1d1d;
-      }
-
-      paper-tabs /deep/ paper-tab {
-        border-radius: 5px;
-      }
-
-      paper-tabs /deep/ paper-tab:hover {
-        background: rgba(255, 255, 255, 0.15);
-      }
-
-      th, td {
-        padding: 8px 5px;
-        font-size: 0.8em;
-      }
-
-    </style>
-
-    <section id="tabs" relative>
-      <paper-tabs id="tableselect" selected="{{selected}}">
-        <paper-tab>Alle</paper-tab>
-        <paper-tab>Datum</paper-tab>
-        <paper-tab>Raum</paper-tab>
-        <paper-tab>Typ</paper-tab>
-        <paper-tab>Wert</paper-tab>
-      </paper-tabs>
-    </section>
-
-    <section id="main" flex>
-
-=======
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
@@ -111,137 +24,23 @@
       <section id="main">
 
       </section>
->>>>>>> develop
+
     </section>
   </template>
 
 
   <script>
 
-<<<<<<< HEAD
-    var vals = "";
-
-    Polymer('table-log',{
-
-      ready: function() {
-        // Verknüpfung der Daten mit dem Element
-        $(document).on('dataLoaded', function(event, data) {
-            var arr = _.sortBy(data.content,'date').reverse();
-            arr = _.sortBy(arr,'var');
-            arr = _.sortBy(arr,'kind');
-            arr = _.sortBy(arr,'room');
-            $('table-log').attr('data', JSON.stringify(arr));
-        });
-=======
     Polymer('table-log',{
 
       ready: function() {
         this.sortingSelected();
->>>>>>> develop
       },
 
       publish: {
         tab: [],
         receive: [],
         data: [],
-<<<<<<< HEAD
-        selected: 1
-      },
-
-      dataChanged: function() {
-        this.$.main.innerHTML = groupedTable(this.data,this.selected);
-      },
-
-      selectedChanged: function() {
-        this.$.main.innerHTML = groupedTable(this.data,this.selected);
-      },
-
-      sort: function(){
-        alert("sort");
-      },
-
-      domReady: function() {
-        // $(this.$.rich).markItUp(mySettings);
-      }
-    });
-
-    title = {
-        "all": "Alle", /*spezielles Attribut für dieses Element*/
-        "date": "Datum",
-        "room": "Raum",
-        "kind": "Typ",
-        "var": "Methode",
-        "value": "Wert"
-    };
-
-    function groupedTable(arr,sel) {
-
-      if (sel === 0) {
-        var htmlcode = "<table class='striped hoverable centered'>" + theadCreate() +
-          tbodyCreate(arr) + "</table>";
-      }
-      else {
-        var groupTitle = _.keys(title)[sel];
-        var groupedData = _.groupBy(arr,groupTitle);
-
-        var keys = _.keys(groupedData);
-        var vals = _.values(groupedData);
-
-        var htmlcode = "";
-
-        var a = "active";
-        for (var i=0; i<keys.length; i++) {
-          htmlcode += '<section class="grouptitle">' + keys[i] + '</section>' +
-            '<section><table class="striped hoverable centered">' + theadCreate(groupTitle) +
-            tbodyCreate(vals[i],groupTitle) + '</table></section>';
-          a = "";
-        }
-      }
-      return htmlcode;
-    }
-
-    function theadCreate(ex) {
-      var tabletitle = title;
-      tabletitle = _.values(_.omit(tabletitle,ex,'all'));
-
-      htmlcode = "<thead>";
-
-      for (var i=0; i<tabletitle.length; i++) {
-        htmlcode += "<th on-click='{{sort}}'>"+tabletitle[i]+"</th>";
-      }
-
-      htmlcode += "</thead>";
-      return htmlcode;
-    }
-
-    function tbodyCreate(arr,ex) {
-      var line = [];
-      htmlcode = "<tbody>";
-
-      for (var i=0; i<arr.length; i++) {
-        line = _.omit(arr[i],ex);
-        htmlcode += "<tr>";
-
-        if (line.date) {htmlcode += "<td>" + line.date + "</td>";}
-        if (line.room) {htmlcode += "<td>" + line.room + "</td>";}
-        if (line.kind) {htmlcode += "<td>" + line.kind + "</td>";}
-        if (line.var) {htmlcode += "<td>" + line.var + "</td>";}
-        if (line.value) {htmlcode += "<td style='background:" + line.color + ";'>" + line.value + " " + line.unit + "</td>";}
-
-        htmlcode += "</tr>";
-      }
-
-      htmlcode += "</tbody>";
-      return htmlcode;
-    }
-
-    function regCollapsible() {
-        $('.collapsible').collapsible({
-          accordion : true
-        });
-    }
-
-=======
         selected: 1,
         titleTable: {
           "all": "Alle",
@@ -410,7 +209,7 @@
         return htmlcode;
       }
     });
->>>>>>> develop
+
   </script>
 
 </polymer-element>

@@ -1,5 +1,5 @@
 core-dropdown
-=============
+======
 
 owner: [@morethanreal](http://github.com/morethanreal)
 

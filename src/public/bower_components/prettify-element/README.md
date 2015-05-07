@@ -1,10 +1,10 @@
 prettify-element
-===================
+=====
 
 See the [component page](http://polymer.github.io/prettify-element) for more information.
 
 prettify-import
-==================
+====
 
 Import files are a new invention, so libraries like [`prettify`](https://code.google.com/p/prettify/) do not yet provide them.
 

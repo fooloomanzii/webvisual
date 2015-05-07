@@ -1,9 +1,9 @@
 /**
-<<<<<<< HEAD
+
  * @license AngularJS v1.3.13
-=======
+
  * @license AngularJS v1.3.15
->>>>>>> develop
+
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -58,11 +58,11 @@ function minErr(module, ErrorConstructor) {
       return match;
     });
 
-<<<<<<< HEAD
+
     message = message + '\nhttp://errors.angularjs.org/1.3.13/' +
-=======
+
     message = message + '\nhttp://errors.angularjs.org/1.3.15/' +
->>>>>>> develop
+
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i - 2) + '=' +
@@ -554,15 +554,15 @@ function isString(value) {return typeof value === 'string';}
  * @description
  * Determines if a reference is a `Number`.
  *
-<<<<<<< HEAD
-=======
+
+
  * This includes the "special" numbers `NaN`, `+Infinity` and `-Infinity`.
  *
  * If you wish to exclude these then you can use the native
  * [`isFinite'](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/isFinite)
  * method.
  *
->>>>>>> develop
+
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `Number`.
  */
@@ -931,18 +931,18 @@ function equals(o1, o2) {
       } else if (isDate(o1)) {
         if (!isDate(o2)) return false;
         return equals(o1.getTime(), o2.getTime());
-<<<<<<< HEAD
+
       } else if (isRegExp(o1) && isRegExp(o2)) {
         return o1.toString() == o2.toString();
       } else {
         if (isScope(o1) || isScope(o2) || isWindow(o1) || isWindow(o2) || isArray(o2)) return false;
-=======
+
       } else if (isRegExp(o1)) {
         return isRegExp(o2) ? o1.toString() == o2.toString() : false;
       } else {
         if (isScope(o1) || isScope(o2) || isWindow(o1) || isWindow(o2) ||
           isArray(o2) || isDate(o2) || isRegExp(o2)) return false;
->>>>>>> develop
+
         keySet = {};
         for (key in o1) {
           if (key.charAt(0) === '$' || isFunction(o1[key])) continue;
@@ -2146,19 +2146,19 @@ function toDebugString(obj) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-<<<<<<< HEAD
+
   full: '1.3.13',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 3,
   dot: 13,
   codeName: 'meticulous-riffleshuffle'
-=======
+
   full: '1.3.15',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 3,
   dot: 15,
   codeName: 'locality-filtration'
->>>>>>> develop
+
 };
 
 
@@ -2295,8 +2295,8 @@ function publishExternalAPI(angular) {
   ]);
 }
 
-<<<<<<< HEAD
-=======
+
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *     Any commits to this file should be reviewed with security in mind.  *
  *   Changes to this file can potentially create security vulnerabilities. *
@@ -2308,7 +2308,7 @@ function publishExternalAPI(angular) {
  *     Or gives undesired access to variables likes document or window?    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
->>>>>>> develop
+
 /* global JQLitePrototype: true,
   addEventListenerFn: true,
   removeEventListenerFn: true,
@@ -4732,10 +4732,10 @@ var $AnimateProvider = ['$provide', function($provide) {
        * @return {Promise} the animation callback promise
        */
       leave: function(element, options) {
-<<<<<<< HEAD
-=======
+
+
         applyStyles(element, options);
->>>>>>> develop
+
         element.remove();
         return asyncPromise();
       },
@@ -5140,8 +5140,8 @@ function Browser(window, document, $log, $sniffer) {
     fireUrlChange();
   }
 
-<<<<<<< HEAD
-=======
+
+
   function getCurrentState() {
     try {
       return history.state;
@@ -5150,16 +5150,16 @@ function Browser(window, document, $log, $sniffer) {
     }
   }
 
->>>>>>> develop
+
   // This variable should be used *only* inside the cacheState function.
   var lastCachedState = null;
   function cacheState() {
     // This should be the only place in $browser where `history.state` is read.
-<<<<<<< HEAD
+
     cachedState = window.history.state;
-=======
+
     cachedState = getCurrentState();
->>>>>>> develop
+
     cachedState = isUndefined(cachedState) ? null : cachedState;
 
     // Prevent callbacks fo fire twice if both hashchange & popstate were fired.
@@ -5756,11 +5756,11 @@ function $CacheFactoryProvider() {
  * the document, but it must be a descendent of the {@link ng.$rootElement $rootElement} (IE,
  * element with ng-app attribute), otherwise the template will be ignored.
  *
-<<<<<<< HEAD
+
  * Adding via the $templateCache service:
-=======
+
  * Adding via the `$templateCache` service:
->>>>>>> develop
+
  *
  * ```js
  * var myApp = angular.module('myApp', []);
@@ -5788,8 +5788,8 @@ function $TemplateCacheProvider() {
   }];
 }
 
-<<<<<<< HEAD
-=======
+
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *     Any commits to this file should be reviewed with security in mind.  *
  *   Changes to this file can potentially create security vulnerabilities. *
@@ -5801,7 +5801,7 @@ function $TemplateCacheProvider() {
  *     Or gives undesired access to variables likes document or window?    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
->>>>>>> develop
+
 /* ! VARIABLE/FUNCTION NAMING CONVENTIONS THAT APPLY TO THIS FILE!
  *
  * DOM-related variables:
@@ -6013,12 +6013,12 @@ function $TemplateCacheProvider() {
  * Require another directive and inject its controller as the fourth argument to the linking function. The
  * `require` takes a string name (or array of strings) of the directive(s) to pass in. If an array is used, the
  * injected argument will be an array in corresponding order. If no such directive can be
-<<<<<<< HEAD
+
  * found, or if the directive does not have a controller, then an error is raised. The name can be prefixed with:
-=======
+
  * found, or if the directive does not have a controller, then an error is raised (unless no link function
  * is specified, in which case error checking is skipped). The name can be prefixed with:
->>>>>>> develop
+
  *
  * * (no prefix) - Locate the required controller on the current element. Throw an error if not found.
  * * `?` - Attempt to locate the required controller or pass `null` to the `link` fn if not found.
@@ -6976,7 +6976,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
 
     return compile;
 
-    //================================
+    //====
 
     function compile($compileNodes, transcludeFn, maxPriority, ignoreDirective,
                         previousCompileContext) {
@@ -10568,9 +10568,9 @@ function $LocaleProvider() {
         mediumDate: 'MMM d, y',
         shortDate: 'M/d/yy',
         mediumTime: 'h:mm:ss a',
-<<<<<<< HEAD
+
         shortTime: 'h:mm a'
-=======
+
         shortTime: 'h:mm a',
         ERANAMES: [
           "Before Christ",
@@ -10580,7 +10580,7 @@ function $LocaleProvider() {
           "BC",
           "AD"
         ]
->>>>>>> develop
+
       },
 
       pluralCat: function(num) {
@@ -11588,10 +11588,10 @@ function $LocationProvider() {
          <button ng-click="$log.warn(message)">warn</button>
          <button ng-click="$log.info(message)">info</button>
          <button ng-click="$log.error(message)">error</button>
-<<<<<<< HEAD
-=======
+
+
          <button ng-click="$log.debug(message)">debug</button>
->>>>>>> develop
+
        </div>
      </file>
    </example>
@@ -11722,8 +11722,8 @@ function $LogProvider() {
   }];
 }
 
-<<<<<<< HEAD
-=======
+
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *     Any commits to this file should be reviewed with security in mind.  *
  *   Changes to this file can potentially create security vulnerabilities. *
@@ -11735,7 +11735,7 @@ function $LogProvider() {
  *     Or gives undesired access to variables likes document or window?    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
->>>>>>> develop
+
 var $parseMinErr = minErr('$parse');
 
 // Sandboxing Angular Expressions
@@ -13671,11 +13671,11 @@ function $RootScopeProvider() {
     return TTL;
   };
 
-<<<<<<< HEAD
+
   this.$get = ['$injector', '$exceptionHandler', '$parse', '$browser',
       function($injector, $exceptionHandler, $parse, $browser) {
 
-=======
+
   function createChildScopeClass(parent) {
     function ChildScope() {
       this.$$watchers = this.$$nextSibling =
@@ -13697,7 +13697,7 @@ function $RootScopeProvider() {
         $event.currentScope.$$destroyed = true;
     }
 
->>>>>>> develop
+
     /**
      * @ngdoc type
      * @name $rootScope.Scope
@@ -13820,7 +13820,7 @@ function $RootScopeProvider() {
           // Only create a child scope class if somebody asks for one,
           // but cache it to allow the VM to optimize lookups.
           if (!this.$$ChildScope) {
-<<<<<<< HEAD
+
             this.$$ChildScope = function ChildScope() {
               this.$$watchers = this.$$nextSibling =
                   this.$$childHead = this.$$childTail = null;
@@ -13830,9 +13830,9 @@ function $RootScopeProvider() {
               this.$$ChildScope = null;
             };
             this.$$ChildScope.prototype = this;
-=======
+
             this.$$ChildScope = createChildScopeClass(this);
->>>>>>> develop
+
           }
           child = new this.$$ChildScope();
         }
@@ -13850,7 +13850,7 @@ function $RootScopeProvider() {
         // prototypically. In all other cases, this property needs to be set
         // when the parent scope is destroyed.
         // The listener needs to be added after the parent is set
-<<<<<<< HEAD
+
         if (isolate || parent != this) child.$on('$destroy', destroyChild);
 
         return child;
@@ -13858,11 +13858,11 @@ function $RootScopeProvider() {
         function destroyChild() {
           child.$$destroyed = true;
         }
-=======
+
         if (isolate || parent != this) child.$on('$destroy', destroyChildScope);
 
         return child;
->>>>>>> develop
+
       },
 
       /**
@@ -15023,8 +15023,8 @@ function $$SanitizeUriProvider() {
   };
 }
 
-<<<<<<< HEAD
-=======
+
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *     Any commits to this file should be reviewed with security in mind.  *
  *   Changes to this file can potentially create security vulnerabilities. *
@@ -15036,7 +15036,7 @@ function $$SanitizeUriProvider() {
  *     Or gives undesired access to variables likes document or window?    *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
->>>>>>> develop
+
 var $sceMinErr = minErr('$sce');
 
 var SCE_CONTEXTS = {
@@ -16212,11 +16212,11 @@ function $TemplateRequestProvider() {
       };
 
       return $http.get(tpl, httpOptions)
-<<<<<<< HEAD
+
         .finally(function() {
-=======
+
         ['finally'](function() {
->>>>>>> develop
+
           handleRequestFn.totalPendingRequests--;
         })
         .then(function(response) {
@@ -16912,13 +16912,13 @@ function createPredicateFn(expression, comparator, matchAgainstAnyProp) {
 }
 
 function deepCompare(actual, expected, comparator, matchAgainstAnyProp, dontMatchWholeObject) {
-<<<<<<< HEAD
+
   var actualType = typeof actual;
   var expectedType = typeof expected;
-=======
+
   var actualType = (actual !== null) ? typeof actual : 'null';
   var expectedType = (expected !== null) ? typeof expected : 'null';
->>>>>>> develop
+
 
   if ((expectedType === 'string') && (expected.charAt(0) === '!')) {
     return !deepCompare(actual, expected.substring(1), comparator, matchAgainstAnyProp);
@@ -16943,11 +16943,11 @@ function deepCompare(actual, expected, comparator, matchAgainstAnyProp, dontMatc
       } else if (expectedType === 'object') {
         for (key in expected) {
           var expectedVal = expected[key];
-<<<<<<< HEAD
+
           if (isFunction(expectedVal)) {
-=======
+
           if (isFunction(expectedVal) || isUndefined(expectedVal)) {
->>>>>>> develop
+
             continue;
           }
 
@@ -17261,8 +17261,8 @@ function ampmGetter(date, formats) {
   return date.getHours() < 12 ? formats.AMPMS[0] : formats.AMPMS[1];
 }
 
-<<<<<<< HEAD
-=======
+
+
 function eraGetter(date, formats) {
   return date.getFullYear() <= 0 ? formats.ERAS[0] : formats.ERAS[1];
 }
@@ -17271,7 +17271,7 @@ function longEraGetter(date, formats) {
   return date.getFullYear() <= 0 ? formats.ERANAMES[0] : formats.ERANAMES[1];
 }
 
->>>>>>> develop
+
 var DATE_FORMATS = {
   yyyy: dateGetter('FullYear', 4),
     yy: dateGetter('FullYear', 2, 0, true),
@@ -17298,12 +17298,12 @@ var DATE_FORMATS = {
      a: ampmGetter,
      Z: timeZoneGetter,
     ww: weekGetter(2),
-<<<<<<< HEAD
+
      w: weekGetter(1)
 };
 
 var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZEw']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d+|H+|h+|m+|s+|a|Z|w+))(.*)/,
-=======
+
      w: weekGetter(1),
      G: eraGetter,
      GG: eraGetter,
@@ -17312,7 +17312,7 @@ var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZEw']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d
 };
 
 var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZEwG']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d+|H+|h+|m+|s+|a|Z|G+|w+))(.*)/,
->>>>>>> develop
+
     NUMBER_STRING = /^\-?\d+$/;
 
 /**
@@ -17349,11 +17349,11 @@ var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZEwG']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|
  *   * `'Z'`: 4 digit (+sign) representation of the timezone offset (-1200-+1200)
  *   * `'ww'`: Week of year, padded (00-53). Week 01 is the week with the first Thursday of the year
  *   * `'w'`: Week of year (0-53). Week 1 is the week with the first Thursday of the year
-<<<<<<< HEAD
-=======
+
+
  *   * `'G'`, `'GG'`, `'GGG'`: The abbreviated form of the era string (e.g. 'AD')
  *   * `'GGGG'`: The long form of the era string (e.g. 'Anno Domini')
->>>>>>> develop
+
  *
  *   `format` string can also be one of the following predefined
  *   {@link guide/i18n localizable formats}:
@@ -17687,8 +17687,8 @@ function limitToFilter() {
  * @param {boolean=} reverse Reverse the order of the array.
  * @returns {Array} Sorted copy of the source array.
  *
-<<<<<<< HEAD
-=======
+
+
  *
  * @example
  * The example below demonstrates a simple ngRepeat, where the data is sorted
@@ -17726,7 +17726,7 @@ function limitToFilter() {
  *
  * The predicate and reverse parameters can be controlled dynamically through scope properties,
  * as shown in the next example.
->>>>>>> develop
+
  * @example
    <example module="orderByExample">
      <file name="index.html">
@@ -18101,7 +18101,7 @@ var htmlAnchorDirective = valueFn({
  *
  * @description
  *
-<<<<<<< HEAD
+
  * We shouldn't do this, because it will make the button enabled on Chrome/Firefox but not on IE8 and older IEs:
  * ```html
  * <div ng-init="scope = { isDisabled: false }">
@@ -18116,7 +18116,7 @@ var htmlAnchorDirective = valueFn({
  * The `ngDisabled` directive solves this problem for the `disabled` attribute.
  * This complementary directive is not removed by the browser and so provides
  * a permanent reliable place to store the binding information.
-=======
+
  * This directive sets the `disabled` attribute on the element if the
  * {@link guide/expression expression} inside `ngDisabled` evaluates to truthy.
  *
@@ -18135,7 +18135,7 @@ var htmlAnchorDirective = valueFn({
  * boolean attributes such as `disabled` (Their presence means true and their absence means false.)
  * If we put an Angular interpolation expression into such an attribute then the
  * binding information would be lost when the browser removes the attribute.
->>>>>>> develop
+
  *
  * @example
     <example>
@@ -18154,11 +18154,11 @@ var htmlAnchorDirective = valueFn({
  *
  * @element INPUT
  * @param {expression} ngDisabled If the {@link guide/expression expression} is truthy,
-<<<<<<< HEAD
+
  *     then special attribute "disabled" will be set on the element
-=======
+
  *     then the `disabled` attribute will be set on the element
->>>>>>> develop
+
  */
 
 
@@ -18706,11 +18706,11 @@ function FormController(element, attrs, $scope, $animate, $interpolate) {
  *
  * # Alias: {@link ng.directive:ngForm `ngForm`}
  *
-<<<<<<< HEAD
+
  * In Angular forms can be nested. This means that the outer form is valid when all of the child
-=======
+
  * In Angular, forms can be nested. This means that the outer form is valid when all of the child
->>>>>>> develop
+
  * forms are valid as well. However, browsers do not allow nesting of `<form>` elements, so
  * Angular provides the {@link ng.directive:ngForm `ngForm`} directive which behaves identically to
  * `<form>` but can be nested.  This allows you to have nested forms, which is very useful when
@@ -18848,19 +18848,19 @@ var formDirectiveFactory = function(isNgForm) {
       name: 'form',
       restrict: isNgForm ? 'EAC' : 'E',
       controller: FormController,
-<<<<<<< HEAD
+
       compile: function ngFormCompile(formElement) {
         // Setup initial state of the control
         formElement.addClass(PRISTINE_CLASS).addClass(VALID_CLASS);
 
-=======
+
       compile: function ngFormCompile(formElement, attr) {
         // Setup initial state of the control
         formElement.addClass(PRISTINE_CLASS).addClass(VALID_CLASS);
 
         var nameAttr = attr.name ? 'name' : (isNgForm && attr.ngForm ? 'ngForm' : false);
 
->>>>>>> develop
+
         return {
           pre: function ngFormPreLink(scope, formElement, attr, controller) {
             // if `action` attr is not present on the form, prevent the default action (submission)
@@ -18891,7 +18891,7 @@ var formDirectiveFactory = function(isNgForm) {
               });
             }
 
-<<<<<<< HEAD
+
             var parentFormCtrl = controller.$$parentForm,
                 alias = controller.$name;
 
@@ -18903,7 +18903,7 @@ var formDirectiveFactory = function(isNgForm) {
                 alias = newValue;
                 setter(scope, null, alias, controller, alias);
                 parentFormCtrl.$$renameControl(controller, alias);
-=======
+
             var parentFormCtrl = controller.$$parentForm;
 
             if (nameAttr) {
@@ -18913,18 +18913,18 @@ var formDirectiveFactory = function(isNgForm) {
                 setter(scope, null, controller.$name, undefined, controller.$name);
                 parentFormCtrl.$$renameControl(controller, newValue);
                 setter(scope, null, controller.$name, controller, controller.$name);
->>>>>>> develop
+
               });
             }
             formElement.on('$destroy', function() {
               parentFormCtrl.$removeControl(controller);
-<<<<<<< HEAD
+
               if (alias) {
                 setter(scope, null, alias, undefined, alias);
-=======
+
               if (nameAttr) {
                 setter(scope, null, attr[nameAttr], undefined, controller.$name);
->>>>>>> develop
+
               }
               extend(controller, nullFormCtrl); //stop propagating child destruction handlers upwards
             });
@@ -20190,11 +20190,11 @@ function numberInputType(scope, element, attr, ctrl, $sniffer, $browser) {
     return value;
   });
 
-<<<<<<< HEAD
+
   if (attr.min || attr.ngMin) {
-=======
+
   if (isDefined(attr.min) || attr.ngMin) {
->>>>>>> develop
+
     var minVal;
     ctrl.$validators.min = function(value) {
       return ctrl.$isEmpty(value) || isUndefined(minVal) || value >= minVal;
@@ -20210,11 +20210,11 @@ function numberInputType(scope, element, attr, ctrl, $sniffer, $browser) {
     });
   }
 
-<<<<<<< HEAD
+
   if (attr.max || attr.ngMax) {
-=======
+
   if (isDefined(attr.max) || attr.ngMax) {
->>>>>>> develop
+
     var maxVal;
     ctrl.$validators.max = function(value) {
       return ctrl.$isEmpty(value) || isUndefined(maxVal) || value <= maxVal;
@@ -22905,13 +22905,13 @@ is set to `true`. The parse error is stored in `ngModel.$error.parse`.
  * data-binding. Notice how different directives (`contenteditable`, `ng-model`, and `required`)
  * collaborate together to achieve the desired result.
  *
-<<<<<<< HEAD
+
  * Note that `contenteditable` is an HTML5 attribute, which tells the browser to let the element
  * contents be edited in place by the user.  This will not work on older browsers.
-=======
+
  * `contenteditable` is an HTML5 attribute, which tells the browser to let the element
  * contents be edited in place by the user.
->>>>>>> develop
+
  *
  * We are using the {@link ng.service:$sce $sce} service here and include the {@link ngSanitize $sanitize}
  * module to automatically remove "bad" content like inline event listener (e.g. `<span onclick="...">`).
@@ -23025,10 +23025,10 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
       ngModelGet = parsedNgModel,
       ngModelSet = parsedNgModelAssign,
       pendingDebounce = null,
-<<<<<<< HEAD
-=======
+
+
       parserValid,
->>>>>>> develop
+
       ctrl = this;
 
   this.$$setOptions = function(options) {
@@ -23301,23 +23301,23 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
     // the model although neither viewValue nor the model on the scope changed
     var modelValue = ctrl.$$rawModelValue;
 
-<<<<<<< HEAD
+
     // Check if the there's a parse error, so we don't unset it accidentially
     var parserName = ctrl.$$parserName || 'parse';
     var parserValid = ctrl.$error[parserName] ? false : undefined;
 
-=======
->>>>>>> develop
+
+
     var prevValid = ctrl.$valid;
     var prevModelValue = ctrl.$modelValue;
 
     var allowInvalid = ctrl.$options && ctrl.$options.allowInvalid;
 
-<<<<<<< HEAD
+
     ctrl.$$runValidators(parserValid, modelValue, viewValue, function(allValid) {
-=======
+
     ctrl.$$runValidators(modelValue, viewValue, function(allValid) {
->>>>>>> develop
+
       // If there was no change in validity, don't update the model
       // This prevents changing an invalid modelValue to undefined
       if (!allowInvalid && prevValid !== allValid) {
@@ -23335,20 +23335,20 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
 
   };
 
-<<<<<<< HEAD
+
   this.$$runValidators = function(parseValid, modelValue, viewValue, doneCallback) {
-=======
+
   this.$$runValidators = function(modelValue, viewValue, doneCallback) {
->>>>>>> develop
+
     currentValidationRunId++;
     var localValidationRunId = currentValidationRunId;
 
     // check parser error
-<<<<<<< HEAD
+
     if (!processParseErrors(parseValid)) {
-=======
+
     if (!processParseErrors()) {
->>>>>>> develop
+
       validationDone(false);
       return;
     }
@@ -23358,7 +23358,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
     }
     processAsyncValidators();
 
-<<<<<<< HEAD
+
     function processParseErrors(parseValid) {
       var errorKey = ctrl.$$parserName || 'parse';
       if (parseValid === undefined) {
@@ -23366,29 +23366,29 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
       } else {
         setValidity(errorKey, parseValid);
         if (!parseValid) {
-=======
+
     function processParseErrors() {
       var errorKey = ctrl.$$parserName || 'parse';
       if (parserValid === undefined) {
         setValidity(errorKey, null);
       } else {
         if (!parserValid) {
->>>>>>> develop
+
           forEach(ctrl.$validators, function(v, name) {
             setValidity(name, null);
           });
           forEach(ctrl.$asyncValidators, function(v, name) {
             setValidity(name, null);
           });
-<<<<<<< HEAD
+
           return false;
         }
-=======
+
         }
         // Set the parse error last, to prevent unsetting it, should a $validators key == parserName
         setValidity(errorKey, parserValid);
         return parserValid;
->>>>>>> develop
+
       }
       return true;
     }
@@ -23483,11 +23483,11 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
   this.$$parseAndValidate = function() {
     var viewValue = ctrl.$$lastCommittedViewValue;
     var modelValue = viewValue;
-<<<<<<< HEAD
+
     var parserValid = isUndefined(modelValue) ? undefined : true;
-=======
+
     parserValid = isUndefined(modelValue) ? undefined : true;
->>>>>>> develop
+
 
     if (parserValid) {
       for (var i = 0; i < ctrl.$parsers.length; i++) {
@@ -23513,11 +23513,11 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
 
     // Pass the $$lastCommittedViewValue here, because the cached viewValue might be out of date.
     // This can happen if e.g. $setViewValue is called from inside a parser
-<<<<<<< HEAD
+
     ctrl.$$runValidators(parserValid, modelValue, ctrl.$$lastCommittedViewValue, function(allValid) {
-=======
+
     ctrl.$$runValidators(modelValue, ctrl.$$lastCommittedViewValue, function(allValid) {
->>>>>>> develop
+
       if (!allowInvalid) {
         // Note: Don't check ctrl.$valid here, as we could have
         // external validators (e.g. calculated on the server),
@@ -23638,10 +23638,10 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
     // TODO(perf): why not move this to the action fn?
     if (modelValue !== ctrl.$modelValue) {
       ctrl.$modelValue = ctrl.$$rawModelValue = modelValue;
-<<<<<<< HEAD
-=======
+
+
       parserValid = undefined;
->>>>>>> develop
+
 
       var formatters = ctrl.$formatters,
           idx = formatters.length;
@@ -23654,11 +23654,11 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
         ctrl.$viewValue = ctrl.$$lastCommittedViewValue = viewValue;
         ctrl.$render();
 
-<<<<<<< HEAD
+
         ctrl.$$runValidators(undefined, modelValue, viewValue, noop);
-=======
+
         ctrl.$$runValidators(modelValue, viewValue, noop);
->>>>>>> develop
+
       }
     }
 
@@ -24474,8 +24474,8 @@ var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interp
  * when keys are deleted and reinstated.
  *
  *
-<<<<<<< HEAD
-=======
+
+
  * # Tracking and Duplicates
  *
  * When the contents of the collection change, `ngRepeat` makes the corresponding changes to the DOM:
@@ -24525,7 +24525,7 @@ var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interp
  *    </div>
  * ```
  *
->>>>>>> develop
+
  * # Special repeat start and end points
  * To repeat a series of elements instead of just one parent element, ngRepeat (as well as other ng directives) supports extending
  * the range of the repeater by defining explicit start and end points by using **ng-repeat-start** and **ng-repeat-end** respectively.
@@ -24593,21 +24593,21 @@ var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interp
  *
  *     For example: `(name, age) in {'adam':10, 'amalie':12}`.
  *
-<<<<<<< HEAD
+
  *   * `variable in expression track by tracking_expression` – You can also provide an optional tracking function
  *     which can be used to associate the objects in the collection with the DOM elements. If no tracking function
  *     is specified the ng-repeat associates elements by identity in the collection. It is an error to have
  *     more than one tracking function to resolve to the same key. (This would mean that two distinct objects are
  *     mapped to the same DOM element, which is not possible.)  Filters should be applied to the expression,
  *     before specifying a tracking expression.
-=======
+
  *   * `variable in expression track by tracking_expression` – You can also provide an optional tracking expression
  *     which can be used to associate the objects in the collection with the DOM elements. If no tracking expression
  *     is specified, ng-repeat associates elements by identity. It is an error to have
  *     more than one tracking expression value resolve to the same key. (This would mean that two distinct objects are
  *     mapped to the same DOM element, which is not possible.)  If filters are used in the expression, they should be
  *     applied before the tracking expression.
->>>>>>> develop
+
  *
  *     For example: `item in items` is equivalent to `item in items track by $id(item)`. This implies that the DOM elements
  *     will be associated by item identity in the array.

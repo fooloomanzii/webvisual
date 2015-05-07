@@ -1,6 +1,6 @@
 
 1.9.1 / 2014-03-19 
-==================
+====
 
   * deps update
   * util: [getActual] select actual logic now allows undefined for actual. Closes #183
@@ -24,7 +24,7 @@
   * Deep equality check for collection membership
 
 1.9.0 / 2014-01-29 
-==================
+====
 
   * docs: add contributing.md #238
   * assert: .throws() returns thrown error. Closes #185
@@ -66,12 +66,12 @@
   * core: improve message for assertion errors (throw assertion)
 
 1.8.1 / 2013-10-10 
-==================
+====
 
  * pkg: update deep-eql version
 
 1.8.0 / 2013-09-18 
-==================
+====
 
  * test: [sauce] add a few more browsers
  * Merge branch 'refactor/deep-equal'
@@ -86,7 +86,7 @@
  * Fix highlight for example code
 
 1.7.2 / 2013-06-27 
-==================
+====
 
   * coverage: add coveralls badge
   * test: [coveralls] add coveralls api integration. testing travis-ci integration
@@ -99,14 +99,14 @@
   * bower: granular ignores
 
 1.7.1 / 2013-06-24 
-==================
+====
 
   * Merge branch 'feature/bower'. #175
   * bower: add json file
   * build: browser
 
 1.7.0 / 2013-06-17 
-==================
+====
 
   * error: remove internal assertion error constructor
   * core: [assertion-error] replace internal assertion error with dep
@@ -125,7 +125,7 @@
   * Fix comparison objects.
 
 1.6.1 / 2013-06-05 
-==================
+====
 
   * Merge pull request #168 from katsgeorgeek/topics/master
   * Add test for different RegExp flags.
@@ -136,7 +136,7 @@
   * Fix documented name for assert interfaces isDefined method
 
 1.6.0 / 2013-04-29 
-==================
+====
 
   * build: browser
   * assert: [(not)include] throw on incompatible haystack. Closes #142
@@ -159,7 +159,7 @@
   * test: for ever err() there must be a passing version
 
 1.5.0 / 2013-02-03 
-==================
+====
 
   * docs: add Release Notes for non-gitlog summary of changes.
   * lib: update copyright to 2013
@@ -215,14 +215,14 @@
   * showDiff: force true for equal and eql
 
 1.4.2 / 2012-12-21 
-==================
+====
 
   * browser build: (object diff support when used with mocha) #106
   * test: [display] array test for mocha object diff
   * browser: no longer need different AssertionError constructor
 
 1.4.1 / 2012-12-21 
-==================
+====
 
   * showDiff: force diff for equal and eql. #106
   * test: [expect] type null. #122
@@ -231,7 +231,7 @@
   * TST: assert.Throw should check error type/message
 
 1.4.0 / 2012-11-29 
-==================
+====
 
   * pre-release browser build
   * clean up index.js to not check for cov, revert package.json to use index.js
@@ -247,7 +247,7 @@
   * Added support for circular references when checking deep (in)equality.
 
 1.3.0 / 2012-10-01 
-==================
+====
 
   * browser build w/ folio >= 0.3.4. Closes #99
   * add back buffer test for deep equal
@@ -268,7 +268,7 @@
   * Add a setter for `Object.prototype.should`. Closes #86.
 
 1.2.0 / 2012-08-07 
-==================
+====
 
   * Merge branch 'feature/errmsg'
   * browser build
@@ -288,7 +288,7 @@
   * Don't inspect() assertion arguments if the assertion passes.
 
 1.1.1 / 2012-07-09 
-==================
+====
 
   * improve commonjs support on browser build
   * Merge pull request #83 from tkazec/equals
@@ -302,7 +302,7 @@
   * early folio 0.3.x support
 
 1.1.0 / 2012-06-26 
-==================
+====
 
   * browser build
   * Disable "Assertion.includeStack is false" test in IE.
@@ -327,7 +327,7 @@
   * rearrange folder structure
 
 1.0.4 / 2012-06-03 
-==================
+====
 
   * Merge pull request #68 from fizker/itself
   * Added itself chain.
@@ -335,7 +335,7 @@
   * fix safari `addChainableMethod` errors. Closes #69
 
 1.0.3 / 2012-05-27 
-==================
+====
 
   * Point Travis badge to the right place.
   * Make error message for eql/deep.equal more clear.
@@ -343,7 +343,7 @@
   * contributors list
 
 1.0.2 / 2012-05-26 
-==================
+====
 
   * Merge pull request #67 from chaijs/chaining-and-flags
   * Browser build.
@@ -357,7 +357,7 @@
   * Add a .mailmap file to fix my name in shortlogs.
 
 1.0.1 / 2012-05-18 
-==================
+====
 
   * browser build
   * Fixing "an" vs. "a" grammar in type assertions.
@@ -370,7 +370,7 @@
   * no reserved words as actuals. #62
 
 1.0.0 / 2012-05-15 
-==================
+====
 
   * readme cleanup
   * browser build
@@ -389,7 +389,7 @@
   * Update utility docs
 
 1.0.0-rc3 / 2012-05-09 
-==================
+====
 
   * Merge branch 'feature/rc3'
   * docs update
@@ -423,7 +423,7 @@
   * updated plugins list for docs
 
 1.0.0-rc2 / 2012-05-06 
-==================
+====
 
   * Merge branch 'feature/test-cov'
   * browser build
@@ -435,7 +435,7 @@
   * version notes in readme
 
 1.0.0-rc1 / 2012-05-04 
-==================
+====
 
   * browser build (rc1)
   * assert match/notMatch tests
@@ -542,7 +542,7 @@
   * Added DeepEqual assertions
 
 0.5.3 / 2012-04-21 
-==================
+====
 
   * Merge branch 'refs/heads/jgonera-oldbrowsers'
   * browser build
@@ -557,7 +557,7 @@
   * chai as promised - readme
 
 0.5.2 / 2012-03-21 
-==================
+====
 
   * browser build
   * Merge branch 'feature/assert-fail'
@@ -567,7 +567,7 @@
   * version notes
 
 0.5.1 / 2012-03-14 
-==================
+====
 
   * chai.fail no longer exists
   * Merge branch 'feature/assertdefined'
@@ -575,7 +575,7 @@
   * dev docs update for Assertion#assert
 
 0.5.0 / 2012-03-07 
-==================
+====
 
   * [bug] on inspect of reg on n 0.4.12
   * Merge branch 'bug/33-throws'
@@ -607,7 +607,7 @@
   * Add object & sane arguments support to `Assertion#empty`.
 
 0.4.2 / 2012-02-28 
-==================
+====
 
   * fix for `process` not available in browser when used via browserify. Closes #28
   * Merge pull request #31 from joliss/doc
@@ -639,7 +639,7 @@
   * Add test for `assert.notEqual`.
 
 0.4.1 / 2012-02-26 
-==================
+====
 
   * Merge pull request #27 from logicalparadox/type-fix
   * Update the browser version.
@@ -650,7 +650,7 @@
   * Fix type of actual checks.
 
 0.4.0 / 2012-02-25 
-==================
+====
 
   * docs and readme for upcoming 0.4.0
   * docs generated
@@ -683,7 +683,7 @@
   * README contributors
 
 0.3.4 / 2012-02-23 
-==================
+====
 
   * inline comment typos for #15
   * Merge branch 'refs/heads/jeffbski-configErrorStackCompat'
@@ -698,25 +698,25 @@
   * read me updates include plugins
 
 0.3.3 / 2012-02-12 
-==================
+====
 
   * Merge pull request #14 from jfirebaugh/configurable_properties
   * Make Assertion.prototype properties configurable
 
 0.3.2 / 2012-02-10 
-==================
+====
 
   * codex version
   * docs
   * docs cleanup
 
 0.3.1 / 2012-02-07 
-==================
+====
 
   * node 0.4.x compat
 
 0.3.0 / 2012-02-07 
-==================
+====
 
   * Merge branch 'feature/03x'
   * browser build
@@ -727,27 +727,27 @@
   * Make `chai.use` a no-op if the function has already been used.
 
 0.2.4 / 2012-02-02 
-==================
+====
 
   * added in past tense switch for `been`
 
 0.2.3 / 2012-02-01 
-==================
+====
 
   * try that again
 
 0.2.2 / 2012-02-01 
-==================
+====
 
   * added `been` (past of `be`) alias
 
 0.2.1 / 2012-01-29 
-==================
+====
 
   * added Throw, with a capital T, as an alias to `throw` (#7)
 
 0.2.0 / 2012-01-26 
-==================
+====
 
   * update gitignore for vim *.swp
   * Merge branch 'feature/plugins'
@@ -757,7 +757,7 @@
   * readme notice on browser compat
 
 0.1.7 / 2012-01-25 
-==================
+====
 
   * added assert tests to browser test runner
   * browser update
@@ -768,13 +768,13 @@
   * some tests for assert module
 
 0.1.6 / 2012-01-02
-==================
+====
 
   * commenting for assert interface
   * updated codex dep
 
 0.1.5 / 2012-01-02
-==================
+====
 
   * browser tests pass
   * type in should.not.equal
@@ -784,7 +784,7 @@
   * convert tests to tdd
 
 0.1.4 / 2011-12-26
-==================
+====
 
   * browser lib update for new assert interface compatiblitiy
   * inspect typos
@@ -796,12 +796,12 @@
   * Fix typo for instanceof docs. Closes #3 [ci skip]
 
 0.1.3 / 2011-12-18
-==================
+====
 
   * much cleaner reporting string on error.
 
 0.1.2 / 2011-12-18
-==================
+====
 
   * [docs] for upcoming 0.1.2
   * browser version built with pre/suffix … all tests passing
@@ -824,7 +824,7 @@
   * updated doc comments for assert interface
 
 0.1.1 / 2011-12-16
-==================
+====
 
   * docs ready for upcoming 0.1.1
   * readme image fixed [ci skip]
@@ -842,7 +842,7 @@
   * added keywords to package.json
 
 0.1.0 / 2011-12-15
-==================
+====
 
   * failing on purpose successful .. back to normal
   * testing travis failure
@@ -877,7 +877,7 @@
   * added deep equal from node
 
 0.0.2 / 2011-12-07
-==================
+====
 
   * cleaner output on error
   * improved exists detection
