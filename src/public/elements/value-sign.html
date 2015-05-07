@@ -26,16 +26,12 @@
         padding-bottom: 0.4em;
         width: 100%;
       }
-      :hover {
-        border: thin solid rgb(215, 215, 215);
-      }
       .valueSection {
         padding-left: 0.15em;
         padding-right: 0.15em;
         font-size: 2.4em;
         font-style: normal;
         font-weight: 300;
-        min-height: 100%;
       }
       .unitSection {
         padding-left: 0.3em;
@@ -67,7 +63,7 @@
     </template>
     <section class="main" vertical layout style="background: {{color}};">
       <template if="{{ripple}}">
-        <paper-ripple id="ripple" fit initialOpaciy="0.10"></paper-ripple>
+        <paper-ripple id="ripple" class="fill" fit initialOpaciy="0.10"></paper-ripple>
       </template>
       <section class="valueSection" flex horizontal layout center center-justified>
           {{value}}

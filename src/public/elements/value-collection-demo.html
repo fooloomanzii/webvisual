@@ -94,8 +94,8 @@
           <template repeat="{{items, i in data}}">
             <post-card headline="{{groupTitles[i]}}" hero-id="{{groupTitles[i]}}" hero showShadow="false">
               <template repeat="{{items as item}}">
-                <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" hero on-tap="{{transition}}">
-                  <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}" hero></value-sign>
+                <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" hero>
+                  <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}" hero on-tap="{{transition}}"></value-sign>
                   <div class="chip-bottom" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-content" hero>
                     <div class="chip-kind">{{item.kind}}</div>
                     <div class="chip-var">{{item.var}}</div>
@@ -125,8 +125,8 @@
             <post-card headline="{{groupTitles[i]}}" hero-id="{{groupTitles[i]}}" showShadow="false" hero>
               <template repeat="{{items as item}}">
 
-                  <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" on-tap="{{movingToAnother}}" hero>
-                      <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}"></value-sign>
+                  <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" hero>
+                      <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}" on-tap="{{movingToAnother}}"></value-sign>
                       <div class="chip-bottom" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-content">
                         <div class="chip-kind">{{item.kind}}</div>
                         <div class="chip-var">{{item.var}}</div>
@@ -156,8 +156,8 @@
           <template repeat="{{items, i in data}}">
             <post-card headline="{{groupTitles[i]}}" hero-id="{{groupTitles[i]}}" showShadow="false" hero>
               <template repeat="{{items as item}}">
-                  <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" on-tap="{{movingToAnother}}">
-                      <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}"></value-sign>
+                  <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}">
+                      <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}" on-tap="{{movingToAnother}}"></value-sign>
                       <div class="chip-bottom" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-content">
                         <div class="chip-kind">{{item.kind}}</div>
                         <div class="chip-var">{{item.var}}</div>
