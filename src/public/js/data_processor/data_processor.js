@@ -163,6 +163,7 @@
 
       // Create the Labels for the Type Table 'types', if no Labels are defined in 'config.json'
       // (Room 'room' & Type of the Measurement or other Labels 'kind')
+
       for(var j = 1; j <= (data[i].values.length / numCols); j++){
         if (!labelsArray.types[j-1]) {
           labelsArray.types.push(
@@ -175,42 +176,6 @@
       }
     }
 
-    // 1. Junction in 'combinedData'
-    combinedData = {labels: labelsArray.types, colors: labelsArray.colors, data: []}
-    for (var i=0; i<data.length; i++) {
-      combinedData.data.push({"date" : dateArray[i],
-                              "values" : valuesArray[i],
-                              "exceeds" : exceedsArray[i]});
-    }
-
-    // 2. Creation of a single Array with all Data Values
-    var dataStringArray = [];
-    for (var i=0; i<data.length; i++) {
-      for (var j=0; j<labelsArray.types.length; j++) {
-        for (var k=0; k<numCols; k++) {
-          if (labelsArray.types[j] && valuesArray[i][j*numCols+k]) {
-            var color = "";
-            var exceeds = "";
-            if (exceedsArray[i][j*numCols+k] === true) {
-              color = labelsArray.colors.over;
-              var exceeds = true;
-            }
-            else if (exceedsArray[i][j*numCols+k] === false) {
-              color = labelsArray.colors.under;
-              var exceeds = false;
-            }
-            dataStringArray.push({"date"   : dateArray[i].toString(),
-                                  "room"   : labelsArray.types[j].room.toString(),
-                                  "kind"   : labelsArray.types[j].kind.toString(),
-                                  "var"    : labelsArray.types[j].subtypes[k].var.toString(),
-                                  "value"  : valuesArray[i][j*numCols+k],
-                                  "unit"   : labelsArray.types[j].subtypes[k].unit.toString(),
-                                  "color"  : color.toString(),
-                                  "exceeds": exceeds});
-          }
-        }
-      }
-    }
     // Join Data to the Object, which is used by the website
     dataStringArray = [];
     for (var i=0; i<dateArray.length; i++) {
@@ -252,10 +217,12 @@
     var event = new CustomEvent("dataLoaded", { "detail": dataStringArray });
     document.dispatchEvent(event);
       // bind data to "table-log"-Element
-    $('table-log').attr('data', JSON.stringify(dataStringArray));
     $('table-log').attr('receive', JSON.stringify(dataStringArray));
 
       // bind language Array too language selector
     // $('language-element').attr.('data', JSON.stringify(languageArray));
   }
-});
+
+
+
+})();

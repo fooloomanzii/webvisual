@@ -1,5 +1,9 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../bower_components/paper-dropdown/paper-dropdown.html">
+<link rel="import" href="../bower_components/core-menu/core-menu.html">
 <link rel="import" href="../bower_components/core-collapse/core-collapse.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
@@ -13,18 +17,6 @@
       <paper-shadow id="shadow" z="1" fit animated></paper-shadow>
     </template>
 
-
-    <section id="cardmain" class="button-content" relative layout horizontal center>
-
-      <section id="cardcontentsection" vertical layout>
-
-        <template if={{headline}}>
-          <div id="head">{{headline}}</div>
-        </template>
-        <div id="cardcontent">
-
-          <content></content>
-
     <section id="outer">
       <template if={{headline&&top}}>
         <paper-item id="head" class="top" on-hold="{{toggleCollapse}}">{{headline}}</paper-item>
@@ -32,7 +24,9 @@
       <section id="cardMain" class="button-content" relative>
           <core-collapse id="cardCollapse" opened duration="1">
               <div id="cardContent">
+
                 <content></content>
+
               </div>
           <core-collapse>
       </section>
