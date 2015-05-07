@@ -3,11 +3,14 @@
 
 # Config files
 # src/config.json
+.settings/*
+.jshintrc
+.project
 
 # Some folders #
 
 # Node Stuff #
-src/node_modules
+# src/node_modules
 
 # Tests #
 src/test/OLD/*.txt
