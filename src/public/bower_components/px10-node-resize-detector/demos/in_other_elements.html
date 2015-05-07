@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>px10-mousewheel Demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents.js"></script>
+    <link rel="import" href="../../font-roboto/roboto.html">
+    <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
+    <link rel="import" href="../px10-element-resize-detector.html">
+    <style>
+
+        body {
+            font-family: RobotoDraft, 'Helvetica Neue', Helvetica, Arial;
+        }
+
+        resize-test1[extend]{
+            width:700px;
+        }
+
+        #controls1{
+            border:1px solid lightgrey;
+            width:300px;
+            height: 370px;
+            padding: 10px;
+            margin:10px;
+        }
+
+        resize-test1 {
+            width:500px;
+            height: 100px;
+            background: red;
+            /*position: relative;*/ /* let px10-node-resize-detector will change it to relative. */
+        }
+
+    </style>
+</head>
+
+<polymer-element name="resize-test1" attributes="monitor">
+
+    <template>
+
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+        <div id="message">Did not receive any resize messages.</div>
+        <template if="{{monitor}}">
+            <px10-element-resize-detector target="{{}}" on-resize="{{resize}}"></px10-element-resize-detector>
+        </template>
+        <content></content>
+    </template>
+    <script>
+        Polymer({
+            monitor:false,
+            resize:function(event){
+                this.$.message.innerHTML="I was resized "+Date.now() / 1000 + ' seconds from the epoch';
+            },
+            monitorChanged:function(oldValue,newValue){
+                if (!newValue) {
+                    this.removeAttribute("monitor");
+                }else{
+                    this.setAttribute("monitor",'');
+                }
+            }
+        });
+    </script>
+</polymer-element>
+
+<body unresolved>
+
+<div id="controls1">
+    <h3>Element Resize detector</h3>
+
+    <paper-checkbox checked id="monitorCheckBox" label="Start monitoring"></paper-checkbox>
+    <br>
+    <br>
+    <button id="trigger_resize">Trigger Resize</button>
+    <br>
+    <br>
+
+</div>
+
+<resize-test1 monitor></resize-test1>
+
+<script>
+
+    document.addEventListener("polymer-ready",function(event){
+        var resizeTestElement = document.querySelector("resize-test1");
+        var trigger_resize = document.getElementById("trigger_resize");
+
+        var monitorCheckBox = document.getElementById("monitorCheckBox");
+        if (monitorCheckBox ) {
+            monitorCheckBox.addEventListener("change", function (event) {
+                if (monitorCheckBox){
+                    resizeTestElement.monitor=monitorCheckBox.checked;
+                }
+            })
+        }
+
+        if (trigger_resize){
+            trigger_resize.addEventListener("click",function(){
+                if (resizeTestElement.getAttribute('extend')==='')
+                    resizeTestElement.removeAttribute("extend");
+                else
+                    resizeTestElement.setAttribute("extend",'');
+            });
+        }
+
+    })
+
+</script>
+
+</body>
+
+</html>

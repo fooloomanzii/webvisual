@@ -1,19 +1,3 @@
-<<<<<<< HEAD
-link(rel='import', href='elements/post-card.html')
-extends layout
-
-block content
-  post-card
-    p Welcome to #{title}
-  include inhalt
-
-block script
-  script(src='js/dateFormat.js')
-  script(src='js/jquery/jquery-2.1.3.js')
-  script(src='js/jquery.dateFormat.js')
-  script(src='js/data_processor/data_processor.js',type='text/javascript')
-=======
-
 extends layout
 
 block content
@@ -21,4 +5,16 @@ block content
   post-card#p3(headline="Test-Postcard")
     value-watcher()
     include inhalt
->>>>>>> develop
+
+  value-collection-demo()
+  //- music-demo()
+  //- value-sign-collection()
+    //- include inhalt
+
+  script.
+    document.addEventListener("dataLoaded", function(event){
+      console.log("dataLoaded ready");
+      $("value-sign-collection").attr("receive", JSON.stringify(event.detail));
+      $("value-collection-demo").attr("receive", JSON.stringify(event.detail));
+
+    });

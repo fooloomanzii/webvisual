@@ -32,7 +32,7 @@ paper-tabs {
 paper-tabs::shadow #selectionBar {
   background-color: #f1f1f1;
   height: 3px;
-  border-radius: 5px;
+  border-radius: 3px;
 }
 
 paper-tabs /deep/ paper-tab::shadow #ink {
@@ -44,7 +44,7 @@ paper-tabs /deep/ paper-icon-button {
 }
 
 paper-tabs /deep/ paper-tab {
-  border-radius: 5px;
+  border-radius: 3px;
 }
 
 paper-tabs /deep/ paper-tab:hover {
@@ -52,13 +52,22 @@ paper-tabs /deep/ paper-tab:hover {
 }
 
 paper-item#mainmenubutton {
-  border-radius: 5px;
+  border-radius: 3px;
   width: 100%;
   margin: 4px;
   color: #1d1d1d;
   background: transparent;
   text-decoration: none;
   border: thin solid #bcbcbc;
+}
+
+paper-icon-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+}
+
+paper-icon-button::shadow #ripple {
+  color: #00ca35;
 }
 
 paper-item#mainmenubutton:hover {
@@ -84,34 +93,37 @@ img#logo {
   height: 48px;
 }
 
+#maincontent {
+}
+
 @media only screen {
-  #maincontent {
+  /*#maincontent {
     margin: 1em;
-  }
+  }*/
 }
 
 @media only screen and (max-width : 650px) {
-  #maincontent {
+  /*#maincontent {
     margin: 0.6em;
-  }
+  }*/
   paper-item#mainmenubutton {
     font-size: 0.9em;
   }
 }
 
 @media only screen and (max-width : 420px) {
-  #maincontent {
+  /*#maincontent {
     margin: 0.5em;
-  }
+  }*/
   paper-item#mainmenubutton {
     font-size: 0.8em;
   }
 }
 
 @media only screen and (max-width : 380px) {
-  #maincontent {
+  /*#maincontent {
     margin: 0.4em;
-  }
+  }*/
   paper-item#mainmenubutton {
     font-size: 0.7em;
   }

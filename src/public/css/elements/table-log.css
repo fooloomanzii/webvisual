@@ -18,7 +18,7 @@ paper-tabs {
   text-transform: uppercase;
   font-family: 'Roboto-Regular';
   font-size: 0.9em;
-  border-radius: 5px;
+  border-radius: 3px 3px 0px 0px;
   font-weight: 150;
 }
 
@@ -29,7 +29,7 @@ paper-tabs::shadow #selectionBar {
 }
 
 paper-tab::shadow #ink {
-  color: rgba(245, 245, 245, 0.25);
+  color: #b7d8e0;
   }
 
 paper-tabs /deep/ paper-icon-button {
@@ -81,6 +81,7 @@ td#values {
   td {
     font-size: 0.9em;
     padding: 0.6em 0.7em 0.6em;
+    border-radius: 3px;
   }
 }
 
@@ -113,6 +114,7 @@ td#values {
   td {
     font-size: 0.75em;
     padding: 0.25em 0.35em 0.25em;
+    border-radius: 2px;
   }
 }
 
@@ -150,4 +152,18 @@ td#values {
 
 table {
   width: 100%;
+}
+
+@font-face {
+  font-family: Roboto-Regular;
+  src: url('fonts/Roboto-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Roboto-Light;
+  src: url('fonts/Roboto-Light.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }

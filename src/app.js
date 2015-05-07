@@ -41,18 +41,7 @@ var dataModule = require('./data'),
         "header":[
           {"room":"Raum nicht definiert","color":"#9a9a9a"}
         ]
-      },
-      data:{
-        types:{},
-        typeWidth:1,
-        subtypes:[],
-      },
-      table:{
-        pageTitle:"Table",
-        title:"Table",
-        corner:"",
-        unnamedRow:"Value"
-      },
+      }
     }
   },
 // Configuration, uses default values, if necessary
@@ -304,38 +293,39 @@ var userCounter = 0,
 
         // Check for threshold exceeds and save it
         currentData.exceeds=threshold.getExceeds(data, function(exceeds){
-          var exceedsHTML="", numCols=config.locals.data.typeWidth;
-          var i;
-          var pos = exceeds[0].indexOf(true);
-          if(pos > -1){
-            exceedsHTML += "Under the threshold:<br><ul>";
-            while(pos > -1){
-              exceedsHTML+="<li>";
-              i=parseInt(pos/numCols, 10);
-              exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
-              exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
-              exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
-              exceedsHTML+="</li>";
-              pos = exceeds[0].indexOf(true,pos+1);
-            }
-            exceedsHTML+="</ul>";
-          }
-          pos = exceeds[1].indexOf(true);
-          if(pos > -1){
-            exceedsHTML += "Over the threshold:<br><ul>";
-            while(pos > -1){
-              exceedsHTML+="<li>";
-              i=parseInt(pos/numCols, 10);
-              exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
-              exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
-              exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
-              exceedsHTML+="</li>";
-              pos = exceeds[1].indexOf(true,pos+1);
-            }
-            exceedsHTML+="</ul>";
-          }
-          if(exceedsHTML) exceedsHTML=currentData.time+":<br>"+exceedsHTML;
-          mailHelper.appendMsg(exceedsHTML);
+          // TODO: new exceeds handling in server
+          // var exceedsHTML="", numCols=config.locals.data.typeWidth;
+          // var i;
+          // var pos = exceeds[0].indexOf(true);
+          // if(pos > -1){
+          //   exceedsHTML += "Under the threshold:<br><ul>";
+          //   while(pos > -1){
+          //     exceedsHTML+="<li>";
+          //     i=parseInt(pos/numCols, 10);
+          //     exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
+          //     exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
+          //     exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
+          //     exceedsHTML+="</li>";
+          //     pos = exceeds[0].indexOf(true,pos+1);
+          //   }
+          //   exceedsHTML+="</ul>";
+          // }
+          // pos = exceeds[1].indexOf(true);
+          // if(pos > -1){
+          //   exceedsHTML += "Over the threshold:<br><ul>";
+          //   while(pos > -1){
+          //     exceedsHTML+="<li>";
+          //     i=parseInt(pos/numCols, 10);
+          //     exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
+          //     exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
+          //     exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
+          //     exceedsHTML+="</li>";
+          //     pos = exceeds[1].indexOf(true,pos+1);
+          //   }
+          //   exceedsHTML+="</ul>";
+          // }
+          // if(exceedsHTML) exceedsHTML=currentData.time+":<br>"+exceedsHTML;
+          // mailHelper.appendMsg(exceedsHTML);
         });
 
         // Save the current data

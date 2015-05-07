@@ -1,0 +1,149 @@
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+  <link href="../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
+
+  <polymer-element name="music-demo">
+  <template>
+
+    <style>
+      .chip-container {
+        font-size: 2vmin;
+      }
+
+      .chip {
+        display: inline-block;
+        position: relative;
+        border-radius: 3px;
+        margin: 0.25em;
+        overflow: hidden;
+        text-align: start;
+        background-color: #fff;
+        box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.16);
+      }
+
+      .chip-top {
+        min-width: 17.5vmin;
+        height: 17.5vmin;
+      }
+
+      .chip-bottom {
+        padding: 0.5em;
+        line-height: 1.5;
+      }
+
+      .chip-album-title {
+        font-weight: bold;
+      }
+
+      #details {
+        padding: 0em 0.5em 0;
+      }
+
+      .card {
+        height: 30vmin;
+        border-radius: 3px;
+        text-align: start;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+      }
+
+      .card-left {
+        width: 30vmin;
+      }
+
+      .card-right {
+        padding: 1.5em;
+      }
+
+      .card-icon {
+        border-radius: 50%;
+        width: 10vmin;
+        height: 10vmin;
+        margin-right: 16px;
+      }
+
+      .card-album-title {
+        font-size: 4vmin;
+      }
+    </style>
+
+    <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade" on-core-animated-pages-transition-end="{{complete}}">
+
+      <section>
+
+        <div class="chip-container" hero-p on-tap="{{transition}}">
+
+          <template repeat="{{items as item}}">
+
+            <div class="chip" hero-id="{{item.artist}}-{{item.album}}" hero?="{{selectedAlbum === item }}">
+              <div class="chip-top" style="background:{{item.color}};" hero-id="{{item.artist}}-{{item.album}}-art" hero?="{{selectedAlbum === item}}"></div>
+              <div class="chip-bottom" cross-fade>
+                <div class="chip-album-title">{{item.album}}</div>
+                <div class="chip-artist">{{item.artist}}</div>
+              </div>
+            </div>
+
+          </template>
+
+        </div>
+      </section>
+
+      <section id="details">
+
+        <div class="card" layout horizontal hero-id="{{selectedAlbum.artist}}-{{selectedAlbum.album}}" hero on-tap="{{transition}}">
+          <div class="card-left" style="background:{{selectedAlbum.color}};" hero-id="{{selectedAlbum.artist}}-{{selectedAlbum.album}}-art" hero></div>
+          <div class="card-right" flex cross-fade>
+            <div layout horizontal center>
+              <div>
+                <div class="card-icon" style="background:{{selectedAlbum.color}};"></div>
+              </div>
+              <div flex>
+                <div class="card-album-title">{{selectedAlbum.album}}</div>
+                <div class="card-album-artist">{{selectedAlbum.artist}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </core-animated-pages>
+
+  </template>
+  <script>
+
+    Polymer('music-demo', {
+
+      ready: function(){
+      },
+
+      page: 0,
+
+      items: [
+        { artist: 'Tycho', album: '1Fragments', color: '#f4db33' },
+        { artist: 'Tycho', album: '2Past Prologue', color: '#972ff8' },
+        { artist: 'Tycho', album: '3Spectre', color: '#7dd6fe' },
+        { artist: 'Tycho', album: '4Awake', color: '#dc3c84' },
+        { artist: 'Tycho', album: '5Past Prologue', color: '#972ff8' },
+        { artist: 'Tycho', album: '6Spectre', color: '#7dd6fe' },
+        { artist: 'Tycho', album: '7Awake', color: '#dc3c84' },
+        { artist: 'Tycho', album: '8Past Prologue', color: '#972ff8' },
+        { artist: 'Tycho', album: '9Spectre', color: '#7dd6fe' },
+        { artist: 'Tycho', album: '10Awake', color: '#dc3c84' }
+      ],
+
+      selectedAlbum: null,
+
+      transition: function(e) {
+        if (this.page === 0 && e.target.templateInstance.model.item) {
+          this.selectedAlbum = e.target.templateInstance.model.item;
+          this.page = 1;
+        } else {
+          this.page = 0;
+        }
+      }
+    });
+
+  </script>
+  </polymer-element>

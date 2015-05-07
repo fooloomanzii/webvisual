@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+    From: http://www.backalleycoder.com/2013/03/18/cross-browser-event-based-element-resize-detection/
+    by: Daniel Buchner
+-->
+<head>
+    <meta charset="utf-8" />
+
+    <title>Resize Event Demo</title>
+
+    <style type="text/css">
+        body {
+            padding: 10px;
+            margin: 0;
+            background: #fff;
+            font-family: Arial;
+        }
+
+        #test {
+            position: relative;
+            width: 350px;
+            height: 350px;
+            background: limegreen;
+        }
+
+        #wrap {
+            margin: 20px 0 0;
+            background: #f0f0f0;
+            border: 1px solid #d0d0d0;
+        }
+
+        #list {
+            display: block;
+            margin: 10px;
+            background: #CAE8F9;
+        }
+    </style>
+
+    <script type="text/javascript">
+        (function(){
+            var attachEvent = document.attachEvent;
+            var isIE = navigator.userAgent.match(/Trident/);
+            var requestFrame = (function(){
+                var raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame ||
+                        function(fn){ return window.setTimeout(fn, 20); };
+                return function(fn){ return raf(fn); };
+            })();
+
+            var cancelFrame = (function(){
+                var cancel = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame ||
+                        window.clearTimeout;
+                return function(id){ return cancel(id); };
+            })();
+
+            function resizeListener(e){
+                var win = e.target || e.srcElement;
+                if (win.__resizeRAF__) cancelFrame(win.__resizeRAF__);
+                win.__resizeRAF__ = requestFrame(function(){
+                    var trigger = win.__resizeTrigger__;
+                    trigger.__resizeListeners__.forEach(function(fn){
+                        fn.call(trigger, e);
+                    });
+                });
+            }
+
+            function objectLoad(e){
+                this.contentDocument.defaultView.__resizeTrigger__ = this.__resizeElement__;
+                this.contentDocument.defaultView.addEventListener('resize', resizeListener);
+            }
+
+            window.addResizeListener = function(element, fn){
+                if (!element.__resizeListeners__) {
+                    element.__resizeListeners__ = [];
+                    if (attachEvent) {
+                        element.__resizeTrigger__ = element;
+                        element.attachEvent('onresize', resizeListener);
+                    }
+                    else {
+                        if (getComputedStyle(element).position == 'static') element.style.position = 'relative';
+                        var obj = element.__resizeTrigger__ = document.createElement('object');
+                        obj.setAttribute('style', 'display: block; position: absolute; top: 0; left: 0; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;');
+                        obj.__resizeElement__ = element;
+                        obj.onload = objectLoad;
+                        obj.type = 'text/html';
+                        if (isIE) element.appendChild(obj);
+                        obj.data = 'about:blank';
+                        if (!isIE) element.appendChild(obj);
+                    }
+                }
+                element.__resizeListeners__.push(fn);
+            };
+
+            window.removeResizeListener = function(element, fn){
+                element.__resizeListeners__.splice(element.__resizeListeners__.indexOf(fn), 1);
+                if (!element.__resizeListeners__.length) {
+                    if (attachEvent) element.detachEvent('onresize', resizeListener);
+                    else {
+                        element.__resizeTrigger__.contentDocument.defaultView.removeEventListener('resize', resizeListener);
+                        element.__resizeTrigger__ = !element.removeChild(element.__resizeTrigger__);
+                    }
+                }
+            }
+        })();
+
+    </script>
+
+</head>
+
+<body>
+<div style="margin-bottom: 10px;">Click the green box to change its size and trigger a resize event</div>
+
+<div id="test"></div>
+
+
+<div style="margin-bottom: 10px;">Use the button below to set the list's margin to a random value, this will cause the list to change dimensions and trigger a resize event.</div>
+
+<button id="trigger">Trigger Resize</button>
+
+<section id="wrap">
+    <ul id="list">
+        <li>I'm an unordered list</li>
+        <li>I was last resized:</li>
+        <li id="resize_time">No resizing detected yet!</li>
+    </ul>
+</section>
+
+</body>
+
+<script type="text/javascript">
+
+    var click = document.attachEvent ? ['attachEvent', 'on'] : ['addEventListener', ''];
+    document.getElementById('test')[click[0]](click[1] + 'click', function(e){
+        var node = e.target || e.srcElement;
+        node.style.width = '3' +  Math.floor(Math.random() * 10) + '0px';
+        node.style.height = '3' +  Math.floor(Math.random() * 10) + '0px';
+    }, true);
+
+    var resizeFn = function(e){
+        alert('You just resized the green box!');
+    }
+    addResizeListener(document.getElementById('test'), resizeFn);
+
+
+    var trigger = document.getElementById('trigger');
+    var wrap = document.getElementById('wrap');
+    var list = document.getElementById('list');
+
+    trigger.addEventListener('click', function(){
+        list.style.margin = (Math.floor(Math.random() * 80) + 1) + 'px';
+    }, false);
+
+    var time = document.getElementById('resize_time');
+    addResizeListener(list, function(e){
+        time.innerHTML = Math.round(new Date().getTime() / 1000) + ' seconds from the epoch'
+    });
+</script>
+
+</html>

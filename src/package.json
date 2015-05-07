@@ -1,6 +1,6 @@
 {
   "name": "webvisual",
-  "version": "0.4.1",
+  "version": "0.4.5",
   "private": "true",
   "dependencies": {
     "express": "~4.1.1",
@@ -11,7 +11,9 @@
     "merge-defaults": "*",
     "net": "1.0.2",
     "underscore": "~1.7.0",
-    "lodash-node": "~3.4.0"
+    "lodash-node": "~3.4.0",
+    "polymer": "Polymer/polymer#~0.5.5",
+    "bower" : "*"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

@@ -142,6 +142,7 @@
 
       publish: {
         tab: [],
+        receive: [],
         data: [],
 <<<<<<< HEAD
         selected: 1
@@ -251,15 +252,33 @@
           "value": "Wert"
         },
         sortedRow: {
-          "date": false,
+          "date": true,
           "room": false,
           "kind": false,
           "var": false,
           "value": false
         },
-        sortSelected: "date",
+        sortSelected: "",
         groupSelected: "date",
         collapseActive: 0
+      },
+
+      receiveChanged: function() {
+        var tmp = [];
+        for (i=0; i<this.receive.length; i++) {
+          for (j=0; j<this.receive[i].data.length; j++) {
+            tmp.push({"id":    this.receive[i].id,
+                      "room":  this.receive[i].room,
+                      "kind":  this.receive[i].kind,
+                      "var" :  this.receive[i].var,
+                      "unit":  this.receive[i].unit,
+                      "date":  this.receive[i].data[j].date,
+                      "value": this.receive[i].data[j].value,
+                      "exceeds": this.receive[i].data[j].exceeds,
+                      "color":  this.receive[i].data[j].color});
+          }
+        }
+        this.data = tmp;
       },
 
       dataChanged: function() {

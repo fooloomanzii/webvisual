@@ -1,0 +1,62 @@
+<!-- MIT Licensed -->
+
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>px10-element-resize-detector</title>
+
+    <script src="../../webcomponentsjs/webcomponents.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <style>
+        div {
+            width:400px;
+            height: 200px;
+            background: red;
+            position:relative;
+        }
+        div[test]{
+            width:500px;
+            background: green;
+        }
+    </style>
+    <!-- Step 1: import the element to test -->
+    <link rel="import" href="../px10-element-resize-detector.html">
+
+</head>
+<body>
+
+<!-- You use the document as a place to set up your fixtures. -->
+<div>
+    <px10-element-resize-detector></px10-element-resize-detector>
+</div>
+
+<script>
+    var myEl = document.querySelector('px10-element-resize-detector');
+    suite('<px10-element-resize-detector>', function() {
+        
+        test('test resize', function(done) {
+            // wait for one second to run the test. FF fails if we try to run the test
+            // immediately.
+            setTimeout(function(){
+                var fired=false;
+                myEl.addEventListener('resize', function(event) {
+                    fired=true;
+                    done();
+                });
+
+                var div = document.querySelector("div");
+                div.setAttribute("test",'');
+                setTimeout(function(){
+                 if (!fired){
+                 done(new Error("Resize Event did not fire."));
+                 }
+                 },100);
+            },1000);
+        });
+    });
+</script>
+
+</body>
+</html>
