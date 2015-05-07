@@ -103,14 +103,14 @@
         // exceeds: 'true' when over than the upper-limit, 'false' when lower than the lower-limit, 'null' when in range
         this.value = this.values.data[this.values.data.length-1].value;
         this.resetExceeds();
-        for (var i=this.values.data.length-1; i>=0; i--) {
-          if (this.values.data[i].exceeds !== null) {
-            this.exceeds = this.values.data[i].exceeds;
-            this.exceedsDate = this.values.data[i].date;
-            this.exceedsValue = "" + this.values.data[i].value + this.values.unit;
-            break;
-          }
-        }
+        if(this.values.data) {
+          for (var i=this.values.data.length-1; i>=0; i--) {
+            if (this.values.data[i].exceeds !== null) {
+              this.exceeds = this.values.data[i].exceeds;
+              this.exceedsDate = this.values.data[i].date;
+              this.exceedsValue = "" + this.values.data[i].value + this.values.unit;
+              break;
+        }}}
       },
       exceedsChanged: function() {
           // exceeds over limit
