@@ -7,7 +7,6 @@
   outline: none;
   width: 100%;
 }
-
 paper-tabs {
   color: #f1f1f1;
   background: #669db4;
@@ -61,7 +60,28 @@ paper-item {
   font-weight: 500;
 }
 
+paper-item::shadow .button-content {
+  height: 1em;
+}
+
 td#values {
+}
+
+core-icon-button#toggleIcon {
+  color: #a8a8a8;
+  padding: 0em 0.25em;
+}
+
+core-icon-button::shadow #ripple {
+  color: #00ca35;
+}
+
+core-icon-button#toggleIcon:hover {
+  background: rgba(0, 203, 40, 0.15);
+}
+
+section#main {
+  position: relative;
 }
 
 @media only screen {

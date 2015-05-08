@@ -11,7 +11,5 @@ block content
   script.
     document.addEventListener("dataLoaded", function(event){
       console.log("dataLoaded ready");
-      $("value-sign-collection").attr("receive", JSON.stringify(event.detail));
       $("value-collection-demo").attr("receive", JSON.stringify(event.detail));
-
     });

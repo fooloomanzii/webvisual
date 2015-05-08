@@ -1,3 +1,8 @@
 extends tableLayout
 
 block tablescript
+  script.
+    document.addEventListener("dataLoaded", function(event){
+      console.log("table-page ready");
+      $("table-element").attr("receive", JSON.stringify(event.detail));
+    });
