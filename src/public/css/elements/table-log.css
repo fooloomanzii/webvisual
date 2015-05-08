@@ -67,17 +67,14 @@ paper-item::shadow .button-content {
 td#values {
 }
 
-core-icon-button#toggleIcon {
+paper-icon-button#toggleIcon {
   color: #a8a8a8;
   padding: 0em 0.25em;
+  font-size: 0em;
 }
 
-core-icon-button::shadow #ripple {
+paper-icon-button::shadow #ripple {
   color: #00ca35;
-}
-
-core-icon-button#toggleIcon:hover {
-  background: rgba(0, 203, 40, 0.15);
 }
 
 section#main {

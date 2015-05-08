@@ -27,7 +27,7 @@
           <template repeat="{{elems, i in data}}">
             <paper-item class="groupTitle" id="{{groupTitles[i]}}">
               <section flex>{{groupTitles[i]}} {{i}} {{$.selector.selected}}</section>
-              <core-icon-button id="toggleIcon" icon="{{i == $.selector.selected && i != recentActive ? openedIcon : closedIcon}}" on-tap="{{tapItem}}"></core-icon-button>
+              <paper-icon-button id="toggleIcon" icon="{{i == $.selector.selected && i != recentActive ? openedIcon : closedIcon}}" on-tap="{{tapItem}}"></paper-icon-button>
             </paper-item>
             <core-collapse class="groupCollapse" duration="1" opened?="{{i == $.selector.selected && i != recentActive}}">
               <template repeat="{{elems as elem}}">
