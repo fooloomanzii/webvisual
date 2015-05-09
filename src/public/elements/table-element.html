@@ -8,66 +8,131 @@
 <polymer-element name="table-element" attributes="">
 
   <template>
+    <style>
+      .value#false {
+        background: linear-gradient(180deg, rgba({{colorLow}}, 0.75), rgba({{colorLow}}, 0.5), rgba({{colorLow}}, 0.75));
+        background: linear-gradient(180deg, rgba(55, 20, 255, 0.75), rgba(55, 20, 255, 0.6), rgba(55, 20, 255, 0.75));
+      }
+      .value#true {
+        background: linear-gradient(180deg, rgba({{colorHigh}}, 0.75), rgba({{colorHigh}}, 0.5), rgba({{colorHigh}}, 0.75));
+        background: linear-gradient(180deg, rgba(255, 21, 41, 0.75), rgba(255, 21, 41, 0.6), rgba(255, 21, 41, 0.75));
+      }
+      tr#false:hover {
+        background: rgba({{colorLow}}, 0.15);
+        background: rgba(55, 20, 255, 0.2);
+      }
+      tr#true:hover {
+        background: rgba({{colorHigh}}, 0.15);
+        background: rgba(255, 21, 41, 0.2);
+      }
+      tr:hover {
+        background: rgba({{linecolor}}, 0.1);
+        background: rgba(100, 100, 100, 0.1);
+      }
+      .core-selected {
+        background-color: rgba({{linecolor}}, 0.2);
+        background-color: rgba(100, 100, 100, 0.2);
+      }
+      div.groupTitle {
+        border-bottom: thin solid rgba({{linecolor}}, 0.15);
+        border-bottom: thin solid rgba(100, 100, 100, 0.15);
+      }
+      tr, th {
+        border-bottom: thin solid rgba({{linecolor}}, 0.10);
+        border-bottom: thin solid rgba(100, 100, 100, 0.10);
+      }
+      #toggleIcon {
+        color: rgba({{linecolor}}, 0.5);
+        color: rgba(100, 100, 100, 0.5);
+        text-align: right;
+      }
+      td.value {
+        text-align: center;
+      }
+    </style>
 
     <link rel="stylesheet" type='text/css' href="../css/elements/table-log.css" />
 
     <section vertical layout>
-      <section id="tabs" relative>
-        <paper-tabs id="tableselect" selected="{{groupSelected}}">
-          <paper-tab>{{titleTable.all}}</paper-tab>
-          <paper-tab>{{titleTable.date}}</paper-tab>
-          <paper-tab>{{titleTable.room}}</paper-tab>
-          <paper-tab>{{titleTable.kind}}</paper-tab>
-          <paper-tab>{{titleTable.value}}</paper-tab>
+      <section>
+        <paper-tabs id="tabs" valueattr="name" self-end selected="{{groupBy}}">
+          <paper-tab name="all">{{titleForAll}}</paper-tab>
+          <template repeat="{{key, i in keys}}">
+            <paper-tab name="{{key}}" >{{titles[i]}}</paper-tab>
+          </template>
         </paper-tabs>
       </section>
 
-      <core-selector id="selector" target="{{$.main}}" itemsSelector="paper-item.groupTitle" selected="0">
+      <core-selector id="selector" target="{{$.main}}" itemsSelector="div.groupTitle" selected="-1">
         <section id="main" relative>
-          <template repeat="{{elems, i in data}}">
-            <paper-item class="groupTitle" id="{{groupTitles[i]}}">
-              <section flex>{{groupTitles[i]}} {{i}} {{$.selector.selected}}</section>
-              <paper-icon-button id="toggleIcon" icon="{{i == $.selector.selected && i != recentActive ? openedIcon : closedIcon}}" on-tap="{{tapItem}}"></paper-icon-button>
-            </paper-item>
-            <core-collapse class="groupCollapse" duration="1" opened?="{{i == $.selector.selected && i != recentActive}}">
-              <template repeat="{{elems as elem}}">
-                <div class="chip">
-                  <div class="chip-top">{{elem.room}}</div>
-                  <div class="chip-bottom">
-                    <div class="chip-kind">{{elem.kind}}</div>
-                    <div class="chip-var">{{elem.var}}</div>
-                  </div>
-                </div>
+
+          <template if="{{groupBy !== 'all'}}">
+            <template repeat="{{groups, i in data}}">
+              <div class="groupTitle" horizontal layout>
+                <paper-item class="groupTitle" flex>{{groupTitles[i]}}</paper-item>
+                <core-icon-button id="toggleIcon" icon="{{i == $.selector.selected && i != previousActive ? openedIcon : closedIcon}}" on-tap="{{tapItem}}"></core-icon-button>
+              </div>
+              <core-collapse class="groupCollapse" duration="1" opened?="{{i == $.selector.selected && i != previousActive}}">
+                <table>
+                  <template repeat="{{key, i in keys}}">
+                    <template if="{{key != groupBy}}">
+                      <th on-click="{{sort}}" class="tableTitle" id="{{key}}">
+                        <paper-item class='tableHead'>{{titles[i]}}<template if="{{sortSelected == key}}"><section id="toggleIcon" flex>{{sortedRow[key] ? sortUp : sortDown}}</section></template>
+                        </paper-item>
+                      </th>
+                    </template>
+                  </template>
+
+                  <template repeat="{{groups as group}}">
+                    <tr class="row" id="{{group['exceeds']}}">
+                      <template repeat="{{keys as key}}">
+                        <template if="{{key != groupBy}}">
+                          <td class="{{key}}" id="{{group['exceeds']}}">{{group[key]}} {{key == 'value' ? group['unit'] : ''}}</td>
+                        </template>
+                      </template>
+                    </tr>
+                  </template>
+                </table>
+              </core-collapse>
+            </template>
+          </template>
+
+          <template if="{{groupBy === 'all'}}">
+            <table>
+              <template repeat="{{key, i in keys}}">
+                <th on-click="{{sort}}" class="tableTitle" id="{{key}}">
+                  <paper-item class='tableHead'>{{titles[i]}}<template if="{{sortSelected == key}}"><section id="toggleIcon" flex>{{sortedRow[key] ? sortUp : sortDown}}</section></template>
+                  </paper-item>
+                </th>
               </template>
-            </core-collapse>
+
+              <template repeat="{{data as group}}">
+                <tr class="row" id="{{group['exceeds']}}">
+                  <template repeat="{{keys as key}}">
+                    <td class="{{key}}" id="{{group['exceeds']}}">{{group[key]}} {{key == 'value' ? group['unit'] : ''}}</td>
+                  </template>
+                </tr>
+              </template>
+            </table>
           </template>
         </section>
       </core-selector>
-
     </section>
   </template>
 
-
   <script>
-
     Polymer('table-element',{
-
       ready: function() {
         this.sortingSelected();
       },
 
       publish: {
-        tab: [],
         receive: [],
         data: [],
-        titleTable: {
-          "all": "Alle",
-          "date": "Datum",
-          "room": "Raum",
-          "kind": "Typ",
-          "var": "Methode",
-          "value": "Wert"
-        },
+        groupTitles: [],
+        keys: ["date", "room", "kind", "var", "value"],
+        titles: ["Datum", "Raum", "Typ", "Eigenschaft", "Wert"],
+        titleForAll: "Alle",
         sortedRow: {
           "date": true,
           "room": false,
@@ -76,30 +141,71 @@
           "value": false
         },
         sortSelected: "",
-        groupSelected: "date",
-        recentActive: -1,
-        groupBy: "room",
-        groupTitles: [],
+        groupBy: "all",
+        previousActive: -1,
         closedIcon: 'expand-more',
-        openedIcon: 'expand-less'
+        openedIcon: 'expand-less',
+        sortUp: "▴",
+        sortDown: "▾",
+        colorLow: "55, 20, 255",
+        colorHigh: "255, 21, 41",
+        linecolor: "100, 100, 100"
       },
 
       receiveChanged: function() {
-        this.data = _.values(_.groupBy(this.receive,this.groupBy));
-        this.groupTitles = _.keys(_.groupBy(this.receive,this.groupBy));
+        // incoming data changed
+        this.groupByChanged();
       },
 
       tapItem: function(){
-        // if an item was selected again, the recentpage is -1, so that it can collapse back
-        this.recentActive = (this.$.selector.selected == this.recentActive) ? -1 : this.$.selector.selected;
+        // if an item was selected again, the previous page is -1, so that it
+        // can collapse back
+        this.previousActive = (this.$.selector.selected == this.previousActive) ? -1 : this.$.selector.selected;
+      },
+
+      groupByChanged: function(){
+        // this is ineffective and must be replaced by a call request to a
+        //  database, which delivers grouped and/or sorted data, and operates
+        // on the server
+        this.reduceData();
+        if (this.groupBy != "all") {
+          this.data = _.groupBy(this.data,this.groupBy);
+          this.groupTitles = _.keys(this.data);
+          this.data = _.values(this.data);
+          // initialize the inner-selector - does not work, if initialy 'all' is
+          // selected
+          this.$.selector.selected = -1;
+          this.previousActive = -1;
+        }
+        // initialize sort-selection
+        this.sortSelected = "";
+      },
+
+      reduceData: function() {
+        this.data=[];
+        for (i=0; i<this.receive.length; i++) {
+          for (j=0; j<this.receive[i].data.length; j++) {
+            this.data.push({"id":    this.receive[i].id,
+                            "room":  this.receive[i].room,
+                            "kind":  this.receive[i].kind,
+                            "var" :  this.receive[i].var,
+                            "unit":  this.receive[i].unit,
+                            "date":  this.receive[i].data[j].date,
+                            "value": this.receive[i].data[j].value,
+                            "exceeds": this.receive[i].data[j].exceeds,
+                            "color":  this.receive[i].data[j].color});
+          }
+        }
       },
 
       sort: function(e, detail, sender) {
-        this.data = this.sortingSelected(sender.getAttribute('id'),this.data);
+        this.sortingSelected(sender.getAttribute('id'));
       },
 
-      sortingSelected: function(sel,arr) {
-        if (sel && arr) {
+      sortingSelected: function(sel) {
+        // sorting should be happening in the database, what is needed
+        if (sel) {
+          // finding the direction
           var direction;
 
           if (this.sortSelected == sel) {
@@ -112,101 +218,33 @@
             direction = 1;
           }
 
-          var arrSort = [];
-
-          arrSort = arr.sort(
-            function(left, right) {
-              if (left[sel] > right[sel]) return 1*direction;
-              if (left[sel] < right[sel]) return -1*direction;
-              if (left[sel] == right[sel]) {
-                if (left.date > right.date) return -1;
-                if (left.date < right.date) return 1;
-                return 0;
-              }
-          });;
-        }
-        return arrSort;
-      },
-
-      groupedTable: function(arr,sel) {
-        if (sel === 0) {
-          var htmlcode = "<table>" +
-            this.theadCreate() + this.tbodyCreate(arr) + "</table>";
-          this.groupSelected = "";
-        }
-        else {
-          var groupTitle = _.keys(this.titleTable)[sel];
-          this.groupSelected = groupTitle;
-          arr = _.sortBy(arr,groupTitle);
-
-          var groupedData = _.groupBy(arr,groupTitle);
-
-          var keys = _.keys(groupedData);
-          var vals = _.values(groupedData);
-
-          var htmlcode = "";
-
-          var a;
-          for (var i=0; i<keys.length; i++) {
-
-            a = (i == this.collapseActive) ? "opened" : "";
-
-            htmlcode += '<paper-item class="groupTitle" on-tap="{{toggleCollapse}}" id="grouptitle' + i + '" tabIndex="' + i + '">'
-              + keys[i] + '</paper-item>' + '<core-collapse duration="1" id="collapse' + i + '" ' + a + '> <table>'
-              + this.theadCreate(groupTitle) + this.tbodyCreate(vals[i],groupTitle) + '</table></core-collapse>';
-          }
-        }
-        return htmlcode;
-      },
-
-      theadCreate: function(ex) {
-        table_keys  = _.keys(_.omit(this.titleTable,ex,'all'));
-        table_title = _.values(_.omit(this.titleTable,ex,'all'));
-
-        htmlcode = "<thead>";
-        var sortSign = "";
-
-        for (var i=0; i<table_title.length; i++) {
-          if(table_keys[i] == this.sortSelected) {
-            if(this.sortedRow[this.sortSelected]) {
-              sortSign = " ▴ ";
-              sortStyle = "font-family: Roboto-Light;";
-            }
-            else {
-              sortSign = " ▾ ";
-              sortStyle = "font-family: Roboto-Light;";
-            }
+          if (this.groupBy == 'all'){
+            this.data = this.data.sort(
+              function(left, right) {
+                if (left[sel] > right[sel]) return 1*direction;
+                if (left[sel] < right[sel]) return -1*direction;
+                if (left[sel] == right[sel]) {
+                  if (left.date > right.date) return -1;
+                  if (left.date < right.date) return 1;
+                  return 0;
+                }
+            });
           }
           else {
-            sortSign = "";
-            sortStyle = "";
+            for (i=0; i<this.data.length; i++) {
+              this.data[i] = this.data[i].sort(
+                function(left, right) {
+                  if (left[sel] > right[sel]) return 1*direction;
+                  if (left[sel] < right[sel]) return -1*direction;
+                  if (left[sel] == right[sel]) {
+                    if (left.date > right.date) return -1;
+                    if (left.date < right.date) return 1;
+                    return 0;
+                  }
+              });
+            }
           }
-          htmlcode += "<th on-click='{{sort}}' class='tableTitle' id='" + table_keys[i] + "'' style='"+ sortStyle + "'><paper-item class='tableHead'>"+table_title[i]+sortSign+"</paper-item></th>";
         }
-
-        htmlcode += "</thead>";
-        return htmlcode;
-      },
-
-      tbodyCreate: function(arr,ex) {
-        var line = [];
-        htmlcode = "<tbody>";
-
-        for (var i=0; i<arr.length; i++) {
-          line = _.omit(arr[i],ex);
-          htmlcode += "<tr>";
-
-          if (line.date) {htmlcode += "<td>" + line.date + "</td>";}
-          if (line.room) {htmlcode += "<td>" + line.room + "</td>";}
-          if (line.kind) {htmlcode += "<td>" + line.kind + "</td>";}
-          if (line.var) {htmlcode += "<td>" + line.var + "</td>";}
-          if (line.value) {htmlcode += "<td id='values' style='background:" + line.color + ";'>" + line.value + " " + line.unit + "</td>";}
-
-          htmlcode += "</tr>";
-        }
-
-        htmlcode += "</tbody>";
-        return htmlcode;
       }
     });
   </script>

@@ -1,20 +1,30 @@
 :host {
   color: #1d1d1d;
   font-family: Roboto-Regular;
-  font-font-weight: 300;
   overlay: hidden;
   z-index: 0;
   outline: none;
   width: 100%;
+  font-weight: normal;
 }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Roboto-Light;
+}
+
 paper-tabs {
   color: #f1f1f1;
   background: #669db4;
   text-transform: uppercase;
-  font-family: 'Roboto-Regular';
   font-size: 0.9em;
   border-radius: 3px 3px 0px 0px;
-  font-weight: 150;
+  flex: 0 1 auto;
+}
+
+#tabs {
+  width: 100%;
 }
 
 paper-tabs::shadow #selectionBar {
@@ -24,8 +34,15 @@ paper-tabs::shadow #selectionBar {
 }
 
 paper-tab::shadow #ink {
-  color: #b7d8e0;
-  }
+  color: #9fc7d3;
+}
+
+paper-tab /deep/ div.tab-content {
+  margin: 0em 0.5em;
+  font-weight: normal;
+  text-align: left;
+}
+
 
 paper-tabs /deep/ paper-icon-button {
   color: #f1f1f1;
@@ -33,6 +50,7 @@ paper-tabs /deep/ paper-icon-button {
 
 paper-tab {
   border-radius: 5px;
+  font-weight: normal;
 }
 
 paper-tabs /deep/ paper-tab :hover {
@@ -40,15 +58,11 @@ paper-tabs /deep/ paper-tab :hover {
 }
 
 paper-item.groupTitle:hover {
-  background: rgba(0, 203, 40, 0.30);
-}
-
-paper-item.groupTitle{
-  border: thin solid #e5e5e5;
+  background: rgba(0, 203, 40, 0.25);
 }
 
 paper-item.tableHead:hover {
-  background: rgba(0, 203, 40, 0.15);
+  background: rgba(0, 203, 40, 0.25);
 }
 
 paper-item::shadow #ripple {
@@ -56,24 +70,18 @@ paper-item::shadow #ripple {
 }
 
 paper-item {
-  min-width: 40px;
-  font-weight: 500;
-}
-
-paper-item::shadow .button-content {
-  height: 1em;
+  background: transparent;
+  min-width: 20px;
+  font-weight: normal;
 }
 
 td#values {
 }
 
-paper-icon-button#toggleIcon {
-  color: #a8a8a8;
-  padding: 0em 0.25em;
-  font-size: 0em;
+core-icon-button {
+  margin: 0em;
 }
-
-paper-icon-button::shadow #ripple {
+core-icon-button::shadow #ripple {
   color: #00ca35;
 }
 
@@ -83,88 +91,81 @@ section#main {
 
 @media only screen {
   paper-item, paper-tabs, host {
-    font-size: 1em;
+    font-size: 0.9em;
   }
   paper-tabs {
     padding: 0.1em;
   }
   paper-tab {
-    min-width: 120px;
+    min-width: 100px;
   }
   td {
-    font-size: 0.9em;
-    padding: 0.6em 0.7em 0.6em;
-    border-radius: 3px;
+    font-size: 0.8em;
+    padding: 0.5em 0.6em 0.55em;
+    border-radius: 2px;
   }
 }
 
 @media only screen and (max-width : 650px) {
   td, paper-item, paper-tabs, host {
-    font-size: 0.9em;
+    font-size: 0.8em;
   }
   paper-tab {
-    min-width: 90px;
+    min-width: 75px;
   }
   td {
-    font-size: 0.8em;
-    padding: 0.5em 0.6em 0.5em;
+    font-size: 0.75em;
+    padding: 0.4em 0.5em 0.45em;
   }
 }
 
 @media only screen and (max-width : 500px) {
   td, paper-item, paper-tabs, host {
-    font-size: 0.8em;
+    font-size: 0.75em;
   }
   paper-tabs {
-    max-height: 48px;
+    max-height: 42px;
   }
   paper-tab {
-    min-width: 72px;
+    min-width: 50px;
   }
   paper-item {
-    max-heigth: 36px;
+    max-heigth: 38px;
   }
   td {
-    font-size: 0.75em;
-    padding: 0.25em 0.35em 0.25em;
+    font-size: 0.7em;
+    padding: 0.3em 0.35em 0.35em;
     border-radius: 2px;
   }
 }
 
 @media only screen and (max-width : 420px) {
   td, paper-item, paper-tabs, host {
-    font-size: 0.8em;
-  }
-  paper-tabs {
-    max-height: 42px;
+    font-size: 0.7em;
   }
   paper-tab {
-    min-width: 65px;
+    min-width: 45px;
   }
   td {
     font-size: 0.7em;
-    padding: 0.15em 0.2em 0.15em;
+    padding: 0.2em 0.2em 0.25em;
   }
 }
 
 @media only screen and (max-width : 380px) {
   td, paper-item, paper-tabs, host {
-    font-size: 0.6em;
+    font-size: 0.7em;
   }
   paper-tabs {
-    max-height: 36px;
+    max-height: 38px;
   }
   paper-tab {
-    min-width: 50px;
+    min-width: 45px;
   }
   td {
     font-size: 0.6em;
-    padding: 0.1em 0.15em 0.1em;
+    padding: 0.15em 0.15em 0.2em;
   }
-}
-
-table {
-  width: 100%;
 }
 
 @font-face {
