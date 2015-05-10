@@ -1,9 +1,4 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
-<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../bower_components/core-collapse/core-collapse.html">
-<link rel="import" href="../bower_components/core-selector/core-selector.html">
 
 <polymer-element name="table-element" attributes="">
 
@@ -123,11 +118,11 @@
   <script>
     Polymer('table-element',{
       ready: function() {
-        this.sortingSelected();
       },
 
       publish: {
         receive: [],
+        reduced: [],
         data: [],
         groupTitles: [],
         keys: ["date", "room", "kind", "var", "value"],
@@ -154,7 +149,26 @@
 
       receiveChanged: function() {
         // incoming data changed
+        this.reduceData();
         this.groupByChanged();
+      },
+
+      reduceData: function() {
+        tmp = [];
+        for (i=0; i<this.receive.length; i++) {
+          for (j=0; j<this.receive[i].data.length; j++) {
+            tmp.push({"id":    this.receive[i].id,
+                      "room":  this.receive[i].room,
+                      "kind":  this.receive[i].kind,
+                      "var" :  this.receive[i].var,
+                      "unit":  this.receive[i].unit,
+                      "date":  this.receive[i].data[j].date,
+                      "value": this.receive[i].data[j].value,
+                      "exceeds": this.receive[i].data[j].exceeds,
+                      "color":  this.receive[i].data[j].color});
+          }
+        }
+        this.reduced = tmp;
       },
 
       tapItem: function(){
@@ -167,35 +181,21 @@
         // this is ineffective and must be replaced by a call request to a
         //  database, which delivers grouped and/or sorted data, and operates
         // on the server
-        this.reduceData();
         if (this.groupBy != "all") {
-          this.data = _.groupBy(this.data,this.groupBy);
-          this.groupTitles = _.keys(this.data);
-          this.data = _.values(this.data);
+          var tmp = _.groupBy(this.reduced,this.groupBy);
+          this.groupTitles = _.keys(tmp);
+          tmp = _.values(tmp);
           // initialize the inner-selector - does not work, if initialy 'all' is
           // selected
           this.$.selector.selected = -1;
           this.previousActive = -1;
+          this.data = tmp;
+        }
+        else {
+          this.data = this.reduced;
         }
         // initialize sort-selection
         this.sortSelected = "";
-      },
-
-      reduceData: function() {
-        this.data=[];
-        for (i=0; i<this.receive.length; i++) {
-          for (j=0; j<this.receive[i].data.length; j++) {
-            this.data.push({"id":    this.receive[i].id,
-                            "room":  this.receive[i].room,
-                            "kind":  this.receive[i].kind,
-                            "var" :  this.receive[i].var,
-                            "unit":  this.receive[i].unit,
-                            "date":  this.receive[i].data[j].date,
-                            "value": this.receive[i].data[j].value,
-                            "exceeds": this.receive[i].data[j].exceeds,
-                            "color":  this.receive[i].data[j].color});
-          }
-        }
       },
 
       sort: function(e, detail, sender) {
@@ -217,9 +217,10 @@
             this.sortedRow[sel] = true;
             direction = 1;
           }
-
+          var tmp;
           if (this.groupBy == 'all'){
-            this.data = this.data.sort(
+            tmp = this.data;
+            tmp = tmp.sort(
               function(left, right) {
                 if (left[sel] > right[sel]) return 1*direction;
                 if (left[sel] < right[sel]) return -1*direction;
@@ -232,7 +233,8 @@
           }
           else {
             for (i=0; i<this.data.length; i++) {
-              this.data[i] = this.data[i].sort(
+              tmp = this.data;
+              tmp[i] = tmp[i].sort(
                 function(left, right) {
                   if (left[sel] > right[sel]) return 1*direction;
                   if (left[sel] < right[sel]) return -1*direction;
@@ -244,6 +246,7 @@
               });
             }
           }
+          this.data = tmp;
         }
       }
     });
