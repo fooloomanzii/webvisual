@@ -4,13 +4,13 @@ block style
     
 block content
 
-  post-card#maincard()
+  post-card
+    table-element
                
 block script
   script.
     document.addEventListener("dataLoaded", function(event){
-      $("#maincard").append("<table-element receive='"+JSON.stringify(event.detail)+"'></table-element>");
-      //- $("table-element").attr("receive", JSON.stringify(event.detail));
+      $("table-element").attr("receive", JSON.stringify(event.detail));
     });
 
 //-   post-card#in()

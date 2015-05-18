@@ -2,6 +2,7 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link href="../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
 <link href="value-sign.html" rel="import">
+<link href="value-graph.html" rel="import">
 
   <polymer-element name="value-collection-demo">
   <template>
@@ -110,12 +111,13 @@
       <section id="details">
         <div class="card" layout horizontal hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}" hero cross-fade>
           <value-sign showExceed class="card-left" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-sign" hero?="{{previous == 0}}" values="{{selectedItem}}" on-tap="{{transition}}" cross-fade></value-sign>
-          <div class="card-right" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-content" hero?="{{previous == 0}}" slide-one-way?="{{previous != 2}}"flex>
+          <div class="card-right" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-content" hero?="{{previous == 0}}" slide-one-way?="{{previous != 2}}" flex>
             <div layout horizontal center>
               <div flex>
                 <div class="card-room">{{selectedItem.room}}</div>
                 <div class="card-kind">{{selectedItem.kind}}</div>
               </div>
+              <value-graph values="{{selectedItem}}"></value-graph>
             </div>
           </div>
         </div>
@@ -148,6 +150,7 @@
                 <div class="card-room">{{nextItem.room}}</div>
                 <div class="card-kind">{{nextItem.kind}}</div>
               </div>
+              <value-graph values="{{selectedItem}}"></value-graph>
             </div>
           </div>
         </div>

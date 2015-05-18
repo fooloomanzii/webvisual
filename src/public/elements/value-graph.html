@@ -1,11 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link href="../bower_components/paper-ripple/paper-ripple.html" rel="import">
 
-<!--  D3.js and NVD3 import -->
-<link href="js/nvd3/build/nv.d3.css" rel="stylesheet" type="text/css">
-<script src="js/d3/d3.min.js" charset="utf-8"></script>
-<script src="js/nvd3/build/nv.d3.min.js"></script>
-
 <polymer-element name="value-graph">
   <template>
     <style>
@@ -15,21 +10,17 @@
       :host {
         position: relative;
         color: #1d1d1d;
-        border-radius: 5px;
         overlay: hidden;
         display: flex;
         z-index: 0;
-        outline: none;
         font-family: 'Roboto-Condensed-Light';
         font-size: 0.9em;
         background: transparent;
-        user-select: none;
+        outline: none;
       }
       .main {
         position: relative;
         border-radius: inherit;
-        padding-top: 0.4em;
-        padding-bottom: 0.4em;
         height: 100%;
         width: 100%;
       }
@@ -38,7 +29,7 @@
       svg {
           display: block;
       }
-      #chart, svg {
+      #graph, svg {
           margin: 0px;
           padding: 0px;
           height: 100%;
@@ -51,12 +42,15 @@
       <template if="{{ripple}}">
         <paper-ripple id="ripple" class="fill" fit initialOpaciy="0.10"></paper-ripple>
       </template>
-      <section id="chart" class='with-transitions'>
+      <section id="graph">
         <svg></svg>
       </section>
+    </section>
   </template>
 
   <script>
+  var tempo = 14;
+
   Polymer('value-graph', {
       colorLow: 'linear-gradient(180deg, rgba(62, 20, 255, 0.85), rgba(62, 20, 255, 0.7), rgba(62, 20, 255, 0.85))',
       colorHigh: 'linear-gradient(180deg, rgba(255, 21, 41, 0.85), rgba(255, 21, 41, 0.7), rgba(255, 21, 41, 0.85))',
@@ -64,105 +58,40 @@
       publish: {
         shadow: false,
         showExceed: false,
-        ripple: true,
+        ripple: false,
         exceeds: null,
         exceedsDate: '',
         exceedsValue: '',
         color: 'linear-gradient(180deg, #f1f1f1, white, #f1f1f1)',
-        receive: [];
-        data: { key: '',
-                var: '',
-                unit: '',
-                values: [],
-                color: #4f2a00
-                }
+        values: [],
+        data: {
+          var: '',
+          unit: '',
+          key: '',
+          values: []
+        }
       },
-      receiveChanged: function() {
-        // this should be done by the database itself and/or by a value-collecter outside
-        this.value = this.values.data[this.values.data.length-1].value;
-        this.resetExceeds();
-        for (var i=this.values.data.length-1; i>=0; i--) {
-          if (this.values.data[i].exceeds !== null) {
-            this.exceeds = this.values.data[i].exceeds;
-            this.exceedsDate = this.values.data[i].date;
-            this.exceedsValue = "" + this.values.data[i].value + this.values.unit;
-            break;
-        }}
+
+      valuesChanged: function() {
+        // reorder received data
+        this.data.var = this.values.var;
+        this.data.unit = this.values.unit;
+        this.data.key = this.values.kind;
+        this.data.values = [];
+        for (i=0; i< this.values.data.length; i++) {
+          this.data.values.push([this.values.data[i].date , this.values.data[i].value]);
+        }
       },
+
       buildGraph: function() {
-        // calling nv for building graph
-        // from line chart example from nvd3 github page
-        nv.addGraph(function() {
-            // setting type of graph
-            var chart = nv.models.lineChart();
-            var fitScreen = false;
-            // maximum size (?)
-            var width = 600;
-            var height = 300;
-            var zoom = 1;
-            chart.useInteractiveGuideline(true);
-            // setting this x-axis-labeling
-            chart.xAxis
-                .axisLabel('Datum')
-                .tickFormat(d3.time.format("%d.%m.%Y %H:%M:%S"));
-            // setting this y-axis-labeling
-            chart.yAxis
-                .axisLabel(this.data.var + ' (' + this.data.unit + ')')
-                .tickFormat(d3.format(',.5f'));
-            d3.select('#chart svg')
-                .attr('perserveAspectRatio', 'xMinYMid')
-                .attr('width', width)
-                .attr('height', height)
-                // connecting this data
-                .datum(this.data.values);
-            setChartViewBox();
-            resizeChart();
-            nv.utils.windowResize(resizeChart);
-            // setting zoom control
-            d3.select('#zoomIn').on('click', zoomIn);
-            d3.select('#zoomOut').on('click', zoomOut);
-            function setChartViewBox() {
-                var w = width * zoom,
-                    h = height * zoom;
-                chart
-                    .width(w)
-                    .height(h);
-                d3.select('#chart svg')
-                    .attr('viewBox', '0 0 ' + w + ' ' + h)
-                    .transition().duration(500)
-                    .call(chart);
-            }
-            function zoomOut() {
-                zoom += .25;
-                setChartViewBox();
-            }
-            function zoomIn() {
-                if (zoom <= .5) return;
-                zoom -= .25;
-                setChartViewBox();
-            }
-            // This resize simply sets the SVG's dimensions, without a need to recall the chart code
-            // Resizing because of the viewbox and perserveAspectRatio settings
-            // This scales the interior of the chart unlike the above
-            function resizeChart() {
-                var container = d3.select('#chart');
-                var svg = container.select('svg');
-                if (fitScreen) {
-                    // resize based on container's width AND HEIGHT
-                    var windowSize = nv.utils.windowSize();
-                    svg.attr("width", windowSize.width);
-                    svg.attr("height", windowSize.height);
-                } else {
-                    // resize based on container's width
-                    var aspect = chart.width() / chart.height();
-                    var targetWidth = parseInt(container.style('width'));
-                    svg.attr("width", targetWidth);
-                    svg.attr("height", Math.round(targetWidth / aspect));
-                }
-            }
-            return chart;
-        });
+        // building graph
+        var chart;
+      },
+
+      ready: function() {
+        d3.select(this.$.graph).append("p").text("New paragraph!");
       }
+
   });
   </script>
 </polymer-element>
