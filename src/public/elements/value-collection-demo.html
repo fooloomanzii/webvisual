@@ -112,7 +112,7 @@
         <div class="card" layout horizontal hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}" hero cross-fade>
           <value-sign showExceed class="card-left" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-sign" hero?="{{previous == 0}}" values="{{selectedItem}}" on-tap="{{transition}}" cross-fade></value-sign>
           <div class="card-right" hero-id="{{selectedItem.room}}-{{selectedItem.kind}}-{{selectedItem.var}}-content" hero?="{{previous == 0}}" slide-one-way?="{{previous != 2}}" flex>
-            <div layout horizontal center>
+            <div horizontal layout>
               <div flex>
                 <div class="card-room">{{selectedItem.room}}</div>
                 <div class="card-kind">{{selectedItem.kind}}</div>

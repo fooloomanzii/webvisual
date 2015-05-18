@@ -1,6 +1,11 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link href="../bower_components/paper-ripple/paper-ripple.html" rel="import">
 
+<!--  D3.js and NVD3 import -->
+<link href="../js/nvd3/build/nv.d3.css" rel="stylesheet" type="text/css">
+<script src="../js/d3/d3.min.js" charset="utf-8"></script>
+<script src="../js/nvd3/build/nv.d3.min.js"></script>
+
 <polymer-element name="value-graph">
   <template>
     <style>
@@ -10,17 +15,21 @@
       :host {
         position: relative;
         color: #1d1d1d;
+        border-radius: 5px;
         overlay: hidden;
         display: flex;
         z-index: 0;
+        outline: none;
         font-family: 'Roboto-Condensed-Light';
         font-size: 0.9em;
         background: transparent;
-        outline: none;
+        user-select: none;
       }
       .main {
         position: relative;
         border-radius: inherit;
+        padding-top: 0.4em;
+        padding-bottom: 0.4em;
         height: 100%;
         width: 100%;
       }
@@ -29,7 +38,7 @@
       svg {
           display: block;
       }
-      #graph, svg {
+      #chart, svg {
           margin: 0px;
           padding: 0px;
           height: 100%;
@@ -39,17 +48,55 @@
     </style>
 
     <section class="main">
-      <template if="{{ripple}}">
-        <paper-ripple id="ripple" class="fill" fit initialOpaciy="0.10"></paper-ripple>
-      </template>
-      <section id="graph">
+      <section id="chart" class='with-transitions'>
         <svg></svg>
       </section>
-    </section>
   </template>
 
   <script>
-  var tempo = 14;
+  var chart;
+
+
+  function sinAndCos() {
+      var sin = [],
+          cos = [],
+          rand = [],
+          rand2 = []
+          ;
+
+      for (var i = 0; i < 100; i++) {
+          sin.push({x: i, y: i % 10 == 5 ? null : Math.sin(i/10) }); //the nulls are to show how defined works
+          cos.push({x: i, y: .5 * Math.cos(i/10)});
+          rand.push({x:i, y: Math.random() / 10});
+          rand2.push({x: i, y: Math.cos(i/10) + Math.random() / 10 })
+      }
+
+      return [
+          {
+              area: true,
+              values: sin,
+              key: "Sine Wave",
+              color: "#ff7f0e"
+          },
+          {
+              values: cos,
+              key: "Cosine Wave",
+              color: "#2ca02c"
+          },
+          {
+              values: rand,
+              key: "Random Points",
+              color: "#2222ff"
+          }
+          ,
+          {
+              values: rand2,
+              key: "Random Cosine",
+              color: "#667711"
+          }
+      ];
+  }
+
 
   Polymer('value-graph', {
       colorLow: 'linear-gradient(180deg, rgba(62, 20, 255, 0.85), rgba(62, 20, 255, 0.7), rgba(62, 20, 255, 0.85))',
@@ -81,15 +128,39 @@
         for (i=0; i< this.values.data.length; i++) {
           this.data.values.push([this.values.data[i].date , this.values.data[i].value]);
         }
+        this.build();
       },
 
-      buildGraph: function() {
-        // building graph
-        var chart;
-      },
+      build: function() {
+        nv.addGraph(function() {
+            chart = nv.models.lineChart()
+                .options({
+                    transitionDuration: 300,
+                    useInteractiveGuideline: true
+                })
+            ;
 
-      ready: function() {
-        d3.select(this.$.graph).append("p").text("New paragraph!");
+            // chart sub-models (ie. xAxis, yAxis, etc) when accessed directly, return themselves, not the parent chart, so need to chain separately
+            chart.xAxis
+                .axisLabel("Time (s)")
+                .tickFormat(d3.format(',.1f'))
+                .staggerLabels(true)
+            ;
+
+            chart.yAxis
+                .axisLabel('Voltage (v)')
+                .tickFormat(d3.format(',.2f'))
+            ;
+
+            d3.select('#chart').append('svg')
+                .datum(sinAndCos())
+                .call(chart);
+
+            nv.utils.windowResize(chart.update);
+
+            return chart;
+        });
+
       }
 
   });
