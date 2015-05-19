@@ -46,8 +46,8 @@ head
     
   // D3.js and NVD3 import
   link(href='js/nvd3/build/nv.d3.css', rel='stylesheet', type='text/css')
-  script(src='js/d3/d3.min.js')
-  script(src='js/nvd3/build/nv.d3.min.js')
+  script(src='js/d3/d3.js')
+  script(src='js/nvd3/build/nv.d3.js')
 
           
 body(unresolved)
@@ -78,7 +78,7 @@ body(unresolved)
           paper-tab(name='row', href='/table') Tabellen
           paper-tab(name='warning') Überwachung
           paper-tab(name='graphs') Graphen
-      section#maincontent()
+      section#maincontent() 
         block content
 
   // jQuery
@@ -96,7 +96,6 @@ body(unresolved)
   script(src='/socket.io/socket.io.js')
   
   script.
-    // Console Log, that Script is excecuted    
     console.log('jade excecuted');
     
   block script

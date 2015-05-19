@@ -47,56 +47,13 @@
 
     </style>
 
-    <section class="main">
-      <section id="chart" class='with-transitions'>
-        <svg></svg>
-      </section>
+    <div id="chart">
+      <svg id="graph"></svg>
+    </div>
+
   </template>
 
   <script>
-  var chart;
-
-
-  function sinAndCos() {
-      var sin = [],
-          cos = [],
-          rand = [],
-          rand2 = []
-          ;
-
-      for (var i = 0; i < 100; i++) {
-          sin.push({x: i, y: i % 10 == 5 ? null : Math.sin(i/10) }); //the nulls are to show how defined works
-          cos.push({x: i, y: .5 * Math.cos(i/10)});
-          rand.push({x:i, y: Math.random() / 10});
-          rand2.push({x: i, y: Math.cos(i/10) + Math.random() / 10 })
-      }
-
-      return [
-          {
-              area: true,
-              values: sin,
-              key: "Sine Wave",
-              color: "#ff7f0e"
-          },
-          {
-              values: cos,
-              key: "Cosine Wave",
-              color: "#2ca02c"
-          },
-          {
-              values: rand,
-              key: "Random Points",
-              color: "#2222ff"
-          }
-          ,
-          {
-              values: rand2,
-              key: "Random Cosine",
-              color: "#667711"
-          }
-      ];
-  }
-
 
   Polymer('value-graph', {
       colorLow: 'linear-gradient(180deg, rgba(62, 20, 255, 0.85), rgba(62, 20, 255, 0.7), rgba(62, 20, 255, 0.85))',
@@ -115,8 +72,9 @@
           var: '',
           unit: '',
           key: '',
-          values: []
-        }
+          values: [{"x": null, "y": null}]
+        },
+        chart: []
       },
 
       valuesChanged: function() {
@@ -126,41 +84,69 @@
         this.data.key = this.values.kind;
         this.data.values = [];
         for (i=0; i< this.values.data.length; i++) {
-          this.data.values.push([this.values.data[i].date , this.values.data[i].value]);
+          this.data.values.push(
+            {x: new Date(this.convertDateString(this.values.data[i].date)),
+             y: this.values.data[i].value});
         }
         this.build();
+        this.drawChart();
+      },
+
+      convertDateString: function(d) {
+        var s = d.split(' ');
+        var day = s[0].split('.');
+        return (day[2]+'/'+
+                        day[1]+'/'+
+                        day[0]+' '+
+                        s[1]);
       },
 
       build: function() {
+        var me = this;
+        /*These lines are all chart setup.  Pick and choose which chart features you want to utilize. */
         nv.addGraph(function() {
-            chart = nv.models.lineChart()
-                .options({
-                    transitionDuration: 300,
-                    useInteractiveGuideline: true
-                })
-            ;
+          me.chart = nv.models.lineChart()
+                        .margin({left: 100})  //Adjust chart margins to give the x-axis some breathing room.
+                        .useInteractiveGuideline(true)  //We want nice looking tooltips and a guideline!
+                        // .transitionDuration(350)  //how fast do you want the lines to transition?
+                        .showLegend(true)       //Show the legend, allowing users to turn on/off line series.
+                        .showYAxis(true)        //Show the y-axis
+                        .showXAxis(true)        //Show the x-axis
+          ;
 
-            // chart sub-models (ie. xAxis, yAxis, etc) when accessed directly, return themselves, not the parent chart, so need to chain separately
-            chart.xAxis
-                .axisLabel("Time (s)")
-                .tickFormat(d3.format(',.1f'))
-                .staggerLabels(true)
-            ;
+          me.chart.xAxis     //Chart x-axis settings
+              .axisLabel('Time (ms)')
+              .tickFormat( function(d) {
+                return d3.time.format('%d.%m.%Y %H:%M:%S')(new Date(d)); });
 
-            chart.yAxis
-                .axisLabel('Voltage (v)')
-                .tickFormat(d3.format(',.2f'))
-            ;
+          me.chart.yAxis     //Chart y-axis settings
+              .axisLabel('Voltage (v)')
+              .tickFormat(d3.format('.02f'));
 
-            d3.select('#chart').append('svg')
-                .datum(sinAndCos())
-                .call(chart);
+              var that = me;
+              /* Done setting the chart up? Time to render it!*/
+              var myData = that.data;   //You need data...
+              var myChart = that.chart;
+              if (myData.var && myChart)
+                d3.select('#graph')    //Select the <svg> element you want to render the chart in.
+                    .datum(myData)         //Populate the <svg> element with chart data...
+                    .call(myChart);          //Finally, render the chart!
 
-            nv.utils.windowResize(chart.update);
 
-            return chart;
+          //Update the chart when window resizes.
+          nv.utils.windowResize(function() { me.chart.update() });
+          return me.chart;
         });
-
+      },
+      drawChart: function() {
+        var me = this;
+        /* Done setting the chart up? Time to render it!*/
+        var myData = me.data;   //You need data...
+        var myChart = me.chart;
+        if (myData.var && myChart)
+          d3.select('#chart #graph')    //Select the <svg> element you want to render the chart in.
+              .datum(myData)         //Populate the <svg> element with chart data...
+              .call(myChart);          //Finally, render the chart!
       }
 
   });
