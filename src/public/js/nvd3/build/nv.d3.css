@@ -53,7 +53,7 @@ svg.nvd3-svg {
   border: 1px solid rgba(0,0,0,.2);
   z-index: 10000;
 
-  font-family: Arial;
+  font-family: Roboto-Condensed-Light;
   font-size: 13px;
   text-align: left;
   pointer-events: none;
@@ -156,11 +156,11 @@ svg.nvd3-svg {
 }
 
 .nvd3 text {
-  font: normal 12px Arial;
+  font: normal 12px Roboto-Condensed-Light;
 }
 
 .nvd3 .title {
- font: bold 14px Arial;
+ font: bold 14px Roboto-Condensed-Light;
 }
 
 .nvd3 .nv-background {
