@@ -27,11 +27,15 @@
         font-family: Roboto-Condensed-Light;
       }
       .nv-axis {
-        font-size: 0.9em;
+        font-size: 0.95em;
+      }
+      text.nv-axislabel {
+        font-size: 1.25em;
       }
       .nvtooltip {
         margin-top: 0px;
         margin-left: -50vmin;
+        background: white;
       }
 
     </style>
@@ -415,14 +419,13 @@
       },
 
       valuesChanged: function() {
-        this.data = [{"key":   this.values.kind,
+        this.data = [{"key": this.values.var + " (" + this.values.unit + ")",
                       "values":[]
                      }];
         for (i=0; i< this.values.data.length; i++)
           this.data[0].values.push(
             {"x": new Date(this.convertDateString(this.values.data[i].date)),
              "y": this.values.data[i].value});
-        this.yAxisAxisLabel = this.values.var + " (" + this.values.unit + ")";
         this.createChart();
         // this.updateData();
       },
