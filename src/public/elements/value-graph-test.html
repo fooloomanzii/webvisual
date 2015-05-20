@@ -1,0 +1,154 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link href="../bower_components/paper-ripple/paper-ripple.html" rel="import">
+
+<!--  D3.js and NVD3 import -->
+<link href="../js/nvd3/build/nv.d3.css" rel="stylesheet" type="text/css">
+<script src="../js/d3/d3.min.js" charset="utf-8"></script>
+<script src="../js/nvd3/build/nv.d3.min.js"></script>
+
+<polymer-element name="value-graph">
+  <template>
+    <style>
+      [unresolved] {
+        opacity: 0;
+      }
+      :host {
+        position: relative;
+        color: #1d1d1d;
+        border-radius: 5px;
+        overlay: hidden;
+        display: flex;
+        z-index: 0;
+        outline: none;
+        font-family: 'Roboto-Condensed-Light';
+        font-size: 0.9em;
+        background: transparent;
+        user-select: none;
+      }
+      .main {
+        position: relative;
+        border-radius: inherit;
+        padding-top: 0.4em;
+        padding-bottom: 0.4em;
+        height: 100%;
+        width: 100%;
+      }
+      text {
+      }
+      svg {
+          display: block;
+      }
+      #chart, svg {
+          margin: 0px;
+          padding: 0px;
+          height: 100%;
+          width: 100%;
+      }
+
+    </style>
+
+    <div id="chart">
+      <svg id="graph"></svg>
+    </div>
+
+  </template>
+
+  <script>
+
+  Polymer('value-graph', {
+      colorLow: 'linear-gradient(180deg, rgba(62, 20, 255, 0.85), rgba(62, 20, 255, 0.7), rgba(62, 20, 255, 0.85))',
+      colorHigh: 'linear-gradient(180deg, rgba(255, 21, 41, 0.85), rgba(255, 21, 41, 0.7), rgba(255, 21, 41, 0.85))',
+      colorNormal: 'linear-gradient(180deg, #f1f1f1, white, #f1f1f1)',
+      publish: {
+        shadow: false,
+        showExceed: false,
+        ripple: false,
+        exceeds: null,
+        exceedsDate: '',
+        exceedsValue: '',
+        color: 'linear-gradient(180deg, #f1f1f1, white, #f1f1f1)',
+        values: [],
+        data: {
+          var: '',
+          unit: '',
+          key: '',
+          values: [{"x": null, "y": null}]
+        },
+        chart: []
+      },
+
+      valuesChanged: function() {
+        // reorder received data
+        this.data.var = this.values.var;
+        this.data.unit = this.values.unit;
+        this.data.key = this.values.kind;
+        this.data.values = [];
+        for (i=0; i< this.values.data.length; i++) {
+          this.data.values.push(
+            {x: new Date(this.convertDateString(this.values.data[i].date)),
+             y: this.values.data[i].value});
+        }
+        this.build();
+        this.drawChart();
+      },
+
+      convertDateString: function(d) {
+        var s = d.split(' ');
+        var day = s[0].split('.');
+        return (day[2]+'/'+
+                        day[1]+'/'+
+                        day[0]+' '+
+                        s[1]);
+      },
+
+      build: function() {
+        var me = this;
+        /*These lines are all chart setup.  Pick and choose which chart features you want to utilize. */
+        nv.addGraph(function() {
+          me.chart = nv.models.lineChart()
+                        .margin({left: 100})  //Adjust chart margins to give the x-axis some breathing room.
+                        .useInteractiveGuideline(true)  //We want nice looking tooltips and a guideline!
+                        // .transitionDuration(350)  //how fast do you want the lines to transition?
+                        .showLegend(true)       //Show the legend, allowing users to turn on/off line series.
+                        .showYAxis(true)        //Show the y-axis
+                        .showXAxis(true)        //Show the x-axis
+          ;
+
+          me.chart.xAxis     //Chart x-axis settings
+              .axisLabel('Time (ms)')
+              .tickFormat( function(d) {
+                return d3.time.format('%d.%m.%Y %H:%M:%S')(new Date(d)); });
+
+          me.chart.yAxis     //Chart y-axis settings
+              .axisLabel('Voltage (v)')
+              .tickFormat(d3.format('.02f'));
+
+              var that = me;
+              /* Done setting the chart up? Time to render it!*/
+              var myData = that.data;   //You need data...
+              var myChart = that.chart;
+              if (myData.var && myChart)
+                d3.select('#graph')    //Select the <svg> element you want to render the chart in.
+                    .datum(myData)         //Populate the <svg> element with chart data...
+                    .call(myChart);          //Finally, render the chart!
+
+
+          //Update the chart when window resizes.
+          nv.utils.windowResize(function() { me.chart.update() });
+          return me.chart;
+        });
+      },
+      drawChart: function() {
+        var me = this;
+        /* Done setting the chart up? Time to render it!*/
+        var myData = me.data;   //You need data...
+        var myChart = me.chart;
+        if (myData.var && myChart)
+          d3.select('#chart #graph')    //Select the <svg> element you want to render the chart in.
+              .datum(myData)         //Populate the <svg> element with chart data...
+              .call(myChart);          //Finally, render the chart!
+      }
+
+  });
+  </script>
+</polymer-element>

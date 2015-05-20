@@ -2,7 +2,7 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link href="../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
 <link href="value-sign.html" rel="import">
-<link href="value-graph2.html" rel="import">
+<link href="value-graph.html" rel="import">
 
   <polymer-element name="value-collection-demo">
   <template>
@@ -70,6 +70,7 @@
       .card-description {
         margin-left: 1em;
         margin-top: 0.5em;
+        margin-right: 0.5em;
         padding: 0.5em;
       }
       .card-room {
@@ -77,9 +78,9 @@
       }
 
       .card-graph {
-        width: 100%;
+        width: 85%;
       }
-      value-graph2 {
+      value-graph {
         width: 100%
         height: 100%;
       }
@@ -128,7 +129,7 @@
               <div class="card-kind">{{selectedItem.kind}}</div>
             </div>
             <div class="card-graph" flex>
-              <value-graph2 values="{{selectedItem}}"></value-graph2>
+              <value-graph id="graph1" values="{{selectedItem}}"></value-graph>
             </div>
         </div>
         </div>
@@ -137,7 +138,6 @@
           <template repeat="{{items, i in data}}">
             <post-card headline="{{groupTitles[i]}}" hero-id="{{groupTitles[i]}}" showShadow="false" hero>
               <template repeat="{{items as item}}">
-
                   <div class="chip" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}" hero>
                       <value-sign class="chip-top" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-sign" values="{{item}}" on-tap="{{movingToAnother}}"></value-sign>
                       <div class="chip-bottom" hero-id="{{item.room}}-{{item.kind}}-{{item.var}}-content">
@@ -155,12 +155,13 @@
       <section id="more">
         <div class="card" layout horizontal hero-id="{{nextItem.room}}-{{nextItem.kind}}-{{nextItem.var}}" slide-one-way cross-fade>
           <value-sign showExceed class="card-left" hero-id="{{nextItem.room}}-{{nextItem.kind}}-{{nextItem.var}}-sign" values="{{nextItem}}" on-tap="{{transition}}"></value-sign>
-          <div class="card-right" hero-id="{{nextItem.room}}-{{nextItem.kind}}-{{nextItem.var}}-content" slide-one-way flex>
-            <div layout horizontal center>
-              <div flex>
-                <div class="card-room">{{nextItem.room}}</div>
-                <div class="card-kind">{{nextItem.kind}}</div>
-              </div>
+          <div class="card-right" hero-id="{{nextItem.room}}-{{nextItem.kind}}-{{nextItem.var}}-content" slide-one-way horizontal layout flex>
+            <div class="card-description">
+              <div class="card-room">{{nextItem.room}}</div>
+              <div class="card-kind">{{nextItem.kind}}</div>
+            </div>
+            <div class="card-graph" flex>
+              <value-graph id="graph2" values="{{nextItem}}"></value-graph>
             </div>
           </div>
         </div>
@@ -208,6 +209,7 @@
       receiveChanged: function() {
         this.data = _.values(_.groupBy(this.receive,this.groupBy));
         this.groupTitles = _.keys(_.groupBy(this.receive,this.groupBy));
+        this.graphUpdate();
       },
 
       transition: function(e) {
@@ -243,6 +245,12 @@
 
       complete: function() {
         this.previous = this.page;
+        this.graphUpdate();
+      },
+
+      graphUpdate: function() {
+        this.$.graph1.chart.update();
+        this.$.graph2.chart.update();
       }
 
     });
