@@ -34,7 +34,7 @@
       }
       .nvtooltip {
         margin-top: 0px;
-        margin-left: -50vmin;
+        margin-left: -47vmin;
         background: white;
       }
 
@@ -301,7 +301,7 @@
         this.chart = null;
         this.svg = null;
         this.data = this.data || [];
-        this.margin = this.margin || { top: 30, right: 60, bottom: 30, left: 70 };
+        this.margin = this.margin || { top: 30, right: 50, bottom: 30, left: 50 };
       },
 
       ready: function() {
@@ -327,8 +327,6 @@
 
       setUp: function() {
         this.chart
-          .width(0)
-          .height(150)
           .margin(this.margin)
           .clipEdge(this.clipEdge)
           .color(this.color)
@@ -420,7 +418,8 @@
 
       valuesChanged: function() {
         this.data = [{"key": this.values.var + " (" + this.values.unit + ")",
-                      "values":[]
+                      "values":[],
+                      "area" : true
                      }];
         for (i=0; i< this.values.data.length; i++)
           this.data[0].values.push(
@@ -455,30 +454,7 @@
           });
           ajax.go();
         }
-      },
-      /**************************************
-       * Simple test data generator
-       */
-      sinAndCos: function() {
-
-        //Line chart data should be sent as an array of series objects.
-        return [
-          {"var":"Temperatur",
-           "unit":"°C",
-           "key":"Chlor",
-           "values":[
-            {"x":new Date("10/01/2013 10:20:02"),"y":10.0101},
-            {"x":new Date("10/03/2013 10:20:02"),"y":10.2501},
-            {"x":new Date("10/04/2013 10:20:02"),"y":10.0301},
-            {"x":new Date("10/05/2013 10:20:02"),"y":10.0301},
-            {"x":new Date("10/06/2013 10:20:02"),"y":10.0501},
-            {"x":new Date("10/06/2013 22:20:02"),"y":10.1301},
-            {"x":new Date("10/08/2013 10:20:02"),"y":10.0301},
-            {"x":new Date("10/09/2013 10:20:02"),"y":10.0101}]}
-        ];
       }
-
-
 
   });
 
