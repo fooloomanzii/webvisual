@@ -18,7 +18,7 @@ describe 'NVD3', ->
             subtitle: 'US$ in thousands'
             ranges: [10,20,30]
             measures: [40]
-            markers: [50, 100]
+            markers: [50]
 
         options =
             orient: 'left'
@@ -35,7 +35,7 @@ describe 'NVD3', ->
             height: 110
             tickFormat: (d)-> d.toFixed 2
             tooltips: true
-            tooltipContent: (evt)-> "<h3>test</h3>"
+            tooltipContent: (key,x,y)-> "<h3>#{key}</h3>"
             noData: 'No Data Available'
 
         builder1 = null
@@ -47,17 +47,12 @@ describe 'NVD3', ->
             builder1.teardown()
 
         it 'api check', ->
-          should.exist builder1.model.options, 'options exposed'
-          for opt of options
-              should.exist builder1.model[opt](), "#{opt} can be called"
+            for opt of options
+                should.exist builder1.model[opt](), "#{opt} can be called"
 
         it 'renders', ->
             wrap = builder1.$ 'g.nvd3.nv-bulletChart'
             should.exist wrap[0]
-
-        it 'displays multiple markers', ->
-          markers = document.querySelectorAll '.nv-markerTriangle'
-          markers.length.should.equal 2
 
         it 'has correct g.nvd3.nv-bulletChart position', ->
           chart = builder1.$ 'g.nvd3.nv-bulletChart'
@@ -144,15 +139,6 @@ describe 'NVD3', ->
             builder.build options, {}
             builder.svg.textContent.should.be.equal 'No Data Available'
 
-
-          it 'clears chart objects for no data', ->
-            builder = new ChartBuilder nv.models.bulletChart()
-            builder.buildover options, sampleData, []
-            
-            groups = builder.$ 'g'
-            groups.length.should.equal 0, 'removes chart components'
-
-
           it 'margin', ->
             options =
               margin:
@@ -210,10 +196,10 @@ describe 'NVD3', ->
             removeAllTooltips()
 
             options =
-              tooltipContent: (evt)-> "<h2>test</h2>"
+              tooltipContent: (key)-> "<h2>#{key}</h2>"
             builder.build options, sampleData
 
             builder.model.bullet.dispatch.elementMouseover eventTooltipData
 
             tooltip = document.querySelectorAll '.nvtooltip'
-            expect(tooltip[0].innerHTML).to.contain "<h2>test</h2>"
+            expect(tooltip[0].innerHTML).to.contain "<h2>Revenue</h2>"

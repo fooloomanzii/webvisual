@@ -33,6 +33,7 @@
     var long_short_data = [
         {
             key: 'Series1',
+            color: '#d62728',
             values: [
                 {
                     "label" : "Group A" ,
@@ -56,24 +57,25 @@
                 } ,
                 {
                     "label" : "Group F" ,
-                    "value" : -2.77154485523777
+                    "value" : -0.77154485523777
                 } ,
                 {
                     "label" : "Group G" ,
-                    "value" : -9.90152097798131
+                    "value" : -0.90152097798131
                 } ,
                 {
                     "label" : "Group H" ,
-                    "value" : 14.91445417330854
+                    "value" : -0.91445417330854
                 } ,
                 {
                     "label" : "Group I" ,
-                    "value" : -3.055746319141851
+                    "value" : -0.055746319141851
                 }
             ]
         },
         {
             key: 'Series2',
+            color: '#1f77b4',
             values: [
                 {
                     "label" : "Group A" ,
@@ -101,24 +103,25 @@
                 } ,
                 {
                     "label" : "Group G" ,
-                    "value" : 7.0947953487127
+                    "value" : 0.30947953487127
                 } ,
                 {
                     "label" : "Group H" ,
-                    "value" : 8
+                    "value" : 0
                 } ,
                 {
                     "label" : "Group I" ,
-                    "value" : 21
+                    "value" : 0
                 }
             ]
         },
         {
             key: 'Series3',
+            color: '#2ca02c',
             values: [
                 {
                     "label" : "Group A" ,
-                    "value" : -14.307646510375
+                    "value" : -25.307646510375
                 } ,
                 {
                     "label" : "Group B" ,
@@ -138,7 +141,7 @@
                 } ,
                 {
                     "label" : "Group F" ,
-                    "value" : 15.259101026956
+                    "value" : 5.259101026956
                 } ,
                 {
                     "label" : "Group G" ,
@@ -165,13 +168,9 @@
             .yErr(function(d) { return [-Math.abs(d.value * Math.random() * 0.3), Math.abs(d.value * Math.random() * 0.3)] })
             .barColor(d3.scale.category20().range())
             .duration(250)
-            .margin({left: 100})
             .stacked(true);
 
         chart.yAxis.tickFormat(d3.format(',.2f'));
-
-        chart.yAxis.axisLabel('Y Axis');
-        chart.xAxis.axisLabel('X Axis').axisLabelDistance(20);
 
         d3.select('#chart1 svg')
             .datum(long_short_data)
