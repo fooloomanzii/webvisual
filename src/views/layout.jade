@@ -64,6 +64,9 @@ body(unresolved)
           paper-item#mainmenubutton(name='m2',raised)
             core-icon(icon='list')
             | Tabelle
+      paper-item#mainmenubutton(id='m3',raised)
+        core-icon(icon='list')
+        | Remove
 
     core-header-panel#headerPanel(main,fixed)
       core-toolbar#mainheader
@@ -95,6 +98,17 @@ body(unresolved)
   
   // Eigene Plugins
   script(src='/socket.io/socket.io.js')
+  
+  script.
+    $(document).ready(function(){
+      $("#m3").click(function(){
+        var val = $("value-collection-demo");
+        val.fadeOut();
+        val.remove();
+        var table = "<post-card><table-element></table-element></post-card>";
+        $("#maincontent").append(table);
+      });
+    });
   
   script.
     console.log('jade excecuted');
