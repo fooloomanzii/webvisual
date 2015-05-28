@@ -6,6 +6,10 @@ html,body {
   line-height: 1em;
 }
 
+.core-selected {
+  background-color: rgba(100, 100, 100, 0.2);
+}
+
 core-header-panel {
   heigth: 100%;
   position: absolute;
@@ -47,12 +51,11 @@ paper-tabs /deep/ paper-tab:hover {
   background: rgba(255, 255, 255, 0.15);
 }
 
-paper-item#mainmenubutton {
+paper-item.mainmenu {
   border-radius: 3px;
   width: 100%;
   margin: 4px;
   color: #1d1d1d;
-  background: transparent;
   text-decoration: none;
   border: thin solid #bcbcbc;
 }
@@ -66,11 +69,11 @@ paper-icon-button::shadow #ripple {
   color: #00ca35;
 }
 
-paper-item#mainmenubutton:hover {
+paper-item.mainmenu:hover {
   background: rgba(0, 203, 40, 0.15);
 }
 
-paper-item#mainmenubutton::shadow #ripple {
+paper-item.mainmenu::shadow #ripple {
   color: #00ca35;
 }
 
@@ -103,7 +106,7 @@ img#logo {
   /*#maincontent {
     margin: 0.6em;
   }*/
-  paper-item#mainmenubutton {
+  paper-item.mainmenu {
     font-size: 0.9em;
   }
 }
@@ -112,7 +115,7 @@ img#logo {
   /*#maincontent {
     margin: 0.5em;
   }*/
-  paper-item#mainmenubutton {
+  paper-item.mainmenu {
     font-size: 0.8em;
   }
 }
@@ -121,7 +124,7 @@ img#logo {
   /*#maincontent {
     margin: 0.4em;
   }*/
-  paper-item#mainmenubutton {
+  paper-item.mainmenu {
     font-size: 0.7em;
   }
 }

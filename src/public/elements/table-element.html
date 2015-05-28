@@ -1,52 +1,37 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
-
 <polymer-element name="table-element" attributes="">
 
   <template>
     <style>
       .value#false {
         background: linear-gradient(180deg, rgba({{colorLow}}, 0.75), rgba({{colorLow}}, 0.5), rgba({{colorLow}}, 0.75));
-        background: linear-gradient(180deg, rgba(55, 20, 255, 0.75), rgba(55, 20, 255, 0.6), rgba(55, 20, 255, 0.75));
       }
       .value#true {
         background: linear-gradient(180deg, rgba({{colorHigh}}, 0.75), rgba({{colorHigh}}, 0.5), rgba({{colorHigh}}, 0.75));
-        background: linear-gradient(180deg, rgba(255, 21, 41, 0.75), rgba(255, 21, 41, 0.6), rgba(255, 21, 41, 0.75));
       }
       tr#false:hover {
         background: rgba({{colorLow}}, 0.15);
-        background: rgba(55, 20, 255, 0.2);
       }
       tr#true:hover {
         background: rgba({{colorHigh}}, 0.15);
-        background: rgba(255, 21, 41, 0.2);
       }
       tr:hover {
         background: rgba({{linecolor}}, 0.1);
-        background: rgba(100, 100, 100, 0.1);
       }
       .core-selected {
         background-color: rgba({{linecolor}}, 0.2);
-        background-color: rgba(100, 100, 100, 0.2);
       }
       div.groupTitle {
         border-bottom: thin solid rgba({{linecolor}}, 0.15);
-        border-bottom: thin solid rgba(100, 100, 100, 0.15);
       }
       tr, th {
         border-bottom: thin solid rgba({{linecolor}}, 0.10);
-        border-bottom: thin solid rgba(100, 100, 100, 0.10);
       }
       #toggleIcon {
         color: rgba({{linecolor}}, 0.5);
-        color: rgba(100, 100, 100, 0.5);
-        text-align: right;
-      }
-      td.value {
-        text-align: center;
       }
     </style>
 
-    <link rel="stylesheet" type='text/css' href="../css/elements/table-log.css" />
+    <link rel="stylesheet" type='text/css' href="../css/elements/table-element.css" />
 
     <section vertical layout>
       <section>

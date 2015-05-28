@@ -1,10 +1,8 @@
-
-<link rel="import" href="../bower_components/polymer/polymer.html">
-<link href="../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
 <link href="value-sign.html" rel="import">
 <link href="value-graph.html" rel="import">
+<link href="slide-one-way.html" rel="import">
 
-  <polymer-element name="value-collection-demo">
+  <polymer-element name="value-collection-page">
   <template>
 
     <style>
@@ -187,7 +185,7 @@
   </template>
   <script>
 
-    Polymer('value-collection-demo', {
+    Polymer('value-collection-page', {
 
       ready: function(){
       },
@@ -206,6 +204,20 @@
       nextItem: null,
 
       receiveChanged: function() {
+        if(this.selectedItem) {
+          this.selectedItem = _.findWhere(this.receive,{id:   this.selectedItem.id,
+                                                        room: this.selectedItem.room,
+                                                        kind: this.selectedItem.kind,
+                                                        var:  this.selectedItem.var,
+                                                        unit: this.selectedItem.unit});
+        }
+        if(this.nextItem) {
+          this.nextItem = _.findWhere(this.receive,{id:   this.nextItem.id,
+                                                    room: this.nextItem.room,
+                                                    kind: this.nextItem.kind,
+                                                    var:  this.nextItem.var,
+                                                    unit: this.nextItem.unit});
+        }
         this.data = _.values(_.groupBy(this.receive,this.groupBy));
         this.groupTitles = _.keys(_.groupBy(this.receive,this.groupBy));
         this.graphUpdate();
@@ -248,9 +260,10 @@
       },
 
       graphUpdate: function() {
-        console.log(this.$.card.height);
-        this.$.graph1.chart.update();
-        this.$.graph2.chart.update();
+        if(this.selectedItem)
+          this.$.graph1.chart.update();
+        if(this.nextItem) 
+          this.$.graph2.chart.update();
       }
 
     });

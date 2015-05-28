@@ -1,8 +1,0 @@
-extends tableLayout
-            
-block tablescript
-  script(src='js/jquery.customSelect.js')
-  if locals.env == 'development'
-    script(type='text/javascript', src='js/table/select.js')
-  else
-    script(src='js/table/select.min.js')

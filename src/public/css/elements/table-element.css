@@ -85,6 +85,37 @@ core-icon-button::shadow #ripple {
   color: #00ca35;
 }
 
+/*Default data colors*/
+.value#false {
+  background: linear-gradient(180deg, rgba(55, 20, 255, 0.75), rgba(55, 20, 255, 0.6), rgba(55, 20, 255, 0.75));
+}
+.value#true {
+  background: linear-gradient(180deg, rgba(255, 21, 41, 0.75), rgba(255, 21, 41, 0.6), rgba(255, 21, 41, 0.75));
+}
+tr#false:hover {
+  background: rgba(55, 20, 255, 0.2);
+}
+tr#true:hover {
+  background: rgba(255, 21, 41, 0.2);
+}
+tr:hover {
+  background: rgba(100, 100, 100, 0.1);
+}
+div.groupTitle {
+  border-bottom: thin solid rgba(100, 100, 100, 0.15);
+}
+tr, th {
+  border-bottom: thin solid rgba(100, 100, 100, 0.10);
+}
+#toggleIcon {
+  color: rgba(100, 100, 100, 0.5);
+  text-align: right;
+}
+td.value {
+  text-align: center;
+}
+/**/
+
 section#main {
   position: relative;
 }

@@ -1,15 +1,96 @@
+head
 
-extends layout
+  // Meta-Tag: Set the viewport
+  meta(name='viewport', charset='utf-8', content='width=device-width, initial-scale=1, user-scalable=yes')
+  - var title = (locals.title.charAt(0).toUpperCase() + locals.title.slice(1))
+  title #{title}  
+  
+  //- Custom Style
+  link(href='css/index.css', type='text/css', rel='stylesheet')
 
-block content
+  // D3.js and NVD3 import
+  link(href='js/nvd3/build/nv.d3.css', rel='stylesheet', type='text/css')
+  script(src='js/d3/d3.js')
+  script(src='js/nvd3/build/nv.d3.js')
+  
+  // jQuery
+  script(src='js/jquery/jquery-2.1.3.js')
+  script(src='js/dateFormat.js')
+  script(src='js/jquery.dateFormat.js')
+  
+  // Underscore
+  script(src='js/underscore/underscore.js')
+    
+  // Eigene Scripte
+  script(src='js/data_processor/data_processor.js')      
+  
+  // Eigene Plugins
+  script(src='/socket.io/socket.io.js')    
 
-  value-collection-demo()
-  //- music-demo()
-  //- value-sign-collection()
-    //- include inhalt
+  //- Polymer-Elements Imports
+  script(src='bower_components/webcomponentsjs/webcomponents.js')
+  link(rel='import', href='bower_components/paper-elements/paper-elements.html')
+  link(rel='import', href='bower_components/core-elements/core-elements.html')
+    
+  // Custom-Elements Imports
+  link(rel='import', href='elements/post-card.html')
+  link(rel='import', href='elements/table-element.html')
+  link(rel='import', href='elements/value-collection-page.html')
 
+
+body(unresolved)
+
+  core-drawer-panel(forceNarrow)
+    core-header-panel(drawer, onclick="document.querySelector('core-drawer-panel').togglePanel();")
+      core-selector(selected='0')
+        paper-item.mainmenu#overviewButton(raised) 
+          core-icon(icon='apps')
+          | Übersicht
+        paper-item.mainmenu#tableButton(raised)
+          core-icon(icon='list')
+          | Tabelle
+
+    core-header-panel#headerPanel(main,fixed)
+      core-toolbar#mainheader
+        paper-icon-button#navicon(icon='menu', core-drawer-toggle)            
+        img#logo(src='img/Logo_FZ_Juelich_Weiss.svg',style="background-color: #005B82;")          
+        div(flex)
+      section#maincontent() 
+        value-collection-page()
+      
+        script.
+          document.addEventListener("dataLoaded", function(event){
+            $("value-collection-page").attr("receive", JSON.stringify(event.detail));
+          });
+  
   script.
-    document.addEventListener("dataLoaded", function(event){
-      console.log("dataLoaded ready");
-      $("value-collection-demo").attr("receive", JSON.stringify(event.detail));
+    $(document).ready(function(){
+    
+        //- Menu Selection
+      $("#overviewButton").click(function(){
+          //- Remove old Event listener
+        document.removeEventListener("dataLoaded");
+          //- Clear Mainsection
+        $("#maincontent").empty();
+          //- Append value-sign-collection-element
+        var table = "<value-collection-page id='page1' receive='"+JSON.stringify(dataStringArray)+"'></value-collection-page>";
+        $("#maincontent").append(table);
+          //- Dataload Event listener
+        document.addEventListener("dataLoaded", function(event){
+          $("value-collection-page").attr("receive", JSON.stringify(event.detail));
+        });
+      });
+      $("#tableButton").click(function(){
+          //- Remove old Event listener
+        document.removeEventListener("dataLoaded");
+          //- Clear Mainsection
+        $("#maincontent").empty();
+          //- Append table-element
+        var table = "<post-card><table-element id='page2' receive='"+JSON.stringify(dataStringArray)+"'></table-element></post-card>";
+        $("#maincontent").append(table);
+          //- Dataload Event listener
+        document.addEventListener("dataLoaded", function(event) {
+          $("table-element").attr("receive", JSON.stringify(event.detail));
+        });
+      });
     });

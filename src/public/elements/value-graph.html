@@ -34,7 +34,7 @@
       }
       .nvtooltip {
         margin-top: 0px;
-        margin-left: -47vmin;
+        margin-left: 0px;
         background: white;
       }
 
@@ -328,6 +328,7 @@
       setUp: function() {
         this.chart
           .margin(this.margin)
+          .useInteractiveGuideline(this.useInteractiveGuideline)
           .clipEdge(this.clipEdge)
           .color(this.color)
           .duration(this.duration)
@@ -339,9 +340,8 @@
           .rightAlignYAxis(this.rightAlignYAxis)
           .showLegend(this.showLegend)
           .showXAxis(this.showXAxis)
-          .showYAxis(this.showYAxis)
-          .tooltips(this.tooltips)
-          .useInteractiveGuideline(this.useInteractiveGuideline);
+          .showYAxis(this.showYAxis);
+
 
         if(this.defined)
           this.chart.defined(this.defined);
@@ -357,49 +357,6 @@
           .rotateLabels(this.xAxisRotateLabels)
           .tickFormat(this.xAxisTickFormat)
           ;
-        //
-        // this.chart
-        //   .selectAll('g.x.axis g text')
-        //   .call(wrap);
-        //
-        //   function wrap(text, width) {
-        //     text.each(function() {
-        //       var text = d3.select(this),
-        //           words = text.text().split(''),
-        //           word,
-        //           line = [],
-        //           lineNumber = 0,
-        //           lineHeight = 1.1, // ems
-        //           y = text.attr("y"),
-        //           dy = parseFloat(text.attr("dy")),
-        //           tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
-        //       while (word = words.pop()) {
-        //         line.push(word);
-        //         tspan.text(line.join(" "));
-        //         if (tspan.node().getComputedTextLength() > width) {
-        //           line.pop();
-        //           tspan.text(line.join(" "));
-        //           line = [word];
-        //           tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
-        //         }
-        //       }
-        //     });
-        //   }
-          //
-          // var insertLinebreaks = function (d) {
-          //     var el = this.svg;
-          //     var words = d.split(' ');
-          //     el.text('');
-          //
-          //     for (var i = 0; i < words.length; i++) {
-          //         var tspan = el.append('tspan').text(words[i]);
-          //         if (i > 0)
-          //             tspan.attr('x', 0).attr('dy', '15');
-          //     }
-          // };
-
-
-
 
         this.chart.yAxis
           .axisLabel(this.yAxisAxisLabel)
@@ -417,16 +374,17 @@
       },
 
       valuesChanged: function() {
-        this.data = [{"key": this.values.var + " (" + this.values.unit + ")",
-                      "values":[],
-                      "area" : true
-                     }];
-        for (i=0; i< this.values.data.length; i++)
-          this.data[0].values.push(
-            {"x": new Date(this.convertDateString(this.values.data[i].date)),
-             "y": this.values.data[i].value});
-        this.createChart();
-        // this.updateData();
+        if (this.values) {
+          this.data = [{"key": this.values.var + " (" + this.values.unit + ")",
+                        "values":[],
+                        "area" : true
+                       }];
+          for (i=0; i< this.values.data.length; i++)
+            this.data[0].values.push(
+              {"x": new Date(this.convertDateString(this.values.data[i].date)),
+               "y": this.values.data[i].value});
+          this.createChart();
+        }
       },
 
       convertDateString: function(d) {

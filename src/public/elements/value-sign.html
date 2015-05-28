@@ -1,62 +1,6 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
-<link href="../bower_components/paper-ripple/paper-ripple.html" rel="import">
-
 <polymer-element name="value-sign">
   <template>
-    <style>
-      [unresolved] {
-        opacity: 0;
-      }
-      :host {
-        position: relative;
-        color: #1d1d1d;
-        border-radius: 5px;
-        overlay: hidden;
-        display: flex;
-        z-index: 0;
-        outline: none;
-        font-family: 'Roboto-Condensed-Light';
-        background: transparent;
-        user-select: none;
-      }
-      .main, #shadow {
-        position: relative;
-        border-radius: inherit;
-        padding-top: 0.4em;
-        padding-bottom: 0.4em;
-        width: 100%;
-      }
-      .valueSection {
-        padding-left: 0.15em;
-        padding-right: 0.15em;
-        font-size: 2.4em;
-        font-style: normal;
-        font-weight: 300;
-      }
-      .unitSection {
-        padding-left: 0.3em;
-        font-size: 0.4em;
-        font-weight: 100;
-      }
-      .exceedsSection {
-        padding-left: 0.3em;
-        padding-right: 0.3em;
-        font-weight: 300;
-        line-height: 0.8em;
-      }
-      .dateSection {
-        font-style: italic;
-        font-size: 0.7em;
-      }
-      .exceedsValueSection {
-        padding-left: 0.5em;
-        font-style: normal;
-        font-size: 0.8em;
-      }
-      #ripple {
-        color: #1d1d1d;
-      }
-    </style>
+    <link rel="stylesheet" type='text/css' href="../css/elements/value-sign.css" />
 
     <template if="{{shadow}}">
       <paper-shadow id="shadow" z="1" fit animated>
@@ -101,15 +45,17 @@
         // values: shouldn't be to large and sorted (from latest to closest
         // value: last value in data-Array
         // exceeds: 'true' when over than the upper-limit, 'false' when lower than the lower-limit, 'null' when in range
-        this.value = this.values.data[this.values.data.length-1].value;
-        this.resetExceeds();
-        for (var i=this.values.data.length-1; i>=0; i--) {
-          if (this.values.data[i].exceeds !== null) {
-            this.exceeds = this.values.data[i].exceeds;
-            this.exceedsDate = this.values.data[i].date;
-            this.exceedsValue = "" + this.values.data[i].value + this.values.unit;
-            break;
-        }}
+        if (this.values) {
+          this.value = this.values.data[this.values.data.length-1].value;
+          this.resetExceeds();
+          for (var i=this.values.data.length-1; i>=0; i--) {
+            if (this.values.data[i].exceeds !== null) {
+              this.exceeds = this.values.data[i].exceeds;
+              this.exceedsDate = this.values.data[i].date;
+              this.exceedsValue = "" + this.values.data[i].value + this.values.unit;
+              break;
+          }}
+        }
       },
       exceedsChanged: function() {
         // exceeds falls back
