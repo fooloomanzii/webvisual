@@ -5,7 +5,7 @@ var syntax = {
     year: /[1234][0-9]{3}/, // 1000 - 2999 are valid
     month: /0[1-9]|1[0-2]/, // 01 - 12 are valid
     day: /0[1-9]|[12][0-9]|3[01]/, // 01 - 31 are valid
-    hour: /[01][0-9]|[0-9]|2[0-3]/, // 00 - 23 are valid
+    hour: /[01][0-9]|[2][0-3]/, // 00 - 23 are valid
     minute: /[0-5][0-9]/, // 00 - 59 are valid
     second: /[0-5][0-9]/, // 00 - 59 are valid
     values: /[0-9]+(\.[0-9]+)?|\.[0-9]+/ // Any kind of floating point number is valid
