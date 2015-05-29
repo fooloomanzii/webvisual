@@ -1,0 +1,42 @@
+<style>
+  body {
+    background: #005B82;
+  }
+
+  div {
+    color: #f1f1f1;
+    height: 48;
+  }
+
+  .icon {
+    fill: currentColor;
+    height: 100%;
+  }
+
+  .icon:hover {
+    animation-name: progress-animation;
+    animation-duration: 1.5s;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.6, 1);
+    animation-iteration-count: infinite;
+    transform-style: preserve-3d;
+  }
+  @keyframes progress-animation {
+      0%   {fill:currentColor; transform: scale(1)}
+      50%  {fill:#67d082; transform: translateX(0.05em) scale(0.92)}
+      100% {fill:currentColor; transform: scale(1)}
+  }
+</style>
+
+<head>
+</head>
+
+<body>
+  <div>
+    <svg viewBox="0 12.5 167 192" class="icon">
+       <use xlink:href="/img/logo_borderless.svg#logo"></use>
+    </svg>
+    <svg viewBox="0 0 433 192" class="icon">
+       <use xlink:href="/img/text.svg#text"></use>
+    </svg>
+ </div>
+</body>
