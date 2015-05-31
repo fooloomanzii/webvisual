@@ -54,19 +54,22 @@ body(unresolved)
     core-header-panel#headerPanel(main,fixed)
       core-toolbar#mainheader
         paper-icon-button#navicon(icon='menu', core-drawer-toggle)            
-        logo-element()         
+        logo-element()      
         div(flex)
       section#maincontent() 
         value-collection-page()
       
         script.
+          document.addEventListener("dataLoading", function(event){
+            document.querySelector("logo-element").play();
+          });
           document.addEventListener("dataLoaded", function(event){
             $("value-collection-page").attr("receive", JSON.stringify(event.detail));
+            $("logo-element").attr("loaded","true");
           });
   
   script.
     $(document).ready(function(){
-    
         //- Menu Selection
       $("#overviewButton").click(function(){
           //- Remove old Event listener
@@ -77,8 +80,12 @@ body(unresolved)
         var table = "<value-collection-page id='page1' receive='"+JSON.stringify(dataStringArray)+"'></value-collection-page>";
         $("#maincontent").append(table);
           //- Dataload Event listener
+        document.addEventListener("dataLoading", function(event){
+          document.querySelector("logo-element").play();
+        });
         document.addEventListener("dataLoaded", function(event){
           $("value-collection-page").attr("receive", JSON.stringify(event.detail));
+          $("logo-element").attr("loaded","true");
         });
       });
       $("#tableButton").click(function(){
@@ -90,8 +97,12 @@ body(unresolved)
         var table = "<post-card><table-element id='page2' receive='"+JSON.stringify(dataStringArray)+"'></table-element></post-card>";
         $("#maincontent").append(table);
           //- Dataload Event listener
+        document.addEventListener("dataLoading", function(event){
+          document.querySelector("logo-element").play();
+        });
         document.addEventListener("dataLoaded", function(event) {
           $("table-element").attr("receive", JSON.stringify(event.detail));
+          $("logo-element").attr("loaded","true");
         });
       });
     });

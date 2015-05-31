@@ -42,18 +42,16 @@
       configSocket.on('data', function(message) {
         if(message === undefined) return; // Check the Existence
 
+        // Waiting Status
+        var event = new CustomEvent("dataLoading");
+        document.dispatchEvent(event);
+
         // Function call: Read the Config file
         arrangeLabels(message.locals);
 
         // Establish connection to the Data File
         // (if a Config File was read, see above)
         dataSocket = io.connect('http://'+window.location.host+'/data');
-
-        // Waiting Status
-        dataSocket.on('wait', function() {
-          // (Loading Notification) #load
-          $('#load').text("Lade Daten...");
-        });
 
         //*** Receiving the first Data
         // (look at copywatch/udpwatch?)
@@ -216,8 +214,6 @@
     // that Data Values are ready for the delivery
     var event = new CustomEvent("dataLoaded", { "detail": dataStringArray });
     document.dispatchEvent(event);
-      // bind data to "table-log"-Element
-    $('table-log').attr('receive', JSON.stringify(dataStringArray));
 
       // bind language Array too language selector
     // $('language-element').attr.('data', JSON.stringify(languageArray));
