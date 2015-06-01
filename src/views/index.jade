@@ -61,7 +61,7 @@ body(unresolved)
       
         script.
           document.addEventListener("dataLoading", function(event){
-            document.querySelector("logo-element").play();
+            $("logo-element").attr("play","true");
           });
           document.addEventListener("dataLoaded", function(event){
             $("value-collection-page").attr("receive", JSON.stringify(event.detail));

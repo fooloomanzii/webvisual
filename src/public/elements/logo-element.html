@@ -1,53 +1,81 @@
-<polymer-element name="logo-element">
+<polymer-element name="logo-element" on-animationiteration="{{stopRequest}}">
   <template>
     <style>
-      :host {
+      :host{
         color: white;
         height: 48px;
+        width: 100%;
+        /* explicit width, declaration because of compatibilty (firefox)*/
       }
       svg {
         fill: currentColor;
         height: 100%;
-        transition: all 1.5s;
       }
-
-      .animated {
-        animation-name: progress-animation;
+      /* animate the logo*/
+      /* seperated animation-declaration, because of compatibilty (firefox)
+          if possible at some time, change the fill-color to declaritive variable*/
+      .animated.null {
+        animation-name: progress-animation-null;
         animation-duration: 2s;
         animation-timing-function: ease-in-out;
         animation-iteration-count: infinite;
         animation-play-state: {{playState}};
       }
-      @keyframes progress-animation {
+      @keyframes progress-animation-null {
           0%   {fill:currentColor; transform: scale(1);}
-          30%  {fill:{{color}}; transform: scale(0.8);}
-          66%  {fill:currentColor; transform: scale(0.98);}
+          30%  {fill:#669DB4;      transform: scale(0.8);}
+          66%  {fill:currentColor; transform: scale(0.97);}
           100% {fill:currentColor; transform: scale(1);}
       }
 
-      #headline {
-        animation-name: start-animation;
+      .animated.false {
+        animation-name: progress-animation-false;
         animation-duration: 2s;
         animation-timing-function: ease-in-out;
+        animation-iteration-count: infinite;
+        animation-play-state: {{playState}};
+      }
+      @keyframes progress-animation-false {
+          0%   {fill:currentColor; transform: scale(1);}
+          30%  {fill:#3e14ff;      transform: scale(0.8);}
+          66%  {fill:currentColor; transform: scale(0.97);}
+          100% {fill:currentColor; transform: scale(1);}
+      }
+
+      .animated.true {
+        animation-name: progress-animation-true;
+        animation-duration: 2s;
+        animation-timing-function: ease-in-out;
+        animation-iteration-count: infinite;
+        animation-play-state: {{playState}};
+      }
+      @keyframes progress-animation-true {
+          0%   {fill:currentColor; transform: scale(1);}
+          30%  {fill:#ff1529;      transform: scale(0.8);}
+          66%  {fill:currentColor; transform: scale(0.97);}
+          100% {fill:currentColor; transform: scale(1);}
+      }
+
+      /* animate the title at start*/
+      #headline, #line {
+        opacity: 0.8;
+        animation-name: start-animation;
+        animation-fill-mode: forwards;
+        animation-duration: 2s;
+        animation-timing-function: ease-in;
         animation-iteration-count: 1;
+        animation-delay: 0.5s;
       }
       @keyframes start-animation {
           0%   {opacity: 0.8;}
+          50%  {opacity: 0.7;}
           100% {opacity: 1;}
       }
-      /*[unresolved] #headline {
-        fill: currentColor;
-        position: relative;
-        opacity: 0.2;
-      }*/
-      /*.animated {
-        transform: scale(0.8);
-        fill:{{color}};
-      }*/
+
     </style>
 
     <div>
-      <svg class="{{animate ? 'animated' : ''}}" id="logosvg" on-animationiteration ={{stopRequest}} viewBox="0 0 167 192" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"><g id="g00" transform="matrix(1.45897 0 0 -1.45897 0 192)">
+      <svg id="logosvg" viewBox="0 0 167 192" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"><g id="g00" transform="matrix(1.45897 0 0 -1.45897 0 192)">
         <g id="g01" transform="scale(.1)"><path id="Logo" d="m503.402 705.496c0.157-0.098 4.418 8.078 7.868 13.918 28.031 47.383 198.16 468.966 239.82 568.246-56.34 18.57-116.543 28.77-179.125 28.77-315.895 0-571.965-255.94-571.965-571.668 0-52.059 7.10547-102.434 20.1484-150.352 35.9102 23.352 254.79 174.738 255.118 173.672 35.054-129.023 153.136-195.555 228.136-62.586zm505.688 407.794c-42.981-101.61-187.613-442.481-226.391-519.192-76.383-138.856-198.429-268.407-363.777-275.848-194.074-8.73-296.852 65.312-352.176 158.555 96.086-180.645 286.266-303.657 505.219-303.657 315.91 0 571.985 255.942 571.985 571.614 0 140.48-50.81 269.008-134.86 368.528"/></g></g>
       </svg>
 
@@ -58,43 +86,39 @@
     </div>
   </template>
 
-
   <script>
     Polymer('logo-element', {
-        colorLow: 'rgb(62, 20, 255)',
-        colorHigh: 'rgb(255, 21, 41)',
-        colorNormal: '#669DB4',
-        color: 'currentColor',
         playState: 'paused',
-        animate: false,
         publish: {
+          play: false,
           loaded: false,
           exceeds: null
         },
         domReady: function(){
           this.playState = 'running';
         },
-        play: function() {
+        //- animation by css and pseudo-class-declaration
+        playChanged: function() {
+          var animate = (this.play ? 'animated' : 'notanimated');
           if (this.exceeds == true) {
-            this.color = this.colorHigh;
-            this.iteration = 'infinite';
+            animate += ' true';
           }
-          if (this.exceeds == false) {
-            this.color = this.colorLow;
-            this.iteration = 'infinite';
+          else if (this.exceeds == false) {
+            animate += ' false';
           }
-          if (this.exceeds == null) {
-            this.color = this.colorNormal;
-            this.iteration = 1;
+          else if (this.exceeds == null) {
+            animate += ' null';
           }
-          this.animate = true;
+          this.$.logosvg.setAttribute('class',animate);
         },
-        stopRequest: function(){
-          if(this.exceeds == null && this.loaded)
-            this.animate = false;
+        //- watching every animation cycle, if it can stop
+        stopRequest: function() {
+          if(this.exceeds == null && this.loaded){
+            this.play = false;
+          }
         },
         exceedsChanged: function(){
-          this.play();
+          this.play = true;
         }
     });
   </script>
