@@ -58,18 +58,17 @@
 
       /* animate the title at start*/
       #headline, #line {
-        opacity: 1;
         animation-name: start-animation;
         animation-fill-mode: forwards;
         animation-duration: 2s;
-        animation-timing-function: ease-in;
+        animation-timing-function: ease-in-out;
         animation-iteration-count: 1;
-        animation-delay: 0.5s;
+        animation-play-state: {{playState}};
       }
       @keyframes start-animation {
-          0%   {opacity: 1;}
-          50%  {opacity: 0.7;}
-          100% {opacity: 1;}
+        0%   {fill:currentColor;}
+        30%  {fill:#669DB4; }
+        100% {fill:currentColor;}
       }
 
     </style>
