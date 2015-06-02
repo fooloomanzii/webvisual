@@ -61,7 +61,7 @@
       { "id":"127.148.138.9",
         "room":"Raum A",
         "kind":"Schwefelgas",
-        "subtypes":[{"var":"Druck" , "unit":"mPa", "threshold": [0,5]},
+        "subtypes":[{"var":"Druck" , "unit":"mPa", "threshold": [8,9.2]},
                     {"var":"Temperatur" , "unit":"°C", "threshold": [2,5]}]}
       ],
 

@@ -19,7 +19,6 @@
         animation-duration: 2s;
         animation-timing-function: ease-in-out;
         animation-iteration-count: infinite;
-        animation-play-state: {{playState}};
       }
       @keyframes progress-animation-null {
           0%   {fill:currentColor; transform: scale(1);}
@@ -33,7 +32,6 @@
         animation-duration: 2s;
         animation-timing-function: ease-in-out;
         animation-iteration-count: infinite;
-        animation-play-state: {{playState}};
       }
       @keyframes progress-animation-false {
           0%   {fill:currentColor; transform: scale(1);}
@@ -47,12 +45,11 @@
         animation-duration: 2s;
         animation-timing-function: ease-in-out;
         animation-iteration-count: infinite;
-        animation-play-state: {{playState}};
       }
       @keyframes progress-animation-true {
           0%   {fill:currentColor; transform: scale(1);}
           30%  {fill:#ff1529;      transform: scale(0.8);}
-          66%  {fill:currentColor; transform: scale(0.97);}
+          66%  {fill:currentColor; transform: scale(0.95);}
           100% {fill:currentColor; transform: scale(1);}
       }
 
@@ -61,13 +58,11 @@
         animation-name: start-animation;
         animation-fill-mode: forwards;
         animation-duration: 2s;
-        animation-timing-function: ease-in-out;
+        animation-timing-function: ease-in;
         animation-iteration-count: 1;
-        animation-play-state: {{playState}};
       }
       @keyframes start-animation {
-        0%   {fill:currentColor;}
-        30%  {fill:#669DB4; }
+        0%   {fill:#669DB4; }
         100% {fill:currentColor;}
       }
 
@@ -87,14 +82,10 @@
 
   <script>
     Polymer('logo-element', {
-        playState: 'paused',
         publish: {
           play: false,
           loaded: false,
           exceeds: null
-        },
-        domReady: function(){
-          this.playState = 'running';
         },
         //- animation by css and pseudo-class-declaration
         playChanged: function() {
