@@ -224,6 +224,7 @@
       },
 
       transition: function(e) {
+        this.parentNode.parentNode.scroller.scrollTop = 0;
         if (this.page == 0) {
           this.selectedItem = e.target.values;
           this.page = 1;
@@ -234,6 +235,7 @@
       },
 
       movingToAnother: function(e) {
+        this.parentNode.parentNode.scroller.scrollTop = 0;
         if (this.page === 1) {
           if (this.selectedItem == e.target.values) {
             this.page = 0;
@@ -262,7 +264,7 @@
       graphUpdate: function() {
         if(this.selectedItem)
           this.$.graph1.chart.update();
-        if(this.nextItem) 
+        if(this.nextItem)
           this.$.graph2.chart.update();
       }
 
