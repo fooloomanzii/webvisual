@@ -21,10 +21,10 @@
         animation-iteration-count: infinite;
       }
       @keyframes progress-animation-null {
-          0%   {fill:currentColor; transform: scale(1);}
-          30%  {fill:#669DB4;      transform: scale(0.8);}
-          66%  {fill:currentColor; transform: scale(0.97);}
-          100% {fill:currentColor; transform: scale(1);}
+          0%   {opacity: 1.0; transform: scale(1);}
+          40%  {opacity: 0.8; transform: scale(0.8);}
+          70%  {opacity: 1 ; transform: scale(0.95);}
+          100% {opacity: 1.; transform: scale(1);}
       }
 
       .animated.false {
@@ -36,7 +36,7 @@
       @keyframes progress-animation-false {
           0%   {fill:currentColor; transform: scale(1);}
           30%  {fill:#3e14ff;      transform: scale(0.8);}
-          66%  {fill:currentColor; transform: scale(0.97);}
+          66%  {fill:currentColor; transform: scale(0.95);}
           100% {fill:currentColor; transform: scale(1);}
       }
 
@@ -62,8 +62,8 @@
         animation-iteration-count: 1;
       }
       @keyframes start-animation {
-        0%   {fill:#669DB4; }
-        100% {fill:currentColor;}
+        0%   {opacity: 0.8}
+        100% {opacity: 1}
       }
 
     </style>
