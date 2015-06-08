@@ -8,8 +8,7 @@
 	],
 	"functions":{
 		"comment":" name : first state ",
-
-    "Motor":"on",
+		"Motor":"on",
 		"Pumpe":"off"
 	},
 	"locals":{
