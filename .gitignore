@@ -13,8 +13,6 @@ src/build
 src/public-dep
 src/public-src
 
-
-
 # Node Stuff #
 # src/node_modules
 
@@ -31,6 +29,4 @@ src/test/OLD/*.txt
 # Mail login #
 src/config/mail.json
 
-
 *.prefs
-

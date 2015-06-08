@@ -10,6 +10,12 @@
     "tests"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#~0.5.5"
+    "polymer": "Polymer/polymer",
+    "paper-elements": "PolymerElements/paper-elements",
+    "iron-icons": "PolymerElements/iron-icons#~1.0.1",
+    "iron-icon": "PolymerElements/iron-icon#~1.0.0",
+    "iron-iconset": "PolymerElements/iron-iconset#~1.0.0",
+    "iron-collapse": "PolymerElements/iron-collapse#~1.0.1",
+    "iron-pages": "PolymerElements/iron-pages#~1.0.0"
   }
 }
