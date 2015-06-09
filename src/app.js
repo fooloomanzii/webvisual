@@ -18,7 +18,7 @@ var dataModule = require('./data'),
   defaults = {
     connections: [],
     command_file: 'commands.json',
-    port: 3000,
+    port: 443,
     locals:{
       dataTimeLabel:"Last Message",
       timeFormat:"dd.MM.yyyy HH:mm:ss",
@@ -81,10 +81,17 @@ mailHelper.setDelay(1000);
 /**
  * Configure the app
  */
+var sslOptions  = {
+    key: fs.readFileSync(__dirname + '/ssl/server.key'),
+    cert: fs.readFileSync(__dirname + '/ssl/server.crt'),
+    ca: fs.readFileSync(__dirname + '/ssl/ca.crt'),
+    requestCert: true,
+    rejectUnauthorized: false
+  };
 
 var app    = express(),
-  server = require('http').createServer(app),
-  io     = require('socket.io').listen(server);
+  server = require('https').createServer(sslOptions, app),
+  io    = require('socket.io').listen(server, sslOptions);
 
 server.on('error', function (e) {
     if (e.code == 'EADDRINUSE') {
@@ -354,7 +361,7 @@ var userCounter = 0,
  */
 checkstates(); // check states of options
 connections.connect(); // establish all connections
-server.listen(config.port); // get the server running
+server.listen(config.port);
 
 /*mailHelper.startDelayed(function(error,info){
   if(error){

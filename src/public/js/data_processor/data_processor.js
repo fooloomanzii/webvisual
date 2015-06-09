@@ -32,10 +32,11 @@
   // Start of the Loading Process
   // (if the Client is ready)
     $(document).ready(function() {
-
+      //TODO Error/Waiting page if connection to sockets is impossible
+      
       // Start of the Server Connection to the Config file
       // (at present "config/config.json")
-      var configSocket = io.connect('http://'+window.location.host+'/config');
+      var configSocket = io.connect('https://'+window.location.host+'/config', {secure: true});
       var dataSocket = null;
 
       //***** Receive of Configuration Data
@@ -51,7 +52,7 @@
 
         // Establish connection to the Data File
         // (if a Config File was read, see above)
-        dataSocket = io.connect('http://'+window.location.host+'/data');
+        dataSocket = io.connect('https://'+window.location.host+'/data', {secure: true});
 
         //*** Receiving the first Data
         // (look at copywatch/udpwatch?)
