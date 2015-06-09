@@ -9,7 +9,7 @@
   <link rel="import" href="imports.html"/>
 
   <!-- CSS Style -->
-  <link href="css/index.css" type="text/css" rel="stylesheet"/>
+  <!-- <link href="css/index.css" type="text/css" rel="stylesheet"/> -->
 
 
 </head>
@@ -34,13 +34,19 @@
 
 
       </paper-toolbar>
-      <paper-ripple fit recenters></paper-ripple>
-      <section class="content relative">
-        blah
+
+      <section id="main">
+
+        <paper-material elevation="2" role="button">
+          blah
+        </paper-material>
       </section>
     </paper-header-panel>
   </paper-drawer-panel>
 
   <script>
+    function lift(){
+      $('paper-material').attr('elevation','5');
+    }
   </script>
 </body>

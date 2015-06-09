@@ -1,13 +1,3 @@
-<!--
-@license
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
-
 <style is="custom-style">
 
 /*
@@ -22,22 +12,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 /* Application theme */
 
 :root {
-  --dark-primary-color: #9f8d30;
+  --dark-primary-color: #9f8d30; /* Primary Colors */
   --default-primary-color:#3fb540;
-  --light-primary-color: #5d8ec1;
-  --text-primary-color: #ffffff; /*text/icons*/
-  --accent-color: #FF4081;
-  --primary-background-color: #bb62bd;
+  --light-primary-color: #345475;
+
+  --light-icon-color: #fecc6b; /* Icons */
+  --dark-icon-color: #fecc6b;
+
+  --primary-background-color: #bb62bd; /* Texts and Backgrounds */
+  --secondary-background-color: #white;
+  --dark-primary-background-color: #bb62bd;
+  --dark-secondary-background-color: #white;
   --primary-text-color: #550211;
   --secondary-text-color: #30c2c2;
-  --disabled-text-color: #c93535;
-  --divider-color: #B6B6B6;
-  --paper-icon-button-ink-color: white;
+  --disabled-text-color: #c6d2c8;
+  --dark-primary-text-color: #550211;
+  --dark-secondary-text-color: #30c2c2;
+  --dark-disabled-text-color: #c6d2c8;
+
+  --primary-border-color:; /* Borders and Lines */
+  --secondary-border-color:;
+  --divider-color: #9c9c9c;
+  --dark-primary-border-color:; /* Borders and Lines */
+  --dark-secondary-border-color:;
+  --dark-divider-color: #9c9c9c;
+
+  --ink-color: white; /* Effects */
+  --hover-color: rgba(#ffffff, 0.2);
+  --selected-color: rgba(#646464, 0.2);
 
   /* Components */
 
   /* paper-drawer-panel */
-  --drawer-menu-color: #ffffff;
+  --drawer-menu-color: #b1d113;
   --drawer-border-color: 1px solid #ccc;
   --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
 
@@ -53,25 +60,24 @@ paper-header-panel {
 }
 
 paper-toolbar {
-  color: var(--light-primary-color);
+  /*color: var(--light-primary-color);*/
   background-color: var(--default-primary-color);
   padding: 0.5rem;
 }
 
 paper-material {
   border-radius: 2px;
-  height: 100%;
-  padding: 16px 0px 16px 0px;
-  width: calc(98.66% - 16px);
-  margin: 16px auto;
+  padding: 1em 0.5em 1em 0.5em;
+  width: calc(100% - 2em);
+  margin: 1em 0.5em 1em 0.5em;
   background: white;
 }
 
-#mainToolbar {
+/*#mainToolbar {
   box-shadow: 0 4px 5px 0 rgba(0,0,0,.14),
   0 2px 9px 1px rgba(0,0,0,.12),
   0 4px 2px -2px rgba(0,0,0,.2);
-}
+}*/
 
 paper-menu iron-icon {
   margin-right: 33px;
@@ -124,83 +130,155 @@ paper-menu a {
   padding: 8px;
 }
 
-/* Breakpoints */
+ /* General Style */
+ html,body {
+   background: #E5E5E5;
+   color: #1d1d1d;
+   font-family: 'Roboto-Regular';
+   font-size: 1rem;
+   font-weight: 300;
+   line-height: 1em;
+ }
 
-/* Small */
+ div, p {
+   padding: 0.25em;
+ }
 
-/*@media (max-width: 600px) {
+ /*
+   Main-Toolbars
+   */
 
-  paper-toolbar.has-shadow {
-    height: 56px;
-  }
 
-  .paper-font-display2 {
-    font-size: 30px;
-  }
+ [drawer] {
+   background: rgba(255, 255, 255, 0.75);
+   font-family: 'Roboto-Regular';
+ }
 
-  .paper-font-display1 {
-    font-size: 12px;
-  }
+ [drawer]::shadow #mainContainer {
+   margin-right: 8px;
+   padding: 4px;
+ }
 
-  paper-material {
-    --menu-container-display: none;
-    width: calc(97.33% - 32px);
-    padding-left: 16px;
-    padding-right: 16px;
-  }
+ #main {
+   background: #f1f1f1;
+ }
 
-  #drawer .paper-toolbar {
-    margin-left: 16px;
-  }
+ /*
+   Selectors
+   */
+ .selected {
+   background-color: var(--selected-color);
+ }
 
-  #overlay {
-    min-width: 360px;
-  }
+ /*
+   Tabs
+   */
+ paper-tabs {
+   color: #f1f1f1;
+   background: #669DB4;
+   text-transform: uppercase;
+   font-family: 'Roboto-Regular';
+   font-size: 1em;
+ }
 
-  .bg {
-    background: white;
-  }
+ paper-tabs::shadow {
+   background-color: #f1f1f1;
+   height: 3px;
+   border-radius: 3px;
+ }
 
-  #mainToolbar .bottom {
-    margin-left: 50px;
-    padding-bottom: 24px;
-  }
+ paper-tabs /deep/ paper-tab::shadow #ink {
+   color: rgba(245, 245, 245, 0.25);
+ }
 
-  #mainToolbar.has-shadow .bottom {
-    padding-bottom: 0px;
-  }
+ paper-tabs /deep/ paper-icon-button {
+   color: #f1f1f1;
+ }
 
-  .appname {
-    font-size: 24px;
-    padding-bottom: 0px;
-  }
-}
+ paper-tabs /deep/ paper-tab {
+   border-radius: 3px;
+ }
 
-@media (min-width: 601px) {
+ paper-tabs /deep/ paper-tab:hover {
+   background: rgba(255, 255, 255, 0.15);
+ }
 
-  paper-material {
-    width: calc(98% - 46px);
-    padding-left: 30px;
-    padding-right: 30px;
-  }
+ /*
+   Items, Buttons and Icons
+   */
+ paper-item, paper-icon-button {
+   padding: 8px;
+   border-radius: 3px;
+   color: #1d1d1d;
+   text-decoration: none;
+ }
 
-    #mainToolbar.has-shadow .bottom {
-        margin-left: 50px;
-        padding-bottom: 0;
-        padding-left: 0;
-        font-size: 24px;
-    }
+ .sidemenu {
+   border: thin solid #9f9f9f;
+ }
 
-}*/
+ .mainmenu {
+   border-radius: 20px;
+ }
 
-/* Material Design Adaptive Breakpoints */
-/*
-  Below you'll find CSS media queries based on the breakpoint guidance
-  published by the Material Design team. You can choose to use, customise
-  or remove these breakpoints based on your needs.
 
-  http://www.google.com/design/spec/layout/adaptive-ui.html#adaptive-ui-breakpoints
- */
+ paper-item:hover {
+   background: rgba(0, 203, 40, 0.15);
+ }
+
+ paper-item::shadow #ripple {
+   color: #00ca35;
+ }
+
+ paper-icon-button:hover {
+   background: rgba(255, 255, 255, 0.15);
+ }
+
+ paper-icon-button::shadow #ripple {
+   color: #00ca35;
+ }
+
+ /*
+   Fonts
+   */
+ @font-face {
+   font-family: Roboto-Regular;
+   src: url('fonts/Roboto-Regular.ttf') format('truetype');
+   font-weight: normal;
+   font-style: normal;
+ }
+
+ @font-face {
+   font-family: Roboto-Thin;
+   src: url('fonts/Roboto-Thin.ttf') format('truetype');
+   font-weight: normal;
+   font-style: normal;
+ }
+
+ @font-face {
+   font-family: Roboto-Light;
+   src: url('fonts/Roboto-Light.ttf') format('truetype');
+   font-weight: normal;
+   font-style: normal;
+ }
+
+ @font-face {
+   font-family: Roboto-Condensed;
+   src: url('fonts/RobotoCondensed-Regular.ttf') format('truetype');
+   font-weight: normal;
+   font-style: normal;
+ }
+
+ @font-face {
+   font-family: Roboto-Condensed-Light;
+   src: url('fonts/RobotoCondensed-Light.ttf') format('truetype');
+   font-weight: normal;
+   font-style: normal;
+ }
+
+ /*
+   Spezifications for certain Views
+   */
 
 /* mobile-small */
 @media all and (min-width: 0px) and (max-width: 360px) and (orientation: portrait) { }
