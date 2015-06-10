@@ -1,0 +1,18 @@
+@font-face {
+  font-family: 'Cutive Mono';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Cutive Mono'), local('CutiveMono-Regular'), url(http://fonts.gstatic.com/s/cutivemono/v4/N5odNRruTwjvCM8y77PhQag5eI2G47JWe0-AuFtD150.woff2) format('woff2'), url(http://fonts.gstatic.com/s/cutivemono/v4/N5odNRruTwjvCM8y77PhQdIh4imgI8P11RFo6YPCPC0.woff) format('woff');
+}
+@font-face {
+  font-family: 'Merriweather Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Merriweather Sans Regular'), local('MerriweatherSans-Regular'), url(http://fonts.gstatic.com/s/merriweathersans/v5/AKu1CjQ4qnV8MUltkAX3sCou31VW5O-eYvVTEtWD08k.woff2) format('woff2'), url(http://fonts.gstatic.com/s/merriweathersans/v5/AKu1CjQ4qnV8MUltkAX3sB1JpkpdfXqLiJU_2vmgb_g.woff) format('woff');
+}
+@font-face {
+  font-family: 'Quicksand';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Quicksand Regular'), local('Quicksand-Regular'), url(http://fonts.gstatic.com/s/quicksand/v5/sKd0EMYPAh5PYCRKSryvW1tXRa8TVwTICgirnJhmVJw.woff2) format('woff2'), url(http://fonts.gstatic.com/s/quicksand/v5/sKd0EMYPAh5PYCRKSryvWz8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
+}
