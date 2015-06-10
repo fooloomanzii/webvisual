@@ -5,6 +5,7 @@
  */
 var dataModule = require('./data'),
   routes     = require('./routes'),
+  mailHelper = new require('./modules/mailhelper')('exceeds'),
   express    = require('express'),
 	errorHandler = require('express-error-handler'),
   fs         = require('fs'),
@@ -21,21 +22,27 @@ var dataModule = require('./data'),
     locals:{
       dataTimeLabel:"Last Message",
       timeFormat:"dd.MM.yyyy HH:mm:ss",
+
       typeWidth:2,
+
       types: [
         {"room":"",
-         "kind":"",
-         "subtypes":[{"var":"x" , "unit":"", "threshold": []},
-                     {"var":"x" , "unit":"", "threshold": []}]}
+          "kind":"",
+          "subtypes":[{"var":"x" , "unit":"", "threshold": []},
+                      {"var":"x" , "unit":"", "threshold": []}]}
         ],
+
       unnamedType : {"room" : "Raum nicht definiert", "kind" : "Datenmessung "},
       unnamedSubtype : {"var":"x" , "unit":"", "threshold": []},
+
       colors:{
         "under":"#c6ff00",
         "over":"#ff1744",
         "header":[
           {"room":"Raum nicht definiert","color":"#9a9a9a"}
-      ]}}
+        ]
+      }
+    }
   },
 // Configuration, uses default values, if necessary
   config     = defaultsDeep(require('./config/config.json'), defaults),
@@ -63,15 +70,29 @@ _.mixin({
   }
 });
 
+mailHelper.init({
+  from: 'SCADA <webvisual.test@gmail.com>', // sender address
+  to: 'dagnarus@live.ru', // list of receivers
+  subject: 'Data'
+ });
+mailHelper.setType('html');
+mailHelper.setDelay(1000);
+
 /**
  * Configure the app
  */
+var sslOptions  = {
+    key: fs.readFileSync(__dirname + '/ssl/server.key'),
+    cert: fs.readFileSync(__dirname + '/ssl/server.crt'),
+    ca: fs.readFileSync(__dirname + '/ssl/ca.crt'),
+    requestCert: true,
+    rejectUnauthorized: false
+  };
 
 var app    = express(),
-  server = require('http').createServer(app),
-  io     = require('socket.io').listen(server);
+  server = require('https').createServer(sslOptions, app),
+  io    = require('socket.io').listen(server, sslOptions);
 
-// Errors in Server
 server.on('error', function (e) {
     if (e.code == 'EADDRINUSE') {
       console.log('Port '+config.port+' in use, retrying...');
@@ -87,14 +108,10 @@ server.on('error', function (e) {
         config.port, app.settings.env);
   });
 
-// Environments
-/**
- * Development Mode
- */
+// Development
 if ( app.get('env') == 'development' ) {
-  // Make output user readable
+  // Make the Jade output readable
   app.locals.pretty = true;
-  app.locals.env = 'development';
 
   // Error Handler
   app.use(errorHandler({
@@ -104,26 +121,33 @@ if ( app.get('env') == 'development' ) {
 
   // In development mode write the development log in stdout
   logMode = 'dev';
+
+  // Make the Jade output readable and add the environment specification
+  _.extend(app.locals, {
+    env:    'development',
+    pretty: true,
+  });
 }
 
-
-/**
- * Production Mode
- */
+// Production
 if ( app.get('env') == 'production' ) {
+	// In production mode write the log in a seperate file
+	logMode = {
+		format: 'default',
+		stream: fs.createWriteStream(logFile, {flags: 'a'})
+	};
 
+	// Set the environment specification for jade
 	app.locals.env = 'production';
-
-  // In production mode write the log in a seperate file
-  logMode = {
-    format: 'default',
-    stream: fs.createWriteStream(logFile, {flags: 'a'})
-  };
 }
 
-// Configuration for All Environments
-app.set('view engine', 'jade');
-app.set('views', __dirname + "/views");
+// Configure all environments
+	app.set('view engine', 'jade');
+	app.set('views', __dirname + '/views');
+	// Logging middleware
+	// TODO: Dafuer sorgen, dass jede Verbindung nur einmal geloggt wird.
+	// Ergo: Irgendwie die statischen Dateien nicht loggen
+	// app.use(express.logger(logMode));
 
 /**
  * Routing
@@ -146,6 +170,7 @@ app.use(function(req, res) {
 		});
 	}
 });
+
 
 /**
 * Configure Socket.io
@@ -243,11 +268,11 @@ var userCounter = 0,
     socket.emit('data', {states: states});
   }),
 
+
 // The config socket
   configSocket = io.of('/config').on('connection', function(socket){
     socket.emit('data', {locals: config.locals});
   }),
-
 // The data handler - established the data connections
   connections = new DataHandler({
     // Use the default configuration
@@ -275,6 +300,38 @@ var userCounter = 0,
         // Check for threshold exceeds and save it
         currentData.exceeds=threshold.getExceeds(data, function(exceeds){
           // TODO: new exceeds handling in server
+          // var exceedsHTML="", numCols=config.locals.data.typeWidth;
+          // var i;
+          // var pos = exceeds[0].indexOf(true);
+          // if(pos > -1){
+          //   exceedsHTML += "Under the threshold:<br><ul>";
+          //   while(pos > -1){
+          //     exceedsHTML+="<li>";
+          //     i=parseInt(pos/numCols, 10);
+          //     exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
+          //     exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
+          //     exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
+          //     exceedsHTML+="</li>";
+          //     pos = exceeds[0].indexOf(true,pos+1);
+          //   }
+          //   exceedsHTML+="</ul>";
+          // }
+          // pos = exceeds[1].indexOf(true);
+          // if(pos > -1){
+          //   exceedsHTML += "Over the threshold:<br><ul>";
+          //   while(pos > -1){
+          //     exceedsHTML+="<li>";
+          //     i=parseInt(pos/numCols, 10);
+          //     exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
+          //     exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
+          //     exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
+          //     exceedsHTML+="</li>";
+          //     pos = exceeds[1].indexOf(true,pos+1);
+          //   }
+          //   exceedsHTML+="</ul>";
+          // }
+          // if(exceedsHTML) exceedsHTML=currentData.time+":<br>"+exceedsHTML;
+          // mailHelper.appendMsg(exceedsHTML);
         });
 
         // Save the current data
@@ -286,7 +343,6 @@ var userCounter = 0,
     ]
     }
   }),
-
 // The data socket
   dataSocket = io.of('/data').on('connection', function(socket) {
     // Wait till first data will be sent or receive the current data
@@ -296,6 +352,7 @@ var userCounter = 0,
     } else {
       socket.emit('wait');
     }
+
   });
 
 /**
@@ -303,8 +360,19 @@ var userCounter = 0,
  */
 checkstates(); // check states of options
 connections.connect(); // establish all connections
-server.listen(config.port); // get the server running
+server.listen(config.port);
 
+/*mailHelper.startDelayed(function(error,info){
+  if(error){
+    console.log('Mailing error: ' + error);
+  }else{
+    if(info.response) console.log('E-Mail sent: ' + info.response  );
+    else{
+      for( var i in info.pending[0].recipients[0]) console.log(i);
+      console.log('E-Mail sent: ' + info.pending[0].recipients[0]  );
+    }
+  }
+});
 /**
  * Handle various process events
  */
