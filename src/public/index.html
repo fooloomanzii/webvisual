@@ -15,17 +15,47 @@
 </head>
 <body horizontal layout center>
   <paper-drawer-panel force-narrow="true">
-    <div drawer onclick="document.querySelector('paper-drawer-panel').togglePanel();">
-        <paper-item id="overviewButton" class="sidemenu">
-          <iron-icon icon="apps"></iron-icon>Übersicht
-        </paper-item>
-        <paper-item id="tableButton" class="sidemenu">
+    <section drawer onclick="document.querySelector('paper-drawer-panel').togglePanel();">
+      <paper-menu>
+        <paper-button id="tableButton" class="sidemenu">
           <iron-icon icon="list"></iron-icon>Tabelle
-        </paper-item>
-    </div>
+        </paper-button>
+        <paper-button id="overviewButton" class="sidemenu">
+          <iron-icon icon="apps"></iron-icon>Übersicht
+        </paper-button>
+        <paper-button id="tableButton" class="sidemenu">
+          <iron-icon icon="list"></iron-icon>Tabelle
+        </paper-button>
+        <paper-button id="overviewButton" class="sidemenu">
+          <iron-icon icon="apps"></iron-icon>Übersicht
+        </paper-button>
+        <paper-button id="overviewButton" class="sidemenu">
+          <iron-icon icon="apps"></iron-icon>Übersicht
+        </paper-button>
+        <paper-button id="tableButton" class="sidemenu">
+          <iron-icon icon="list"></iron-icon>Tabelle
+        </paper-button>
+        <paper-button id="overviewButton" class="sidemenu">
+          <iron-icon icon="apps"></iron-icon>Übersicht
+        </paper-button>
+        <paper-button id="overviewButton" class="sidemenu">
+          <iron-icon icon="apps"></iron-icon>Übersicht
+        </paper-button>
+        <paper-button id="tableButton" class="sidemenu">
+          <iron-icon icon="list"></iron-icon>Tabelle
+        </paper-button>
+        <paper-button id="overviewButton" class="sidemenu">
+          <iron-icon icon="apps"></iron-icon>Übersicht
+        </paper-button>
+        <paper-button id="overviewButton" class="sidemenu">
+          <iron-icon icon="apps"></iron-icon>Übersicht
+        </paper-button>
+
+      </section>
+    </paper-header-panel>
     <paper-header-panel main class="main">
 
-        <paper-toolbar id="mainToolbar" class="animate has-shadow">
+        <paper-toolbar id="mainToolbar" class="animate">
           <section class="center horizontal layout">
             <paper-icon-button icon="menu" class="mainmenu" paper-drawer-toggle></paper-icon-button>
             <div>Jülich</div>
