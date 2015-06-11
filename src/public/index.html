@@ -14,64 +14,120 @@
 
 </head>
 <body horizontal layout center>
+
+
   <paper-drawer-panel force-narrow="true">
-    <section drawer>
-      <paper-menu>
-        <!-- onclick="document.querySelector('paper-drawer-panel').togglePanel();" -->
-        <paper-button id="tableButton" class="sidemenu">
-          <iron-icon icon="list"></iron-icon>Tabelle
-        </paper-button>
-        <paper-button toggles raised id="overviewButton" class="sidemenu">
-          <iron-icon icon="apps"></iron-icon>Übersicht-
-        </paper-button>
-        <paper-button id="tableButton" class="sidemenu">
-          <iron-icon icon="list"></iron-icon>Tabelle
-        </paper-button>
-        <paper-button id="overviewButton" class="sidemenu">
-          <iron-icon icon="apps"></iron-icon>Übersicht
-        </paper-button>
-        <paper-button id="overviewButton" class="sidemenu">
-          <iron-icon icon="apps"></iron-icon>Übersicht
-        </paper-button>
-        <paper-button id="tableButton" class="sidemenu">
-          <iron-icon icon="list"></iron-icon>Tabelle
-        </paper-button>
-        <paper-button id="overviewButton" class="sidemenu">
-          <iron-icon icon="apps"></iron-icon>Übersicht
-        </paper-button>
-        <paper-button id="overviewButton" class="sidemenu">
-          <iron-icon icon="apps"></iron-icon>Übersicht
-        </paper-button>
-        <paper-button id="tableButton" class="sidemenu">
-          <iron-icon icon="list"></iron-icon>Tabelle
-        </paper-button>
-        <paper-button id="overviewButton" class="sidemenu">
-          <iron-icon icon="apps"></iron-icon>Übersicht
-        </paper-button>
-        <paper-button id="overviewButton" class="sidemenu">
-          <iron-icon icon="apps"></iron-icon>Übersicht
+
+
+    <!-- SIDEMENU -->
+
+    <paper-header-panel drawer id="drawerPanel">
+      <iron-selector selected="0" multi selectable="paper-button.sidemenu">
+
+        <!-- Page Routing -->
+          <!-- onclick="document.querySelector('paper-drawer-panel').togglePanel();" -->
+        <paper-button id="pageview" class="sidemenu" onclick="toggleCollapse(this)">
+          <iron-icon icon="pageview"></iron-icon>Anzeige
         </paper-button>
 
-      </section>
+          <iron-collapse id="collapse-page" class="sidemenu">
+            <section class="collapse-content">
+
+              <iron-selector selected="0">
+                <paper-button><iron-icon icon="view-module"></iron-icon>Übersicht</paper-button>
+                <paper-button><iron-icon icon="view-list"></iron-icon>Tabelle</paper-button>
+                <paper-button><iron-icon icon="assessment"></iron-icon>Graphen</paper-button>
+              </iron-selector>
+
+            </section>
+          </iron-collapse>
+
+        <!-- Main Settings -->
+
+        <paper-button id="settings" class="sidemenu" onclick="toggleCollapse(this)">
+          <iron-icon icon="settings"></iron-icon>Einstellungen
+        </paper-button>
+
+          <iron-collapse id="collapse-settings" class="sidemenu">
+            <section class="collapse-content">
+              <paper-item><div class="flex">Sprachauswahl</div>
+                <paper-tabs selected="1">
+                <paper-tab>en</paper-tab>
+                <paper-tab>de</paper-tab>
+                <paper-tab>fr</paper-tab>
+                <paper-tab>es</paper-tab>
+                <paper-tab>ru</paper-tab>
+              </paper-tabs></paper-item>
+
+
+              <hr>
+              <paper-item>
+                <iron-icon icon="invert-colors"></iron-icon>
+                <section class="flex">Farbschema</section>
+                <paper-toggle-button id="color-schema"></paper-toggle-button>
+              </paper-item>
+
+            </section>
+          </iron-collapse>
+
+        <!-- Log-File -->
+
+        <paper-button id="log" class="sidemenu">
+          <iron-icon icon="history"></iron-icon>Log
+        </paper-button>
+
+
+        <!-- Informations -->
+
+        <paper-button id="information" class="sidemenu" ontab="toggleCollapse()">
+          <iron-icon icon="description"></iron-icon>Informationen
+        </paper-button>
+
+          <iron-collapse id="collapse-information" class="sidemenu">
+            <section class="collapse-content">
+
+            </section>
+          </iron-collapse>
+
+      </iron-selector>
+
     </paper-header-panel>
-    <paper-header-panel main class="main">
-
-        <paper-toolbar id="mainToolbar" class="animate">
-          <section class="horizontal layout">
-            <paper-icon-button icon="menu" class="mainmenu" paper-drawer-toggle></paper-icon-button>
-            <div class="flex">Jülich</div>
-            <paper-icon-button icon="settings-applications" class="mainmenu"></paper-icon-button>
-          </section>
-        </paper-toolbar>
 
 
+    <!-- MAIN VIEW -->
+    <paper-header-panel main id="mainPanel">
+
+      <!-- Toolbar -->
+      <paper-toolbar id="mainToolbar">
+
+        <!-- Upper Part -->
+        <section id="header" class="horizontal layout">
+
+          <!-- Sidemenu Button -->
+          <paper-icon-button icon="menu" class="mainmenu" paper-drawer-toggle></paper-icon-button>
+
+          <!-- Logo -->
+          <div class="flex" onclick="enable()">Jülich</div>
+
+        </section>
+
+        <!-- Lower Part (Collapsible) -->
+        <section id="lower" flex horizontal layout>
+          TODO: add costum content object
+        </section>
       </paper-toolbar>
 
+      <!-- Page Content -->
       <section id="main">
 
         <paper-material elevation="2" role="button">
           blah
         </paper-material>
+
+        <!-- Page Options -->
+        <paper-fab mini disabled icon="extension" id="extension" class="submenu" onclick="expand()"></paper-fab>
+
+        <paper-material class="submenu" elevation="2">TODO: add iron-over-lay-behavior</paper-material>
       </section>
     </paper-header-panel>
   </paper-drawer-panel>
@@ -79,6 +135,16 @@
   <script>
     function lift(){
       $('paper-material').attr('elevation','5');
+    }
+    function expand(){
+      $('paper-toolbar').css('height','10em');
+      $('paper-material.submenu').addClass("active");
+    }
+    function enable(){
+      $('paper-fab').attr("disabled", false);
+    }
+    function toggleCollapse(sender){
+      sender.nextElementSibling.toggle();
     }
   </script>
 </body>
