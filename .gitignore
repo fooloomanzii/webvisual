@@ -20,7 +20,7 @@ src/public-src
 src/test/OLD/*.txt
 
 # Logs #
-*.log
+# *.log
 
 # Other files #
 *desktop.ini
