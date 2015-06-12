@@ -2,19 +2,19 @@
 /**
  * Module dependencies
  */
-var dataModule   = require('./data'),                             // custom: DATAMODULE
+var dataModule   = require('./data'),                               // custom: DATAMODULE
     routes       = require('./routes'),                             // custom: ROUTING
     mailHelper   = new require('./modules/mailhelper')('exceeds'),  // custom: MAILHELPER
     express      = require('express'),                              // EXPRESS
-	  errorHandler = require('express-error-handler'),              // EXPRESS-ERROR-HANDLER
+	  errorHandler = require('express-error-handler'),                // EXPRESS-ERROR-HANDLER
     fs           = require('fs'),               // FS <-- File System
     _            = require('underscore'),       // UNDERSCORE <-- js extensions
-    defaultsDeep = require('merge-defaults'), // DEFAULTSDEEP <-- extended underscrore/lodash _.defaults, for default-value in   deeper structures
-    morgan       = require('morgan'),               // MORGAN <-- logger
+    defaultsDeep = require('merge-defaults'),   // DEFAULTSDEEP <-- extended underscrore/lodash _.defaults, for default-value in   deeper structures
+    morgan       = require('morgan'),           // MORGAN <-- logger
 
     // Class variables
-    threshold    = dataModule.threshold,       // extension: of DATAMODULE
-    DataHandler  = dataModule.DataHandler,     // extension: of DATAMODULE
+    threshold    = dataModule.threshold,        // extension: of DATAMODULE
+    DataHandler  = dataModule.DataHandler,      // extension: of DATAMODULE
 
     // Default config
     defaults     = { connections : [],
