@@ -60,7 +60,7 @@ var
       // The watching mode ('all', 'append', 'prepend')
       mode: 'all',
       // Default file: Same dir as the "master" script
-      path: __dirname+'/../data.txt',
+      path: __dirname+'/../../data/data.txt',
       // The default parse function from the data_parser module
       process: data_parser.parse
     },
@@ -208,7 +208,7 @@ connectionFn.file = {
   connect: function(config, emitter) {
     // Log
     console.log("Started watching \""+path_util.basename(config.path)+"\"");
-    
+
     // Add the function which recieves the parsed data; calls the emitter
     config.content = emitter;
 
@@ -237,8 +237,8 @@ connectionFn.udp = {
    * @param  {Object} config The configuration for the UDP connection
    * @return {Object} An UDP connection object
    */
-  connect: function(config, emitter) {  
-    
+  connect: function(config, emitter) {
+
     // Add the function which recieves the parsed data; calls the emitter
     config.content = emitter;
 
@@ -432,7 +432,7 @@ DataHandler = (function() {
       // Add the listener to the event
       this._emitter.on(eventName, listener);
     };
-    
+
     /**
      * Established all connections
      */
@@ -448,7 +448,7 @@ DataHandler = (function() {
         );
       });
     };
-    
+
     /**
      * Closes all connections
      */

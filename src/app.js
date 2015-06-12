@@ -1,68 +1,39 @@
 'use strict';
-
 /**
  * Module dependencies
  */
-var dataModule = require('./data'),
-  routes     = require('./routes'),
-  mailHelper = new require('./modules/mailhelper')('exceeds'),
-  express    = require('express'),
-	errorHandler = require('express-error-handler'),
-  fs         = require('fs'),
-  _          = require('underscore'),
-  defaultsDeep = require('merge-defaults'), //extended _.defaults
-// Class variables
-  threshold   = dataModule.threshold,
-  DataHandler = dataModule.DataHandler,
-// Default config
-  defaults = {
-    connections: [],
-    command_file: 'commands.json',
-    port: 3000,
-    locals:{
-      dataTimeLabel:"Last Message",
-      timeFormat:"dd.MM.yyyy HH:mm:ss",
+var dataModule   = require('./data'),                             // custom: DATAMODULE
+    routes       = require('./routes'),                             // custom: ROUTING
+    mailHelper   = new require('./modules/mailhelper')('exceeds'),  // custom: MAILHELPER
+    express      = require('express'),                              // EXPRESS
+	  errorHandler = require('express-error-handler'),              // EXPRESS-ERROR-HANDLER
+    fs           = require('fs'),               // FS <-- File System
+    _            = require('underscore'),       // UNDERSCORE <-- js extensions
+    defaultsDeep = require('merge-defaults'), // DEFAULTSDEEP <-- extended underscrore/lodash _.defaults, for default-value in   deeper structures
+    morgan       = require('morgan'),               // MORGAN <-- logger
 
-      typeWidth:2,
+    // Class variables
+    threshold    = dataModule.threshold,       // extension: of DATAMODULE
+    DataHandler  = dataModule.DataHandler,     // extension: of DATAMODULE
 
-      types: [
-        {"room":"",
-          "kind":"",
-          "subtypes":[{"var":"x" , "unit":"", "threshold": []},
-                      {"var":"x" , "unit":"", "threshold": []}]}
-        ],
+    // Default config
+    defaults     = { connections : [],
+                     command_file: 'commands.json',
+                     port        : 3000,
+    },
 
-      unnamedType : {"room" : "Raum nicht definiert", "kind" : "Datenmessung "},
-      unnamedSubtype : {"var":"x" , "unit":"", "threshold": []},
+    // Configuration from config-file, uses default values, if necessary
+    config       = defaultsDeep(require('./config/config.json'), defaults),
 
-      colors:{
-        "under":"#c6ff00",
-        "over":"#ff1744",
-        "header":[
-          {"room":"Raum nicht definiert","color":"#9a9a9a"}
-        ]
-      }
-    }
-  },
-// Configuration, uses default values, if necessary
-  config     = defaultsDeep(require('./config/config.json'), defaults),
-  logFile    = __dirname + '/log.txt',
-  logMode,
-  commands,
-// Command object
-  cmd_txt = {
-    "on": ((config.states && config.states[0]) ? config.states[0] : "ON"),
-    "off": ((config.states && config.states[1]) ? config.states[1] : "OFF")
-  },
-// Function that receives errors
-  errfunc = function(err,socket) {
-    console.log('error');
-    socket.emit('error', {data: err});
-    return;
-  };
+    // Server-Log-File and -Mode (used by MORGAN)
+    // TODO: if necessary, catch different HTTP errors, or other errors
+    serverLogFile    = __dirname + config.files.server_log.relative_path + config.files.server_log.file_name,
+    serverLogMode    = { stream: fs.createWriteStream(serverLogFile, {flags: 'a'}),
+                       skip: function (req, res) { return res.statusCode < 400 }}
+    ;
 
 /**
- * Extend Underscore
+ * Extend UNDERSCORE
  */
 _.mixin({
   exclone: function(object, extra) {
@@ -70,17 +41,11 @@ _.mixin({
   }
 });
 
-mailHelper.init({
-  from: 'SCADA <webvisual.test@gmail.com>', // sender address
-  to: 'dagnarus@live.ru', // list of receivers
-  subject: 'Data'
- });
-mailHelper.setType('html');
-mailHelper.setDelay(1000);
-
 /**
- * Configure the app
+ * Configure the APP
  */
+
+// Configure SSL Encription
 var sslOptions  = {
     key: fs.readFileSync(__dirname + '/ssl/server.key'),
     cert: fs.readFileSync(__dirname + '/ssl/server.crt'),
@@ -89,10 +54,23 @@ var sslOptions  = {
     rejectUnauthorized: false
   };
 
+// General
 var app    = express(),
-  server = require('https').createServer(sslOptions, app),
-  io    = require('socket.io').listen(server, sslOptions);
+    server = require('https').createServer(sslOptions, app),
+    io     = require('socket.io').listen(server, sslOptions);
 
+// Path to static folder
+app.use(express.static(__dirname + '/public'));
+
+// Configure VIEW ENGINE
+app.set('view engine', 'jade');
+app.set('views', __dirname + '/views');
+
+/**
+ * Defining Errors
+ */
+
+// if Error: EADDRINUSE --> log in console
 server.on('error', function (e) {
     if (e.code == 'EADDRINUSE') {
       console.log('Port '+config.port+' in use, retrying...');
@@ -108,57 +86,41 @@ server.on('error', function (e) {
         config.port, app.settings.env);
   });
 
-// Development
-if ( app.get('env') == 'development' ) {
-  // Make the Jade output readable
-  app.locals.pretty = true;
+// if Error: Defined in serverLogMode, which kind of errors, are written in SERVERLOGFILE by MORGAN
+app.use(morgan('short', serverLogMode));
 
-  // Error Handler
-  app.use(errorHandler({
-    dumpExceptions: true,
-    showStack:      true
-  }));
-
-  // In development mode write the development log in stdout
-  logMode = 'dev';
-
-  // Make the Jade output readable and add the environment specification
-  _.extend(app.locals, {
-    env:    'development',
-    pretty: true,
-  });
-}
-
-// Production
-if ( app.get('env') == 'production' ) {
-	// In production mode write the log in a seperate file
-	logMode = {
-		format: 'default',
-		stream: fs.createWriteStream(logFile, {flags: 'a'})
-	};
-
-	// Set the environment specification for jade
-	app.locals.env = 'production';
-}
-
-// Configure all environments
-	app.set('view engine', 'jade');
-	app.set('views', __dirname + '/views');
-	// Logging middleware
-	// TODO: Dafuer sorgen, dass jede Verbindung nur einmal geloggt wird.
-	// Ergo: Irgendwie die statischen Dateien nicht loggen
-	// app.use(express.logger(logMode));
+      // handling ENVIRONMENTS
+      // TODO: find better seperation, what to do in differnet production environments
+      // Development
+      if ( app.get('env') == 'development' ) {
+        // Make the Jade output readable
+        app.locals.pretty = true;
+        // Make the Jade output readable and add the environment specification
+        _.extend(app.locals, {
+          env:    'development',
+          pretty: true,
+        });
+      }
+      // Production
+      if ( app.get('env') == 'production' ) {
+      	// Set the environment specification for jade
+      	app.locals.env = 'production';
+      }
 
 /**
  * Routing
  */
 
-// app.get(['/', '/home', '/index'], routes.index);
-// app.get('/table', routes.table);
+// Route: Default, Home, Index
+app.get('/', routes.index);
 
-// Path to static folder
-app.use(express.static(__dirname + '/public'));
-// Custom 404 page
+// Route: External Log File
+app.get('/logfile', routes.externalLogFile);
+
+// Route: Data File
+app.get('/datafile', routes.dataFile);
+
+// Error: Custom 404 page
 app.use(function(req, res) {
 	res.status(404);
 
@@ -171,9 +133,8 @@ app.use(function(req, res) {
 	}
 });
 
-
 /**
-* Configure Socket.io
+* Configure SOCKET.IO (watch the data file)
 */
 
 // Just print warnings
@@ -185,103 +146,20 @@ var userCounter = 0,
   waitFirst = true,
   states={},
   connections,
-// Checks the funktions_file for new functions and command_file for available states;
-// reading synchronously isn't a problem here, since this just happens on startup
-  checkstates = function() {
-    commands={};
 
-    //if command file exists, read the data from there
-    if(fs.existsSync(config.command_file)) {
-      try{
-        commands = JSON.parse(fs.readFileSync(config.command_file, 'utf8'));
-      } catch (err) {
-        if (err.code == 'EBUSY') { //the file is busy
-          console.log("Can't read file ''"+config.command_file+"'");
-        } else { //the file has incorrect JSON data, the backup will be made
-          var newname = config.command_file+'.bak',
-            i=1;
-          while(fs.existsSync(newname)){
-            newname=config.command_file+'.bak_'+i;
-            i++;
-          }
-          fs.renameSync(config.command_file,newname);
-          console.log("File "+config.command_file+
-                " has incorrect JSON data and was renamed to "+newname);
-        }
-      }
-    }
-    // be sure, that functions are there
-    if(!commands.functions){
-      commands.functions={};
-    }
-    // Check all existing states from command_file.
-    // If command_file hasen't any function or the state is wrong,
-    // it will be checked in config.
-    // Wrong states in config will become a value 'true'.
-    for(var func in config.functions) {
-      if(commands.functions[func] &&
-          (commands.functions[func]===cmd_txt.on ||
-              commands.functions[func]===cmd_txt.off)){
-        states[func]=(commands.functions[func] !== cmd_txt.off);
-      } else {
-        states[func]=(config.functions[func] !== cmd_txt.off);
-        commands.functions[func]=(states[func]?cmd_txt.on:cmd_txt.off);
-      }
-    }
-    try{
-      fs.writeFileSync(config.command_file, JSON.stringify(commands, null, "\t"));
-    } catch (err) {
-        console.log(err);
-    }
-  },
-// A set of commands which can be executed when the command event is fired;
-// the cmd_onoff is used to assign the same function to multiple elements
-  cmd_onoff, cmd_fnct = {
-    "off": (cmd_onoff = function(socket, command) {
-      //Changes the state
-      states[command[0]] = (command[1] !== "off");
-      // Emits the command so the other notice that something happened
-      optionsSocket.emit('command', {cmd: command});
-      // Write a command into the config
-      commands.functions[command[0]]=command[1];
-      fs.writeFile(config.command_file, JSON.stringify(commands, null, "\t"),
-          function(err){
-        if(err) errfunc(err,socket);
-      });
-    }),
-    "on": cmd_onoff
-  },
-// The options socket
-  optionsSocket = io.of('/options').on('connection', function(socket) {
-    // Listen for the command event
-    socket.on('command', function(message) {
-      if(message === undefined || message.cmd === undefined) {
-        return;
-      }
-      var command = message.cmd;
-      // Execute the given command
-
-      if(cmd_fnct[command[1]]) cmd_fnct[command[1]](socket, command);
-    });
-
-    // Send the data
-    socket.emit('data', {states: states});
-  }),
-
-
-// The config socket
+// Config Socket
   configSocket = io.of('/config').on('connection', function(socket){
     socket.emit('data', {locals: config.locals});
   }),
-// The data handler - established the data connections
+// DATAHANDLER - established the data connections
   connections = new DataHandler({
-    // Use the default configuration
+    // Use the Configuration
     connection: config.connections,
     listener: {
       error: function(type, err) {
         dataSocket.emit('mistake', { data: err, time: new Date()});
       },
-    data: [
+      data: [
 
       // SocketIO Listener
       function(type, data) {
@@ -343,7 +221,7 @@ var userCounter = 0,
     ]
     }
   }),
-// The data socket
+// Data Socket
   dataSocket = io.of('/data').on('connection', function(socket) {
     // Wait till first data will be sent or receive the current data
     // as 'first' for every Client
@@ -356,11 +234,24 @@ var userCounter = 0,
   });
 
 /**
- * Get it running!
+ * Get SERVER running!
  */
-checkstates(); // check states of options
+
 connections.connect(); // establish all connections
 server.listen(config.port);
+
+
+
+/**
+ * Init MAILHELPER
+ */
+// mailHelper.init({
+//   from: 'SCADA <webvisual.test@gmail.com>', // sender address
+//   to: 'dagnarus@live.ru', // list of receivers
+//   subject: 'Data'
+//  });
+// mailHelper.setType('html');
+// mailHelper.setDelay(1000);
 
 /*mailHelper.startDelayed(function(error,info){
   if(error){
@@ -373,6 +264,8 @@ server.listen(config.port);
     }
   }
 });
+
+
 /**
  * Handle various process events
  */

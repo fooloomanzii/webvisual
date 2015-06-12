@@ -1,7 +1,16 @@
 {
   "connections": [ "file" , "udp" ],
   "port": 3000,
-	"data_file":"data.txt",
+	"files": {
+    "data":         {"relative_path": "/../../data/",
+                     "file_name"    : "data.txt"},
+    "external_log": {"relative_path": "/../../logs/",
+                     "file_name"    : "log.log"},
+    "server_log":   {"relative_path": "/../logs/",
+                     "file_name"    : "server.log"},
+    "udp_log":      {"relative_path": "/../../logs/udp/",
+                     "file_name"    : "server.log"}
+  },
 	"states":[
 		"on",
 		"off"
