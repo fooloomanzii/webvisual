@@ -27,13 +27,13 @@ exports.index = route('index', { title: 'WebVisual' });
 
 // External Logfile (file path from config.json)
 exports.externalLogFile = function(req, res) {
-  var filepath = path.resolve(__dirname + config.files.external_log.relative_path + config.files.external_log.file_name);
+  var filepath = path.resolve(__dirname + config.paths.external_log);
   res.sendfile(filepath);
 };
 
 // Data File        (file path from config.json)
 exports.dataFile = function(req, res) {
-  var filepath = path.resolve(__dirname + config.files.data.relative_path + config.files.data.file_name);
+  var filepath = path.resolve(__dirname + config.paths.file);
   res.sendfile(filepath);
 };
 

@@ -1,15 +1,11 @@
 {
   "connections": [ "file" , "udp" ],
   "port": 3000,
-	"files": {
-    "data":         {"relative_path": "/../../data/",
-                     "file_name"    : "data.txt"},
-    "external_log": {"relative_path": "/../../logs/",
-                     "file_name"    : "log.log"},
-    "server_log":   {"relative_path": "/../logs/",
-                     "file_name"    : "server.log"},
-    "udp_log":      {"relative_path": "/../../logs/udp/",
-                     "file_name"    : "server.log"}
+	"paths": {
+    "file":         "/../../data/data.txt",
+    "udp":          "/../../data/udp/received.log",
+    "external_log": "/../../logs/log.log",
+    "server_log":   "/../logs/server.log"
   },
 	"states":[
 		"on",
