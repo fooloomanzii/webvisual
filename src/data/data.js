@@ -37,13 +37,14 @@
 
 var
 // Own modules
-  udpwatch    = require('../modules/udpwatch'),
-  copywatch   = require('../modules/copywatch'),
-  data_parser = require('../modules/data_parser'),
-  path_util   = require('path'),
+  udpwatch     = require('../modules/udpwatch'),
+  copywatch    = require('../modules/copywatch'),
+  data_parser  = require('../modules/data_parser'),
+  path_util    = require('path'),
 // Node modules
-  net      = require('net'),
-  _        = require('underscore'),
+  net          = require('net'),
+  _            = require('underscore'),
+  defaultsDeep = require('merge-defaults'),
 // Mailer variables and log in information
   // mail, icsMail = require('./mail.json'),
 // Class
@@ -60,7 +61,7 @@ var
       // The watching mode ('all', 'append', 'prepend')
       mode: 'all',
       // Default file: Same dir as the "master" script
-      path: __dirname+'/../../data/data.txt',
+      path: '/../../data/data.txt',
       // The default parse function from the data_parser module
       process: data_parser.parse
     },
@@ -68,7 +69,7 @@ var
       // We don't need to make a copy of the data
       log: false,
       // TODO: used log_file, if logging
-      path: __dirname+'/../../data/udp/received.log',
+      path: '/../../data/udp/received.log',
       // The watching mode ('all', 'append', 'prepend')
       mode: 'append',
       // Default port for receiving the data from the source
@@ -214,10 +215,10 @@ connectionFn.file = {
     config.content = emitter;
 
     // Start watching the file
-    copywatch.watch(config.mode, config.path, config);
+    copywatch.watch(config.mode, __dirname + config.path, config);
 
     // Return the necessary data to end the watcher
-    return { path: config.path, remove: config.copy };
+    return { path: __dirname + config.path, remove: config.copy };
   }
 };
 
@@ -276,13 +277,13 @@ dataHandler = (function() {
     if( !(this instanceof _Class) ) return new _Class(config);
 
     // Use defaults for undefined values
-    _(config).defaults(defaults);
+    config = defaultsDeep(config,defaults);
 
     // Add a instance of the EventEmitter
     this._emitter = new EventEmitter();
 
     // Validate and process the connections
-    this._connect(config.connection, config.paths);
+    this._connect(config.connection);
 
     // Process the given listener
     this._addListener(config.listener);
@@ -291,8 +292,7 @@ dataHandler = (function() {
   // Extend with properties; null values are just place holder for instantiated properties
   _(_Class.prototype).extend({
     _emitter    : null,
-    _connections: {},
-    _paths: {}
+    _connections: {}
   });
 
   /////////////////////
@@ -353,7 +353,7 @@ dataHandler = (function() {
    *                             OR
    *                             A simple array which specifies which connections should be established.
    */
-  _Class.prototype._connect = function(connection, paths) {
+  _Class.prototype._connect = function(connection) {
     var connectionConfig = {},
       self = this;
     // Check if the connection option is an object but not an array
@@ -390,7 +390,7 @@ dataHandler = (function() {
     }
 
     // Fill the connectionConfig with default values, if necessary
-    _(connectionConfig).defaults(connectionDefaults);
+    connectionConfig = defaultsDeep(connectionConfig,connectionDefaults);
 
     // Ensure the array of strings describe actually valid connection types; throw an error in case of an invalid type
     // Also ensure that the keys are actually all lower case

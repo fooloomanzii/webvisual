@@ -23,7 +23,7 @@
     <!-- SIDEMENU -->
 
     <paper-header-panel drawer id="drawerPanel">
-      <iron-selector selected="0" multi selectable="paper-button.sidemenu">
+      <iron-selector selected="0" selectable="paper-button.sidemenu">
 
         <!-- Page Routing -->
           <!-- onclick="document.querySelector('paper-drawer-panel').togglePanel();" -->
@@ -71,6 +71,8 @@
             </section>
           </iron-collapse>
 
+      </iron-selector>
+
         <!-- Log-File -->
 
         <paper-button id="log" class="sidemenu">
@@ -89,8 +91,6 @@
 
             </section>
           </iron-collapse>
-
-      </iron-selector>
 
     </paper-header-panel>
 
@@ -121,15 +121,17 @@
       <!-- Page Content -->
       <section id="main">
 
-        <paper-material elevation="2" role="button">
-          blah
+        <paper-material elevation="2" class="inner">
+          <section style="white-space: normal;" class="inner">1241623591648931rzuqfjbc1ihr12cpu1rcnu1conrpu1rmco1crn or 1pcnou opjmpo</section>
         </paper-material>
 
         <!-- Page Options -->
         <paper-fab mini disabled icon="extension" id="extension" class="submenu" onclick="expand()"></paper-fab>
 
-        <paper-material class="submenu" elevation="2">TODO: add iron-over-lay-behavior</paper-material>
+
       </section>
+
+      <paper-material class="submenu" elevation="2" onclick="insertTest()"></paper-material>
     </paper-header-panel>
   </paper-drawer-panel>
 
@@ -143,9 +145,16 @@
     }
     function enable(){
       $('paper-fab').attr("disabled", false);
+
+      $.get( "/data", function( response ) {
+        $('.inner').after("<p>"+response+"</p>");
+      });
     }
     function toggleCollapse(sender){
       sender.nextElementSibling.toggle();
+    }
+    function insertTest(){
+      $('paper-material.submenu').text(JSON.stringify($.get("data")));
     }
   </script>
 </body>

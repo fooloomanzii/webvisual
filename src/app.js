@@ -27,7 +27,7 @@ var dataModule   = require('./data'),                               // custom: D
 
     // Server-Log-File and -Mode (used by MORGAN)
     // TODO: if necessary, catch different HTTP errors, or other errors
-    serverLogFile    = __dirname + config.paths.server_log,
+    serverLogFile    = __dirname + config.logs.server_log,
     serverLogMode    = { stream: fs.createWriteStream(serverLogFile, {flags: 'a'}),
                        skip: function (req, res) { return res.statusCode < 400 }}
     ;
@@ -115,10 +115,10 @@ app.use(morgan('short', serverLogMode));
 app.get('/', routes.index);
 
 // Route: External Log File
-app.get('/logfile', routes.externalLogFile);
+app.get('/log', routes.externalLogFile);
 
 // Route: Data File
-app.get('/datafile', routes.dataFile);
+app.get('/data', routes.dataFile);
 
 // Error: Custom 404 page
 app.use(function(req, res) {
@@ -154,7 +154,6 @@ var userCounter = 0,
   connections = new dataHandler( {
     // Object used the Configuration
     connection: config.connections,
-    files: config.paths,
     listener: {
       error: function(type, err) {
         dataSocket.emit('mistake', { data: err, time: new Date()});
