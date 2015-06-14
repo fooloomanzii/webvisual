@@ -10,6 +10,7 @@
     "tests"
   ],
   "dependencies": {
+    "jquery": "~2.1.4",
     "polymer": "Polymer/polymer",
     "paper-elements": "PolymerElements/paper-elements",
     "iron-icons": "PolymerElements/iron-icons",
@@ -17,7 +18,7 @@
     "iron-iconset": "PolymerElements/iron-iconset",
     "iron-collapse": "PolymerElements/iron-collapse",
     "iron-pages": "PolymerElements/iron-pages",
-    "jquery": "~2.1.4"
+    "iron-ajax": "PolymerElements/iron-ajax"
   },
-  "devDependencies": { }
+  "devDependencies": {}
 }

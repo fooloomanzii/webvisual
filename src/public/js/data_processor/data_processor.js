@@ -33,7 +33,7 @@
   // (if the Client is ready)
     $(document).ready(function() {
       //TODO Error/Waiting page if connection to sockets is impossible
-      
+
       // Start of the Server Connection to the Config file
       // (at present "config/config.json")
       var configSocket = io.connect('https://'+window.location.host+'/config', {secure: true});
@@ -49,6 +49,11 @@
 
         // Function call: Read the Config file
         arrangeLabels(message.locals);
+
+        // Test to send local configuration to an element
+        // TODO: Send dynamiccly data-file, logs and configuration to dialogs
+        // $('#localConfiguration').text(
+        //     JSON.stringify(message.locals));
 
         // Establish connection to the Data File
         // (if a Config File was read, see above)

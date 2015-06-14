@@ -4,11 +4,11 @@
     "file": {
       "copy": false,
       "mode": "all",
-      "path": "/../../data/data.txt"
+      "path": "/../../data/data2.txt"
       },
     "udp": {
       "log": false,
-      "path": "/../../data/udp/received.log",
+      "log_path": "/../../data/udp/",
       "mode": "append",
       "port": 4000
       }
@@ -35,7 +35,7 @@
     "typeWidth":2,
 
     "types": [
-      { "id":"127.148.138.1",
+      { "id":"127.148.138.2",
         "room":"Raum A",
         "kind":"Chlor",
         "subtypes":[{"var":"Druck" , "unit":"mPa", "threshold": [2,10]},

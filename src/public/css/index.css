@@ -1,0 +1,108 @@
+/* SIDEMENU & SUBMENU */
+
+/*
+ * Submenu
+ */
+
+paper-fab#extension {
+  opacity: 0.3;
+  position: fixed;
+  bottom: 0.5em;
+  right: -0.5em;
+}
+
+paper-fab#extension:hover {
+  opacity: 1;
+}
+
+paper-button.sidemenu {
+  margin: 0.25em 0em;
+  width: 100%;
+}
+
+.collapse-content paper-button {
+  margin: 0em;
+}
+
+.collapse-content {
+  margin-left: 1em;
+  width: calc(100% - 1em);
+}
+
+/* Dialogs */
+
+paper-dialog paper-button {
+  margin: 0em 0.1em;
+}
+
+paper-dialog.sidemenu {
+  top: 0px;
+  right: 0px;
+  margin: 1.5em;
+  position: fixed;
+  width: calc(100vw - 3em);
+}
+
+paper-dialog.submenu {
+  border-radius: 0px 5px 0px 0px;
+  position: fixed;
+  margin: 0em 0em;
+  bottom: 0em;
+  left: 0em;
+  height: 10em;
+  width: calc(100vw - 4em);
+}
+
+/* Sidemenu */
+
+.collapse-content paper-button {
+  width: 100%;
+}
+
+.collapse-content paper-toggle-button {
+  padding: 0.5em;
+}
+
+.collapse-content paper-tabs {
+  border-top: thin solid white;
+  border-bottom: thin solid white;
+}
+
+/* Screens */
+/* mobile-small */
+@media all and (min-width: 0px) and (max-width: 360px) and (orientation: portrait) {
+}
+/* mobile-large */
+@media all and (min-width: 361px) and (orientation: portrait) {
+}
+/* mobile-small-landscape */
+@media all and (min-width: 0px) and (max-width: 480px) and (orientation: landscape) {
+}
+/* mobile-large-landscape */
+@media all and (min-width: 481px) and (orientation: landscape) { }
+/* tablet-small-landscape */
+@media all and (min-width: 600px) and (max-width: 960px) and (orientation: landscape) { }
+/* tablet-large-landscape */
+@media all and (min-width: 961px) and (orientation: landscape) { }
+
+@media all and (min-width: 480px) and (max-width: 600px) and (orientation : landscape) {
+  paper-dialog.sidemenu {
+    width: calc(100vw - 16em);
+  }
+}
+@media all and (min-width: 600px) and (max-width: 840px) and (orientation: portrait) {
+  paper-dialog.sidemenu {
+    width: calc(100vw - 16em);
+  }
+}
+@media all and (min-width: 600px) and (max-width: 840px) and (orientation : landscape) {
+  paper-dialog.sidemenu {
+    width: calc(100vw - 21em);
+  }
+}
+@media all and (min-width: 840px) {
+  paper-dialog.sidemenu {
+    width: calc(100vw - 24em);
+    margin: 1.5em 3em;
+  }
+}

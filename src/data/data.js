@@ -68,8 +68,8 @@ var
     "udp": {
       // We don't need to make a copy of the data
       log: false,
-      // TODO: used log_file, if logging
-      path: '/../../data/udp/received.log',
+      // TODO: use log_file, if logging
+      log_path: '/../../data/udp/',
       // The watching mode ('all', 'append', 'prepend')
       mode: 'append',
       // Default port for receiving the data from the source

@@ -16,7 +16,11 @@
     font-size: 1em;
     font-weight: normal;
     text-align: left;
+    line-height: 1.4rem;
     text-rendering: optimizeLegibility;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    word-wrap: break-word;
 
     --dark-primary-color: #345475; /* Primary Colors */
     --default-primary-color:#005B82;
@@ -29,7 +33,7 @@
 
     --default-primary-text-color: #1d1d1d;
     --default-secondary-text-color: #f1f1f1;
-    --default-disabled-text-color: #c6d2c8;
+    --default-disabled-text-color: #a8a8a8;
     --dark-primary-text-color: #9c9c9c;
     --dark-secondary-text-color: #444444;
     --dark-disabled-text-color: #c6d2c8;
@@ -46,7 +50,8 @@
     --default-button-color: rgba(255, 255, 255, 0.0);
     --dark-button-color: rgba(255, 255, 255, 0.5);
 
-    --default-drawer-color: rgba(255, 255, 255, 0.7);
+    --primary-drawer-color: rgba(255, 255, 255, 0.75);
+    --secondary-drawer-color: rgba(255, 255, 255, 0.5);
     --dark-drawer-color: var(--default-primary-color);
 
     --ink-color: rgb(0, 202, 53);; /* Effects */
@@ -63,12 +68,15 @@
     --paper-fab-background: var(--light-primary-color);
     --paper-fab-keyboard-focus-background: var(--light-primary-color);
     --paper-icon-button-ink-color: var(--ink-color);
+    --paper-tabs-selection-bar-color: var(--selected-color);
+    --paper-tab-ink: var(--secondary-hover-color);
+    --paper-dialg-background-color: var(--default-primary-background-color);
+    --paper-dialog-button-color: var(--dark-primary-color);
 
     /* Mixins*/
-    --button-theme: {
+    --paper-button: {
         border-radius: 3px;
         min-height: none;
-        margin: 0em;
         padding: 0.2em;
         background: var(--default-button-color);
         color: currentColor;
@@ -81,6 +89,10 @@
         -ms-user-select: none;
         user-select: none;
         transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      };
+
+    --paper-button-disabled: {
+        color: var(--default-disabled-text-color);
       };
 
     --item-theme: {
@@ -138,13 +150,19 @@
         font-weight: normal;
         };
 
+    --paper-tabs: {
+        font-family: Roboto-Condensed;
+        margin: 0em;
+        padding: 0em;
+        background: none;
+        };
+
     --default-transition: {
       transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     };
 }
 
 /* General styles */
-
 
 body {
   background-color: var(--default-secondary-background-color);
@@ -153,7 +171,7 @@ body {
 paper-drawer-panel {
   --paper-drawer-panel-left-drawer-container: {
       color: var(--default-primary-text-color);
-      background-color: var(--default-drawer-color);
+      background-color: var(--primary-drawer-color);
       align-items: center;
       };
   }
@@ -162,11 +180,39 @@ paper-toolbar {
   @apply(--toolbar-theme)
 }
 
+/*
+ * Items, Buttons and Icons
+ */
+
 paper-icon-button {
   @apply(--icon-button-theme)
 }
 
 iron-icon {
+  @apply(--icon-button-theme)
+}
+
+paper-item {
+  @apply(--item-theme)
+}
+
+paper-button {
+  @apply(--button-theme)
+}
+
+paper-item:hover {
+  background: var(--secondary-hover-color);
+}
+
+paper-button:hover {
+  background: var(--secondary-hover-color);
+}
+
+paper-button::shadow paper-ripple {
+  color: var(--ink-color);
+}
+
+paper-fab {
   @apply(--icon-button-theme)
 }
 
@@ -178,77 +224,6 @@ paper-icon-button:hover {
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
               0 1px 5px 0 rgba(0, 0, 0, 0.12),
               0 3px 1px -2px rgba(0, 0, 0, 0.2);
-}
-
-paper-fab {
-  opacity: 0.3;
-  @apply(--icon-button-theme)
-}
-
-paper-fab:hover {
-  opacity: 1;
-}
-
-paper-fab.submenu#extension {
-  position: fixed;
-  bottom: 0.5em;
-  right: -0.5em;
-}
-
-paper-item {
-  @apply(--item-theme)
-}
-
-paper-item:hover {
-  background: var(--secondary-hover-color);
-}
-
-/*.collapse-content > paper-item:hover {
-  background: inherit;
-}*/
-
-paper-material {
-  border-radius: 2px;
-  padding: 1em 0.5em;
-  margin: 0.5em;
-  background: var(--default-primary-background-color);
-  @apply(--default-transition)
-}
-
-paper-material.submenu {
-  position: fixed;
-  bottom: -13em;
-  left: 0em;
-  height: 10em;
-  width: calc(100vw - 2em);
-}
-
-paper-material.submenu.active {
-  bottom: -0.5em;
-}
-
-paper-button {
-  @apply(--button-theme)
-}
-
-paper-button:hover {
-  background: var(--secondary-hover-color);
-}
-
-paper-button::shadow paper-ripple {
-  color: var(--ink-color);
-}
-
-paper-button.sidemenu {
-  margin: 0.5em 0em ;
-}
-
-iron-selector paper-button {
-  width: 100%;
-}
-
-paper-toggle-button {
-  padding: 0.5em;
 }
 
 paper-toggle-button#color-schema {
@@ -266,6 +241,22 @@ paper-toggle-button#color-schema {
     var(--default-primary-color);
 }
 
+/*
+ * Paper-Material
+ */
+
+paper-material {
+ border-radius: 2px;
+ padding: 1em 0.5em;
+ margin: 0.5em;
+ background: var(--default-primary-background-color);
+ @apply(--default-transition)
+}
+
+/*
+ * Iron-Selected
+ */
+
 .iron-selected {
   font-weight: normal;
   color: var(--dark-primary-color);
@@ -276,102 +267,98 @@ paper-toggle-button#color-schema {
               0 3px 1px -2px rgba(0, 0, 0, 0.2);*/
 }
 
+/*
+ * Collapse
+ */
+
 iron-collapse {
   outline: none;
 }
 
 .collapse-content {
-  margin-left: 1em;
-  width: calc(100% - 1em);
-  background-color: var(--primary-hover-color);
+  background-color: var(--secondary-drawer-color);
 }
 
-.sidemenu {
-  color: currentColor;
+/*
+ * Dialogs
+ */
+
+paper-dialog-scrollable, paper-dialog {
+  font-family: Roboto-Condensed;
 }
 
+/*
+ * Tabs
+ */
+paper-tab {
+  border-radius: 2px;
+  @apply(--default-transition)
+}
 
- /* General Style */
-
-
-div, p {
-   padding: 0.25em;
-   width: 100%;
+paper-tab:hover {
+   background: var(--secondary-hover-color);
+   border-radius: 2px;
  }
 
- /*
-   Main-Toolbars
-   */
+/*
+ * Divs, Paragraphs
+ */
 
+/*
+ * Fonts
+ */
+@font-face {
+ font-family: Roboto-Regular;
+ src: url('fonts/Roboto-Regular.ttf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
 
- /*
-   Selectors
-   */
+@font-face {
+ font-family: Roboto-Thin;
+ src: url('fonts/Roboto-Thin.ttf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
 
+@font-face {
+ font-family: Roboto-Light;
+ src: url('fonts/Roboto-Light.ttf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
 
- /*
-   Tabs
-   */
- paper-tabs {
-   color: #1d1d1d;
-   background: transparent;
-   font-size: 0.8em;
- }
+@font-face {
+ font-family: Roboto-Condensed;
+ src: url('fonts/RobotoCondensed-Regular.ttf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
 
- paper-tabs /deep/ paper-icon-button {
-   color: #f1f1f1;
- }
+@font-face {
+ font-family: Roboto-Condensed-Light;
+ src: url('fonts/RobotoCondensed-Light.ttf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
 
- paper-tabs /deep/ paper-tab:hover {
-   background: rgba(255, 255, 255, 0.15);
- }
+@font-face {
+ font-family: Open-Sans-Condensed;
+ src: url('fonts/Open-Sans-CondLight.ttf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
 
- /*
-   Items, Buttons and Icons
-   */
+@font-face {
+ font-family: Lobster;
+ src: url('fonts/Lobster-Regular.ttf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
 
-
- /*
-   Fonts
-   */
- @font-face {
-   font-family: Roboto-Regular;
-   src: url('fonts/Roboto-Regular.ttf') format('truetype');
-   font-weight: normal;
-   font-style: normal;
- }
-
- @font-face {
-   font-family: Roboto-Thin;
-   src: url('fonts/Roboto-Thin.ttf') format('truetype');
-   font-weight: normal;
-   font-style: normal;
- }
-
- @font-face {
-   font-family: Roboto-Light;
-   src: url('fonts/Roboto-Light.ttf') format('truetype');
-   font-weight: normal;
-   font-style: normal;
- }
-
- @font-face {
-   font-family: Roboto-Condensed;
-   src: url('fonts/RobotoCondensed-Regular.ttf') format('truetype');
-   font-weight: normal;
-   font-style: normal;
- }
-
- @font-face {
-   font-family: Roboto-Condensed-Light;
-   src: url('fonts/RobotoCondensed-Light.ttf') format('truetype');
-   font-weight: normal;
-   font-style: normal;
- }
-
- /*
-   Spezifications for certain Views
-   */
+/*
+ * Spezifications for certain Views
+ */
 
 /* mobile-small */
 @media all and (min-width: 0px) and (max-width: 360px) and (orientation: portrait) { }

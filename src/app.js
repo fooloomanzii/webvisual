@@ -23,14 +23,20 @@ var dataModule   = require('./data'),                               // custom: D
     },
 
     // Configuration from config-file, uses default values, if necessary
-    config       = defaultsDeep(require('./config/config.json'), defaults),
+    // TODO: make configs dynamical loaded (or watched)
+    configFile   = fs.readFileSync(__dirname + '/config/config.json'),
+    config;
 
-    // Server-Log-File and -Mode (used by MORGAN)
-    // TODO: if necessary, catch different HTTP errors, or other errors
-    serverLogFile    = __dirname + config.logs.server_log,
-    serverLogMode    = { stream: fs.createWriteStream(serverLogFile, {flags: 'a'}),
-                       skip: function (req, res) { return res.statusCode < 400 }}
-    ;
+    try {
+      config = JSON.parse(configFile);
+    }
+    catch (err) {
+      console.log('There has been an error parsing the config-file.')
+      console.log(err);
+    }
+
+    // Use defaults for undefined values
+    config = defaultsDeep(config,defaults);
 
 /**
  * Extend UNDERSCORE
@@ -70,6 +76,15 @@ app.set('views', __dirname + '/views');
  * Defining Errors
  */
 
+// if Error: Defined in serverLogMode, which kind of errors, are written in SERVERLOGFILE by MORGAN
+// Server-Log-File and -Mode (used by MORGAN) for Server-Mistakes (Http-Status-Code above 500)
+// TODO: if necessary, catch different HTTP errors, or other errors
+var serverLogFile    = __dirname + config.logs.server_log,
+    serverLogMode    = { stream: fs.createWriteStream(serverLogFile, {flags: 'a'}),
+                        skip: function (req, res) { return res.statusCode < 500 }},
+    logFormat        = ':date[clf] - ":status" - :remote-addr - ":method :url" - :response-time ms :res[content-length]';
+app.use(morgan(logFormat, serverLogMode));
+
 // if Error: EADDRINUSE --> log in console
 server.on('error', function (e) {
     if (e.code == 'EADDRINUSE') {
@@ -86,29 +101,26 @@ server.on('error', function (e) {
         config.port, app.settings.env);
   });
 
-// if Error: Defined in serverLogMode, which kind of errors, are written in SERVERLOGFILE by MORGAN
-app.use(morgan('short', serverLogMode));
-
-      // handling ENVIRONMENTS
-      // TODO: find better seperation, what to do in differnet production environments
-      // Development
-      if ( app.get('env') == 'development' ) {
-        // Make the Jade output readable
-        app.locals.pretty = true;
-        // Make the Jade output readable and add the environment specification
-        _.extend(app.locals, {
-          env:    'development',
-          pretty: true,
-        });
-      }
-      // Production
-      if ( app.get('env') == 'production' ) {
-      	// Set the environment specification for jade
-      	app.locals.env = 'production';
-      }
+  // handling ENVIRONMENTS
+  // TODO: find better seperation, what to do in differnet production environments
+  // Development
+  if ( app.get('env') == 'development' ) {
+    // Make the Jade output readable
+    app.locals.pretty = true;
+    // Make the Jade output readable and add the environment specification
+    _.extend(app.locals, {
+      env:    'development',
+      pretty: true,
+    });
+  }
+  // Production
+  if ( app.get('env') == 'production' ) {
+  	// Set the environment specification for jade
+  	app.locals.env = 'production';
+  }
 
 /**
- * Routing
+ * Routing (./routes/index.js)
  */
 
 // Route: Default, Home, Index
@@ -118,7 +130,11 @@ app.get('/', routes.index);
 app.get('/log', routes.externalLogFile);
 
 // Route: Data File
-app.get('/data', routes.dataFile);
+app.get('/data', routes.dataString);
+
+// Route: Data File
+app.get('/settings', routes.settingsJSON);
+
 
 // Error: Custom 404 page
 app.use(function(req, res) {
@@ -126,10 +142,7 @@ app.use(function(req, res) {
 
 	// Respond with html page
 	if(req.accepts('html')) {
-		res.render('404', {
-			status: 404,
-			title: 'Oops!'
-		});
+		res.render('404');
 	}
 });
 
@@ -237,7 +250,6 @@ var userCounter = 0,
 
 connections.connect(); // establish all connections
 server.listen(config.port);
-
 
 
 /**
