@@ -64,7 +64,7 @@
                 <paper-item>
                   <iron-icon icon="invert-colors"></iron-icon>
                   <section class="flex">Farbschema</section>
-                  <paper-toggle-button id="color-schema"></paper-toggle-button>
+                  <paper-toggle-button id="color-schema" onclick="changeTheme()"></paper-toggle-button>
                 </paper-item>
 
               </section>
@@ -166,6 +166,11 @@
     $('paper-toolbar').css('height','10em');
     $('paper-material.submenu').addClass("active");
   }
+  function insertTest(){
+    $.get( "/data", function( response ) {
+      $('paper-dialog.submenu paper-dialog-scrollable').text(response);
+    });
+  }
   function enable(){
     $('paper-fab').attr("disabled", false);
 
@@ -176,10 +181,15 @@
   function toggleCollapse(sender){
     sender.nextElementSibling.toggle();
   }
-  function insertTest(){
-    $.get( "/data", function( response ) {
-      $('paper-dialog.submenu paper-dialog-scrollable').text(response);
-    });
+  function changeTheme(){
+    var button = document.getElementById('color-schema');
+    if(button.checked) {
+      $('*').removeClass("dark");
+      console.log("pressed");
+    }
+    else {
+      $('*').addClass("dark");
+    }
   }
   function openDialog(elem){
 

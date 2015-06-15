@@ -1,5 +1,13 @@
 /* SIDEMENU & SUBMENU */
 
+.paper-drawer-panel-0 iron-selector.paper-drawer-panel > #drawer.paper-drawer-panel {
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.paper-drawer-panel-0 iron-selector.paper-drawer-panel > #drawer.paper-drawer-panel.dark {
+  background-color: rgba(170, 170, 170, 0.75);
+}
+
 /*
  * Submenu
  */
@@ -25,15 +33,11 @@ paper-button.sidemenu {
 }
 
 .collapse-content {
-  margin-left: 1em;
+  margin: 0.25em 0em 0.25em 1em;
   width: calc(100% - 1em);
 }
 
 /* Dialogs */
-
-paper-dialog paper-button {
-  margin: 0em 0.1em;
-}
 
 paper-dialog.sidemenu {
   top: 0px;

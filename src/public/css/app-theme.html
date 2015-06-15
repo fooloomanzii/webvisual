@@ -21,6 +21,7 @@
     -webkit-font-smoothing:antialiased;
     -moz-osx-font-smoothing: grayscale;
     word-wrap: break-word;
+    color: var(--default-primary-text-color);
 
     --dark-primary-color: #345475; /* Primary Colors */
     --default-primary-color:#005B82;
@@ -28,37 +29,34 @@
 
     --default-primary-background-color: white; /* Texts and Backgrounds */
     --default-secondary-background-color: #ECECEC;
-    --dark-primary-background-color: #444444;
-    --dark-secondary-background-color: #646464;
+    --dark-primary-background-color: #646464;
+    --dark-secondary-background-color: #444444;
 
     --default-primary-text-color: #1d1d1d;
     --default-secondary-text-color: #f1f1f1;
     --default-disabled-text-color: #a8a8a8;
-    --dark-primary-text-color: #9c9c9c;
-    --dark-secondary-text-color: #444444;
+    --dark-primary-text-color: #a8a8a8;
+    --dark-secondary-text-color: #a8a8a8;
     --dark-disabled-text-color: #c6d2c8;
 
-    --default-primary-border-color:#7b970a; /* Borders and Lines */
-    --default-secondary-border-color:#f95dce;
-    --default-divider-color: #9c9c9c;
-    --dark-primary-border-color:#61469e;
-    --dark-secondary-border-color:#c06d91;
-    --dark-divider-color: #9c9c9c;
+    --border-color : #a8a8a8; /* Borders and Lines */
+    --divider-color: #a8a8a8;
 
     --default-icon-color: #f1f1f1; /* Icons */
-    --dark-icon-color: #6A6A6A;
+    --dark-icon-color: var(--light-primary-color);
     --default-button-color: rgba(255, 255, 255, 0.0);
-    --dark-button-color: rgba(255, 255, 255, 0.5);
+    --dark-button-color: rgba(170, 170, 170, 0.5);
 
     --primary-drawer-color: rgba(255, 255, 255, 0.75);
     --secondary-drawer-color: rgba(255, 255, 255, 0.5);
-    --dark-drawer-color: var(--default-primary-color);
+    --drawer-text-color: var(--default-primary-text-color);
+    --dark-secondary-drawer-color: rgba(170, 170, 170, 0.5);
 
     --ink-color: rgb(0, 202, 53);; /* Effects */
     --primary-hover-color: rgba(255, 255, 255, 0.3);
     --secondary-hover-color: rgba(0, 202, 53, 0.2);
     --selected-color: rgba(255, 255, 255, 0.75);
-    --focused-color: #c6d2c8;
+    --dark-selected-color: rgba(210, 210, 210, 0.75);
 
     --exceeds-true-color: #FF1C15;
     --exceeds-normal-color: var(--secondary-text-color);
@@ -70,8 +68,10 @@
     --paper-icon-button-ink-color: var(--ink-color);
     --paper-tabs-selection-bar-color: var(--selected-color);
     --paper-tab-ink: var(--secondary-hover-color);
-    --paper-dialg-background-color: var(--default-primary-background-color);
-    --paper-dialog-button-color: var(--dark-primary-color);
+    --paper-dialog-background-color: var(--default-primary-background-color);
+    --paper-dialog-button-color: var(--default-primary-text-color);
+    --paper-toolbar-color: var(--default-icon-color);
+    --paper-toolbar-background: var(--default-primary-color);
 
     /* Mixins*/
     --paper-button: {
@@ -115,6 +115,7 @@
 
     --icon-button-theme: {
         margin: 0em 1em 0em 0.5em;
+        color: currentColor;
         cursor: pointer;
         -webkit-user-select: none;
         -moz-user-select: none;
@@ -124,9 +125,9 @@
         transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
       };
 
-    --toolbar-theme: {
-        color: var(--default-icon-color);
+    --paper-toolbar: {
         background-color: var(--default-primary-color);
+        color: var(--default-icon-color);
         padding: 0.5em;
         height: 2.5em;
         cursor: pointer;
@@ -145,11 +146,6 @@
         background: none;
         };
 
-    --paper-menu-colored-focused-item: {
-        background: white;
-        font-weight: normal;
-        };
-
     --paper-tabs: {
         font-family: Roboto-Condensed;
         margin: 0em;
@@ -166,18 +162,28 @@
 
 body {
   background-color: var(--default-secondary-background-color);
+  transition: all 0.56s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.dark {
+  background-color: var(--dark-secondary-background-color);
 }
 
 paper-drawer-panel {
-  --paper-drawer-panel-left-drawer-container: {
-      color: var(--default-primary-text-color);
+  --paper-drawer-panel-drawer-container: {
+      color: var(--drawer-text-color);
       background-color: var(--primary-drawer-color);
       align-items: center;
       };
-  }
+}
 
 paper-toolbar {
-  @apply(--toolbar-theme)
+  @apply(--paper-toolbar)
+}
+
+paper-toolbar.dark {
+  background-color: var(--dark-primary-color);
+  color: var(--dark-icon-color);
 }
 
 /*
@@ -196,8 +202,16 @@ paper-item {
   @apply(--item-theme)
 }
 
+paper-item.dark {
+  background: var(--dark-button-color);
+}
+
 paper-button {
   @apply(--button-theme)
+}
+
+paper-button.dark {
+  background: var(--dark-button-color);
 }
 
 paper-item:hover {
@@ -205,6 +219,14 @@ paper-item:hover {
 }
 
 paper-button:hover {
+  background: var(--secondary-hover-color);
+}
+
+paper-item.dark:hover {
+  background: var(--secondary-hover-color);
+}
+
+paper-button.dark:hover {
   background: var(--secondary-hover-color);
 }
 
@@ -247,10 +269,15 @@ paper-toggle-button#color-schema {
 
 paper-material {
  border-radius: 2px;
+ color: currentColor;
  padding: 1em 0.5em;
- margin: 0.5em;
+ margin: 1em;
  background: var(--default-primary-background-color);
  @apply(--default-transition)
+}
+
+paper-material.dark {
+ background: var(--dark-primary-background-color);
 }
 
 /*
@@ -267,6 +294,11 @@ paper-material {
               0 3px 1px -2px rgba(0, 0, 0, 0.2);*/
 }
 
+.iron-selected.dark {
+  color: var(--dark-primary-color);
+  background: var(--dark-selected-color);
+}
+
 /*
  * Collapse
  */
@@ -279,12 +311,23 @@ iron-collapse {
   background-color: var(--secondary-drawer-color);
 }
 
+.collapse-content.dark {
+  background-color: var(--dark-secondary-drawer-color);
+}
+
 /*
  * Dialogs
  */
 
 paper-dialog-scrollable, paper-dialog {
   font-family: Roboto-Condensed;
+}
+
+paper-dialog {
+}
+
+paper-dialog.dark {
+  background: var(--dark-primary-background-color);
 }
 
 /*
