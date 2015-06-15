@@ -13,7 +13,7 @@
 
 </head>
 
-<body horizontal layout center>
+<body unresolved horizontal layout center>
 
 
     <paper-drawer-panel force-narrow="true">
@@ -25,11 +25,11 @@
 
           <!-- Page Routing -->
             <!-- onclick="document.querySelector('paper-drawer-panel').togglePanel();" -->
-          <paper-button collapse-button="pageview" class="sidemenu" onclick="toggleCollapse(this)">
+          <paper-button collapse-id="pageview" class="sidemenu" onclick="toggleCollapse(this)">
             <iron-icon icon="pageview"></iron-icon>Anzeige
           </paper-button>
 
-            <iron-collapse id="collapse-page" class="sidemenu">
+            <iron-collapse class="sidemenu collapse pageview">
               <section class="collapse-content">
 
                 <iron-selector selected="0">
@@ -43,16 +43,16 @@
 
           <!-- Main Settings -->
 
-          <paper-button collapse-button="settings" class="sidemenu" onclick="toggleCollapse(this)">
+          <paper-button collapse-id="settings" class="sidemenu" onclick="toggleCollapse(this)">
             <iron-icon icon="settings"></iron-icon>Einstellungen
           </paper-button>
 
-            <iron-collapse id="collapse-settings" class="sidemenu">
+            <iron-collapse class="sidemenu collapse settings">
               <section class="collapse-content">
-                <paper-button id="language" class="sidemenu" onclick="toggleCollapse(this)">
+                <paper-button collapse-id="language" class="sidemenu" onclick="toggleCollapse(this)">
                   <iron-icon icon="language"></iron-icon>Sprachauswahl
                 </paper-button>
-                  <iron-collapse class="sidemenu">
+                  <iron-collapse class="sidemenu collapse language">
                     <paper-tabs id="language" selected="1">
                       <paper-tab>en</paper-tab>
                       <paper-tab>de</paper-tab>
@@ -80,11 +80,11 @@
 
           <!-- Informations -->
 
-          <paper-button id="information" class="sidemenu" onclick="toggleCollapse(this)">
+          <paper-button collapse-id="information" class="sidemenu" onclick="toggleCollapse(this)">
             <iron-icon icon="description"></iron-icon>Informationen
           </paper-button>
 
-            <iron-collapse id="collapse-information" class="sidemenu">
+            <iron-collapse class="sidemenu collapse information">
               <section class="collapse-content">
                 <paper-button dialog-id="data" dialog-class="sidemenu" class="sidemenu" onclick="openDialog(this)">
                   <iron-icon icon="receipt"></iron-icon>Data-File
@@ -178,12 +178,26 @@
       $('.inner').text("<p>"+response+"</p>");
     });
   }
-  function toggleCollapse(sender){
-    sender.nextElementSibling.toggle();
+  function toggleCollapse(elem){
+    var button = elem;
+    while (!button.hasAttribute('collapse-id') && button !== document.body) {
+      button = button.parentElement;
+    }
+
+    if (!button.hasAttribute('collapse-id')) {
+      return;
+    }
+
+    var id = button.getAttribute('collapse-id');
+    var collapse = document.querySelector('iron-collapse.'+id);
+
+    if (collapse) {
+      collapse.toggle();
+    }
   }
   function changeTheme(){
     var button = document.getElementById('color-schema');
-    if(button.checked) {
+    if(button.checked == true) {
       $('*').removeClass("dark");
       console.log("pressed");
     }
