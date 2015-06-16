@@ -155,94 +155,102 @@ io.set('log level', 1);
 
 // Socket variables
 var userCounter = 0,
-  currentData = {},
-  waitFirst = true,
-  states={},
+    currentData = {},
+    waitFirst = true,
+    states={},
 
-  // Config Socket
-  configSocket = io.of('/config').on('connection',
-      function(socket){socket.emit('data', {locals: config.locals});
-      }),
-  // DATAHANDLER - established the data connections
-  connections = new dataHandler( {
-    // Object used the Configuration
-    connection: config.connections,
-    listener: {
-      error: function(type, err) {
-        dataSocket.emit('mistake', { data: err, time: new Date()});
-      },
-      data: [
+    // Config Socket
+    configSocket = io.of('/config')
+                     .on('connection', function(socket){
+                        socket.emit('data', config);
+                      }),
+    // DATAHANDLER - established the data connections
+    connections = new dataHandler( {
+      // Object used the Configuration
+      connection: config.connections,
+      listener: {
+        error: function(type, err) {
+          dataSocket.emit('mistake', { data: err, time: new Date()});
+        },
+        data: [
 
-        // SocketIO Listener
-        function(type, data) {
+          // SocketIO Listener
+          function(type, data) {
 
-          // Store the current message time
-          currentData.time=new Date();
+            // Store the current message time
+            currentData.time=new Date();
 
-          var sendEvent = 'data';
+            var sendEvent = 'data';
 
-          // Set the first event and add the state, if it is the first parsing
-          if(waitFirst) {
-            sendEvent = 'first';
-            waitFirst = false;
+            // Set the first event and add the state, if it is the first parsing
+            if(waitFirst) {
+              sendEvent = 'first';
+              waitFirst = false;
+            }
+
+            // Check for threshold exceeds and save it
+            currentData.exceeds=threshold.getExceeds(data, function(exceeds){
+              // TODO: new exceeds handling in server
+              // var exceedsHTML="", numCols=config.locals.data.typeWidth;
+              // var i;
+              // var pos = exceeds[0].indexOf(true);
+              // if(pos > -1){
+              //   exceedsHTML += "Under the threshold:<br><ul>";
+              //   while(pos > -1){
+              //     exceedsHTML+="<li>";
+              //     i=parseInt(pos/numCols, 10);
+              //     exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
+              //     exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
+              //     exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
+              //     exceedsHTML+="</li>";
+              //     pos = exceeds[0].indexOf(true,pos+1);
+              //   }
+              //   exceedsHTML+="</ul>";
+              // }
+              // pos = exceeds[1].indexOf(true);
+              // if(pos > -1){
+              //   exceedsHTML += "Over the threshold:<br><ul>";
+              //   while(pos > -1){
+              //     exceedsHTML+="<li>";
+              //     i=parseInt(pos/numCols, 10);
+              //     exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
+              //     exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
+              //     exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
+              //     exceedsHTML+="</li>";
+              //     pos = exceeds[1].indexOf(true,pos+1);
+              //   }
+              //   exceedsHTML+="</ul>";
+              // }
+              // if(exceedsHTML) exceedsHTML=currentData.time+":<br>"+exceedsHTML;
+              // mailHelper.appendMsg(exceedsHTML);
+            });
+
+            // Save the current data
+            currentData.data=data;
+
+            // ... finally send the data
+            dataSocket.emit(sendEvent, currentData);
           }
-
-          // Check for threshold exceeds and save it
-          currentData.exceeds=threshold.getExceeds(data, function(exceeds){
-            // TODO: new exceeds handling in server
-            // var exceedsHTML="", numCols=config.locals.data.typeWidth;
-            // var i;
-            // var pos = exceeds[0].indexOf(true);
-            // if(pos > -1){
-            //   exceedsHTML += "Under the threshold:<br><ul>";
-            //   while(pos > -1){
-            //     exceedsHTML+="<li>";
-            //     i=parseInt(pos/numCols, 10);
-            //     exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
-            //     exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
-            //     exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
-            //     exceedsHTML+="</li>";
-            //     pos = exceeds[0].indexOf(true,pos+1);
-            //   }
-            //   exceedsHTML+="</ul>";
-            // }
-            // pos = exceeds[1].indexOf(true);
-            // if(pos > -1){
-            //   exceedsHTML += "Over the threshold:<br><ul>";
-            //   while(pos > -1){
-            //     exceedsHTML+="<li>";
-            //     i=parseInt(pos/numCols, 10);
-            //     exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
-            //     exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
-            //     exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
-            //     exceedsHTML+="</li>";
-            //     pos = exceeds[1].indexOf(true,pos+1);
-            //   }
-            //   exceedsHTML+="</ul>";
-            // }
-            // if(exceedsHTML) exceedsHTML=currentData.time+":<br>"+exceedsHTML;
-            // mailHelper.appendMsg(exceedsHTML);
-          });
-
-          // Save the current data
-          currentData.data=data;
-
-          // ... finally send the data
-          dataSocket.emit(sendEvent, currentData);
-        }
-      ]
-    }
-  }),
-  // Data Socket
-  dataSocket = io.of('/data').on('connection', function(socket) {
-    // Wait till first data will be sent or receive the current data
-    // as 'first' for every Client
-    if (!waitFirst) {
-      socket.emit('first', currentData);
-    } else {
-      socket.emit('wait');
-    }
-  });
+        ]
+      }
+    }),
+    // Data Socket
+    dataSocket = io.of('/data')
+                   .on('connection', function(socket) {
+                      // Wait till first data will be sent or receive
+                      // the current data as 'first' for every Client
+                      if (!waitFirst) {
+                        socket.emit('first', currentData);
+                      } else {
+                        socket.emit('wait');
+                      }
+                    }),
+    confSocket = io.of('/getConfigs')
+                   .on('connection', function(socket) {
+                     socket.on('conf', function(msg) {
+                          socket.emit('conf',msg);
+                       });
+                     });
 
 /**
  * Get SERVER running!

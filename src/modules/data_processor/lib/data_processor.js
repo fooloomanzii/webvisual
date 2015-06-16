@@ -1,5 +1,6 @@
 (function(){
-
+  'use strict';
+  // Variables
   // global Variables
       numCols = 2,        // from config/config.json             // Column Number for Data Values
       labelsArray = [],   // from config/config.json             // Labels Array
@@ -58,14 +59,6 @@
         // Establish connection to the Data File
         // (if a Config File was read, see above)
         dataSocket = io.connect('https://'+window.location.host+'/data', {secure: true});
-
-        socket = io.connect('https://'+window.location.host+'/getConfigs', {secure: true});
-
-        socket.emit('conf',{inf: '1'});
-
-        socket.on('conf', function(msg) {
-          $('.innerM').text(msg);
-        });
 
         //*** Receiving the first Data
         // (look at copywatch/udpwatch?)
@@ -233,6 +226,20 @@
     // $('language-element').attr.('data', JSON.stringify(languageArray));
   }
 
-
+  // Module exports
+  module.exports = {
+    // Private
+    _createDate: _createDate,
+    _deep_clone: _deep_clone,
+    _errString: _errString,
+    _findSeperator: _findSeperator,
+    _initializeOptions: _initializeOptions,
+    _parseDate: _parseDate,
+    _validate: _validate,
+    // Public
+    setOptions: setOptions,
+    resetOptions: resetOptions,
+    parse: parse
+  };
 
 })();

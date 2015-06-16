@@ -1,0 +1,38 @@
+{
+  "connections": {
+    "db": { },
+    "file": {
+      "copy": false,
+      "mode": "all",
+      "path": "/../../data/data2.txt"
+      },
+    "udp": {
+      "log": false,
+      "log_path": "/../../data/udp/",
+      "mode": "append",
+      "port": 4000
+      }
+    },
+  "port": 3000,
+	"logs": {
+    "external_log": "/../../logs/log.log",
+    "server_log":   "/../logs/server.log"
+  },
+	"states":[
+		"on",
+		"off"
+	],
+	"functions":{
+		"comment":" name : first state ",
+
+    "Motor":"on",
+		"Pumpe":"off"
+	},
+	"locals":{
+	  "dataTimeLabel":"Letzte Nachricht",
+	  "timeFormat":"dd.MM.yyyy HH:mm:ss",
+
+    "typeWidth":2
+
+	}
+}
