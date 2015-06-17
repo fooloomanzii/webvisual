@@ -157,15 +157,37 @@ io.set('log level', 1);
 var userCounter = 0,
     currentData = {},
     waitFirst = true,
-    states={},
+    states={};
 
     // Config Socket
+
+var configData = "",
+    configFile = new dataHandler( {
+      // Object used the Configuration
+      connection: { "file": { "copy"    : false,
+                              "mode"    : "all",
+                              "path"    : "/../config/config.json",
+                              "process" : "" }},
+      listener: {
+        error: function(type, err) {
+          logSocket.emit('mistake', { data: err, time: new Date()});
+        },
+        data: [
+          // SocketIO Listener
+          function(type, data) {
+            // Send the current data;
+            configData = data;
+            configSocket.emit('message', configData);
+          }
+        ]
+      }
+      }),
     configSocket = io.of('/config')
                      .on('connection', function(socket){
-                        socket.emit('data', config);
-                      }),
+                        socket.emit('message', configData);
+                      });
     // DATAHANDLER - established the data connections
-    dataFile = new dataHandler( {
+var dataFile = new dataHandler( {
       // Object used the Configuration
       connection: config.connections,
       listener: {
@@ -173,11 +195,10 @@ var userCounter = 0,
           dataSocket.emit('mistake', { data: err, time: new Date()});
         },
         data: [
-
-          //- SocketIO Listener
+          // SocketIO Listener
           function(type, data) {
 
-            //- Store the current message time
+            // Store the current message time
             currentData.time=new Date();
 
             var sendEvent = 'data';
@@ -188,7 +209,7 @@ var userCounter = 0,
               waitFirst = false;
             }
 
-            //- Check for threshold exceeds and save it
+            // Check for threshold exceeds and save it
             currentData.exceeds=threshold.getExceeds(data, function(exceeds){
               // TODO: new exceeds handling in server
               // var exceedsHTML="", numCols=config.locals.data.typeWidth;
@@ -225,16 +246,16 @@ var userCounter = 0,
               // mailHelper.appendMsg(exceedsHTML);
             });
 
-            //- Save the current data
+            // Save the current data
             currentData.data=data;
 
-            //- ... finally send the data
+            // ... finally send the data
             dataSocket.emit(sendEvent, currentData);
           }
         ]
       }
     }),
-    //- Data Socket
+    // Data Socket
     dataSocket = io.of('/data')
                    .on('connection', function(socket) {
                       // Wait till first data will be sent or receive
@@ -246,7 +267,7 @@ var userCounter = 0,
                       }
                     });
 
-    //- external-Log-File-Socket
+    // external-Log-File-Socket
 var logData = {},
     externalLogFile = new dataHandler( {
       // Object used the Configuration
@@ -255,12 +276,12 @@ var logData = {},
                               "path"    : config.logs.external_log,
                               "process" : "" }},
       listener: {
-        error: function(typeX, errX) {
+        error: function(type, err) {
           logSocket.emit('mistake', { data: err, time: new Date()});
         },
         data: [
-          //- SocketIO Listener
-          function(typeX, dataX) {
+          // SocketIO Listener
+          function(type, data) {
 
             // //- Store the current message time
             // logData.time=new Date();
@@ -274,7 +295,7 @@ var logData = {},
             // }
             //
             // //- Save the current data
-            logData.data=dataX;
+            logData.data=data;
             // console.log(data);
 
             //- ... finally send the data
@@ -285,14 +306,15 @@ var logData = {},
     }),
     logSocket = io.of('/log')
                    .on('connection', function(socket) {
-                      socket.emit('externalLog', logData.data);
+                      socket.emit('message', logData.data);
                      });
 
 /*
- * Get SERVER running!
+ * Get SERVER.io and server running!
  */
+configFile.connect(); // establish the connections
 
-dataFile.connect(); // establish all connections
+dataFile.connect();
 
 externalLogFile.connect();
 

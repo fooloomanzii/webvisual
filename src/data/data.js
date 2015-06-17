@@ -285,6 +285,7 @@ dataHandler = (function() {
     // Validate and process the connections
     this._connect(config.connection);
 
+
     // Process the given listener
     this._addListener(config.listener);
   }

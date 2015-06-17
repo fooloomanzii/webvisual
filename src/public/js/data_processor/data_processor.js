@@ -39,9 +39,23 @@
       var configSocket = io.connect('https://'+window.location.host+'/config', {secure: true});
       var dataSocket = null;
 
+      // Connect to Log-File
+      var logSocket = io.connect('https://'+window.location.host+'/log', {secure: true});
+
+      logSocket.on('message', function(message) {
+          $(".innerM").text(message);
+      });
+
       //***** Receive of Configuration Data
-      configSocket.on('data', function(message) {
+      configSocket.on('message', function(message) {
         if(message === undefined) return; // Check the Existence
+
+        var tmp = "";
+        for (var i=0; i < message.length; i++) {
+          tmp += message[i];
+        }
+
+        message = JSON.parse(tmp);
 
         // Waiting Status
         var event = new CustomEvent("dataLoading");
@@ -50,25 +64,11 @@
         // Function call: Read the Config file
         arrangeLabels(message.locals);
 
-        // Test to send local configuration to an element
-        // TODO: Send dynamiccly data-file, logs and configuration to dialogs
-        // $('#localConfiguration').text(
-        //     JSON.stringify(message.locals));
-
         // Establish connection to the Data File
         // (if a Config File was read, see above)
         dataSocket = io.connect('https://'+window.location.host+'/data', {secure: true});
 
-        socket = io.connect('https://'+window.location.host+'/getConfigs', {secure: true});
-
-        socket.emit('conf',{inf: '1'});
-
-        socket.on('conf', function(msg) {
-          $('.innerM').text(msg);
-        });
-
         //*** Receiving the first Data
-        // (look at copywatch/udpwatch?)
         dataSocket.on('first', function(message) {
           if(message === undefined) return; // Check the Existence
 
@@ -118,7 +118,7 @@
   //***** Load the Configuration in the Data Object
   function arrangeLabels(locals) {
     if (!locals) { // Check for Existence
-      throw new Error("Keine Konfiguration vorhanden");
+      throw new Error("No configuration loaded.");
       return;
     }
     else {
