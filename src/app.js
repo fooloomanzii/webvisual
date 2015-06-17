@@ -253,13 +253,7 @@ var logData = {},
       connection: { "file": { "copy"    : false,
                               "mode"    : "all",
                               "path"    : config.logs.external_log,
-                              "process" : "" },
-                            "udp": {
-                              "log": false,
-                              "log_path": "/../../data/udp/",
-                              "mode": "append",
-                              "port": 4000
-                            }},
+                              "process" : "" }},
       listener: {
         error: function(typeX, errX) {
           logSocket.emit('mistake', { data: err, time: new Date()});
