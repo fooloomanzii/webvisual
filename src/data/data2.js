@@ -97,7 +97,7 @@ var
     ConnectionConfigTypeMsg: "Expected simple object as config-value for connection.",
     functions: {
       ConnectionTypeMsgFn: function(connectionType) {
-        return "The given connection type \""+connectionType+"\" is invalid. Valid types are: "+_(connectionFn).functions();
+        return "The given connection type \""+connectionType+"\" is invalid.";
       },
       DataErrorMsgFn: function(type, error) {
         return _(error).reduce(function(memo, value) {
@@ -171,88 +171,6 @@ _.mixin({
   },
 });
 
-
-/////////////////////////////////
-// Static connection functions //
-/////////////////////////////////
-
-/**
- * The database connect function. Establishes a connection to a specified database.
- * @param  {Object} config The configuration for the database connection
- * @return {Object}        A database connection object
- */
-connectionFn.db = {
-  // TODO: Add close function
-  close: function() {},
-  connect: function(config, emitter) {
-    return null;
-  }
-};
-
-connectionFn.file = {
-  /**
-   * Ends the watching of the specified file.
-   * @param  {Object}   config   Configuration object which contains the necessary information
-   *                             to end the connection
-   * @param  {Function} callback A callback function which recieves a potential error.
-   */
-  close: function(config, callback) {
-    // Log
-    console.log("Stopped watching \""+config.path+"\"");
-    // End the watching
-    copywatch.unwatch(config.path, config.remove, callback);
-  },
-  /**
-   * The file watch connect function. Enables the watching and processing of a file.
-   * @param  {Object} config The configuration for the watching
-   * @return {Object}        Contains the necessary data to end the watcher
-   */
-  connect: function(config, emitter) {
-    // Log
-    console.log("Started watching \""+path_util.basename(config.path)+"\"");
-
-    // Add the function which recieves the parsed data; calls the emitter
-    config.content = emitter;
-
-    // Start watching the file
-    copywatch.watch(config.mode, __dirname + config.path, config);
-
-    // Return the necessary data to end the watcher
-    return { path: __dirname + config.path, remove: config.copy };
-  }
-};
-
-connectionFn.udp = {
-  /**
-   * Ends the listening of the specified UDP.
-   * @param  {Object}   config   Configuration object which contains the necessary information
-   *                             to end the connection
-   * @param  {Function} callback A callback function which recieves a potential error.
-   */
-  close: function() {
-    // Close the connection
-    udpwatch.unwatch();
-  },
-
-  /**
-   * The UDP connect function. Establishes a UDP listener to the specified port.
-   * @param  {Object} config The configuration for the UDP connection
-   * @return {Object} An UDP connection object
-   */
-  connect: function(config, emitter) {
-
-    // Add the function which recieves the parsed data; calls the emitter
-    config.content = emitter;
-
-    // Start watching the port
-    udpwatch.watch(config.port, config);
-
-    // Return the necessary data to end the watcher
-    return { port: config.port, remove: config.copy };
-  }
-};
-
-
 /**
  * The data handler class. This module returns an instance of this class for possible connections.
  * To handle incoming data listeners can be bound to the 'data' event.
@@ -261,23 +179,27 @@ connectionFn.udp = {
 dataHandler = (function() {
   // jshint validthis:true
   var defaults = {
+      connection: {},
       listener: {
         error: function(type, err) {
           //here is the space for reactions on the mistaken data
           throw new Error(messages.functions.DataErrorMsgFn(type, err));
         },
-        data: console.log
+        data: "default"
       }
     };
+  var config = {};
+  var self;
 
   // jshint newcap: false
   // Constructor
-  function _Class(config) {
+  function _Class(pconfig) {
+    self=this;
     // Ensure the constructor was called correctly with 'new'
-    if( !(this instanceof _Class) ) return new _Class(config);
+    if( !(this instanceof _Class) ) return new _Class(pconfig);
 
     // Use defaults for undefined values
-    config = defaultsDeep(config,defaults);
+    config = defaultsDeep(pconfig,defaults);
 
     // Add a instance of the EventEmitter
     this._emitter = new EventEmitter();
@@ -292,9 +214,7 @@ dataHandler = (function() {
   // Extend with properties; null values are just place holder for instantiated properties
   _(_Class.prototype).extend({
     _emitter    : null,
-    _connections: {},
-    connection: [],
-    connectionConfig: {}
+    _connections: {}
   });
 
   /////////////////////
@@ -347,6 +267,9 @@ dataHandler = (function() {
     };
   };
 
+  _Class.prototype.connection = [];
+  _Class.prototype.connectionConfig = {};
+
   /**
    * THE connect function. Receives a configuration object or a list of connections and establishes the connections.
    * The connections get saved in the "private" _connections object of the dataHandler instance.
@@ -355,11 +278,15 @@ dataHandler = (function() {
    *                             OR
    *                             A simple array which specifies which connections should be established.
    */
+
+
   _Class.prototype._connect = function(connection) {
-    var connectionConfig = {},
-      self = this;
+
+    var connectionConfig = {};
+
     // Check if the connection option is an object but not an array
     // TODO: REWRITE for file-support
+
     if(_(connection).isObject() && !_(connection).isArray()) {
       // If it's an object, then the object keys specify the connection to use while the values should be config objects
       // for the specified connection
@@ -389,6 +316,7 @@ dataHandler = (function() {
     // Ensure it's an array, if it's not an object
     else if(!_(connection).isArray()) {
       connection = [ connection ];
+
     }
 
     // Fill the connectionConfig with default values, if necessary
@@ -397,7 +325,7 @@ dataHandler = (function() {
     // Ensure the array of strings describe actually valid connection types; throw an error in case of an invalid type
     // Also ensure that the keys are actually all lower case
     self.connection = _(connection).map( function( value ) {
-      var  objType  = typeof value;
+      var objType = typeof value;
 
       // Check for correct type
       if(objType === 'string') {
@@ -405,7 +333,7 @@ dataHandler = (function() {
         value = value.toLowerCase();
 
         // Is it a string which describes a valid connection function? if not, throw an error
-        if(_(connectionFn[value]).isUndefined()) {
+        if(_(self[value]).isUndefined()) {
           throw new Error(messages.functions.ConnectionTypeMsgFn(value));
         }
       }
@@ -417,6 +345,7 @@ dataHandler = (function() {
       // Return the ensured lower case string
       return value;
     });
+
 
     ////////////////////
     // Public Methods //
@@ -442,10 +371,11 @@ dataHandler = (function() {
     _Class.prototype.connect = function() {
       var self = this;
       // Execute the necessary connection functions which are saved in the connectionsFn object
-      _(self.connection).each( function( type ) {
+      _(this.connection).each( function( type ) {
+        console.log(self.connection);
         // Execute the connection function with configuration; ensure it is called in the this-context of the dataHandler
         // Add the resulting connection object to the "private" _connection object of the instance
-        self._connections[type] = connectionFn[type].connect(
+        self._connections[type] = self[type].connect(
           self.connectionConfig[type],
           // Create a suitable emitter function for the type, this ensures that the correct events get emitted on data occurrence
           self._createEmitter(type)
@@ -457,16 +387,91 @@ dataHandler = (function() {
      * Closes all connections
      */
     _Class.prototype.close = function() {
-      var self = this;
       // Execute the necessary connection functions which are saved in the connectionsFn object
       _(self.connection).each( function( type ) {
         // Execute the connection function with configuration; ensure it is called in the this-context of the dataHandler
         // Add the resulting connection object to the "private" _connection object of the instance
-        self._connections[type] = connectionFn[type].close(
+        self._connections[type] = self[type].close(
           self.connectionConfig[type]
         );
       });
     };
+  };
+
+  /**
+   * The database connect function. Establishes a connection to a specified database.
+   * @param  {Object} config The configuration for the database connection
+   * @return {Object}        A database connection object
+   */
+   _Class.prototype.db = {
+    // TODO: Add close function
+    close: function() {},
+    connect: function(config, emitter) {
+      return null;
+    }
+  };
+
+  _Class.prototype.file = {
+    /**
+     * Ends the watching of the specified file.
+     * @param  {Object}   config   Configuration object which contains the necessary information
+     *                             to end the connection
+     * @param  {Function} callback A callback function which recieves a potential error.
+     */
+    close: function(config, callback) {
+      // Log
+      console.log("Stopped watching \""+config.path+"\"");
+      // End the watching
+      copywatch.unwatch(config.path, config.remove, callback);
+    },
+    /**
+     * The file watch connect function. Enables the watching and processing of a file.
+     * @param  {Object} config The configuration for the watching
+     * @return {Object}        Contains the necessary data to end the watcher
+     */
+    connect: function(config, emitter) {
+      // Log
+      console.log("Started watching \""+path_util.basename(config.path)+"\"");
+
+      // Add the function which recieves the parsed data; calls the emitter
+      config.content = emitter;
+
+      // Start watching the file
+      copywatch.watch(config.mode, __dirname + config.path, config);
+
+      // Return the necessary data to end the watcher
+      return { path: __dirname + config.path, remove: config.copy };
+    }
+  };
+
+  _Class.prototype.udp = {
+    /**
+     * Ends the listening of the specified UDP.
+     * @param  {Object}   config   Configuration object which contains the necessary information
+     *                             to end the connection
+     * @param  {Function} callback A callback function which recieves a potential error.
+     */
+    close: function() {
+      // Close the connection
+      udpwatch.unwatch();
+    },
+
+    /**
+     * The UDP connect function. Establishes a UDP listener to the specified port.
+     * @param  {Object} config The configuration for the UDP connection
+     * @return {Object} An UDP connection object
+     */
+    connect: function(config, emitter) {
+
+      // Add the function which recieves the parsed data; calls the emitter
+      config.content = emitter;
+
+      // Start watching the port
+      udpwatch.watch(config.port, config);
+
+      // Return the necessary data to end the watcher
+      return { port: config.port, remove: config.copy };
+    }
   };
 
   return _Class;

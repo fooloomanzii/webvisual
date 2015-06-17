@@ -1,5 +1,5 @@
 'use strict';
-/**
+/*
  * Module dependencies
  */
 var dataModule   = require('./data'),                               // custom: DATAMODULE
@@ -38,7 +38,7 @@ var dataModule   = require('./data'),                               // custom: D
     // Use defaults for undefined values
     config = defaultsDeep(config,defaults);
 
-/**
+/*
  * Extend UNDERSCORE
  */
 _.mixin({
@@ -47,7 +47,7 @@ _.mixin({
   }
 });
 
-/**
+/*
  * Configure the APP
  */
 
@@ -72,7 +72,7 @@ app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'jade');
 app.set('views', __dirname + '/views');
 
-/**
+/*
  * Defining Errors
  */
 
@@ -119,7 +119,7 @@ server.on('error', function (e) {
   	app.locals.env = 'production';
   }
 
-/**
+/*
  * Routing (./routes/index.js)
  */
 
@@ -146,9 +146,9 @@ app.use(function(req, res) {
 	}
 });
 
-/**
-* Configure SOCKET.IO (watch the data file)
-*/
+/*
+ * Configure SOCKET.IO (watch the data file)
+ */
 
 // Just print warnings
 io.set('log level', 1);
@@ -174,10 +174,10 @@ var userCounter = 0,
         },
         data: [
 
-          // SocketIO Listener
+          //- SocketIO Listener
           function(type, data) {
 
-            // Store the current message time
+            //- Store the current message time
             currentData.time=new Date();
 
             var sendEvent = 'data';
@@ -188,7 +188,7 @@ var userCounter = 0,
               waitFirst = false;
             }
 
-            // Check for threshold exceeds and save it
+            //- Check for threshold exceeds and save it
             currentData.exceeds=threshold.getExceeds(data, function(exceeds){
               // TODO: new exceeds handling in server
               // var exceedsHTML="", numCols=config.locals.data.typeWidth;
@@ -225,16 +225,16 @@ var userCounter = 0,
               // mailHelper.appendMsg(exceedsHTML);
             });
 
-            // Save the current data
+            //- Save the current data
             currentData.data=data;
 
-            // ... finally send the data
+            //- ... finally send the data
             dataSocket.emit(sendEvent, currentData);
           }
         ]
       }
     }),
-    // Data Socket
+    //- Data Socket
     dataSocket = io.of('/data')
                    .on('connection', function(socket) {
                       // Wait till first data will be sent or receive
@@ -244,23 +244,72 @@ var userCounter = 0,
                       } else {
                         socket.emit('wait');
                       }
-                    }),
-    confSocket = io.of('/getConfigs')
+                    });
+
+    //- external-Log-File-Socket
+var logData = {},
+    externalLogFile = new dataHandler( {
+      // Object used the Configuration
+      connection: { "file": { "copy"    : false,
+                              "mode"    : "all",
+                              "path"    : config.logs.external_log,
+                              "process" : "" },
+                            "udp": {
+                              "log": false,
+                              "log_path": "/../../data/udp/",
+                              "mode": "append",
+                              "port": 4000
+                            }},
+      listener: {
+        error: function(typeX, errX) {
+          logSocket.emit('mistake', { data: err, time: new Date()});
+        },
+        data: [
+          //- SocketIO Listener
+          function(typeX, dataX) {
+
+            // //- Store the current message time
+            // logData.time=new Date();
+            //
+            // var sendEvent = 'externalLog';
+            //
+            // // Set the first event and add the state, if it is the first parsing
+            // if(waitFirst) {
+            //   sendEvent = 'first';
+            //   waitFirst = false;
+            // }
+            //
+            // //- Save the current data
+            logData.data=dataX;
+            // console.log(data);
+
+            //- ... finally send the data
+            logSocket.emit('externalLog', logData);
+          }
+        ]
+      }
+    }),
+    logSocket = io.of('/log')
                    .on('connection', function(socket) {
-                     socket.on('conf', function(msg) {
-                          socket.emit('conf',msg);
-                       });
+                      socket.emit('externalLog', logData.data);
                      });
 
-/**
+/*
  * Get SERVER running!
  */
 
 connections.connect(); // establish all connections
+
+externalLogFile.connect();
+
+// console.log(connections.connection);
+// console.log(externalLogFile.connection);
+// console.log(connections.connectionConfig);
+// console.log(externalLogFile.connectionConfig);
 server.listen(config.port);
 
 
-/**
+/*
  * Init MAILHELPER
  */
 // mailHelper.init({
@@ -284,7 +333,7 @@ server.listen(config.port);
 });
 
 
-/**
+/*
  * Handle various process events
  */
 process.on('uncaughtException', function(err) {

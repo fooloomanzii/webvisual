@@ -1,9 +1,10 @@
 (function(){
 'use strict';
 
-var fs     = require('fs'),
-    path   = require('path'),
-    config = require('../config/config.json');
+var fs        = require('fs'),
+    path      = require('path'),
+    config    = require('../config/config.json'),
+    copywatch = require('../modules/copywatch');
 
 /**
  * function: Route in Public Filesystem
@@ -28,22 +29,27 @@ exports.index = route('index', { title: 'WebVisual' });
 // External Logfile (file path from config.json)
 exports.externalLogFile = function(req, res) {
   var filepath = path.resolve(__dirname + config.logs.external_log);
-  var text = fs.readFileSync(filepath, "utf8");
-  res.send(text);
+  
+  var text = fs.readFile(filepath, function(err, data) {
+    res.send(data);
+  });
 };
 
 // Data File        (file path from config.json)
 exports.dataString = function(req, res) {
   var filepath = path.resolve(__dirname + config.connections.file.path);
-  var text = fs.readFileSync(filepath, "utf8");
-  res.send(text);
+  var text = fs.readFile(filepath, function(err, data) {
+    res.send(data);
+  });
+
 };
 
 // Configuration    (send config.json)
 exports.settingsJSON = function(req, res) {
   var filepath = path.resolve(__dirname + '/../config/config.json');
-  var settings = fs.readFileSync(filepath, "utf8");
-  res.send(settings);
+  var text = fs.readFile(filepath, function(err, data) {
+    res.send(data);
+  });
 };
 
 })();
