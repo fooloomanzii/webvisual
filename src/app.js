@@ -165,7 +165,7 @@ var userCounter = 0,
                         socket.emit('data', config);
                       }),
     // DATAHANDLER - established the data connections
-    connections = new dataHandler( {
+    dataFile = new dataHandler( {
       // Object used the Configuration
       connection: config.connections,
       listener: {
@@ -292,14 +292,10 @@ var logData = {},
  * Get SERVER running!
  */
 
-connections.connect(); // establish all connections
+dataFile.connect(); // establish all connections
 
 externalLogFile.connect();
 
-// console.log(connections.connection);
-// console.log(externalLogFile.connection);
-// console.log(connections.connectionConfig);
-// console.log(externalLogFile.connectionConfig);
 server.listen(config.port);
 
 
