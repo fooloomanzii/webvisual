@@ -45,6 +45,7 @@ The function returns a watcher instance or a array of watcher if multiple paths 
 var fs        = require('fs'),
   path_util   = require('path'),
   watchr      = require('watchr'),
+  _           = require('underscore'),
 
 // "Global" variables
   _default    = {
@@ -70,7 +71,7 @@ var fs        = require('fs'),
 */
 function _error_handler(err) {
   if (err) {
-    if ($.isArray(err) && err.length === 0) {
+    if (_.isArray(err) && err.length === 0) {
       return;
     }
     console.error("An error occured: ", err);
@@ -200,6 +201,7 @@ function _process_copy(path, start, end, process, callback) {
   _process_read(path, start, end, process, finish);
 }
 
+// Read Process
 function _process_read(path, start, end, process, callback) {
   // Define variables
   var processedData = [],
@@ -214,7 +216,7 @@ function _process_read(path, start, end, process, callback) {
   read = fs.createReadStream(path, readOptions);
 
   read.on('error', function(err) {
-    throw new Error("An error occured while reading the file '"+path+"'.\nDetails: "+err);
+    console.warn("An error occured while reading the file '"+path+"'.\nDetails: "+err.details);
   });
 
 
@@ -233,9 +235,10 @@ function _process_read(path, start, end, process, callback) {
 
   // Reading the stream
   var tmpBuffer = "", linecount = 0;
+
   read.on('readable', function() {
     var data = '',
-      chunk;
+        chunk;
 
     // Read the data in the buffer
     while(null !== (chunk = read.read())) {
@@ -274,7 +277,76 @@ function _process_read(path, start, end, process, callback) {
     if(tmpBuffer !== "") {
       process(tmpBuffer, pushData);
     }
+    // Are there any errors?
+    if(errorData.length === 0) errorData = null;
 
+    if(callback) callback(errorData, processedData);
+  });
+}
+
+// Read JSON
+function _process_json(path, start, end, process, callback) {
+  // (starts same as _process_read)
+  // Define variables
+  var processedData = [],
+    errorData     = [],
+    readOptions   = _file_options(start, end).readOptions,
+    read;
+
+  // Set the encoding
+  readOptions.encoding = 'utf8';
+
+  // Create the readstream
+  read = fs.createReadStream(path, readOptions);
+
+  read.on('error', function(err) {
+    console.warn("An error occured while reading the file '"+path+"'.\nDetails: "+err.details);
+  });
+
+
+  // We don't want to create functions in loops
+  function pushData(err, data) {
+    if(err)  { // null == undefined => true; this is used here
+      errorData.push({
+        file: path,
+        lineNumber: linecount,
+        error: err
+      });
+    } else {
+      processedData.push(data);
+    }
+  }
+
+  // Reading the stream
+  var tmpBuffer = "", linecount = 0;
+
+  read.on('readable', function() {
+    var data = '',
+        chunk;
+
+    // Read the data in the buffer
+    while(null !== (chunk = read.read())) {
+      data += chunk;
+    }
+
+    // There is no data? Well, wtf but we can't work with no data
+    if(data === '') return;
+
+    // Try to parse the data-String in JSON
+    try {
+      data = JSON.parse(data);
+    }
+    catch(err) {
+      console.warn("Invalid JSON-Format in file '"+path+"'.\n"+err);
+    }
+  });
+
+  // End the stream
+  read.on('end', function(chunk) {
+    // We still need to add the last stored line in tmpBuffer, if there is one
+    if(tmpBuffer !== "") {
+      process(tmpBuffer, pushData);
+    }
     // Are there any errors?
     if(errorData.length === 0) errorData = null;
 
@@ -288,6 +360,7 @@ function _process_read(path, start, end, process, callback) {
 function _create_watch_options(mode, options) {
   var nOptions =  {
     mode: mode,
+    json: options.json,
     firstCopy: ((options.firstCopy !== undefined) ? options.firstCopy : _default.firstCopy),
     watch_error: options.watch_error || _default.watch_error,
     work_function: _default.work_function,
@@ -309,8 +382,13 @@ function _create_watch_options(mode, options) {
 
   // copy option; a boolean
   if(options.copy === false) {
+    // JSON read option
+    if (options.json) {
+      nOptions.work_function = _process_json;
+      nOptions.process = null;
+    }
     // It was already checked if content is a valid function
-    if(options.content) {
+    else if (options.content) {
       // Just process the file and give the data to the specified callback
       nOptions.work_function = _process_read;
     } else {
@@ -381,10 +459,11 @@ function _create_listeners(options) {
 /*
   Unwatch a file
     path - path to the file
-    remove - bool value: delete the copy version, or leave it?
+    remove - bool value: delete the version, or leave it?
 */
 function unwatch(path, remove, callback) {
   // Make the path an absolute path
+  console.log(path);
   path = path_util.resolve(path);
   if (_watchers[path] !== undefined) {
     _watchers[path].close();
@@ -392,7 +471,10 @@ function unwatch(path, remove, callback) {
 
     delete _watchers[path];
 
-    if (remove) return fs.unlink(path+_extension, (callback || _error_handler));
+    if (remove) {
+      console.log("Stoped watching file '"+path+"'.");
+      return fs.unlink(path, (callback || _error_handler));
+    }
     else if (callback) return callback();
   } else {
     return callback(new Error("No such file is watched."));

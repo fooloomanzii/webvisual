@@ -58,6 +58,8 @@ var
     "file": {
       // We don't need to make a copy of the file
       copy: false,
+      // if it's a JSON-file
+      json: false,
       // The watching mode ('all', 'append', 'prepend')
       mode: 'all',
       // Default file: Same dir as the "master" script
@@ -284,7 +286,6 @@ dataHandler = (function() {
 
     // Validate and process the connections
     this._connect(config.connection);
-
 
     // Process the given listener
     this._addListener(config.listener);

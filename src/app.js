@@ -20,15 +20,15 @@ var dataModule   = require('./data'),                               // custom: D
     defaults     = { connections : [],
                      command_file: 'commands.json',
                      port        : 3000,
-    },
+    };
 
     // Configuration from config-file, uses default values, if necessary
     // TODO: make configs dynamical loaded (or watched)
-    configFile   = fs.readFileSync(__dirname + '/config/config.json'),
-    config;
+
+var config;
 
     try {
-      config = JSON.parse(configFile);
+      config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json'));
     }
     catch (err) {
       console.log('There has been an error parsing the config-file.')
@@ -76,10 +76,10 @@ app.set('views', __dirname + '/views');
  * Defining Errors
  */
 
-// if Error: Defined in serverLogMode, which kind of errors, are written in SERVERLOGFILE by MORGAN
+// if Error: Defined in serverLogMode, which kind of errors, are written in HTTPSERVERLOGFILE by MORGAN
 // Server-Log-File and -Mode (used by MORGAN) for Server-Mistakes (Http-Status-Code above 500)
 // TODO: if necessary, catch different HTTP errors, or other errors
-var serverLogFile    = __dirname + config.logs.server_log,
+var serverLogFile    = __dirname + config.logs.http_server_log,
     serverLogMode    = { stream: fs.createWriteStream(serverLogFile, {flags: 'a'}),
                         skip: function (req, res) { return res.statusCode < 500 }},
     logFormat        = ':date[clf] - ":status" - :remote-addr - ":method :url" - :response-time ms :res[content-length]';
@@ -166,7 +166,8 @@ var configData = "",
       // Object used the Configuration
       connection: { "file": { "copy"    : false,
                               "mode"    : "all",
-                              "path"    : "/../config/config.json",
+                              "json"    : true,
+                              "path"    : "/../config/config2.json",
                               "process" : "" }},
       listener: {
         error: function(type, err) {
@@ -176,8 +177,10 @@ var configData = "",
           // SocketIO Listener
           function(type, data) {
             // Send the current data;
+            console.log(type);
+            var sendEvent = 'data';
             configData = data;
-            configSocket.emit('message', configData);
+            configSocket.emit('data', configData);
           }
         ]
       }
@@ -268,46 +271,47 @@ var dataFile = new dataHandler( {
                     });
 
     // external-Log-File-Socket
-var logData = {},
-    externalLogFile = new dataHandler( {
-      // Object used the Configuration
-      connection: { "file": { "copy"    : false,
-                              "mode"    : "all",
-                              "path"    : config.logs.external_log,
-                              "process" : "" }},
-      listener: {
-        error: function(type, err) {
-          logSocket.emit('mistake', { data: err, time: new Date()});
-        },
-        data: [
-          // SocketIO Listener
-          function(type, data) {
-
-            // //- Store the current message time
-            // logData.time=new Date();
-            //
-            // var sendEvent = 'externalLog';
-            //
-            // // Set the first event and add the state, if it is the first parsing
-            // if(waitFirst) {
-            //   sendEvent = 'first';
-            //   waitFirst = false;
-            // }
-            //
-            // //- Save the current data
-            logData.data=data;
-            // console.log(data);
-
-            //- ... finally send the data
-            logSocket.emit('externalLog', logData);
-          }
-        ]
-      }
-    }),
-    logSocket = io.of('/log')
-                   .on('connection', function(socket) {
-                      socket.emit('message', logData.data);
-                     });
+// var logData = {},
+//     externalLogFile = new dataHandler( {
+//       // Object used the Configuration
+//       connection: { "file": { "copy"    : false,
+//                               "mode"    : "all",
+//                               "path"    : config.logs.external_log,
+//                               "process" : "" }},
+//       listener: {
+//         error: function(type, err) {
+//           logSocket.emit('mistake', { data: err, time: new Date()});
+//         },
+//         data: [
+//           // SocketIO Listener
+//           function(type, data) {
+//
+//             // //- Store the current message time
+//             // logData.time=new Date();
+//             //
+//             // var sendEvent = 'externalLog';
+//             //
+//             // // Set the first event and add the state, if it is the first parsing
+//             // if(waitFirst) {
+//             //   sendEvent = 'first';
+//             //   waitFirst = false;
+//             // }
+//             //
+//             // //- Save the current data
+//             logData.data=data;
+//             // console.log(data);
+//
+//             //- ... finally send the data
+//             logSocket.emit('externalLog', logData);
+//           }
+//         ]
+//       }
+//     }),
+//     logSocket = io.of('/log')
+//                    .on('connection', function(socket) {
+//                       console.log(logData.data);
+//                       socket.emit('message', logData.data);
+//                      });
 
 /*
  * Get SERVER.io and server running!
@@ -316,7 +320,7 @@ configFile.connect(); // establish the connections
 
 dataFile.connect();
 
-externalLogFile.connect();
+// externalLogFile.connect();
 
 server.listen(config.port);
 
