@@ -74,7 +74,7 @@
 
           <!-- Log-File -->
 
-          <paper-button dialog-id="log" dialog-class="sidemenu" class="sidemenu" onclick="openDialog(this)">
+          <paper-button dialog-id="log" dialog-class="sidemenu" ajax class="sidemenu" onclick="openDialog(this)">
             <iron-icon icon="history"></iron-icon>Log
           </paper-button>
 
@@ -86,7 +86,7 @@
 
             <iron-collapse class="sidemenu collapse information">
               <section class="collapse-content">
-                <paper-button dialog-id="data" dialog-class="sidemenu" class="sidemenu" onclick="openDialog(this)">
+                <paper-button dialog-id="data" dialog-class="sidemenu" ajax class="sidemenu" onclick="openDialog(this)">
                   <iron-icon icon="receipt"></iron-icon>Data-File
                 </paper-button>
               </section>
@@ -109,6 +109,9 @@
 
             <!-- Logo -->
             <div class="flex" onclick="enable()">Jülich</div>
+
+            <!-- Sidemenu Button -->
+            <paper-icon-button icon="perm-identity" id="identity" class="mainmenu" dialog-id="Login" dialog-class="mainmenu" onclick="openDialog(this)"></paper-icon-button>
 
           </section>
 
@@ -133,10 +136,28 @@
       </paper-header-panel>
     </paper-drawer-panel>
 
+
+    <!-- Dialogs -->
+
+      <!-- Log-in -->
+    <paper-dialog class="mainmenu" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+      <h2 class="dialog-title" horizontal layout>Login</h2>
+      <section class="dialog-section" vertical layout center>
+        <paper-input label="Benutzername"></paper-input>
+        <paper-input label="Passwort" type="password"></paper-input>
+      </section>
+      <div class="buttons">
+        <paper-button dialog-dismiss><iron-icon icon="close"></iron-icon>abbrechen</paper-button>
+        <paper-button dialog-confirm><iron-icon icon="check"></iron-icon>anmelden</paper-button>
+      </div>
+    </paper-dialog>
+
+      <!-- Page-Options -->
     <paper-dialog class="submenu" onclick="insertTest()" entry-animation="slide-from-left-animation" exit-animation="fade-out-animation">
       <paper-dialog-scrollable></paper-dialog-scrollable>
     </paper-dialog>
 
+      <!-- Files -->
     <template is="dom-bind">
 
       <iron-ajax id="ajaxElement" auto url=""
@@ -150,7 +171,7 @@
           <paper-button disabled><iron-icon icon="mail"></iron-icon>Send</paper-button>
           <paper-button disabled><iron-icon icon="print"></iron-icon>Print</paper-button>
           <paper-button onclick="document.getElementById('ajaxElement').generateRequest()"><iron-icon icon="refresh"></iron-icon>Reload</paper-button>
-          <paper-button dialog-confirm><iron-icon icon="done"></iron-icon>OK</paper-button>
+          <paper-button dialog-confirm><iron-icon icon="check"></iron-icon>OK</paper-button>
         </div>
       </paper-dialog>
 
@@ -218,11 +239,13 @@
     }
 
     var id = button.getAttribute('dialog-id');
-    var className = button.getAttribute('dialog-class')
+    var className = button.getAttribute('dialog-class');
+    var aj = button.getAttribute('ajax');
     var dialog = document.querySelector('paper-dialog.'+className);
 
-    $('paper-dialog .dialog-title').text(id + '-file');
-    $('iron-ajax').attr('url','/'+id);
+    $('paper-dialog.'+className+' .dialog-title').text(id);
+    if (typeof aj === 'string')
+      $('iron-ajax').attr('url','/'+id);
 
     if (dialog) {
       dialog.open();

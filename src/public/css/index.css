@@ -13,14 +13,9 @@
  */
 
 paper-fab#extension {
-  opacity: 0.3;
   position: fixed;
   bottom: 0.5em;
   right: -0.5em;
-}
-
-paper-fab#extension:hover {
-  opacity: 1;
 }
 
 paper-button.sidemenu {
@@ -74,7 +69,7 @@ paper-dialog.submenu {
 
 /* Screens */
 /* mobile-small */
-@media all and (min-width: 0px) and (max-width: 360px) and (orientation: portrait) {
+@media all and (min-width: 0px) and (max-width: 480px) {
 }
 /* mobile-large */
 @media all and (min-width: 361px) and (orientation: portrait) {

@@ -155,7 +155,6 @@ io.set('log level', 1);
 
 // Socket variables
 var userCounter = 0,
-    currentData = {},
     waitFirst = true,
     states={};
 
@@ -179,6 +178,7 @@ var configData,
             // Send the current data;
             configData = data;
             configSocket.emit('data', configData);
+            // Update
           }
         ]
       }
@@ -188,7 +188,8 @@ var configData,
                         socket.emit('data', configData);
                       });
     // DATAHANDLER - established the data connections
-var dataFile = new dataHandler( {
+var currentData = {},
+    dataFile = new dataHandler( {
       // Object used the Configuration
       connection: config.connections,
       listener: {

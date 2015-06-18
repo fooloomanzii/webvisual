@@ -12,7 +12,7 @@
 /* Application theme */
 
 :root {
-    font-family: Roboto-Regular;
+    font-family: Roboto;
     font-size: 1em;
     font-weight: normal;
     text-align: left;
@@ -70,8 +70,11 @@
     --paper-tab-ink: var(--secondary-hover-color);
     --paper-dialog-background-color: var(--default-primary-background-color);
     --paper-dialog-button-color: var(--default-primary-text-color);
+    --paper-dialog-color: var(--default-primary-text-color);
     --paper-toolbar-color: var(--default-icon-color);
     --paper-toolbar-background: var(--default-primary-color);
+    --paper-input-container-color: var(--default-primary-text-color);
+    --paper-input-container-focus-color: var(--dark-primary-color);
 
     /* Mixins*/
     --paper-button: {
@@ -80,6 +83,7 @@
         padding: 0.2em;
         background: var(--default-button-color);
         color: currentColor;
+        font-family: inherit;
         text-align: left;
         text-transform: none;
         font-weight: normal;
@@ -105,6 +109,7 @@
         text-align: left;
         text-transform: none;
         font-weight: normal;
+        font-family: Roboto;
         cursor: pointer;
         -webkit-user-select: none;
         -moz-user-select: none;
@@ -128,6 +133,7 @@
     --paper-toolbar: {
         background-color: var(--default-primary-color);
         color: var(--default-icon-color);
+        font-family: Roboto;
         padding: 0.5em;
         height: 2.5em;
         line-height: 2.5em;
@@ -142,6 +148,7 @@
         };
 
     --paper-menu: {
+        font-family: Roboto;
         margin: 0em;
         padding: 0em;
         background: none;
@@ -154,6 +161,23 @@
         background: none;
         };
 
+    ----paper-input-container: {
+        color: currentColor;
+        font-family: Roboto-Condensed;
+        font-size: 1em;
+        font-weight: normal;
+        line-height: 1.4rem;
+      };
+
+    --paper-dialog: {
+        font-family: Roboto-Condensed;
+        border-radius: 5px;
+        color: currentColor;
+        text-rendering: inherit;
+        font-weight: normal;
+        line-height: 1.4em;
+      };
+
     --default-transition: {
       transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     };
@@ -164,6 +188,10 @@
 body {
   background-color: var(--default-secondary-background-color);
   transition: all 0.56s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: Roboto;
 }
 
 body.dark {
@@ -239,6 +267,14 @@ paper-fab {
   @apply(--icon-button-theme)
 }
 
+paper-fab {
+  opacity: 0.3;
+}
+
+paper-fab:hover {
+  opacity: 1;
+}
+
 paper-icon-button:hover {
   background: var(--primary-hover-color);
   border-radius: 50%;
@@ -269,12 +305,12 @@ paper-toggle-button#color-schema {
  */
 
 paper-material {
- border-radius: 2px;
- color: currentColor;
- padding: 1em 0.5em;
- margin: 1em;
- background: var(--default-primary-background-color);
- @apply(--default-transition)
+   border-radius: 2px;
+   color: currentColor;
+   padding: 1em 0.5em;
+   margin: 1em;
+   background: var(--default-primary-background-color);
+   @apply(--default-transition)
 }
 
 paper-material.dark {
@@ -320,15 +356,28 @@ iron-collapse {
  * Dialogs
  */
 
-paper-dialog-scrollable, paper-dialog {
-  font-family: Roboto-Condensed;
+paper-dialog > *:first-child {
+  margin: 0em;
+  padding: 1.5em 0.5em 1em 0.5em;
+  text-align: center;
 }
 
-paper-dialog {
+paper-dialog >* {
+  margin: 0em;
+  padding: 0em 1.5em 1.5em 1.5em;
+}
+
+paper-dialog > *:last-child {
+  padding: 0.5em;
 }
 
 paper-dialog.dark {
   background: var(--dark-primary-background-color);
+}
+
+paper-dialog.dark > *:first-child {
+  color: var(--light-primary-color);
+  background: var(--dark-primary-color);
 }
 
 /*
@@ -352,7 +401,7 @@ paper-tab:hover {
  * Fonts
  */
 @font-face {
- font-family: Roboto-Regular;
+ font-family: Roboto;
  src: url('fonts/Roboto-Regular.ttf') format('truetype');
  font-weight: normal;
  font-style: normal;
@@ -403,7 +452,8 @@ paper-tab:hover {
 /*
  * Spezifications for certain Views
  */
-
+ @media all and (min-width: 0px) and (max-width: 480px) {
+ }
 /* mobile-small */
 @media all and (min-width: 0px) and (max-width: 360px) and (orientation: portrait) { }
 /* mobile-large */
