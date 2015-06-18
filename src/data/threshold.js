@@ -19,7 +19,7 @@ var _           = require('underscore'),
   * Theshold arbeitet nicht dynamisch --> wenn sich in config, was an den
   * Grenzen ändert, nimmt er die alte Konfiguration
   * TODO: dynamisch machen
-  * <-- eventuell benutzt app.js eine kompilierte Version
+  * 
   *
   */
 

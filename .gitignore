@@ -13,8 +13,6 @@ src/build
 src/public-dep
 src/public-src
 
-
-
 # Node Stuff #
 # src/node_modules
 
@@ -22,7 +20,7 @@ src/public-src
 src/test/OLD/*.txt
 
 # Logs #
-*.log
+# *.log
 
 # Other files #
 *desktop.ini
@@ -31,6 +29,4 @@ src/test/OLD/*.txt
 # Mail login #
 src/config/mail.json
 
-
 *.prefs
-

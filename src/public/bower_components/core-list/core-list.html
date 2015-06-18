@@ -587,7 +587,7 @@ the following abstract API:
             for (j=s.index; j<s.addedCount; j++) {
               var o = new ArrayObserver(this.data[j]);
               args.push(o);
-              o.open(this.getGroupDataHandler(this.data[j]));
+              o.open(this.getGroupdataHandler(this.data[j]));
             }
           }
           observers.splice.apply(observers, args);
@@ -596,7 +596,7 @@ the following abstract API:
       }
     },
 
-    getGroupDataHandler: function(group) {
+    getGroupdataHandler: function(group) {
       return function(splices) {
         this.groupDataChanged(splices, group);
       }.bind(this);

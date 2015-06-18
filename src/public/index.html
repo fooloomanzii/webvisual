@@ -1,0 +1,231 @@
+<head>
+  <title>webvisual</title>
+  <!-- Meta-Tag: Set the viewport-->
+  <meta name="viewport" charset="utf-8" content="width=device-width, initial-scale=1, user-scalable=yes"/>
+
+  <!-- Web-Components -->
+  <script src="components/webcomponentsjs/webcomponents.min.js"></script>
+
+  <!-- Imported Elements and Scripts -->
+  <link rel="import" href="imports.html"/>
+  <!-- CSS Style -->
+  <link href="css/index.css" type="text/css" rel="stylesheet"/>
+
+</head>
+
+<body unresolved horizontal layout center>
+
+
+    <paper-drawer-panel force-narrow="true">
+
+      <!-- SIDEMENU -->
+
+      <paper-header-panel drawer id="drawerPanel">
+        <iron-selector selected="0" selectable="paper-button.sidemenu">
+
+          <!-- Page Routing -->
+            <!-- onclick="document.querySelector('paper-drawer-panel').togglePanel();" -->
+          <paper-button collapse-id="pageview" class="sidemenu" onclick="toggleCollapse(this)">
+            <iron-icon icon="pageview"></iron-icon>Anzeige
+          </paper-button>
+
+            <iron-collapse class="sidemenu collapse pageview">
+              <section class="collapse-content">
+
+                <iron-selector selected="0">
+                  <paper-button><iron-icon icon="view-module"></iron-icon>Übersicht</paper-button>
+                  <paper-button><iron-icon icon="view-list"></iron-icon>Tabelle</paper-button>
+                  <paper-button><iron-icon icon="assessment"></iron-icon>Graphen</paper-button>
+                </iron-selector>
+
+              </section>
+            </iron-collapse>
+
+          <!-- Main Settings -->
+
+          <paper-button collapse-id="settings" class="sidemenu" onclick="toggleCollapse(this)">
+            <iron-icon icon="settings"></iron-icon>Einstellungen
+          </paper-button>
+
+            <iron-collapse class="sidemenu collapse settings">
+              <section class="collapse-content">
+                <paper-button collapse-id="language" class="sidemenu" onclick="toggleCollapse(this)">
+                  <iron-icon icon="language"></iron-icon>Sprachauswahl
+                </paper-button>
+                  <iron-collapse class="sidemenu collapse language">
+                    <paper-tabs id="language" selected="1">
+                      <paper-tab>en</paper-tab>
+                      <paper-tab>de</paper-tab>
+                      <paper-tab>fr</paper-tab>
+                      <paper-tab>es</paper-tab>
+                      <paper-tab>ru</paper-tab>
+                    </paper-tabs>
+                  </iron-collapse>
+                <paper-item>
+                  <iron-icon icon="invert-colors"></iron-icon>
+                  <section class="flex">Farbschema</section>
+                  <paper-toggle-button id="color-schema" onclick="changeTheme()"></paper-toggle-button>
+                </paper-item>
+
+              </section>
+            </iron-collapse>
+
+        </iron-selector>
+
+          <!-- Log-File -->
+
+          <paper-button dialog-id="log" dialog-class="sidemenu" class="sidemenu" onclick="openDialog(this)">
+            <iron-icon icon="history"></iron-icon>Log
+          </paper-button>
+
+          <!-- Informations -->
+
+          <paper-button collapse-id="information" class="sidemenu" onclick="toggleCollapse(this)">
+            <iron-icon icon="description"></iron-icon>Informationen
+          </paper-button>
+
+            <iron-collapse class="sidemenu collapse information">
+              <section class="collapse-content">
+                <paper-button dialog-id="data" dialog-class="sidemenu" class="sidemenu" onclick="openDialog(this)">
+                  <iron-icon icon="receipt"></iron-icon>Data-File
+                </paper-button>
+              </section>
+            </iron-collapse>
+
+      </paper-header-panel>
+
+
+      <!-- MAIN VIEW -->
+      <paper-header-panel main id="mainPanel">
+
+        <!-- Toolbar -->
+        <paper-toolbar id="mainToolbar">
+
+          <!-- Upper Part -->
+          <section id="header" class="horizontal layout">
+
+            <!-- Sidemenu Button -->
+            <paper-icon-button icon="menu" class="mainmenu" paper-drawer-toggle></paper-icon-button>
+
+            <!-- Logo -->
+            <div class="flex" onclick="enable()">Jülich</div>
+
+          </section>
+
+          <!-- Lower Part (Collapsible) -->
+          <section id="lower" flex horizontal layout>
+            TODO: add costum content object
+          </section>
+        </paper-toolbar>
+
+        <!-- Page Content -->
+        <section id="main">
+
+          <paper-material elevation="2">
+            <section style="white-space: normal;" class="innerM"></section>
+          </paper-material>
+
+          <!-- Page Options -->
+          <paper-fab mini disabled icon="extension" dialog-id="page1" dialog-class="submenu" id="extension" onclick="openDialog(this)"></paper-fab>
+
+        </section>
+
+      </paper-header-panel>
+    </paper-drawer-panel>
+
+    <paper-dialog class="submenu" onclick="insertTest()" entry-animation="slide-from-left-animation" exit-animation="fade-out-animation">
+      <paper-dialog-scrollable></paper-dialog-scrollable>
+    </paper-dialog>
+
+    <template is="dom-bind">
+
+      <iron-ajax id="ajaxElement" auto url=""
+          params=''
+          handle-as="text" last-response="{{ajaxLogResponse}}"></iron-ajax>
+
+      <paper-dialog class="sidemenu" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+        <h2 class="dialog-title"></h2>
+        <paper-dialog-scrollable>[[ajaxLogResponse]]</paper-dialog-scrollable>
+        <div class="buttons">
+          <paper-button disabled><iron-icon icon="mail"></iron-icon>Send</paper-button>
+          <paper-button disabled><iron-icon icon="print"></iron-icon>Print</paper-button>
+          <paper-button onclick="document.getElementById('ajaxElement').generateRequest()"><iron-icon icon="refresh"></iron-icon>Reload</paper-button>
+          <paper-button dialog-confirm><iron-icon icon="done"></iron-icon>OK</paper-button>
+        </div>
+      </paper-dialog>
+
+    </template>
+
+</body>
+
+<script>
+  function lift(){
+    $('paper-material').attr('elevation','5');
+  }
+  function expand(){
+    $('paper-toolbar').css('height','10em');
+    $('paper-material.submenu').addClass("active");
+  }
+  function insertTest(){
+    $.get( "/data", function( response ) {
+      $("body").css("--default-primary-color","red");
+      $('paper-dialog.submenu paper-dialog-scrollable').text(response);
+    });
+  }
+  function enable(){
+    $('paper-fab').attr("disabled", false);
+
+    $.get( "/data", function( response ) {
+      $('.inner').text("<p>"+response+"</p>");
+    });
+  }
+  function toggleCollapse(elem){
+    var button = elem;
+    while (!button.hasAttribute('collapse-id') && button !== document.body) {
+      button = button.parentElement;
+    }
+
+    if (!button.hasAttribute('collapse-id')) {
+      return;
+    }
+
+    var id = button.getAttribute('collapse-id');
+    var collapse = document.querySelector('iron-collapse.'+id);
+
+    if (collapse) {
+      collapse.toggle();
+    }
+  }
+  function changeTheme(){
+    var button = document.getElementById('color-schema');
+    if(button.checked == true) {
+      $('*').removeClass("dark");
+      console.log("pressed");
+    }
+    else {
+      $('*').addClass("dark");
+    }
+  }
+  function openDialog(elem){
+
+    var button = elem;
+    while (!button.hasAttribute('dialog-id') && button !== document.body) {
+      button = button.parentElement;
+    }
+
+    if (!button.hasAttribute('dialog-id') || !button.hasAttribute('dialog-class')) {
+      return;
+    }
+
+    var id = button.getAttribute('dialog-id');
+    var className = button.getAttribute('dialog-class')
+    var dialog = document.querySelector('paper-dialog.'+className);
+
+    $('paper-dialog .dialog-title').text(id + '-file');
+    $('iron-ajax').attr('url','/'+id);
+
+    if (dialog) {
+      dialog.open();
+    }
+  }
+</script>

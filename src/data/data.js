@@ -1,7 +1,7 @@
 /**
  * HOW TO USE
  *
- * The DataHandler class. This class is used to handle data connections and the incoming data with ease.
+ * The dataHandler class. This class is used to handle data connections and the incoming data with ease.
  * @param  {Object} config A configuration object with the following options:
  *     @attr  {Array/Object} connection
  *         A array or object with a list of connections to use. If an array is used, the module will use default
@@ -20,7 +20,7 @@
  *           }
  *         }
  *     @attr  {Function/Object} listener
- *         The attributes of this object can be used to add listener on the various events of the DataHandler.
+ *         The attributes of this object can be used to add listener on the various events of the dataHandler.
  *         Valid listener are:
  *         data
  *             Will be called when new data arrives, the arguments it receives are:
@@ -37,18 +37,19 @@
 
 var
 // Own modules
-  udpwatch    = require('../modules/udpwatch'),
-  copywatch   = require('../modules/copywatch'),
-  data_parser = require('../modules/data_parser'),
-  path_util   = require('path'),
+  udpwatch     = require('../modules/udpwatch'),
+  copywatch    = require('../modules/copywatch'),
+  data_parser  = require('../modules/data_parser'),
+  path_util    = require('path'),
 // Node modules
-  net      = require('net'),
-  _        = require('underscore'),
+  net          = require('net'),
+  _            = require('underscore'),
+  defaultsDeep = require('merge-defaults'),
 // Mailer variables and log in information
   // mail, icsMail = require('./mail.json'),
 // Class
   EventEmitter = require('events').EventEmitter,
-  DataHandler,
+  dataHandler,
 // Config & Co
   connectionDefaults = {
     "db": {
@@ -60,13 +61,15 @@ var
       // The watching mode ('all', 'append', 'prepend')
       mode: 'all',
       // Default file: Same dir as the "master" script
-      path: __dirname+'/../data.txt',
+      path: '/../../data/data.txt',
       // The default parse function from the data_parser module
       process: data_parser.parse
     },
     "udp": {
       // We don't need to make a copy of the data
       log: false,
+      // TODO: use log_file, if logging
+      log_path: '/../../data/udp/',
       // The watching mode ('all', 'append', 'prepend')
       mode: 'append',
       // Default port for receiving the data from the source
@@ -186,7 +189,6 @@ connectionFn.db = {
   }
 };
 
-
 connectionFn.file = {
   /**
    * Ends the watching of the specified file.
@@ -208,15 +210,15 @@ connectionFn.file = {
   connect: function(config, emitter) {
     // Log
     console.log("Started watching \""+path_util.basename(config.path)+"\"");
-    
+
     // Add the function which recieves the parsed data; calls the emitter
     config.content = emitter;
 
     // Start watching the file
-    copywatch.watch(config.mode, config.path, config);
+    copywatch.watch(config.mode, __dirname + config.path, config);
 
     // Return the necessary data to end the watcher
-    return { path: config.path, remove: config.copy };
+    return { path: __dirname + config.path, remove: config.copy };
   }
 };
 
@@ -237,8 +239,8 @@ connectionFn.udp = {
    * @param  {Object} config The configuration for the UDP connection
    * @return {Object} An UDP connection object
    */
-  connect: function(config, emitter) {  
-    
+  connect: function(config, emitter) {
+
     // Add the function which recieves the parsed data; calls the emitter
     config.content = emitter;
 
@@ -256,7 +258,7 @@ connectionFn.udp = {
  * To handle incoming data listeners can be bound to the 'data' event.
  * It is possible to create a instance for multiple connection-types.
  */
-DataHandler = (function() {
+dataHandler = (function() {
   // jshint validthis:true
   var defaults = {
       listener: {
@@ -275,13 +277,14 @@ DataHandler = (function() {
     if( !(this instanceof _Class) ) return new _Class(config);
 
     // Use defaults for undefined values
-    _(config).defaults(defaults);
+    config = defaultsDeep(config,defaults);
 
     // Add a instance of the EventEmitter
     this._emitter = new EventEmitter();
 
     // Validate and process the connections
     this._connect(config.connection);
+
 
     // Process the given listener
     this._addListener(config.listener);
@@ -290,7 +293,9 @@ DataHandler = (function() {
   // Extend with properties; null values are just place holder for instantiated properties
   _(_Class.prototype).extend({
     _emitter    : null,
-    _connections: {}
+    _connections: {},
+    connection: [],
+    connectionConfig: {}
   });
 
   /////////////////////
@@ -345,7 +350,7 @@ DataHandler = (function() {
 
   /**
    * THE connect function. Receives a configuration object or a list of connections and establishes the connections.
-   * The connections get saved in the "private" _connections object of the DataHandler instance.
+   * The connections get saved in the "private" _connections object of the dataHandler instance.
    *
    * @param  {Object / Array} connection A object where the keys specify the connection type and the value is the configuration
    *                             OR
@@ -355,6 +360,7 @@ DataHandler = (function() {
     var connectionConfig = {},
       self = this;
     // Check if the connection option is an object but not an array
+    // TODO: REWRITE for file-support
     if(_(connection).isObject() && !_(connection).isArray()) {
       // If it's an object, then the object keys specify the connection to use while the values should be config objects
       // for the specified connection
@@ -386,14 +392,12 @@ DataHandler = (function() {
       connection = [ connection ];
     }
 
-
     // Fill the connectionConfig with default values, if necessary
-    _(connectionConfig).defaults(connectionDefaults);
-
+    self.connectionConfig = defaultsDeep(connectionConfig,connectionDefaults);
 
     // Ensure the array of strings describe actually valid connection types; throw an error in case of an invalid type
     // Also ensure that the keys are actually all lower case
-    connection = _(connection).map( function( value ) {
+    self.connection = _(connection).map( function( value ) {
       var  objType  = typeof value;
 
       // Check for correct type
@@ -432,33 +436,35 @@ DataHandler = (function() {
       // Add the listener to the event
       this._emitter.on(eventName, listener);
     };
-    
+
     /**
      * Established all connections
      */
     _Class.prototype.connect = function() {
+      var self = this;
       // Execute the necessary connection functions which are saved in the connectionsFn object
-      _(connection).each( function( type ) {
-        // Execute the connection function with configuration; ensure it is called in the this-context of the DataHandler
+      _(self.connection).each( function( type ) {
+        // Execute the connection function with configuration; ensure it is called in the this-context of the dataHandler
         // Add the resulting connection object to the "private" _connection object of the instance
         self._connections[type] = connectionFn[type].connect(
-          connectionConfig[type],
+          self.connectionConfig[type],
           // Create a suitable emitter function for the type, this ensures that the correct events get emitted on data occurrence
           self._createEmitter(type)
         );
       });
     };
-    
+
     /**
      * Closes all connections
      */
     _Class.prototype.close = function() {
+      var self = this;
       // Execute the necessary connection functions which are saved in the connectionsFn object
-      _(connection).each( function( type ) {
-        // Execute the connection function with configuration; ensure it is called in the this-context of the DataHandler
+      _(self.connection).each( function( type ) {
+        // Execute the connection function with configuration; ensure it is called in the this-context of the dataHandler
         // Add the resulting connection object to the "private" _connection object of the instance
         self._connections[type] = connectionFn[type].close(
-          connectionConfig[type]
+          self.connectionConfig[type]
         );
       });
     };
@@ -472,5 +478,5 @@ DataHandler = (function() {
 ////////////
 
 module.exports = {
-  DataHandler: DataHandler
+  dataHandler: dataHandler
 };

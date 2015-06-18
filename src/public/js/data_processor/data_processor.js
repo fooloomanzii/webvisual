@@ -33,15 +33,29 @@
   // (if the Client is ready)
     $(document).ready(function() {
       //TODO Error/Waiting page if connection to sockets is impossible
-      
+
       // Start of the Server Connection to the Config file
       // (at present "config/config.json")
       var configSocket = io.connect('https://'+window.location.host+'/config', {secure: true});
       var dataSocket = null;
 
+      // Connect to Log-File
+      var logSocket = io.connect('https://'+window.location.host+'/log', {secure: true});
+
+      logSocket.on('message', function(message) {
+          $(".innerM").text(message);
+      });
+
       //***** Receive of Configuration Data
-      configSocket.on('data', function(message) {
+      configSocket.on('message', function(message) {
         if(message === undefined) return; // Check the Existence
+
+        var tmp = "";
+        for (var i=0; i < message.length; i++) {
+          tmp += message[i];
+        }
+
+        message = JSON.parse(tmp);
 
         // Waiting Status
         var event = new CustomEvent("dataLoading");
@@ -55,7 +69,6 @@
         dataSocket = io.connect('https://'+window.location.host+'/data', {secure: true});
 
         //*** Receiving the first Data
-        // (look at copywatch/udpwatch?)
         dataSocket.on('first', function(message) {
           if(message === undefined) return; // Check the Existence
 
@@ -105,7 +118,7 @@
   //***** Load the Configuration in the Data Object
   function arrangeLabels(locals) {
     if (!locals) { // Check for Existence
-      throw new Error("Keine Konfiguration vorhanden");
+      throw new Error("No configuration loaded.");
       return;
     }
     else {
