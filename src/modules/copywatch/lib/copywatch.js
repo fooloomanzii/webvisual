@@ -303,49 +303,37 @@ function _process_json(path, start, end, process, callback) {
     console.warn("An error occured while reading the file '"+path+"'.\nDetails: "+err.details);
   });
 
-
-  // We don't want to create functions in loops
-  function pushData(err, data) {
-    if(err)  { // null == undefined => true; this is used here
-      errorData.push({
-        file: path,
-        lineNumber: linecount,
-        error: err
-      });
-    } else {
-      processedData.push(data);
-    }
-  }
-
   // Reading the stream
   var tmpBuffer = "", linecount = 0;
 
   read.on('readable', function() {
-    var data = '',
-        chunk;
+    var chunk;
 
     // Read the data in the buffer
     while(null !== (chunk = read.read())) {
-      data += chunk;
+      tmpBuffer += chunk;
     }
 
     // There is no data? Well, wtf but we can't work with no data
-    if(data === '') return;
-
-    // Try to parse the data-String in JSON
-    try {
-      data = JSON.parse(data);
-    }
-    catch(err) {
-      console.warn("Invalid JSON-Format in file '"+path+"'.\n"+err);
-    }
+    if(tmpBuffer === '') return;
   });
 
   // End the stream
   read.on('end', function(chunk) {
     // We still need to add the last stored line in tmpBuffer, if there is one
-    if(tmpBuffer !== "") {
-      process(tmpBuffer, pushData);
+    if(chunk) tmpBuffer += chunk;
+
+    // Try to parse the data-String in JSON
+    try {
+      processedData = JSON.parse(tmpBuffer);
+    }
+    catch(err) {
+      console.warn("Invalid JSON-Format in file '"+path+"'.\n"+err);
+      errorData.push({
+        file: path,
+        lineNumber: linecount,
+        error: err
+      });
     }
     // Are there any errors?
     if(errorData.length === 0) errorData = null;
@@ -384,6 +372,7 @@ function _create_watch_options(mode, options) {
   if(options.copy === false) {
     // JSON read option
     if (options.json) {
+      nOptions.mode = "all";
       nOptions.work_function = _process_json;
       nOptions.process = null;
     }
@@ -463,7 +452,6 @@ function _create_listeners(options) {
 */
 function unwatch(path, remove, callback) {
   // Make the path an absolute path
-  console.log(path);
   path = path_util.resolve(path);
   if (_watchers[path] !== undefined) {
     _watchers[path].close();

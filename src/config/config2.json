@@ -1,6 +1,6 @@
 {
-  "connections": {7
-    "db": { },
+  "connections": {
+    "db": {},
     "file": {
       "copy": false,
       "mode": "all",
@@ -35,9 +35,9 @@
     "typeWidth":2,
 
     "types": [
-      { "id":"127.148.138.2",
+      { "id":"127.148.138.1",
         "room":"Raum A",
-        "kind":"Chlor",
+        "kind":"SrCghlor",
         "subtypes":[{"var":"Druck" , "unit":"mPa", "threshold": [2,10]},
                     {"var":"Temperatur" , "unit":"°C", "threshold": [2,11]}]},
       { "id":"127.148.138.2",

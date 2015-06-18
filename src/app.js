@@ -161,7 +161,7 @@ var userCounter = 0,
 
     // Config Socket
 
-var configData = "",
+var configData,
     configFile = new dataHandler( {
       // Object used the Configuration
       connection: { "file": { "copy"    : false,
@@ -171,14 +171,12 @@ var configData = "",
                               "process" : "" }},
       listener: {
         error: function(type, err) {
-          logSocket.emit('mistake', { data: err, time: new Date()});
+          configSocket.emit('mistake', { data: err, time: new Date()});
         },
         data: [
           // SocketIO Listener
           function(type, data) {
             // Send the current data;
-            console.log(type);
-            var sendEvent = 'data';
             configData = data;
             configSocket.emit('data', configData);
           }
@@ -187,7 +185,7 @@ var configData = "",
       }),
     configSocket = io.of('/config')
                      .on('connection', function(socket){
-                        socket.emit('message', configData);
+                        socket.emit('data', configData);
                       });
     // DATAHANDLER - established the data connections
 var dataFile = new dataHandler( {

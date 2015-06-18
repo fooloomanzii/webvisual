@@ -42,20 +42,13 @@
       // Connect to Log-File
       var logSocket = io.connect('https://'+window.location.host+'/log', {secure: true});
 
-      logSocket.on('message', function(message) {
+      logSocket.on('data', function(message) {
           $(".innerM").text(message);
       });
 
       //***** Receive of Configuration Data
-      configSocket.on('message', function(message) {
+      configSocket.on('data', function(message) {
         if(message === undefined) return; // Check the Existence
-
-        var tmp = "";
-        for (var i=0; i < message.length; i++) {
-          tmp += message[i];
-        }
-
-        message = JSON.parse(tmp);
 
         // Waiting Status
         var event = new CustomEvent("dataLoading");
