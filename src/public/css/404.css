@@ -1,0 +1,23 @@
+body {
+  items-align: center;
+  text-align: center;
+}
+@font-face{
+  font-family: Lobster;
+  src: url('css/fonts/Lobster-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+section {
+  margin: 16px;
+  font-size: 16px;
+}
+body > paper-material.main {
+  width: auto;
+  margin: 16px;
+  text-align: center;
+}
+paper-fab#logo {
+  color: white;
+  margin: 0px 8px 0px 4px;
+}

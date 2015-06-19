@@ -61,11 +61,13 @@
                       <paper-tab>ru</paper-tab>
                     </paper-tabs>
                   </iron-collapse>
-                <paper-item>
-                  <iron-icon icon="invert-colors"></iron-icon>
-                  <section class="flex">Farbschema</section>
-                  <paper-toggle-button id="color-schema" onclick="changeTheme()"></paper-toggle-button>
-                </paper-item>
+                <paper-button noink>
+                  <section class="horizontal layout center">
+                    <iron-icon icon="invert-colors"></iron-icon>
+                    <span class="flex-3">Farbschema</span>
+                    <paper-toggle-button class="flex" id="color-schema" onclick="changeTheme()"></paper-toggle-button>
+                  </section>
+                </paper-button>
 
               </section>
             </iron-collapse>
@@ -108,7 +110,11 @@
             <paper-icon-button icon="menu" class="mainmenu" paper-drawer-toggle></paper-icon-button>
 
             <!-- Logo -->
-            <div class="flex" onclick="enable()">Jülich</div>
+
+            <iron-icon icon="juelich:logo" id="logo" class="mainmenu"></iron-icon>
+            <iron-image id="script" sizing="contain" src="img/text_borderless_white.svg" fade></iron-image>
+
+            <div class="flex"></div>
 
             <!-- Sidemenu Button -->
             <paper-icon-button icon="social:person-outline" id="identity" class="mainmenu" dialog-id="Login" dialog-class="mainmenu" onclick="openDialog(this)"></paper-icon-button>

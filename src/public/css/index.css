@@ -1,3 +1,43 @@
+paper-material {
+   padding: 1em 0.5em;
+   margin: 1em;
+}
+
+paper-icon-button {
+  margin: 0em 0.5em 0em 0.5em;
+}
+
+paper-button paper-material {
+  margin: 0em;
+}
+paper-button iron-icon {
+  margin-right: 0.62em;
+}
+
+paper-fab paper-material {
+  margin: 0em;
+}
+
+.content.paper-button {
+  padding: 1.2em 0.8em;
+}
+
+paper-item iron-icon {
+  margin-right: 0.5em;
+}
+
+iron-icon#logo {
+  margin: 2px 6.75px 0px 8px;
+  height: 31.5px;
+  width: 31.5px;
+}
+
+iron-image#script {
+  margin: 2px 8px 0px 0px;
+  width: 75px;
+  height: 36px;
+}
+
 /* SIDEMENU & SUBMENU */
 
 .paper-drawer-panel-0 iron-selector.paper-drawer-panel > #drawer.paper-drawer-panel {
@@ -14,8 +54,8 @@
 
 paper-fab#extension {
   position: fixed;
-  bottom: 0.5em;
-  right: 0em;
+  bottom: 1em;
+  right: 0.5em;
 }
 
 paper-button.sidemenu {

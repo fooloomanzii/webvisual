@@ -119,7 +119,6 @@
       };
 
     --icon-button-theme: {
-        margin: 0em 0.5em 0em 0.5em;
         color: currentColor;
         cursor: pointer;
         -webkit-user-select: none;
@@ -204,6 +203,10 @@ paper-drawer-panel {
       background-color: var(--primary-drawer-color);
       align-items: center;
       };
+}
+
+[drawer] {
+  cursor: pointer;
 }
 
 paper-toolbar {
@@ -301,6 +304,7 @@ paper-toggle-button#color-schema {
     var(--default-primary-background-color);
   --paper-toggle-button-unchecked-ink-color:
     var(--default-primary-color);
+  padding: 0em;
 }
 
 /*
@@ -310,8 +314,6 @@ paper-toggle-button#color-schema {
 paper-material {
    border-radius: 2px;
    color: currentColor;
-   padding: 1em 0.5em;
-   margin: 1em;
    background: var(--default-primary-background-color);
    @apply(--default-transition)
 }

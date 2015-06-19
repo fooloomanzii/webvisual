@@ -1,54 +1,26 @@
 head
-  // Meta-Tag: Set the viewport
-  meta(name='viewport', charset='utf-8', content='width=device-width, initial-scale=1, user-scalable=yes')
+  <!-- Meta-Tag: Set the viewport-->
+  <meta name="viewport" charset="utf-8" content="width=device-width, initial-scale=1, user-scalable=yes"/>
+    
+  title 404 - webvisual
+
   //- link(href='css/index.css', type='text/css', rel='stylesheet')
   // jQuery
   //- script(src='js/jquery/jquery-2.1.3.js')
   // Eigene Plugins
-  script(src='/socket.io/socket.io.js')
-  script(src="bower_components/webcomponentsjs/webcomponents.js")
-  link(rel='import', href='bower_components/paper-elements/paper-elements.html')
-  link(rel='import', href='bower_components/core-elements/core-elements.html')
-  // Custom-Elements Imports
-  link(rel='import', href='elements/post-card.html')
-  link(rel='import', href='elements/logo-element.html')
-  style.
-    body {
-      margin: 0em;
-    }
-    core-header-panel{
-      height: 100%;
-      width: 100%;
-    }
-    section {
-      margin: 16px;
-    }
-    paper-fab {
-      background: #669DB4;
-    }
-    paper-fab:hover {
-      background: rgb(8, 166, 225);
-    }
-    post-card {
-      line-height: 1.2;
-    padding: 0em;
-    text-align: center;
-    }
-    @font-face {
-      font-family: Lobster;
-      src: url('css/fonts/Lobster-Regular.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-    }
 
-body
-  section(horizontal='', layout='', center='', center-justified='')
-    post-card(recenteringtouch='')
-      core-toolbar.core-header(horizontal='', start-justified='', layout='')
-        logo-element
-      section(style='font-size: 4.5em; font-family: Lobster; font-weight: 100')
-        a(href='/index.html')
-          paper-fab(icon='arrow-back')
-        |         Error 404
-      section(style='font-size: 1.8em;') Page not found
-      section(style='font-size: 0.8em;') return to main page
+  <!-- Imported Elements and Scripts -->
+  <link rel="import" href="imports.html"/>
+  <!-- CSS Style -->
+  <link href="css/404.css" type="text/css" rel="stylesheet"/>
+
+
+body(class="horizontal layout center-justified center")
+  link(href='css/404.css', type='text/css', rel='stylesheet')
+  paper-material(elevation='4', class="main")
+    section(style='font-size: 60px; font-family: Lobster; font-weight: 100')
+      a(href='/index.html')
+        paper-fab(icon='juelich:logo')#logo
+      <span>Error 404</span>
+    section(style='font-size: 32px;') Page not found
+    section(style='font-size: 16px;') return to main page
