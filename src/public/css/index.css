@@ -15,7 +15,7 @@
 paper-fab#extension {
   position: fixed;
   bottom: 0.5em;
-  right: -0.5em;
+  right: 0em;
 }
 
 paper-button.sidemenu {

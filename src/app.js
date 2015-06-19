@@ -13,8 +13,9 @@ var dataModule   = require('./data'),                               // custom: D
     morgan       = require('morgan'),           // MORGAN <-- logger
 
     // Class variables
-    threshold    = dataModule.threshold,        // extension: of DATAMODULE
-    dataHandler  = dataModule.dataHandler,      // extension: of DATAMODULE
+    threshold     = dataModule.threshold,       // extension: of DATAMODULE
+    dataHandler   = dataModule.dataHandler,     // extension: of DATAMODULE
+    dataMerge     = dataModule.dataMerge,   // extension: of DATAMODULE
 
     // Default config
     defaults     = { connections : [],
@@ -160,33 +161,33 @@ var userCounter = 0,
 
     // Config Socket
 
-var configData,
-    configFile = new dataHandler( {
-      // Object used the Configuration
-      connection: { "file": { "copy"    : false,
-                              "mode"    : "all",
-                              "json"    : true,
-                              "path"    : "/../config/config2.json",
-                              "process" : "" }},
-      listener: {
-        error: function(type, err) {
-          configSocket.emit('mistake', { data: err, time: new Date()});
-        },
-        data: [
-          // SocketIO Listener
-          function(type, data) {
-            // Send the current data;
-            configData = data;
-            configSocket.emit('data', configData);
-            // Update
-          }
-        ]
-      }
-      }),
-    configSocket = io.of('/config')
-                     .on('connection', function(socket){
-                        socket.emit('data', configData);
-                      });
+// var configData,
+//     configFile = new dataHandler( {
+//       // Object used the Configuration
+//       connection: { "file": { "copy"    : false,
+//                               "mode"    : "all",
+//                               "json"    : true,
+//                               "path"    : "/../config/config2.json",
+//                               "process" : "" }},
+//       listener: {
+//         error: function(type, err) {
+//           configSocket.emit('mistake', { data: err, time: new Date()});
+//         },
+//         data: [
+//           // SocketIO Listener
+//           function(type, data) {
+//             // Send the current data;
+//             configData = data;
+//             configSocket.emit('data', configData);
+//             // Update
+//           }
+//         ]
+//       }
+//       }),
+//     configSocket = io.of('/config')
+//                      .on('connection', function(socket){
+//                         socket.emit('data', configData);
+//                       });
     // DATAHANDLER - established the data connections
 var currentData = {},
     dataFile = new dataHandler( {
@@ -194,7 +195,7 @@ var currentData = {},
       connection: config.connections,
       listener: {
         error: function(type, err) {
-          dataSocket.emit('mistake', { data: err, time: new Date()});
+          dataSocket.emit('mistake', { error: err, time: new Date()});
         },
         data: [
           // SocketIO Listener
@@ -213,7 +214,7 @@ var currentData = {},
 
             // Check for threshold exceeds and save it
             currentData.exceeds=threshold.getExceeds(data, function(exceeds){
-              // TODO: new exceeds handling in server
+              // TODO: fix mailhelper messages
               // var exceedsHTML="", numCols=config.locals.data.typeWidth;
               // var i;
               // var pos = exceeds[0].indexOf(true);
@@ -250,7 +251,8 @@ var currentData = {},
 
             // Save the current data
             currentData.data=data;
-
+            // Process data to certain format
+            currentData = dataMerge.processData(config.locals,currentData);
             // ... finally send the data
             dataSocket.emit(sendEvent, currentData);
           }
@@ -315,7 +317,7 @@ var currentData = {},
 /*
  * Get SERVER.io and server running!
  */
-configFile.connect(); // establish the connections
+// configFile.connect(); // establish the connections
 
 dataFile.connect();
 
@@ -351,9 +353,11 @@ server.listen(config.port);
 /*
  * Handle various process events
  */
+
+ // TODO: make shure that the server is not closing (or is restarting) with errors
 process.on('uncaughtException', function(err) {
   try {
-    server.close();
+    console.warn(err.message);
   } catch (e) {
     if(e.message !== 'Not running')
       throw e;
