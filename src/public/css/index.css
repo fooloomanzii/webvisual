@@ -26,16 +26,8 @@ paper-item iron-icon {
   margin-right: 0.5em;
 }
 
-iron-icon#logo {
-  margin: 2px 6.75px 0px 8px;
-  height: 31.5px;
-  width: 31.5px;
-}
-
-iron-image#script {
-  margin: 2px 8px 0px 0px;
-  width: 75px;
-  height: 36px;
+logo-element {
+  margin-left: 0.5em;
 }
 
 /* SIDEMENU & SUBMENU */
