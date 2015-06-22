@@ -3,17 +3,17 @@
   "version": "0.4.5",
   "private": "true",
   "dependencies": {
-    "express": "~4.1.1",
-    "express-error-handler": "~0.5.4",
+    "express": "*",
+    "express-error-handler": "*",
     "fs": "*",
-    "jade": "~0.31",
-    "socket.io": "~0.9.17",
+    "jade": "*",
+    "socket.io": "*",
     "merge-defaults": "*",
-    "net": "1.0.2",
-    "underscore": "~1.7.0",
-    "lodash-node": "~3.4.0",
-    "bower": "1.4.1",
-    "morgan": "1.5.3"
+    "net": "*",
+    "underscore": "*",
+    "lodash-node": "*",
+    "bower": "*",
+    "morgan": "*"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

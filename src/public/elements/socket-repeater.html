@@ -1,0 +1,84 @@
+
+<dom-module id="socket-repeater">
+
+  <template></template>
+
+  <script>
+
+    Polymer({
+      is: 'socket-repeater',
+
+      properties: {
+          url: {
+            type: String,
+            value: "/data"
+          },
+          lastData: {
+            type: Array,
+            value: [],
+            readOnly: true
+          },
+          lastMessage: {
+            type: Date,
+            value: 0
+          },
+          lastMistake: {
+            type: Date,
+            value: 0,
+            readOnly: true,
+            notify: true
+          },
+          lastError: {
+            type: Date,
+            value: 0,
+            readOnly: true,
+            notify: true
+          },
+          timeSpan: {
+            type: Date,
+            value: 0,
+            notify: true
+          },
+          groupBy: {
+            type: String,
+            value: 'date',
+            notify: true
+          }
+      },
+
+      ready: function(){
+        var self = this;
+        this.dataSocket = io.connect('https://'+window.location.host+'/data', {secure: true});
+        // TODO deal with global variables
+        // Receiving the first Data
+        this.dataSocket.on('first', function(message) {
+          if(message === undefined) return; // Check the Existence
+
+          self.lastMessage = message.time;
+          self.lastData = message.content;
+          console.log(self.lastMessage+' '+document.lastMessage)
+        });
+
+        // Receive another Data
+        this.dataSocket.on('data', function(message) {
+          if(message === undefined) return; // Check for Existence
+
+          this.lastMessage = new Date(message.time);
+          this.lastData = message.content;
+        });
+
+        //*** Wrong Data
+        this.dataSocket.on('mistake', function(message) {
+          this.lastMistake = new Date(message.time);
+          this.lastError = new Date(message.error);
+        });
+
+        // var event = new CustomEvent("dataLoaded", { "detail": lastData });
+        // document.dispatchEvent(event);
+
+
+      }
+    });
+  </script>
+
+</dom-module>

@@ -151,9 +151,6 @@ app.use(function(req, res) {
  * Configure SOCKET.IO (watch the data file)
  */
 
-// Just print warnings
-io.set('log level', 1);
-
 // Socket variables
 var userCounter = 0,
     waitFirst = true,
