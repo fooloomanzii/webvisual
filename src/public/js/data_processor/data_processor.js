@@ -1,11 +1,12 @@
-(function(){
+!function(){
   // Start of the Loading Process
   // (if the Client is ready)
 
-  var lastMessage = "",
-      lastData = [],
-      lastMistake = "",
-      lastError = "";
+  var data_processor = {"lastData": [], "lastMessage": 0, "lastMistake": 0, "lastError": 0};
+
+  data_processor.update = function() {
+    data_processor.lastMessage = data_processor.lastMessage;
+  }
 
   $(document).ready(function() {
 
@@ -14,26 +15,28 @@
     dataSocket.on('first', function(message) {
       if(message === undefined) return; // Check the Existence
 
-      lastMessage = message.time;
-      lastData = message.content;
+      data_processor.lastMessage = message.time;
+      data_processor.lastData = message.content;
     });
 
     // Receive another Data
     dataSocket.on('data', function(message) {
       if(message === undefined) return; // Check for Existence
 
-      lastMessage = message.time;
-      lastData = message.content;
+      data_processor.lastMessage = message.time;
+      data_processor.lastData = message.content;
     });
 
     //*** Wrong Data
     dataSocket.on('mistake', function(message) {
-      lastMistake = message.time;
-      lastError = message.error;
+      data_processor.lastMistake = message.time;
+      data_processor.lastError = message.error;
     });
 
     // var event = new CustomEvent("dataLoaded", { "detail": lastData });
     // document.dispatchEvent(event);
   });
 
-})();
+  this.data_processor = data_processor;
+
+}();
