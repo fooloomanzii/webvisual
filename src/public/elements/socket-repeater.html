@@ -10,14 +10,13 @@
       is: 'socket-repeater',
 
       properties: {
-          url: {
+          socket: {
             type: String,
             value: "/data"
           },
           lastData: {
             type: Array,
-            value: [],
-            readOnly: true
+            value: []
           },
           lastMessage: {
             type: Date,
@@ -25,53 +24,53 @@
           },
           lastMistake: {
             type: Date,
-            value: 0,
-            readOnly: true,
-            notify: true
+            value: 0
           },
           lastError: {
             type: Date,
-            value: 0,
-            readOnly: true,
-            notify: true
+            value: 0
           },
           timeSpan: {
             type: Date,
-            value: 0,
-            notify: true
+            value: 0
+          },
+          dataAppend: {
+            type: Boolean,
+            value: false
           },
           groupBy: {
             type: String,
-            value: 'date',
-            notify: true
-          }
+            value: ''
+          },
+          dati: {
+            type: String,
+            value: 'false'
+          },
       },
 
       ready: function(){
         var self = this;
-        this.dataSocket = io.connect('https://'+window.location.host+'/data', {secure: true});
-        // TODO deal with global variables
+        var dataSocket = io.connect('https://'+window.location.host+self.socket, {secure: true});
         // Receiving the first Data
-        this.dataSocket.on('first', function(message) {
+        dataSocket.on('first', function(message) {
           if(message === undefined) return; // Check the Existence
 
-          self.lastMessage = message.time;
+          self.lastMessage = new Date(message.time);
           self.lastData = message.content;
-          console.log(self.lastMessage+' '+document.lastMessage)
         });
 
         // Receive another Data
-        this.dataSocket.on('data', function(message) {
+        dataSocket.on('data', function(message) {
           if(message === undefined) return; // Check for Existence
 
-          this.lastMessage = new Date(message.time);
-          this.lastData = message.content;
+          self.lastMessage = new Date(message.time);
+          self.lastData = message.content;
         });
 
         //*** Wrong Data
-        this.dataSocket.on('mistake', function(message) {
-          this.lastMistake = new Date(message.time);
-          this.lastError = new Date(message.error);
+        dataSocket.on('mistake', function(message) {
+          self.lastMistake = new Date(message.time);
+          self.lastError = new Date(message.error);
         });
 
         // var event = new CustomEvent("dataLoaded", { "detail": lastData });
