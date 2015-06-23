@@ -12,51 +12,61 @@
       properties: {
           socket: {
             type: String,
-            value: "/data"
+            value: "/data",
+            notify: true
           },
           lastData: {
             type: Array,
-            value: []
+            value: [],
+            notify: true
+          },
+          lastExceeds: {
+            type: Array,
+            value: [],
+            notify: true
           },
           lastMessage: {
             type: Date,
-            value: 0
+            value: 0,
+            notify: true
           },
           lastMistake: {
             type: Date,
-            value: 0
+            value: 0,
+            notify: true
           },
           lastError: {
             type: Date,
-            value: 0
+            value: 0,
+            notify: true
           },
           timeSpan: {
             type: Date,
-            value: 0
+            value: 0,
+            notify: true
           },
           dataAppend: {
             type: Boolean,
-            value: false
+            value: false,
+            notify: true
           },
           groupBy: {
             type: String,
-            value: ''
-          },
-          dati: {
-            type: String,
-            value: 'false'
-          },
+            value: '',
+            notify: true
+          }
       },
 
       ready: function(){
         var self = this;
-        var dataSocket = io.connect('https://'+window.location.host+self.socket, {secure: true});
+        var dataSocket = io.connect('https://'+window.location.host+this.socket, {secure: true});
         // Receiving the first Data
         dataSocket.on('first', function(message) {
           if(message === undefined) return; // Check the Existence
 
           self.lastMessage = new Date(message.time);
           self.lastData = message.content;
+          self.lastExceeds = message.lastExceeds;
         });
 
         // Receive another Data
@@ -65,6 +75,7 @@
 
           self.lastMessage = new Date(message.time);
           self.lastData = message.content;
+          self.lastExceeds = message.lastExceeds;
         });
 
         //*** Wrong Data
@@ -75,9 +86,8 @@
 
         // var event = new CustomEvent("dataLoaded", { "detail": lastData });
         // document.dispatchEvent(event);
-
-
       }
+
     });
   </script>
 

@@ -332,7 +332,7 @@ function watch(port, options) {
 
   //Write a message to console if the socket is connected
   _watchers[port].on('listening', function() {
-    console.log('server listening on port ' + _watchers[port].address().port );
+    console.log('udp-server listening on port ' + _watchers[port].address().port );
   });
 
   // Message receiver, sends the message to the working Function
@@ -342,7 +342,7 @@ function watch(port, options) {
 
     _lastPeer = info.address + ':' + info.port;
 
-    console.log('server got message from ' + _lastPeer);
+    console.log('udp-server got message from ' + _lastPeer);
 
     options.work_function(message, _lastPeer, options, options.content);
   });

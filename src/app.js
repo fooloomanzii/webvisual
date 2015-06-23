@@ -147,6 +147,19 @@ app.use(function(req, res) {
   }
 });
 
+
+/*
+ * Init MAILHELPER
+ */
+mailHelper.init({
+  from:    config.mail.from, // sender address
+  to:      config.mail.to,   // list of receivers
+  subject: config.mail.subject
+ });
+mailHelper.setType('html');
+mailHelper.setDelay(1000);
+
+
 /*
  * Configure SOCKET.IO (watch the data file)
  */
@@ -210,46 +223,28 @@ var currentData = {},
             }
 
             // Check for threshold exceeds and save it
-            currentData.exceeds=threshold.getExceeds(data, function(exceeds){
-              // TODO: fix mailhelper messages
-              // var exceedsHTML="", numCols=config.locals.data.typeWidth;
-              // var i;
-              // var pos = exceeds[0].indexOf(true);
-              // if(pos > -1){
-              //   exceedsHTML += "Under the threshold:<br><ul>";
-              //   while(pos > -1){
-              //     exceedsHTML+="<li>";
-              //     i=parseInt(pos/numCols, 10);
-              //     exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
-              //     exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
-              //     exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
-              //     exceedsHTML+="</li>";
-              //     pos = exceeds[0].indexOf(true,pos+1);
-              //   }
-              //   exceedsHTML+="</ul>";
-              // }
-              // pos = exceeds[1].indexOf(true);
-              // if(pos > -1){
-              //   exceedsHTML += "Over the threshold:<br><ul>";
-              //   while(pos > -1){
-              //     exceedsHTML+="<li>";
-              //     i=parseInt(pos/numCols, 10);
-              //     exceedsHTML+=(config.locals.data.types[i]||config.locals.table.unnamedRow+' '+(i+1));
-              //     exceedsHTML+=", "+(config.locals.data.subtypes[pos%numCols]||(pos%numCols)+1);
-              //     exceedsHTML+=": "+data[data.length-1].values[pos]+";<br>";
-              //     exceedsHTML+="</li>";
-              //     pos = exceeds[1].indexOf(true,pos+1);
-              //   }
-              //   exceedsHTML+="</ul>";
-              // }
-              // if(exceedsHTML) exceedsHTML=currentData.time+":<br>"+exceedsHTML;
-              // mailHelper.appendMsg(exceedsHTML);
-            });
-
+            currentData.exceeds=threshold.getExceeds(data);
             // Save the current data
             currentData.data=data;
             // Process data to certain format
             currentData = dataMerge.processData(config.locals,currentData);
+
+            // Send Mail, if exceeding
+            if(currentData.lastExceeds.length != 0) {
+              console.warn("Warning: values are in critical level!");
+              var exceedsHTML = "<h2>"+config.mail.content+"</h2><ul style='list-style-type: square;'>";
+              _.each(currentData.lastExceeds, function(elem) {
+                exceedsHTML += "<li>Raum: "+elem.room;
+                exceedsHTML += "<ul style='list-style-type: circle;'>";
+                exceedsHTML += "<li>Datum: "+elem.data[0].date;
+                exceedsHTML += "<li>Gas: "+elem.kind;
+                exceedsHTML += "<li>Eigenschaft: "+elem.method;
+                exceedsHTML += "<li>Wert: "+elem.data[0].value+" "+elem.unit;
+                exceedsHTML += "</ul>";
+              });
+              mailHelper.appendMsg(exceedsHTML);
+            }
+
             // ... finally send the data
             dataSocket.emit(sendEvent, currentData);
           }
@@ -323,16 +318,7 @@ dataFile.connect();
 server.listen(config.port);
 
 
-/*
- * Init MAILHELPER
- */
-// mailHelper.init({
-//   from: 'SCADA <webvisual.test@gmail.com>', // sender address
-//   to: 'dagnarus@live.ru', // list of receivers
-//   subject: 'Data'
-//  });
-// mailHelper.setType('html');
-// mailHelper.setDelay(1000);
+
 
 /*mailHelper.startDelayed(function(error,info){
   if(error){

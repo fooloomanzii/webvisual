@@ -17,7 +17,7 @@
 
     <template is="dom-bind">
 
-    <socket-repeater dati="[[last]]"></socket-repeater>
+    <socket-repeater last-message="{{last}}"></socket-repeater>
     <paper-drawer-panel force-narrow="true">
 
       <!-- SIDEMENU -->
@@ -129,7 +129,7 @@
         <!-- Page Content -->
         <section id="main">
 
-          <paper-material id="pm1" elevation="2"><span>{{last}}</span></paper-material>
+          <paper-material id="pm1" elevation="2"><span>[[last]]</span></paper-material>
 
           <!-- Page Options -->
           <paper-fab mini disabled icon="extension" dialog-id="page1" dialog-class="submenu" id="extension" onclick="openDialog(this)"></paper-fab>

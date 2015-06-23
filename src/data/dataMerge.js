@@ -15,14 +15,16 @@
   //          "unit":"..", "data": [{"date":"..", "value":"..", "exceeds":".."}, {..} , .. ]} a.s.o.
 
   // global Variables
-  var numCols       =  2,
+  var _ = require('underscore'),
+      numCols       =  2,
       labelsArray   = [],
       valuesArray   = [],
       exceedsArray  = [],
       dateArray     = [],
       languageArray = [],
-      dataStringArray = [],
-      dataStringObject = {};
+      dataStringArray     = [],
+      currentExceedsArray = [],
+      dataStringObject    = {};
 
 function processData(locals, currentData) {
 
@@ -52,7 +54,7 @@ function processData(locals, currentData) {
     }
 
     // Create labels for the Value Table 'subtypes' and fill unnamed
-    for(var j = 0; j<locals.types.lenght; j++){
+    for(var j = 0; j<locals.types.length; j++){
       for(var i = 1; i<=numCols; i++){
         if (!locals.types[j].subtypes[i-1]) {
           labelsArray.types[j].subtypes.push(
@@ -123,11 +125,31 @@ function processData(locals, currentData) {
                                       "value":   valuesArray[i][j],
                                       "exceeds": exceedsArray[i][j]
                                     })
+        if(exceedsArray[i][j]) {
+          var m = _.findLastIndex(currentExceedsArray,
+                                   {"id":  labelsArray.types[l].id.toString(),
+                                    "room":    labelsArray.types[l].room.toString(),
+                                    "kind":    labelsArray.types[l].kind.toString(),
+                                    "method":  labelsArray.types[l].subtypes[k].method.toString(),
+                                    "unit":    labelsArray.types[l].subtypes[k].unit.toString()});
+          if(m == -1){
+            m = currentExceedsArray.length;
+            currentExceedsArray.push({"id":      labelsArray.types[l].id.toString(),
+                                      "room":    labelsArray.types[l].room.toString(),
+                                      "kind":    labelsArray.types[l].kind.toString(),
+                                      "method":  labelsArray.types[l].subtypes[k].method.toString(),
+                                      "unit":    labelsArray.types[l].subtypes[k].unit.toString(),
+                                      "data":    [] })
+          }
+          currentExceedsArray[m].data = [{"date":    dateArray[i],
+                                          "value":   valuesArray[i][j],
+                                          "exceeds": exceedsArray[i][j] }];
+        }
       }
     }
 
       // Creation of an Object, so it can be assigned to the Eventhandler (dirty)
-    dataStringObject = {time: currentData.time, content: dataStringArray};
+    dataStringObject = {time: currentData.time, content: dataStringArray, lastExceeds: currentExceedsArray};
   }
 
   return dataStringObject;

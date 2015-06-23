@@ -22,11 +22,11 @@ var parser      = require('../../data_parser'),
 var udpsocket = require('dgram').createSocket('udp4');
 
 udpsocket.on('message', function(message, rinfo) {
-  console.log('server got message: "' + message + '" from ' + rinfo.address + ':' + rinfo.port);
+  console.log('udp-server got message: "' + message + '" from ' + rinfo.address + ':' + rinfo.port);
   });
 udpsocket.on('listening', function() {
   var address = udpsocket.address();
-    console.log('server listening on ' + address.address + ':' + address.port );
+    console.log('udp-server listening on ' + address.address + ':' + address.port );
 });
 
 udpsocket.bind(4000);
@@ -79,9 +79,9 @@ function _check_port(port) {
   var net = require('net')
   var tester = net.createServer()
   .once('error', function (err) {
-    if (err.code != 'EADDRINUSE') 
+    if (err.code != 'EADDRINUSE')
       return new Error("An error occured: "+err);
-    else 
+    else
       return new Error("Port "+port+" is in use");
   })
   .once('listening', function() {
@@ -101,7 +101,7 @@ function _write_options(start) {
   if (start !== undefined) {
     options.start = start;
     options.flags = 'a';
-  } 
+  }
 
   return options;
 }
@@ -256,7 +256,7 @@ function _create_watch_options(mode, options) {
   // Check if process/content are valid
   if(options.process && !isFunction(options.process)) {
     return new TypeError('The process-option needs to be an function.');
-  } 
+  }
   if(options.content && !isFunction(options.content)) {
     return new TypeError('The content-function needs to be an function.');
   }

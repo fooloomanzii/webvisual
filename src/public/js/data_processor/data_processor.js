@@ -2,7 +2,7 @@
   // Start of the Loading Process
   // (if the Client is ready)
 
-  var data_processor = {"lastData": [], "lastMessage": 0, "lastMistake": 0, "lastError": 0};
+  var data_processor = {"lastData": [], "lastMessage": 0, "lastMistake": 0, "lastError": 0, "lastExceeds": []};
 
   data_processor.update = function() {
     data_processor.lastMessage = data_processor.lastMessage;
@@ -17,6 +17,7 @@
 
       data_processor.lastMessage = message.time;
       data_processor.lastData = message.content;
+      data_processor.lastExceeds = message.lastExceeds;
     });
 
     // Receive another Data
@@ -25,6 +26,7 @@
 
       data_processor.lastMessage = message.time;
       data_processor.lastData = message.content;
+      data_processor.lastExceeds = message.lastExceeds;
     });
 
     //*** Wrong Data

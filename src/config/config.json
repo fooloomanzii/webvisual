@@ -4,73 +4,94 @@
     "file": {
       "copy": false,
       "mode": "all",
-      "path": "/../../data/data.txt"
+      "path": "/../../data/data2.txt"
       },
     "udp": {
       "log": false,
       "log_path": "/../../data/udp/",
       "mode": "append",
       "port": 4000
-    }
+      }
     },
+
+  "mail": {
+    "from": "SCADA <webvisual.test@gmail.com>",
+    "to": "ersatzprogramm@gmail.com",
+    "subject": "Data",
+    "content": "Folgende Messgeräte senden kritische Messwerte:\n"
+    },
+
   "port": 3000,
+
   "logs": {
     "external_log": "/../../logs/log.log",
     "http_server_log":   "/../logs/http-error.log"
-  },
+    },
+
   "locals":{
+
     "typeWidth":2,
+
     "types": [
-      { "id":"127.148.138.2",
-        "room":"Raum A",
-        "kind":"Chlor",
-        "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [2,10]},
-                    {"method":"Temperatur" , "unit":"°C", "threshold": [2,11]}]},
-      { "id":"127.148.138.2",
-        "room":"Raum B",
-        "kind":"Sauerstoff",
-        "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [2,5]},
-                    {"method":"Temperatur" , "unit":"°C", "threshold": [2,5]}]},
-      { "id":"127.148.138.3",
-        "room":"Gaslager",
-        "kind":"Stickstoff",
-        "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [2,8]},
-                    {"method":"Volumen" , "unit":"cm³", "threshold": [2,7]}]},
-      { "id":"127.148.138.4",
-        "room":"Raum B",
-        "kind":"Helium",
-        "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [1,5]},
-                    {"method":"Temperatur" , "unit":"°C", "threshold": [0,3]}]},
-      { "id":"127.148.138.5",
-        "room":"Raum A",
-        "kind":"Xenon",
-        "subtypes":[{"method":"Dichte" , "unit":"g/cm³", "threshold": [2,4]},
-                    {"method":"Temperatur" , "unit":"°C"}]},
-      { "id":"127.148.138.6",
-        "room":"Raum A",
-        "kind":"Wasserstoff",
-        "subtypes":[{"method":"Volumen" , "unit":"cm³", "threshold": [2,5]},
-                    {"method":"Temperatur" , "unit":"°C", "threshold": [2,5]}]},
-      { "id":"127.148.138.7",
-        "room":"Keller",
-        "kind":"Kohlenmonoxid",
-        "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [1,5]},
-                    {"method":"Temperatur" , "unit":"°C", "threshold": [2,5]}]},
-      { "id":"127.148.138.8",
-        "room":"Keller",
-        "kind":"Kohlendioxid",
-        "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [4,5]},
-                    {"method":"Volumen" , "unit":"cm³", "threshold": [2,5]}]},
-      { "id":"127.148.138.9",
-        "room":"Raum A",
-        "kind":"Schwefelgas",
-        "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [8,9.2]},
-                    {"method":"Temperatur" , "unit":"°C", "threshold": [2,5]}]}
-      ],
+     { "id":"127.148.138.2",
+       "room":"Raum A",
+       "kind":"Chlor",
+       "subtypes":[{"method":"Druck", "unit":"mPa", "threshold": [2,10]},
+                   {"method":"Temperatur" , "unit":"°C", "threshold": [2,11]}]
+     },
+     { "id":"127.148.138.2",
+       "room":"Raum B",
+       "kind":"Sauerstoff",
+       "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [2,5]},
+                   {"method":"Temperatur" , "unit":"°C", "threshold": [2,5]}]
+     },
+     { "id":"127.148.138.3",
+       "room":"Gaslager",
+       "kind":"Stickstoff",
+       "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [2,8]},
+                   {"method":"Volumen" , "unit":"cm³", "threshold": [2,7]}]
+     },
+     { "id":"127.148.138.4",
+       "room":"Raum B",
+       "kind":"Helium",
+       "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [1,5]},
+                   {"method":"Temperatur", "unit":"°C", "threshold": [0,3]}]
+     },
+     { "id":"127.148.138.5",
+       "room":"Raum A",
+       "kind":"Xenon",
+       "subtypes":[{"method":"Dichte" , "unit":"g/cm³", "threshold": [2,4]},
+                   {"method":"Temperatur" , "unit":"°C"}]
+     },
+     { "id":"127.148.138.6",
+       "room":"Raum A",
+       "kind":"Wasserstoff",
+       "subtypes":[{"method":"Volumen" , "unit":"cm³", "threshold": [2,5]},
+                   {"method":"Temperatur" , "unit":"°C", "threshold": [2,5]}]
+     },
+     { "id":"127.148.138.7",
+       "room":"Keller",
+       "kind":"Kohlenmonoxid",
+       "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [1,5]},
+                   {"method":"Temperatur" , "unit":"°C", "threshold": [2,5]}]
+     },
+     { "id":"127.148.138.8",
+       "room":"Keller",
+       "kind":"Kohlendioxid",
+       "subtypes":[{"method":"Druck", "unit":"mPa", "threshold": [4,5]},
+                   {"method":"Volumen", "unit":"cm³", "threshold": [2,5]}]
+     },
+     { "id":"127.148.138.9",
+       "room":"Raum A",
+       "kind":"Schwefelgas",
+       "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [8,9.2]},
+                   {"method":"Temperatur" , "unit":"°C", "threshold": [2,5]}]
+     }
+    ],
 
     "unnamedType" : { "id":"0.0.0.0", "room" : "Raum nicht definiert", "kind" : "Datenmessung "},
     "unnamedSubtype" : {"method":"x" , "unit":"", "threshold": []},
-    
+
     "language": {
       "types": ["en","de","fr","es","ru"],
       "elements": {
