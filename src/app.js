@@ -11,7 +11,7 @@ var dataModule   = require('./data'),                               // custom: D
     _            = require('underscore'),       // UNDERSCORE <-- js extensions
     defaultsDeep = require('merge-defaults'),   // DEFAULTSDEEP <-- extended underscrore/lodash _.defaults, for default-value in   deeper structures
     morgan       = require('morgan'),           // MORGAN <-- logger
-
+    dateFormat   = require('dateFormat'),       // dateFormat
     // Class variables
     threshold     = dataModule.threshold,       // extension: of DATAMODULE
     dataHandler   = dataModule.dataHandler,     // extension: of DATAMODULE
@@ -230,20 +230,33 @@ var currentData = {},
             currentData = dataMerge.processData(config.locals,currentData);
 
             // Send Mail, if exceeding
-            if(currentData.lastExceeds.length != 0) {
-              console.warn("Warning: values are in critical level!");
-              var exceedsHTML = "<h2>"+config.mail.content+"</h2><ul style='list-style-type: square;'>";
-              _.each(currentData.lastExceeds, function(elem) {
-                exceedsHTML += "<li>Raum: "+elem.room;
-                exceedsHTML += "<ul style='list-style-type: circle;'>";
-                exceedsHTML += "<li>Datum: "+elem.data[0].date;
-                exceedsHTML += "<li>Gas: "+elem.kind;
-                exceedsHTML += "<li>Eigenschaft: "+elem.method;
-                exceedsHTML += "<li>Wert: "+elem.data[0].value+" "+elem.unit;
-                exceedsHTML += "</ul>";
-              });
-              mailHelper.appendMsg(exceedsHTML);
-            }
+            // if(currentData.lastExceeds.length != 0) {
+            //   console.warn("Warning: values are in critical level!");
+            //   var exceedsHTML = "<h2>"+config.mail.content+"</h2>";
+            //   _.each(currentData.lastExceeds, function(elem) {
+            //     exceedsHTML +="<h4>Ort: "+elem.room+"</h4>"
+            //                 + "<ul style='list-style-type: square;'>"
+            //                 + "<li>Datum: "+elem.data[0].date
+            //                 + "<li>Typ: "+elem.kind
+            //                 + "<li>Eigenschaft: "+elem.method
+            //                 + "<li>Wert: "+elem.data[0].value+" "+elem.unit
+            //                 + "</ul>";
+            //   });
+            //   if(exceedsHTML) exceedsHTML = currentData.time + ":<br>" + exceedsHTML;
+            //   mailHelper.appendMsg(exceedsHTML);
+            //   mailHelper.sendMsg(function(error,info){
+            //     if(error){
+            //       console.log('Mailing error: ' + error);
+            //     }
+            //     else{
+            //       if (info.response) console.log('E-Mail sent: ' + info.response);
+            //       else{
+            //         for( var i in info.pending[0].recipients[0]) console.log(i);
+            //         console.log('E-Mail sent: ' + info.pending[0].recipients[0]);
+            //       }
+            //     }
+            //   });
+            // }
 
             // ... finally send the data
             dataSocket.emit(sendEvent, currentData);
@@ -309,29 +322,28 @@ var currentData = {},
 /*
  * Get SERVER.io and server running!
  */
-// configFile.connect(); // establish the connections
 
 dataFile.connect();
-
+// configFile.connect(); // establish the connections
 // externalLogFile.connect();
-
 server.listen(config.port);
 
+/*
+ * Start Mail Server
+ */
 
-
-
-/*mailHelper.startDelayed(function(error,info){
-  if(error){
-    console.log('Mailing error: ' + error);
-  }else{
-    if(info.response) console.log('E-Mail sent: ' + info.response  );
-    else{
-      for( var i in info.pending[0].recipients[0]) console.log(i);
-      console.log('E-Mail sent: ' + info.pending[0].recipients[0]  );
-    }
-  }
-});
-
+// mailHelper.startDelayed(function(error,info){
+//   if(error){
+//     console.log('Mailing error: ' + error);
+//   }
+//   else{
+//     if (info.response) console.log('E-Mail sent: ' + info.response);
+//     else{
+//       for( var i in info.pending[0].recipients[0]) console.log(i);
+//       console.log('E-Mail sent: ' + info.pending[0].recipients[0]);
+//     }
+//   }
+// });
 
 /*
  * Handle various process events

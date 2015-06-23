@@ -4,7 +4,7 @@
     "file": {
       "copy": false,
       "mode": "all",
-      "path": "/../../data/data2.txt"
+      "path": "/../../data/data.txt"
       },
     "udp": {
       "log": false,
@@ -30,6 +30,7 @@
 
   "locals":{
 
+    "timeFormat": "dd.MM.yyyy HH:mm:ss",
     "typeWidth":2,
 
     "types": [

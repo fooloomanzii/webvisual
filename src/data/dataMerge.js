@@ -15,7 +15,8 @@
   //          "unit":"..", "data": [{"date":"..", "value":"..", "exceeds":".."}, {..} , .. ]} a.s.o.
 
   // global Variables
-  var _ = require('underscore'),
+  var _            = require('underscore'),
+      dateFormat   = require('dateFormat'),
       numCols       =  2,
       labelsArray   = [],
       valuesArray   = [],
@@ -79,12 +80,14 @@ function processData(locals, currentData) {
         for (var k=0; k<data[i].values.length; k++) {
           valuesArray[i][k] = data[i].values[k];
         }
-        dateArray[i] = new Date(data[i].date);
+        dateArray[i] = dateFormat(
+            data[i].date,labelsArray.timeFormat);
       }
       // Otherwise: append the Data to that Arrays
       else {
         valuesArray.push(data[i].values);
-        dateArray.push(new Date(data[i].date));
+        dateArray.push(dateFormat(
+            data[i].date,labelsArray.timeFormat));
       }
 
       // Create the Labels for the Type Table 'types', if no Labels are defined in 'config.json'
