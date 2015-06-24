@@ -13,11 +13,12 @@
 
 </head>
 
-<body horizontal layout center>
+<body unresolved>
 
     <template is="dom-bind">
 
-    <socket-repeater last-data="{{last}}"></socket-repeater>
+    <socket-repeater id="socket" last-data="{{data}}"></socket-repeater>
+
     <paper-drawer-panel force-narrow="true">
 
       <!-- SIDEMENU -->
@@ -99,7 +100,12 @@
 
 
       <!-- MAIN VIEW -->
-      <paper-header-panel main id="mainPanel">
+      <paper-header-panel main id="mainPanel" on-content-scroll="{{scrollit}}">
+        <script>
+          function scrollit(){
+            window.alert('bing');
+          }
+        </script>
 
         <!-- Toolbar -->
         <paper-toolbar id="mainToolbar">
@@ -126,29 +132,15 @@
           </section>
         </paper-toolbar>
 
-        <!-- Page Content -->
-        <section id="main">
 
-          <paper-material id="pm1" elevation="5">
-            <section id="pm2" ></section>
-            <!-- <template is="dom-repeat" items="[[last]]" as="item">
-              <paper-item>
-                <span>{{item.room}}</span>
-                <span>{{item.kind}}</span>
-                <span>{{item.method}}</span>
-              </paper-item>
-              <table>
-                <template is="dom-repeat" items="[[item.data]]" as="data">
-                  <tr class="row">
-                    <td>{{data.date}}</td>
-                    <td>{{data.value}}</td>
-                  </tr>
-              </table>
-            </template> -->
-          </paper-material>
+        <!-- MAIN CONTENT -->
+        <section id="main" class="fit">
 
-          <!-- Page Options -->
-          <paper-fab mini disabled icon="extension" dialog-id="page1" dialog-class="submenu" id="extension" onclick="openDialog(this)"></paper-fab>
+          <!-- Page Option Button -->
+          <paper-fab mini icon="extension" dialog-id="page1" dialog-class="submenu" id="extension" onclick="openDialog(this)"></paper-fab>
+
+          <!-- Page -->
+          <table-page data="[[data]]"><table-page>
 
         </section>
 
@@ -172,7 +164,7 @@
     </paper-dialog>
 
       <!-- Page-Options -->
-    <paper-dialog class="submenu" onclick="insertTest()" entry-animation="slide-from-left-animation" exit-animation="fade-out-animation">
+    <paper-dialog class="submenu" onclick="insertTest()" entry-animation="fade-in-animation" exit-animation="fade-out-animation">
       <paper-dialog-scrollable></paper-dialog-scrollable>
     </paper-dialog>
 
@@ -196,76 +188,3 @@
     </template>
 
 </body>
-
-<script>
-  function lift(){
-    $('paper-material').attr('elevation','5');
-  }
-  function expand(){
-    $('paper-toolbar').css('height','10em');
-    $('paper-material.submenu').addClass("active");
-  }
-  function insertTest(){
-    $.get( "/data", function( response ) {
-      $("body").css("--default-primary-color","red");
-      $('paper-dialog.submenu paper-dialog-scrollable').text(response);
-    });
-  }
-  function enable(){
-    $('paper-fab').attr("disabled", false);
-
-    $.get( "/data", function( response ) {
-      $('.inner').text("<p>"+response+"</p>");
-    });
-  }
-  function toggleCollapse(elem){
-    var button = elem;
-    while (!button.hasAttribute('collapse-id') && button !== document.body) {
-      button = button.parentElement;
-    }
-
-    if (!button.hasAttribute('collapse-id')) {
-      return;
-    }
-
-    var id = button.getAttribute('collapse-id');
-    var collapse = document.querySelector('iron-collapse.'+id);
-
-    if (collapse) {
-      collapse.toggle();
-    }
-  }
-  function changeTheme(){
-    var button = document.getElementById('color-schema');
-    if(button.checked == true) {
-      $('*').removeClass("dark");
-      console.log("pressed");
-    }
-    else {
-      $('*').addClass("dark");
-    }
-  }
-  function openDialog(elem){
-    var button = elem;
-    while (!button.hasAttribute('dialog-id') && button !== document.body) {
-      button = button.parentElement;
-    }
-
-    if (!button.hasAttribute('dialog-id') || !button.hasAttribute('dialog-class')) {
-      return;
-    }
-
-    var id = button.getAttribute('dialog-id');
-    var className = button.getAttribute('dialog-class');
-    var aj = button.getAttribute('ajax');
-    var dialog = document.querySelector('paper-dialog.'+className);
-
-    $('paper-dialog.'+className+' .dialog-title').text(id);
-    if (typeof aj === 'string')
-      $('iron-ajax').attr('url','/'+id);
-
-    if (dialog) {
-      dialog.open();
-    }
-  }
-</script>

@@ -160,7 +160,7 @@
         background: none;
         };
 
-    ----paper-input-container: {
+    --paper-input-container: {
         color: currentColor;
         font-family: Roboto-Condensed;
         font-size: 1em;
@@ -180,6 +180,7 @@
     --default-transition: {
       transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     };
+
 }
 
 /* General styles */
@@ -208,6 +209,25 @@ paper-drawer-panel {
 [drawer] {
   cursor: pointer;
 }
+
+paper-header-panel {
+  --paper-header-panel-standard-container: {
+      background: none;
+  };
+
+  --paper-header-panel-cover-container: {
+      background: none;
+  };
+
+  --paper-header-panel-waterfall-container: {
+      background: none;
+  };
+
+  --paper-header-panel-waterfall-tall-container: {
+      background: none;
+  };
+}
+
 
 paper-toolbar {
   @apply(--paper-toolbar)
@@ -312,14 +332,11 @@ paper-toggle-button#color-schema {
  */
 
 paper-material {
-   border-radius: 2px;
-   color: currentColor;
-   background: var(--default-primary-background-color);
-   @apply(--default-transition)
+  background: var(--default-primary-background-color);
 }
 
 paper-material.dark {
- background: var(--dark-primary-background-color);
+  background: var(--dark-primary-background-color);
 }
 
 /*

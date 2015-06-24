@@ -1,11 +1,6 @@
-<script src="/socket.io/socket.io.js"></script>
-
 <dom-module id="socket-repeater">
 
-  <template></template>
-
   <script>
-
     Polymer({
       is: 'socket-repeater',
 
@@ -83,9 +78,6 @@
           self.lastMistake = new Date(message.time);
           self.lastError = new Date(message.error);
         });
-
-        // var event = new CustomEvent("dataLoaded", { "detail": lastData });
-        // document.dispatchEvent(event);
       }
 
     });

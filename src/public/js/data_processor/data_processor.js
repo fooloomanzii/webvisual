@@ -18,19 +18,6 @@
       data_processor.lastMessage = message.time;
       data_processor.lastData = message.content;
       data_processor.lastExceeds = message.lastExceeds;
-
-      var html = "";
-      for (var i=0; i < data_processor.lastData.length; i++) {
-        html += "<table><tr id=t"+i+"></tr>";
-        $("#pm1").append(html);
-        for (var j=0; j < 2000; j++) {
-          html = "<tr>";
-          html += "<td>"+j+"</td>"+"<td>"+data_processor.lastData[i].room+"</td>"+"<td>"+data_processor.lastData[i].kind+"</td>"+"<td>"+data_processor.lastData[i].method+"</td>";
-          html += "</tr>";
-          $("#t"+i).append(html);
-        }
-        html = "</table>";
-      }
     });
 
     // Receive another Data

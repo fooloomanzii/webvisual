@@ -86,7 +86,6 @@
     0%   {opacity: 0.5}
     100% {opacity: 1}
   }
-
 </style>
 
 
@@ -190,6 +189,14 @@
         type: 'boolean',
         value: null
       }
+    },
+
+    listeners: {
+      'click': 'alertBox'
+    },
+
+    alertBox: function(){
+      window.alert('bing');
     },
     //- animation by css and pseudo-class-declaration
     playChanged: function() {

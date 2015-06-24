@@ -1,33 +1,22 @@
 paper-material {
    padding: 1em 0.5em;
-   margin: 1em;
+   margin: 0em;
 }
 
 paper-icon-button {
   margin: 0em 0.5em 0em 0.5em;
 }
 
-paper-button paper-material {
-  margin: 0em;
-}
 paper-button iron-icon {
   margin-right: 0.62em;
-}
-
-paper-fab paper-material {
-  margin: 0em;
 }
 
 .content.paper-button {
   padding: 1.2em 0.8em;
 }
 
-paper-item iron-icon {
-  margin-right: 0.5em;
-}
-
 logo-element {
-  margin-left: 0.5em;
+  margin-left: 0.62em;
 }
 
 /* SIDEMENU & SUBMENU */
@@ -47,7 +36,8 @@ logo-element {
 paper-fab#extension {
   position: fixed;
   bottom: 1em;
-  right: 0.5em;
+  right: 1em;
+  z-index: 100;
 }
 
 paper-button.sidemenu {

@@ -1,0 +1,113 @@
+<link rel="import" href="../css/app-theme.html">
+
+<dom-module id="table-page">
+  <style>
+    :host {
+      display: inline-block;
+      margin: 1.2em 1em;
+    }
+    paper-material {
+      background: white;
+    }
+    paper-material.dark {
+      background: #646464;
+    }
+  </style>
+  <template>
+    <section id="content" class="vertical layout">
+      <paper-material id="table"></paper-material>
+    </section>
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'table-page',
+
+      properties: {
+          data: {
+            type: Array,
+            value: [],
+            notify: true,
+            observer: "insertTable"
+          }
+      },
+
+      listeners: {
+      },
+
+      ready: function(){
+      },
+
+      insertTable: function() {
+        var time = new Date();
+        var section = this.$.table;
+        for (var i=0; i < this.data.length; i++) {
+          var table = document.createElement("table");
+          for (var j=0; j < 2; j++) {
+            var row = document.createElement("tr");
+
+            var td = document.createElement("td")
+            td.innerHTML = this.data[i].room;
+            row.appendChild(td);
+
+            var td = document.createElement("td")
+            td.innerHTML = this.data[i].kind;
+            row.appendChild(td);
+
+            var td = document.createElement("td")
+            td.innerHTML = this.data[i].method;
+            row.appendChild(td);
+
+            var td = document.createElement("td")
+            var x = 2*i + j;
+            td.innerHTML = x;
+            row.appendChild(td);
+
+            table.appendChild(row);
+          }
+          section.appendChild(table);
+        }
+        var timeafter = new Date();
+        time = timeafter - time;
+        console.log(time);
+      },
+
+      scrollHandler: function() {
+        var time = new Date();
+        var section = this.$.table;
+        for (var i=0; i < this.data.length; i++) {
+          var table = document.createElement("table");
+          for (var j=0; j < 1; j++) {
+            var row = document.createElement("tr");
+
+            var td = document.createElement("td")
+            td.innerHTML = this.data[i].room;
+            row.appendChild(td);
+
+            var td = document.createElement("td")
+            td.innerHTML = this.data[i].kind;
+            row.appendChild(td);
+
+            var td = document.createElement("td")
+            td.innerHTML = this.data[i].method;
+            row.appendChild(td);
+
+            var td = document.createElement("td")
+            var x = i + j;
+            td.innerHTML = x;
+            row.appendChild(td);
+
+            table.appendChild(row);
+          }
+          section.appendChild(table);
+        }
+        var timeafter = new Date();
+        time = timeafter - time;
+        console.log(time);
+      }
+
+    });
+  </script>
+
+</dom-module>
