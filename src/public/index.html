@@ -15,176 +15,260 @@
 
 <body unresolved>
 
-    <template is="dom-bind">
+  <template is="dom-bind" id="autobind-template">
 
-    <socket-repeater id="socket" last-data="{{data}}"></socket-repeater>
+  <socket-repeater id="socket" last-data="{{data}}"></socket-repeater>
 
-    <paper-drawer-panel force-narrow="true">
+  <paper-drawer-panel force-narrow="true">
 
-      <!-- SIDEMENU -->
+    <!-- SIDEMENU -->
 
-      <paper-header-panel drawer id="drawerPanel">
-        <iron-selector selected="0" selectable="paper-button.sidemenu">
+    <paper-header-panel drawer id="drawerPanel">
+      <iron-selector selected="0" selectable="paper-button.sidemenu">
 
-          <!-- Page Routing -->
-          <paper-button collapse-id="pageview" class="sidemenu" onclick="toggleCollapse(this)">
-            <iron-icon icon="pageview"></iron-icon>Anzeige
-          </paper-button>
+        <!-- Page Routing -->
+        <paper-button collapse-id="pageview" class="sidemenu" onclick="toggleCollapse(this)">
+          <iron-icon icon="pageview"></iron-icon>Anzeige
+        </paper-button>
 
-            <iron-collapse class="sidemenu collapse pageview">
-              <section class="collapse-content">
+          <iron-collapse class="sidemenu collapse pageview">
+            <section class="collapse-content">
 
-                <iron-selector selected="0">
-                  <paper-button><iron-icon icon="view-module"></iron-icon>Übersicht</paper-button>
-                  <paper-button><iron-icon icon="view-list"></iron-icon>Tabelle</paper-button>
-                  <paper-button><iron-icon icon="assessment"></iron-icon>Graphen</paper-button>
-                </iron-selector>
+              <iron-selector selected="0">
+                <paper-button><iron-icon icon="view-module"></iron-icon>Übersicht</paper-button>
+                <paper-button><iron-icon icon="view-list"></iron-icon>Tabelle</paper-button>
+                <paper-button><iron-icon icon="assessment"></iron-icon>Graphen</paper-button>
+              </iron-selector>
 
-              </section>
-            </iron-collapse>
+            </section>
+          </iron-collapse>
 
-          <!-- Main Settings -->
+        <!-- Main Settings -->
 
-          <paper-button collapse-id="settings" class="sidemenu" onclick="toggleCollapse(this)">
-            <iron-icon icon="settings"></iron-icon>Einstellungen
-          </paper-button>
+        <paper-button collapse-id="settings" class="sidemenu" onclick="toggleCollapse(this)">
+          <iron-icon icon="settings"></iron-icon>Einstellungen
+        </paper-button>
 
-            <iron-collapse class="sidemenu collapse settings">
-              <section class="collapse-content">
-                <paper-button collapse-id="language" class="sidemenu" onclick="toggleCollapse(this)">
-                  <iron-icon icon="language"></iron-icon>Sprachauswahl
-                </paper-button>
-                  <iron-collapse class="sidemenu collapse language">
-                    <paper-tabs id="language" selected="1">
-                      <paper-tab>en</paper-tab>
-                      <paper-tab>de</paper-tab>
-                      <paper-tab>fr</paper-tab>
-                      <paper-tab>es</paper-tab>
-                      <paper-tab>ru</paper-tab>
-                    </paper-tabs>
-                  </iron-collapse>
-                <paper-button noink>
-                  <section class="horizontal layout center">
-                    <iron-icon icon="invert-colors"></iron-icon>
-                    <span class="flex-3">Farbschema</span>
-                    <paper-toggle-button class="flex" id="color-schema" onclick="changeTheme()"></paper-toggle-button>
-                  </section>
-                </paper-button>
+          <iron-collapse class="sidemenu collapse settings">
+            <section class="collapse-content">
+              <paper-button collapse-id="language" class="sidemenu" onclick="toggleCollapse(this)">
+                <iron-icon icon="language"></iron-icon>Sprachauswahl
+              </paper-button>
+                <iron-collapse class="sidemenu collapse language">
+                  <paper-tabs id="language" selected="1">
+                    <paper-tab>en</paper-tab>
+                    <paper-tab>de</paper-tab>
+                    <paper-tab>fr</paper-tab>
+                    <paper-tab>es</paper-tab>
+                    <paper-tab>ru</paper-tab>
+                  </paper-tabs>
+                </iron-collapse>
+              <paper-button noink>
+                <section class="horizontal layout center">
+                  <iron-icon icon="invert-colors"></iron-icon>
+                  <span class="flex-3">Farbschema</span>
+                  <paper-toggle-button class="flex" id="color-schema" onclick="changeTheme()"></paper-toggle-button>
+                </section>
+              </paper-button>
 
-              </section>
-            </iron-collapse>
+            </section>
+          </iron-collapse>
 
-        </iron-selector>
+      </iron-selector>
 
-          <!-- Log-File -->
+        <!-- Log-File -->
 
-          <paper-button dialog-id="log" dialog-class="sidemenu" ajax class="sidemenu" onclick="openDialog(this)">
-            <iron-icon icon="history"></iron-icon>Log
-          </paper-button>
+        <paper-button dialog-id="log" dialog-class="sidemenu" ajax class="sidemenu" onclick="openDialog(this)">
+          <iron-icon icon="history"></iron-icon>Log
+        </paper-button>
 
-          <!-- Informations -->
+        <!-- Informations -->
 
-          <paper-button collapse-id="information" class="sidemenu" onclick="toggleCollapse(this)">
-            <iron-icon icon="description"></iron-icon>Informationen
-          </paper-button>
+        <paper-button collapse-id="information" class="sidemenu" onclick="toggleCollapse(this)">
+          <iron-icon icon="description"></iron-icon>Informationen
+        </paper-button>
 
-            <iron-collapse class="sidemenu collapse information">
-              <section class="collapse-content">
-                <paper-button dialog-id="data" dialog-class="sidemenu" ajax class="sidemenu" onclick="openDialog(this)">
-                  <iron-icon icon="receipt"></iron-icon>Data-File
-                </paper-button>
-              </section>
-            </iron-collapse>
+          <iron-collapse class="sidemenu collapse information">
+            <section class="collapse-content">
+              <paper-button dialog-id="data" dialog-class="sidemenu" ajax class="sidemenu" onclick="openDialog(this)">
+                <iron-icon icon="receipt"></iron-icon>Data-File
+              </paper-button>
+            </section>
+          </iron-collapse>
 
-      </paper-header-panel>
-
-
-      <!-- MAIN VIEW -->
-      <paper-header-panel main id="mainPanel" on-content-scroll="{{scrollit}}">
-        <script>
-          function scrollit(){
-            window.alert('bing');
-          }
-        </script>
-
-        <!-- Toolbar -->
-        <paper-toolbar id="mainToolbar">
-
-          <!-- Upper Part -->
-          <section id="header" class="horizontal layout">
-
-            <!-- Sidemenu Button -->
-            <paper-icon-button icon="menu" class="mainmenu" paper-drawer-toggle></paper-icon-button>
-
-            <!-- Logo -->
-            <logo-element></logo-element>
-
-            <div class="flex"></div>
-
-            <!-- Sidemenu Button -->
-            <paper-icon-button icon="social:person-outline" id="identity" class="mainmenu" dialog-id="Login" dialog-class="mainmenu" onclick="openDialog(this)"></paper-icon-button>
-
-          </section>
-
-          <!-- Lower Part (Collapsible) -->
-          <section id="lower" flex horizontal layout>
-            TODO: add costum content object
-          </section>
-        </paper-toolbar>
+    </paper-header-panel>
 
 
-        <!-- MAIN CONTENT -->
-        <section id="main" class="fit">
+    <!-- MAIN VIEW -->
+    <paper-header-panel main id="mainPanel" on-content-scroll="scrollPage">
 
-          <!-- Page Option Button -->
-          <paper-fab mini icon="extension" dialog-id="page1" dialog-class="submenu" id="extension" onclick="openDialog(this)"></paper-fab>
+      <!-- Toolbar -->
+      <paper-toolbar id="mainToolbar">
 
-          <!-- Page -->
-          <table-page data="[[data]]"><table-page>
+        <!-- Upper Part -->
+        <section id="header" class="horizontal layout">
+
+          <!-- Sidemenu Button -->
+          <paper-icon-button icon="menu" class="mainmenu" paper-drawer-toggle></paper-icon-button>
+
+          <!-- Logo -->
+          <logo-element></logo-element>
+
+          <div class="flex"></div>
+
+          <!-- Sidemenu Button -->
+          <paper-icon-button icon="social:person-outline" id="identity" class="mainmenu" dialog-id="Login" dialog-class="mainmenu" onclick="openDialog(this)"></paper-icon-button>
 
         </section>
 
-      </paper-header-panel>
-    </paper-drawer-panel>
+        <!-- Lower Part (Collapsible) -->
+        <section id="lower" flex horizontal layout>
+          TODO: add costum content object
+        </section>
+      </paper-toolbar>
 
 
-    <!-- Dialogs -->
+      <!-- MAIN CONTENT -->
+      <section id="main" class="vertical layout center">
 
-      <!-- Log-in -->
-    <paper-dialog class="mainmenu" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-      <h2 class="dialog-title" horizontal layout>Login</h2>
-      <section class="dialog-section" vertical layout center>
-        <paper-input label="Benutzername"></paper-input>
-        <paper-input label="Passwort" type="password"></paper-input>
+        <!-- Page Option Button -->
+        <paper-fab mini icon="extension" dialog-id="page1" dialog-class="submenu" id="extension" onclick="openDialog(this)"></paper-fab>
+
+        <!-- Page -->
+        <table-page id="element-page" data="{{data}}"><table-page>
+
       </section>
+
+    </paper-header-panel>
+  </paper-drawer-panel>
+
+
+  <!-- Dialogs -->
+
+    <!-- Log-in -->
+  <paper-dialog class="mainmenu" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+    <h2 class="dialog-title" horizontal layout>Login</h2>
+    <section class="dialog-section" vertical layout center>
+      <paper-input label="Benutzername"></paper-input>
+      <paper-input label="Passwort" type="password"></paper-input>
+    </section>
+    <div class="buttons">
+      <paper-button dialog-dismiss><iron-icon icon="close"></iron-icon>abbrechen</paper-button>
+      <paper-button dialog-confirm><iron-icon icon="check"></iron-icon>anmelden</paper-button>
+    </div>
+  </paper-dialog>
+
+    <!-- Page-Options -->
+  <paper-dialog class="submenu" onclick="insertTest()" entry-animation="fade-in-animation" exit-animation="fade-out-animation">
+    <paper-dialog-scrollable></paper-dialog-scrollable>
+  </paper-dialog>
+
+    <!-- Files -->
+
+    <iron-ajax id="ajaxElement" auto url=""
+        params=''
+        handle-as="text" last-response="{{ajaxLogResponse}}"></iron-ajax>
+
+    <paper-dialog class="sidemenu" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+      <h2 class="dialog-title"></h2>
+      <paper-dialog-scrollable>[[ajaxLogResponse]]</paper-dialog-scrollable>
       <div class="buttons">
-        <paper-button dialog-dismiss><iron-icon icon="close"></iron-icon>abbrechen</paper-button>
-        <paper-button dialog-confirm><iron-icon icon="check"></iron-icon>anmelden</paper-button>
+        <paper-button disabled><iron-icon icon="mail"></iron-icon>Send</paper-button>
+        <paper-button disabled><iron-icon icon="print"></iron-icon>Print</paper-button>
+        <paper-button onclick="document.getElementById('ajaxElement').generateRequest()"><iron-icon icon="refresh"></iron-icon>Reload</paper-button>
+        <paper-button dialog-confirm><iron-icon icon="check"></iron-icon>OK</paper-button>
       </div>
     </paper-dialog>
 
-      <!-- Page-Options -->
-    <paper-dialog class="submenu" onclick="insertTest()" entry-animation="fade-in-animation" exit-animation="fade-out-animation">
-      <paper-dialog-scrollable></paper-dialog-scrollable>
-    </paper-dialog>
-
-      <!-- Files -->
-
-      <iron-ajax id="ajaxElement" auto url=""
-          params=''
-          handle-as="text" last-response="{{ajaxLogResponse}}"></iron-ajax>
-
-      <paper-dialog class="sidemenu" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-        <h2 class="dialog-title"></h2>
-        <paper-dialog-scrollable>[[ajaxLogResponse]]</paper-dialog-scrollable>
-        <div class="buttons">
-          <paper-button disabled><iron-icon icon="mail"></iron-icon>Send</paper-button>
-          <paper-button disabled><iron-icon icon="print"></iron-icon>Print</paper-button>
-          <paper-button onclick="document.getElementById('ajaxElement').generateRequest()"><iron-icon icon="refresh"></iron-icon>Reload</paper-button>
-          <paper-button dialog-confirm><iron-icon icon="check"></iron-icon>OK</paper-button>
-        </div>
-      </paper-dialog>
-
-    </template>
-
+  </template>
 </body>
+
+<script>
+
+  window.addEventListener('WebComponentsReady', function(e) {
+    var template = document.querySelector('#autobind-template');
+    var mainContainer = document.querySelector('div#mainContainer');
+    template.scrollPage = function() {
+      if (mainContainer.scrollTop + mainContainer.offsetHeight >= mainContainer.scrollHeight) {
+        var page = document.getElementById('element-page');
+        page.scrollHandler(); // for each page-element should be a scrollHandler
+      }
+    };
+  });
+
+  function lift(){
+    $('paper-material').attr('elevation','5');
+  }
+
+  function expand(){
+    $('paper-toolbar').css('height','10em');
+    $('paper-material.submenu').addClass("active");
+  }
+
+  function insertTest(){
+    $('table-page').css('background','orange');
+    $.get( "/data", function( response ) {
+      $("body").css("--default-primary-color","red");
+      $('paper-dialog.submenu paper-dialog-scrollable').text(response);
+    });
+  }
+
+  function enable(){
+    $('paper-fab').attr("disabled", false);
+
+    $.get( "/data", function( response ) {
+      $('.inner').text("<p>"+response+"</p>");
+    });
+  }
+
+  function toggleCollapse(elem){
+    var button = elem;
+    while (!button.hasAttribute('collapse-id') && button !== document.body) {
+      button = button.parentElement;
+    }
+
+    if (!button.hasAttribute('collapse-id')) {
+      return;
+    }
+
+    var id = button.getAttribute('collapse-id');
+    var collapse = document.querySelector('iron-collapse.'+id);
+
+    if (collapse) {
+      collapse.toggle();
+    }
+  }
+  function changeTheme(){
+    var button = document.getElementById('color-schema');
+    if(button.checked == true) {
+      $('*').removeClass("dark");
+      console.log("pressed");
+    }
+    else {
+      $('*').addClass("dark");
+    }
+  }
+  function openDialog(elem){
+    var button = elem;
+    while (!button.hasAttribute('dialog-id') && button !== document.body) {
+      button = button.parentElement;
+    }
+
+    if (!button.hasAttribute('dialog-id') || !button.hasAttribute('dialog-class')) {
+      return;
+    }
+
+    var id = button.getAttribute('dialog-id');
+    var className = button.getAttribute('dialog-class');
+    var aj = button.getAttribute('ajax');
+    var dialog = document.querySelector('paper-dialog.'+className);
+
+    $('paper-dialog.'+className+' .dialog-title').text(id);
+    if (typeof aj === 'string')
+      $('iron-ajax').attr('url','/'+id);
+
+    if (dialog) {
+      dialog.open();
+    }
+  }
+</script>

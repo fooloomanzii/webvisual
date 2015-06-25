@@ -1,5 +1,3 @@
-<link rel="import" href="../css/app-theme.html">
-
 <dom-module id="table-page">
   <style>
     :host {
@@ -15,7 +13,22 @@
   </style>
   <template>
     <section id="content" class="vertical layout">
-      <paper-material id="table"></paper-material>
+      <paper-material id="table">
+
+          <table>
+            <template is="dom-repeat" items="{{reduced}}">
+              <tr class="row">
+                <td>{{item.room}}</td>
+                <td>{{item.kind}}</td>
+                <td>{{item.method}}</td>
+                <td>{{item.value}}</td>
+                <td>{{item.unit}}</td>
+              </tr>
+            </template>
+          </table>
+
+
+      </paper-material>
     </section>
   </template>
 
@@ -41,33 +54,50 @@
 
       insertTable: function() {
         var time = new Date();
-        var section = this.$.table;
-        for (var i=0; i < this.data.length; i++) {
-          var table = document.createElement("table");
-          for (var j=0; j < 2; j++) {
-            var row = document.createElement("tr");
+        // var section = this.$.table;
+        // for (var i=0; i < this.data.length; i++) {
+        //   var table = document.createElement("table");
+        //   for (var j=0; j < 2; j++) {
+        //     var row = document.createElement("tr");
+        //
+        //     var td = document.createElement("td")
+        //     td.innerHTML = this.data[i].room;
+        //     row.appendChild(td);
+        //
+        //     var td = document.createElement("td")
+        //     td.innerHTML = this.data[i].kind;
+        //     row.appendChild(td);
+        //
+        //     var td = document.createElement("td")
+        //     td.innerHTML = this.data[i].method;
+        //     row.appendChild(td);
+        //
+        //     var td = document.createElement("td")
+        //     var x = 2*i + j;
+        //     td.innerHTML = x;
+        //     row.appendChild(td);
+        //
+        //     table.appendChild(row);
+        //   }
+        //   section.appendChild(table);
+        // }
 
-            var td = document.createElement("td")
-            td.innerHTML = this.data[i].room;
-            row.appendChild(td);
-
-            var td = document.createElement("td")
-            td.innerHTML = this.data[i].kind;
-            row.appendChild(td);
-
-            var td = document.createElement("td")
-            td.innerHTML = this.data[i].method;
-            row.appendChild(td);
-
-            var td = document.createElement("td")
-            var x = 2*i + j;
-            td.innerHTML = x;
-            row.appendChild(td);
-
-            table.appendChild(row);
+          var tmp = [];
+          for (i=0; i<this.data.length; i++) {
+            for (j=0; j<this.data[i].data.length; j++) {
+              tmp.push({"id":    this.data[i].id,
+                        "room":  this.data[i].room,
+                        "kind":  this.data[i].kind,
+                        "method" :  this.data[i].method,
+                        "unit":  this.data[i].unit,
+                        "date":  this.data[i].data[j].date,
+                        "value": this.data[i].data[j].value,
+                        "exceeds": this.data[i].data[j].exceeds,
+                        "color":  this.data[i].data[j].color});
+            }
           }
-          section.appendChild(table);
-        }
+          this.reduced = tmp;
+
         var timeafter = new Date();
         time = timeafter - time;
         console.log(time);
