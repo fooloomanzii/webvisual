@@ -62,8 +62,11 @@ var
       json: false,
       // The watching mode ('all', 'append', 'prepend')
       mode: 'all',
-      // Default file: Same dir as the "master" script
+      // Default file: Same dir as the "master" script,
+      path_folder: __dirname,
       path: '/../../data/data.txt',
+      // Default log file
+      copy_path: __dirname + "/../../logs/",
       // The default parse function from the data_parser module
       process: data_parser.parse
     },
@@ -200,9 +203,9 @@ connectionFn.file = {
    */
   close: function(config, callback) {
     // Log
-    console.log("Stopped watching \""+config.path+"\"");
+    console.log("Stopped watching \""+path_util.basename(config.path)+"\"");
     // End the watching
-    copywatch.unwatch(config.path, config.remove, callback);
+    copywatch.unwatch(config.path_folder + config.path, config.remove, callback);
   },
   /**
    * The file watch connect function. Enables the watching and processing of a file.
@@ -217,10 +220,10 @@ connectionFn.file = {
     config.content = emitter;
 
     // Start watching the file
-    copywatch.watch(config.mode, __dirname + config.path, config);
+    copywatch.watch(config.mode, config.path_folder + config.path, config);
 
     // Return the necessary data to end the watcher
-    return { path: __dirname + config.path, remove: config.copy };
+    return { path: config.path_folder + config.path, remove: config.copy };
   }
 };
 

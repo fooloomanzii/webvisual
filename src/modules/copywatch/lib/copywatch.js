@@ -58,7 +58,7 @@ var fs        = require('fs'),
   },
   _watchers     = {},
   _watcherCount = 0,
-  _extension    = '_node',
+  _extension    = '.log',
   newline       = /\r\n|\n\r|\n/, // Every possible newline character
   errorFile     = './copywatch.err';
 
@@ -144,18 +144,17 @@ function _file_options(start, end) {
   Copy
   Copies a file. Simple and plain.
 */
-function _copy(path, start, end) {
+function _copy(path, start, end, process, content, copy_path) {
   var options = _file_options(start, end);
-
   // Copies the file
-  fs.createReadStream(path, options.readOptions).pipe(fs.createWriteStream(path+_extension, options.writeOptions));
+  fs.createReadStream(copy_path, options.readOptions).pipe(fs.createWriteStream(copy_path+_extension, options.writeOptions));
 }
 
 /*
   Process copy
   Copies a file and processes it, if a process function is given.
 */
-function _process_copy(path, start, end, process, callback) {
+function _process_copy(path, start, end, process, callback, copy_path) {
   // Define Variables
   // Create the read/write options
   var options = _file_options(start,end).writeOptions,
@@ -189,7 +188,7 @@ function _process_copy(path, start, end, process, callback) {
     _watchers[path].data = data;
 
     // Init the write stream
-    write = fs.createWriteStream(path+_extension, options);
+    write = fs.createWriteStream(copy_path+_extension, options);
 
     // Write the data and close the stream
     write.end(JSON.stringify(data));
@@ -353,7 +352,8 @@ function _create_watch_options(mode, options) {
     watch_error: options.watch_error || _default.watch_error,
     work_function: _default.work_function,
     process: options.process || _default.process,
-    content: options.content
+    content: options.content,
+    copy_path: options.copy_path + options.path
   };
 
   // Helpfunction
@@ -401,21 +401,21 @@ function _create_watch_options(mode, options) {
 function _handle_change(event, path, currStat, prevStat, options) {
   // Test/create event - process the changes
   if (event === 'update' || event === 'create') {
-    console.log(path+' was updated');
+    console.log(path_util.basename(path)+' was updated');
     if (options.mode === 'append') {
-      options.work_function(path, prevStat.size, undefined, options.process, options.content);
+      options.work_function(path, prevStat.size, undefined, options.process, options.content, options.copy_path);
     } else if (options.mode === 'prepend') {
-      options.work_function(path, 0, (currStat.size - prevStat.size), options.process, options.content);
+      options.work_function(path, 0, (currStat.size - prevStat.size), options.process, options.content, options.copy_path);
     } else if (options.mode === 'all') {
-      options.work_function(path, undefined, undefined, options.process, options.content);
+      options.work_function(path, undefined, undefined, options.process, options.content, options.copy_path);
     }
   }
   //  Delete event - delete the copied version
   else if (event === 'delete') {
-    console.log(path+' was deleted');
+    console.log(path_util.basename(path)+' was deleted');
     // We don't need to delete the copied file if there is no copied file
-    fs.exists(path+_extension, function(exists) {
-      if(exists) fs.unlink(path+_extension, options.watch_error);
+    fs.exists(copy_path+_extension, function(exists) {
+      if(exists) fs.unlink(copy_path+_extension, options.watch_error);
     });
   }
 }
@@ -509,7 +509,7 @@ function setExtension(newExtension) {
   // Rename the old files
   for (path in _watchers) {
     if(_watchers.hasOwnProperty(path)) {
-      fs.renameSync(path+_extension, path+newExtension);
+      fs.renameSync(copy_path+_extension, copy_path+newExtension);
     }
   }
 

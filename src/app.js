@@ -199,7 +199,7 @@ var userCounter = 0,
 //                         socket.emit('data', configData);
 //                       });
     // DATAHANDLER - established the data connections
-var currentData = {},
+var currentData = {},currentData2 = {},
     dataFile = new dataHandler( {
       // Object used the Configuration
       connection: config.connections,
@@ -226,6 +226,7 @@ var currentData = {},
             currentData.exceeds=threshold.getExceeds(data);
             // Save the current data
             currentData.data=data;
+            console.log(data.length);
             // Process data to certain format
             currentData = dataMerge.processData(config.locals,currentData);
 

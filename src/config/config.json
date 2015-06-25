@@ -4,7 +4,8 @@
     "file": {
       "copy": false,
       "mode": "all",
-      "path": "/../../data/data.txt"
+      "path_folder": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Datafile/",
+      "path": "HNF_Datafile.txt"
       },
     "udp": {
       "log": false,
@@ -24,17 +25,19 @@
   "port": 3000,
 
   "logs": {
-    "external_log": "/../../logs/log.log",
+    "external_log": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Log/HNF.log",
+    "external_log_local": false,
     "http_server_log":   "/../logs/http-error.log"
     },
 
   "locals":{
 
-    "timeFormat": "dd.MM.yyyy HH:mm:ss",
-    "typeWidth":2,
+    "timeFormat": "dd.mm.yyyy HH:MM:ss",
+
+    "ignore": [],
 
     "types": [
-     { "id":"127.148.138.2",
+     { "id":"127.148.138.1",
        "room":"Raum A",
        "kind":"Chlor",
        "subtypes":[{"method":"Druck", "unit":"mPa", "threshold": [2,10]},
@@ -61,8 +64,8 @@
      { "id":"127.148.138.5",
        "room":"Raum A",
        "kind":"Xenon",
-       "subtypes":[{"method":"Dichte" , "unit":"g/cm³", "threshold": [2,4]},
-                   {"method":"Temperatur" , "unit":"°C"}]
+       "subtypes":[{"method":"Dichte", "unit":"g/cm³", "threshold": [2,4]},
+                   {"method":"Temperatur", "unit":"°C"}]
      },
      { "id":"127.148.138.6",
        "room":"Raum A",
@@ -90,8 +93,17 @@
      }
     ],
 
-    "unnamedType" : { "id":"0.0.0.0", "room" : "Raum nicht definiert", "kind" : "Datenmessung "},
-    "unnamedSubtype" : {"method":"x" , "unit":"", "threshold": []},
+    "unnamedType" : {
+      "id"   : "id",
+      "room" : "Raum nicht definiert",
+      "kind" : "Datenmessung ",
+      "handleAs" : "number",
+      "subtypes" : {
+        "method"   : "x",
+        "unit"     : "",
+        "threshold": []
+        }
+      },
 
     "language": {
       "types": ["en","de","fr","es","ru"],

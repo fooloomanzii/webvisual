@@ -28,8 +28,12 @@ exports.index = route('index', { title: 'WebVisual' });
 
 // External Logfile (file path from config.json)
 exports.externalLogFile = function(req, res) {
-  var filepath = path.resolve(__dirname + config.logs.external_log);
-  
+  var filepath;
+  if (config.logs.external_log_local)
+    filepath = path.resolve(__dirname + config.logs.external_log);
+  else
+    filepath = path.resolve(config.logs.external_log);
+
   var text = fs.readFile(filepath, function(err, data) {
     res.send(data);
   });

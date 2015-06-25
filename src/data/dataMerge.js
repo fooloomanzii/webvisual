@@ -17,17 +17,18 @@
   // global Variables
   var _            = require('underscore'),
       dateFormat   = require('dateFormat'),
-      numCols       =  2,
       labelsArray   = [],
-      valuesArray   = [],
+      languageArray = [],
+      numCols       =  0;
+
+function processData(locals, currentData) {
+
+  var valuesArray   = [],
       exceedsArray  = [],
       dateArray     = [],
-      languageArray = [],
       dataStringArray     = [],
       currentExceedsArray = [],
       dataStringObject    = {};
-
-function processData(locals, currentData) {
 
   if(locals === undefined ||
      currentData === undefined)
@@ -42,28 +43,25 @@ function processData(locals, currentData) {
       console.warn("There is no configuration.");
       return;
     }
-    else {
+    // if labels already exist, then they are not rewritten
+    // TODO: handle change on config file
+    else if (labelsArray.length == 0) {
       labelsArray=locals;
     }
+    else {
+      return;
+    }
+
+    languageArray = locals.language;
 
     // Set the Number of different Variables and Columns 'numCols' respectively
-    numCols = locals.typeWidth;
-    languageArray = locals.language;
+    numCols = 0
+    for (var i=0; i<labelsArray.types.length; i++)
+      for (var j=0; j<labelsArray.types[i].subtypes.length; j++)
+        numCols++;
 
     if (numCols < 1) {
       numCols = 1;
-    }
-
-    // Create labels for the Value Table 'subtypes' and fill unnamed
-    for(var j = 0; j<locals.types.length; j++){
-      for(var i = 1; i<=numCols; i++){
-        if (!locals.types[j].subtypes[i-1]) {
-          labelsArray.types[j].subtypes.push(
-            {"method":locals.unnamedSubtype.method+i,
-             "unit"  :locals.unnamedSubtype.unit,
-             "threshold":locals.unnamedSubtype.threshold});
-        }
-      }
     }
   }
 
@@ -77,8 +75,8 @@ function processData(locals, currentData) {
     for (var i=0; i<data.length; i++) {
       // If that Data exists, it will be overwritten
       if(valuesArray[i] && dateArray[i]) {
-        for (var k=0; k<data[i].values.length; k++) {
-          valuesArray[i][k] = data[i].values[k];
+        for (var l=0; l<data[i].values.length; l++) {
+          valuesArray[i][l] = data[i].values[l];
         }
         dateArray[i] = dateFormat(
             data[i].date,labelsArray.timeFormat);
@@ -89,39 +87,38 @@ function processData(locals, currentData) {
         dateArray.push(dateFormat(
             data[i].date,labelsArray.timeFormat));
       }
-
-      // Create the Labels for the Type Table 'types', if no Labels are defined in 'config.json'
-      // (Room 'room' & Type of the Measurement or other Labels 'kind')
-
-      for(var j = 1; j <= (data[i].values.length / numCols); j++){
-        if (!labelsArray.types[j-1]) {
-          labelsArray.types.push(
-            {"id": labelsArray.unnamedType.id,
-             "room":labelsArray.unnamedType.room,
-             "kind":labelsArray.unnamedType.kind+j,
-             "subtypes":[]});
-          for(var k = 1; k<=numCols; k++){
-            labelsArray.types[j-1].subtypes.push(
-              {"method":labelsArray.unnamedSubtype.method + k,"unit":labelsArray.unnamedSubtype.unit,"threshold":labelsArray.unnamedSubtype.threshold});
-          }
-        }
-      }
     }
 
     // Join Data to the Object, which is used by the website
     for (var i=0; i<dateArray.length; i++) {
+      // l, k are for types and subtypes
+      var l = 0;
+      var k = 0;
       for (var j=0; j<valuesArray[i].length; j++) {
-      // l, k are for typed and subtypes
-        var l = parseInt(j/numCols);
-        var k = j % numCols;
       // head-data of measuring-points
         if(!dataStringArray[j]) {
-          dataStringArray.push({"id":      labelsArray.types[l].id.toString(),
-                                "room":    labelsArray.types[l].room.toString(),
-                                "kind":    labelsArray.types[l].kind.toString(),
-                                "method" : labelsArray.types[l].subtypes[k].method.toString(),
-                                "unit":    labelsArray.types[l].subtypes[k].unit.toString(),
-                                "data":    [] })
+          if (labelsArray.types[l]){
+            dataStringArray.push({"id":      labelsArray.types[l].id || labelsArray.unnamedType.id+l,
+                                  "room":    labelsArray.types[l].room || labelsArray.unnamedType.room,
+                                  "kind":    labelsArray.types[l].kind || labelsArray.unnamedType.kind,
+                                  "data":    [] });
+            if (labelsArray.types[l].subtypes){
+              dataStringArray[j].method = labelsArray.types[l].subtypes[k].method;
+              dataStringArray[j].unit = labelsArray.types[l].subtypes[k].unit;
+              }
+            else {
+              dataStringArray[j].method = labelsArray.unnamedType.subtypes.method;
+              dataStringArray[j].unit = labelsArray.unnamedType.subtypes.unit;
+            }
+          }
+          else {
+            dataStringArray.push({"id":      labelsArray.unnamedType.id+l,
+                                  "room":    labelsArray.unnamedType.room,
+                                  "kind":    labelsArray.unnamedType.kind,
+                                  "method":  labelsArray.unnamedType.subtypes.method,
+                                  "unit":    labelsArray.unnamedType.subtypes.unit,
+                                  "data":    [] });
+          }
         }
       // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored
         dataStringArray[j].data.push({"date":    dateArray[i],
@@ -130,24 +127,33 @@ function processData(locals, currentData) {
                                     })
         if(exceedsArray[i][j]) {
           var m = _.findLastIndex(currentExceedsArray,
-                                   {"id":  labelsArray.types[l].id.toString(),
-                                    "room":    labelsArray.types[l].room.toString(),
-                                    "kind":    labelsArray.types[l].kind.toString(),
-                                    "method":  labelsArray.types[l].subtypes[k].method.toString(),
-                                    "unit":    labelsArray.types[l].subtypes[k].unit.toString()});
+                                   {"id":     dataStringArray[j].id,
+                                    "room":   dataStringArray[j].room,
+                                    "kind":   dataStringArray[j].kind,
+                                    "method": dataStringArray[j].method,
+                                    "unit":   dataStringArray[j].unit});
           if(m == -1){
             m = currentExceedsArray.length;
-            currentExceedsArray.push({"id":      labelsArray.types[l].id.toString(),
-                                      "room":    labelsArray.types[l].room.toString(),
-                                      "kind":    labelsArray.types[l].kind.toString(),
-                                      "method":  labelsArray.types[l].subtypes[k].method.toString(),
-                                      "unit":    labelsArray.types[l].subtypes[k].unit.toString(),
-                                      "data":    [] })
+            currentExceedsArray.push({"id":     dataStringArray[j].id,
+                                      "room":   dataStringArray[j].room,
+                                      "kind":   dataStringArray[j].kind,
+                                      "method": dataStringArray[j].method,
+                                      "unit":   dataStringArray[j].unit,
+                                      "data":   [] })
           }
           currentExceedsArray[m].data = [{"date":    dateArray[i],
                                           "value":   valuesArray[i][j],
                                           "exceeds": exceedsArray[i][j] }];
         }
+
+        // jump in array of types and subtypes
+        if (labelsArray.types[l] && labelsArray.types[l].subtypes && (k+1 < labelsArray.types[l].subtypes.length))
+          k++;
+        else{
+          k = 0;
+          l++;
+        }
+
       }
     }
 
