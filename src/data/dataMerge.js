@@ -106,6 +106,7 @@ function processData(locals, currentData) {
                                       "value":   valuesArray[i][j],
                                       "exceeds": exceedsArray[i][j]
                                     })
+      // TODO: update and send currentExceedsArray session-whise
         if(exceedsArray[i][j]) {
           var m = _.findLastIndex(currentExceedsArray,
                                    {"id":     dataStringArray[j].id,
@@ -132,7 +133,7 @@ function processData(locals, currentData) {
     }
 
       // Creation of an Object, so it can be assigned to the Eventhandler (dirty)
-    dataStringObject = {time: currentData.time, content: dataStringArray, lastExceeds: currentExceedsArray};
+    dataStringObject = {time: currentData.time, content: dataStringArray, lastExceeds: currentExceedsArray, lineCount: currentData.lineCount};
   }
 
   return dataStringObject;

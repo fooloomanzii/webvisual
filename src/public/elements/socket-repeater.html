@@ -35,19 +35,24 @@
             value: 0,
             notify: true
           },
-          timeSpan: {
-            type: Date,
+          maxTotalLines: {
+            type: Number,
+            value: 30,
+            notify: true
+          },
+          totalLines: {
+            type: Number,
             value: 0,
             notify: true
           },
-          dataAppend: {
-            type: Boolean,
-            value: false,
+          newLines: {
+            type: Number,
+            value: 0,
             notify: true
           },
-          groupBy: {
-            type: String,
-            value: '',
+          doAppend: {
+            type: Boolean,
+            value: true,
             notify: true
           }
       },
@@ -62,6 +67,9 @@
           self.lastMessage = new Date(message.time);
           self.lastData = message.content;
           self.lastExceeds = message.lastExceeds;
+          self.newLines = message.lineCount;
+          self.totalLines = message.lineCount;
+
         });
 
         // Receive another Data
@@ -69,8 +77,22 @@
           if(message === undefined) return; // Check for Existence
 
           self.lastMessage = new Date(message.time);
-          self.lastData = message.content;
-          self.lastExceeds = message.lastExceeds;
+          // $.extend(self.lastExceeds,message.lastExceeds);
+          self.newLines = message.lineCount;
+
+          if (self.doAppend){
+              for (var i=0; i < self.lastData.length; i++) {
+                for (var j=0; j < message.content[i].data.length; j++) {
+                  if (self.lastData[i].data.length >= self.maxTotalLines)
+                    self.shift("lastData."+i+".data");
+                  self.push("lastData."+i+".data",message.content[i].data[j]);
+                }
+              }
+          }
+          else {
+            self.totalLines = message.lineCount;
+            self.lastData = message.content;
+          }
         });
 
         //*** Wrong Data
