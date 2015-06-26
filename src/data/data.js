@@ -63,8 +63,8 @@ var
       // The watching mode ('all', 'append', 'prepend')
       mode: 'all',
       // Default file: Same dir as the "master" script,
-      path_folder: __dirname,
-      path: '/../../data/data.txt',
+      path_folder: __dirname + '/../../data/',
+      path: 'data.txt',
       // Default log file
       copy_path: __dirname + "/../../logs/",
       // The default parse function from the data_parser module
@@ -283,6 +283,8 @@ dataHandler = (function() {
 
     // Use defaults for undefined values
     config = defaultsDeep(config,defaults);
+    if (config.connection.file.path_folder == "")
+      config.connection.file.path_folder = connectionDefaults.file.path_folder;
 
     // Add a instance of the EventEmitter
     this._emitter = new EventEmitter();

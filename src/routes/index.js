@@ -29,10 +29,12 @@ exports.index = route('index', { title: 'WebVisual' });
 // External Logfile (file path from config.json)
 exports.externalLogFile = function(req, res) {
   var filepath;
-  if (config.logs.external_log_local)
-    filepath = path.resolve(__dirname + config.logs.external_log);
-  else
+  if (config.logs.external_log_path == "")
+    filepath = path.resolve(__dirname + '/../../logs/' + config.logs.external_log);
+  else if (!config.logs.external_log_path)
     filepath = path.resolve(config.logs.external_log);
+  else
+    filepath = path.resolve(__dirname + config.logs.external_log_path + config.logs.external_log);
 
   var text = fs.readFile(filepath, function(err, data) {
     res.send(data);
@@ -41,11 +43,18 @@ exports.externalLogFile = function(req, res) {
 
 // Data File        (file path from config.json)
 exports.dataString = function(req, res) {
-  var filepath = path.resolve(__dirname + config.connections.file.path);
+  var filepath;
+
+  if (config.connections.file.path_folder == "")
+    filepath = path.resolve(__dirname + '/../../data/' + config.connections.file.path);
+  else if (!config.connections.file.path_folder)
+    filepath = path.resolve(config.connections.file.path);
+  else
+    filepath = path.resolve(__dirname + config.connections.file.path_folder + config.connections.file.path);
+
   var text = fs.readFile(filepath, function(err, data) {
     res.send(data);
   });
-
 };
 
 // Configuration    (send config.json)

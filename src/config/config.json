@@ -4,7 +4,8 @@
     "file": {
       "copy": false,
       "mode": "all",
-      "path_folder": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Datafile/",
+      "#path_folder": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Datafile/",
+      "path_folder": "",
       "path": "HNF_Datafile.txt"
       },
     "udp": {
@@ -25,8 +26,9 @@
   "port": 3000,
 
   "logs": {
-    "external_log": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Log/HNF.log",
-    "external_log_local": false,
+    "external_log": "HNF.log",
+    "external_log_path": "",
+    "#external_log_path": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Log/",
     "http_server_log":   "/../logs/http-error.log"
     },
 
@@ -34,76 +36,66 @@
 
     "timeFormat": "dd.mm.yyyy HH:MM:ss",
 
-    "ignore": [],
+    "ignore": [0,8,16,17,21,22,27,32],
 
     "types": [
-     { "id":"127.148.138.1",
-       "room":"Raum A",
-       "kind":"Chlor",
-       "subtypes":[{"method":"Druck", "unit":"mPa", "threshold": [2,10]},
-                   {"method":"Temperatur" , "unit":"°C", "threshold": [2,11]}]
-     },
-     { "id":"127.148.138.2",
-       "room":"Raum B",
-       "kind":"Sauerstoff",
-       "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [2,5]},
-                   {"method":"Temperatur" , "unit":"°C", "threshold": [2,5]}]
-     },
-     { "id":"127.148.138.3",
-       "room":"Gaslager",
-       "kind":"Stickstoff",
-       "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [2,8]},
-                   {"method":"Volumen" , "unit":"cm³", "threshold": [2,7]}]
-     },
-     { "id":"127.148.138.4",
-       "room":"Raum B",
-       "kind":"Helium",
-       "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [1,5]},
-                   {"method":"Temperatur", "unit":"°C", "threshold": [0,3]}]
-     },
-     { "id":"127.148.138.5",
-       "room":"Raum A",
-       "kind":"Xenon",
-       "subtypes":[{"method":"Dichte", "unit":"g/cm³", "threshold": [2,4]},
-                   {"method":"Temperatur", "unit":"°C"}]
-     },
-     { "id":"127.148.138.6",
-       "room":"Raum A",
-       "kind":"Wasserstoff",
-       "subtypes":[{"method":"Volumen" , "unit":"cm³", "threshold": [2,5]},
-                   {"method":"Temperatur" , "unit":"°C", "threshold": [2,5]}]
-     },
-     { "id":"127.148.138.7",
-       "room":"Keller",
-       "kind":"Kohlenmonoxid",
-       "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [1,5]},
-                   {"method":"Temperatur" , "unit":"°C", "threshold": [2,5]}]
-     },
-     { "id":"127.148.138.8",
-       "room":"Keller",
-       "kind":"Kohlendioxid",
-       "subtypes":[{"method":"Druck", "unit":"mPa", "threshold": [4,5]},
-                   {"method":"Volumen", "unit":"cm³", "threshold": [2,5]}]
-     },
-     { "id":"127.148.138.9",
-       "room":"Raum A",
-       "kind":"Schwefelgas",
-       "subtypes":[{"method":"Druck" , "unit":"mPa", "threshold": [8,9.2]},
-                   {"method":"Temperatur" , "unit":"°C", "threshold": [2,5]}]
-     }
+      {"id":"Binary"},
+      {"id":"DI0-1", "roomNr":"2032", "room":"Gaslager", "kind":"H₂", "method":"brennbar", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI1-1", "roomNr":"2032", "room":"Gaslager", "kind":"H₂", "method":"brennbar", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI2-1", "roomNr":"3005", "room":"Bypack", "kind":"H₂", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI3-1", "roomNr":"3005", "room":"Bypack", "kind":"H₂", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI4-1", "roomNr":"4006", "room":"Reinraum", "kind":"H₂", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI5-1", "roomNr":"4006", "room":"Reinraum", "kind":"H₂", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI6-1", "roomNr":"2032 3005 4006", "room":"diverse", "kind":"H₂", "method":"Störung", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI7-1", "method":"Reserve", "isBoolean": true},
+
+      {"id":"DI0-2", "method":"Gerätefehler", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI1-2", "method":"Wartung", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI2-2", "roomNr":"2030", "room":"Gaslager", "kind":"Alarm2", "method":"korrosiv", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI3-2", "roomNr":"2032", "room":"Gaslager", "kind":"Alarm2", "method":"brennbar", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI4-2", "roomNr":"3005", "room":"Bypack", "kind":"Alarm2", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI5-2", "roomNr":"4006", "room":"Reinraum", "kind":"Alarm2", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI6-2", "roomNr":"4006", "room":"Reinraum", "kind":"HBr", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI7-2", "method":"Reserve", "isBoolean": true},
+
+      {"id":"DI0-3", "method":"Reserve", "isBoolean": true},
+      {"id":"DI1-3", "roomNr":"4006", "room":"Reinraum", "kind":"Cl₂", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI2-3", "roomNr":"2030", "room":"Gaslager", "kind":"Cl₂", "method":"korrosiv", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI3-3", "roomNr":"2030", "room":"Gaslager", "kind":"HBr", "method":"korrosiv", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI4-3", "method":"Reserve", "isBoolean": true},
+      {"id":"DI5-3", "method":"Reserve", "isBoolean": true},
+      {"id":"DI6-3", "roomNr":"4006", "room":"Reinraum", "kind":"NH₃", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI7-3", "roomNr":"3005", "room":"Bypack", "kind":"NH₃", "isBoolean": true, "threshold": [0,0]},
+
+      {"id":"DI0-4", "roomNr":"2032", "room":"Gaslager", "kind":"NH₃", "method":"brennbar", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI1-4", "roomNr":"4006", "room":"Reinraum", "kind":"BCl₃", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI2-4", "method":"Reserve", "isBoolean": true},
+      {"id":"DI3-4", "roomNr":"3005", "room":"Bypack", "kind":"BCl₃", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI4-4", "roomNr":"4006", "room":"Reinraum", "kind":"SiH₄", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI5-4", "roomNr":"3005", "room":"Bypack", "kind":"SiH₄", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI6-4", "roomNr":"2032", "room":"Gaslager", "kind":"SiH₄", "method":"brennbar", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI7-4", "method":"Reserve", "isBoolean": true},
+
+      {"id":"DI0-5", "roomNr":"4006", "room":"Reinraum", "kind":"Cl₂", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI1-5", "roomNr":"3005", "room":"Bypack", "kind":"HBr", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI2-5", "roomNr":"2030", "room":"Gaslager", "kind":"BCl₃", "method":"korrosiv", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI3-5", "roomNr":"4006-21", "room":"Reinraum", "kind":"O₂", "method":"Mangel 19%", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI4-5", "roomNr":"4006-21", "room":"Reinraum", "kind":"O₂", "method":"Mangel 17%", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI5-5", "roomNr":"4006-23", "room":"Reinraum", "kind":"O₂", "method":"Mangel 19%", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI6-5", "roomNr":"4006-23", "room":"Reinraum", "kind":"O₂", "method":"Mangel 17%", "isBoolean": true, "threshold": [0,0]},
+      {"id":"DI7-5", "roomNr":"4006", "room":"Reinraum", "kind":"Midas System", "method":"Störung", "isBoolean": true, "threshold": [0,0]}
     ],
 
     "unnamedType" : {
-      "id"   : "id",
-      "room" : "Raum nicht definiert",
-      "kind" : "Datenmessung ",
-      "handleAs" : "number",
-      "subtypes" : {
-        "method"   : "x",
-        "unit"     : "",
-        "threshold": []
-        }
-      },
+      "id"    : "id",
+      "room"  : "-",
+      "roomNr": "-",
+      "kind"  : "-",
+      "method"   : "-",
+      "unit"     : "",
+      "threshold": [],
+      "isBoolean": false
+    },
 
     "language": {
       "types": ["en","de","fr","es","ru"],

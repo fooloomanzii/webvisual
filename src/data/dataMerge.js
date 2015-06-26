@@ -53,16 +53,6 @@ function processData(locals, currentData) {
     }
 
     languageArray = locals.language;
-
-    // Set the Number of different Variables and Columns 'numCols' respectively
-    numCols = 0
-    for (var i=0; i<labelsArray.types.length; i++)
-      for (var j=0; j<labelsArray.types[i].subtypes.length; j++)
-        numCols++;
-
-    if (numCols < 1) {
-      numCols = 1;
-    }
   }
 
   function arrangeData(data, exceeds){
@@ -91,35 +81,26 @@ function processData(locals, currentData) {
 
     // Join Data to the Object, which is used by the website
     for (var i=0; i<dateArray.length; i++) {
-      // l, k are for types and subtypes
-      var l = 0;
-      var k = 0;
       for (var j=0; j<valuesArray[i].length; j++) {
       // head-data of measuring-points
         if(!dataStringArray[j]) {
-          if (labelsArray.types[l]){
-            dataStringArray.push({"id":      labelsArray.types[l].id || labelsArray.unnamedType.id+l,
-                                  "room":    labelsArray.types[l].room || labelsArray.unnamedType.room,
-                                  "kind":    labelsArray.types[l].kind || labelsArray.unnamedType.kind,
+          if (labelsArray.types[j])
+            dataStringArray.push({"id":      labelsArray.types[j].id || labelsArray.unnamedType.id+" "+j,
+                                  "room":    labelsArray.types[j].room || labelsArray.unnamedType.room,
+                                  "roomNr":  labelsArray.types[j].roomNr || labelsArray.unnamedType.roomNr,
+                                  "kind":    labelsArray.types[j].kind || labelsArray.unnamedType.kind,
+                                  "method":    labelsArray.types[j].method || labelsArray.unnamedType.method,
+                                  "unit":    labelsArray.types[j].unit || labelsArray.unnamedType.unit,
+                                  "isBoolean":    labelsArray.types[j].isBoolean || labelsArray.unnamedType.isBoolean,
                                   "data":    [] });
-            if (labelsArray.types[l].subtypes){
-              dataStringArray[j].method = labelsArray.types[l].subtypes[k].method;
-              dataStringArray[j].unit = labelsArray.types[l].subtypes[k].unit;
-              }
-            else {
-              dataStringArray[j].method = labelsArray.unnamedType.subtypes.method;
-              dataStringArray[j].unit = labelsArray.unnamedType.subtypes.unit;
-            }
+          else dataStringArray.push({"id":     labelsArray.unnamedType.id,
+                                  "room":      labelsArray.unnamedType.room,
+                                  "kind":      labelsArray.unnamedType.kind,
+                                  "method":    labelsArray.unnamedType.subtypes.method,
+                                  "unit":      labelsArray.unnamedType.subtypes.unit,
+                                  "isBoolean": labelsArray.unnamedType.subtypes.isBoolean,
+                                  "data":      [] });
           }
-          else {
-            dataStringArray.push({"id":      labelsArray.unnamedType.id+l,
-                                  "room":    labelsArray.unnamedType.room,
-                                  "kind":    labelsArray.unnamedType.kind,
-                                  "method":  labelsArray.unnamedType.subtypes.method,
-                                  "unit":    labelsArray.unnamedType.subtypes.unit,
-                                  "data":    [] });
-          }
-        }
       // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored
         dataStringArray[j].data.push({"date":    dateArray[i],
                                       "value":   valuesArray[i][j],
@@ -146,13 +127,6 @@ function processData(locals, currentData) {
                                           "exceeds": exceedsArray[i][j] }];
         }
 
-        // jump in array of types and subtypes
-        if (labelsArray.types[l] && labelsArray.types[l].subtypes && (k+1 < labelsArray.types[l].subtypes.length))
-          k++;
-        else{
-          k = 0;
-          l++;
-        }
 
       }
     }

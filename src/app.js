@@ -226,7 +226,6 @@ var currentData = {},currentData2 = {},
             currentData.exceeds=threshold.getExceeds(data);
             // Save the current data
             currentData.data=data;
-            console.log(data.length);
             // Process data to certain format
             currentData = dataMerge.processData(config.locals,currentData);
 
