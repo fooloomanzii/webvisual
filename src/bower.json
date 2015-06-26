@@ -10,7 +10,7 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "~2.1.4",
+    "jquery": "*",
     "polymer": "Polymer/polymer",
     "paper-elements": "PolymerElements/paper-elements",
     "iron-icons": "PolymerElements/iron-icons",
