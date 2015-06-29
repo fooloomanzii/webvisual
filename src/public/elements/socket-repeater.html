@@ -37,61 +37,69 @@
           },
           maxTotalLines: {
             type: Number,
-            value: 30,
-            notify: true
-          },
-          totalLines: {
-            type: Number,
-            value: 0,
-            notify: true
-          },
-          newLines: {
-            type: Number,
-            value: 0,
-            notify: true
+            value: 2,
+            observer: 'maxTotalLinesChanged'
           },
           doAppend: {
             type: Boolean,
-            value: true,
+            value: false,
+            notify: true
+          },
+          groups: {
+            type: Object,
+            value: {},
             notify: true
           }
       },
 
       ready: function(){
         var self = this;
+        self.maxTotalLines = 1;
         var dataSocket = io.connect('https://'+window.location.host+this.socket, {secure: true});
         // Receiving the first Data
         dataSocket.on('first', function(message) {
-          if(message === undefined) return; // Check the Existence
+          if(message === undefined || message.content === undefined) return; // Check the Existence
 
           self.lastMessage = new Date(message.time);
-          self.lastData = message.content;
-          self.lastExceeds = message.lastExceeds;
-          self.newLines = message.lineCount;
-          self.totalLines = message.lineCount;
 
+          self.lastData = message.content;
+          for (var i=0; i < message.content.length; i++) {
+            self.lastData[i].data = message.content[i].data.slice(-self.maxTotalLines);
+          }
+          self.lastExceeds = message.lastExceeds;
+          self.groups = message.groups;
         });
 
         // Receive another Data
         dataSocket.on('data', function(message) {
-          if(message === undefined) return; // Check for Existence
+          if(message === undefined || message.content === undefined) return; // Check for Existence
 
           self.lastMessage = new Date(message.time);
-          // $.extend(self.lastExceeds,message.lastExceeds);
-          self.newLines = message.lineCount;
+          self.lastExceeds = message.lastExceeds;
 
           if (self.doAppend){
               for (var i=0; i < self.lastData.length; i++) {
-                for (var j=0; j < message.content[i].data.length; j++) {
-                  if (self.lastData[i].data.length >= self.maxTotalLines)
-                    self.shift("lastData."+i+".data");
+                while (message.content[i].data.length + self.lastData[i].data.length > self.maxTotalLines && self.lastData[i].data.length > 0)
+                  self.shift("lastData."+i+".data");
+                var k = 0;
+                if (message.content[i].data.length > self.maxTotalLines)
+                  k = message.content[i].data.length - self.maxTotalLines;
+                for (var j=k; j < message.content[i].data.length; j++) {
                   self.push("lastData."+i+".data",message.content[i].data[j]);
                 }
               }
           }
           else {
-            self.totalLines = message.lineCount;
-            self.lastData = message.content;
+            for (var i=0; i < self.lastData.length; i++) {
+              while (self.lastData[i].data.length > 0)
+                self.shift("lastData."+i+".data");
+              var k = 0;
+              if (message.content[i].data.length > self.maxTotalLines)
+                k = message.content[i].data.length - self.maxTotalLines;
+              for (var j=k; j < message.content[i].data.length; j++) {
+                self.push("lastData."+i+".data",message.content[i].data[j]);
+              }
+            }
           }
         });
 
@@ -100,7 +108,16 @@
           self.lastMistake = new Date(message.time);
           self.lastError = new Date(message.error);
         });
+      },
+
+      maxTotalLinesChanged: function(newValue, oldValue) {
+        if (newValue < oldValue && newValue>0)
+          for (var i=0; i < this.lastData.length; i++) {
+            while (this.lastData[i].data.length > newValue)
+              this.shift("lastData."+i+".data");
+          }
       }
+
 
     });
   </script>

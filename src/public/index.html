@@ -4,17 +4,15 @@
   <meta name="viewport" charset="utf-8" content="width=device-width, initial-scale=1, user-scalable=yes"/>
 
   <!-- Web-Components -->
-  <script src="components/webcomponentsjs/webcomponents.js"></script>
+  <script src="components/webcomponentsjs/webcomponents.min.js"></script>
 
   <script>
-    window.Polymer = window.Polymer || {};
-    window.Polymer.dom = 'shadow';
+    // window.Polymer = window.Polymer || {};
+    // window.Polymer.dom = 'shady';
   </script>
 
   <!-- Imported Elements and Scripts -->
   <link rel="import" href="imports.html"/>
-  <!-- CSS Style -->
-  <link href="css/index.css" type="text/css" rel="stylesheet"/>
 
 </head>
 
@@ -22,7 +20,7 @@
 
   <template is="dom-bind" id="autobind-template">
 
-  <socket-repeater id="socket" last-data="{{data}}" r="{{test}}"></socket-repeater>
+  <socket-repeater id="datasocket" last-data="{{data}}" max-total-lines="{{max-lines}}" groups="{{groups}}"></socket-repeater>
 
   <paper-drawer-panel force-narrow="true">
 
@@ -56,7 +54,7 @@
 
           <iron-collapse class="sidemenu collapse settings">
             <section class="collapse-content">
-              <paper-button collapse-id="language" class="sidemenu" onclick="toggleCollapse(this)">
+              <paper-button disabled collapse-id="language" class="sidemenu" onclick="toggleCollapse(this)">
                 <iron-icon icon="language"></iron-icon>Sprachauswahl
               </paper-button>
                 <iron-collapse class="sidemenu collapse language">
@@ -68,13 +66,17 @@
                     <paper-tab>ru</paper-tab>
                   </paper-tabs>
                 </iron-collapse>
-              <paper-button noink>
-                <section class="horizontal layout center">
+
+              <paper-item>
                   <iron-icon icon="invert-colors"></iron-icon>
                   <span class="flex-3">Farbschema</span>
                   <paper-toggle-button class="flex" id="color-schema" onclick="changeTheme()"></paper-toggle-button>
-                </section>
-              </paper-button>
+              </paper-item>
+
+              <paper-item>
+                <iron-icon icon="editor:format-line-spacing"></iron-icon>
+                <number-input id="maxLineInput" value="{{max-lines}}"></number-input>
+              </paper-item>
 
             </section>
           </iron-collapse>
@@ -135,6 +137,7 @@
 
       <!-- MAIN CONTENT -->
       <section id="main" class="vertical layout center">
+        <dropdown-input items="[[groups.room]]"></dropdown-input>
 
         <!-- Page Option Button -->
         <paper-fab mini icon="extension" dialog-id="page1" dialog-class="submenu" id="extension" onclick="openDialog(this)"></paper-fab>

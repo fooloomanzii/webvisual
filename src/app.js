@@ -200,6 +200,7 @@ var userCounter = 0,
 //                       });
     // DATAHANDLER - established the data connections
 var currentData = {},
+    lastExceeds = [],
     dataFile = new dataHandler( {
       // Object used the Configuration
       connection: config.connections,

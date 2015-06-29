@@ -11,6 +11,10 @@ paper-button iron-icon {
   margin-right: 0.62em;
 }
 
+paper-item iron-icon {
+  margin-right: 0.62em;
+}
+
 .content.paper-button {
   padding: 1.2em 0.8em;
 }

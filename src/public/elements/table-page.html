@@ -15,11 +15,13 @@
     <section id="content" class="vertical layout">
       <paper-material id="table">
 
-            <table>
-            <template is="dom-repeat" items="{{data}}" as="group">
 
+            <table>
+            <template is="dom-repeat" items="{{data}}" as="group" filter="isGroup" observe="room data.room">
+              
                 <template is="dom-repeat" items="{{group.data}}" as="subgroup">
                   <tr class="row">
+                    <td>{{group.roomNr}}</td>
                     <td>{{group.room}}</td>
                     <td>{{group.kind}}</td>
                     <td>{{group.method}}</td>
@@ -54,6 +56,10 @@
       },
 
       ready: function(){
+      },
+
+      isGroup: function(item){
+        return item.room == 'Gaslager';
       },
 
       insertTable: function() {

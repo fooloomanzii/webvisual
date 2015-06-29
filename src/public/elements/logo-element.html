@@ -1,9 +1,4 @@
-<link rel="import" href="../components/polymer/polymer.html">
-<link rel="import" href="../components/iron-icon/iron-icon.html">
-<link rel="import" href="../components/paper-styles/typography.html">
 <link rel="import" href="juelich-icon.html">
-<link rel="import" href="../css/app-theme.html">
-
 
 <dom-module id="logo-element">
 <!-- <polymer-element name="logo-element" on-animationiteration="{{stopRequest}}"> -->
@@ -56,7 +51,7 @@
   }
   @keyframes progress-animation-false {
       0%   {fill:currentColor; transform: scale(1);}
-      30%  {fill:#f7f142; transform: scale(0.8);}
+      30%  {fill:var(--exceeds-false-color); transform: scale(0.8);}
       66%  {fill:currentColor; transform: scale(0.95);}
       100% {fill:currentColor; transform: scale(1);}
   }
@@ -91,7 +86,7 @@
 
 <template>
 
-  <iron-icon icon="juelich:logo" id="logo" class="animated false"></iron-icon>
+  <iron-icon icon="juelich:logo" id="logo" class=""></iron-icon>
   <svg id="script" viewBox="0 0 48 21"><g id="g01"
      transform="matrix(0.01764252,0,0,-0.01759737,-24.576912,20.999997)"><g
        id="line"

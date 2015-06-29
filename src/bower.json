@@ -11,14 +11,15 @@
   ],
   "dependencies": {
     "jquery": "*",
-    "polymer": "Polymer/polymer",
+    "polymer": "Polymer/polymer#1.0.4",
     "paper-elements": "PolymerElements/paper-elements",
     "iron-icons": "PolymerElements/iron-icons",
     "iron-icon": "PolymerElements/iron-icon",
     "iron-iconset": "PolymerElements/iron-iconset",
     "iron-collapse": "PolymerElements/iron-collapse",
     "iron-pages": "PolymerElements/iron-pages",
-    "iron-ajax": "PolymerElements/iron-ajax"
+    "iron-ajax": "PolymerElements/iron-ajax",
+    "iron-dropdown": "PolymerElements/iron-dropdown"
   },
   "devDependencies": {}
 }

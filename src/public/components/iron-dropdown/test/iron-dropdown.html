@@ -1,0 +1,115 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>iron-dropdown basic tests</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../test-fixture/test-fixture-mocha.js"></script>
+  <script src="../../iron-test-helpers/mock-interactions.js"></script>
+
+  <link rel="import" href="../iron-dropdown.html">
+  <link rel="import" href="../../test-fixture/test-fixture.html">
+
+</head>
+<body>
+
+  <test-fixture id="TrivialDropdown">
+    <template>
+      <iron-dropdown>
+        <button class="dropdown-trigger">Open</button>
+        <div class="dropdown-content">Hello!</div>
+      </iron-dropdown>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="AlignedDropdown">
+    <template>
+      <iron-dropdown horizontal-align="right" vertical-align="top">
+        <button class="dropdown-trigger">Open</button>
+        <div class="dropdown-content">Hello!</div>
+      </iron-dropdown>
+    </template>
+  </test-fixture>
+
+  <script>
+    suite('<iron-dropdown>', function() {
+      var dropdown;
+      suite('basic', function() {
+        setup(function() {
+          dropdown = fixture('TrivialDropdown');
+        });
+
+        test('effectively hides the dropdown content', function() {
+          var content = dropdown.querySelector('.dropdown-content');
+          var contentRect = content.getBoundingClientRect();
+
+          expect(contentRect.width).to.be.equal(0);
+          expect(contentRect.height).to.be.equal(0);
+        });
+
+        test('opens when the trigger is clicked', function() {
+          var trigger = dropdown.querySelector('.dropdown-trigger');
+
+          trigger.click();
+
+          expect(dropdown.opened).to.be.equal(true);
+        });
+
+        test('shows dropdown content when trigger is clicked', function(done) {
+          var trigger = dropdown.querySelector('.dropdown-trigger');
+          var content = dropdown.querySelector('.dropdown-content');
+          var contentRect;
+
+          trigger.click();
+
+          Polymer.Base.async(function() {
+            contentRect = content.getBoundingClientRect();
+
+            expect(contentRect.width).to.be.greaterThan(0);
+            expect(contentRect.height).to.be.greaterThan(0);
+            done();
+          });
+        });
+      });
+
+      suite('aligned dropdown', function() {
+        setup(function() {
+          dropdown = fixture('AlignedDropdown');
+        });
+
+        test('can be re-aligned to the right and the top', function(done) {
+          var content = dropdown.querySelector('.dropdown-content');
+          var trigger = dropdown.querySelector('button.dropdown-trigger');
+          var triggerRect;
+          var contentRect;
+
+          dropdown.opened = true;
+
+          Polymer.Base.async(function() {
+            contentRect = content.getBoundingClientRect();
+            triggerRect = trigger.getBoundingClientRect();
+
+            // NOTE(cdata): IE10 / 11 have minor rounding errors in this case,
+            // so we assert with `closeTo` and a tight threshold:
+            expect(contentRect.top).to.be.closeTo(triggerRect.top, 0.1);
+            expect(contentRect.left).to.be.closeTo(triggerRect.right, 0.1);
+            done();
+          }, 1);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

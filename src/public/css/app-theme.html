@@ -52,7 +52,7 @@
     --drawer-text-color: var(--default-primary-text-color);
     --dark-secondary-drawer-color: rgba(170, 170, 170, 0.5);
 
-    --ink-color: rgb(0, 202, 53);; /* Effects */
+    --ink-color: rgb(0, 202, 53); /* Effects */
     --primary-hover-color: rgba(255, 255, 255, 0.3);
     --secondary-hover-color: rgba(0, 202, 53, 0.2);
     --selected-color: rgba(255, 255, 255, 0.75);
@@ -73,8 +73,8 @@
     --paper-dialog-color: var(--default-primary-text-color);
     --paper-toolbar-color: var(--default-icon-color);
     --paper-toolbar-background: var(--default-primary-color);
-    --paper-input-container-color: var(--default-primary-text-color);
-    --paper-input-container-focus-color: var(--dark-primary-color);
+    --paper-input-container-color: #1d1d1d;
+    --paper-input-container-focus-color: #345475;
 
     /* Mixins*/
     --paper-button: {
@@ -103,7 +103,7 @@
         border-radius: 3px;
         min-height: none;
         margin: 0em;
-        padding: 0.2em 0.77em;
+        padding: 0.5em 1em;
         background: var(--default-button-color);
         color: currentColor;
         text-align: left;
@@ -160,12 +160,17 @@
         background: none;
         };
 
-    --paper-input-container: {
-        color: currentColor;
-        font-family: Roboto-Condensed;
-        font-size: 1em;
-        font-weight: normal;
-        line-height: 1.4rem;
+    --paper-input-container-input: {
+        font-family: Roboto-Condensed-Light;
+        text-align: center;
+      };
+
+    --paper-input-container-label: {
+        font-family: Roboto-Condensed-Light-Italic;
+        text-align: center;
+        font-size: 0.9em;
+        text-align: left;
+        line-height: 1rem;
       };
 
     --paper-dialog: {
@@ -460,6 +465,13 @@ paper-tab:hover {
 @font-face {
  font-family: Roboto-Condensed-Light;
  src: url('fonts/RobotoCondensed-Light.ttf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
+
+@font-face {
+ font-family: Roboto-Condensed-Light-Italic;
+ src: url('fonts/RobotoCondensed-LightItalic.ttf') format('truetype');
  font-weight: normal;
  font-style: normal;
 }
