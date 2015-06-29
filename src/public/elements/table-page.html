@@ -16,22 +16,22 @@
       <paper-material id="table">
 
 
-            <table>
-            <template is="dom-repeat" items="{{data}}" as="group" filter="isGroup" observe="room data.room">
-              
-                <template is="dom-repeat" items="{{group.data}}" as="subgroup">
-                  <tr class="row">
-                    <td>{{group.roomNr}}</td>
-                    <td>{{group.room}}</td>
-                    <td>{{group.kind}}</td>
-                    <td>{{group.method}}</td>
-                    <td>{{subgroup.date}}</td>
-                    <td><span>{{subgroup.value}}</span> <span>{{group.unit}}</span></td>
-                  </tr>
-                </template>
+        <table>
+        <template is="dom-repeat" items="{{data}}" as="group" filter="" observe="room data.room">
 
-            </template>
-          </table>
+          <template is="dom-repeat" items="{{group.data}}" as="subgroup" sort="sort" observe="subgroup.date">
+            <tr class="row">
+              <td>{{group.roomNr}}</td>
+              <td>{{group.room}}</td>
+              <td>{{group.kind}}</td>
+              <td>{{group.method}}</td>
+              <td>{{subgroup.date}}</td>
+              <td><span>{{subgroup.value}}</span> <span>{{group.unit}}</span></td>
+            </tr>
+          </template>
+
+        </template>
+      </table>
 
 
       </paper-material>
@@ -47,8 +47,7 @@
           data: {
             type: Array,
             value: [],
-            notify: true,
-            observer: "insertTable"
+            notify: true
           }
       },
 
@@ -62,8 +61,14 @@
         return item.room == 'Gaslager';
       },
 
+      sort: function(next,first){
+        if (first > next)
+        return -1;
+        else return 1;
+      },
+
       insertTable: function() {
-        var time = new Date();
+        // var time = new Date();
         // var section = this.$.table;
         // for (var i=0; i < this.data.length; i++) {
         //   var table = document.createElement("table");

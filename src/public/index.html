@@ -20,7 +20,7 @@
 
   <template is="dom-bind" id="autobind-template">
 
-  <socket-repeater id="datasocket" last-data="{{data}}" max-total-lines="{{max-lines}}" groups="{{groups}}"></socket-repeater>
+  <socket-repeater id="datasocket" do-append="true" last-data="{{data}}" max-total-lines="{{max-lines}}" groups="{{groups}}"></socket-repeater>
 
   <paper-drawer-panel force-narrow="true">
 
@@ -70,7 +70,7 @@
               <paper-item>
                   <iron-icon icon="invert-colors"></iron-icon>
                   <span class="flex-3">Farbschema</span>
-                  <paper-toggle-button class="flex" id="color-schema" onclick="changeTheme()"></paper-toggle-button>
+                  <paper-toggle-button class="flex" id="color-schema" on-change="changeTheme"></paper-toggle-button>
               </paper-item>
 
               <paper-item>
@@ -137,7 +137,14 @@
 
       <!-- MAIN CONTENT -->
       <section id="main" class="vertical layout center">
-        <dropdown-input items="[[groups.room]]"></dropdown-input>
+        <section id="main" class="horizontal layout">
+
+          <dropdown-selector items="[[groups.id]]" label="id" value-for-all="all"></dropdown-selector>
+          <dropdown-selector items="[[groups.roomNr]]" label="Raumnummer"></dropdown-selector>
+          <dropdown-selector items="[[groups.room]]" label="Raum"></dropdown-selector>
+          <dropdown-selector items="[[groups.kind]]" label="Art"></dropdown-selector>
+          <dropdown-selector items="[[groups.method]]" label="Methode"></dropdown-selector>
+        </section>
 
         <!-- Page Option Button -->
         <paper-fab mini icon="extension" dialog-id="page1" dialog-class="submenu" id="extension" onclick="openDialog(this)"></paper-fab>
@@ -196,12 +203,23 @@
   window.addEventListener('WebComponentsReady', function(e) {
     var template = document.querySelector('#autobind-template');
     var mainContainer = document.querySelector('div#mainContainer');
+    var colorschema = "light";
     template.scrollPage = function() {
       if (mainContainer.scrollTop + mainContainer.offsetHeight >= mainContainer.scrollHeight) {
         var page = document.getElementById('element-page');
         page.scrollHandler(); // for each page-element should be a scrollHandler
       }
     };
+    template.changeTheme = function(){
+      if(colorschema == "dark") {
+        $('*').removeClass("dark");
+        colorschema = "light";
+      }
+      else {
+        $('*').addClass("dark");
+        colorschema = "dark";
+      }
+    }
   });
 
   function lift(){
@@ -244,16 +262,6 @@
 
     if (collapse) {
       collapse.toggle();
-    }
-  }
-  function changeTheme(){
-    var button = document.getElementById('color-schema');
-    if(button.checked == true) {
-      $('*').removeClass("dark");
-      console.log("pressed");
-    }
-    else {
-      $('*').addClass("dark");
     }
   }
   function openDialog(elem){

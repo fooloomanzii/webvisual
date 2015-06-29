@@ -1,0 +1,103 @@
+<dom-module id="dropdown-selector">
+  <style>
+    :host {
+      font-family: inherit;
+      font-size: inherit;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #menu{
+      background: white;
+      outline: none;
+      overflow-x: hidden;
+      overflow-y: auto;
+      min-width: 6em;
+      max-width: 18em;
+    }
+    #menuButton{
+      background: white;
+      text-align: center;
+    }
+    #placeholder{
+      font-style: oblique;
+    }
+    #headliner {
+      font-style: oblique;
+    }
+    .bold {
+      font-weight: bold;
+    }
+  </style>
+  <template>
+
+    <iron-dropdown id="dropdown">
+      <paper-button id="menuButton" class="dropdown-trigger"><span id="placeholder">{{label}}</span><span id="headliner">{{selected}}</span></paper-button>
+      <paper-menu id="menu" class="dropdown-content shadow-elevation-6dp" attr-for-selected="innerText" selected="{{selected}}">
+          <paper-item id="menuAll" class="bold">{{labelForAll}}</paper-item>
+          <template is="dom-repeat" items="[[items]]">
+            <paper-item id="menuItem">[[item.key]]</paper-item>
+          </template>
+      </paper-menu>
+    </iron-dropdown>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'dropdown-selector',
+
+      properties: {
+        items: {
+          type: Array,
+          notify: true
+        },
+        selected: {
+          type: String,
+          notify: true,
+          observer: 'selectedChanged'
+        },
+        label: {
+          type: String,
+          value: 'Auswahl',
+          notify: true
+        },
+        labelForAll: {
+          type: String,
+          value: 'Alle',
+          notify: true
+        }
+      },
+
+      listeners: {
+        'iron-select': 'changedSelection'
+      },
+
+      ready: function(){
+        this.selected = this.labelForAll;
+      },
+
+      changedSelection: function(){
+        // console.log('changed');
+        // this.$.menu.style.left = this.$.menuButton.style.left;
+        // this.updateStyles();
+      },
+
+      selectedChanged: function(){
+        // console.log('selected');
+        if (this.selected == this.labelForAll){
+          this.$.placeholder.style.display = 'inline';
+          this.$.headliner.style.display = 'none';
+        }
+        else{
+          this.$.placeholder.style.display = 'none';
+          this.$.headliner.style.display = 'inline';
+          this.toggleClass('bold', false, this.$.menuAll);
+        }
+      }
+    });
+  </script>
+
+</dom-module>

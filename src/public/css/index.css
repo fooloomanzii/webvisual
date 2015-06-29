@@ -129,5 +129,7 @@ paper-dialog.submenu {
   paper-dialog.sidemenu {
     width: calc(100vw - 24em);
     margin: 1.5em 3em;
+    max-width: 840px;
+    left: 18em;
   }
 }

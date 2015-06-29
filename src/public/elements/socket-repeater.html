@@ -12,12 +12,12 @@
           },
           lastData: {
             type: Array,
-            value: [],
+            value: function() { return []; },
             notify: true
           },
           lastExceeds: {
             type: Array,
-            value: [],
+            value: function() { return []; },
             notify: true
           },
           lastMessage: {
@@ -47,7 +47,7 @@
           },
           groups: {
             type: Object,
-            value: {},
+            value: function() { return {}; },
             notify: true
           }
       },
@@ -60,7 +60,7 @@
         dataSocket.on('first', function(message) {
           if(message === undefined || message.content === undefined) return; // Check the Existence
 
-          self.lastMessage = new Date(message.time);
+          self.lastMessage = message.time;
 
           self.lastData = message.content;
           for (var i=0; i < message.content.length; i++) {
@@ -74,14 +74,18 @@
         dataSocket.on('data', function(message) {
           if(message === undefined || message.content === undefined) return; // Check for Existence
 
-          self.lastMessage = new Date(message.time);
+          self.lastMessage = null;
+          self.lastExceeds = null;
+          self.lastMessage = message.time;
           self.lastExceeds = message.lastExceeds;
+
+          var k = 0;
 
           if (self.doAppend){
               for (var i=0; i < self.lastData.length; i++) {
                 while (message.content[i].data.length + self.lastData[i].data.length > self.maxTotalLines && self.lastData[i].data.length > 0)
                   self.shift("lastData."+i+".data");
-                var k = 0;
+                k = 0;
                 if (message.content[i].data.length > self.maxTotalLines)
                   k = message.content[i].data.length - self.maxTotalLines;
                 for (var j=k; j < message.content[i].data.length; j++) {
@@ -105,8 +109,8 @@
 
         //*** Wrong Data
         dataSocket.on('mistake', function(message) {
-          self.lastMistake = new Date(message.time);
-          self.lastError = new Date(message.error);
+          self.lastMistake = message.time;
+          self.lastError = message.error;
         });
       },
 
