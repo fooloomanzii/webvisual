@@ -10,6 +10,10 @@
       transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    paper-button > .content.paper-button {
+      padding: 0.4em 0.8em;
+    }
+
     #menu{
       background: white;
       outline: none;
@@ -36,10 +40,10 @@
 
     <iron-dropdown id="dropdown">
       <paper-button id="menuButton" class="dropdown-trigger"><span id="placeholder">{{label}}</span><span id="headliner">{{selected}}</span></paper-button>
-      <paper-menu id="menu" class="dropdown-content shadow-elevation-6dp" attr-for-selected="innerText" selected="{{selected}}">
+      <paper-menu id="menu" class="dropdown-content shadow-elevation-4dp" attr-for-selected="innerText" selected="{{selected}}">
           <paper-item id="menuAll" class="bold">{{labelForAll}}</paper-item>
-          <template is="dom-repeat" items="[[items]]">
-            <paper-item id="menuItem">[[item.key]]</paper-item>
+          <template is="dom-repeat" items="{{items}}" sort="sortItems">
+            <paper-item id="menuItem">{{item}}</paper-item>
           </template>
       </paper-menu>
     </iron-dropdown>
@@ -52,6 +56,7 @@
       properties: {
         items: {
           type: Array,
+          value: function() { return []; },
           notify: true
         },
         selected: {
@@ -79,6 +84,12 @@
         this.selected = this.labelForAll;
       },
 
+      sortItems: function(first, next){
+        if (first>next)
+          return 1;
+        else
+          return -1;
+      },
       changedSelection: function(){
         // console.log('changed');
         // this.$.menu.style.left = this.$.menuButton.style.left;

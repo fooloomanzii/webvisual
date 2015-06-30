@@ -92,8 +92,8 @@ function processData(locals, currentData) {
               key = keys[m];
               group = groups[key];
               value[key] = type[key] || settings.unnamedType[key];
-              if (_.findIndex(group,{"key":value[key]}) == -1) // all containing
-                group.push({"key":value[key]});
+              if (_.lastIndexOf(group,value[key]) == -1) // all containing
+                group.push(value[key]);
             }
             value.data = [];
             if (value.id == settings.unnamedType.id)
