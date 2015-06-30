@@ -1,3 +1,11 @@
+section#main {
+  background: darkgrey;
+}
+
+section#main.dark {
+  background: slategrey;
+}
+
 paper-material {
    padding: 1em 0.5em;
    margin: 0em;

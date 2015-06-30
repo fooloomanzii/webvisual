@@ -18,18 +18,14 @@
 
         <table>
         <template is="dom-repeat" items="{{data}}" as="group" filter="" observe="room data.room">
+          <tr class="row">
+          <template is="dom-repeat" items="{{group.data}}" as="subgroup">
 
-          <template is="dom-repeat" items="{{group.data}}" as="subgroup" sort="sort" observe="subgroup.date">
-            <tr class="row">
-              <td>{{group.roomNr}}</td>
-              <td>{{group.room}}</td>
-              <td>{{group.kind}}</td>
-              <td>{{group.method}}</td>
               <td>{{subgroup.date}}</td>
               <td><span>{{subgroup.value}}</span> <span>{{group.unit}}</span></td>
-            </tr>
-          </template>
 
+          </template>
+          </tr>
         </template>
       </table>
 

@@ -12,7 +12,7 @@
     "net": "*",
     "underscore": "*",
     "lodash-node": "*",
-    "bower": "*",
+    "bower": "~0.4.0",
     "morgan": "*"
   },
   "devDependencies": {

@@ -9,6 +9,7 @@
     "test",
     "tests"
   ],
+  "required": {},
   "dependencies": {
     "jquery": "*",
     "polymer": "Polymer/polymer#1.0.4",
@@ -19,7 +20,10 @@
     "iron-collapse": "PolymerElements/iron-collapse",
     "iron-pages": "PolymerElements/iron-pages",
     "iron-ajax": "PolymerElements/iron-ajax",
-    "iron-dropdown": "PolymerElements/iron-dropdown"
+    "iron-dropdown": "PolymerElements/iron-dropdown",
+    "nvd3": "novus/nvd3",
+    "d3-import": "*",
+    "d3": "*"
   },
   "devDependencies": {}
 }
