@@ -2,6 +2,7 @@
   <title>webvisual</title>
   <!-- Meta-Tag: Set the viewport-->
   <meta name="viewport" charset="utf-8" content="width=device-width, initial-scale=1, user-scalable=yes"/>
+  <!-- <link rel="icon" href="/img/webicon.png" type="image/png"> -->
 
   <!-- Web-Components -->
   <script src="components/webcomponentsjs/webcomponents.min.js"></script>
@@ -130,7 +131,7 @@
 
         <!-- Lower Part (Collapsible) -->
         <section id="lower" flex horizontal layout>
-          TODO: add costum content object
+          <!-- <table-element values="{{data.0.values}}"></table-element> -->
         </section>
       </paper-toolbar>
 
@@ -150,7 +151,7 @@
         <paper-fab mini icon="extension" dialog-id="page1" dialog-class="submenu" id="extension" ontap="openDialog(this)"></paper-fab>
 
         <!-- Page -->
-        <table-page id="element-page" data="{{data}}" r="{{test}}"><table-page>
+        <table-page class="element-page" data="{{data}}"><table-page>
 
       </section>
 
@@ -226,19 +227,24 @@
         if (e.detail.state == "start"){
           startY = e.detail.y;
           startHeight = parseInt(element.style.height) || element.offsetHeight;
-          windowHeight = 2*parseInt(window.innerHeight)/5;
+          maxHeight = 19*parseInt(window.innerHeight)/50; // golden-ratio
         }
         if (e.detail.state == "track"){
-          if (startY > startHeight-8 && e.detail.y > (startHeight + e.detail.dy)-8)
+          if (startY > startHeight-8 && e.detail.y > (startHeight + e.detail.dy)-8){
             element.style.height = (startHeight + e.detail.dy) + 'px';
+            element.style.cursor = "n-resize";
+            element.className = "";
+          }
         }
         if (e.detail.state == "end" && !(e.detail.dy == 0)){
           elementHeight = parseInt(element.style.height);
+          element.style.cursor = "pointer";
+          element.className = "has-shadow";
 
-          if (elementHeight < windowHeight)
-            element.style.height = Math.round(elementHeight/40 - 0.5)*40;
+          if (elementHeight < maxHeight)
+            element.style.height = Math.round(elementHeight/40)*40;
           else {
-            element.style.height = Math.round(windowHeight/40 - 0.5)*40;;
+            element.style.height = Math.round(maxHeight/40)*40;;
           }
         }
     };

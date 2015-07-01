@@ -1,84 +1,72 @@
-<dom-module id="table-page">
+<dom-module id="table-element">
   <style>
     :host {
       display: inline-block;
-      margin: 1.2em 1em;
-    }
-    paper-material {
-      background: white;
-      padding: 0em;
-    }
-    paper-material.dark {
-      background: #646464;
-    }
-    .outer {
-      margin: 0.3em;
-    }
-    th,td {
-      border: thin solid #C8C8C8;
-      padding: 0.5em;
+      margin: 0.5em;
     }
     table {
-      border-collapse: collapse;
-      table-layout:fixed;
+      text-align: center;
+    }
+    table#content {
+      background: white;
+    }
+    table#content.dark {
+      background: #646464;
     }
   </style>
   <template>
-      <section id="content" class="horizontal layout wrap center-justified">
-        <iron-selector selected="0" class="horizontal layout wrap center-justified">
-          <template is="dom-repeat" items="{{data}}" as="group" filter="" observe="room data.room">
-            <paper-material id="group.id" class="outer" elevation="3" class="vertical layout center">
-              <table>
-                <thead>
-                  <th>Raumnummer</th>
-                  <th>Raum</th>
-                  <th>Typ</th>
-                  <th>Eigenschaft</th>
-                </thead>
-                <tbody>
-                  <td>{{group.roomNr}}</td>
-                  <td>{{group.room}}</td>
-                  <td>{{group.kind}}</td>
-                  <td>{{group.method}}</td>
-                </tbody>
-              </table>
-              <table-element values="{{group.values}}" unit="{{group.unit}}"></table-element>
-            </paper-material>
-          </template>
-        </iron-selector>
-    </section>
+    <table id="content">
+      <thead>
+        <th>{{language.x}}</th>
+        <th>{{language.y}}</th>
+      </thead>
+      <tfoot><tr></tr></tfoot>
+      <tbody>
+        <template is="dom-repeat" items="{{values}}">
+          <tr class="row">
+            <td>{{item.x}}</td>
+            <td><span>{{item.y}}</span> <span>{{unit}}</span></td>
+          </tr>
+        </template>
+      <tbody>
+    </table>
   </template>
 
   <script>
 
     Polymer({
-      is: 'table-page',
+      is: 'table-element',
 
       properties: {
-          data: {
-            type: Array,
-            value: function() { return []; },
-            notify: true
+          values: {
+              type: Array,
+              value: function() { return []; }
+          },
+          language: {
+            type: Object,
+            notify: true,
+            value: function() { return {'x':'Datum','y':'Wert'}; }
+          },
+          unit: {
+              type: String,
+              value: ""
           }
       },
 
       // observers: [
-      //     'datacheck(data.*)'
+      //     'datacheck(values.*)'
       //   ],
-
-      listeners: {
-      },
-
+      //
+      // listeners: {
+      // },
+      //
       // datacheck: function(changeRecord) {
-      //   if (changeRecord.path == 'data.splices') {
+      //   if (changeRecord.path == 'values.splices') {
       //     console.log('array mutation')
       //   } else {
-      //     console.log('non array mutation '+changeRecord.path+' '+changeRecord.value+' '+changeRecord.base)
+      //     console.log('non array mutation '+changeRecord.path)
       //   }
       // },
-
-      ready: function(){
-      },
 
       isGroup: function(item){
         return item.room == 'Gaslager';

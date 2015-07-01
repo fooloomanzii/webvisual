@@ -79,32 +79,32 @@ function processData(locals, currentData) {
       }
     }
     // Join Data to the Object, which is used by the website
-    var value, key, type, group;
+    var element, key, type, group;
     for (var i=0; i<dateArray.length; i++) {
       var k = 0;
       for (var j=0; j<valuesArray[i].length; j++) {
       // head-data of measuring-points
         if(settings.ignore.indexOf(j) == -1){ // ignored are not in returnObject
           if(!processedDataArray[k]) {
-            value = {};
+            element = {};
             type = settings.types[j] || [];
             for (var m=0; m<keys.length; m++){
               key = keys[m];
               group = groups[key];
-              value[key] = type[key] || settings.unnamedType[key];
-              if (_.lastIndexOf(group,value[key]) == -1) // all containing
-                group.push(value[key]);
+              element[key] = type[key] || settings.unnamedType[key];
+              if (_.lastIndexOf(group,element[key]) == -1) // all containing
+                group.push(element[key]);
             }
-            value.data = [];
-            if (value.id == settings.unnamedType.id)
-              value.id += k;
-            processedDataArray.push(value);
+            element.values = [];
+            if (element.id == settings.unnamedType.id)
+              element.id += k;
+            processedDataArray.push(element);
           }
           // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored
 
-          processedDataArray[k].data.push({"date":    dateArray[i],
-                                           "value":   valuesArray[i][j],
-                                           "exceeds": exceedsArray[i][j]
+          processedDataArray[k].values.push({"x":    dateArray[i],
+                                             "y":   valuesArray[i][j],
+                                             "exceeds": exceedsArray[i][j]
                                       })
           // store last Exceeding Data (index not the same like in returnObject)
           if(exceedsArray[i][j] != null) {
@@ -121,10 +121,10 @@ function processData(locals, currentData) {
                                         "kind":   processedDataArray[k].kind,
                                         "method": processedDataArray[k].method,
                                         "unit":   processedDataArray[k].unit,
-                                        "data":   [] })
+                                        "values":   [] })
             }
-            currentExceedsArray[m].data = [{"date":    dateArray[i],
-                                            "value":   valuesArray[i][j],
+            currentExceedsArray[m].values = [{"x":    dateArray[i],
+                                            "y":   valuesArray[i][j],
                                             "exceeds": exceedsArray[i][j] }];
           }
           k++;
