@@ -9,8 +9,6 @@
       properties: {
         input: {
           type: Number,
-          value: 0,
-          notify: true
         },
         value: {
           type: Number,
@@ -18,12 +16,16 @@
         },
         maxValue: {
           type: Number,
-          value: 9999,
+          value: 5000,
           notify: true
         },
         maxLength: {
           type: String,
           computed: "maxLengthChanged(maxValue)"
+        },
+        default: {
+          value: 10,
+          notify: true
         }
       },
 
@@ -32,7 +34,7 @@
       },
 
       ready: function(){
-        this.input = this.value = 3;
+        this.input = this.value = this.default;
       },
 
       inputChanged: function(event){
@@ -41,6 +43,7 @@
           if (newValue != NaN && newValue <= this.maxValue && newValue > 0){
             this.value = newValue;
           }
+          this.input = this.value;
         }
       },
 

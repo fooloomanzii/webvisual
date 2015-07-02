@@ -48,7 +48,7 @@ logo-element {
 paper-fab#extension {
   position: fixed;
   bottom: 1em;
-  right: 1em;
+  right: 1.5em;
   z-index: 100;
 }
 
@@ -77,13 +77,17 @@ paper-dialog.sidemenu {
 }
 
 paper-dialog.submenu {
-  border-radius: 0px 5px 0px 0px;
+  border-radius: 5px 5px 0px 0px;
   position: fixed;
   margin: 0em 0em;
   bottom: 0em;
-  left: 0em;
-  height: 10em;
-  width: calc(100vw - 4em);
+  left: 1.5em;
+  max-height: 38vh;
+  width: calc(100vw - 3em);
+}
+
+paper-dialog.submenu paper-dialog-scrollable{
+  border-radius: 5px 5px 0px 0px;
 }
 
 /* Sidemenu */
@@ -140,4 +144,63 @@ paper-dialog.submenu {
     max-width: 840px;
     left: 18em;
   }
+}
+
+/*
+ * Fonts
+ */
+@font-face {
+ font-family: Roboto;
+ src: url('fonts/Roboto-Regular.ttf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
+
+@font-face {
+ font-family: Roboto-Thin;
+ src: url('fonts/Roboto-Thin.ttf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
+
+@font-face {
+ font-family: Roboto-Light;
+ src: url('fonts/Roboto-Light.ttf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
+
+@font-face {
+ font-family: Roboto-Condensed;
+ src: url('fonts/RobotoCondensed-Regular.ttf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
+
+@font-face {
+ font-family: Roboto-Condensed-Light;
+ src: url('fonts/RobotoCondensed-Light.ttf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
+
+@font-face {
+ font-family: Roboto-Condensed-Light-Italic;
+ src: url('fonts/RobotoCondensed-LightItalic.ttf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
+
+@font-face {
+ font-family: Open-Sans-Condensed;
+ src: url('fonts/Open-Sans-CondLight.ttf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
+
+@font-face {
+ font-family: Lobster;
+ src: url('fonts/Lobster-Regular.ttf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
 }

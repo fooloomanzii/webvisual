@@ -79,7 +79,7 @@
               if (message.content[i].values.length > self.maxTotalLines)
                 k = message.content[i].values.length - self.maxTotalLines;
               for (var j=k; j < message.content[i].values.length; j++) {
-                self.push("lastData."+i+".values",message.content[i].values[j]);
+                self.unshift("lastData."+i+".values",message.content[i].values[j]);
               }
             }
             self.lastExceeds = message.lastExceeds;
@@ -100,12 +100,12 @@
             if (self.doAppend){
                 for (var i=0; i < self.lastData.length; i++) {
                   while (message.content[i].values.length + self.lastData[i].values.length > self.maxTotalLines && self.lastData[i].values.length > 0)
-                    self.shift("lastData."+i+".values");
+                    self.pop("lastData."+i+".values");
                   k = 0;
                   if (message.content[i].values.length > self.maxTotalLines)
                     k = message.content[i].values.length - self.maxTotalLines;
                   for (var j=k; j < message.content[i].values.length; j++) {
-                    self.push("lastData."+i+".values",message.content[i].values[j]);
+                    self.unshift("lastData."+i+".values",message.content[i].values[j]);
                   }
                 }
             }

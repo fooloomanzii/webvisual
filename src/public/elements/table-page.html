@@ -2,7 +2,7 @@
   <style>
     :host {
       display: inline-block;
-      margin: 1.2em 1em;
+      margin: 1em 0.5em;
     }
     paper-material {
       background: white;
@@ -14,35 +14,14 @@
     .outer {
       margin: 0.3em;
     }
-    th,td {
-      border: thin solid #C8C8C8;
-      padding: 0.5em;
-    }
-    table {
-      border-collapse: collapse;
-      table-layout:fixed;
-    }
+
   </style>
   <template>
       <section id="content" class="horizontal layout wrap center-justified">
         <iron-selector selected="0" class="horizontal layout wrap center-justified">
-          <template is="dom-repeat" items="{{data}}" as="group" filter="" observe="room data.room">
-            <paper-material id="group.id" class="outer" elevation="3" class="vertical layout center">
-              <table>
-                <thead>
-                  <th>Raumnummer</th>
-                  <th>Raum</th>
-                  <th>Typ</th>
-                  <th>Eigenschaft</th>
-                </thead>
-                <tbody>
-                  <td>{{group.roomNr}}</td>
-                  <td>{{group.room}}</td>
-                  <td>{{group.kind}}</td>
-                  <td>{{group.method}}</td>
-                </tbody>
-              </table>
-              <table-element values="{{group.values}}" unit="{{group.unit}}"></table-element>
+          <template is="dom-repeat" items="{{data}}" as="element" filter="" observe="room data.room">
+            <paper-material id="{{element.id}}" class="outer" elevation="3" class="vertical layout center">
+              <table-element element="{{element}}"></table-element>
             </paper-material>
           </template>
         </iron-selector>
@@ -58,6 +37,21 @@
           data: {
             type: Array,
             value: function() { return []; },
+            notify: true
+          },
+          groups: {
+            type: Array,
+            value: function() { return []; },
+            notify: true
+          },
+          groupSelected: {
+            type: String,
+            value: "",
+            notify: true
+          },
+          isGrouping: {
+            type: Boolean,
+            value: false,
             notify: true
           }
       },
@@ -80,7 +74,7 @@
       ready: function(){
       },
 
-      isGroup: function(item){
+      atGroup: function(item){
         return item.room == 'Gaslager';
       },
 

@@ -2,30 +2,60 @@
   <style>
     :host {
       display: inline-block;
-      margin: 0.5em;
     }
     table {
       text-align: center;
+      border-collapse: collapse;
+      table-layout:fixed;
     }
-    table#content {
-      background: white;
+    caption {
+      font-family: Roboto-Condensed-Light-Italic;
+      font-size: 0.8em;
     }
-    table#content.dark {
-      background: #646464;
+    td {
+      font-family: Roboto-Condensed;
+    }
+    td, th {
+      font-size: 0.9em;
+    }
+    th, td, caption {
+      padding: 0.5em;
+    }
+    thead {
+      border-top: thin solid #8c8c8c;
+      border-bottom: thin solid #8c8c8c;
+    }
+    iron-icon {
+      color: currentColor;
+    }
+    tr#false{
+      background: #c019da;
+      color: #f1f1f1;
+    }
+    tr#true {
+      background: #e71506;
+      color: #f1f1f1;
     }
   </style>
   <template>
     <table id="content">
+      <caption>
+        <span>{{element.roomNr}}</span><span>, </span>
+        <span>{{element.room}}</span><span>, </span>
+        <span>{{element.kind}}</span><span>, </span>
+        <span>{{element.method}}</span>
+      </caption>
       <thead>
         <th>{{language.x}}</th>
         <th>{{language.y}}</th>
       </thead>
       <tfoot><tr></tr></tfoot>
       <tbody>
-        <template is="dom-repeat" items="{{values}}">
-          <tr class="row">
-            <td>{{item.x}}</td>
-            <td><span>{{item.y}}</span> <span>{{unit}}</span></td>
+        <template is="dom-repeat" id="values" items="{{element.values}}">
+          <tr id="{{computeId(item.exceeds)}}">
+            <td>{{computeDate(item.x)}}</td>
+            <template is="dom-if" if="{{!element.isBoolean}}"><td><span>{{item.y}}</span> <span>{{element.unit}}</span></td></template>
+            <template is="dom-if" if="{{element.isBoolean}}"><td><iron-icon icon="{{computeIcon(item.exceeds)}}"></iron-icon></td></template>
           </tr>
         </template>
       <tbody>
@@ -38,129 +68,41 @@
       is: 'table-element',
 
       properties: {
-          values: {
-              type: Array,
-              value: function() { return []; }
+          element: {
+              type: Object,
+              value: function() { return {}; }
           },
           language: {
             type: Object,
-            notify: true,
             value: function() { return {'x':'Datum','y':'Wert'}; }
           },
-          unit: {
+          timeFormat: {
               type: String,
-              value: ""
+              value: "HH:mm:ss"
           }
       },
-
-      // observers: [
-      //     'datacheck(values.*)'
-      //   ],
-      //
-      // listeners: {
-      // },
-      //
-      // datacheck: function(changeRecord) {
-      //   if (changeRecord.path == 'values.splices') {
-      //     console.log('array mutation')
-      //   } else {
-      //     console.log('non array mutation '+changeRecord.path)
-      //   }
-      // },
-
-      isGroup: function(item){
-        return item.room == 'Gaslager';
+      
+      computeIcon: function(exceeds){
+        if (exceeds==false || exceeds==true)
+          return "error-outline";
+        else
+          return "done";
       },
 
-      sort: function(next,first){
-        if (first > next)
-        return -1;
-        else return 1;
+      computeId: function(exceeds){
+        if (exceeds==false)
+          return "false";
+        else if (exceeds==true)
+          return "true";
+        else
+          return "done";
       },
 
-      insertTable: function() {
-        // var time = new Date();
-        // var section = this.$.table;
-        // for (var i=0; i < this.data.length; i++) {
-        //   var table = document.createElement("table");
-        //   for (var j=0; j < 2; j++) {
-        //     var row = document.createElement("tr");
-        //
-        //     var td = document.createElement("td")
-        //     td.innerHTML = this.data[i].room;
-        //     row.appendChild(td);
-        //
-        //     var td = document.createElement("td")
-        //     td.innerHTML = this.data[i].kind;
-        //     row.appendChild(td);
-        //
-        //     var td = document.createElement("td")
-        //     td.innerHTML = this.data[i].method;
-        //     row.appendChild(td);
-        //
-        //     var td = document.createElement("td")
-        //     var x = 2*i + j;
-        //     td.innerHTML = x;
-        //     row.appendChild(td);
-        //
-        //     table.appendChild(row);
-        //   }
-        //   section.appendChild(table);
-        // }
-
-        //   var tmp = [];
-        //   for (i=0; i<this.data.length; i++) {
-        //     for (j=0; j<this.data[i].data.length; j++) {
-        //       tmp.push({"id":    this.data[i].id,
-        //                 "room":  this.data[i].room,
-        //                 "kind":  this.data[i].kind,
-        //                 "method" :  this.data[i].method,
-        //                 "unit":  this.data[i].unit,
-        //                 "date":  this.data[i].data[j].date,
-        //                 "value": this.data[i].data[j].value,
-        //                 "exceeds": this.data[i].data[j].exceeds,
-        //                 "color":  this.data[i].data[j].color});
-        //     }
-        //   }
-        //   this.reduced = tmp;
-        //
-        // var timeafter = new Date();
-        // time = timeafter - time;
-        // console.log(time);
+      computeDate: function(date){
+        return $.format.toBrowserTimeZone(date,this.timeFormat);
       },
 
       scrollHandler: function() {
-        // var time = new Date();
-        // var section = this.$.table;
-        // for (var i=0; i < this.data.length; i++) {
-        //   var table = document.createElement("table");
-        //   for (var j=0; j < 1; j++) {
-        //     var row = document.createElement("tr");
-        //
-        //     var td = document.createElement("td")
-        //     td.innerHTML = this.data[i].room;
-        //     row.appendChild(td);
-        //
-        //     var td = document.createElement("td")
-        //     td.innerHTML = this.data[i].kind;
-        //     row.appendChild(td);
-        //
-        //     var td = document.createElement("td")
-        //     td.innerHTML = this.data[i].method;
-        //     row.appendChild(td);
-        //
-        //     var td = document.createElement("td")
-        //     var x = i + j;
-        //     td.innerHTML = x;
-        //     row.appendChild(td);
-        //
-        //     table.appendChild(row);
-        //   }
-        //   section.appendChild(table);
-        // }
-        // var timeafter = new Date();
-        // time = timeafter - time;
-        // console.log(time);
       }
 
     });

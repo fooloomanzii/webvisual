@@ -68,14 +68,12 @@ function processData(locals, currentData) {
         for (var l=0; l<data[i].values.length; l++) {
           valuesArray[i][l] = data[i].values[l];
         }
-        dateArray[i] = dateFormat(
-            data[i].date,settings.timeFormat);
+        dateArray[i] = data[i].date;
       }
       // Otherwise: append the Data to that Arrays
       else {
         valuesArray.push(data[i].values);
-        dateArray.push(dateFormat(
-          data[i].date,settings.timeFormat));
+        dateArray.push(data[i].date);
       }
     }
     // Join Data to the Object, which is used by the website

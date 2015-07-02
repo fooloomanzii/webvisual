@@ -4,8 +4,8 @@
     "file": {
       "copy": false,
       "mode": "all",
-      "path_folder": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Datafile/",
-      "#path_folder": "",
+      "#path_folder": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Datafile/",
+      "path_folder": "",
       "path": "HNF_Datafile.txt"
       },
     "udp": {
@@ -33,8 +33,6 @@
     },
 
   "locals":{
-
-    "timeFormat": "dd.mm.yyyy HH:MM:ss",
 
     "ignore": [0,8,16,17,21,22,27,32],
 

@@ -28,10 +28,10 @@
     <!-- SIDEMENU -->
 
     <paper-header-panel drawer id="drawerPanel">
-      <iron-selector selected="0" selectable="paper-button.sidemenu">
+      <iron-selector multi selectable="paper-button.sidemenu.collapsable">
 
         <!-- Page Routing -->
-        <paper-button collapse-id="pageview" class="sidemenu" ontap="toggleCollapse(this)">
+        <paper-button collapse-id="pageview" class="sidemenu collapsable" on-tap="toggleCollapse">
           <iron-icon icon="pageview"></iron-icon>Anzeige
         </paper-button>
 
@@ -49,13 +49,13 @@
 
         <!-- Main Settings -->
 
-        <paper-button collapse-id="settings" class="sidemenu" ontap="toggleCollapse(this)">
+        <paper-button collapse-id="settings" class="sidemenu collapsable" on-tap="toggleCollapse">
           <iron-icon icon="settings"></iron-icon>Einstellungen
         </paper-button>
 
           <iron-collapse class="sidemenu collapse settings">
             <section class="collapse-content">
-              <paper-button disabled collapse-id="language" class="sidemenu" ontap="toggleCollapse(this)">
+              <paper-button disabled collapse-id="language" class="sidemenu" on-tap="toggleCollapse">
                 <iron-icon icon="language"></iron-icon>Sprachauswahl
               </paper-button>
                 <iron-collapse class="sidemenu collapse language">
@@ -76,34 +76,34 @@
 
               <paper-item>
                 <iron-icon icon="editor:format-line-spacing"></iron-icon>
-                <number-input id="maxLineInput" value="{{max-lines}}"></number-input>
+                <number-input id="maxLineInput" default="10" value="{{max-lines}}"></number-input>
               </paper-item>
 
             </section>
           </iron-collapse>
 
-      </iron-selector>
+
 
         <!-- Log-File -->
 
-        <paper-button dialog-id="log" dialog-class="sidemenu" ajax class="sidemenu" ontap="openDialog(this)">
+        <paper-button dialog-id="log" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
           <iron-icon icon="history"></iron-icon>Log
         </paper-button>
 
         <!-- Informations -->
 
-        <paper-button collapse-id="information" class="sidemenu" ontap="toggleCollapse(this)">
+        <paper-button collapse-id="information" class="sidemenu collapsable" on-tap="toggleCollapse">
           <iron-icon icon="description"></iron-icon>Informationen
         </paper-button>
 
           <iron-collapse class="sidemenu collapse information">
             <section class="collapse-content">
-              <paper-button dialog-id="data" dialog-class="sidemenu" ajax class="sidemenu" ontap="openDialog(this)">
+              <paper-button dialog-id="data" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
                 <iron-icon icon="receipt"></iron-icon>Data-File
               </paper-button>
             </section>
           </iron-collapse>
-
+      </iron-selector>
     </paper-header-panel>
 
 
@@ -125,7 +125,7 @@
           <div class="flex"></div>
 
           <!-- Sidemenu Button -->
-          <paper-icon-button icon="social:person-outline" id="identity" class="mainmenu" dialog-id="Login" dialog-class="mainmenu" ontap="openDialog(this)"></paper-icon-button>
+          <paper-icon-button icon="social:person-outline" id="identity" class="mainmenu" dialog-id="Login" dialog-class="mainmenu" on-tap="openDialog"></paper-icon-button>
 
         </section>
 
@@ -148,7 +148,7 @@
         </section>
 
         <!-- Page Option Button -->
-        <paper-fab mini icon="extension" dialog-id="page1" dialog-class="submenu" id="extension" ontap="openDialog(this)"></paper-fab>
+        <paper-fab mini icon="extension" dialog-id="page1" dialog-class="submenu" id="extension" on-tap="openDialog"></paper-fab>
 
         <!-- Page -->
         <table-page class="element-page" data="{{data}}"><table-page>
@@ -163,7 +163,7 @@
 
     <!-- Log-in -->
   <paper-dialog class="mainmenu" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-    <h2 class="dialog-title" horizontal layout>Login</h2>
+    <h2 class="dialog-title">Login</h2>
     <section class="dialog-section" vertical layout center>
       <paper-input label="Benutzername"></paper-input>
       <paper-input label="Passwort" type="password"></paper-input>
@@ -175,8 +175,28 @@
   </paper-dialog>
 
     <!-- Page-Options -->
-  <paper-dialog class="submenu" ontap="insertTest()" entry-animation="fade-in-animation" exit-animation="fade-out-animation">
-    <paper-dialog-scrollable></paper-dialog-scrollable>
+  <paper-dialog class="submenu" entry-animation="slide-to-up-animation" exit-animation="slide-to-down-animation">
+
+      Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+
+  Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.
+
+  Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
+
+  Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
+
+  Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis.
+
+    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+
+Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.
+
+Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
+
+Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
+
+Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis.
+
   </paper-dialog>
 
     <!-- Files -->
@@ -191,7 +211,7 @@
       <div class="buttons">
         <paper-button disabled><iron-icon icon="mail"></iron-icon>Send</paper-button>
         <paper-button disabled><iron-icon icon="print"></iron-icon>Print</paper-button>
-        <paper-button ontap="document.getElementById('ajaxElement').generateRequest()"><iron-icon icon="refresh"></iron-icon>Reload</paper-button>
+        <paper-button on-tap="document.getElementById('ajaxElement').generateRequest()"><iron-icon icon="refresh"></iron-icon>Reload</paper-button>
         <paper-button dialog-confirm><iron-icon icon="check"></iron-icon>OK</paper-button>
       </div>
     </paper-dialog>
@@ -222,7 +242,7 @@
       }
     };
     template.resizeToolbar = function(e){
-      element = e.srcElement;
+      element = e.currentTarget;
 
         if (e.detail.state == "start"){
           startY = e.detail.y;
@@ -248,81 +268,36 @@
           }
         }
     };
-    // template.resizeCursor = function(e){
-    //   element = e.currentTarget;
-    //   elementHeight = parseInt(element.style.height) || element.offsetHeight;
-    //   mousePosition = e.clientY;
-    //   console.log(mousePosition+" "+elementHeight);
-    //   if (mousePosition > elementHeight-8)
-    //     element.style.cursor = "n-resize";
-    //   else
-    //     element.style.cursor = "pointer";
-    // };
+    template.toggleCollapse = function(e){
+      var button = e.currentTarget;
+      if (!button.hasAttribute('collapse-id')) {
+        return;
+      }
+      var id = button.getAttribute('collapse-id');
+      var collapse = document.querySelector('iron-collapse.'+id);
+      if (collapse) {
+        collapse.toggle();
+      }
+    };
+    template.openDialog = function(e){
+      var button = e.currentTarget;
+      if (!button.hasAttribute('dialog-id') || !button.hasAttribute('dialog-class')) {
+        return;
+      }
+      var id = button.getAttribute('dialog-id');
+      var className = button.getAttribute('dialog-class');
+      var aj = button.getAttribute('ajax');
+      var dialog = document.querySelector('paper-dialog.'+className);
+      $('paper-dialog.'+className+' .dialog-title').text(id);
+      if (typeof aj === 'string')
+        $('iron-ajax').attr('url','/'+id);
+      if (dialog) {
+        dialog.open();
+      }
+    }
   });
 
-  function lift(){
-    $('paper-material').attr('elevation','5');
-  }
 
-  function expand(){
-    $('paper-toolbar').css('height','10em');
-    $('paper-material.submenu').addClass("active");
-  }
 
-  function insertTest(){
-    $('table-page').css('background','orange');
-    $.get( "/data", function( response ) {
-      $("body").css("--default-primary-color","red");
-      $('paper-dialog.submenu paper-dialog-scrollable').text(response);
-    });
-  }
 
-  function enable(){
-    $('paper-fab').attr("disabled", false);
-
-    $.get( "/data", function( response ) {
-      $('.inner').text("<p>"+response+"</p>");
-    });
-  }
-
-  function toggleCollapse(elem){
-    var button = elem;
-    while (!button.hasAttribute('collapse-id') && button !== document.body) {
-      button = button.parentElement;
-    }
-
-    if (!button.hasAttribute('collapse-id')) {
-      return;
-    }
-
-    var id = button.getAttribute('collapse-id');
-    var collapse = document.querySelector('iron-collapse.'+id);
-
-    if (collapse) {
-      collapse.toggle();
-    }
-  }
-  function openDialog(elem){
-    var button = elem;
-    while (!button.hasAttribute('dialog-id') && button !== document.body) {
-      button = button.parentElement;
-    }
-
-    if (!button.hasAttribute('dialog-id') || !button.hasAttribute('dialog-class')) {
-      return;
-    }
-
-    var id = button.getAttribute('dialog-id');
-    var className = button.getAttribute('dialog-class');
-    var aj = button.getAttribute('ajax');
-    var dialog = document.querySelector('paper-dialog.'+className);
-
-    $('paper-dialog.'+className+' .dialog-title').text(id);
-    if (typeof aj === 'string')
-      $('iron-ajax').attr('url','/'+id);
-
-    if (dialog) {
-      dialog.open();
-    }
-  }
 </script>
