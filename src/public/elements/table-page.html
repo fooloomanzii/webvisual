@@ -14,18 +14,33 @@
     .outer {
       margin: 0.3em;
     }
+    paper-dialog#optionDialog {
+      border-radius: 5px 5px 0px 0px;
+      position: fixed;
+      margin: 0em 0em;
+      bottom: 0em;
+      left: 1.5em;
+      max-height: 38vh;
+      width: calc(100vw - 3em);
+    }
 
   </style>
   <template>
-      <section id="content" class="horizontal layout wrap center-justified">
+      <section id="content">
         <iron-selector selected="0" class="horizontal layout wrap center-justified">
           <template is="dom-repeat" items="{{data}}" as="element" filter="" observe="room data.room">
             <paper-material id="{{element.id}}" class="outer" elevation="3" class="vertical layout center">
-              <table-element element="{{element}}"></table-element>
+                <table-element element="{{element}}"></table-element>
             </paper-material>
           </template>
         </iron-selector>
     </section>
+
+    <!-- Page-Options -->
+  <paper-dialog id="optionDialog" entry-animation="slide-to-up-animation" exit-animation="slide-to-down-animation">
+
+  </paper-dialog>
+
   </template>
 
   <script>
@@ -82,6 +97,10 @@
         if (first > next)
         return -1;
         else return 1;
+      },
+
+      openOption: function(){
+        this.$.optionDialog.open();
       },
 
       insertTable: function() {

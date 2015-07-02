@@ -66,30 +66,6 @@ paper-button.sidemenu {
   width: calc(100% - 1em);
 }
 
-/* Dialogs */
-
-paper-dialog.sidemenu {
-  top: 0px;
-  right: 0px;
-  margin: 1.5em;
-  position: fixed;
-  width: calc(100vw - 3em);
-}
-
-paper-dialog.submenu {
-  border-radius: 5px 5px 0px 0px;
-  position: fixed;
-  margin: 0em 0em;
-  bottom: 0em;
-  left: 1.5em;
-  max-height: 38vh;
-  width: calc(100vw - 3em);
-}
-
-paper-dialog.submenu paper-dialog-scrollable{
-  border-radius: 5px 5px 0px 0px;
-}
-
 /* Sidemenu */
 
 .collapse-content paper-button {
@@ -103,6 +79,15 @@ paper-dialog.submenu paper-dialog-scrollable{
 .collapse-content paper-tabs {
   border-top: thin solid white;
   border-bottom: thin solid white;
+}
+
+/* Dialogs */
+paper-dialog.sidemenu {
+  top: 0px;
+  right: 0px;
+  margin: 1.5em;
+  position: fixed;
+  width: calc(100vw - 3em);
 }
 
 /* Screens */

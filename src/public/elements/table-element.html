@@ -2,15 +2,19 @@
   <style>
     :host {
       display: inline-block;
+      max-height: 30vh;
+      overflow-x: hidden;
+      overflow-y: scroll;
     }
     table {
       text-align: center;
       border-collapse: collapse;
-      table-layout:fixed;
+      table-layout: fixed;
     }
     caption {
       font-family: Roboto-Condensed-Light-Italic;
-      font-size: 0.8em;
+      font-size: 0.9em;
+      font-style:
     }
     td {
       font-family: Roboto-Condensed;
@@ -18,7 +22,10 @@
     td, th {
       font-size: 0.9em;
     }
-    th, td, caption {
+    th {
+      padding: 0.5em 1em;
+    }
+    td, caption {
       padding: 0.5em;
     }
     thead {
@@ -28,7 +35,7 @@
     iron-icon {
       color: currentColor;
     }
-    tr#false{
+    tr#false {
       background: #c019da;
       color: #f1f1f1;
     }
@@ -49,13 +56,11 @@
         <th>{{language.x}}</th>
         <th>{{language.y}}</th>
       </thead>
-      <tfoot><tr></tr></tfoot>
       <tbody>
-        <template is="dom-repeat" id="values" items="{{element.values}}">
-          <tr id="{{computeId(item.exceeds)}}">
-            <td>{{computeDate(item.x)}}</td>
-            <template is="dom-if" if="{{!element.isBoolean}}"><td><span>{{item.y}}</span> <span>{{element.unit}}</span></td></template>
-            <template is="dom-if" if="{{element.isBoolean}}"><td><iron-icon icon="{{computeIcon(item.exceeds)}}"></iron-icon></td></template>
+        <template is="dom-repeat" id="values" items="{{arrayItems}}">
+          <tr>
+            <td>{{arrayItem(element.values.*, item, 'x')}}</td>
+            <td>{{arrayItem(element.values.*, item, 'y')}}</td>
           </tr>
         </template>
       <tbody>
@@ -69,24 +74,41 @@
 
       properties: {
           element: {
-              type: Object,
-              value: function() { return {}; }
+            type: Object,
+            value: function() { return {}; }
           },
           language: {
             type: Object,
             value: function() { return {'x':'Datum','y':'Wert'}; }
           },
           timeFormat: {
-              type: String,
-              value: "HH:mm:ss"
+            type: String,
+            value: "HH:mm:ss"
+          },
+          arrayItems:{
+            type: Array,
+            value: function() { return [0,1,2,3,4,5]; }
           }
       },
-      
-      computeIcon: function(exceeds){
-        if (exceeds==false || exceeds==true)
-          return "error-outline";
-        else
-          return "done";
+
+      listeners: {
+        'scroll': 'scrollHandler'
+      },
+
+      arrayItem: function(change, index, path) {
+        return this.get(path, change.base[index]);
+      },
+
+      computeY: function(exceeds, value){
+        if (this.element.isBoolean){
+          if (exceeds==true || exceeds==false)
+            return "✗";
+          else
+            return "✓";
+        }
+        else {
+          return value + ' ' + this.element.unit;
+        }
       },
 
       computeId: function(exceeds){
@@ -98,11 +120,12 @@
           return "done";
       },
 
-      computeDate: function(date){
+      computeX: function(date){
         return $.format.toBrowserTimeZone(date,this.timeFormat);
       },
 
-      scrollHandler: function() {
+      scrollHandler: function(e) {
+        console.log(e);
       }
 
     });

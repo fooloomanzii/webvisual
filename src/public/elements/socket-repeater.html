@@ -1,6 +1,7 @@
 <dom-module id="socket-repeater">
 
   <script>
+  HTMLImports.whenReady(function() {
     Polymer({
       is: 'socket-repeater',
 
@@ -12,6 +13,7 @@
           },
           lastData: {
             type: Array,
+            value: function() { return []; },
             notify: true
           },
           lastExceeds: {
@@ -51,84 +53,81 @@
           }
       },
 
-      attached: function(){
-        this.async(function() {
-          var self = this;
-          var dataSocket = io.connect('https://'+window.location.host+this.socket, {secure: true});
-          // Receiving the first Data
-          dataSocket.on('first', function(message) {
-            var message = message;
-            if(message === undefined || message.content === undefined) return; // Check the Existence
+      ready: function(){
+        var self = this;
+        var dataSocket = io.connect('https://'+window.location.host+this.socket, {secure: true});
+        // Receiving the first Data
+        dataSocket.on('first', function(message) {
+          var message = message;
+          if(message === undefined || message.content === undefined) return; // Check the Existence
 
-            self.lastMessage = message.time;
-
-            self.lastData = [];
-            var k, values;
-            for (var i=0; i < message.content.length; i++) {
-              self.push("lastData",{"id":message.content[i].id,
-                                    "roomNr":message.content[i].roomNr,
-                                    "room":message.content[i].room,
-                                    "kind":message.content[i].kind,
-                                    "method":message.content[i].method,
-                                    "unit":message.content[i].unit,
-                                    "threshold":message.content[i].threshold,
-                                    "isBoolean":message.content[i].isBoolean,
-                                    "values":[]
-                                    });
-              k = 0;
-              if (message.content[i].values.length > self.maxTotalLines)
-                k = message.content[i].values.length - self.maxTotalLines;
-              for (var j=k; j < message.content[i].values.length; j++) {
-                self.unshift("lastData."+i+".values",message.content[i].values[j]);
-              }
+          self.lastMessage = message.time;
+          var k, values;
+          for (var i=0; i < message.content.length; i++) {
+            self.push("lastData",{"id":message.content[i].id,
+                                  "roomNr":message.content[i].roomNr,
+                                  "room":message.content[i].room,
+                                  "kind":message.content[i].kind,
+                                  "method":message.content[i].method,
+                                  "unit":message.content[i].unit,
+                                  "threshold":message.content[i].threshold,
+                                  "isBoolean":message.content[i].isBoolean,
+                                  "values":[]
+                                  });
+            k = 0;
+            if (message.content[i].values.length > self.maxTotalLines)
+              k = message.content[i].values.length - self.maxTotalLines;
+            for (var j=k; j < message.content[i].values.length; j++) {
+              self.unshift("lastData."+i+".values",message.content[i].values[j]);
             }
-            self.lastExceeds = message.lastExceeds;
-            self.groups = message.groups;
-          });
+          }
+          self.lastExceeds = message.lastExceeds;
+          self.groups = message.groups;
+        });
 
-          // Receive another Data
-          dataSocket.on('data', function(message) {
-            if(message === undefined || message.content === undefined) return; // Check for Existence
+        // Receive another Data
+        dataSocket.on('data', function(message) {
+          if(message === undefined || message.content === undefined) return; // Check for Existence
 
-            self.lastMessage = null;
-            self.lastExceeds = null;
-            self.lastMessage = message.time;
-            self.lastExceeds = message.lastExceeds;
+          self.lastMessage = null;
+          self.lastExceeds = null;
+          self.lastMessage = message.time;
+          self.lastExceeds = message.lastExceeds;
 
-            var k = 0;
+          var k = 0;
 
-            if (self.doAppend){
-                for (var i=0; i < self.lastData.length; i++) {
-                  while (message.content[i].values.length + self.lastData[i].values.length > self.maxTotalLines && self.lastData[i].values.length > 0)
-                    self.pop("lastData."+i+".values");
-                  k = 0;
-                  if (message.content[i].values.length > self.maxTotalLines)
-                    k = message.content[i].values.length - self.maxTotalLines;
-                  for (var j=k; j < message.content[i].values.length; j++) {
-                    self.unshift("lastData."+i+".values",message.content[i].values[j]);
-                  }
-                }
-            }
-            else {
+          if (self.doAppend){
               for (var i=0; i < self.lastData.length; i++) {
-                while (self.lastData[i].values.length > 0)
+                while (message.content[i].values.length + self.lastData[i].values.length > self.maxTotalLines && self.lastData[i].values.length > 0)
                   self.pop("lastData."+i+".values");
-                var k = 0;
+                k = 0;
                 if (message.content[i].values.length > self.maxTotalLines)
                   k = message.content[i].values.length - self.maxTotalLines;
                 for (var j=k; j < message.content[i].values.length; j++) {
                   self.unshift("lastData."+i+".values",message.content[i].values[j]);
                 }
               }
+          }
+          else {
+            for (var i=0; i < self.lastData.length; i++) {
+              while (self.lastData[i].values.length > 0)
+                self.pop("lastData."+i+".values");
+              var k = 0;
+              if (message.content[i].values.length > self.maxTotalLines)
+                k = message.content[i].values.length - self.maxTotalLines;
+              for (var j=k; j < message.content[i].values.length; j++) {
+                self.unshift("lastData."+i+".values",message.content[i].values[j]);
+              }
             }
-          });
-
-          //*** Wrong Data
-          dataSocket.on('mistake', function(message) {
-            self.lastMistake = message.time;
-            self.lastError = message.error;
-          });
+          }
         });
+
+        //*** Wrong Data
+        dataSocket.on('mistake', function(message) {
+          self.lastMistake = message.time;
+          self.lastError = message.error;
+        });
+
       },
 
       maxTotalLinesChanged: function(newValue, oldValue) {
@@ -138,9 +137,8 @@
               this.shift("lastData."+i+".data");
           }
       }
-
-
     });
+  });
   </script>
 
 </dom-module>
