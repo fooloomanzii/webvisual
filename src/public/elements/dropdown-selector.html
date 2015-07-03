@@ -13,24 +13,25 @@
     paper-button > .content.paper-button {
       padding: 0.4em 0.8em;
     }
+    #dropdown {
 
+    }
     #menu{
-      background: white;
       outline: none;
-      overflow-x: hidden;
-      overflow-y: auto;
-      min-width: 6em;
-      max-width: 18em;
+      min-width: 75vw;
+      overflow: hidden;
+      background: lightgrey;
     }
     #menuButton{
-      background: white;
       text-align: center;
     }
-    #placeholder{
+    #placeholder, #headliner{
       font-style: oblique;
+      display: inline;
     }
-    #headliner {
-      font-style: oblique;
+
+    #menuitem {
+      min-width: 4em;
     }
     .bold {
       font-weight: bold;
@@ -38,14 +39,14 @@
   </style>
   <template>
 
-    <iron-dropdown id="dropdown">
-      <paper-button id="menuButton" class="dropdown-trigger"><span id="placeholder">{{label}}</span><span id="headliner">{{selected}}</span></paper-button>
-      <paper-menu id="menu" role="menubar" class="dropdown-content shadow-elevation-4dp" attr-for-selected="innerText" selected="{{selected}}">
-          <paper-item id="menuAll" class="bold">{{labelForAll}}</paper-item>
+    <iron-dropdown id="dropdown" horizontal-align="right" vertical-align="top">
+      <paper-button id="menuButton" class="dropdown-trigger">{{label}}</paper-button>
+      <paper-tabs id="menu" scrollable class="dropdown-content flex" attr-for-selected="innerText" selected="{{selected}}">
+          <paper-tab id="menuAll" class="bold">{{labelForAll}}</paper-tab>
           <template is="dom-repeat" items="{{items}}" sort="sortItems">
-            <paper-item id="menuItem">{{item}}</paper-item>
+            <paper-tab id="menuItem">{{item}}</paper-tab>
           </template>
-      </paper-menu>
+      </paper-tabs>
     </iron-dropdown>
 
   </template>
@@ -76,37 +77,18 @@
         }
       },
 
-      listeners: {
-        'iron-select': 'changedSelection'
-      },
-
       ready: function(){
         this.selected = this.labelForAll;
       },
-
       sortItems: function(first, next){
         if (first>next)
           return 1;
         else
           return -1;
       },
-      changedSelection: function(){
-        // console.log('changed');
-        // this.$.menu.style.left = this.$.menuButton.style.left;
-        // this.updateStyles();
-      },
-
       selectedChanged: function(){
-        // console.log('selected');
-        if (this.selected == this.labelForAll){
-          this.$.placeholder.style.display = 'inline';
-          this.$.headliner.style.display = 'none';
-        }
-        else{
-          this.$.placeholder.style.display = 'none';
-          this.$.headliner.style.display = 'inline';
-          this.toggleClass('bold', false, this.$.menuAll);
-        }
+        this.$.menuButton.updateStyles();
+        this.$.dropdown._updateOverlayPosition();
       }
     });
   </script>

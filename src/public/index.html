@@ -130,7 +130,7 @@
 
         <!-- Lower Part (Collapsible) -->
         <section id="lower" flex horizontal layout>
-          <!-- <table-element values="{{data.0.values}}"></table-element> -->
+
         </section>
       </paper-toolbar>
 
@@ -139,10 +139,10 @@
       <section id="main" class="vertical layout center">
 
         <!-- Page Option Button -->
-        <paper-fab mini icon="extension" id="extension" on-tap="openOption"></paper-fab>
+        <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab>
 
         <!-- Page -->
-        <table-page class="element-page" data="[[data]]" groups="{{groups}}"><table-page>
+        <sign-page class="element-page" data="[[data]]" groups="{{groups}}"><sign-page>
 
       </section>
 

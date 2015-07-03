@@ -1,5 +1,6 @@
 {
   "directory": "public/components/",
+  "tmp": "C:/Temp/.bower/tmp",
   "analytics": false,
   "timeout": 30000
 }

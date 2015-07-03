@@ -12,7 +12,7 @@
     "net": "*",
     "underscore": "*",
     "lodash-node": "*",
-    "bower": "~0.4.0",
+    "bower": "*",
     "morgan": "*"
   },
   "devDependencies": {
@@ -25,7 +25,7 @@
     "grunt-env": "~0.4.0"
   },
   "engines": {
-    "node": "0.10.x",
-    "npm": "1.4.x"
+    "node": ">= 0.10.0",
+    "npm": "*"
   }
 }

@@ -1,5 +1,6 @@
 section#main {
   background: darkgrey;
+  height: 100%;
 }
 
 section#main.dark {

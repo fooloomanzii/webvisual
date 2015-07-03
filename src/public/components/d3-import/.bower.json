@@ -1,0 +1,32 @@
+{
+  "name": "d3-import",
+  "version": "1.0.0",
+  "authors": [
+    "Renato Utsch <renatoutsch@gmail.com>"
+  ],
+  "description": "html-import file for d3.",
+  "keywords": [
+    "web-component",
+    "web-components",
+    "d3"
+  ],
+  "main": "d3.html",
+  "license": "MIT",
+  "homepage": "https://github.com/RenatoUtsch/d3-import/",
+  "ignore": [
+    "/.*",
+    "/tests/"
+  ],
+  "dependencies": {
+    "d3": "d3#^3.4.4"
+  },
+  "_release": "1.0.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.0.0",
+    "commit": "867af1e5f98560f67a210819adbe73e8dbcee950"
+  },
+  "_source": "git://github.com/RenatoUtsch/d3-import.git",
+  "_target": "^1.0.0",
+  "_originalSource": "d3-import"
+}

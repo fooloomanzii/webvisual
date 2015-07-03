@@ -2,7 +2,7 @@
   <style>
     :host {
       display: inline-block;
-      margin: 1em 0.5em;
+      margin: 0.5em;
     }
     paper-material {
       background: white;
@@ -12,7 +12,7 @@
       background: #646464;
     }
     .outer {
-      margin: 0.3em;
+      margin: 0.5em;
     }
     paper-dialog#optionDialog {
       border-radius: 5px 5px 0px 0px;
@@ -38,7 +38,7 @@
 
     <!-- Page-Options -->
   <paper-dialog id="optionDialog" entry-animation="slide-to-up-animation" exit-animation="slide-to-down-animation">
-    <section class="horizontal layout flex">
+    <section class="vertical layout">
       <dropdown-selector items="[[groups.id]]" label="id" value-for-all="all"></dropdown-selector>
       <dropdown-selector items="[[groups.roomNr]]" label="Raumnummer"></dropdown-selector>
       <dropdown-selector items="[[groups.room]]" label="Raum"></dropdown-selector>

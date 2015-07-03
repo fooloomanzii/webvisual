@@ -4,8 +4,8 @@
     "file": {
       "copy": false,
       "mode": "all",
-      "#path_folder": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Datafile/",
-      "path_folder": "",
+      "path_folder": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Datafile/",
+      "#path_folder": "",
       "path": "HNF_Datafile.txt"
       },
     "udp": {
@@ -34,10 +34,10 @@
 
   "locals":{
 
-    "ignore": [0,8,16,17,21,22,27,32],
+    "ignore": [8,16,17,21,22,27,32],
 
     "types": [
-      {"id":"Binary"},
+      {"id":"Binary", "roomNr":"0000", "room":"test", "kind":"T", "method":"Temperatur", "isBoolean": false, "threshold": [0,100], "unit":"°C"},
       {"id":"DI0-1", "roomNr":"2032", "room":"Gaslager", "kind":"H₂", "method":"brennbar", "isBoolean": true, "threshold": [0,0]},
       {"id":"DI1-1", "roomNr":"2032", "room":"Gaslager", "kind":"H₂", "method":"brennbar", "isBoolean": true, "threshold": [0,0]},
       {"id":"DI2-1", "roomNr":"3005", "room":"Bypack", "kind":"H₂", "isBoolean": true, "threshold": [0,0]},

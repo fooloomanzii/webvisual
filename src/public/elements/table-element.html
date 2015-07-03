@@ -25,10 +25,10 @@
       background: rgba(137, 137, 137, 0.25);
     }
     th {
-      padding: 0.5em 1em;
+      padding: 0.6em 1em;
     }
     td, caption {
-      padding: 0.5em;
+      padding: 0.6em 1em;
     }
     thead {
       border-top: thin solid #8c8c8c;
@@ -60,7 +60,7 @@
       </thead>
       <tbody>
         <template is="dom-if" if="{{element.lastExceeds}}">
-          <tr id={{computeId(element.lastExceeds.exceeds)}} style="border-bottom: thin solid #343434">
+          <tr id={{computeId(element.lastExceeds.exceeds)}} style="border: thin solid #FF7E7E">
             <td>{{computeX(element.lastExceeds.x)}}</td>
             <td>{{computeY(element.lastExceeds.y,element.lastExceeds.exceeds)}}</td>
           </tr>
