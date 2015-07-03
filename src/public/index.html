@@ -2,7 +2,6 @@
   <title>webvisual</title>
   <!-- Meta-Tag: Set the viewport-->
   <meta name="viewport" charset="utf-8" content="width=device-width, initial-scale=1, user-scalable=yes"/>
-  <!-- <link rel="icon" href="/img/webicon.png" type="image/png"> -->
 
   <!-- Web-Components -->
   <script src="components/webcomponentsjs/webcomponents.min.js"></script>
@@ -21,7 +20,7 @@
 
   <template is="dom-bind" id="autobind-template">
 
-  <socket-repeater id="datasocket" do-append last-data="{{data}}" max-total-lines="{{max-lines}}" groups="{{groups}}"></socket-repeater>
+  <data-socket-repeater id="datasocket" do-append last-data="{{data}}" max-total-lines="{{max-lines}}" groups="{{groups}}"></data-socket-repeater>
 
   <paper-drawer-panel force-narrow="true">
 
@@ -138,20 +137,12 @@
 
       <!-- MAIN CONTENT -->
       <section id="main" class="vertical layout center">
-        <section id="main" class="horizontal layout">
-
-          <dropdown-selector items="[[groups.id]]" label="id" value-for-all="all"></dropdown-selector>
-          <dropdown-selector items="[[groups.roomNr]]" label="Raumnummer"></dropdown-selector>
-          <dropdown-selector items="[[groups.room]]" label="Raum"></dropdown-selector>
-          <dropdown-selector items="[[groups.kind]]" label="Art"></dropdown-selector>
-          <dropdown-selector items="[[groups.method]]" label="Methode"></dropdown-selector>
-        </section>
 
         <!-- Page Option Button -->
         <paper-fab mini icon="extension" id="extension" on-tap="openOption"></paper-fab>
 
         <!-- Page -->
-        <table-page class="element-page" data="[[data]]"><table-page>
+        <table-page class="element-page" data="[[data]]" groups="{{groups}}"><table-page>
 
       </section>
 
@@ -202,7 +193,7 @@
     var colorschema = "light";
     template.scrollPage = function() {
       if (mainContainer.scrollTop + mainContainer.offsetHeight >= mainContainer.scrollHeight) {
-        var page = document.getElementById('element-page');
+        var page = document.querySelector('.element-page');
         page.scrollHandler(); // for each page-element should be a scrollHandler
       }
     };

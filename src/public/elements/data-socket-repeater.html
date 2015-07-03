@@ -1,9 +1,9 @@
-<dom-module id="socket-repeater">
+<dom-module id="data-socket-repeater">
 
   <script>
   HTMLImports.whenReady(function() {
     Polymer({
-      is: 'socket-repeater',
+      is: 'data-socket-repeater',
 
       properties: {
           socket: {
@@ -12,11 +12,6 @@
             notify: true
           },
           lastData: {
-            type: Array,
-            value: function() { return []; },
-            notify: true
-          },
-          lastExceeds: {
             type: Array,
             value: function() { return []; },
             notify: true
@@ -46,7 +41,7 @@
             value: false,
             notify: true
           },
-          groups: {
+          groups: { // TODO: maybe better in own/settings socket + keys + language
             type: Object,
             value: function() { return {}; },
             notify: true
@@ -58,22 +53,20 @@
         var dataSocket = io.connect('https://'+window.location.host+this.socket, {secure: true});
         // Receiving the first Data
         dataSocket.on('first', function(message) {
-          var message = message;
           if(message === undefined || message.content === undefined) return; // Check the Existence
 
-          self.lastMessage = message.time;
-          var k, values;
-          for (var i=0; i < message.content.length; i++) {
-            self.push("lastData",{"id":message.content[i].id,
-                                  "roomNr":message.content[i].roomNr,
-                                  "room":message.content[i].room,
-                                  "kind":message.content[i].kind,
-                                  "method":message.content[i].method,
-                                  "unit":message.content[i].unit,
-                                  "threshold":message.content[i].threshold,
-                                  "isBoolean":message.content[i].isBoolean,
-                                  "values":[]
-                                  });
+          self.set("lastMessage", message.time);
+          self.set("groups", message.groups);
+          var k, val;
+          // for Polymer (to notice Array change) special treatment of integrating data
+          for (var i in message.content) {
+            val = message.content[i];
+            self.push("lastData",{});
+            for (var key in val) {
+              if(key != "values")
+                self.set("lastData."+i+"."+key, val[key]);
+            }
+            self.set("lastData."+i+".values", []);
             k = 0;
             if (message.content[i].values.length > self.maxTotalLines)
               k = message.content[i].values.length - self.maxTotalLines;
@@ -81,21 +74,15 @@
               self.unshift("lastData."+i+".values",message.content[i].values[j]);
             }
           }
-          self.lastExceeds = message.lastExceeds;
-          self.groups = message.groups;
         });
 
         // Receive another Data
         dataSocket.on('data', function(message) {
           if(message === undefined || message.content === undefined) return; // Check for Existence
 
-          self.lastMessage = null;
-          self.lastExceeds = null;
-          self.lastMessage = message.time;
-          self.lastExceeds = message.lastExceeds;
+          self.set("lastMessage", message.time);
 
           var k = 0;
-
           if (self.doAppend){
               for (var i=0; i < self.lastData.length; i++) {
                 while (message.content[i].values.length + self.lastData[i].values.length > self.maxTotalLines && self.lastData[i].values.length > 0)
@@ -106,6 +93,7 @@
                 for (var j=k; j < message.content[i].values.length; j++) {
                   self.unshift("lastData."+i+".values",message.content[i].values[j]);
                 }
+                self.set("lastData."+i+".lastExceeds",message.content[i].lastExceeds);
               }
           }
           else {
@@ -118,14 +106,15 @@
               for (var j=k; j < message.content[i].values.length; j++) {
                 self.unshift("lastData."+i+".values",message.content[i].values[j]);
               }
+              self.set("lastData."+i+".lastExceeds",message.content[i].lastExceeds);
             }
           }
         });
 
         //*** Wrong Data
         dataSocket.on('mistake', function(message) {
-          self.lastMistake = message.time;
-          self.lastError = message.error;
+          self.set("lastMistake", message.time);
+          self.set("lastError", message.error);
         });
 
       },
@@ -134,7 +123,7 @@
         if (this.lastData && newValue < oldValue && newValue>0)
           for (var i=0; i < this.lastData.length; i++) {
             while (this.lastData[i].data.length > newValue)
-              this.shift("lastData."+i+".data");
+              this.shift("lastData."+i+".values");
           }
       }
     });

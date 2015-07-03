@@ -10,17 +10,20 @@
   //      currentData.exceeds <-- Object of Boolean-Arrays
   //  Return:
   //    JSON-Object-Structure:
-  //      Array of:
-  //        { "id":".." , "room":"..", "kind":"..", "method":"..",
-  //          "unit":"..", "data": [{"date":"..", "value":"..", "exceeds":".."}, {..} , .. ]} a.s.o.
+  //      conten: Object of:
+  //       "0": { "id":".." , "room":"..", "kind":"..", "method":"..", lastExceeds:
+  //            {"x":"..", "y":"..", "exceeds":".."}, "unit":"..", "values":
+  //            [ {"x":"..", "y":"..", "exceeds":".."}, {..} , .. ] },
+  //       "2":
 
   // Session Variables
+  // (don't change, if server is not restartet)
   var _            = require('underscore'),
       dateFormat   = require('dateFormat'),
       settings   = {},
       keys       = [],
       groups     = {},
-      currentExceedsArray = [];
+      lastExceedsArray = [];
 
 function processData(locals, currentData) {
 
@@ -32,7 +35,7 @@ function processData(locals, currentData) {
   var valuesArray   = [],
       exceedsArray  = [],
       dateArray     = [],
-      processedDataArray  = [],
+      processedData = {},
       returnObject = {};
 
   arrangeLabels(locals);
@@ -46,9 +49,10 @@ function processData(locals, currentData) {
       settings.ignore = locals.ignore;
     if(!settings.timeFormat)
       settings.timeFormat = locals.timeFormat;
-    if(!settings.unnamedType){
+    if(!settings.unnamedType)
       settings.unnamedType = locals.unnamedType;
 
+    if(keys.length == 0){
       keys =  _.keys(settings.unnamedType);
       for (var i = 0; i < keys.length; i++)
         groups[keys[i]] = [];
@@ -67,6 +71,8 @@ function processData(locals, currentData) {
       if(valuesArray[i] && dateArray[i]) {
         for (var l=0; l<data[i].values.length; l++) {
           valuesArray[i][l] = data[i].values[l];
+          if(!lastExceedsArray)
+            lastExceedsArray.push(null);
         }
         dateArray[i] = data[i].date;
       }
@@ -83,55 +89,41 @@ function processData(locals, currentData) {
       for (var j=0; j<valuesArray[i].length; j++) {
       // head-data of measuring-points
         if(settings.ignore.indexOf(j) == -1){ // ignored are not in returnObject
-          if(!processedDataArray[k]) {
+          if(!processedData[k]) {
             element = {};
             type = settings.types[j] || [];
             for (var m=0; m<keys.length; m++){
               key = keys[m];
               group = groups[key];
               element[key] = type[key] || settings.unnamedType[key];
-              if (_.lastIndexOf(group,element[key]) == -1) // all containing
-                group.push(element[key]);
+              if (_.lastIndexOf(group,element[key]) == -1) // all containing keyvalues
+                group.push(element[key]); // (except exceeds, x, y)
             }
             element.values = [];
             if (element.id == settings.unnamedType.id)
               element.id += k;
-            processedDataArray.push(element);
+            element.lastExceeds = lastExceedsArray[j];
+            processedData[k] = element;
           }
           // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored
 
-          processedDataArray[k].values.push({"x":    dateArray[i],
+          processedData[k].values.push({"x":    dateArray[i],
                                              "y":   valuesArray[i][j],
                                              "exceeds": exceedsArray[i][j]
                                       })
-          // store last Exceeding Data (index not the same like in returnObject)
-          if(exceedsArray[i][j] != null) {
-            var m = _.findLastIndex(currentExceedsArray,
-                                     {"id":     processedDataArray[k].id,
-                                      "room":   processedDataArray[k].room,
-                                      "kind":   processedDataArray[k].kind,
-                                      "method": processedDataArray[k].method,
-                                      "unit":   processedDataArray[k].unit});
-            if(m == -1){
-              m = currentExceedsArray.length;
-              currentExceedsArray.push({"id":     processedDataArray[k].id,
-                                        "room":   processedDataArray[k].room,
-                                        "kind":   processedDataArray[k].kind,
-                                        "method": processedDataArray[k].method,
-                                        "unit":   processedDataArray[k].unit,
-                                        "values":   [] })
-            }
-            currentExceedsArray[m].values = [{"x":    dateArray[i],
-                                            "y":   valuesArray[i][j],
-                                            "exceeds": exceedsArray[i][j] }];
-          }
+          // store last Exceeding Data (lastExceedsArray is created each server-session)
+          if(exceedsArray[i][j] != null)
+            lastExceedsArray[j] = processedData[k].lastExceeds = {"x": dateArray[i],
+                                                                       "y": valuesArray[i][j],
+                                                                       "exceeds": exceedsArray[i][j]};
           k++;
         }
       }
     }
 
-      // Creation of an Object, so it can be assigned to the Eventhandler (dirty)
-    returnObject = {time: currentData.time, content: processedDataArray, lastExceeds: currentExceedsArray, lineCount: currentData.lineCount, groups: groups};
+      // Creation of an Return Object
+      // TODO: socket for each messurement-device possible?
+    returnObject = {time: currentData.time, content: processedData, groups: groups};
   }
 
   return returnObject;

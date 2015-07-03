@@ -14,13 +14,15 @@
     caption {
       font-family: Roboto-Condensed-Light-Italic;
       font-size: 0.9em;
-      font-style:
     }
     td {
       font-family: Roboto-Condensed;
     }
     td, th {
       font-size: 0.9em;
+    }
+    tr:hover {
+      background: rgba(137, 137, 137, 0.25);
     }
     th {
       padding: 0.5em 1em;
@@ -57,14 +59,22 @@
         <th>{{language.y}}</th>
       </thead>
       <tbody>
-        <template is="dom-repeat" id="values" items="{{arrayItems}}">
-          <tr>
-            <td>{{arrayItem(element.values.*, item, 'x')}}</td>
-            <td>{{arrayItem(element.values.*, item, 'y')}}</td>
+        <template is="dom-if" if="{{element.lastExceeds}}">
+          <tr id={{computeId(element.lastExceeds.exceeds)}} style="border-bottom: thin solid #343434">
+            <td>{{computeX(element.lastExceeds.x)}}</td>
+            <td>{{computeY(element.lastExceeds.y,element.lastExceeds.exceeds)}}</td>
           </tr>
         </template>
-      <tbody>
+        <template is="dom-repeat" id="values" items="{{element.values}}">
+          <tr id={{computeId(item.exceeds)}}>
+            <td>{{computeX(item.x)}}</td>
+            <td>{{computeY(item.y,item.exceeds)}}</td>
+          </tr>
+        </template>
+      </tbody>
     </table>
+
+    <array-selector id="selector" items="{{element.values}}" selected="{{selected}}" multi toggle></array-selector>
   </template>
 
   <script>
@@ -75,7 +85,7 @@
       properties: {
           element: {
             type: Object,
-            value: function() { return {}; }
+            value: function() { return {"values":[]}; }
           },
           language: {
             type: Object,
@@ -91,16 +101,38 @@
           }
       },
 
+      observers: [
+          'limitPresent(element.values.splices)'
+        ],
+
       listeners: {
         'scroll': 'scrollHandler'
+      },
+
+      limitPresent: function(changeRecord) {
+        // changeRecord.splices.indexSplices.forEach(function(s) {
+        //   s.removed.forEach(function(user) {
+        //     console.log(user.x + ' was removed');
+        //   });
+        //   console.log(s.addedCount + ' users were added');
+        // }, this);
       },
 
       arrayItem: function(change, index, path) {
         return this.get(path, change.base[index]);
       },
 
-      computeY: function(exceeds, value){
-        if (this.element.isBoolean){
+      computeX: function(date){
+        if(date)
+          return $.format.toBrowserTimeZone(date,this.timeFormat);
+        else
+          return undefined;
+      },
+
+      computeY: function(value,exceeds){
+        if(!value && value !=0)
+          return undefined;
+        else if (this.element.isBoolean){
           if (exceeds==true || exceeds==false)
             return "✗";
           else
@@ -112,16 +144,7 @@
       },
 
       computeId: function(exceeds){
-        if (exceeds==false)
-          return "false";
-        else if (exceeds==true)
-          return "true";
-        else
-          return "done";
-      },
-
-      computeX: function(date){
-        return $.format.toBrowserTimeZone(date,this.timeFormat);
+        return exceeds;
       },
 
       scrollHandler: function(e) {

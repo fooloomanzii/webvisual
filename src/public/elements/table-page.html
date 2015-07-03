@@ -38,7 +38,13 @@
 
     <!-- Page-Options -->
   <paper-dialog id="optionDialog" entry-animation="slide-to-up-animation" exit-animation="slide-to-down-animation">
-
+    <section class="horizontal layout flex">
+      <dropdown-selector items="[[groups.id]]" label="id" value-for-all="all"></dropdown-selector>
+      <dropdown-selector items="[[groups.roomNr]]" label="Raumnummer"></dropdown-selector>
+      <dropdown-selector items="[[groups.room]]" label="Raum"></dropdown-selector>
+      <dropdown-selector items="[[groups.kind]]" label="Art"></dropdown-selector>
+      <dropdown-selector items="[[groups.method]]" label="Methode"></dropdown-selector>
+    </section>
   </paper-dialog>
 
   </template>

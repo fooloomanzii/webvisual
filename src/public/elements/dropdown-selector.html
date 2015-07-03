@@ -40,7 +40,7 @@
 
     <iron-dropdown id="dropdown">
       <paper-button id="menuButton" class="dropdown-trigger"><span id="placeholder">{{label}}</span><span id="headliner">{{selected}}</span></paper-button>
-      <paper-menu id="menu" class="dropdown-content shadow-elevation-4dp" attr-for-selected="innerText" selected="{{selected}}">
+      <paper-menu id="menu" role="menubar" class="dropdown-content shadow-elevation-4dp" attr-for-selected="innerText" selected="{{selected}}">
           <paper-item id="menuAll" class="bold">{{labelForAll}}</paper-item>
           <template is="dom-repeat" items="{{items}}" sort="sortItems">
             <paper-item id="menuItem">{{item}}</paper-item>
