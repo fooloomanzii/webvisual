@@ -3,25 +3,37 @@
   :host {
     position: relative;
     color: #1d1d1d;
-    border-radius: 2px;
+    border-radius: 3px;
     overlay: hidden;
     display: flex;
-    z-index: 0;
     outline: none;
     font-family: 'Roboto-Condensed-Light';
-    background: transparent;
+    font-style: normal;
     user-select: none;
-    min-height: 4em;
-    min-width: 4em;
+    min-height: 6em;
+    min-width: 6em;
+    resize: both;
+    box-sizing: content-box;
     margin: 1em; //
   }
 
   .main {
     position: relative;
+    display: flex;
+    flex-direction: column;
     border-radius: inherit;
-    padding: 0.5em 0.3em;
+    padding: 0.5em;
     width: 100%;
     background: white;
+  }
+  .valueSection {
+    display: flex;
+    align-items: center;
+    -ms-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+    flex-direction: row;
+    justify-content: center;
   }
   .dateSection {
     line-height: 1.5em;
@@ -32,35 +44,38 @@
   .unitSection {
     padding-left: 0.3em;
     font-size: 0.8em;
-    font-weight: 100;
   }
   .exceedsSection {
-    padding-left: 0.3em;
-    padding-right: 0.3em;
-    font-weight: 300;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: bottom;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
     line-height: 1em;
+    font-size: 0.8em;
   }
   .exceedsDateSection {
-    font-style: italic;
-    font-size: 0.7em;
+    font-style: oblique;
   }
   .exceedsValueSection {
-    padding-left: 0.5em;
-    font-style: normal;
-    font-size: 0.8em;
+    padding-left: 0.75em;
+  }
+  .exceedsUnitSection {
+    padding-left: 0.3em;
   }
   #ripple {
     color: #1d1d1d;
   }
   </style>
   <template>
-    <section class="main" class="vertical layout">
+    <section class="main">
       <paper-ripple id="ripple" class="fill" fit initialOpaciy="0.10"></paper-ripple>
-      <section class="valueSection" class="horizontal layout flex center-justified"><span class="dateSection">[[firstY(element.values.*, 'y')]]</span><span class="unitSection center">[[element.unit]]</span></section>
+      <section class="valueSection"><span class="dateSection">[[firstY(element.values.*, 'y')]]</span><span class="unitSection">[[element.unit]]</span></section>
 
       <template is="dom-if" if="{{element.lastExceeds}}">
-        <section class="exceedsSection" class="horizontal layout center-justified">
-          <div class="exceedsDateSection">[[computeX(element.lastExceeds.x)]]</div><div class="exceedsValueSection">[[computeY(element.lastExceeds.y,element.lastExceeds.exceeds)]]</div>
+        <section class="exceedsSection">
+          <span class="exceedsDateSection">[[computeX(element.lastExceeds.x)]]</span><span class="exceedsValueSection">[[computeY(element.lastExceeds.y,element.lastExceeds.exceeds)]]</span><span class="exceedsUnitSection">[[element.unit]]</span>
         </section>
       </template>
 
