@@ -1,18 +1,31 @@
 <dom-module id="sign-page">
   <style>
     :host {
-      display: inline-block;
       margin: 0.5em;
     }
     paper-material {
       background: white;
       padding: 0em;
+      border-radius: 3px;
     }
     paper-material.dark {
       background: #646464;
     }
+
+    #content{
+
+    }
+    .inner {
+      margin: 0.5em;
+
+    }
+
     .outer {
       margin: 0.5em;
+      /*display: flex;
+      align-self: stretch;
+      flex-wrap: wrap;
+      flex-direction: row;*/
     }
     paper-dialog#optionDialog {
       border-radius: 5px 5px 0px 0px;
@@ -26,26 +39,33 @@
 
   </style>
   <template>
-      <section id="content">
-        <iron-selector selected="0" class="horizontal layout wrap center-justified">
-          <template is="dom-repeat" items="{{data}}" as="element" filter="" observe="room data.room">
-            <!-- <paper-material id="{{element.id}}" class="outer" elevation="3" class="vertical layout center"> -->
-                <sign-element element="{{element}}" showExceeds></sign-element>
-            <!-- </paper-material> -->
-          </template>
-        </iron-selector>
-    </section>
+      <div id="content" class="horizontal layout wrap">
+
+        <template id="outerTemplate" is="dom-repeat" items="{{groups.roomNr}}" as="groupedItem">
+          <div class="outer" elevation="3" class="horizontal layout wrap">
+
+            <template id="innerTemplate" is="dom-repeat" items="{{data}}" as="element">
+              <paper-material class="inner" elevation="1" class="vertical layout center">
+                <template is="dom-if" if="{{group(element,groupedItem)}}">
+                  <sign-element element="{{element}}"></sign-element>
+                  <sign-caption element="{{element}}"></sign-caption>
+                </template>
+              </paper-material>
+            </template>
+          </div>
+        </template>
+      </div>
 
     <!-- Page-Options -->
-  <paper-dialog id="optionDialog" entry-animation="slide-to-up-animation" exit-animation="slide-to-down-animation">
-    <section class="vertical layout">
-      <dropdown-selector items="[[groups.id]]" label="id" value-for-all="all"></dropdown-selector>
-      <dropdown-selector items="[[groups.roomNr]]" label="Raumnummer"></dropdown-selector>
-      <dropdown-selector items="[[groups.room]]" label="Raum"></dropdown-selector>
-      <dropdown-selector items="[[groups.kind]]" label="Art"></dropdown-selector>
-      <dropdown-selector items="[[groups.method]]" label="Methode"></dropdown-selector>
-    </section>
-  </paper-dialog>
+    <paper-dialog id="optionDialog" entry-animation="slide-to-up-animation" exit-animation="slide-to-down-animation">
+      <section class="vertical layout">
+        <dropdown-selector items="[[groups.id]]" label="id" value-for-all="all"></dropdown-selector>
+        <dropdown-selector items="[[groups.roomNr]]" label="Raumnummer"></dropdown-selector>
+        <dropdown-selector items="[[groups.room]]" label="Raum"></dropdown-selector>
+        <dropdown-selector items="[[groups.kind]]" label="Art"></dropdown-selector>
+        <dropdown-selector items="[[groups.method]]" label="Methode"></dropdown-selector>
+      </section>
+    </paper-dialog>
 
   </template>
 
@@ -62,21 +82,37 @@
           },
           groups: {
             type: Array,
-            value: function() { return []; },
-            notify: true
+            value: function() { return []; }
           },
-          groupSelected: {
+          groupedBy: {
             type: String,
-            value: "",
+            value: "roomNr",
             notify: true
           },
           isGrouping: {
             type: Boolean,
             value: false,
             notify: true
+          },
+          keys: {
+            type: Array,
+            value: function() { return ["kind","method","room","roomNr"]; }
           }
       },
 
+      group: function(item,groupId){
+        if (item[this.groupedBy] == groupId)
+          return true;
+        else
+          return false;
+      },
+
+      sort: function(first,nxet){
+        if (first[this.groupedBy] > next[this.groupedBy])
+          return true;
+        else
+          return false;
+      },
       // observers: [
       //     'datacheck(data.*)'
       //   ],

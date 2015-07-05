@@ -1,6 +1,7 @@
 <dom-module id="table-element">
   <style>
     :host {
+      color: currentColor;
       display: inline-block;
       max-height: 30vh;
       overflow-x: hidden;
@@ -15,6 +16,9 @@
       font-family: Roboto-Condensed-Light-Italic;
       font-size: 0.9em;
     }
+    th {
+      font-family: Roboto;
+    }
     td {
       font-family: Roboto-Condensed;
     }
@@ -24,57 +28,48 @@
     tr:hover {
       background: rgba(137, 137, 137, 0.25);
     }
-    th {
-      padding: 0.6em 1em;
-    }
-    td, caption {
+    th, td, caption {
       padding: 0.6em 1em;
     }
     thead {
       border-top: thin solid #8c8c8c;
       border-bottom: thin solid #8c8c8c;
     }
-    iron-icon {
-      color: currentColor;
-    }
-    tr#false {
-      background: #c019da;
-      color: #f1f1f1;
-    }
-    tr#true {
-      background: #e71506;
-      color: #f1f1f1;
+    tr#lastExceeds{
+      border: thin solid #FF7E7E;
     }
   </style>
   <template>
     <table id="content">
-      <caption>
-        <span>{{element.roomNr}}</span><span>, </span>
-        <span>{{element.room}}</span><span>, </span>
-        <span>{{element.kind}}</span><span>, </span>
-        <span>{{element.method}}</span>
-      </caption>
+      <template is="dom-if" if="{{showCaption}}">
+        <caption>
+          <span>[[element.roomNr]]</span><span>, </span>
+          <span>[[element.room]]</span><span>, </span>
+          <span>[[element.kind]]</span><span>, </span>
+          <span>[[element.method]]</span>
+        </caption>
+      </template>
       <thead>
-        <th>{{language.x}}</th>
-        <th>{{language.y}}</th>
+        <th>[[language.x]]</th>
+        <th>[[language.y]]</th>
       </thead>
       <tbody>
-        <template is="dom-if" if="{{element.lastExceeds}}">
-          <tr id={{computeId(element.lastExceeds.exceeds)}} style="border: thin solid #FF7E7E">
-            <td>{{computeX(element.lastExceeds.x)}}</td>
-            <td>{{computeY(element.lastExceeds.y,element.lastExceeds.exceeds)}}</td>
+        <template is="dom-if" if="[[element.lastExceeds]]">
+          <tr id="lastExceeds" style=[[computeStyle(element.lastExceeds.exceeds)]]>
+            <td>[[computeX(element.lastExceeds.x)]]</td>
+            <td>[[computeY(element.lastExceeds.y,element.lastExceeds.exceeds)]]</td>
           </tr>
         </template>
-        <template is="dom-repeat" id="values" items="{{element.values}}">
-          <tr id={{computeId(item.exceeds)}}>
-            <td>{{computeX(item.x)}}</td>
-            <td>{{computeY(item.y,item.exceeds)}}</td>
+        <template is="dom-repeat" id="values" items="[[element.values]]">
+          <tr style=[[computeStyle(item.exceeds)]]>
+            <td>[[computeX(item.x)]]</td>
+            <td>[[computeY(item.y,item.exceeds)]]</td>
           </tr>
         </template>
       </tbody>
     </table>
 
-    <array-selector id="selector" items="{{element.values}}" selected="{{selected}}" multi toggle></array-selector>
+    <!-- <array-selector id="selector" items="[[element.values]]" selected="[[selected]]" multi toggle></array-selector> -->
   </template>
 
   <script>
@@ -95,10 +90,16 @@
             type: String,
             value: "HH:mm:ss"
           },
-          arrayItems:{
-            type: Array,
-            value: function() { return [0,1,2,3,4,5]; }
+          showCaption: {
+            type: Boolean,
+            notify: true,
+            reflectToAttribute: true
           }
+          // arrayItems:{
+          //   type: Array,
+          //   value: function() { return [0,1,2,3,4,5]; }
+          // },
+
       },
 
       observers: [
@@ -143,12 +144,17 @@
         }
       },
 
-      computeId: function(exceeds){
-        return exceeds;
+      computeStyle: function(exceeds){
+        if(exceeds == true)
+          return "background: #e71506; color: #f1f1f1;";
+        else if(exceeds == false)
+          return "background: #c019da; color: #f1f1f1;";
+        else
+          return "";
       },
 
       scrollHandler: function(e) {
-        console.log(e);
+        // console.log(e);
       }
 
     });

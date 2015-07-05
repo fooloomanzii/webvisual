@@ -2,19 +2,18 @@
   <style>
   :host {
     position: relative;
-    color: #1d1d1d;
+    color: #f1f1f1;;
     border-radius: 3px;
     overlay: hidden;
-    display: flex;
+    /*display: flex;*/
     outline: none;
+    cursor: pointer;
     font-family: 'Roboto-Condensed-Light';
     font-style: normal;
     user-select: none;
-    min-height: 6em;
-    min-width: 6em;
-    resize: both;
-    box-sizing: content-box;
-    margin: 1em; //
+    background: white;
+    font-size: 1em;
+    line-height: 1;
   }
 
   .main {
@@ -22,12 +21,15 @@
     display: flex;
     flex-direction: column;
     border-radius: inherit;
-    padding: 0.5em;
     width: 100%;
-    background: white;
   }
-  .valueSection {
+  .main.dark{
+    color: #d3d3d3;
+  }
+  .actualValueSection {
     display: flex;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
+    padding: 0.75em 0.75em 0.25em 0.75em;
     align-items: center;
     -ms-flex: 1;
     -webkit-flex: 1;
@@ -35,9 +37,8 @@
     flex-direction: row;
     justify-content: center;
   }
-  .dateSection {
-    line-height: 1.5em;
-    font-size: 2em;
+  .valueSection {
+    font-size: 1.75em;
     font-style: normal;
     font-weight: 300;
   }
@@ -45,40 +46,70 @@
     padding-left: 0.3em;
     font-size: 0.8em;
   }
-  .exceedsSection {
+  .dateSection {
+    font-family: Roboto-Condensed-Light-Italic;
+    font-size: 0.6em;
+    color: #5a5a5a;
+  }
+  .lowerSection {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: bottom;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+    padding: 0.25em 0.5em 0.5em 0.5em;
     line-height: 1em;
-    font-size: 0.8em;
   }
   .exceedsDateSection {
-    font-style: oblique;
+    font-family: Roboto-Condensed-Light-Italic;
+    font-size: 0.8em;
+    animation-name: exceed-animation;
+    animation-duration: 2s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
   }
   .exceedsValueSection {
     padding-left: 0.75em;
+    font-size: 0.8em;
   }
-  .exceedsUnitSection {
-    padding-left: 0.3em;
+  iron-icon{
+    --iron-icon-height: 1.75em;
+    --iron-icon-width: 1.75em;
+    color: currentColor;
+    animation-name: exceed-animation;
+    animation-duration: 2s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+  @keyframes exceed-animation {
+      0%   {transform: scale(1);}
+      33%  {transform: scale(1.10);}
+      100% {transform: scale(1);}
   }
   #ripple {
     color: #1d1d1d;
   }
   </style>
   <template>
-    <section class="main">
+    <section class="main" style$="{{computeStyle(element.lastExceeds.exceeds)}}">
       <paper-ripple id="ripple" class="fill" fit initialOpaciy="0.10"></paper-ripple>
-      <section class="valueSection"><span class="dateSection">[[firstY(element.values.*, 'y')]]</span><span class="unitSection">[[element.unit]]</span></section>
 
-      <template is="dom-if" if="{{element.lastExceeds}}">
-        <section class="exceedsSection">
-          <span class="exceedsDateSection">[[computeX(element.lastExceeds.x)]]</span><span class="exceedsValueSection">[[computeY(element.lastExceeds.y,element.lastExceeds.exceeds)]]</span><span class="exceedsUnitSection">[[element.unit]]</span>
-        </section>
-      </template>
+      <section class="actualValueSection">
+        <template is="dom-if" if="[[!element.isBoolean]]" restamp>
+          <span class="valueSection">[[firstY(element.values.*)]]</span><span class="unitSection">[[element.unit]]</span>
+        </template>
+        <template is="dom-if" if="[[element.isBoolean]]" restamp>
+          <iron-icon icon=[[firstIcon(element.values.*)]]></iron-icon>
+        </template>
+      </section>
 
+      <section class="lowerSection">
+        <template is="dom-if" if="[[element.lastExceeds]]" restamp>
+          <span class="exceedsDateSection">[[computeX(element.lastExceeds.x)]]</span><span class="exceedsValueSection">[[computeY(element.lastExceeds.y,element.lastExceeds.exceeds)]]<span> </span><span>[[element.unit]]</span></span>
+        </template>
+        <template is="dom-if" if="[[!element.lastExceeds]]" restamp>
+          <span class="dateSection">[[firstX(element.values.*)]]</span><span class="placeHolderSection"></span>
+        </template>
+      </section>
     </section>
   </template>
 
@@ -111,17 +142,35 @@
           }
       },
 
-      observers: [
-        ],
-
-      firstX: function(change, path) {
-        return computeX(this.get(path, change.base[0]));
+      firstX: function(change) {
+        if (change.base && change.base.length != 0){
+          var date = this.get('x', change.base[0]);
+          return this.computeX(date);
+        }
+        else
+          return undefined;
       },
 
-      firstY: function(change, path) {
-        var y = this.get(path, change.base[0]);
-        var exceeds = this.get('exceeds', change.base[0]);
-        return this.computeY(y, exceeds);
+      firstY: function(change) {
+        if (change.base && change.base.length != 0){
+          var value = this.get('y', change.base[0]);
+          var exceeds = this.get('exceeds', change.base[0]);
+          return this.computeY(value, exceeds)
+        }
+        else
+          return undefined;
+      },
+
+      firstIcon: function(change) {
+        if (change.base && change.base.length != 0){
+          var exceeds = this.get('exceeds', change.base[0]);
+          if(exceeds == true || exceeds == false)
+            return "error-outline";
+          else
+            return "";
+        }
+        else
+          return undefined;
       },
 
       computeX: function(date){
@@ -145,16 +194,13 @@
         }
       },
 
-      computeElevation: function(){
-        if (this.selected)
-          return "4";
-        else {
-          return "2";
-        }
-      },
-
-      computeId: function(exceeds){
-        return exceeds;
+      computeStyle: function(exceeds){
+        if(exceeds == true)
+          return "background: rgb(255, 21, 41);";
+        else if(exceeds == false)
+          return "background: rgb(255, 20, 110);";
+        else
+          return "background: rgb(0, 202, 53);";
       },
 
       scrollHandler: function(e) {
