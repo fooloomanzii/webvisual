@@ -45,9 +45,9 @@ function getExceeds(data, exceedsHandler){
         var elem = null;
         if(limitsArray[j]){
           // unter unterer Grenze => false | über ober Grenze => true | sonst bleibt => null
-          if (data[i].values[j]<limitsArray[j][0])
+          if (data[i].values[j]<limitsArray[j].from)
             elem = false;
-          else if (data[i].values[j]>limitsArray[j][1])
+          else if (data[i].values[j]>limitsArray[j].to)
             elem = true;
         }
         row.push(elem);

@@ -96,8 +96,10 @@ function processData(locals, currentData) {
               key = keys[m];
               group = groups[key];
               element[key] = type[key] || settings.unnamedType[key];
-              if (_.lastIndexOf(group,element[key]) == -1) // all containing keyvalues
+              if (typeof element[key] == "Object" && _.findLastIndex(group,element[key]) == -1) // all containing keyvalues
                 group.push(element[key]); // (except exceeds, x, y)
+              else if (_.lastIndexOf(group,element[key]) == -1)
+                group.push(element[key]);
             }
             element.values = [];
             if (element.id == settings.unnamedType.id)

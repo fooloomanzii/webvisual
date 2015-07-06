@@ -20,7 +20,7 @@
 
   <template is="dom-bind" id="autobind-template">
 
-  <data-socket-repeater id="datasocket" do-append last-data="{{data}}" max-total-lines="{{max-lines}}" groups="{{groups}}"></data-socket-repeater>
+  <data-socket-repeater id="datasocket" do-append data="{{data}}" max-total-lines="{{max-lines}}" groups="{{groups}}" grouped-data="{{groupedData}}"></data-socket-repeater>
 
   <paper-drawer-panel force-narrow="true">
 
@@ -142,7 +142,7 @@
         <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab>
 
         <!-- Page -->
-        <sign-page class="element-page" data="[[data]]" groups="{{groups}}"><sign-page>
+        <sign-page class="element-page" data="{{data}}" grouped-data="{{groupedData}}" groups="{{groups}}"><sign-page>
 
       </section>
 
@@ -260,13 +260,19 @@
       if (dialog) {
         dialog.open();
       }
-    }
+    };
     template.openOption = function(e){
       var page = document.querySelector('.element-page');
       if (page) {
         page.openOption();
       }
-    }
+    };
+    // template.grouping = function(e) {
+    //   var page = document.querySelector('.element-page');
+    //   if (page) {
+    //     page.selectGroup();
+    //   }
+    // }
   });
 
 

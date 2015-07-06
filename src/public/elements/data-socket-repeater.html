@@ -11,7 +11,7 @@
             value: "/data",
             notify: true
           },
-          lastData: {
+          data: {
             type: Array,
             value: function() { return []; },
             notify: true
@@ -45,6 +45,11 @@
             type: Object,
             value: function() { return {}; },
             notify: true
+          },
+          groupedData: {
+            type: Object,
+            value: function() { return {}; },
+            notify: true
           }
       },
 
@@ -61,19 +66,21 @@
           // for Polymer (to notice Array change) special treatment of integrating data
           for (var i in message.content) {
             val = message.content[i];
-            self.push("lastData",{});
+            self.push("data",{});
             for (var key in val) {
               if(key != "values")
-                self.set("lastData."+i+"."+key, val[key]);
+                self.set("data."+i+"."+key, val[key]);
             }
-            self.set("lastData."+i+".values", []);
+            self.set("data."+i+".values", []);
             k = 0;
             if (message.content[i].values.length > self.maxTotalLines)
               k = message.content[i].values.length - self.maxTotalLines;
             for (var j=k; j < message.content[i].values.length; j++) {
-              self.unshift("lastData."+i+".values",message.content[i].values[j]);
+              self.unshift("data."+i+".values",message.content[i].values[j]);
             }
           }
+          self.grouping();
+          self.fire("dataloaded");
         });
 
         // Receive another Data
@@ -84,29 +91,29 @@
 
           var k = 0;
           if (self.doAppend){
-              for (var i=0; i < self.lastData.length; i++) {
-                while (message.content[i].values.length + self.lastData[i].values.length > self.maxTotalLines && self.lastData[i].values.length > 0)
-                  self.pop("lastData."+i+".values");
+              for (var i=0; i < self.data.length; i++) {
+                while (message.content[i].values.length + self.data[i].values.length > self.maxTotalLines && self.data[i].values.length > 0)
+                  self.pop("data."+i+".values");
                 k = 0;
                 if (message.content[i].values.length > self.maxTotalLines)
                   k = message.content[i].values.length - self.maxTotalLines;
                 for (var j=k; j < message.content[i].values.length; j++) {
-                  self.unshift("lastData."+i+".values",message.content[i].values[j]);
+                  self.unshift("data."+i+".values",message.content[i].values[j]);
                 }
-                self.set("lastData."+i+".lastExceeds",message.content[i].lastExceeds);
+                self.set("data."+i+".lastExceeds",message.content[i].lastExceeds);
               }
           }
           else {
-            for (var i=0; i < self.lastData.length; i++) {
-              while (self.lastData[i].values.length > 0)
-                self.pop("lastData."+i+".values");
+            for (var i=0; i < self.data.length; i++) {
+              while (self.data[i].values.length > 0)
+                self.pop("data."+i+".values");
               var k = 0;
               if (message.content[i].values.length > self.maxTotalLines)
                 k = message.content[i].values.length - self.maxTotalLines;
               for (var j=k; j < message.content[i].values.length; j++) {
-                self.unshift("lastData."+i+".values",message.content[i].values[j]);
+                self.unshift("data."+i+".values",message.content[i].values[j]);
               }
-              self.set("lastData."+i+".lastExceeds",message.content[i].lastExceeds);
+              self.set("data."+i+".lastExceeds",message.content[i].lastExceeds);
             }
           }
         });
@@ -119,11 +126,27 @@
 
       },
 
+      grouping: function(changePath){ // Referencing on group-identities
+        if(this.data.length != 0){
+          var where;
+          for (var key in this.groups) {
+            this.set("groupedData."+key,[]);
+            for (var i=0; i<this.groups[key].length; i++)
+              this.push("groupedData."+key,[]);
+            for (var i=0; i<this.data.length; i++){
+              where = _.lastIndexOf(this.groups[key],this.data[i][key]);
+              if (where != -1)
+                this.push("groupedData."+key+"."+where,this.data[i]);
+            }
+          }
+        }
+      },
+
       maxTotalLinesChanged: function(newValue, oldValue) {
-        if (this.lastData && newValue < oldValue && newValue>0)
-          for (var i=0; i < this.lastData.length; i++) {
-            while (this.lastData[i].data.length > newValue)
-              this.shift("lastData."+i+".values");
+        if (this.data && newValue < oldValue && newValue>0)
+          for (var i=0; i < this.data.length; i++) {
+            while (this.data[i].data.length > newValue)
+              this.shift("data."+i+".values");
           }
       }
     });

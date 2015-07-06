@@ -1,0 +1,54 @@
+<link rel="import" href="../components/paper-styles/paper-styles-classes.html">
+<link rel="import" href="../components/polymer/polymer.html">
+
+<dom-module id="post-card">
+  <style>
+    :host {
+      background: white;
+      max-width: 45vw;
+      border-radius: 5px;
+    }
+    paper-button {
+      min-height: 3em;
+      width: 100%;
+      margin: 0em;
+      padding: 0.2em;
+      background: #669DB4;
+      color: #f1f1f1;
+
+    }
+  </style>
+  <template>
+
+    <section id="outer">
+      <paper-button id="head" class="top" on-tap="toggleCollapse">{{headline}}</paper-button>
+      <section id="cardMain" class="content">
+          <iron-collapse id="cardCollapse" opened duration="1">
+              <div id="cardContent" class="horizontal layout wrap">
+                <content></content>
+              </div>
+          <iron-collapse>
+      </section>
+    </section>
+
+  </template>
+
+  <script>
+
+  Polymer({
+    is: 'post-card',
+
+    properties: {
+      headline: {
+        type: String,
+        value:"group"
+      }
+    },
+
+    toggleCollapse: function() {
+      this.$.cardCollapse.toggle();
+    },
+
+  });
+  </script>
+</dom-module>

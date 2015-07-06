@@ -41,18 +41,20 @@
   <template>
       <div id="content" class="horizontal layout wrap">
 
-        <template id="outerTemplate" is="dom-repeat" items="{{groups.roomNr}}" as="groupedItem">
-          <div class="outer" elevation="3" class="horizontal layout wrap">
+        <template id="outerTemplate" is="dom-repeat" items="[[groups.roomNr]]" as="groupedItem">
+          <post-card class="outer shadow-elevation-3dp" headline="{{groupedItem}}">
 
-            <template id="innerTemplate" is="dom-repeat" items="{{data}}" as="element">
+            <template id="innerTemplate" is="dom-repeat" items="{{data}}" as="element" restamp>
+              <template is="dom-if" if="[[group(element,groupedItem)]]" restamp>
               <paper-material class="inner" elevation="1" class="vertical layout center">
-                <template is="dom-if" if="{{group(element,groupedItem)}}">
+
                   <sign-element element="{{element}}"></sign-element>
                   <sign-caption element="{{element}}"></sign-caption>
-                </template>
+
               </paper-material>
+              </template>
             </template>
-          </div>
+          </post-card>
         </template>
       </div>
 
@@ -80,9 +82,14 @@
             value: function() { return []; },
             notify: true
           },
+          groupedData: {
+            type: Object,
+            value: function() { return {}; },
+            notify: true
+          },
           groups: {
-            type: Array,
-            value: function() { return []; }
+            type: Object,
+            value: function() { return {}; }
           },
           groupedBy: {
             type: String,
@@ -113,8 +120,9 @@
         else
           return false;
       },
+
       // observers: [
-      //     'datacheck(data.*)'
+      //     'grouping(data.splices)'
       //   ],
 
       listeners: {
