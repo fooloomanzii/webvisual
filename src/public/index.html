@@ -20,7 +20,7 @@
 
   <template is="dom-bind" id="autobind-template">
 
-  <data-socket-repeater id="datasocket" do-append data="{{data}}" max-total-lines="{{max-lines}}" groups="{{groups}}" grouped-data="{{groupedData}}"></data-socket-repeater>
+  <data-socket-repeater id="datasocket" do-append data="{{data}}" max-total-lines="{{maxLines}}" interval="{{interval}}" groups="{{groups}}" grouped-data="{{groupedData}}" on-dataloaded="grouping"></data-socket-repeater>
 
   <paper-drawer-panel force-narrow="true">
 
@@ -75,7 +75,12 @@
 
               <paper-item>
                 <iron-icon icon="editor:format-line-spacing"></iron-icon>
-                <number-input id="maxLineInput" default="10" value="{{max-lines}}"></number-input>
+                <number-input id="maxLineInput" default="10" label="Messpunkte" value="{{maxLines}}"></number-input>
+              </paper-item>
+
+              <paper-item>
+                <iron-icon icon="image:timelapse"></iron-icon>
+                <number-input id="maxLineInput" default="5" label="Aktualisierungsrate (s)" value="{{interval}}" min-value="0"></number-input>
               </paper-item>
 
             </section>
@@ -142,7 +147,7 @@
         <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab>
 
         <!-- Page -->
-        <sign-page class="element-page" data="{{data}}" grouped-data="{{groupedData}}" groups="{{groups}}"><sign-page>
+        <sign-page class="element-page" data="{{data}}" groups="{{groups}}"><sign-page>
 
       </section>
 
@@ -267,12 +272,12 @@
         page.openOption();
       }
     };
-    // template.grouping = function(e) {
-    //   var page = document.querySelector('.element-page');
-    //   if (page) {
-    //     page.selectGroup();
-    //   }
-    // }
+    template.grouping = function(e) {
+      var page = document.querySelector('.element-page');
+      if (page) {
+        page.setGroup();
+      }
+    }
   });
 
 

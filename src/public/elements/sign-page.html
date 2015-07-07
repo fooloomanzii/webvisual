@@ -9,7 +9,7 @@
       border-radius: 3px;
     }
     paper-material.dark {
-      background: #646464;
+      background: #a8a8a8;
     }
 
     #content{
@@ -39,19 +39,19 @@
 
   </style>
   <template>
-      <div id="content" class="horizontal layout wrap">
+      <div id="content" class="horizontal layout center wrap">
 
-        <template id="outerTemplate" is="dom-repeat" items="[[groups.roomNr]]" as="groupedItem">
-          <post-card class="outer shadow-elevation-3dp" headline="{{groupedItem}}">
+        <template id="outerTemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem">
+          <post-card class="outer shadow-elevation-4dp" headline="{{groupedItem.value}}">
 
-            <template id="innerTemplate" is="dom-repeat" items="{{data}}" as="element" restamp>
-              <template is="dom-if" if="[[group(element,groupedItem)]]" restamp>
-              <paper-material class="inner" elevation="1" class="vertical layout center">
+            <template id="innerTemplate" is="dom-repeat" items="{{data}}" as="element">
+              <template is="dom-if" if="{{group(element,groupedItem)}}" restamp>
+                <paper-material class="inner" elevation="1" class="vertical layout center">
 
-                  <sign-element element="{{element}}"></sign-element>
-                  <sign-caption element="{{element}}"></sign-caption>
+                    <sign-element element="{{element}}"></sign-element>
+                    <sign-caption element="{{element}}" grouped-by="{{groupedBy}}"></sign-caption>
 
-              </paper-material>
+                </paper-material>
               </template>
             </template>
           </post-card>
@@ -61,7 +61,6 @@
     <!-- Page-Options -->
     <paper-dialog id="optionDialog" entry-animation="slide-to-up-animation" exit-animation="slide-to-down-animation">
       <section class="vertical layout">
-        <dropdown-selector items="[[groups.id]]" label="id" value-for-all="all"></dropdown-selector>
         <dropdown-selector items="[[groups.roomNr]]" label="Raumnummer"></dropdown-selector>
         <dropdown-selector items="[[groups.room]]" label="Raum"></dropdown-selector>
         <dropdown-selector items="[[groups.kind]]" label="Art"></dropdown-selector>
@@ -82,14 +81,15 @@
             value: function() { return []; },
             notify: true
           },
-          groupedData: {
+          groups: {
             type: Object,
             value: function() { return {}; },
             notify: true
           },
-          groups: {
-            type: Object,
-            value: function() { return {}; }
+          selectedGroup: {
+            type: Array,
+            value: function() { return []; },
+            notify: true
           },
           groupedBy: {
             type: String,
@@ -107,14 +107,18 @@
           }
       },
 
-      group: function(item,groupId){
-        if (item[this.groupedBy] == groupId)
+      group: function(item,group){
+        if (item[this.groupedBy] == group.value)
           return true;
         else
           return false;
       },
 
-      sort: function(first,nxet){
+      setGroup: function(){
+        this.set("selectedGroup",this.groups[this.groupedBy]);
+      },
+
+      sort: function(first,next){
         if (first[this.groupedBy] > next[this.groupedBy])
           return true;
         else

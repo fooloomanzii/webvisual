@@ -46,9 +46,12 @@
             value: function() { return {}; },
             notify: true
           },
-          groupedData: {
-            type: Object,
-            value: function() { return {}; },
+          keys: {
+            type: Array,
+            value: function() { return ["kind","method","room","roomNr"]; }
+          },
+          interval: {
+            type: Number,
             notify: true
           }
       },
@@ -60,8 +63,9 @@
         dataSocket.on('first', function(message) {
           if(message === undefined || message.content === undefined) return; // Check the Existence
 
-          self.set("lastMessage", message.time);
-          self.set("groups", message.groups);
+          self.set("lastMessage", new Date(message.time));
+          self.grouping(message.content);
+
           var k, val;
           // for Polymer (to notice Array change) special treatment of integrating data
           for (var i in message.content) {
@@ -79,7 +83,7 @@
               self.unshift("data."+i+".values",message.content[i].values[j]);
             }
           }
-          self.grouping();
+
           self.fire("dataloaded");
         });
 
@@ -87,14 +91,30 @@
         dataSocket.on('data', function(message) {
           if(message === undefined || message.content === undefined) return; // Check for Existence
 
-          self.set("lastMessage", message.time);
+          var time = new Date(message.time);
 
-          var k = 0;
-          if (self.doAppend){
+          if (time - self.lastMessage >= self.interval*1000){
+            self.set("lastMessage", time);
+
+            var k = 0;
+            if (self.doAppend){
+                for (var i=0; i < self.data.length; i++) {
+                  while (message.content[i].values.length + self.data[i].values.length > self.maxTotalLines && self.data[i].values.length > 0)
+                    self.pop("data."+i+".values");
+                  k = 0;
+                  if (message.content[i].values.length > self.maxTotalLines)
+                    k = message.content[i].values.length - self.maxTotalLines;
+                  for (var j=k; j < message.content[i].values.length; j++) {
+                    self.unshift("data."+i+".values",message.content[i].values[j]);
+                  }
+                  self.set("data."+i+".lastExceeds",message.content[i].lastExceeds);
+                }
+            }
+            else {
               for (var i=0; i < self.data.length; i++) {
-                while (message.content[i].values.length + self.data[i].values.length > self.maxTotalLines && self.data[i].values.length > 0)
+                while (self.data[i].values.length > 0)
                   self.pop("data."+i+".values");
-                k = 0;
+                var k = 0;
                 if (message.content[i].values.length > self.maxTotalLines)
                   k = message.content[i].values.length - self.maxTotalLines;
                 for (var j=k; j < message.content[i].values.length; j++) {
@@ -102,18 +122,6 @@
                 }
                 self.set("data."+i+".lastExceeds",message.content[i].lastExceeds);
               }
-          }
-          else {
-            for (var i=0; i < self.data.length; i++) {
-              while (self.data[i].values.length > 0)
-                self.pop("data."+i+".values");
-              var k = 0;
-              if (message.content[i].values.length > self.maxTotalLines)
-                k = message.content[i].values.length - self.maxTotalLines;
-              for (var j=k; j < message.content[i].values.length; j++) {
-                self.unshift("data."+i+".values",message.content[i].values[j]);
-              }
-              self.set("data."+i+".lastExceeds",message.content[i].lastExceeds);
             }
           }
         });
@@ -126,17 +134,25 @@
 
       },
 
-      grouping: function(changePath){ // Referencing on group-identities
-        if(this.data.length != 0){
-          var where;
-          for (var key in this.groups) {
-            this.set("groupedData."+key,[]);
-            for (var i=0; i<this.groups[key].length; i++)
-              this.push("groupedData."+key,[]);
-            for (var i=0; i<this.data.length; i++){
-              where = _.lastIndexOf(this.groups[key],this.data[i][key]);
-              if (where != -1)
-                this.push("groupedData."+key+"."+where,this.data[i]);
+      grouping: function(content){ // Referencing on group-identities
+        if(content){
+          var where, innerkey, amount;
+          for (var i in content){
+            for (var j=0; j<this.keys.length; j++){
+              innerkey = this.keys[j];
+              if (!this.groups[innerkey])
+                this.set("groups."+innerkey,[]);
+              where = _.findIndex(this.groups[innerkey],{"value": content[i][innerkey]});
+              if (where == -1){
+                this.push("groups."+innerkey,{});
+                amount = this.groups[innerkey].length-1;
+                this.set("groups."+innerkey+"."+amount+".value",content[i][innerkey]);
+                this.set("groups."+innerkey+"."+amount+".count",1);
+                }
+              else {
+                amount = this.get("groups."+innerkey+"."+where+".count");
+                this.set("groups."+innerkey+"."+where+".count",amount++);
+              }
             }
           }
         }

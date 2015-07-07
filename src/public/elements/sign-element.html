@@ -21,7 +21,8 @@
     display: flex;
     flex-direction: column;
     border-radius: inherit;
-    width: 100%;
+    min-height: 5em;
+    min-width: 7em;
   }
   .main.dark{
     color: #d3d3d3;
@@ -139,6 +140,10 @@
             type: Boolean,
             notify: true,
             reflectToAttribute: true
+          },
+          keys: {
+            type: Array,
+            value: function() { return ["kind","method","room","roomNr"]; }
           }
       },
 

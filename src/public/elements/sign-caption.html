@@ -4,40 +4,35 @@
     position: relative;
     color: #1d1d1d;
     overlay: hidden;
-    display: flex;
     outline: none;
     font-family: 'Roboto';
     font-style: normal;
-    line-height: 1;
+    line-height: 1.5;
   }
 
-  .main {
+  #mainContent {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    border-radius: inherit;
-    padding: 0.3em 0.75em;
+    padding: 0.3em 0.6em;
     width: 100%;
-    text-align: start;
     font-size: 1em;
+    min-height: 3em;
   }
   .caption {
-    padding: 0.2em 0em;
   }
   #kind {
     font-weight: bold;
-    font-size: 0.9em;
+    font-size: 1em;
   }
   #roomNr, #method {
-    font-size: 0.7em;
+    font-size: 0.75em;
   }
   #room {
-    font-size: 0.8em;
+    font-size: 0.9em;
   }
   </style>
 
   <template>
-    <section class="main">
+    <section id="mainContent" class="vertical layout center-justified">
       <template is="dom-repeat" items="{{keys}}" as="key" filter="group">
         <span class="caption" id="{{key}}">{{getCaption(key)}}</span>
       </template>

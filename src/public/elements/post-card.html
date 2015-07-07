@@ -4,18 +4,42 @@
 <dom-module id="post-card">
   <style>
     :host {
-      background: white;
-      max-width: 45vw;
       border-radius: 5px;
     }
     paper-button {
       min-height: 3em;
       width: 100%;
       margin: 0em;
-      padding: 0.2em;
+      padding: 0.2em 0.4em;
       background: #669DB4;
       color: #f1f1f1;
+    }
 
+    paper-button.dark {
+      background: #345475;
+      color: #A8CCDB;
+    }
+    #outer {
+      background: #f1f1f1;
+      border-radius: inherit;
+    }
+    #outer.dark {
+      background: #8A8A8A;
+    }
+    @media all and (min-width: 750px) and (max-width: 1280px) and (orientation: portrait) {
+      :host {
+        max-width: 45vw;
+      }
+    }
+    @media all and (min-width: 600px) and (max-width: 1280px) and (orientation: landscape) {
+      :host {
+        max-width: 45vw;
+      }
+    }
+    @media all and (min-width: 1280px) {
+      :host {
+        max-width: 30vw;
+      }
     }
   </style>
   <template>
@@ -24,7 +48,7 @@
       <paper-button id="head" class="top" on-tap="toggleCollapse">{{headline}}</paper-button>
       <section id="cardMain" class="content">
           <iron-collapse id="cardCollapse" opened duration="1">
-              <div id="cardContent" class="horizontal layout wrap">
+              <div id="cardContent" class="horizontal layout center center-justified wrap">
                 <content></content>
               </div>
           <iron-collapse>

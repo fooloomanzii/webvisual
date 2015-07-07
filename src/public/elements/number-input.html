@@ -1,6 +1,8 @@
 <dom-module id="number-input">
   <template>
-    <paper-input label="Anzahl an Messpunkten" auto-validate maxlength="{{maxLength}}" pattern="[0-9]*" error-message="nur Zahlen" value="{{input}}"></paper-input>
+    <paper-input label="{{label}}" auto-validate maxlength="{{maxLength}}" pattern="[0-9]*" error-message="nur Zahlen" value="{{input}}"><paper-input-container id="" attr-for-value="input">
+      <input is="iron-input"><span>Input label</span>
+    </paper-input-container></paper-input>
   </template>
   <script>
     Polymer({
@@ -19,9 +21,19 @@
           value: 5000,
           notify: true
         },
+        minValue: {
+          type: Number,
+          value: 1,
+          notify: true
+        },
         maxLength: {
           type: String,
           computed: "maxLengthChanged(maxValue)"
+        },
+        label: {
+          type: String,
+          value: "",
+          notify: true
         },
         default: {
           value: 10,
@@ -40,7 +52,7 @@
       inputChanged: function(event){
         if (event.keyCode == 13){
           newValue = parseInt(this.input);
-          if (newValue != NaN && newValue <= this.maxValue && newValue > 0){
+          if (newValue != NaN && newValue <= this.maxValue && newValue >= this.minValue){
             this.value = newValue;
           }
           this.input = this.value;
