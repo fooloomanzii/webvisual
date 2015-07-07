@@ -11,7 +11,7 @@
   ],
   "dependencies": {
     "jquery": "*",
-    "polymer": "Polymer/polymer#1.0.4",
+    "polymer": "Polymer/polymer",
     "paper-elements": "PolymerElements/paper-elements",
     "iron-elements": "PolymerElements/iron-elements",
     "poly-nvd3": "~1.2.1"
