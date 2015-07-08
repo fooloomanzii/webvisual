@@ -1,52 +1,94 @@
+<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../components/paper-input/paper-input-behavior.html">
+<link rel="import" href="../components/paper-input/paper-input-error.html">
+<link rel="import" href="addons/number-input-unit.html">
+<link rel="import" href="addons/number-validate.html">
+
 <dom-module id="number-input">
+
+  <style>
+
+    :host {
+      display: inline-block;
+      font: inherit;
+      outline: none;
+      box-shadow: none;
+      border: none;
+      width: 100%;
+      text-align: center;
+    }
+
+    paper-input-container {
+      width: auto;
+    }
+
+  </style>
+
   <template>
-    <paper-input label="{{label}}" auto-validate maxlength="{{maxLength}}" pattern="[0-9]*" error-message="nur Zahlen" value="{{input}}"><paper-input-container id="" attr-for-value="input">
-      <input is="iron-input"><span>Input label</span>
-    </paper-input-container></paper-input>
+    <number-validate minvalue="[[minvalue]]" maxvalue="[[maxvalue]]"></number-validate>
+    <paper-input-container always-float-label auto-validate invalid="[[invalid]]">
+      <label>[[label]]</label>
+      <input is="iron-input"
+        bind-value="{{value}}"
+        invalid="{{invalid}}"
+        type="number"
+        inputmode="number"
+        prevent-invalid-input
+        minlength="1"
+        maxlength="[[maxlength]]"
+        validator="number-validate">
+      <paper-input-error>[[errorMessage]]</paper-input-error>
+      <number-input-unit unit="[[unit]]"></number-input-unit>
+    </paper-input-container>
   </template>
+
   <script>
     Polymer({
+
       is: 'number-input',
 
+      behaviors: [
+        Polymer.PaperInputBehavior
+      ],
+
       properties: {
-        input: {
-          type: Number,
-        },
         value: {
           type: Number,
+          value: this.default,
           notify: true
         },
-        maxValue: {
+        maxvalue: {
           type: Number,
           value: 5000,
           notify: true
         },
-        minValue: {
+        minvalue: {
           type: Number,
           value: 1,
           notify: true
         },
-        maxLength: {
-          type: String,
+        maxlength: {
+          type: Number,
           computed: "maxLengthChanged(maxValue)"
         },
-        label: {
+        errorMessage: {
           type: String,
-          value: "",
+          value: "Nur Zahlen sind erlaubt!",
           notify: true
         },
         default: {
-          value: 10,
+          type: Number,
+          value: 10
+        },
+        unit: {
+          type: String,
+          value: "",
           notify: true
         }
       },
 
-      listeners: {
-        'keydown': 'inputChanged'
-      },
-
       ready: function(){
-        this.input = this.value = this.default;
+        this.value = this.default;
       },
 
       inputChanged: function(event){
@@ -56,6 +98,7 @@
             this.value = newValue;
           }
           this.input = this.value;
+          this.fire("input-changed");
         }
       },
 

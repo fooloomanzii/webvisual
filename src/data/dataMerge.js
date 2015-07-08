@@ -22,7 +22,6 @@
       dateFormat   = require('dateFormat'),
       settings   = {},
       keys       = [],
-      groups     = {},
       lastExceedsArray = [];
 
 function processData(locals, currentData) {
@@ -54,8 +53,6 @@ function processData(locals, currentData) {
 
     if(keys.length == 0){
       keys =  _.keys(settings.unnamedType);
-      for (var i = 0; i < keys.length; i++)
-        groups[keys[i]] = [];
     }
   }
 
@@ -83,7 +80,7 @@ function processData(locals, currentData) {
       }
     }
     // Join Data to the Object, which is used by the website
-    var element, key, type, group;
+    var element, key, type;
     for (var i=0; i<dateArray.length; i++) {
       var k = 0;
       for (var j=0; j<valuesArray[i].length; j++) {
@@ -94,12 +91,7 @@ function processData(locals, currentData) {
             type = settings.types[j] || [];
             for (var m=0; m<keys.length; m++){
               key = keys[m];
-              group = groups[key];
               element[key] = type[key] || settings.unnamedType[key];
-              if (typeof element[key] == "Object" && _.findLastIndex(group,element[key]) == -1) // all containing keyvalues
-                group.push(element[key]); // (except exceeds, x, y)
-              else if (_.lastIndexOf(group,element[key]) == -1)
-                group.push(element[key]);
             }
             element.values = [];
             if (element.id == settings.unnamedType.id)
@@ -125,7 +117,7 @@ function processData(locals, currentData) {
 
       // Creation of an Return Object
       // TODO: socket for each messurement-device possible?
-    returnObject = {time: currentData.time, content: processedData, groups: groups};
+    returnObject = {time: currentData.time, content: processedData};
   }
 
   return returnObject;

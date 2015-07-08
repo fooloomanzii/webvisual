@@ -39,10 +39,10 @@
 
   </style>
   <template>
-      <div id="content" class="horizontal layout center wrap">
+      <div id="content" class="horizontal layout start wrap">
 
-        <template id="outerTemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem">
-          <post-card class="outer shadow-elevation-4dp" headline="{{groupedItem.value}}">
+        <template id="outerTemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup">
+          <post-card class="outer shadow-elevation-4dp" headline="{{groupedItem.group}}">
 
             <template id="innerTemplate" is="dom-repeat" items="{{data}}" as="element">
               <template is="dom-if" if="{{group(element,groupedItem)}}" restamp>
@@ -108,7 +108,7 @@
       },
 
       group: function(item,group){
-        if (item[this.groupedBy] == group.value)
+        if (group.ids.indexOf(item.id) != -1)
           return true;
         else
           return false;
@@ -118,8 +118,8 @@
         this.set("selectedGroup",this.groups[this.groupedBy]);
       },
 
-      sort: function(first,next){
-        if (first[this.groupedBy] > next[this.groupedBy])
+      sortGroup: function(first,next){
+        if (first.ids.length > next.ids.length)
           return true;
         else
           return false;

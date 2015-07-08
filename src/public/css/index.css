@@ -28,8 +28,33 @@ paper-button.sidemenu {
   padding: 0.7em 0.4em;
 }
 
+paper-button .content{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: row;
+}
+
 logo-element {
   margin-left: 0.62em;
+}
+
+paper-button iron-icon.right-icon{
+  height: 1em;
+  width: 1em;
+  transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+paper-button iron-icon.right-icon:hover{
+  padding:0.25em;
+  margin-right:0.32em;
+  border-radius: 50%;
+  background: rgba(255,255,255, 0.75);
+}
+
+paper-item.date {
+  font-family: Roboto-Condensed-Light;
+  font-size: 0.7em;
 }
 
 /* SIDEMENU & SUBMENU */

@@ -215,23 +215,13 @@ var currentData = {},
             // Store the current message time
             currentData.time=new Date();
 
-            var sendEvent = 'data';
-
-            // Set the first event and add the state, if it is the first parsing
-            if(waitFirst) {
-              sendEvent = 'first';
-              waitFirst = false;
-            }
-
             // Check for threshold exceeds and save it
             currentData.exceeds = threshold.getExceeds(data);
             // Save the current data
             currentData.data = data;
-            // set the Length of Lines send
-            currentData.lineCount = data.length;
             // Process data to certain format
             currentData = dataMerge.processData(config.locals,currentData);
-
+            // TODO: fix mailhelper message
             // Send Mail, if exceeding
             // if(currentData.lastExceeds.length != 0) {
             //   console.warn("Warning: values are in critical level!");
@@ -261,8 +251,19 @@ var currentData = {},
             //   });
             // }
 
-            // ... finally send the data
-            dataSocket.emit(sendEvent, currentData);
+            // Set the first event and add the state, if it is the first parsing and send the data
+            if(waitFirst) {
+              currentData.language = config.locals.language;
+              currentData.groupingKeys = config.locals.groupingKeys;
+              currentData.exclusiveGroups = config.locals.exclusiveGroups;
+              console.log("first"+currentData.exclusiveGroups);
+              dataSocket.emit("first", currentData);
+              console.log("after"+currentData.exclusiveGroups);
+              waitFirst = false;
+            }
+            else {
+              dataSocket.emit("data", currentData);
+            }
           }
         ]
       }

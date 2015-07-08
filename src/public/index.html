@@ -1,7 +1,7 @@
 <head>
   <title>webvisual</title>
   <!-- Meta-Tag: Set the viewport-->
-  <meta name="viewport" charset="utf-8" content="width=device-width, initial-scale=1, user-scalable=yes"/>
+  <meta name="viewport" charset="utf-8" content="width=device-width, initial-scale=1, user-scalable=yes, minimum-scale=0.3"/>
 
   <!-- Web-Components -->
   <script src="components/webcomponentsjs/webcomponents.min.js"></script>
@@ -20,7 +20,18 @@
 
   <template is="dom-bind" id="autobind-template">
 
-  <data-socket-repeater id="datasocket" do-append data="{{data}}" max-total-lines="{{maxLines}}" interval="{{interval}}" groups="{{groups}}" grouped-data="{{groupedData}}" on-dataloaded="grouping"></data-socket-repeater>
+  <data-socket-repeater id="datasocket"
+    do-append
+    data="{{data}}"
+    max-total-lines="{{maxLines}}"
+    interval="{{interval}}"
+    groups="{{groups}}"
+    grouped-data="{{groupedData}}"
+    on-dataloaded="grouping"
+    last-message="{{lastMessage}}"
+    last-mistake="{{lastMistake}}"
+    last-error="{{lastError}}">
+  </data-socket-repeater>
 
   <paper-drawer-panel force-narrow="true">
 
@@ -31,7 +42,9 @@
 
         <!-- Page Routing -->
         <paper-button collapse-id="pageview" class="sidemenu collapsable" on-tap="toggleCollapse">
-          <iron-icon icon="pageview"></iron-icon>Anzeige
+          <iron-icon icon="pageview"></iron-icon>
+          <span class="flex">Anzeige</span>
+          <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="pageview"></iron-icon>
         </paper-button>
 
           <iron-collapse class="sidemenu collapse pageview">
@@ -49,13 +62,17 @@
         <!-- Main Settings -->
 
         <paper-button collapse-id="settings" class="sidemenu collapsable" on-tap="toggleCollapse">
-          <iron-icon icon="settings"></iron-icon>Einstellungen
+          <iron-icon icon="settings"></iron-icon>
+          <span class="flex">Einstellungen</span>
+          <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="settings"></iron-icon>
         </paper-button>
 
           <iron-collapse class="sidemenu collapse settings">
             <section class="collapse-content">
-              <paper-button disabled collapse-id="language" class="sidemenu" on-tap="toggleCollapse">
-                <iron-icon icon="language"></iron-icon>Sprachauswahl
+              <paper-button collapse-id="language" class="sidemenu" on-tap="toggleCollapse">
+                <iron-icon icon="language"></iron-icon>
+                <span class="flex">Sprachauswahl</span>
+                <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="language"></iron-icon>
               </paper-button>
                 <iron-collapse class="sidemenu collapse language">
                   <paper-tabs id="language" selected="1">
@@ -75,12 +92,12 @@
 
               <paper-item>
                 <iron-icon icon="editor:format-line-spacing"></iron-icon>
-                <number-input id="maxLineInput" default="10" label="Messpunkte" value="{{maxLines}}"></number-input>
+                <number-input id="maxLineInput" default="10" label="Anzahl an Messpunkten" value="{{maxLines}}" minvalue="1"></number-input>
               </paper-item>
 
               <paper-item>
                 <iron-icon icon="image:timelapse"></iron-icon>
-                <number-input id="maxLineInput" default="5" label="Aktualisierungsrate (s)" value="{{interval}}" min-value="0"></number-input>
+                <number-input id="maxLineInput" default="5" label="Aktualisierungsrate auf dem Display" value="{{interval}}" minvalue="0" unit="Sekunden"></number-input>
               </paper-item>
 
             </section>
@@ -91,20 +108,41 @@
         <!-- Log-File -->
 
         <paper-button dialog-id="log" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
-          <iron-icon icon="history"></iron-icon>Log
+          <iron-icon icon="history"></iron-icon>
+          <span class="flex">Log</span>
+          <iron-icon icon="open-in-new" class="right-icon"></iron-icon>
         </paper-button>
 
         <!-- Informations -->
 
         <paper-button collapse-id="information" class="sidemenu collapsable" on-tap="toggleCollapse">
-          <iron-icon icon="description"></iron-icon>Informationen
+          <iron-icon icon="description"></iron-icon>
+          <span class="flex">Informationen</span>
+          <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="information"></iron-icon>
         </paper-button>
 
           <iron-collapse class="sidemenu collapse information">
             <section class="collapse-content">
               <paper-button dialog-id="data" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
-                <iron-icon icon="receipt"></iron-icon>Data-File
+                <iron-icon icon="receipt"></iron-icon>
+                <span class="flex">Daten</span>
+                <iron-icon icon="open-in-new" class="right-icon"></iron-icon>
               </paper-button>
+              <paper-item class="date">
+                <iron-icon icon="swap-vert"></iron-icon>
+                <span class="flex">letzte Nachricht</span>
+                <span class="flex italic">{{computeDate(lastMessage)}}</span>
+              </paper-item>
+              <paper-item class="date">
+                <iron-icon icon="remove-circle-outline"></iron-icon>
+                <span class="flex">letzte Fehlverbindung</span>
+                <span class="flex italic">{{computeDate(lastError)}}</span>
+              </paper-item>
+              <paper-item class="date">
+                <iron-icon icon="warning"></iron-icon>
+                <span class="flex">letzte fehlerhafte Nachricht</span>
+                <span class="flex italic">{{computeDate(lastMistake)}}</span>
+              </paper-item>
             </section>
           </iron-collapse>
       </iron-selector>
@@ -192,7 +230,7 @@
 
 <script>
 
-  window.addEventListener('WebComponentsReady', function(e) {
+  // window.addEventListener('WebComponentsReady', function(e) {
     var template = document.querySelector('#autobind-template');
     var mainContainer = document.querySelector('div#mainContainer');
     var colorschema = "light";
@@ -246,8 +284,16 @@
       }
       var id = button.getAttribute('collapse-id');
       var collapse = document.querySelector('iron-collapse.'+id);
+      var iconbutton = document.querySelector('iron-icon.collapse-arrow#'+id);
       if (collapse) {
         collapse.toggle();
+        if (iconbutton) {
+          if (iconbutton.getAttribute('icon') == 'arrow-drop-down')
+            iconbutton.setAttribute('icon','arrow-drop-up');
+          else
+            iconbutton.setAttribute('icon','arrow-drop-down');
+        }
+
       }
     };
     template.openDialog = function(e){
@@ -277,10 +323,12 @@
       if (page) {
         page.setGroup();
       }
+    };
+    template.computeDate = function(date){
+      if(date)
+        return $.format.toBrowserTimeZone(date,"d.M.yy HH:mm:ss");
+      else
+        return undefined;
     }
-  });
-
-
-
-
+  // });
 </script>

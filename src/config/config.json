@@ -34,10 +34,10 @@
 
   "locals":{
 
-    "ignore": [0,8,16,17,21,22,27,32],
+    "ignore": [8,16,17,21,22,27,32],
 
     "types": [
-      {"id":"Binary", "roomNr":"0000", "room":"test", "kind":"Test", "method":"Temperatur", "isBoolean": false, "threshold": {"from":0,"to":100}, "unit":"°Test"},
+      {"id":"Binary", "roomNr":"test", "room":"test", "kind":"Test", "method":"Binärzahl", "isBoolean": false, "threshold": {"from":0,"to":100}, "unit":"₂"},
       {"id":"DI0-1", "roomNr":"2032", "room":"Gaslager", "kind":"H₂", "method":"brennbar", "isBoolean": true, "threshold": {"from":0,"to":0}},
       {"id":"DI1-1", "roomNr":"2032", "room":"Gaslager", "kind":"H₂", "method":"brennbar", "isBoolean": true, "threshold": {"from":0,"to":0}},
       {"id":"DI2-1", "roomNr":"3005", "room":"Bypack", "kind":"H₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
@@ -93,6 +93,15 @@
       "unit"     : "",
       "threshold": {"from":null,"to":null},
       "isBoolean": false
+    },
+
+    "groupingKeys" : ["roomNr", "room", "kind", "method"],
+
+    "exclusiveGroups": {
+      "roomNr": [{"group":"Diverse", "ids":["DI6-1","DI0-2","DI1-2","DI7-5"]},
+                 {"group":"Raumalarm", "ids":["DI2-2","DI3-2","DI4-2","DI5-2"]},
+                 {"group":"4006", "ids":["DI3-5","DI4-5","DI5-5","DI6-5"]}
+                ]
     },
 
     "language": {
