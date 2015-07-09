@@ -19,13 +19,23 @@ paper-icon-button {
 paper-button iron-icon {
   margin-right: 0.62em;
 }
-
 paper-item iron-icon {
   margin-right: 0.62em;
 }
-
 paper-button.sidemenu {
   padding: 0.5em;
+}
+
+paper-button iron-icon.right-icon{
+  padding: 0.25em;
+  margin: 0em;
+  height: 1em;
+  width: 1em;
+  border-radius: 50%;
+  transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+}
+paper-button iron-icon.right-icon:hover{
+  background: rgba(255,255,255, 0.75);
 }
 
 paper-button .content{
@@ -37,19 +47,6 @@ paper-button .content{
 
 logo-element {
   margin-left: 0.62em;
-}
-
-paper-button iron-icon.right-icon{
-  height: 1em;
-  width: 1em;
-  transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-paper-button iron-icon.right-icon:hover{
-  padding:0.25em;
-  margin-right:0.35em;
-  border-radius: 50%;
-  background: rgba(255,255,255, 0.75);
 }
 
 paper-item.date {

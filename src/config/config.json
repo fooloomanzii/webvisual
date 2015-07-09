@@ -4,8 +4,8 @@
     "file": {
       "copy": false,
       "mode": "all",
-      "#path_folder": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Datafile/",
-      "path_folder": "",
+      "path_folder": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Datafile/",
+      "#path_folder": "",
       "path": "HNF_Datafile.txt"
       },
     "udp": {
@@ -99,7 +99,7 @@
 
     "exclusiveGroups": {
       "roomNr": [{"group":"Diverse", "ids":["DI6-1","DI0-2","DI1-2","DI7-5"]},
-                 {"group":"Raumalarm", "ids":["DI2-2","DI3-2","DI4-2","DI5-2"]},
+                 {"group":"kombinierter Alarm", "ids":["DI2-2","DI3-2","DI4-2","DI5-2"]},
                  {"group":"4006", "ids":["DI3-5","DI4-5","DI5-5","DI6-5"]}
                 ]
     },

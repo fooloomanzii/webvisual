@@ -13,7 +13,8 @@
       background: #a8a8a8;
     }
 
-    #content{
+    post-card.outer > ::content #cardContent{
+      padding: 0.5em 0em 0em 0.5em;
     }
     .inner {
       margin: 0em 0.55em 0.55em 0em;
@@ -21,14 +22,14 @@
     .outer {
       margin: 0.5em;
     }
+
     paper-dialog#optionDialog {
       border-radius: 5px 5px 0px 0px;
       position: fixed;
       margin: 0em 0em;
       bottom: 0em;
-      left: 1.5em;
       max-height: 38vh;
-      width: calc(100vw - 3em);
+      max-width: calc(100vw - 3em);
     }
 
   </style>
@@ -36,14 +37,14 @@
       <div id="content" class="horizontal layout start wrap">
 
         <template id="outerTemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup">
-          <post-card class="outer shadow-elevation-4dp" headline="{{groupedItem.group}}">
+          <post-card class="outer shadow-elevation-4dp" headline="[[groupedItem.group]]">
 
             <template id="innerTemplate" is="dom-repeat" items="{{data}}" as="element">
-              <template is="dom-if" if="{{group(element,groupedItem)}}" restamp>
+              <template is="dom-if" if="[[group(element,groupedItem)]]" restamp>
                 <paper-material class="inner" elevation="1" class="vertical layout center">
 
-                    <sign-element element="{{element}}"></sign-element>
-                    <sign-caption element="{{element}}"></sign-caption>
+                    <sign-element element="[[element]]"></sign-element>
+                    <sign-caption element="[[element]]"></sign-caption>
 
                 </paper-material>
               </template>
@@ -54,11 +55,14 @@
 
     <!-- Page-Options -->
     <paper-dialog id="optionDialog" entry-animation="slide-to-up-animation" exit-animation="slide-to-down-animation">
-      <section class="vertical layout">
-        <dropdown-selector items="[[groups.roomNr]]" label="Raumnummer"></dropdown-selector>
-        <dropdown-selector items="[[groups.room]]" label="Raum"></dropdown-selector>
-        <dropdown-selector items="[[groups.kind]]" label="Art"></dropdown-selector>
-        <dropdown-selector items="[[groups.method]]" label="Methode"></dropdown-selector>
+      <section class="horizontal layout">
+        <post-card headline="Gruppieren nach">
+          <paper-menu attr-for-selected="id" selected="{{groupedBy}}">
+            <template is="dom-repeat" items="{{keys}}" as="key">
+              <paper-item id="[[key]]">[[key]]</paper-item>
+            </template>
+          </paper-menu>
+        </post-card>
       </section>
     </paper-dialog>
 
@@ -88,7 +92,8 @@
           groupedBy: {
             type: String,
             value: "roomNr",
-            notify: true
+            notify: true,
+            observer: "setGroup"
           },
           isGrouping: {
             type: Boolean,
@@ -109,7 +114,8 @@
       },
 
       setGroup: function(){
-        this.set("selectedGroup",this.groups[this.groupedBy]);
+        if(this.groups && this.groups[this.groupedBy])
+          this.set("selectedGroup",this.groups[this.groupedBy]);
       },
 
       sortGroup: function(first,next){

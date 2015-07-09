@@ -4,6 +4,7 @@
 <dom-module id="post-card">
   <style>
     :host {
+      font-family: Roboto;
       border-radius: 4px 5px 4px 5px;
       cursor: pointer;
       -webkit-user-select: none;
@@ -29,10 +30,6 @@
     paper-button.dark {
       background: #345475;
       color: #A8CCDB;
-    }
-
-    #cardContent{
-      padding: 0.5em 0em 0em 0.5em;
     }
 
     #outer {
@@ -61,7 +58,7 @@
   <template>
 
     <section id="outer">
-      <paper-button id="head" class="top" on-tap="toggleCollapse">{{headline}}</paper-button>
+      <paper-button id="head" class="top" on-tap="toggleCollapse">[[headline]]</paper-button>
       <section id="cardMain" class="content">
           <iron-collapse id="cardCollapse" opened duration="1">
 
@@ -83,13 +80,22 @@
     properties: {
       headline: {
         type: String,
-        value:"group"
+        observer: "calculatePlaceholder"
+      },
+      placeholder: {
+        type: String,
+        value: "Diverse"
       }
     },
 
     toggleCollapse: function() {
       this.$.cardCollapse.toggle();
     },
+
+    calculatePlaceholder: function(){
+      if (this.headline == "")
+        this.headline = this.placeholder;
+    }
 
   });
   </script>
