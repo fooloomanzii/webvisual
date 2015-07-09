@@ -103,14 +103,11 @@
             </section>
           </iron-collapse>
 
-
-
         <!-- Log-File -->
 
         <paper-button dialog-id="log" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
           <iron-icon icon="history"></iron-icon>
           <span class="flex">Log</span>
-          <iron-icon icon="open-in-new" class="right-icon"></iron-icon>
         </paper-button>
 
         <!-- Informations -->
@@ -126,28 +123,26 @@
               <paper-button dialog-id="data" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
                 <iron-icon icon="receipt"></iron-icon>
                 <span class="flex">Daten</span>
-                <iron-icon icon="open-in-new" class="right-icon"></iron-icon>
               </paper-button>
               <paper-item class="date">
                 <iron-icon icon="swap-vert"></iron-icon>
                 <span class="flex">letzte Nachricht</span>
-                <span class="flex italic">{{computeDate(lastMessage)}}</span>
+                <span class="italic">{{computeDate(lastMessage)}}</span>
               </paper-item>
               <paper-item class="date">
                 <iron-icon icon="remove-circle-outline"></iron-icon>
                 <span class="flex">letzte Fehlverbindung</span>
-                <span class="flex italic">{{computeDate(lastError)}}</span>
+                <span class="italic">{{computeDate(lastError)}}</span>
               </paper-item>
               <paper-item class="date">
                 <iron-icon icon="warning"></iron-icon>
                 <span class="flex">letzte fehlerhafte Nachricht</span>
-                <span class="flex italic">{{computeDate(lastMistake)}}</span>
+                <span class="italic">{{computeDate(lastMistake)}}</span>
               </paper-item>
             </section>
           </iron-collapse>
       </iron-selector>
     </paper-header-panel>
-
 
     <!-- MAIN VIEW -->
     <paper-header-panel main id="mainPanel" on-content-scroll="scrollPage">
@@ -177,7 +172,6 @@
         </section>
       </paper-toolbar>
 
-
       <!-- MAIN CONTENT -->
       <section id="main" class="vertical layout center">
 
@@ -191,7 +185,6 @@
 
     </paper-header-panel>
   </paper-drawer-panel>
-
 
   <!-- Dialogs -->
 
@@ -220,7 +213,7 @@
       <div class="buttons">
         <paper-button disabled><iron-icon icon="mail"></iron-icon>Send</paper-button>
         <paper-button disabled><iron-icon icon="print"></iron-icon>Print</paper-button>
-        <paper-button on-tap="document.getElementById('ajaxElement').generateRequest()"><iron-icon icon="refresh"></iron-icon>Reload</paper-button>
+        <paper-button onclick="document.querySelector('iron-ajax').generateRequest()"><iron-icon icon="refresh"></iron-icon>Reload</paper-button>
         <paper-button dialog-confirm><iron-icon icon="check"></iron-icon>OK</paper-button>
       </div>
     </paper-dialog>
@@ -229,13 +222,13 @@
 </body>
 
 <script>
-
+  var template = document.querySelector('#autobind-template');
   // window.addEventListener('WebComponentsReady', function(e) {
-    var template = document.querySelector('#autobind-template');
-    var mainContainer = document.querySelector('div#mainContainer');
     var colorschema = "light";
+    var mainContainer = document.querySelector('div#mainContainer');
+
     template.scrollPage = function() {
-      if (mainContainer.scrollTop + mainContainer.offsetHeight >= mainContainer.scrollHeight) {
+      if (mainContainer && mainContainer.scrollTop + mainContainer.offsetHeight >= mainContainer.scrollHeight) {
         var page = document.querySelector('.element-page');
         page.scrollHandler(); // for each page-element should be a scrollHandler
       }
@@ -260,7 +253,7 @@
         }
         if (e.detail.state == "track"){
           if (startY > startHeight-8 && e.detail.y > (startHeight + e.detail.dy)-8){
-            element.style.height = (startHeight + e.detail.dy) + 'px';
+            element.style.height = (startHeight + e.detail.dy + 3*e.detail.ddy) + 'px';
             element.style.cursor = "n-resize";
             element.className = "";
           }
@@ -329,6 +322,6 @@
         return $.format.toBrowserTimeZone(date,"d.M.yy HH:mm:ss");
       else
         return undefined;
-    }
+    };
   // });
 </script>

@@ -3,9 +3,9 @@
   :host {
     position: relative;
     color: #f1f1f1;;
-    border-radius: 3px;
+    border-radius: 3px 3px 0px 0px;
     overlay: hidden;
-    /*display: flex;*/
+    display: block;
     outline: none;
     cursor: pointer;
     font-family: 'Roboto-Condensed-Light';
@@ -15,7 +15,6 @@
     font-size: 1em;
     line-height: 1;
   }
-
   .main {
     position: relative;
     display: flex;
@@ -30,7 +29,7 @@
   .actualValueSection {
     display: flex;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
-    padding: 0.75em 0.75em 0.25em 0.75em;
+    padding: 1em 1em 0.25em 1em;
     align-items: center;
     -ms-flex: 1;
     -webkit-flex: 1;
@@ -57,16 +56,12 @@
     flex-direction: row;
     justify-content: center;
     align-items: bottom;
-    padding: 0.25em 0.5em 0.5em 0.5em;
+    padding: 0.25em 0.75em 0.5em 0.75em;
     line-height: 1em;
   }
   .exceedsDateSection {
     font-family: Roboto-Condensed-Light-Italic;
-    font-size: 0.8em;
-    animation-name: exceed-animation;
-    animation-duration: 2s;
-    animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite;
+    font-size: 0.75em;
   }
   .exceedsValueSection {
     padding-left: 0.75em;
@@ -91,7 +86,7 @@
   }
   </style>
   <template>
-    <section class="main" style$="{{computeStyle(element.lastExceeds.exceeds)}}">
+    <section class="main" style$="{{firstStyle(element.values.*)}}">
       <paper-ripple id="ripple" class="fill" fit initialOpaciy="0.10"></paper-ripple>
 
       <section class="actualValueSection">
@@ -104,10 +99,10 @@
       </section>
 
       <section class="lowerSection">
-        <template is="dom-if" if="[[element.lastExceeds]]" restamp>
+        <template is="dom-if" if="[[showExceeds]]" restamp>
           <span class="exceedsDateSection">[[computeX(element.lastExceeds.x)]]</span><span class="exceedsValueSection">[[computeY(element.lastExceeds.y,element.lastExceeds.exceeds)]]<span> </span><span>[[element.unit]]</span></span>
         </template>
-        <template is="dom-if" if="[[!element.lastExceeds]]" restamp>
+        <template is="dom-if" if="[[!showExceeds]]" restamp>
           <span class="dateSection">[[firstX(element.values.*)]]</span><span class="placeHolderSection"></span>
         </template>
       </section>
@@ -124,36 +119,24 @@
             type: Object,
             value: function() { return {"values":[]}; }
           },
-          language: {
-            type: Object,
-            value: function() { return {'x':'Datum','y':'Wert'}; }
-          },
           timeFormat: {
             type: String,
             value: "HH:mm:ss"
           },
-          selected: {
-            type: Boolean,
-            value: false
-          },
           showExceeds: {
             type: Boolean,
-            notify: true,
-            reflectToAttribute: true
-          },
-          keys: {
-            type: Array,
-            value: function() { return ["kind","method","room","roomNr"]; }
+            value: false,
+            notify: true
           }
       },
 
       firstX: function(change) {
-        if (change.base && change.base.length != 0){
+        if (!this.showExceeds && change.base && change.base.length != 0){
           var date = this.get('x', change.base[0]);
           return this.computeX(date);
         }
         else
-          return undefined;
+          return this.computeX(this.element.lastExceeds.exceeds);
       },
 
       firstY: function(change) {
@@ -161,6 +144,15 @@
           var value = this.get('y', change.base[0]);
           var exceeds = this.get('exceeds', change.base[0]);
           return this.computeY(value, exceeds)
+        }
+        else
+          return undefined;
+      },
+
+      firstStyle: function(change) {
+        if (change.base && change.base.length != 0){
+          var exceeds = this.get('exceeds', change.base[0]);
+          return this.computeStyle(exceeds);
         }
         else
           return undefined;

@@ -4,22 +4,37 @@
 <dom-module id="post-card">
   <style>
     :host {
-      border-radius: 5px;
+      border-radius: 4px 5px 4px 5px;
+      cursor: pointer;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
     }
     paper-button {
-      min-height: 3em;
       width: 100%;
-      font-size: 1rem;
+      font-size: 0.9rem;
       margin: 0em;
-      padding: 0.2em 0.4em;
+      padding: 0em;
       background: #669DB4;
       color: #f1f1f1;
+      border-radius: 4px 5px 0px 0px;
+    }
+
+    paper-button > ::content .content.paper-button {
+      padding: 0.6em 0.75em 0.5em 0.75em;
     }
 
     paper-button.dark {
       background: #345475;
       color: #A8CCDB;
     }
+
+    #cardContent{
+      padding: 0.5em 0em 0em 0.5em;
+    }
+
     #outer {
       background: #f1f1f1;
       border-radius: inherit;

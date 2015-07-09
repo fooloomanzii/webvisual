@@ -4,8 +4,8 @@
     "file": {
       "copy": false,
       "mode": "all",
-      "path_folder": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Datafile/",
-      "#path_folder": "",
+      "#path_folder": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Datafile/",
+      "path_folder": "",
       "path": "HNF_Datafile.txt"
       },
     "udp": {
@@ -34,7 +34,7 @@
 
   "locals":{
 
-    "ignore": [8,16,17,21,22,27,32],
+    "ignore": [0,8,16,17,21,22,27,32],
 
     "types": [
       {"id":"Binary", "roomNr":"test", "room":"test", "kind":"Test", "method":"Binärzahl", "isBoolean": false, "threshold": {"from":0,"to":100}, "unit":"₂"},

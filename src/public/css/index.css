@@ -25,7 +25,7 @@ paper-item iron-icon {
 }
 
 paper-button.sidemenu {
-  padding: 0.7em 0.4em;
+  padding: 0.5em;
 }
 
 paper-button .content{
@@ -47,14 +47,14 @@ paper-button iron-icon.right-icon{
 
 paper-button iron-icon.right-icon:hover{
   padding:0.25em;
-  margin-right:0.32em;
+  margin-right:0.35em;
   border-radius: 50%;
   background: rgba(255,255,255, 0.75);
 }
 
 paper-item.date {
   font-family: Roboto-Condensed-Light;
-  font-size: 0.7em;
+  font-size: 0.75em;
 }
 
 /* SIDEMENU & SUBMENU */
@@ -203,8 +203,8 @@ paper-dialog.sidemenu {
 }
 
 @font-face {
- font-family: Open-Sans-Condensed;
- src: url('fonts/Open-Sans-CondLight.ttf') format('truetype');
+ font-family: Roboto-Bold;
+ src: url('fonts/Roboto-Bold.ttf') format('truetype');
  font-weight: normal;
  font-style: normal;
 }

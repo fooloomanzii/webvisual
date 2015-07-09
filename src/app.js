@@ -256,9 +256,7 @@ var currentData = {},
               currentData.language = config.locals.language;
               currentData.groupingKeys = config.locals.groupingKeys;
               currentData.exclusiveGroups = config.locals.exclusiveGroups;
-              console.log("first"+currentData.exclusiveGroups);
               dataSocket.emit("first", currentData);
-              console.log("after"+currentData.exclusiveGroups);
               waitFirst = false;
             }
             else {
@@ -274,6 +272,9 @@ var currentData = {},
                       // Wait till first data will be sent or receive
                       // the current data as 'first' for every Client
                       if (!waitFirst) {
+                        currentData.language = config.locals.language;
+                        currentData.groupingKeys = config.locals.groupingKeys;
+                        currentData.exclusiveGroups = config.locals.exclusiveGroups;
                         socket.emit('first', currentData);
                       } else {
                         socket.emit('wait');
