@@ -157,6 +157,8 @@
           if(this.keys.indexOf(keys[i]) == -1)
             this.push("keys",keys[i]);
         }
+        if (this.keys.indexOf("all") == -1)
+          this.push("keys","all");
       },
 
       grouping: function(content,exclusiveGroups){ // Referencing on group-identities
@@ -200,9 +202,9 @@
                   }
                 this.push("groups."+innerkey+"."+where+".ids",content[i].id);
               }
-              //TODO: Handle Restclass
             }
           }
+          this.set("groups.all.0.group","all");
         }
       },
 

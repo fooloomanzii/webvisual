@@ -100,7 +100,9 @@
 
       <section class="lowerSection">
         <template is="dom-if" if="[[showExceeds]]" restamp>
-          <span class="exceedsDateSection">[[computeX(element.lastExceeds.x)]]</span><span class="exceedsValueSection">[[computeY(element.lastExceeds.y,element.lastExceeds.exceeds)]]<span> </span><span>[[element.unit]]</span></span>
+          <template is="dom-if" if="[[element.lastExceeds]]" restamp>
+            <span class="exceedsDateSection">[[firstX(element.values.*)]]</span><span class="exceedsValueSection">[[computeY(element.lastExceeds.y,element.lastExceeds.exceeds)]]<span> </span><span>[[element.unit]]</span></span>
+          </template>
         </template>
         <template is="dom-if" if="[[!showExceeds]]" restamp>
           <span class="dateSection">[[firstX(element.values.*)]]</span><span class="placeHolderSection"></span>
@@ -135,8 +137,10 @@
           var date = this.get('x', change.base[0]);
           return this.computeX(date);
         }
+        else if (this.element && this.element.lastExceeds)
+          return this.computeX(this.element.lastExceeds.x);
         else
-          return this.computeX(this.element.lastExceeds.exceeds);
+          return undefined
       },
 
       firstY: function(change) {
@@ -145,6 +149,8 @@
           var exceeds = this.get('exceeds', change.base[0]);
           return this.computeY(value, exceeds)
         }
+        else if (this.element && this.element.lastExceeds)
+          return this.computeY(this.element.lastExceeds.y,this.element.lastExceeds.exceeds);
         else
           return undefined;
       },

@@ -13,6 +13,7 @@
       user-select: none;
       -webkit-touch-callout: none;
     }
+
     paper-button {
       width: 100%;
       font-size: 0.9rem;
@@ -58,7 +59,10 @@
   <template>
 
     <section id="outer">
-      <paper-button id="head" class="top" on-tap="toggleCollapse">[[headline]]</paper-button>
+
+      <template is="dom-if" if="[[headline]]" restamp>
+        <paper-button id="head" class="top" on-tap="toggleCollapse">[[headline]]</paper-button>
+      </template>
       <section id="cardMain" class="content">
           <iron-collapse id="cardCollapse" opened duration="1">
 
@@ -80,6 +84,7 @@
     properties: {
       headline: {
         type: String,
+        reflectToAttribute: true,
         observer: "calculatePlaceholder"
       },
       placeholder: {
@@ -95,6 +100,8 @@
     calculatePlaceholder: function(){
       if (this.headline == "")
         this.headline = this.placeholder;
+      if (this.headline == "all")
+        this.style.maxWidth = "92vw";
     }
 
   });

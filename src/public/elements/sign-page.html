@@ -29,6 +29,7 @@
       margin: 0em 0em;
       bottom: 0em;
       max-height: 38vh;
+      min-width: 40vw;
       max-width: calc(100vw - 3em);
     }
 
@@ -43,7 +44,7 @@
               <template is="dom-if" if="[[group(element,groupedItem)]]" restamp>
                 <paper-material class="inner" elevation="1" class="vertical layout center">
 
-                    <sign-element element="[[element]]"></sign-element>
+                    <sign-element show-exceeds element="[[element]]"></sign-element>
                     <sign-caption element="[[element]]"></sign-caption>
 
                 </paper-material>
@@ -102,12 +103,14 @@
           },
           keys: {
             type: Array,
-            value: function() { return ["kind","method","room","roomNr"]; }
+            value: function() { return ["kind","method","room","roomNr","all"]; }
           }
       },
 
       group: function(item,group){
-        if (group.ids.indexOf(item.id) != -1)
+        if (group.group == "all")
+          return true;
+        else if (group.ids.indexOf(item.id) != -1)
           return true;
         else
           return false;
