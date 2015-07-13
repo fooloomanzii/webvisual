@@ -13,7 +13,8 @@
     "underscore": "*",
     "lodash-node": "*",
     "bower": "*",
-    "morgan": "*"
+    "morgan": "*",
+	"dateformat": "*"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
