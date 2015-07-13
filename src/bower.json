@@ -14,7 +14,7 @@
     "polymer": "Polymer/polymer",
     "paper-elements": "PolymerElements/paper-elements",
     "iron-elements": "PolymerElements/iron-elements",
-    "poly-nvd3": "~1.2.1"
+    "poly-nvd3": "~1.2.3"
   },
   "devDependencies": {}
 }

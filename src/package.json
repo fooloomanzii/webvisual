@@ -14,7 +14,7 @@
     "lodash-node": "*",
     "bower": "*",
     "morgan": "*",
-	"dateformat": "*"
+	  "dateformat": "*"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
