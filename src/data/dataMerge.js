@@ -102,14 +102,14 @@ function processData(locals, currentData) {
           // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored
 
           processedData[k].values.push({"x":    dateArray[i],
-                                             "y":   valuesArray[i][j],
-                                             "exceeds": exceedsArray[i][j]
+                                        "y":   valuesArray[i][j],
+                                        "exceeds": exceedsArray[i][j]
                                       })
           // store last Exceeding Data (lastExceedsArray is created each server-session)
           if(exceedsArray[i][j] != null)
             lastExceedsArray[j] = processedData[k].lastExceeds = {"x": dateArray[i],
-                                                                       "y": valuesArray[i][j],
-                                                                       "exceeds": exceedsArray[i][j]};
+                                                                  "y": valuesArray[i][j],
+                                                                  "exceeds": exceedsArray[i][j]};
           k++;
         }
       }

@@ -40,6 +40,24 @@
     #outer.dark {
       background: #8A8A8A;
     }
+
+    #cardContent {
+      -ms-flex-direction: row;
+      -webkit-flex-direction: row;
+      flex-direction: row;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+      -ms-flex-wrap: wrap;
+      -webkit-flex-wrap: wrap;
+      flex-wrap: wrap;
+      -ms-flex-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+      -ms-flex-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+    }
     @media all and (min-width: 750px) and (max-width: 1280px) and (orientation: portrait) {
       :host {
         max-width: 45vw;
@@ -66,7 +84,7 @@
       <section id="cardMain" class="content">
           <iron-collapse id="cardCollapse" opened duration="1">
 
-              <div id="cardContent" class="horizontal layout center center-justified wrap">
+              <div id="cardContent">
                 <content></content>
 
               </div>

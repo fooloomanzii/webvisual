@@ -1,3 +1,5 @@
+<link rel="import" href="behaviors/caption-behavior.html">
+
 <dom-module id="sign-caption">
   <style>
   :host {
@@ -14,6 +16,18 @@
     position: relative;
     padding: 0.35em 0.65em 0.4em 0.6em;
     font-size: 1em;
+    -ms-flex-direction: column;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -ms-flex-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -ms-flex-align: flex-start;
+    -webkit-align-items: flex-start;
+    align-items: flex-start;
   }
   .caption {
   }
@@ -33,7 +47,7 @@
   </style>
 
   <template>
-    <section id="mainContent" class="vertical layout center-justified">
+    <section id="mainContent">
       <template is="dom-repeat" items="{{keys}}" as="key" filter="group">
         <span class="caption" id="{{key}}">{{getCaption(key)}}</span>
       </template>
@@ -44,29 +58,13 @@
     Polymer({
       is: 'sign-caption',
 
+      behaviors: [CaptionBehavior],
+
       properties: {
         element: {
           type: Object,
           value: function() { return {}; }
-        },
-        keys: {
-          type: Array,
-          value: function() { return ["kind","method","room","roomNr"]; }
-        },
-        groupedBy: {
-          type: String,
-          value: ""
         }
-      },
-
-      getCaption: function(key){
-        return this.element[key];
-      },
-      group: function(key){
-        if (key == this.groupedBy)
-          return false;
-        else
-          return true;
       }
     });
   </script>

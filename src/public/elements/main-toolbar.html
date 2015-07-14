@@ -1,0 +1,117 @@
+<link rel="import" href="../components/paper-styles/paper-styles-classes.html">
+<link rel="import" href="../components/polymer/polymer.html">
+
+<dom-module id="main-toolbar">
+  <style>
+    :host {
+      display: block;
+      position: relative;
+      box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      font-family: Roboto;
+      font-weight: normal;
+      cursor: pointer;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      pointer-events: none;
+
+      background: var(--paper-toolbar-background, --default-primary-color);
+      color: var(--paper-toolbar-color, --text-primary-color);
+
+      transition: height 0.18s ease-in;
+    }
+
+    section.small {
+      height: 64px;
+    }
+
+    section.medium {
+      height: 64px;
+    }
+
+    section.tall {
+      height: 64px;
+    }
+
+    paper-button {
+      width: 100%;
+      font-size: 0.9rem;
+      margin: 0em;
+      padding: 0em;
+      background: #669DB4;
+      color: #f1f1f1;
+      border-radius: 4px 5px 0px 0px;
+    }
+
+    paper-button > ::content .content.paper-button {
+      padding: 0.6em 0.75em 0.5em 0.75em;
+    }
+
+    paper-button.dark {
+      background: #345475;
+      color: #A8CCDB;
+    }
+
+  </style>
+  <template>
+
+    <section id="mainToolbar" on-track="resizeToolbar" class="small">
+      <section id="header" class="horizontal layout">
+        <content select=".tools"></content>
+      </section>
+      <section id="lower" class="flex horizontal layout">
+        <content select=".bottom"></content>
+      </section>
+    </section>
+
+  </template>
+
+  <script>
+
+  Polymer({
+    is: 'main-toolbar',
+
+    hostAttributes: {
+      'role': 'toolbar'
+    },
+
+    properties: {
+    },
+
+    resizeToolbar: function(e){
+      element = e.currentTarget;
+
+        if (e.detail.state == "start"){
+          startY = e.detail.y;
+          startHeight = parseInt(element.style.height) || element.offsetHeight;
+          maxHeight = 19*parseInt(window.innerHeight)/50; // golden-ratio
+        }
+        if (e.detail.state == "track"){
+          if (startY > startHeight-8 && e.detail.y > (startHeight + e.detail.dy)-8){
+            element.style.height = (startHeight + e.detail.dy + 3*e.detail.ddy) + 'px';
+            element.style.cursor = "n-resize";
+            element.className = "";
+          }
+        }
+        if (e.detail.state == "end" && !(e.detail.dy == 0)){
+          elementHeight = parseInt(element.style.height);
+          element.style.cursor = "pointer";
+          element.className = "has-shadow";
+
+          if (elementHeight < maxHeight)
+            element.style.height = Math.round(elementHeight/40)*40;
+          else {
+            element.style.height = Math.round(maxHeight/40)*40;;
+          }
+        }
+    };
+
+  });
+  </script>
+</dom-module>

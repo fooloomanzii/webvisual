@@ -1,0 +1,31 @@
+<link rel="import" href="../../components/polymer/polymer.html">
+<script>
+
+  CaptionBehavior = {
+
+    properties: {
+      keys: {
+        type: Array,
+        value: function() { return ["kind","method","room","roomNr"]; }
+      },
+      groupedBy: {
+        type: String,
+        value: ""
+      }
+    },
+
+    getCaption: function(key){
+      if (this.element)
+        return this.element[key];
+      else
+        return undefined;
+    },
+    group: function(key){
+      if (key == this.groupedBy)
+        return false;
+      else
+        return true;
+    }
+  };
+
+</script>

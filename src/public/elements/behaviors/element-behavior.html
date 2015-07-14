@@ -1,0 +1,90 @@
+<link rel="import" href="../../components/polymer/polymer.html">
+<script src="../../js/dateFormat/jquery-dateFormat.min.js"></script>
+
+<script>
+
+  ElementBehavior = {
+
+    properties: {
+        element: {
+          type: Object,
+          value: function() { return {"values":[]}; }
+        },
+        timeFormat: {
+          type: String,
+          value: "HH:mm:ss"
+        }
+    },
+
+    firstX: function(change) {
+      if (change.base && change.base.length != 0){
+        var date = this.get('x', change.base[0]);
+        return this.computeX(date);
+      }
+      else
+        return undefined
+    },
+
+    firstY: function(change) {
+      if (change.base && change.base.length != 0){
+        var value = this.get('y', change.base[0]);
+        var exceeds = this.get('exceeds', change.base[0]);
+        return this.computeY(value, exceeds)
+      }
+      else
+        return undefined;
+    },
+
+    firstStyle: function(change) {
+      if (change.base && change.base.length != 0){
+        var exceeds = this.get('exceeds', change.base[0]);
+        return this.computeStyle(exceeds);
+      }
+      else
+        return undefined;
+    },
+
+    firstIcon: function(change) {
+      if (change.base && change.base.length != 0){
+        var exceeds = this.get('exceeds', change.base[0]);
+        if(exceeds == true || exceeds == false)
+          return "error-outline";
+        else
+          return "";
+      }
+      else
+        return undefined;
+    },
+
+    computeX: function(date){
+      if(date)
+        return $.format.toBrowserTimeZone(date,this.timeFormat);
+      else
+        return undefined;
+    },
+
+    computeY: function(value,exceeds){
+      if(!value && value !=0)
+        return undefined;
+      else if (this.element.isBoolean){
+        if (exceeds==true || exceeds==false)
+          return "✗";
+        else
+          return "✓";
+      }
+      else {
+        return value;
+      }
+    },
+
+    computeStyle: function(exceeds){
+      if(exceeds == true)
+        return "background: rgb(255, 21, 41);";
+      else if(exceeds == false)
+        return "background: rgb(255, 20, 110);";
+      else
+        return "background: rgb(0, 202, 53);";
+    }
+  };
+
+</script>
