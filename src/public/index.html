@@ -148,29 +148,30 @@
     <paper-header-panel main id="mainPanel" on-content-scroll="scrollPage">
 
       <!-- Toolbar -->
-      <paper-toolbar id="mainToolbar" on-track="resizeToolbar" >
+      <main-toolbar class="paper-header">
+      <!-- <paper-toolbar id="mainToolbar" on-track="resizeToolbar" > -->
 
         <!-- Upper Part -->
-        <section id="header" class="horizontal layout">
+        <!-- <section id="header" class="horizontal layout"> -->
 
           <!-- Sidemenu Button -->
-          <paper-icon-button icon="menu" class="mainmenu" paper-drawer-toggle></paper-icon-button>
+          <paper-icon-button icon="menu" class="mainmenu header" paper-drawer-toggle></paper-icon-button>
 
           <!-- Logo -->
-          <logo-element></logo-element>
+          <logo-element class="header"></logo-element>
 
-          <div class="flex"></div>
+          <div class="flex header"></div>
 
           <!-- Sidemenu Button -->
-          <paper-icon-button icon="social:person-outline" id="identity" class="mainmenu" dialog-id="Login" dialog-class="mainmenu" on-tap="openDialog"></paper-icon-button>
+          <paper-icon-button icon="social:person-outline" id="identity" class="mainmenu header" dialog-id="Login" dialog-class="mainmenu" on-tap="openDialog"></paper-icon-button>
 
-        </section>
+        <!-- </section> -->
 
         <!-- Lower Part (Collapsible) -->
-        <section id="lower" flex horizontal layout>
+        <!-- <section id="lower" flex horizontal layout>
 
-        </section>
-      </paper-toolbar>
+        </section> -->
+      </main-toolbar>
 
       <!-- MAIN CONTENT -->
       <section id="main" class="vertical layout center">

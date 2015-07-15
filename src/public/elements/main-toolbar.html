@@ -2,7 +2,7 @@
 <link rel="import" href="../components/polymer/polymer.html">
 
 <dom-module id="main-toolbar">
-  <style>
+  <style is="costum-style">
     :host {
       display: block;
       position: relative;
@@ -19,53 +19,55 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
-      pointer-events: none;
-
-      background: var(--paper-toolbar-background, --default-primary-color);
-      color: var(--paper-toolbar-color, --text-primary-color);
-
+      -webkit-tap-highlight-color:rgba(0,0,0,0);
       transition: height 0.18s ease-in;
-    }
-
-    section.small {
-      height: 64px;
-    }
-
-    section.medium {
-      height: 64px;
-    }
-
-    section.tall {
-      height: 64px;
-    }
-
-    paper-button {
-      width: 100%;
-      font-size: 0.9rem;
       margin: 0em;
       padding: 0em;
-      background: #669DB4;
+      max-height: 35vh;
+      height: 64px;
+    }
+    #mainContent {
+      margin: 0em;
+      padding: 0em;
+      background: #005B82;
       color: #f1f1f1;
-      border-radius: 4px 5px 0px 0px;
     }
 
-    paper-button > ::content .content.paper-button {
-      padding: 0.6em 0.75em 0.5em 0.75em;
-    }
-
-    paper-button.dark {
+    #mainContent.dark {
       background: #345475;
-      color: #A8CCDB;
+      color: #669DB4;
+    }
+    #header {
+      height: 44px;
+      width: calc(100% - 16px);
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+    #lower {
+      margin: 0.25em 0em;
+      width: 100%;
+    }
+
+    #header ::content logo-element {
+      margin-left: 8px;
+      height: 100%;
+    }
+
+    #header ::content paper-icon-button {
+      padding: 10px;
+      margin: 0px 8px;
     }
 
   </style>
   <template>
 
-    <section id="mainToolbar" on-track="resizeToolbar" class="small">
-      <section id="header" class="horizontal layout">
-        <content select=".tools"></content>
+    <section id="mainContent" on-track="resizeToolbar">
+      <section id="header">
+        <content select=".header"></content>
       </section>
-      <section id="lower" class="flex horizontal layout">
+      <section id="lower">
         <content select=".bottom"></content>
       </section>
     </section>
@@ -96,13 +98,13 @@
           if (startY > startHeight-8 && e.detail.y > (startHeight + e.detail.dy)-8){
             element.style.height = (startHeight + e.detail.dy + 3*e.detail.ddy) + 'px';
             element.style.cursor = "n-resize";
-            element.className = "";
+            // element.className = "";
           }
         }
         if (e.detail.state == "end" && !(e.detail.dy == 0)){
           elementHeight = parseInt(element.style.height);
           element.style.cursor = "pointer";
-          element.className = "has-shadow";
+          // element.className = "has-shadow";
 
           if (elementHeight < maxHeight)
             element.style.height = Math.round(elementHeight/40)*40;
@@ -110,7 +112,7 @@
             element.style.height = Math.round(maxHeight/40)*40;;
           }
         }
-    };
+    }
 
   });
   </script>
