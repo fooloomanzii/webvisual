@@ -1,0 +1,20 @@
+<link rel="import" href="../../components/polymer/polymer.html">
+<script>
+
+  ScrollBehavior = {
+
+    listeners:
+      {contentScroll : "_onScroll"},
+
+    _onScroll: function(e) {
+        if (this.$.mainContent && this.$.mainContent.scrollTop + this.$.mainContent.offsetHeight >= this.$.mainContent.scrollHeight) {
+          this._scrollHandler(); // for each page-element should be a scrollHandler
+        }
+    },
+
+    _scrollHandler: function() {
+      // TODO: Handle in each dependency & doesn't work like this
+    }
+  };
+
+</script>

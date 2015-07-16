@@ -141,36 +141,22 @@
               </paper-item>
             </section>
           </iron-collapse>
+
+        <paper-button class="sidemenu" dialog-id="Login" dialog-class="mainmenu" on-tap="openDialog">
+          <iron-icon icon="social:person-outline"></iron-icon>
+          <span class="flex">Login</span>
+        </paper-button>
       </iron-selector>
     </paper-header-panel>
 
     <!-- MAIN VIEW -->
-    <paper-header-panel main id="mainPanel" on-content-scroll="scrollPage">
+    <paper-header-panel main id="mainPanel">
 
       <!-- Toolbar -->
       <main-toolbar class="paper-header">
-      <!-- <paper-toolbar id="mainToolbar" on-track="resizeToolbar" > -->
-
-        <!-- Upper Part -->
-        <!-- <section id="header" class="horizontal layout"> -->
-
-          <!-- Sidemenu Button -->
           <paper-icon-button icon="menu" class="mainmenu header" paper-drawer-toggle></paper-icon-button>
-
-          <!-- Logo -->
-          <logo-element class="header"></logo-element>
-
-          <div class="flex header"></div>
-
-          <!-- Sidemenu Button -->
-          <paper-icon-button icon="social:person-outline" id="identity" class="mainmenu header" dialog-id="Login" dialog-class="mainmenu" on-tap="openDialog"></paper-icon-button>
-
-        <!-- </section> -->
-
-        <!-- Lower Part (Collapsible) -->
-        <!-- <section id="lower" flex horizontal layout>
-
-        </section> -->
+          <logo-element class="header" onclick="document.querySelector('main-toolbar').toggle()"></logo-element>
+          <!-- class="bottom" -->
       </main-toolbar>
 
       <!-- MAIN CONTENT -->
@@ -224,16 +210,9 @@
 
 <script>
   var template = document.querySelector('#autobind-template');
-  // window.addEventListener('WebComponentsReady', function(e) {
+  window.addEventListener('WebComponentsReady', function(e) {
     var colorschema = "light";
-    var mainContainer = document.querySelector('div#mainContainer');
 
-    template.scrollPage = function() {
-      if (mainContainer && mainContainer.scrollTop + mainContainer.offsetHeight >= mainContainer.scrollHeight) {
-        var page = document.querySelector('.element-page');
-        page.scrollHandler(); // for each page-element should be a scrollHandler
-      }
-    };
     template.changeTheme = function(){
       if(colorschema == "dark") {
         $('*').removeClass("dark");
@@ -315,7 +294,7 @@
     template.grouping = function(e) {
       var page = document.querySelector('.element-page');
       if (page) {
-        page.setGroup();
+        page.setSelectedGroup();
       }
     };
     template.computeDate = function(date){
@@ -324,5 +303,5 @@
       else
         return undefined;
     };
-  // });
+  });
 </script>

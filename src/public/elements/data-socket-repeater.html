@@ -18,18 +18,15 @@
           },
           lastMessage: {
             type: Date,
-            value: 0,
-            notify: true
+            value: 0
           },
           lastMistake: {
             type: Date,
-            value: 0,
-            notify: true
+            value: 0
           },
           lastError: {
             type: Date,
-            value: 0,
-            notify: true
+            value: 0
           },
           maxTotalLines: {
             type: Number,
@@ -65,7 +62,7 @@
           self.set("lastMessage", new Date(message.time));
           self.setLanguage(message.language);
           self.setKeys(message.groupingKeys);
-          self.grouping(message.content,message.exclusiveGroups);
+
 
           var k, val;
           // for Polymer (to notice Array change) special treatment of integrating data
@@ -85,7 +82,7 @@
               self.unshift("data."+i+".values",message.content[i].values[j]);
             }
           }
-
+          self.grouping(message.content,message.exclusiveGroups);
           self.fire("dataloaded");
         });
 

@@ -48,7 +48,7 @@
 
   <template>
     <section id="mainContent">
-      <template is="dom-repeat" items="{{keys}}" as="key" filter="group">
+      <template is="dom-repeat" items="{{keys}}" as="key" filter="filterBy">
         <span class="caption" id="{{key}}">{{getCaption(key)}}</span>
       </template>
     </section>

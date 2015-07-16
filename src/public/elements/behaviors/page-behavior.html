@@ -1,0 +1,60 @@
+<link rel="import" href="../../components/polymer/polymer.html">
+<link rel="import" href="scroll-behavior.html">
+<link rel="import" href="data-behavior.html">
+<link rel="import" href="language-behavior.html">
+
+<script>
+
+  PageBehavior = {
+    properties: {
+      selectedElement: {
+        type: Object,
+        value: function() { return {}; }
+      },
+      selectedGroup: {
+        type: Array,
+        value: function() { return []; },
+        notify: true
+      },
+      groupBy: {
+        type: String,
+        value: "roomNr",
+        notify: true,
+        observer: "setSelectedGroup"
+      }
+    },
+
+    groupElements: function(item,group){
+      if (group.group == "all")
+        return true;
+      else if (group.ids.indexOf(item.id) != -1)
+        return true;
+      else
+        return false;
+    },
+
+    setSelectedElement: function(e) {
+    },
+
+    setSelectedGroup: function(){
+      if(this.groups && this.groupBy && this.groupBy in this.groups)
+        this.set("selectedGroup",this.groups[this.groupBy]);
+    },
+    sortGroup: function(first,next){
+      if (first.ids.length > next.ids.length)
+        return true;
+      else
+        return false;
+    },
+    sort: function(next,first){
+      if (first > next)
+      return -1;
+      else return 1;
+    },
+    openOption: function(){
+      if (this.$.optionDialog)
+        this.$.optionDialog.open();
+    }
+  };
+
+</script>

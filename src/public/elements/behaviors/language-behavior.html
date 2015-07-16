@@ -7,7 +7,7 @@
       selectedLanguage: {
         type: String,
         value: "de",
-        observer: "selChanged"
+        observer: "_selChanged"
       },
       selectedLanguageIndex: {
         type: Number,
@@ -16,36 +16,39 @@
       language: {
         type: Object,
         value: function() {
-          "types": {"en":0,"de":1,"fr":2,"es":3,"ru":4},
-          "description": {
-            "all":       ["all", "Alle","","",""],
-            "date":      ["date","Datum","","",""],
-            "roomNr":    ["room-number","Raumnummer","","",""],
-            "room":      ["room","Raum","","",""],
-            "kind":      ["kind","Typ","","",""],
-            "method":    ["method","Methode","","",""],
-            "x":         ["date","Datum","","",""],
-            "y":         ["value","Wert","","",""],
-            "threshold": ["threshold","Wert","","",""]
+          types:
+            {en:0;de:1;fr:2;es:3;ru:4};
+          description: {
+            all:       ["all", "Alle","","",""];
+            date:      ["date","Datum","","",""];
+            roomNr:    ["room-number","Raumnummer","","",""];
+            room:      ["room","Raum","","",""];
+            kind:      ["kind","Typ","","",""];
+            method:    ["method","Methode","","",""];
+            x:         ["date","Datum","","",""];
+            y:         ["value","Wert","","",""];
+            threshold: ["threshold","Wert","","",""]
           }
         }
       }
     },
 
     getDescription: function(kind) {
-      if (kind){
+      if (kind)
         return this.language.description[kind][this.selectedLanguageIndex];
-      }
       else
         return undefined
     },
 
     _selNr: function(lang) {
-      return this.language.types[lang];
+      if (this.language && this.language.types)
+        return this.language.types[lang];
+      else
+        return undefined
     },
 
-    selChanged: function() {
-      this.selectedLanguageIndex = _selNr(this.selectedLanguage) || 0;
+    _selChanged: function() {
+      this.selectedLanguageIndex = this._selNr(this.selectedLanguage) || 0;
     }
   };
 

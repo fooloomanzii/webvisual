@@ -17,7 +17,7 @@
       font-size: 1em;
       line-height: 1;
     }
-    .main {
+    #mainContent {
       position: relative;
       display: flex;
       flex-direction: column;
@@ -25,7 +25,7 @@
       min-height: 5em;
       min-width: 7em;
     }
-    .main.dark{
+    #mainContent.dark{
       color: #d3d3d3;
     }
     .actualValueSection {
@@ -88,7 +88,7 @@
     }
   </style>
   <template>
-    <section class="main" style$="{{firstStyle(element.values.*)}}">
+    <section id="mainContent" style$="{{firstStyle(element.values.*)}}">
       <paper-ripple id="ripple" recenters></paper-ripple>
 
       <section class="actualValueSection">
@@ -129,9 +129,6 @@
             value: true,
             notify: true
           }
-      },
-
-      scrollHandler: function(e) {
       }
 
     });
