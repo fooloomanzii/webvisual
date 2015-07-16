@@ -54,6 +54,12 @@ function processData(locals, currentData) {
     if(keys.length == 0){
       keys =  _.keys(settings.unnamedType);
     }
+
+    // rename double-id
+    for (var i=0; i<locals.types.length; i++)
+      for (var j=i+1; j<locals.types.length; j++)
+        if(locals.types[i] && locals.types[j] && locals.types[i].id == locals.types[j].id)
+          locals.types[j].id += "("+j+")";
   }
 
   function arrangeData(data, exceeds){
