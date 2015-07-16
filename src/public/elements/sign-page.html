@@ -79,7 +79,14 @@
       behaviors: [ScrollBehavior, DataBehavior, LanguageBehavior, PageBehavior],
 
       setSelectedElement: function(e) {
-        this.set('selectedElement',e.currentTarget.__data__.element);
+        if (this.selectedElement == e.currentTarget.__data__.element){
+          this.set('selectedElement',{});
+          e.currentTarget.style.outline = "none";
+        }
+        else {
+          this.set('selectedElement',e.currentTarget.__data__.element);
+          e.currentTarget.style.outline = "2px solid blue";
+        }
       }
 
     });
