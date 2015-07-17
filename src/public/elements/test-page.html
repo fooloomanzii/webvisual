@@ -1,0 +1,88 @@
+<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../components/iron-selector/iron-selector.html">
+
+<dom-module id="test-page">
+  <style>
+    :host {
+      margin: 0.5em;
+    }
+    paper-material {
+      background: white;
+      padding: 0em;
+      border-radius: 3px;
+    }
+    .inner {
+      margin: 0.5em;
+    }
+    .outer {
+      margin: 0.5em;
+      background: white;
+    }
+    .head {
+      background: #E6C499;
+      padding: 0.75em 1.5em;
+    }
+    .low {
+      background: #81C7D4;
+      padding: 0.5em;
+    }
+    .iron-selected {
+      outline: 3px dashed blue;
+      border-radius: 5px;
+    }
+  </style>
+
+  <template>
+    <section class="horizontal layout start wrap">
+
+      <iron-selector id="selector" selectable="paper-material.inner" selected="{{selectedItem}}" attr-for-selected="id">
+        <template id="t-fruit" is="dom-repeat" items="{{fruits}}" as="fruit">
+          <section class="outer shadow-elevation-4dp horizontal layout start center wrap">
+
+            <template id="t-animal" is="dom-repeat" items="{{animals}}" as="animal">
+                <paper-material id="[[combineItems(fruit,animal)]]" class="inner" elevation="1" class="vertical layout center">
+                    <div class="head">{{fruit}}</div>
+                    <div class="low">{{animal}}</div>
+                </paper-material>
+            </template>
+
+          </section>
+        </template>
+      </iron-selector>
+
+    </section>
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'test-page',
+
+      properties: {
+        fruits: {
+          type: Array,
+          value: ["apple","banana","kiwi"]
+        },
+        animals: {
+          type: Array,
+          value: ["monkey","goat","horse","rabbit"]
+        },
+        selectedItem: {
+          type: String,
+          value: "",
+          observer: "show"
+        }
+      },
+
+      combineItems: function(fruit,animal){
+        return fruit+"_"+animal;
+      },
+
+      show: function(){
+        console.log("got it");
+      }
+
+    });
+  </script>
+
+</dom-module>

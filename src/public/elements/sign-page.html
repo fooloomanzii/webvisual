@@ -5,24 +5,31 @@
     :host {
       margin: 0.5em;
     }
-    paper-material {
+    section.inner {
+      transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
       background: white;
       padding: 0em;
       border-radius: 2px 2px 2px 3px;
+      margin: 0em 0.55em 0.55em 0em;
+      outline: thin solid lightgrey;
+      /*box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 5px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 1px -2px rgba(0, 0, 0, 0.2);*/
       align-self: stretch;
     }
-    paper-material.dark {
+    section.inner.dark {
       background: #a8a8a8;
     }
 
     post-card.outer > ::content #cardContent{
       padding: 0.5em 0em 0em 0.5em;
     }
-    .inner {
-      margin: 0em 0.55em 0.55em 0em;
-    }
-    .outer {
+    post-card.outer {
+      transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
       margin: 0.5em;
+      box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 10px 0 rgba(0, 0, 0, 0.12),
+                  0 2px 4px -1px rgba(0, 0, 0, 0.4);
     }
 
     paper-dialog#optionDialog {
@@ -34,22 +41,38 @@
       min-width: 40vw;
       max-width: calc(100vw - 3em);
     }
+    section.selected {
+      box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 10px 0 rgba(0, 0, 0, 0.12),
+                  0 2px 4px -1px rgba(0, 0, 0, 0.4);
+      z-index: 5;
+      animation-name: select-animation;
+      animation-duration: 0.28s;
+      animation-timing-function: linear;
+      animation-iteration-count: 1;
+      transform-origin: 50% 50%;
+    }
 
+    @keyframes select-animation {
+      0%   {transform: scale(1);}
+      50%  {transform: scale(1.01);}
+      100% {transform: scale(1);}
+    }
   </style>
   <template>
       <section id="mainContent" class="horizontal layout start wrap">
 
         <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup">
-          <post-card class="outer shadow-elevation-4dp" headline="[[groupedItem.group]]">
+          <post-card class="outer" headline="[[groupedItem.group]]">
 
             <template id="elementlist" is="dom-repeat" items="{{data}}" as="element">
               <template is="dom-if" if="[[groupElements(element,groupedItem)]]" restamp>
-                <paper-material class="inner" elevation="1" class="vertical layout center">
+                <section class="inner" class="vertical layout center">
 
-                    <sign-element element="[[element]]" show-exceeds on-click="setSelectedElement"></sign-element>
+                    <sign-element element="[[element]]" show-exceeds on-click="setSelectedElement" id$="[[element.id]]"></sign-element>
                     <sign-caption element="[[element]]"></sign-caption>
 
-                </paper-material>
+                </section>
               </template>
             </template>
           </post-card>
@@ -79,15 +102,25 @@
       behaviors: [ScrollBehavior, DataBehavior, LanguageBehavior, PageBehavior],
 
       setSelectedElement: function(e) {
-        if (this.selectedElement == e.currentTarget.__data__.element){
-          this.set('selectedElement',{});
-          e.currentTarget.style.outline = "none";
+        if (e)
+          if (this.selectedElement == e.currentTarget.__data__.element){
+            this.set('selectedElement',null);
+            this.set('selectedNode',{});
+          }
+          else {
+            this.set('selectedElement',e.currentTarget.__data__.element);
+            this.set('selectedNode',e.currentTarget.__domApi.node);
+          }
+      },
+
+      selectedNodeChanged: function(newNode, oldNode) {
+        if (newNode.nodeType && newNode.nodeType == 1) {
+          this.toggleClass("selected",true,newNode.parentNode);
         }
-        else {
-          this.set('selectedElement',e.currentTarget.__data__.element);
-          e.currentTarget.style.outline = "2px solid blue";
+        if (oldNode && oldNode.nodeType && oldNode.nodeType == 1) {
+          this.toggleClass("selected",false,oldNode.parentNode);
         }
-      }
+      },
 
     });
   </script>

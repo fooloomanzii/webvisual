@@ -7,9 +7,19 @@
 
   PageBehavior = {
     properties: {
+      selectedId: {
+        type: String,
+        value: "",
+        observer: "setSelectedElement"
+      },
       selectedElement: {
         type: Object,
         value: function() { return {}; }
+      },
+      selectedNode: {
+        type: Object,
+        value: function() { return {}; },
+        observer: "selectedNodeChanged"
       },
       selectedGroup: {
         type: Array,
@@ -33,7 +43,10 @@
         return false;
     },
 
-    setSelectedElement: function(e) {
+    setSelectedElement: function(id) {
+    },
+
+    selectedNodeChanged: function(newNode, oldNode) {
     },
 
     setSelectedGroup: function(){
