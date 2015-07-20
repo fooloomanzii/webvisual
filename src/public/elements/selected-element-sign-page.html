@@ -1,7 +1,7 @@
 <link rel="import" href="behaviors/page-behavior.html">
 <link rel="import" href="../components/neon-animation/neon-shared-element-animatable-behavior.html">
 
-<dom-module id="sign-page">
+<dom-module id="selected-element-sign-page">
   <style>
     :host {
       display: flex;
@@ -105,9 +105,10 @@
 
 
 
-    <main-toolbar id="toolbar" class="has-shadow paper-header">
+    <main-toolbar id="toolbar" class="has-shadow paper-header tall">
         <paper-icon-button icon="menu" class="mainmenu header" paper-drawer-toggle></paper-icon-button>
-        <logo-element class="header" onclick="document.querySelector('main-toolbar').toggle()"></logo-element> -->
+        <logo-element class="header" onclick="document.querySelector('main-toolbar').toggle()"></logo-element>
+        <sign-element element="[[selectedElement]]" show-exceeds on-click="_onDeselect" id="selectedElementCard"></sign-element>
     </main-toolbar>
       <section id="mainContent">
 
@@ -146,23 +147,39 @@
   <script>
 
     Polymer({
-      is: 'sign-page',
+      is: 'selected-element-sign-page',
 
       behaviors: [ScrollBehavior, DataBehavior, LanguageBehavior, PageBehavior, Polymer.NeonSharedElementAnimatableBehavior],
 
+      sharedElements: {
+        type: Object,
+        value: function() {
+          return {
+            'hero': this.$.selectedElementSign,
+            'ripple': this.$.toolbar
+          }
+        }
+      },
+
       properties: {
         animationConfig: {
-          type: Object,
           value: function() {
             return {
-              'exit': [{
+              'entry': [{
                 name: 'ripple-animation',
                 id: 'ripple',
-                fromPage: this
+                toPage: this,
               }, {
                 name: 'hero-animation',
                 id: 'hero',
-                fromPage: this
+                toPage: this,
+                timing: {
+                  delay: 150
+                }
+              }],
+              'exit': [{
+                name: 'fade-out-animation',
+                node: this.$.toolbar
               }]
             }
           }
@@ -170,7 +187,7 @@
       },
 
       setSelectedElement: function(e) {
-        if (e){
+        if (e)
           if (this.selectedElement == e.currentTarget.__data__.element){
             this.set('selectedElement',null);
             this.set('selectedNode',{});
@@ -179,11 +196,6 @@
             this.set('selectedElement',e.currentTarget.__data__.element);
             this.set('selectedNode',e.currentTarget.__domApi.node);
           }
-          this.animationConfig['exit'][0].gesture = {
-            x: e.x || e.pageX,
-            y: e.y || e.pageY
-          };
-        }
       },
 
       selectedNodeChanged: function(newNode, oldNode) {
@@ -193,16 +205,6 @@
         if (oldNode && oldNode.nodeType && oldNode.nodeType == 1) {
           this.toggleClass("selected",false,oldNode.parentNode);
         }
-        this.sharedElements = {
-          'hero': newNode,
-          'ripple': this.$.toolbar
-        };
-
-
-        this.fire('selected', {
-          tile: newNode,
-          data: this.selectedElement
-        });
       },
 
     });

@@ -150,28 +150,34 @@
     </paper-header-panel>
 
     <!-- MAIN VIEW -->
-    <paper-header-panel main id="mainPanel">
+    <!-- <paper-header-panel main id="mainPanel"> -->
 
       <!-- Toolbar -->
-      <main-toolbar class="paper-header">
+      <!-- <main-toolbar class="paper-header">
           <paper-icon-button icon="menu" class="mainmenu header" paper-drawer-toggle></paper-icon-button>
-          <logo-element class="header" onclick="document.querySelector('main-toolbar').toggle()"></logo-element>
+          <logo-element class="header" onclick="document.querySelector('main-toolbar').toggle()"></logo-element> -->
           <!-- class="bottom" -->
-      </main-toolbar>
+      <!-- </main-toolbar> -->
 
       <!-- MAIN CONTENT -->
-      <section id="main" class="vertical layout center">
+      <!-- <section id="main" class="vertical layout center"> -->
 
         <!-- Page Option Button -->
-        <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab>
+        <!-- <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab> -->
 
         <!-- Page -->
         <!-- <test-page></test-page> -->
-        <sign-page class="element-page" data="{{data}}" groups="{{groups}}"></sign-page>
+        <neon-animated-pages main id="pages" selected="0">
+          <sign-page id="nothingSelected" class="element-page" data="{{data}}" groups="{{groups}}" selected-element="{{selElem}}" on-selected="_onSelected"></sign-page>
 
-      </section>
+          <selected-element-sign-page hero-id="hero" id="firstSelected" class="element-page" data="{{data}}" groups="{{groups}}" on-click="_onDeselected" selected-element="{{selElem}}"></sign-page>
 
-    </paper-header-panel>
+        </neon-animated-pages>
+
+
+      <!-- </section>
+
+    </paper-header-panel> -->
   </paper-drawer-panel>
 
   <!-- Dialogs -->
@@ -224,33 +230,33 @@
         colorschema = "dark";
       }
     };
-    template.resizeToolbar = function(e){
-      element = e.currentTarget;
-
-        if (e.detail.state == "start"){
-          startY = e.detail.y;
-          startHeight = parseInt(element.style.height) || element.offsetHeight;
-          maxHeight = 19*parseInt(window.innerHeight)/50; // golden-ratio
-        }
-        if (e.detail.state == "track"){
-          if (startY > startHeight-8 && e.detail.y > (startHeight + e.detail.dy)-8){
-            element.style.height = (startHeight + e.detail.dy + 3*e.detail.ddy) + 'px';
-            element.style.cursor = "n-resize";
-            element.className = "";
-          }
-        }
-        if (e.detail.state == "end" && !(e.detail.dy == 0)){
-          elementHeight = parseInt(element.style.height);
-          element.style.cursor = "pointer";
-          element.className = "has-shadow";
-
-          if (elementHeight < maxHeight)
-            element.style.height = Math.round(elementHeight/40)*40;
-          else {
-            element.style.height = Math.round(maxHeight/40)*40;;
-          }
-        }
-    };
+    // template.resizeToolbar = function(e){
+    //   element = e.currentTarget;
+    //
+    //     if (e.detail.state == "start"){
+    //       startY = e.detail.y;
+    //       startHeight = parseInt(element.style.height) || element.offsetHeight;
+    //       maxHeight = 19*parseInt(window.innerHeight)/50; // golden-ratio
+    //     }
+    //     if (e.detail.state == "track"){
+    //       if (startY > startHeight-8 && e.detail.y > (startHeight + e.detail.dy)-8){
+    //         element.style.height = (startHeight + e.detail.dy + 3*e.detail.ddy) + 'px';
+    //         element.style.cursor = "n-resize";
+    //         element.className = "";
+    //       }
+    //     }
+    //     if (e.detail.state == "end" && !(e.detail.dy == 0)){
+    //       elementHeight = parseInt(element.style.height);
+    //       element.style.cursor = "pointer";
+    //       element.className = "has-shadow";
+    //
+    //       if (elementHeight < maxHeight)
+    //         element.style.height = Math.round(elementHeight/40)*40;
+    //       else {
+    //         element.style.height = Math.round(maxHeight/40)*40;;
+    //       }
+    //     }
+    // };
     template.toggleCollapse = function(e){
       var button = e.currentTarget;
       if (!button.hasAttribute('collapse-id')) {
@@ -303,6 +309,13 @@
         return $.format.toBrowserTimeZone(date,"dd.MM.yy HH:mm:ss");
       else
         return undefined;
+    };
+    template._onSelected = function(event) {
+      this.$.pages.selected = 1;
+    };
+
+    template._onDeselected = function(event) {
+      this.$.pages.selected = 0;
     };
   });
 </script>

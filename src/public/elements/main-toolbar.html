@@ -6,8 +6,6 @@
     :host {
       display: block;
       position: relative;
-      box-sizing: border-box;
-      -moz-box-sizing: border-box;
       font-family: Roboto;
       font-weight: normal;
       cursor: pointer;
@@ -18,7 +16,6 @@
       -webkit-touch-callout: none;
       text-overflow: ellipsis;
       white-space: nowrap;
-      overflow: hidden;
       -webkit-tap-highlight-color:rgba(0,0,0,0);
       transition: height 0.18s ease-in;
       margin: 0em;
@@ -26,11 +23,15 @@
       max-height: 35vh;
       height: 64px;
     }
+    :host(.tall){
+      height: 30vh;
+    }
     #mainContent {
       margin: 0em;
       padding: 0em;
       background: #005B82;
       color: #f1f1f1;
+      height: 100%;
     }
 
     #mainContent.dark {
@@ -85,12 +86,12 @@
       <section id="header">
         <content select=".header"></content>
         <div class="flex"></div>
-        <template is="dom-if" if="{{element}}">
-          <paper-icon-button icon="{{computeIcon}}" icon-toggle></paper-icon-button>
-        </template>
+        <!-- <template is="dom-if" if="{{element}}"> -->
+          <paper-icon-button icon="{{iconToggle}}" icon-toggle></paper-icon-button>
+        <!-- </template> -->
       </section>
       <section id="lower">
-        <content select=".bottom"></content>
+        <content select="*"></content>
       </section>
     </section>
 
@@ -116,6 +117,10 @@
         type: Boolean,
         value: false,
         reflectToAttribute: true
+      },
+      iconToggle: {
+        type: String,
+        computed: "_computeIcon(opened)"
       }
     },
 
@@ -128,7 +133,7 @@
         this.style.height = "25vh";
         this.opened = true;
       }
-      
+
     },
 
     _onTap: function(event) {
@@ -142,8 +147,8 @@
       this.toggle();
     },
 
-    computeIcon: function(){
-      if (this.opened)
+    _computeIcon: function(opened){
+      if (opened)
         return "expand-less";
       else
         return "expand-more";

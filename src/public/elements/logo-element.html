@@ -66,7 +66,7 @@
 
   /* animate the title at start*/
   #script #line path {
-    animation-name: start-animation;
+    animation-name: start-1-animation;
     animation-fill-mode: forwards;
     animation-duration: 1.5s;
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -76,7 +76,7 @@
   }
 
   #script #headline path {
-    animation-name: start-animation;
+    animation-name: start-2-animation;
     animation-fill-mode: forwards;
     animation-duration: 1.5s;
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -87,7 +87,7 @@
   }
 
   #logo path {
-    animation-name: start-animation;
+    animation-name: start-2-animation;
     animation-fill-mode: forwards;
     animation-duration: 1.5s;
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -97,9 +97,15 @@
     transform-origin: 50% 50%;
   }
 
-  @keyframes start-animation {
+  @keyframes start-1-animation {
     0%   {opacity: 0}
-    100% {opacity: 1;transform: translate(0px,0px); transform: scale(1,1);}
+    100% {opacity: 1;transform: translate(0px,0px)}
+  }
+
+  @keyframes start-2-animation {
+    0%   {opacity: 0}
+    80% {opacity: 0.75;transform: scale(1)}
+    100% {opacity: 1;transform: scale(1)}
   }
 
   #logo path#Logo {animation-delay: 500ms;}
