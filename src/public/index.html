@@ -167,13 +167,7 @@
 
         <!-- Page -->
         <!-- <test-page></test-page> -->
-        <neon-animated-pages main id="pages" selected="0">
-          <sign-page id="nothingSelected" class="element-page" data="{{data}}" groups="{{groups}}" selected-element="{{selElem}}" on-selected="_onSelected"></sign-page>
-
-          <selected-element-sign-page hero-id="hero" id="firstSelected" class="element-page" data="{{data}}" groups="{{groups}}" on-click="_onDeselected" selected-element="{{selElem}}"></sign-page>
-
-        </neon-animated-pages>
-
+          <pages-element main class="element-page" data="{{data}}" groups="{{groups}}"></pages-element>
 
       <!-- </section>
 
@@ -292,12 +286,12 @@
         dialog.open();
       }
     };
-    template.openOption = function(e){
-      var page = document.querySelector('.element-page');
-      if (page) {
-        page.openOption();
-      }
-    };
+    // template.openOption = function(e){
+    //   var page = document.querySelector('.element-page');
+    //   if (page) {
+    //     page.openOption();
+    //   }
+    // };
     template.grouping = function(e) {
       var page = document.querySelector('.element-page');
       if (page) {
@@ -309,13 +303,6 @@
         return $.format.toBrowserTimeZone(date,"dd.MM.yy HH:mm:ss");
       else
         return undefined;
-    };
-    template._onSelected = function(event) {
-      this.$.pages.selected = 1;
-    };
-
-    template._onDeselected = function(event) {
-      this.$.pages.selected = 0;
     };
   });
 </script>

@@ -1,4 +1,7 @@
 <link rel="import" href="behaviors/page-behavior.html">
+<link rel="import" href="behaviors/data-behavior.html">
+<link rel="import" href="behaviors/scroll-behavior.html">
+<link rel="import" href="behaviors/language-behavior.html">
 <link rel="import" href="../components/neon-animation/neon-shared-element-animatable-behavior.html">
 
 <dom-module id="selected-element-sign-page">
@@ -99,35 +102,42 @@
                   0 2px 4px -1px rgba(0, 0, 0, 0.4);
       z-index: 5;
     }
-
+    section.lowerToolbar {
+      height: 100%;
+    }
+    section.lowerToolbar > sign-element#selectedElementSign {
+      width: calc(36vh - 80px);
+      max-width: 38vw;
+    }
   </style>
   <template>
-
-
 
     <main-toolbar id="toolbar" class="has-shadow paper-header tall">
         <paper-icon-button icon="menu" class="mainmenu header" paper-drawer-toggle></paper-icon-button>
         <logo-element class="header" onclick="document.querySelector('main-toolbar').toggle()"></logo-element>
-        <sign-element element="[[selectedElement]]" show-exceeds on-click="_onDeselect" id="selectedElementCard"></sign-element>
+        <paper-icon-button id="iconToggle" class="icon-toggle" icon="expand-less" on-click="_onClose"></paper-icon-button>
+        <section class="lowerToolbar">
+          <sign-element element="{{selectedElement}}" on-click="_onDeselect" id="selectedElementSign"></sign-element>
+        </section>
     </main-toolbar>
-      <section id="mainContent">
 
-        <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup">
-          <post-card class="outer" headline="[[groupedItem.group]]">
+    <section id="mainContent">
+      <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup">
+        <post-card class="outer" headline="[[groupedItem.group]]">
 
-            <template id="elementlist" is="dom-repeat" items="{{data}}" as="element">
-              <template is="dom-if" if="[[groupElements(element,groupedItem)]]" restamp>
-                <section class="inner" class="vertical layout center">
+          <template id="elementlist" is="dom-repeat" items="{{data}}" as="element">
+            <template is="dom-if" if="[[groupElements(element,groupedItem)]]" restamp>
+              <section class="inner" class="vertical layout center">
 
-                    <sign-element element="[[element]]" show-exceeds on-click="setSelectedElement" id$="[[element.id]]"></sign-element>
-                    <sign-caption element="[[element]]"></sign-caption>
+                  <sign-element element="[[element]]" show-exceeds on-click="setSelectedElement" id$="[[element.id]]"></sign-element>
+                  <sign-caption element="[[element]]"></sign-caption>
 
-                </section>
-              </template>
+              </section>
             </template>
-          </post-card>
-        </template>
-      </section>
+          </template>
+        </post-card>
+      </template>
+    </section>
 
     <!-- Page-Options -->
     <paper-dialog id="optionDialog" entry-animation="slide-to-up-animation" exit-animation="slide-to-down-animation">
@@ -141,7 +151,7 @@
         </post-card>
       </section>
     </paper-dialog>
-    <!-- </paper-header-panel> -->
+
   </template>
 
   <script>
@@ -151,39 +161,53 @@
 
       behaviors: [ScrollBehavior, DataBehavior, LanguageBehavior, PageBehavior, Polymer.NeonSharedElementAnimatableBehavior],
 
-      sharedElements: {
-        type: Object,
-        value: function() {
-          return {
-            'hero': this.$.selectedElementSign,
-            'ripple': this.$.toolbar
+      properties: {
+        sharedElements: {
+          type: Object,
+          value: function() {
+            return {
+              'heroSelected': this.$.selectedElementSign
+            }
+          }
+        },
+        animationConfig: {
+          value: function() {
+            return {
+              'entry': [ {
+                  name: 'height-animation',
+                  node: this.$.toolbar,
+                  height: "30vh",
+                }, {
+                    name: 'hero-animation',
+                    id: 'heroSelected',
+                    toPage: this
+                  }
+              ],
+              'exit': [ {
+                  name: 'fade-out-animation',
+                  node: this.$.selectedElementSign,
+                  timing: {
+                    duration: 500
+                  }
+                }, {
+                    name: 'fade-out-animation',
+                    node: this.$.iconToggle,
+                    timing: {
+                      duration: 100
+                    }
+                  },
+                {
+                  name: 'height-animation',
+                  node: this.$.toolbar,
+                  height: "64px",
+                }]
+            }
           }
         }
       },
 
-      properties: {
-        animationConfig: {
-          value: function() {
-            return {
-              'entry': [{
-                name: 'ripple-animation',
-                id: 'ripple',
-                toPage: this,
-              }, {
-                name: 'hero-animation',
-                id: 'hero',
-                toPage: this,
-                timing: {
-                  delay: 150
-                }
-              }],
-              'exit': [{
-                name: 'fade-out-animation',
-                node: this.$.toolbar
-              }]
-            }
-          }
-        }
+      _onClose: function(opened){
+        this.fire("deselectedevent");
       },
 
       setSelectedElement: function(e) {

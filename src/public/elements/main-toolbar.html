@@ -23,9 +23,7 @@
       max-height: 35vh;
       height: 64px;
     }
-    :host(.tall){
-      height: 30vh;
-    }
+
     #mainContent {
       margin: 0em;
       padding: 0em;
@@ -46,12 +44,13 @@
       flex-direction: row;
     }
     #lower {
-      padding: 4px 0px;
-      width: 100%;
-      height: calc(100% - 72px);
+      padding: 8px;
+      width: calc(100% - 16px);
+      height: calc(100% - 80px);
       display: flex;
       flex-direction: row;
       align-items: stretch;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
     }
 
     #header ::content logo-element {
@@ -70,8 +69,8 @@
                   0 1px 5px 0 rgba(0, 0, 0, 0.12),
                   0 3px 1px -2px rgba(0, 0, 0, 0.2);
     }
-    #lower ::content * {
-      height: calc(100% - 8px);
+    #lower ::content sign-element > * {
+      height: 100%;
     }
     .flex {
       -ms-flex: 1;
@@ -86,9 +85,7 @@
       <section id="header">
         <content select=".header"></content>
         <div class="flex"></div>
-        <!-- <template is="dom-if" if="{{element}}"> -->
-          <paper-icon-button icon="{{iconToggle}}" icon-toggle></paper-icon-button>
-        <!-- </template> -->
+        <content select=".icon-toggle"></content>
       </section>
       <section id="lower">
         <content select="*"></content>
@@ -106,52 +103,14 @@
       'role': 'toolbar'
     },
 
-    behaviors: [ElementBehavior],
-
-    listeners: {
-      tap: '_onTap'
-    },
+    behaviors: [ElementBehavior, Polymer.NeonAnimationRunnerBehavior],
 
     properties: {
       opened: {
         type: Boolean,
         value: false,
         reflectToAttribute: true
-      },
-      iconToggle: {
-        type: String,
-        computed: "_computeIcon(opened)"
       }
-    },
-
-    toggle: function(){
-      if (this.opened){
-        this.style.height = "64px";
-        this.opened = false;
-      }
-      else {
-        this.style.height = "25vh";
-        this.opened = true;
-      }
-
-    },
-
-    _onTap: function(event) {
-      var targetElement = event.srcElement;
-      while (!targetElement.hasAttribute("icon-toggle"))
-        if (targetElement == this)
-          return;
-        else
-          targetElement = targetElement.parentElement;
-
-      this.toggle();
-    },
-
-    _computeIcon: function(opened){
-      if (opened)
-        return "expand-less";
-      else
-        return "expand-more";
     }
 
   });

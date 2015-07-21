@@ -1,4 +1,7 @@
 <link rel="import" href="behaviors/page-behavior.html">
+<link rel="import" href="behaviors/data-behavior.html">
+<link rel="import" href="behaviors/scroll-behavior.html">
+<link rel="import" href="behaviors/language-behavior.html">
 <link rel="import" href="../components/neon-animation/neon-shared-element-animatable-behavior.html">
 
 <dom-module id="sign-page">
@@ -18,7 +21,6 @@
     }
 
     main-toolbar:after {
-
       position: absolute;
       height: 6px;
       bottom: -6px;
@@ -56,6 +58,7 @@
       flex: 1;
       -webkit-flex-basis: 0.000000001px;
       flex-basis: 0.000000001px;
+      background: #CCCCCC;
     }
 
     section.inner {
@@ -103,30 +106,28 @@
   </style>
   <template>
 
-
-
-    <main-toolbar id="toolbar" class="has-shadow paper-header">
+    <main-toolbar id="toolbar" class="has-shadow paper-header normal">
         <paper-icon-button icon="menu" class="mainmenu header" paper-drawer-toggle></paper-icon-button>
         <logo-element class="header" onclick="document.querySelector('main-toolbar').toggle()"></logo-element> -->
     </main-toolbar>
-      <section id="mainContent">
 
-        <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup">
-          <post-card class="outer" headline="[[groupedItem.group]]">
+    <section id="mainContent">
+      <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup">
+        <post-card class="outer" headline="[[groupedItem.group]]">
 
-            <template id="elementlist" is="dom-repeat" items="{{data}}" as="element">
-              <template is="dom-if" if="[[groupElements(element,groupedItem)]]" restamp>
-                <section class="inner" class="vertical layout center">
+          <template id="elementlist" is="dom-repeat" items="{{data}}" as="element">
+            <template is="dom-if" if="[[groupElements(element,groupedItem)]]" restamp>
+              <section class="inner" class="vertical layout center">
 
-                    <sign-element element="[[element]]" show-exceeds on-click="setSelectedElement" id$="[[element.id]]"></sign-element>
-                    <sign-caption element="[[element]]"></sign-caption>
+                  <sign-element element="[[element]]" show-exceeds on-click="setSelectedElement" id$="[[element.id]]"></sign-element>
+                  <sign-caption element="[[element]]"></sign-caption>
 
-                </section>
-              </template>
+              </section>
             </template>
-          </post-card>
-        </template>
-      </section>
+          </template>
+        </post-card>
+      </template>
+    </section>
 
     <!-- Page-Options -->
     <paper-dialog id="optionDialog" entry-animation="slide-to-up-animation" exit-animation="slide-to-down-animation">
@@ -140,7 +141,6 @@
         </post-card>
       </section>
     </paper-dialog>
-    <!-- </paper-header-panel> -->
   </template>
 
   <script>
@@ -155,14 +155,13 @@
           type: Object,
           value: function() {
             return {
-              'exit': [{
-                name: 'ripple-animation',
-                id: 'ripple',
-                fromPage: this
-              }, {
+              'exit': [ {
                 name: 'hero-animation',
-                id: 'hero',
-                fromPage: this
+                id: 'heroSelected',
+                fromPage: this,
+                timing: {
+                  duration: 500
+                }
               }]
             }
           }
@@ -179,10 +178,6 @@
             this.set('selectedElement',e.currentTarget.__data__.element);
             this.set('selectedNode',e.currentTarget.__domApi.node);
           }
-          this.animationConfig['exit'][0].gesture = {
-            x: e.x || e.pageX,
-            y: e.y || e.pageY
-          };
         }
       },
 
@@ -193,16 +188,14 @@
         if (oldNode && oldNode.nodeType && oldNode.nodeType == 1) {
           this.toggleClass("selected",false,oldNode.parentNode);
         }
-        this.sharedElements = {
-          'hero': newNode,
-          'ripple': this.$.toolbar
-        };
-
-
-        this.fire('selected', {
-          tile: newNode,
-          data: this.selectedElement
-        });
+        if (this.selectedElement && Object.keys(this.selectedElement).length != 0) {
+          this.sharedElements = {
+            'heroSelected': this.selectedNode
+          };
+          this.fire('selectedevent', {
+            data: this.selectedElement
+          });
+        }
       },
 
     });
