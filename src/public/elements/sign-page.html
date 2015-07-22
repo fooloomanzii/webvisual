@@ -7,6 +7,8 @@
 <dom-module id="sign-page">
   <style>
     :host {
+      font-family: Roboto;
+      font-style: normal;
       display: flex;
       flex-direction: column;
       position: relative;
@@ -16,7 +18,6 @@
     }
 
     main-toolbar: {
-      position: relative;
       overflow: visible !important;
     }
 
@@ -61,8 +62,11 @@
       background: #CCCCCC;
     }
 
-    section.inner {
-      transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    #mainContent.dark {
+      background: #666666;
+    }
+
+    section.card {
       background: white;
       padding: 0em;
       border-radius: 2px 2px 2px 3px;
@@ -71,14 +75,33 @@
       border-radius: 2px;
       align-self: stretch;
     }
-    section.inner.dark {
+    section.card.dark {
       background: #a8a8a8;
+      border: thin solid darkgrey;
     }
-
-    post-card.outer > ::content #cardContent{
+    section.caption {
+      flex-direction: column;
+      line-height: 1.4;
+      display: flex;
+      padding: 0.35em 0.65em 0.4em 0.6em;
+    }
+    #kind {
+      font-family: Roboto-Bold;
+      font-size: 1em;
+    }
+    #method {
+      font-size: 0.75em;
+    }
+    #room {
+      font-size: 0.9em;
+    }
+    #roomNr {
+      font-size: 0.6em;
+    }
+    post-card.group > ::content #cardContent{
       padding: 0.5em 0em 0em 0.5em;
     }
-    post-card.outer {
+    post-card.group {
       transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
       margin: 0.75em;
       box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
@@ -96,31 +119,30 @@
       min-width: 40vw;
       max-width: calc(100vw - 3em);
     }
-    section.selected {
-      box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
-                  0 1px 10px 0 rgba(0, 0, 0, 0.12),
-                  0 2px 4px -1px rgba(0, 0, 0, 0.4);
-      z-index: 5;
-    }
 
   </style>
   <template>
 
     <main-toolbar id="toolbar" class="has-shadow paper-header normal">
-        <paper-icon-button icon="menu" class="mainmenu header" paper-drawer-toggle></paper-icon-button>
+        <paper-icon-button icon="menu" class="mainmenu header" on-click="toggleDrawer"></paper-icon-button>
         <logo-element class="header"></logo-element>
     </main-toolbar>
 
     <section id="mainContent">
       <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup">
-        <post-card class="outer" headline="[[groupedItem.group]]">
+        <post-card class="group" headline="[[groupedItem.group]]">
 
           <template id="elementlist" is="dom-repeat" items="{{data}}" as="element">
             <template is="dom-if" if="[[groupElements(element,groupedItem)]]" restamp>
-              <section class="inner" class="vertical layout center">
+              <section class="card" on-click="setSelectedElement">
 
-                  <sign-element element="[[element]]" show-exceeds on-click="setSelectedElement" id$="[[element.id]]"></sign-element>
-                  <sign-caption element="[[element]]"></sign-caption>
+                  <sign-element element="[[element]]"></sign-element>
+                  <section class="caption" id="[[element.id]]">
+                    <span id="kind">[[element.kind]]</span>
+                    <span id="method">[[element.method]]</span>
+                    <span id="room">[[element.room]]</span>
+                    <span id="roomNr">[[element.roomNr]]</span>
+                  </section>
 
               </section>
             </template>
@@ -154,17 +176,20 @@
 
       properties: {
         animationConfig: {
-          type: Object,
           value: function() {
             return {
-              'exit': [ {
-                name: 'hero-animation',
-                id: 'heroSelected',
-                fromPage: this,
-                timing: {
-                  duration: 500
+              'exit': [
+                {
+                  name: 'hero-animation',
+                  id: 'heroSign',
+                  fromPage: this
+                },
+                {
+                  name: 'hero-animation',
+                  id: 'heroCaption',
+                  fromPage: this
                 }
-              }]
+              ]
             }
           }
         }
@@ -174,7 +199,8 @@
         if (e){
           this.$.selector.select(e.model.element);
           this.sharedElements = {
-            'heroSelected': e.currentTarget
+            'heroSign': e.currentTarget.children[0],
+            'heroCaption': e.currentTarget.children[1]
           };
           this.fire('selectedevent');
         }

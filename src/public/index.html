@@ -33,10 +33,9 @@
     last-error="{{lastError}}">
   </data-socket-repeater>
 
-  <paper-drawer-panel force-narrow="true">
+  <paper-drawer-panel id="mainPanel" force-narrow="true">
 
     <!-- SIDEMENU -->
-
     <paper-header-panel drawer id="drawerPanel">
       <iron-selector multi selectable="paper-button.sidemenu.collapsable">
 
@@ -148,30 +147,11 @@
         </paper-button>
       </iron-selector>
     </paper-header-panel>
-
+    <!-- Page Option Button -->
+            <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab>
     <!-- MAIN VIEW -->
-    <!-- <paper-header-panel main id="mainPanel"> -->
+    <pages-element main class="element-page" data="{{data}}" groups="{{groups}}" on-drawer-toggle-pressed="toggleDrawer"></pages-element>
 
-      <!-- Toolbar -->
-      <!-- <main-toolbar class="paper-header">
-          <paper-icon-button icon="menu" class="mainmenu header" paper-drawer-toggle></paper-icon-button>
-          <logo-element class="header" onclick="document.querySelector('main-toolbar').toggle()"></logo-element> -->
-          <!-- class="bottom" -->
-      <!-- </main-toolbar> -->
-
-      <!-- MAIN CONTENT -->
-      <!-- <section id="main" class="vertical layout center"> -->
-
-        <!-- Page Option Button -->
-        <!-- <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab> -->
-
-        <!-- Page -->
-        <!-- <test-page></test-page> -->
-          <pages-element main class="element-page" data="{{data}}" groups="{{groups}}"></pages-element>
-
-      <!-- </section>
-
-    </paper-header-panel> -->
   </paper-drawer-panel>
 
   <!-- Dialogs -->
@@ -223,6 +203,9 @@
         $('*').addClass("dark");
         colorschema = "dark";
       }
+    };
+    template.toggleDrawer = function(){
+      this.$.mainPanel.togglePanel();
     };
     // template.resizeToolbar = function(e){
     //   element = e.currentTarget;

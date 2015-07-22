@@ -58,6 +58,9 @@
     openOption: function(){
       if (this.$.optionDialog)
         this.$.optionDialog.open();
+    },
+    toggleDrawer: function() {
+      this.fire("drawer-toggle-pressed");
     }
   };
 

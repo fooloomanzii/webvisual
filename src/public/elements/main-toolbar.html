@@ -17,11 +17,14 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       -webkit-tap-highlight-color:rgba(0,0,0,0);
-      transition: height 0.18s ease-in;
+      /*transition: height 0.18s ease-in;*/
       margin: 0em;
       padding: 0em;
-      max-height: 35vh;
       height: 64px;
+      max-height: 40vh;
+    }
+    :host[opened]{
+      height: 30vh;
     }
 
     #mainContent {
