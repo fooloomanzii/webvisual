@@ -12,11 +12,11 @@
 
       <selected-element-sign-page id="firstSelected" class="element-page" data="{{data}}" groups="{{groups}}"
        selected-group="{{selectedGroup}}" on-deselectedevent="_onDeselected"
-       ></selected-element-sign-page>
+       selected-element="{{selectedElement}}"></selected-element-sign-page>
 
       <sign-page id="nothingSelected" class="element-page" data="{{data}}" groups="{{groups}}"
        selected-group="{{selectedGroup}}" on-selectedevent="_onSelected"
-       selected-element="[[selectedElement]]"></sign-page>
+       selected-element="{{selectedElement}}"></sign-page>
 
 
     </neon-animated-pages>
@@ -33,7 +33,7 @@
       },
 
       _onSelected: function(event) {
-        this.$.firstSelected.set("selectedElement",this.selectedElement);
+        // this.$.firstSelected.set("selectedElement",this.selectedElement);
         this.$.pages.selected = 0;
       },
 

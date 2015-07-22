@@ -80,7 +80,7 @@
     }
     post-card.outer {
       transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-      margin: 0.5em;
+      margin: 0.75em;
       box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
                   0 1px 10px 0 rgba(0, 0, 0, 0.12),
                   0 2px 4px -1px rgba(0, 0, 0, 0.4);
@@ -108,7 +108,7 @@
 
     <main-toolbar id="toolbar" class="has-shadow paper-header normal">
         <paper-icon-button icon="menu" class="mainmenu header" paper-drawer-toggle></paper-icon-button>
-        <logo-element class="header" onclick="document.querySelector('main-toolbar').toggle()"></logo-element> -->
+        <logo-element class="header"></logo-element>
     </main-toolbar>
 
     <section id="mainContent">
@@ -127,6 +127,8 @@
           </template>
         </post-card>
       </template>
+
+      <array-selector id="selector" items="{{data}}" selected="{{selectedElement}}"></array-selector>
     </section>
 
     <!-- Page-Options -->
@@ -170,33 +172,13 @@
 
       setSelectedElement: function(e) {
         if (e){
-          if (this.selectedElement == e.currentTarget.__data__.element){
-            this.set('selectedElement',null);
-            this.set('selectedNode',{});
-          }
-          else {
-            this.set('selectedElement',e.currentTarget.__data__.element);
-            this.set('selectedNode',e.currentTarget.__domApi.node);
-          }
-        }
-      },
-
-      selectedNodeChanged: function(newNode, oldNode) {
-        if (newNode.nodeType && newNode.nodeType == 1) {
-          this.toggleClass("selected",true,newNode.parentNode);
-        }
-        if (oldNode && oldNode.nodeType && oldNode.nodeType == 1) {
-          this.toggleClass("selected",false,oldNode.parentNode);
-        }
-        if (this.selectedElement && Object.keys(this.selectedElement).length != 0) {
+          this.$.selector.select(e.model.element);
           this.sharedElements = {
-            'heroSelected': this.selectedNode
+            'heroSelected': e.currentTarget
           };
-          this.fire('selectedevent', {
-            data: this.selectedElement
-          });
+          this.fire('selectedevent');
         }
-      },
+      }
 
     });
 

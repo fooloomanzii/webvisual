@@ -7,16 +7,13 @@
       selectedId: {
         type: String,
         value: "",
-        observer: "setSelectedElement"
+        observer: "setSelectedElement",
+        notify: true
       },
       selectedElement: {
         type: Object,
-        value: function() { return {}; }
-      },
-      selectedNode: {
-        type: Object,
         value: function() { return {}; },
-        observer: "selectedNodeChanged"
+        notify: true
       },
       selectedGroup: {
         type: Array,
@@ -41,9 +38,6 @@
     },
 
     setSelectedElement: function(id) {
-    },
-
-    selectedNodeChanged: function(newNode, oldNode) {
     },
 
     setSelectedGroup: function(){
