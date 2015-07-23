@@ -1,47 +1,71 @@
+<link rel="import" href="behaviors/element-behavior.html">
+<link rel="import" href="behaviors/scroll-behavior.html">
+<link rel="import" href="behaviors/language-behavior.html">
+
 <dom-module id="table-element">
   <style>
     :host {
+      overlay: hidden;
+      display: block;
       color: currentColor;
-      display: inline-block;
-      max-height: 30vh;
-      overflow-x: hidden;
-      overflow-y: scroll;
+      background: inherit;
     }
     table {
-      text-align: center;
+      display: flex;
+      width: 100%;
+      height: 100%;
       border-collapse: collapse;
-      table-layout: fixed;
+      text-align: center;
+      font-size: 0.7em;
+    }
+    table thead {
+      display: block;
+      margin-right: 1em;
+    }
+    table thead tr{
+      line-height: 2.5em;
+    }
+    tr {
+      line-height: 1.8em;
+      display: flex;
+      align-items: center;
+    }
+    table tbody {
+      border-top: thin solid #8c8c8c;
+      display: block;
+      height: calc(100% - 2.5em);
+      overflow-x: auto;
+      overflow-y: scroll;
     }
     caption {
       font-family: Roboto-Condensed-Light-Italic;
-      font-size: 0.9em;
+      font-size: 1em;
     }
     th {
       font-family: Roboto;
+      font-size: 1.1em;
     }
     td {
       font-family: Roboto-Condensed;
-    }
-    td, th {
-      font-size: 0.9em;
+      font-size: 1em;
     }
     tr:hover {
       background: rgba(137, 137, 137, 0.25);
     }
     th, td, caption {
-      padding: 0.6em 1em;
-    }
-    thead {
-      border-top: thin solid #8c8c8c;
-      border-bottom: thin solid #8c8c8c;
+      padding: 0em 1em;
+      display: flex;
+      white-space: nowrap;
+      flex: 1;
     }
     tr#lastExceeds{
       border: thin solid #FF7E7E;
     }
+
   </style>
   <template>
     <table id="content">
-      <template is="dom-if" if="{{showCaption}}">
+      <template is="dom-if" if="{{showCaption}}" restamp>
         <caption>
           <span>[[element.roomNr]]</span><span>, </span>
           <span>[[element.room]]</span><span>, </span>
@@ -50,26 +74,28 @@
         </caption>
       </template>
       <thead>
-        <th>[[language.x]]</th>
-        <th>[[language.y]]</th>
+        <tr>
+          <th id="xHead"></th>
+          <th id="yHead"></th>
+        </tr>
       </thead>
       <tbody>
-        <template is="dom-if" if="[[element.lastExceeds]]">
-          <tr id="lastExceeds" style=[[computeStyle(element.lastExceeds.exceeds)]]>
-            <td>[[computeX(element.lastExceeds.x)]]</td>
-            <td>[[computeY(element.lastExceeds.y,element.lastExceeds.exceeds)]]</td>
-          </tr>
+        <template is="dom-if" if="{{showExceeds}}" restamp>
+          <template is="dom-if" if="[[element.lastExceeds]]" restamp>
+            <tr id="lastExceeds" style=[[computeStyle(element.lastExceeds.exceeds)]]>
+              <td>[[computeX(element.lastExceeds.x)]]</td>
+              <td>[[computeY(element.lastExceeds.y,element.lastExceeds.exceeds)]]</td>
+            </tr>
+          </template>
         </template>
         <template is="dom-repeat" id="values" items="[[element.values]]">
-          <tr style=[[computeStyle(item.exceeds)]]>
+          <tr style$={{computeStyle(item.exceeds)}}>
             <td>[[computeX(item.x)]]</td>
             <td>[[computeY(item.y,item.exceeds)]]</td>
           </tr>
         </template>
       </tbody>
     </table>
-
-    <!-- <array-selector id="selector" items="[[element.values]]" selected="[[selected]]" multi toggle></array-selector> -->
   </template>
 
   <script>
@@ -77,38 +103,29 @@
     Polymer({
       is: 'table-element',
 
+      behaviors: [ScrollBehavior, LanguageBehavior, ElementBehavior],
+
       properties: {
-          element: {
-            type: Object,
-            value: function() { return {"values":[]}; }
-          },
-          language: {
-            type: Object,
-            value: function() { return {'x':'Datum','y':'Wert'}; }
-          },
-          timeFormat: {
-            type: String,
-            value: "HH:mm:ss"
-          },
           showCaption: {
             type: Boolean,
             notify: true,
             reflectToAttribute: true
+          },
+          showExceeds: {
+            type: Boolean,
+            notify: true,
+            reflectToAttribute: true
           }
-          // arrayItems:{
-          //   type: Array,
-          //   value: function() { return [0,1,2,3,4,5]; }
-          // },
-
       },
 
-      observers: [
-          'limitPresent(element.values.splices)'
-        ],
-
-      listeners: {
-        'scroll': 'scrollHandler'
+      attached: function(){
+        this.$.xHead.innerText = this.getDescription('x');
+        this.$.yHead.innerText = this.getDescription('y');
       },
+
+      // listeners: {
+      //   'scroll': 'scrollHandler'
+      // },
 
       limitPresent: function(changeRecord) {
         // changeRecord.splices.indexSplices.forEach(function(s) {
@@ -119,45 +136,19 @@
         // }, this);
       },
 
-      arrayItem: function(change, index, path) {
-        return this.get(path, change.base[index]);
-      },
-
-      computeX: function(date){
-        if(date)
-          return $.format.toBrowserTimeZone(date,this.timeFormat);
-        else
-          return undefined;
-      },
-
-      computeY: function(value,exceeds){
-        if(!value && value !=0)
-          return undefined;
-        else if (this.element.isBoolean){
-          if (exceeds==true || exceeds==false)
-            return "✗";
-          else
-            return "✓";
-        }
-        else {
-          return value + ' ' + this.element.unit;
-        }
-      },
-
       computeStyle: function(exceeds){
         if(exceeds == true)
-          return "background: #e71506; color: #f1f1f1;";
+          return "background: rgb(255, 21, 41); color: #f1f1f1;";
         else if(exceeds == false)
-          return "background: #c019da; color: #f1f1f1;";
+          return "background: rgb(255, 20, 110); color: #f1f1f1;";
         else
-          return "";
-      },
-
-      scrollHandler: function(e) {
-        // console.log(e);
+          return "background: transparent; color: #1f1f1f;";
       }
+      // scrollHandler: function(e) {
+      // }
 
     });
+
   </script>
 
 </dom-module>

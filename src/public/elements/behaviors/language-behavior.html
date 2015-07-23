@@ -7,34 +7,39 @@
       selectedLanguage: {
         type: String,
         value: "de",
+        notify: true,
         observer: "_selChanged"
       },
       selectedLanguageIndex: {
         type: Number,
+        notify: true,
         value: 1
       },
       language: {
         type: Object,
+        notify: true,
         value: function() {
-          types:
-            {en:0;de:1;fr:2;es:3;ru:4};
-          description: {
-            all:       ["all", "Alle","","",""];
-            date:      ["date","Datum","","",""];
-            roomNr:    ["room-number","Raumnummer","","",""];
-            room:      ["room","Raum","","",""];
-            kind:      ["kind","Typ","","",""];
-            method:    ["method","Methode","","",""];
-            x:         ["date","Datum","","",""];
-            y:         ["value","Wert","","",""];
-            threshold: ["threshold","Wert","","",""]
-          }
+          return {
+            "types":
+              {"en":0,"de":1,"fr":2,"es":3,"ru":4},
+            "description": {
+              "all":       ["all", "Alle","","",""],
+              "date":      ["date","Datum","","",""],
+              "roomNr":    ["room-number","Raumnummer","","",""],
+              "room":      ["room","Raum","","",""],
+              "kind":      ["kind","Typ","","",""],
+              "method":    ["method","Methode","","",""],
+              "x":         ["date","Datum","","",""],
+              "y":         ["value","Wert","","",""],
+              "threshold": ["threshold","Wert","","",""]
+            }
+          };
         }
       }
     },
 
     getDescription: function(kind) {
-      if (kind)
+      if (kind && this.language && this.selectedLanguageIndex)
         return this.language.description[kind][this.selectedLanguageIndex];
       else
         return undefined
@@ -48,7 +53,7 @@
     },
 
     _selChanged: function() {
-      this.selectedLanguageIndex = this._selNr(this.selectedLanguage) || 0;
+      this.selectedLanguageIndex = this._selNr(this.selectedLanguage) || 1;
     }
   };
 

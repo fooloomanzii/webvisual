@@ -47,13 +47,18 @@
       flex-direction: row;
     }
     #lower {
-      padding: 8px;
-      width: calc(100% - 16px);
-      height: calc(100% - 80px);
+      box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
+      padding: 0px;
+      width: 100%;
+      height: calc(100% - 64px);
       display: flex;
       flex-direction: row;
       align-items: stretch;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.15), rgba(255, 255, 255, 0));
+      background: #f1f1f1;
+    }
+
+    #lower.dark{
+      background: #8A8A8A;
     }
 
     #header ::content logo-element {

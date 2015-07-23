@@ -1,6 +1,6 @@
 {
   "name": "iron-dropdown",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "authors": [
     "The Polymer Authors"
@@ -35,13 +35,13 @@
     "web-component-tester": "*",
     "iron-image": "polymerelements/iron-image#^1.0.0"
   },
-  "_release": "1.0.0",
+  "_release": "1.0.1",
   "_resolution": {
     "type": "version",
-    "tag": "v1.0.0",
-    "commit": "b276e277fd693289b324088037da771a7a4bbd63"
+    "tag": "v1.0.1",
+    "commit": "ca959428c6a4195effdbaf00f4f67d4c23d26a55"
   },
   "_source": "git://github.com/PolymerElements/iron-dropdown.git",
-  "_target": "*",
+  "_target": "^1.0.0",
   "_originalSource": "PolymerElements/iron-dropdown"
 }
