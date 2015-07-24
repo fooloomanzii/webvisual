@@ -77,12 +77,12 @@ function processData(locals, currentData) {
           if(!lastExceedsArray)
             lastExceedsArray.push(null);
         }
-        dateArray[i] = data[i].date;
+        dateArray[i] = Date.parse(data[i].date);
       }
       // Otherwise: append the Data to that Arrays
       else {
         valuesArray.push(data[i].values);
-        dateArray.push(data[i].date);
+        dateArray.push(Date.parse(data[i].date));
       }
     }
     // Join Data to the Object, which is used by the website

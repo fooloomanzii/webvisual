@@ -120,11 +120,12 @@
     }
     section#lowerToolbar {
       display: flex;
+      overflow-x: auto;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.15), rgba(255, 255, 255, 0));
     }
     section#lowerToolbar > #selectedElementSign {
       width: calc(32vh - 80px);
-      min-width: 15vw;
+      min-width: 6em;
       max-width: 30vw;
       border-radius: 1px 0px 0px 2px;
     }
@@ -132,10 +133,12 @@
       box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
     }
     section#selectedElementCaption {
+      min-width: 3em;
+      position: relative;
       color: #1f1f1f;
       background: white;
       border-radius: 0px 1px 2px 0px;
-      padding-right: 1em;
+      padding: 1.5em;
       justify-content: center;
       line-height: 1.6;
     }
@@ -147,14 +150,27 @@
     }
     table-element#selectedElementTable{
       background: white;
+      min-width: 6em;
     }
     table-element#selectedElementTable.dark{
       background: #a8a8a8;
     }
-    leaflet-map {
+    leaflet-map#selectedElementMap {
+      position: relative;
       font-family: Roboto-Light-Condensed;
-      min-width: 6em;
-      width: 20vw;
+      min-width: 15em;
+      width: 25vw;
+    }
+    leaflet-map#selectedElementMap:before {
+      position: absolute;
+      height: 6px;
+      top: 0px;
+      box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
+      content: "";
+      width: 100%;
+      left: 0px;
+      right: 0px;
+      z-index: 5;
     }
   </style>
 
@@ -172,7 +188,8 @@
             <span id="roomNr">[[selectedElement.roomNr]]</span>
           </section>
           <table-element id="selectedElementTable" class="selectedElement" element="[[selectedElement]]"></table-element>
-          <leaflet-map latitude="50.905" longitude="6.412" zoom="12"></leaflet-map>
+          <line-chart id="selectedElementChart" element="[[selectedElement]]" fit></line-chart>
+          <leaflet-map id="selectedElementMap" latitude="50.905" longitude="6.412" zoom="12" no-intertia></leaflet-map>
         </section>
     </main-toolbar>
 

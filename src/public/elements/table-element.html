@@ -11,7 +11,7 @@
       background: inherit;
     }
     table {
-      display: flex;
+      display: block;
       width: 100%;
       height: 100%;
       border-collapse: collapse;
@@ -20,12 +20,15 @@
     }
     table thead {
       display: block;
+      height: 2.5em;
       margin-right: 1em;
     }
     table thead tr{
       line-height: 2.5em;
+      display: flex;
+      align-items: center;
     }
-    tr {
+    table tbody tr {
       line-height: 1.8em;
       display: flex;
       align-items: center;
@@ -75,8 +78,8 @@
       </template>
       <thead>
         <tr>
-          <th id="xHead"></th>
-          <th id="yHead"></th>
+          <th id="xHead">Datum</th>
+          <th id="yHead">Wert</th>
         </tr>
       </thead>
       <tbody>
@@ -123,24 +126,11 @@
         this.$.yHead.innerText = this.getDescription('y');
       },
 
-      // listeners: {
-      //   'scroll': 'scrollHandler'
-      // },
-
-      limitPresent: function(changeRecord) {
-        // changeRecord.splices.indexSplices.forEach(function(s) {
-        //   s.removed.forEach(function(user) {
-        //     console.log(user.x + ' was removed');
-        //   });
-        //   console.log(s.addedCount + ' users were added');
-        // }, this);
-      },
-
       computeStyle: function(exceeds){
         if(exceeds == true)
-          return "background: rgb(255, 21, 41); color: #f1f1f1;";
+          return "background: rgba(255, 21, 41,0.8); color: #f1f1f1;";
         else if(exceeds == false)
-          return "background: rgb(255, 20, 110); color: #f1f1f1;";
+          return "background: rgba(255, 20, 110,0.8); color: #f1f1f1;";
         else
           return "background: transparent; color: #1f1f1f;";
       }
