@@ -2,22 +2,43 @@
 /*
  * Module dependencies
  */
-var dataModule   = require('./data'),                               // custom: DATAMODULE
-    routes       = require('./routes'),                             // custom: ROUTING
-    mailHelper   = new require('./modules/mailhelper')('exceeds'),  // custom: MAILHELPER
-    express      = require('express'),                              // EXPRESS
-    errorHandler = require('express-error-handler'),                // EXPRESS-ERROR-HANDLER
-    fs           = require('fs'),               // FS <-- File System
-    _            = require('underscore'),       // UNDERSCORE <-- js extensions
-    defaultsDeep = require('merge-defaults'),   // DEFAULTSDEEP <-- extended underscrore/lodash _.defaults, for default-value in   deeper structures
-    morgan       = require('morgan'),           // MORGAN <-- logger
-    dateFormat   = require('dateFormat'),       // dateFormat
-    // Class variables
-    threshold     = dataModule.threshold,       // extension: of DATAMODULE
-    dataHandler   = dataModule.dataHandler,     // extension: of DATAMODULE
-    dataMerge     = dataModule.dataMerge,   // extension: of DATAMODULE
+var 
+    // custom: DATAMODULE
+    dataModule   = require('./data'),
+    // custom: ROUTING
+    routes       = require('./routes'),
+    // custom: MAILHELPER
+    mailHelper   = new require('./modules/mailhelper')('exceeds'),  
+    // EXPRESS
+    express      = require('express'),                              
+    // EXPRESS-ERROR-HANDLER
+    errorHandler = require('express-error-handler'),                
+    // FS <-- File System
+    fs           = require('fs'),               
+    // UNDERSCORE <-- js extensions
+    _            = require('underscore'),       
+    // DEFAULTSDEEP <-- extended underscrore/lodash _.defaults, 
+    // for default-value in   deeper structures
+    defaultsDeep = require('merge-defaults'),   
+    // MORGAN <-- logger
+    morgan       = require('morgan'),           
+    // dateFormat
+    dateFormat   = require('dateFormat'),       
+    
+    /* Database Server + Client */
+    //TODO mongoose lösung finden
+    mongoose     = require('mongoose'),
+    datadb       = require('./modules/datadb'),
+    datamodel    = datadb.devicedata,
+    dbcontroller = new datadb.controller(datamodel, {}),
+    // The database
+    db,
+    /* Class variables */
+    threshold    = dataModule.threshold,       // extension: of DATAMODULE
+    dataHandler  = dataModule.dataHandler,     // extension: of DATAMODULE
+    dataMerge    = dataModule.dataMerge,   // extension: of DATAMODULE
 
-    // Default config
+    /* Default config */
     defaults     = { connections : [],
                      command_file: 'commands.json',
                      port        : 3000,
@@ -207,8 +228,8 @@ var currentData = {},
       listener: {
         error: function(type, err) {
           dataSocket.emit('mistake', { error: err, time: new Date()});
-        },
-        data: [
+      },
+      data: [
           // SocketIO Listener
           function(type, data) {
 
@@ -221,35 +242,14 @@ var currentData = {},
             currentData.data = data;
             // Process data to certain format
             currentData = dataMerge.processData(config.locals,currentData);
+            
+            dbcontroller.appendDataArray(
+                //TODO zum identischen objecten neue values hinzufügen
+                currentData.content, function (err, apiResponse) {
+                  dbcontroller.getTest(console.log);
+            });
+            
             // TODO: fix mailhelper message
-            // Send Mail, if exceeding
-            // if(currentData.lastExceeds.length != 0) {
-            //   console.warn("Warning: values are in critical level!");
-            //   var exceedsHTML = "<h2>"+config.mail.content+"</h2>";
-            //   _.each(currentData.lastExceeds, function(elem) {
-            //     exceedsHTML +="<h4>Ort: "+elem.room+"</h4>"
-            //                 + "<ul style='list-style-type: square;'>"
-            //                 + "<li>Datum: "+elem.data[0].date
-            //                 + "<li>Typ: "+elem.kind
-            //                 + "<li>Eigenschaft: "+elem.method
-            //                 + "<li>Wert: "+elem.data[0].value+" "+elem.unit
-            //                 + "</ul>";
-            //   });
-            //   if(exceedsHTML) exceedsHTML = currentData.time + ":<br>" + exceedsHTML;
-            //   mailHelper.appendMsg(exceedsHTML);
-            //   mailHelper.sendMsg(function(error,info){
-            //     if(error){
-            //       console.log('Mailing error: ' + error);
-            //     }
-            //     else{
-            //       if (info.response) console.log('E-Mail sent: ' + info.response);
-            //       else{
-            //         for( var i in info.pending[0].recipients[0]) console.log(i);
-            //         console.log('E-Mail sent: ' + info.pending[0].recipients[0]);
-            //       }
-            //     }
-            //   });
-            // }
 
             // Set the first event and add the state, if it is the first parsing and send the data
             if(waitFirst) {
@@ -258,8 +258,7 @@ var currentData = {},
               currentData.exclusiveGroups = config.locals.exclusiveGroups;
               dataSocket.emit("first", currentData);
               waitFirst = false;
-            }
-            else {
+            } else {
               dataSocket.emit("data", currentData);
             }
           }
@@ -327,11 +326,22 @@ var currentData = {},
 /*
  * Get SERVER.io and server running!
  */
-
-dataFile.connect();
-// configFile.connect(); // establish the connections
-// externalLogFile.connect();
-server.listen(config.port);
+mongoose.connect("mongodb://localhost:27017/");
+db = mongoose.connection;
+//TODO react on error
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function (callback) {
+  datamodel.remove(function(err,removed) {
+    if(err) console.warn("removing error");
+    // start the handler for new measuring data
+    dataFile.connect();
+    //configFile.connect(); // establish the connections
+    //externalLogFile.connect();
+    
+    // make the Server available for Clients
+    server.listen(config.port);
+  });
+});
 
 /*
  * Start Mail Server
@@ -359,7 +369,9 @@ process.on('uncaughtException', function(err) {
   try {
     console.warn(err.message);
   } catch (e) {
-    if(e.message !== 'Not running')
+    if(e.message !== 'Not running') {}
+    server.close();
+    mongoClient.close();
       throw e;
   }
   throw err;
@@ -369,6 +381,7 @@ process.on('uncaughtException', function(err) {
 process.on('SIGINT', function(err) {
   try {
     server.close();
+    mongoClient.close();
   } catch (err) {
     if(err.message !== 'Not running')
       throw err;
@@ -378,6 +391,7 @@ process.on('SIGINT', function(err) {
 process.on('exit', function(err) {
   try {
     server.close();
+    mongoClient.close();
   } catch (err) {
     if(err.message !== 'Not running')
       throw err;

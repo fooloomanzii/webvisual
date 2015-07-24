@@ -2,6 +2,11 @@
   "name": "webvisual",
   "version": "0.4.5",
   "private": "true",
+  "scripts": {
+    "prestart": "mongod --dbpath c:/mongodb/data",
+    "start": "node app.js",
+    "poststop": "mongo admin --eval 'db.shutdownServer()'"
+  },
   "dependencies": {
     "express": "*",
     "express-error-handler": "*",
@@ -14,7 +19,9 @@
     "lodash-node": "*",
     "bower": "*",
     "morgan": "*",
-	  "dateformat": "*"
+	"dateformat": "*",
+	"moment": "*",
+	"mongoose": "*"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

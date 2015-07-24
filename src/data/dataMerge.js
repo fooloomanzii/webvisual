@@ -10,7 +10,7 @@
   //      currentData.exceeds <-- Object of Boolean-Arrays
   //  Return:
   //    JSON-Object-Structure:
-  //      conten: Object of:
+  //      content: Object of:
   //       "0": { "id":".." , "room":"..", "kind":"..", "method":"..", lastExceeds:
   //            {"x":"..", "y":"..", "exceeds":".."}, "unit":"..", "values":
   //            [ {"x":"..", "y":"..", "exceeds":".."}, {..} , .. ] },
@@ -35,7 +35,7 @@ function processData(locals, currentData) {
       exceedsArray  = [],
       dateArray     = [],
       processedData = {},
-      returnObject = {};
+      returnObject  = {};
 
   arrangeLabels(locals);
 
@@ -100,7 +100,7 @@ function processData(locals, currentData) {
             processedData[k] = element;
           }
           // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored
-
+          // TODO "k" indizies rausnehmen, da die für datenbank unwichtig sind
           processedData[k].values.push({"x":    dateArray[i],
                                              "y":   valuesArray[i][j],
                                              "exceeds": exceedsArray[i][j]
