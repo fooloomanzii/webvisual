@@ -4,7 +4,8 @@
   var mongoose = require('mongoose'),
       Schema   = mongoose.Schema,
       moment   = require('moment'),
-      _        = require('underscore');
+      _        = require('underscore'),
+      async    = require('async');
   
   var DeviceModel = new Schema({
   	id        : String, // Measuring Device ID
@@ -183,7 +184,7 @@
     if(request.sort){
       sort = request.sort;
     } else {
-      sort = {'_id' : 1}; // default sort
+      sort = {'id' : 1}; // default sort
     }
     
     var query = [];
@@ -202,32 +203,16 @@
       if(time !== undefined){
         query.push(
           // Get only elements where 'values.x' equals mTime1
-          {'$match' : { 'values.x': time} }
-        );
-      }
-      if(limit){
-        if(limit > 0){
-          query.push(
-              {'$sort': {'values.x': 1}},
-              {'$limit': limit}
-          );
-        } else {
-          query.push(
-              {'$sort': {'values.x': -1}},
-              {'$limit': -limit},
-              {'$sort': {'values.x': 1}}
-          );
-        }
-      } else {
-        query.push(
-            {'$sort': {'values.x': 1}}
+          {'$match' : { 'values.x': time } }
         );
       }
       query.push(
+        // Sort values by time ascending
+        {'$sort': {'values.x': 1}},
         // Put all found elements together, grouped by _id
         {'$group' : {
           '_id'        : '$id',
-          'values'     : {$push: '$values'}
+          'values'     : { '$push': '$values' }
         }}
       );
       if(!getProperties){ //presort results if no properties are needed
@@ -262,15 +247,27 @@
                 .exec(function(err, items) {
                   if(err) return callback(err);
       
-                  var results = items.map(function(item) {
-                    item.values = values[item.id];
-                    return item;
+                  items.forEach(function(item) {
+                    if(limit){
+                      if(limit<0)
+                        item.values = values[item.id].slice(limit);
+                      else
+                        item.values = values[item.id].slice(0, limit);
+                    } else {
+                      item.values = values[item.id];
+                    }
                   });
-    
-                callback(err, results);
+
+                  callback(err, items);
             });
           } else { // !getProperties
             results.forEach(function(item) {
+              if(limit){
+                if(limit<0)
+                  item.values = item.values.slice(limit);
+                else
+                  item.values = item.values.slice(0, limit);
+              }
               item.id = item._id;
               delete item._id;
             });
@@ -294,6 +291,29 @@
         }
       }
     );
+  };
+  
+  DeviceModel.statics.queries = function (request, callback, options) {
+    var sort;
+    var sortOrder;
+    if(options.sort){
+      sort = _.keys(options.sort)[0];
+      sortOrder = options.sort[sort];
+    } else {
+      sort = 'id';
+      sortOrder = 1; // default sort
+    }
+    
+    async.map(request, function(query, done) {
+      mongoose.model('devicemodel', DeviceModel).query(query, done);
+    }, function(err, result){
+      for(var i in result){
+        result[i]=result[i][0];
+      }
+      result = _.sortBy(result, sort);
+     // if(sortOrder < 0) result = result.reverse();
+      callback(err, result);
+    });
   };
   
   // Module exports

@@ -1,5 +1,6 @@
-var _      = require('underscore'),
-    moment   = require('moment');
+var _        = require('underscore'),
+    moment   = require('moment'),
+    async    = require('async');
 
 /*
  * Controls all operations over the database within defined Data Model
@@ -22,38 +23,14 @@ var DBController = function (dataModel, logger) {
  * Calls the callback with array of possible database errors and responses
  */
 DBController.prototype.appendDataArray = function (newDataArray, callback) {
-  // objects to be returned
-  var errArray;
-  var responseArray = {};
-  
-  // length of input array/object
-  var len;
-  if(_.isArray(newDataArray)) // input is array
-    len = newDataArray.length;
-  else // input is object
-    len = _.keys(newDataArray).length;
   
   var self=this;
-  for(var index in newDataArray){
-    (function(index){ //construction to pass current index to the callback
-      
-      // append every element in the array
-      self.appendData(
-        newDataArray[index], 
-        function (err, apiResponse) {
-          if(err){
-            if(!errArray) errArray = {};
-            errArray[index] = err; // append new error to return object
-          }
-          // append new response to return object
-          responseArray[index] = apiResponse; 
-          if(_.keys(responseArray).length == len){ // appending of the last object calls the callback
-            callback(errArray, responseArray);
-          }
-        }
-      );
-    })(index);
-  }
+  async.map(newDataArray, function(newData, done) {
+    self.appendData(newData, done);
+  }, function(err, apiResponse){
+    callback(err, apiResponse);
+  });
+  
 };
 
 /*
@@ -112,14 +89,25 @@ DBController.prototype.findData = function (request, callback) {
   });
 };
 
+DBController.prototype.findMixedData = function (request, callback, options) {
+  this.dataModel.queries(request, function (err, result) {
+    callback(err, result);
+  }, options);
+};
+
 
 DBController.prototype.getTest = function (callback) {
-  this.findData({
-    query: { id: 'DI0-1' }, 
-    time:  { from: moment().subtract(1, 'months') }, 
-    getProperties: true,
-    limit: -1
-    }, callback);
+  this.findMixedData( [{
+              query: { id: 'DI0-1' }, 
+              time:  { from: moment().subtract(1, 'months') }, 
+              getProperties: true,
+              limit: 2
+            }, {
+              query: { id: 'DI0-2' }, 
+              time:  { from: moment().subtract(1, 'months') }, 
+              getProperties: false,
+              limit: -1
+            }], callback, {sort: {'id': 1}});
 };
 
 

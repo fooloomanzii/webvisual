@@ -21,7 +21,8 @@
     "morgan": "*",
 	"dateformat": "*",
 	"moment": "*",
-	"mongoose": "*"
+	"mongoose": "*",
+	"async": "*"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
