@@ -81,15 +81,33 @@
   }
   
   /*
-   * search for some data and call the callback with found results
-   * possible request properties:
+   *                           !!! ATTENSION !!! 
+   *   If there are no 'time' or 'limit', values may be UNSORTED BY TIME!
+   *   
+   * Description:  
+   *  Function to search for some data and call the callback with found results
+   *  Possible request properties:
    *      query - properties to search for: room: "...", unit: "...", id  : "..."
    *              default: null
    *      time  - moment(...) : http://momentjs.com/docs/
-   *                     OR Date OR parameter to create new Date(parameter)
-   *                     OR {from: ..., to: ...} OR {from: ...} OR {to: ...}
-   *                     from/to is the same as 'time' (except nesting from/to)
+   *                OR Date OR parameter to create new Date(parameter)
+   *                OR {from: ..., to: ...} OR {from: ...} OR {to: ...}
+   *                from/to is the same as 'time' (except nesting from/to)
+   *                'from' is included, 'to' is excluded
+   *              e.g. '2015-08-15' or 12345 (to parse Date from)
+   *                   or { from: moment('2015-08-15').add(2, 'months'),
+   *                        to: moment().subtract(1, 'day') }
    *              default: null
+   *      limit - maximal number (integer) of values to be returned,
+   *              appending on time:
+   *                   (-) for values before time/time.to  (e.g. last N values)
+   *                   (+) for values after time/time.from (e.g. first N values)
+   *                   (0) no extra limits :)
+   *              or without time:
+   *                   (-) for last N values
+   *                   (+) for first N values
+   *                   (0) no extra limits :)
+   *              default: null (no extra limits)
    *      getProperties - false to get only id and values
    *                      true to get everything else
    *              default: true
@@ -106,6 +124,7 @@
    *      sorted descending by room name
    * to receive all the data leave query as null : findData(null, callback)
    * or just call findData(callback);
+   * 
    */
   DeviceModel.statics.query = function (request, callback) {
     if(!request) request = {};
@@ -115,6 +134,10 @@
     }
     if(!callback) callback = function(err, results){ };
     
+    var limit;
+    if(request.limit){
+      limit = request.limit;
+    }
     var getProperties = true;
     if(request.getProperties !== undefined){
       getProperties = request.getProperties;
@@ -125,7 +148,7 @@
       if(request.time.from !== undefined){
         try {
           if(!time) time = {};
-          time['$gte'] = new Date(moment(request.time.from));
+          time['$gte'] = new Date(request.time.from);
         } catch (e) {
           console.warn('time.from is wrong!');
           return;
@@ -142,7 +165,13 @@
       }
       if(time === undefined){ // no time.from and no time.to
         try {
-          time = new Date(request.time);
+          if(!limit) {
+            time = new Date(request.time);
+          } else if (limit < 0) {
+            time['$lte'] = new Date(request.time.to);
+          } else {
+            time['$gte'] = new Date(request.time.from);
+          }
         } catch (e) {
           console.warn('time is wrong!');
           return;
@@ -165,12 +194,36 @@
     }
     
     // different way to search with the time against without
-    if(time !== undefined){
+    if(time !== undefined || limit){
       query.push(
         // Unwind the 'inventories' array
-        {'$unwind' : '$values'}, 
-        // Get only elements where 'values.x' equals mTime1
-        {'$match' : { 'values.x': time} },
+        {'$unwind' : '$values'}
+      );
+      if(time !== undefined){
+        query.push(
+          // Get only elements where 'values.x' equals mTime1
+          {'$match' : { 'values.x': time} }
+        );
+      }
+      if(limit){
+        if(limit > 0){
+          query.push(
+              {'$sort': {'values.x': 1}},
+              {'$limit': limit}
+          );
+        } else {
+          query.push(
+              {'$sort': {'values.x': -1}},
+              {'$limit': -limit},
+              {'$sort': {'values.x': 1}}
+          );
+        }
+      } else {
+        query.push(
+            {'$sort': {'values.x': 1}}
+        );
+      }
+      query.push(
         // Put all found elements together, grouped by _id
         {'$group' : {
           '_id'        : '$id',
@@ -182,7 +235,7 @@
           {'$sort': sort}
         );
       }
-    } else { // time is undefined
+    } else { // time and limit are undefined
       query.push(
         {'$sort': sort}
       );
@@ -195,7 +248,7 @@
         if(err) return callback(err);
 
         // different way to search with the time against without
-        if(time !== undefined){
+        if(time !== undefined || limit){
           if(getProperties){
             var values = {}; // hashMap to group values by id
             results.forEach(function(item) {
@@ -223,7 +276,7 @@
             });
             callback(err, results);
           }
-        } else { // time is undefined
+        } else { // time  and limit are undefined
           if(getProperties){
             results.forEach(function(item) {
               delete item._id;

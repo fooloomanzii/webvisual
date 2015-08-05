@@ -85,7 +85,7 @@ var sslOptions  = {
 // General
 var app    = express(),
     server = require('https').createServer(sslOptions, app),
-    io     = require('socket.io').listen(server, sslOptions);
+    io     = require('socket.io').listen(server, sslOptions); //
 
 // Path to static folder
 app.use(express.static(__dirname + '/public'));
@@ -247,7 +247,7 @@ var currentData = {},
                 currentData.content, 
                 function (err, apiResponse) {
                   if(err) return console.log(err);
-                  //dbcontroller.getTest(console.log);
+                  dbcontroller.getTest(console.log);
             });
             
             // TODO: fix mailhelper message

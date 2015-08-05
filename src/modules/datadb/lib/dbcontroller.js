@@ -117,7 +117,8 @@ DBController.prototype.getTest = function (callback) {
   this.findData({
     query: { id: 'DI0-1' }, 
     time:  { from: moment().subtract(1, 'months') }, 
-    getProperties: true
+    getProperties: true,
+    limit: -1
     }, callback);
 };
 
