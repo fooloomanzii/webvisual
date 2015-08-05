@@ -244,13 +244,15 @@ var currentData = {},
             currentData = dataMerge.processData(config.locals,currentData);
             
             dbcontroller.appendDataArray(
-                //TODO zum identischen objecten neue values hinzufügen
-                currentData.content, function (err, apiResponse) {
-                  dbcontroller.getTest(console.log);
+                currentData.content, 
+                function (err, apiResponse) {
+                  if(err) return console.log(err);
+                  //dbcontroller.getTest(console.log);
             });
             
             // TODO: fix mailhelper message
 
+            // TODO: 
             // Set the first event and add the state, if it is the first parsing and send the data
             if(waitFirst) {
               currentData.language = config.locals.language;
@@ -268,6 +270,7 @@ var currentData = {},
     // Data Socket
     dataSocket = io.of('/data')
                    .on('connection', function(socket) {
+                     console.log(socket);
                       // Wait till first data will be sent or receive
                       // the current data as 'first' for every Client
                       if (!waitFirst) {
@@ -328,18 +331,20 @@ var currentData = {},
  */
 mongoose.connect("mongodb://localhost:27017/");
 db = mongoose.connection;
-//TODO react on error
+//TODO properly react on error
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function (callback) {
-  datamodel.remove(function(err,removed) {
-    if(err) console.warn("removing error");
-    // start the handler for new measuring data
-    dataFile.connect();
-    //configFile.connect(); // establish the connections
-    //externalLogFile.connect();
-    
-    // make the Server available for Clients
-    server.listen(config.port);
+  datamodel.remove({},function(){
+  
+  // start the handler for new measuring data
+  dataFile.connect();
+  // establish connection with other sockets
+  //configFile.connect(); 
+  //externalLogFile.connect();
+  
+  // make the Server available for Clients
+  server.listen(config.port);
+  
   });
 });
 
