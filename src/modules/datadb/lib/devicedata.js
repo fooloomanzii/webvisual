@@ -19,6 +19,8 @@
     values    : [Schema.Types.Mixed] // Measured Data
   });
   
+  
+  
   // Functions
   
   /*
@@ -81,53 +83,7 @@
     );
   }
   
-  /*
-   *                           !!! ATTENSION !!! 
-   *   If there are no 'time' or 'limit', values may be UNSORTED BY TIME!
-   *   
-   * Description:  
-   *  Function to search for some data and call the callback with found results
-   *  Possible request properties:
-   *      query - properties to search for: room: "...", unit: "...", id  : "..."
-   *              default: null
-   *      time  - moment(...) : http://momentjs.com/docs/
-   *                OR Date OR parameter to create new Date(parameter)
-   *                OR {from: ..., to: ...} OR {from: ...} OR {to: ...}
-   *                from/to is the same as 'time' (except nesting from/to)
-   *                'from' is included, 'to' is excluded
-   *              e.g. '2015-08-15' or 12345 (to parse Date from)
-   *                   or { from: moment('2015-08-15').add(2, 'months'),
-   *                        to: moment().subtract(1, 'day') }
-   *              default: null
-   *      limit - maximal number (integer) of values to be returned,
-   *              appending on time:
-   *                   (-) for values before time/time.to  (e.g. last N values)
-   *                   (+) for values after time/time.from (e.g. first N values)
-   *                   (0) no extra limits :)
-   *              or without time:
-   *                   (-) for last N values
-   *                   (+) for first N values
-   *                   (0) no extra limits :)
-   *              default: null (no extra limits)
-   *      getProperties - false to get only id and values
-   *                      true to get everything else
-   *              default: true
-   *      sort  - { property : 1 to specify ascending order
-   *                          -1 to specify descending order }
-   *              default: {id : 1}
-   *                     
-   * all properties are optional 
-   * and need to be in the query object (order has no influence)
-   * e.g. request = { query: { roomNr: "1" }, 
-   *                  time:  { from: moment().subtract(1, 'months') },
-   *                  sort:  { room: "-1" } }
-   *      it requests data with roomNr = "1" from 1 month till now,
-   *      sorted descending by room name
-   * to receive all the data leave query as null : findData(null, callback)
-   * or just call findData(callback);
-   * 
-   */
-  DeviceModel.statics.query = function (request, callback) {
+  function find(model, request, callback) {
     if(!request) request = {};
     if(_.isFunction(request)){
       callback = request;
@@ -226,8 +182,8 @@
       );
     }
     
-    var self = this;
-    self.aggregate( 
+    //var self = this;
+    model.aggregate( 
       query,
       function(err, results) {
         if(err) return callback(err);
@@ -242,7 +198,7 @@
             });
   
             // extend results with other properties (then 'id' and 'values')
-            self.find( {id: {$in: _.keys(values)}} )
+            model.find( {id: {$in: _.keys(values)}} )
                 .sort(sort)
                 .exec(function(err, items) {
                   if(err) return callback(err);
@@ -293,19 +249,71 @@
     );
   };
   
-  DeviceModel.statics.queries = function (request, callback, options) {
+  
+  /*
+   *                           !!! ATTENSION !!! 
+   *   If there are no 'time' or 'limit', values may be UNSORTED BY TIME!
+   *   
+   * Description:  
+   *  Function to search for some data and call the callback with found results
+   *  Possible request properties:
+   *      query - properties to search for: room: "...", unit: "...", id  : "..."
+   *              default: null
+   *      time  - moment(...) : http://momentjs.com/docs/
+   *                OR Date OR parameter to create new Date(parameter)
+   *                OR {from: ..., to: ...} OR {from: ...} OR {to: ...}
+   *                from/to is the same as 'time' (except nesting from/to)
+   *                'from' is included, 'to' is excluded
+   *              e.g. '2015-08-15' or 12345 (to parse Date from)
+   *                   or { from: moment('2015-08-15').add(2, 'months'),
+   *                        to: moment().subtract(1, 'day') }
+   *              default: null
+   *      limit - maximal number (integer) of values to be returned,
+   *              appending on time:
+   *                   (-) for values before time/time.to  (e.g. last N values)
+   *                   (+) for values after time/time.from (e.g. first N values)
+   *                   (0) no extra limits :)
+   *              or without time:
+   *                   (-) for last N values
+   *                   (+) for first N values
+   *                   (0) no extra limits :)
+   *              default: null (no extra limits)
+   *      getProperties - false to get only id and values
+   *                      true to get everything else
+   *              default: true
+   *      sort  - { property : 1 to specify ascending order
+   *                          -1 to specify descending order }
+   *              default: {id : 1}
+   *                     
+   * all properties are optional 
+   * and need to be in the query object (order has no influence)
+   * e.g. request = { query: { roomNr: "1" }, 
+   *                  time:  { from: moment().subtract(1, 'months') },
+   *                  sort:  { room: "-1" } }
+   *      it requests data with roomNr = "1" from 1 month till now,
+   *      sorted descending by room name
+   * to receive all the data leave query as null : findData(null, callback)
+   * or just call findData(callback);
+   * 
+   */
+  DeviceModel.statics.query = function (request, callback, options) {
+    var self = this;
+    if(!_.isArray(request)){
+      return find(self, request, callback);
+    }
+    
     var sort;
     var sortOrder;
-    if(options.sort){
+    if(options && options.sort){
       sort = _.keys(options.sort)[0];
       sortOrder = options.sort[sort];
     } else {
       sort = 'id';
       sortOrder = 1; // default sort
     }
-    
+
     async.map(request, function(query, done) {
-      mongoose.model('devicemodel', DeviceModel).query(query, done);
+      find(self, query, done);
     }, function(err, result){
       for(var i in result){
         result[i]=result[i][0];

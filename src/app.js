@@ -34,10 +34,14 @@ var
     // The database
     db,
     /* Class variables */
-    threshold    = dataModule.threshold,       // extension: of DATAMODULE
-    dataHandler  = dataModule.dataHandler,     // extension: of DATAMODULE
-    dataMerge    = dataModule.dataMerge,   // extension: of DATAMODULE
+    threshold    = dataModule.threshold,    // extension: of DATAMODULE
+    dataHandler  = dataModule.dataHandler,  // extension: of DATAMODULE
+    dataMerge    = dataModule.dataMerge,    // extension: of DATAMODULE
+    Client       = dataModule.client,       // extension: of DATAMODULE
 
+    /* Current connected clients */
+    clients      = [],
+    
     /* Default config */
     defaults     = { connections : [],
                      command_file: 'commands.json',
@@ -185,44 +189,8 @@ mailHelper.setDelay(1000);
  * Configure SOCKET.IO (watch the data file)
  */
 
-// Socket variables
-var userCounter = 0,
-    waitFirst = true,
-    states={};
-
-    // Config Socket
-
-// var configData,
-//     configFile = new dataHandler( {
-//       // Object used the Configuration
-//       connection: { "file": { "copy"    : false,
-//                               "mode"    : "all",
-//                               "json"    : true,
-//                               "path"    : "/../config/config2.json",
-//                               "process" : "" }},
-//       listener: {
-//         error: function(type, err) {
-//           configSocket.emit('mistake', { data: err, time: new Date()});
-//         },
-//         data: [
-//           // SocketIO Listener
-//           function(type, data) {
-//             // Send the current data;
-//             configData = data;
-//             configSocket.emit('data', configData);
-//             // Update
-//           }
-//         ]
-//       }
-//       }),
-//     configSocket = io.of('/config')
-//                      .on('connection', function(socket){
-//                         socket.emit('data', configData);
-//                       });
-    // DATAHANDLER - established the data connections
-var currentData = {},
-    lastExceeds = [],
-    dataFile = new dataHandler( {
+//DATAHANDLER - established the data connections
+var dataFile = new dataHandler( {
       // Object used the Configuration
       connection: config.connections,
       listener: {
@@ -233,98 +201,64 @@ var currentData = {},
           // SocketIO Listener
           function(type, data) {
 
-            // Store the current message time
-            currentData.time=new Date();
-
-            // Check for threshold exceeds and save it
-            currentData.exceeds = threshold.getExceeds(data);
-            // Save the current data
-            currentData.data = data;
             // Process data to certain format
-            currentData = dataMerge.processData(config.locals,currentData);
+            var currentData = dataMerge.processData(config.locals,{
+              exceeds: threshold.getExceeds(data),
+              data: data
+            });
             
             dbcontroller.appendDataArray(
                 currentData.content, 
-                function (err, apiResponse) {
-                  if(err) return console.log(err);
-                  dbcontroller.getTest(console.log);
-            });
+                function (err, appendedData) {
+                  //TODO: handle the error
+                  //appendedData can be logged
+                }
+            );
             
-            // TODO: fix mailhelper message
-
-            // TODO: 
-            // Set the first event and add the state, if it is the first parsing and send the data
-            if(waitFirst) {
-              currentData.language = config.locals.language;
-              currentData.groupingKeys = config.locals.groupingKeys;
-              currentData.exclusiveGroups = config.locals.exclusiveGroups;
-              dataSocket.emit("first", currentData);
-              waitFirst = false;
-            } else {
-              dataSocket.emit("data", currentData);
-            }
+            clients.forEach(function(client){
+              dbcontroller.getData(client.appendPattern,
+                  function (err, data) {
+                     //TODO: handle the error
+                     var message = {
+                        content: data,
+                        time: new Date(), // current message time
+                     };
+                     client.socket.emit('data', message);
+                  }
+              );
+            });
           }
         ]
       }
-    }),
-    // Data Socket
-    dataSocket = io.of('/data')
-                   .on('connection', function(socket) {
-                     console.log(socket);
-                      // Wait till first data will be sent or receive
-                      // the current data as 'first' for every Client
-                      if (!waitFirst) {
-                        currentData.language = config.locals.language;
-                        currentData.groupingKeys = config.locals.groupingKeys;
-                        currentData.exclusiveGroups = config.locals.exclusiveGroups;
-                        socket.emit('first', currentData);
-                      } else {
-                        socket.emit('wait');
-                      }
-                    });
+    });
 
-    // external-Log-File-Socket
-// var logData = {},
-//     externalLogFile = new dataHandler( {
-//       // Object used the Configuration
-//       connection: { "file": { "copy"    : false,
-//                               "mode"    : "all",
-//                               "path"    : config.logs.external_log,
-//                               "process" : "" }},
-//       listener: {
-//         error: function(type, err) {
-//           logSocket.emit('mistake', { data: err, time: new Date()});
-//         },
-//         data: [
-//           // SocketIO Listener
-//           function(type, data) {
-//
-//             // //- Store the current message time
-//             // logData.time=new Date();
-//             //
-//             // var sendEvent = 'externalLog';
-//             //
-//             // // Set the first event and add the state, if it is the first parsing
-//             // if(waitFirst) {
-//             //   sendEvent = 'first';
-//             //   waitFirst = false;
-//             // }
-//             //
-//             // //- Save the current data
-//             logData.data=data;
-//             // console.log(data);
-//
-//             //- ... finally send the data
-//             logSocket.emit('externalLog', logData);
-//           }
-//         ]
-//       }
-//     }),
-//     logSocket = io.of('/log')
-//                    .on('connection', function(socket) {
-//                       console.log(logData.data);
-//                       socket.emit('message', logData.data);
-//                      });
+// Data Socket
+var dataSocket = io.of('/data');
+
+// Handle connections of new clients
+dataSocket.on('connection', function(socket) {
+                 
+   socket.on('clientdata', function(patterns) {
+     var current_client = new Client(socket, patterns);
+     clients.push(current_client);
+     
+     dbcontroller.getData(current_client.firstPattern,
+         function (err, data) {
+            //TODO: handle the error
+       
+            var message = {
+               content: data,
+               time: new Date(), // current message time
+               language: config.locals.language,
+               groupingKeys: config.locals.groupingKeys,
+               exclusiveGroups: config.locals.exclusiveGroups
+            };
+            socket.emit('first', message);
+         }
+     );
+   });
+ 
+});
 
 /*
  * Get SERVER.io and server running!
@@ -338,9 +272,6 @@ db.once('open', function (callback) {
   
   // start the handler for new measuring data
   dataFile.connect();
-  // establish connection with other sockets
-  //configFile.connect(); 
-  //externalLogFile.connect();
   
   // make the Server available for Clients
   server.listen(config.port);

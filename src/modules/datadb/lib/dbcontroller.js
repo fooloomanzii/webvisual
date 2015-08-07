@@ -83,21 +83,15 @@ DBController.prototype.getAllData = function (callback) {
  * Search for some query and call the callback with found data
  * How to use the function read by dataModel.query
  */
-DBController.prototype.findData = function (request, callback) {
+DBController.prototype.getData = function (request, callback, options) {
   this.dataModel.query(request, function (err, result) {
-    callback(err, result);
-  });
-};
-
-DBController.prototype.findMixedData = function (request, callback, options) {
-  this.dataModel.queries(request, function (err, result) {
     callback(err, result);
   }, options);
 };
 
 
 DBController.prototype.getTest = function (callback) {
-  this.findMixedData( [{
+  this.getData( [{
               query: { id: 'DI0-1' }, 
               time:  { from: moment().subtract(1, 'months') }, 
               getProperties: true,
@@ -107,7 +101,14 @@ DBController.prototype.getTest = function (callback) {
               time:  { from: moment().subtract(1, 'months') }, 
               getProperties: false,
               limit: -1
-            }], callback, {sort: {'id': 1}});
+            }], callback, 
+            {sort: {'id': 1}});
+  this.getData( {
+    query: { id: 'DI4-4' }, 
+    time:  { from: moment().subtract(1, 'months') }, 
+    getProperties: true,
+    limit: 2
+  }, callback);
 };
 
 

@@ -17,6 +17,7 @@
   $(document).ready(function() {
     var self = data_processor;
     var dataSocket = io.connect('https://'+window.location.host+self.socket, {secure: true});
+    
     // Receiving the first Data
     dataSocket.on('first', function(message) {
       if(message === undefined || message.content === undefined) return; // Check the Existence
