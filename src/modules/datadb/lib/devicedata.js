@@ -19,8 +19,6 @@
     values    : [Schema.Types.Mixed] // Measured Data
   });
   
-  
-  
   // Functions
   
   /*
@@ -36,14 +34,41 @@
    * e.g. append({id: "1", room: "room"});
    */
   DeviceModel.statics.append = function (newData, callback) {
+    /* model with unique name */
+    var tmpModel = mongoose.model('tmp-'+(new Date()), DeviceModel);
+    var self = this;
+    if(!_.isArray(newData)){
+      return save(self, tmpModel, newData, function(err, appendedData){
+        // remove all elements == null
+        appendedData = appendedData.filter(function(n){ return n != undefined }); 
+        // fill the temporary model with data from current update
+        tmpModel.create(appendedData, function(err){
+          callback(err, appendedData, tmpModel);
+        });
+      });
+    }
+
+    async.map(newData, function(data, done) {
+      save(self, tmpModel, data, done);
+    }, function(err, appendedData){
+      // remove all elements == null
+      appendedData = appendedData.filter(function(n){ return n != undefined }); 
+      // fill the temporary model with data from current update
+      tmpModel.create(appendedData, function(err){
+        callback(err, appendedData, tmpModel);
+      });
+    });
+  };
+  
+  /* Private function - append()'s helper */
+  function save(model, tmpModel, newData, callback){
     
     // divide newData on Values and Device properties
     var newValues = newData.values;
     delete newData.values;
     if(newValues === undefined) newValues = {};
     
-    var self = this;
-    this.find( // prevent data merging from other devices with same id
+    model.find( // prevent data merging from other devices with same id
       { id: newData.id },
       function(err, result){
         if (err) return callback(err);
@@ -53,7 +78,8 @@
             // compare every property
             if(result[0][item]!==undefined && 
                 !_.isEqual(result[0][item], newData[item])){
-              // any property is unequal
+              // property is unequal
+              // the changes need to be made before appending of data
               return callback(new Error("Device with same id exists!"));
             }
           }
@@ -61,28 +87,123 @@
         
         if(_.isEmpty(result)){ // nothing was found ( with this.find() )
           newData.values=newValues;
-          self.update(
+          model.create(newData, callback);
+        } else { // device exists -> append the values
+          // build array of not existed values
+          var valuesDiff = _.filter(newValues, 
+            function(obj){ 
+              var ret = true;
+              result[0].values.forEach(
+                function(value){
+                  if(_.isEqual(value, obj)){
+                    ret = false;
+                    return;
+                  }
+                }
+              )
+              return ret;
+            }
+          );
+          
+          if(_.isEmpty(valuesDiff)){
+            callback(err, null);
+          } else {
+            model.update(
               // criteria
               { id: newData.id },
-              newData,
-              { upsert: true },
-              callback
-          );
-        } else { // devise exists -> append the values
-          self.update(
-            // criteria
-            { id: newData.id },
-            // data, to be updated/saved
-            { // prevent from identical values
-              $addToSet: {values: {$each: newValues} } 
-            },
-            callback
-          );
+              // just append the new values
+              { $push: {values: {$each: valuesDiff} } },
+              function(err) {
+                if (err) { return callback(err); }
+                
+                callback(err, 
+                    { id     : newData.id,
+                      values : valuesDiff
+                    }
+                );
+              }
+            );
+          }
         }
       }
     );
   }
   
+  /*
+   *                           !!! ATTENSION !!! 
+   *   If there are no 'time' or 'limit', values may be UNSORTED BY TIME!
+   *   
+   * Description:  
+   *  Function to search for some data and call the callback with found results
+   *  Possible request properties:
+   *      query - properties to search for: room: "...", unit: "...", id  : "..."
+   *              default: null
+   *      time  - moment(...) : http://momentjs.com/docs/
+   *                OR Date OR parameter to create new Date(parameter)
+   *                OR {from: ..., to: ...} OR {from: ...} OR {to: ...}
+   *                from/to is the same as 'time' (except nesting from/to)
+   *                'from' is included, 'to' is excluded
+   *              e.g. '2015-08-15' or 12345 (to parse Date from)
+   *                   or { from: moment('2015-08-15').add(2, 'months'),
+   *                        to: moment().subtract(1, 'day') }
+   *              default: null
+   *      limit - maximal number (integer) of values to be returned,
+   *              appending on time:
+   *                   (-) for values before time/time.to  (e.g. last N values)
+   *                   (+) for values after time/time.from (e.g. first N values)
+   *                   (0) no extra limits :)
+   *              or without time:
+   *                   (-) for last N values
+   *                   (+) for first N values
+   *                   (0) no extra limits :)
+   *              default: null (no extra limits)
+   *      getProperties - false to get only id and values
+   *                      true to get everything else
+   *              default: true
+   *      sort  - { property : 1 to specify ascending order
+   *                          -1 to specify descending order }
+   *              default: {id : 1}
+   *                     
+   * all properties are optional 
+   * and need to be in the query object (order has no influence)
+   * e.g. request = { query: { roomNr: "1" }, 
+   *                  time:  { from: moment().subtract(1, 'months') },
+   *                  sort:  { room: "-1" } }
+   *      it requests data with roomNr = "1" from 1 month till now,
+   *      sorted descending by room name
+   * to receive all the data leave query as null : findData(null, callback)
+   * or just call findData(callback);
+   * 
+   */
+  DeviceModel.statics.query = function (request, callback, options) {
+    var self = this;
+    if(!_.isArray(request)){
+      return find(self, request, callback);
+    }
+    
+    var sort;
+    var sortOrder;
+    if(options && options.sort){
+      sort = _.keys(options.sort)[0];
+      sortOrder = options.sort[sort];
+    } else {
+      sort = 'id';
+      sortOrder = 1; // default sort
+    }
+
+    async.map(request, function(query, done) {
+      find(self, query, done);
+    }, function(err, result){
+      for(var i in result){
+        result[i]=result[i][0];
+      }
+      result = _.sortBy(result, sort);
+      if(sortOrder < 0) result = result.reverse();
+      callback(err, result);
+    });
+  };
+  
+  /* Private function - query()'s helper */
   function find(model, request, callback) {
     if(!request) request = {};
     if(_.isFunction(request)){
@@ -193,8 +314,16 @@
           if(getProperties){
             var values = {}; // hashMap to group values by id
             results.forEach(function(item) {
-              if(item.values) // prevent empty results
-                values[item._id] = item.values;
+              if(item.values){ // prevent empty results
+                if(limit){
+                  if(limit<0)
+                    values[item._id] = item.values.slice(limit);
+                  else
+                    values[item._id] = item.values.slice(0, limit);
+                } else {
+                  values[item._id] = item.values;
+                }
+              }
             });
   
             // extend results with other properties (then 'id' and 'values')
@@ -204,14 +333,7 @@
                   if(err) return callback(err);
       
                   items.forEach(function(item) {
-                    if(limit){
-                      if(limit<0)
-                        item.values = values[item.id].slice(limit);
-                      else
-                        item.values = values[item.id].slice(0, limit);
-                    } else {
-                      item.values = values[item.id];
-                    }
+                    item.values = values[item.id];
                   });
 
                   callback(err, items);
@@ -235,7 +357,7 @@
               delete item._id;
             });
           } else { // !getProperties
-            for(key in results){
+            for(var key in results){
               results[key] = { 
                   id: results[key].id, 
                   values: results[key].values 
@@ -247,81 +369,6 @@
         }
       }
     );
-  };
-  
-  
-  /*
-   *                           !!! ATTENSION !!! 
-   *   If there are no 'time' or 'limit', values may be UNSORTED BY TIME!
-   *   
-   * Description:  
-   *  Function to search for some data and call the callback with found results
-   *  Possible request properties:
-   *      query - properties to search for: room: "...", unit: "...", id  : "..."
-   *              default: null
-   *      time  - moment(...) : http://momentjs.com/docs/
-   *                OR Date OR parameter to create new Date(parameter)
-   *                OR {from: ..., to: ...} OR {from: ...} OR {to: ...}
-   *                from/to is the same as 'time' (except nesting from/to)
-   *                'from' is included, 'to' is excluded
-   *              e.g. '2015-08-15' or 12345 (to parse Date from)
-   *                   or { from: moment('2015-08-15').add(2, 'months'),
-   *                        to: moment().subtract(1, 'day') }
-   *              default: null
-   *      limit - maximal number (integer) of values to be returned,
-   *              appending on time:
-   *                   (-) for values before time/time.to  (e.g. last N values)
-   *                   (+) for values after time/time.from (e.g. first N values)
-   *                   (0) no extra limits :)
-   *              or without time:
-   *                   (-) for last N values
-   *                   (+) for first N values
-   *                   (0) no extra limits :)
-   *              default: null (no extra limits)
-   *      getProperties - false to get only id and values
-   *                      true to get everything else
-   *              default: true
-   *      sort  - { property : 1 to specify ascending order
-   *                          -1 to specify descending order }
-   *              default: {id : 1}
-   *                     
-   * all properties are optional 
-   * and need to be in the query object (order has no influence)
-   * e.g. request = { query: { roomNr: "1" }, 
-   *                  time:  { from: moment().subtract(1, 'months') },
-   *                  sort:  { room: "-1" } }
-   *      it requests data with roomNr = "1" from 1 month till now,
-   *      sorted descending by room name
-   * to receive all the data leave query as null : findData(null, callback)
-   * or just call findData(callback);
-   * 
-   */
-  DeviceModel.statics.query = function (request, callback, options) {
-    var self = this;
-    if(!_.isArray(request)){
-      return find(self, request, callback);
-    }
-    
-    var sort;
-    var sortOrder;
-    if(options && options.sort){
-      sort = _.keys(options.sort)[0];
-      sortOrder = options.sort[sort];
-    } else {
-      sort = 'id';
-      sortOrder = 1; // default sort
-    }
-
-    async.map(request, function(query, done) {
-      find(self, query, done);
-    }, function(err, result){
-      for(var i in result){
-        result[i]=result[i][0];
-      }
-      result = _.sortBy(result, sort);
-     // if(sortOrder < 0) result = result.reverse();
-      callback(err, result);
-    });
   };
   
   // Module exports

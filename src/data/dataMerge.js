@@ -34,7 +34,7 @@ function processData(locals, currentData) {
   var valuesArray   = [],
       exceedsArray  = [],
       dateArray     = [],
-      processedData = {},
+      processedData = [],
       returnObject  = {};
 
   arrangeLabels(locals);

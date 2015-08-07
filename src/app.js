@@ -207,26 +207,29 @@ var dataFile = new dataHandler( {
               data: data
             });
             
-            dbcontroller.appendDataArray(
-                currentData.content, 
-                function (err, appendedData) {
-                  //TODO: handle the error
-                  //appendedData can be logged
-                }
+            dbcontroller.appendData(
+              currentData.content, 
+              function (err, appendedData, tmpDB) {
+                //TODO: handle the error
+                clients.forEach(function(client){
+                  dbcontroller.getUpdate(tmpDB,
+                    client.appendPattern,
+                    function (err, data) {
+                      //TODO: handle the error
+                      var message = {
+                         content: data,
+                         time: new Date(), // current message time
+                      };
+                      client.socket.emit('data', message);
+                    }
+                  );
+                });
+                tmpDB.find({},function(err, data){
+                  console.log(data);
+                  tmpDB.remove({});
+                });
+              }
             );
-            
-            clients.forEach(function(client){
-              dbcontroller.getData(client.appendPattern,
-                  function (err, data) {
-                     //TODO: handle the error
-                     var message = {
-                        content: data,
-                        time: new Date(), // current message time
-                     };
-                     client.socket.emit('data', message);
-                  }
-              );
-            });
           }
         ]
       }
@@ -241,7 +244,6 @@ dataSocket.on('connection', function(socket) {
    socket.on('clientdata', function(patterns) {
      var current_client = new Client(socket, patterns);
      clients.push(current_client);
-     
      dbcontroller.getData(current_client.firstPattern,
          function (err, data) {
             //TODO: handle the error
