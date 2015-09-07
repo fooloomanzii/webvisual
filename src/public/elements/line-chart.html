@@ -1,11 +1,10 @@
 <link rel="import" href="../components/polymer/polymer.html">
 <link rel="import" href="../components/poly-nvd3/nvd3-behavior.html">
-<link rel="import" href="behaviors/element-behavior.html">
 
 <script>
     Polymer({
         is: "line-chart",
-        nvModel: nv.models.historicalBar ,
+        nvModel: nv.models.lineChart ,
         behaviors: [NVD3Behavior, ElementBehavior],
         customize: function(chart, svg) {
           chart.xAxis.tickFormat(

@@ -1,0 +1,102 @@
+<dom-module id="sign-page">
+  <style>
+    section#mainContent {
+      height: calc(100vh - 64px);
+    }
+    @media all and (min-width: 0px) and (max-width: 600px) {
+      section#mainContent {
+        display: block;
+      }
+    }
+  </style>
+
+  <template>
+
+    <main-toolbar id="toolbar" class="has-shadow paper-header normal">
+        <paper-icon-button icon="menu" class="mainmenu header" on-click="toggleDrawer"></paper-icon-button>
+        <logo-element class="header"></logo-element>
+    </main-toolbar>
+
+    <section id="mainContent">
+      <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup">
+        <post-card class="group" headline="[[groupedItem.group]]">
+
+          <template id="elementlist" is="dom-repeat" items="{{data}}" as="element">
+            <template is="dom-if" if="[[groupElements(element,groupedItem)]]" restamp>
+              <section class="card" on-click="setSelectedElement">
+
+                  <sign-element element="[[element]]"></sign-element>
+                  <section class="caption" id="[[element.id]]">
+                    <span id="kind">[[element.kind]]</span>
+                    <span id="method">[[element.method]]</span>
+                    <span id="room">[[element.room]]</span>
+                    <span id="roomNr">[[element.roomNr]]</span>
+                  </section>
+
+              </section>
+            </template>
+          </template>
+        </post-card>
+      </template>
+
+      <array-selector id="selector" items="{{data}}" selected="{{selectedElement}}"></array-selector>
+    </section>
+
+    <!-- Page-Options -->
+    <paper-dialog id="optionDialog" entry-animation="slide-to-up-animation" exit-animation="slide-to-down-animation">
+      <section class="horizontal layout">
+        <post-card headline="Gruppieren nach">
+          <paper-menu attr-for-selected="id" selected="{{groupBy}}">
+            <template is="dom-repeat" items="{{keys}}" as="key">
+              <paper-item id="[[key]]">[[key]]</paper-item>
+            </template>
+          </paper-menu>
+        </post-card>
+      </section>
+    </paper-dialog>
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'sign-page',
+
+      behaviors: [ScrollBehavior, DataBehavior, LanguageBehavior, PageBehavior, Polymer.NeonSharedElementAnimatableBehavior],
+
+      properties: {
+        animationConfig: {
+          value: function() {
+            return {
+              'exit': [
+                {
+                  name: 'hero-animation',
+                  id: 'heroSign',
+                  fromPage: this
+                },
+                {
+                  name: 'hero-animation',
+                  id: 'heroCaption',
+                  fromPage: this
+                }
+              ]
+            }
+          }
+        }
+      },
+
+      setSelectedElement: function(e) {
+        if (e){
+          this.$.selector.select(e.model.element);
+          this.sharedElements = {
+            'heroSign': e.currentTarget.children[0],
+            'heroCaption': e.currentTarget.children[1]
+          };
+          this.fire('selectedevent');
+        }
+      }
+
+    });
+
+  </script>
+
+</dom-module>

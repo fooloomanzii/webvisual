@@ -1,126 +1,17 @@
-<link rel="import" href="behaviors/page-behavior.html">
-<link rel="import" href="behaviors/data-behavior.html">
-<link rel="import" href="behaviors/scroll-behavior.html">
-<link rel="import" href="behaviors/language-behavior.html">
-<link rel="import" href="../components/neon-animation/neon-shared-element-animatable-behavior.html">
-
+<link href="../../css/page.css" type="text/css" rel="stylesheet"/>
 <dom-module id="selected-element-sign-page">
   <style>
-    :host {
-      font-family: Roboto;
-      font-style: normal;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
+    section#mainContent {
+      height: 70vh;
     }
-
-    main-toolbar: {
-      overflow: hidden !important;
-    }
-
-    main-toolbar:after {
-      position: absolute;
-      height: 6px;
-      bottom: -6px;
-      box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
-      -webkit-transition: opacity 0.5s, -webkit-transform 0.5s;
-      transition: opacity 0.5s, transform 0.5s;
-      opacity: 0;
-      content: "";
-      width: 100%;
-      left: 0px;
-      right: 0px;
-      z-index: 5;
-      -webkit-transform: scale3d(1, 0, 1);
-      -webkit-transform-origin: 0% 0%;
-      transform: scale3d(1, 0, 1);
-      transform-origin: 0% 0%;
-    }
-
-    main-toolbar.has-shadow:after {
-      opacity: 1;
-      -webkit-transform: scale3d(1, 1, 1);
-      transform: scale3d(1, 1, 1);
-    }
-
-    #mainContent {
-      display: flex;
-      flex-wrap: wrap;
-      align-content: flex-start;
-      position: relative;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-      -ms-flex: 1 1 0.000000001px;
-      -webkit-flex: 1;
-      flex: 1;
-      -webkit-flex-basis: 0.000000001px;
-      flex-basis: 0.000000001px;
-      background: #CCCCCC;
-    }
-
-    #mainContent.dark {
-      background: #666666;
-    }
-
-    section.card {
-      background: white;
-      padding: 0em;
-      border-radius: 2px 2px 2px 3px;
-      margin: 0em 0.55em 0.55em 0em;
-      border: thin solid lightgrey;
-      border-radius: 2px;
-      align-self: stretch;
-    }
-    section.card.dark {
-      background: #a8a8a8;
-      border: thin solid #606060;
-    }
-    section.caption {
-      flex-direction: column;
-      line-height: 1.4;
-      display: flex;
-      padding: 0.35em 0.65em 0.4em 0.6em;
-    }
-    #kind {
-      font-family: Roboto-Bold;
-      font-size: 1em;
-    }
-    #method {
-      font-size: 0.75em;
-    }
-    #room {
-      font-size: 0.9em;
-    }
-    #roomNr {
-      font-size: 0.6em;
-    }
-    post-card.group > ::content #cardContent{
-      padding: 0.5em 0em 0em 0.5em;
-    }
-    post-card.group {
-      transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-      margin: 0.75em;
-      box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
-                  0 1px 10px 0 rgba(0, 0, 0, 0.12),
-                  0 2px 4px -1px rgba(0, 0, 0, 0.4);
-      align-self: baseline;
-    }
-    paper-dialog#optionDialog {
-      border-radius: 5px 5px 0px 0px;
-      position: fixed;
-      margin: 0em 0em;
-      bottom: 0em;
-      max-height: 38vh;
-      min-width: 40vw;
-      max-width: calc(100vw - 3em);
+    @media all and (min-width: 0px) and (max-width: 600px) {
+      section#mainContent {
+        display: block;
+      }
     }
     section#lowerToolbar {
       display: flex;
-      overflow-x: auto;
+      /*overflow-x: auto;*/
       background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.15), rgba(255, 255, 255, 0));
     }
     section#lowerToolbar > #selectedElementSign {
@@ -175,6 +66,9 @@
   </style>
 
   <template>
+
+    <link href="../../css/page.css" type="text/css" rel="stylesheet"/>
+
     <main-toolbar id="toolbar" class="has-shadow paper-header" opened>
         <paper-icon-button icon="menu" class="mainmenu header" on-click="toggleDrawer"></paper-icon-button>
         <logo-element class="header"></logo-element>
@@ -188,7 +82,7 @@
             <span id="roomNr">[[selectedElement.roomNr]]</span>
           </section>
           <table-element id="selectedElementTable" class="selectedElement" element="[[selectedElement]]"></table-element>
-          <line-chart id="selectedElementChart" element="[[selectedElement]]" fit></line-chart>
+          <!-- <line-chart id="selectedElementChart" element="[[selectedElement]]" fit></line-chart> -->
           <leaflet-map id="selectedElementMap" latitude="50.905" longitude="6.412" zoom="12" no-intertia></leaflet-map>
         </section>
     </main-toolbar>

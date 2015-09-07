@@ -35,7 +35,6 @@
     "commit": "58234773b35298519083eb956afdc10963d02514"
   },
   "_source": "git://github.com/leaflet-extras/leaflet-map.git",
-  "_target": "~1.1.0",
-  "_originalSource": "leaflet-map",
-  "_direct": true
+  "_target": "*",
+  "_originalSource": "leaflet-map"
 }
