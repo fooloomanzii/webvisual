@@ -46,7 +46,6 @@ section#mainContent.dark {
 
 section.card {
   background: white;
-  padding: 0em;
   border-radius: 2px 2px 2px 3px;
   margin: 0em 0.55em 0.55em 0em;
   border: thin solid lightgrey;
@@ -76,7 +75,7 @@ section.caption {
 #roomNr {
   font-size: 0.6em;
 }
-post-card.group /deep/ #cardContent{
+post-card.group #cardContent{
   padding: 0.5em 0em 0em 0.5em;
 }
 post-card.group {
