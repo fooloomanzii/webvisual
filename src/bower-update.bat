@@ -1,2 +1,0 @@
-bower update
-pause
