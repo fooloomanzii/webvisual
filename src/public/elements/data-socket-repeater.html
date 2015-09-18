@@ -98,14 +98,14 @@
             var k = 0;
             if (self.doAppend){
                 for (var i=0; i < self.data.length; i++) {
-                  while (message.content[i].values.length + self.data[i].values.length > self.maxTotalLines && self.data[i].values.length > 0)
-                    self.pop("data."+i+".values");
                   k = 0;
                   if (message.content[i].values.length > self.maxTotalLines)
                     k = message.content[i].values.length - self.maxTotalLines;
                   for (var j=k; j < message.content[i].values.length; j++) {
                     self.unshift("data."+i+".values",message.content[i].values[j]);
                   }
+                  // while (self.data[i].values.length > self.maxTotalLines && self.data[i].values.length > 0)
+                  //   self.pop("data."+i+".values");
                   self.set("data."+i+".lastExceeds",message.content[i].lastExceeds);
                 }
             }

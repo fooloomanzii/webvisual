@@ -69,6 +69,7 @@
     "commit": "c41a656aeba027b315d1f64c9253948b6204331f"
   },
   "_source": "git://github.com/PolymerElements/iron-elements.git",
-  "_target": "*",
-  "_originalSource": "PolymerElements/iron-elements"
+  "_target": "~1.0.3",
+  "_originalSource": "PolymerElements/iron-elements",
+  "_direct": true
 }

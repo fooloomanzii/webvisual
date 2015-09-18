@@ -2,23 +2,20 @@
   "name": "webvisual",
   "version": "0.4.5",
   "license": "MIT",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
+  "homepage": "https://github.com/Fairyon/webvisual",
+  "authors": [
+    "fooloomanzii <hannes-b@web.de>"
   ],
   "dependencies": {
-    "jquery": "*",
-    "iron-elements": "PolymerElements/iron-elements",
-    "polymer": "Polymer/polymer",
+    "iron-elements": "PolymerElements/iron-elements#~1.0.3",
+    "iron-list": "PolymerElements/iron-list#~1.1.1",
+    "jquery": "~2.1.4",
+    "neon-animation": "PolymerElements/neon-animation",
+    "nvd3": "https://github.com/novus/nvd3",
     "paper-elements": "PolymerElements/paper-elements",
-    "poly-nvd3": "*",
-    "d3": "*",
-    "nvd3": "novus/nvd3",
-    "Resizer": "alefwmm/Resizer",
-    "leaflet-map": "*"
-  },
-  "devDependencies": {}
+    "platinum-push-messaging": "PolymerElements/platinum-push-messaging",
+    "poly-nvd3": "~1.4.0",
+    "polymer": "Polymer/polymer",
+    "underscore": "~1.8.3"
+  }
 }
