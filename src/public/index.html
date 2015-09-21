@@ -123,7 +123,7 @@
                 <iron-icon icon="receipt"></iron-icon>
                 <span class="flex">Daten</span>
               </paper-button>
-              <paper-item class="date">
+              <!-- <paper-item class="date">
                 <iron-icon icon="swap-vert"></iron-icon>
                 <span class="flex">letzte Nachricht</span>
                 <span class="italic">{{computeDate(lastMessage)}}</span>
@@ -137,7 +137,7 @@
                 <iron-icon icon="warning"></iron-icon>
                 <span class="flex">letzte fehlerhafte Nachricht</span>
                 <span class="italic">{{computeDate(lastMistake)}}</span>
-              </paper-item>
+              </paper-item> -->
             </section>
           </iron-collapse>
 
@@ -147,10 +147,8 @@
         </paper-button>
       </iron-selector>
     </paper-header-panel>
-    <!-- Page Option Button -->
-            <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab>
     <!-- MAIN VIEW -->
-    <pages-element main class="element-page" data="{{data}}" groups="{{groups}}" on-drawer-toggle-pressed="toggleDrawer"></pages-element>
+      <pages-element main class="element-page" data="{{data}}" groups="{{groups}}" on-drawer-toggle-pressed="toggleDrawer"></pages-element>
 
   </paper-drawer-panel>
 

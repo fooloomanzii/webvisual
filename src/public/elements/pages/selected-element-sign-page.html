@@ -78,18 +78,22 @@
         <logo-element class="header"></logo-element>
         <paper-icon-button id="iconToggle" class="icon-toggle" icon="expand-less" on-click="_onClose"></paper-icon-button>
         <section id="lowerToolbar">
-          <sign-element id="selectedElementSign" class="selectedElement" element="[[selectedElement]]" on-click="_onClose"></sign-element>
+          <sign-element id="selectedElementSign" class="selectedElement" element="{{selectedElement}}" on-click="_onClose"></sign-element>
           <section id="selectedElementCaption" class="selectedElement caption">
-            <span id="kind">[[selectedElement.kind]]</span>
-            <span id="method">[[selectedElement.method]]</span>
-            <span id="room">[[selectedElement.room]]</span>
-            <span id="roomNr">[[selectedElement.roomNr]]</span>
+            <span id="kind">{{selectedElement.kind}}</span>
+            <span id="method">{{selectedElement.method}}</span>
+            <span id="room">{{selectedElement.room}}</span>
+            <span id="roomNr">{{selectedElement.roomNr}}</span>
           </section>
           <table-element id="selectedElementTable" class="selectedElement" element="{{selectedElement}}"></table-element>
           <!-- <line-chart id="selectedElementChart" element="[[selectedElement]]" fit></line-chart> -->
           <leaflet-map id="selectedElementMap" latitude="50.904" longitude="6.41041" zoom="18" no-inertia></leaflet-map>
         </section>
     </main-toolbar>
+
+    <!-- Page Option Button -->
+    <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab>
+    <neon-animated-pages id="pages" selected="0">
 
     <section id="mainContent" class="page">
       <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup">
@@ -206,9 +210,12 @@
 
       setSelectedElement: function(e) {
         if (e){
-          if (this.selectedElement == e.model.element)
+          if (this.selectedElement == e.model.element){
+            // this.$.selector.deselect(e.model.element)
             this._onClose();
+          }
           else {
+            this.$.selector.deselect(this.selectedElement);
             this.$.selector.select(e.model.element);
           }
         }

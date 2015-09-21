@@ -64,6 +64,7 @@
       100% {fill:currentColor; transform: scale(1);}
   }
 
+/* TODO: change animation to animatable-behaviour*/
   /* animate the title at start*/
   /*#script #line path {
     animation-name: start-1-animation;
@@ -264,7 +265,8 @@
       else if (this.exceeds == null) {
         animate += ' null';
       }
-      this.$.logo.setAttribute('class',animate);
+      // TODO: check
+      this.toggleClass(animate,true,this.$.logo);
     },
     //- watching every animation cycle, if it can stop
     stopRequest: function() {

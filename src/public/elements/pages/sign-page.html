@@ -17,11 +17,14 @@
         <logo-element class="header"></logo-element>
     </main-toolbar>
 
+    <!-- Page Option Button -->
+    <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab>
+
     <section id="mainContent" class="page">
       <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup">
         <post-card class="group" headline="[[groupedItem.group]]">
 
-          <template id="elementlist" is="dom-repeat" items="{{data}}" as="element">
+          <template is="dom-repeat" items="{{data}}" as="element" observe="values element.values">
             <template is="dom-if" if="[[groupElements(element,groupedItem)]]" restamp>
               <section class="card" on-click="setSelectedElement">
 

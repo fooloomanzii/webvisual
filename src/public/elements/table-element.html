@@ -89,6 +89,7 @@
         </template>
         <template is="dom-repeat" id="values" items="{{element.values}}">
           <tr style$={{computeStyle(item.exceeds)}}>
+            <td>{{element.id}}</td>
             <td>{{computeX(item.x)}}</td>
             <td>{{computeY(item.y,item.exceeds)}}</td>
           </tr>

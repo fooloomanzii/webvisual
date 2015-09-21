@@ -18,19 +18,24 @@
           },
           lastMessage: {
             type: Date,
-            value: 0
+            value: 0,
+            notify: true
           },
           lastMistake: {
             type: Date,
-            value: 0
+            value: 0,
+            notify: true
           },
           lastError: {
             type: Date,
-            value: 0
+            value: 0,
+            notify: true
           },
           maxTotalLines: {
             type: Number,
-            observer: 'maxTotalLinesChanged'
+            observer: 'maxTotalLinesChanged',
+            value: 10,
+            notify: true
           },
           doAppend: {
             type: Boolean,
@@ -44,18 +49,21 @@
           },
           keys: {
             type: Array,
-            value: function() { return ["kind","method","room","roomNr"]; }
+            value: function() { return ["kind","method","room","roomNr"]; },
+            notify: true
           },
           interval: {
             type: Number,
+            value: 5,
             notify: true
           }
       },
 
       ready: function(){
+        // TODO: sort the data points?
         var self = this;
         var dataSocket = io.connect('https://'+window.location.host+this.socket, {secure: true});
-        // Receiving the first Data
+        // Receiving the FIRST Data
         dataSocket.on('first', function(message) {
           if(message === undefined || message.content === undefined) return; // Check the Existence
 
@@ -63,30 +71,29 @@
           self.setLanguage(message.language);
           self.setKeys(message.groupingKeys);
 
-
-          var k, val;
-          // for Polymer (to notice Array change) special treatment of integrating data
+          var overhead, messageLength, messageContent;
+          // for Polymer (to notice Array change) special treatment to integrate data
           for (var i in message.content) {
-            val = message.content[i];
+            messageContent = message.content[i];
+            messageLength = message.content[i].values.length;
+
             if (!self.data[i])  // if no reconnection
               self.push("data",{});
-            for (var key in val) {
+            for (var key in messageContent) {
               if(key != "values")
-                self.set("data."+i+"."+key, val[key]);
+                self.set("data."+i+"."+key, messageContent[key]);
             }
             self.set("data."+i+".values", []);
-            k = 0;
-            if (message.content[i].values.length > self.maxTotalLines)
-              k = message.content[i].values.length - self.maxTotalLines;
-            for (var j=k; j < message.content[i].values.length; j++) {
-              self.unshift("data."+i+".values",message.content[i].values[j]);
+            overhead = (messageLength > self.maxTotalLines) ? messageLength - self.maxTotalLines : 0;
+            for (var j=overhead; j < message.content[i].values.length; j++) {
+              self.push("data."+i+".values",message.content[i].values[j]);
             }
           }
           self.grouping(message.content,message.exclusiveGroups);
           self.fire("dataloaded");
         });
 
-        // Receive another Data
+        // Receive FURTHER Data
         dataSocket.on('data', function(message) {
           if(message === undefined || message.content === undefined) return; // Check for Existence
 
@@ -95,17 +102,14 @@
           if (time - self.lastMessage >= self.interval*1000){
             self.set("lastMessage", time);
 
-            var k = 0;
+            var overhead, messageLength, dataLength;
             if (self.doAppend){
-                for (var i=0; i < self.data.length; i++) {
-                  k = 0;
-                  if (message.content[i].values.length > self.maxTotalLines)
-                    k = message.content[i].values.length - self.maxTotalLines;
-                  for (var j=k; j < message.content[i].values.length; j++) {
-                    self.unshift("data."+i+".values",message.content[i].values[j]);
+                for (var i=0; i < self.data.length; i++) { // for all messurement-data-alements existing
+                  messageLength = message.content[i].values.length;
+                  for (var j=0; j < messageLength; j++) {
+                    dataLength = self.unshift("data."+i+".values",message.content[i].values[j]);
+                    if (dataLength > self.maxTotalLines) self.pop("data."+i+".values");
                   }
-                  // while (self.data[i].values.length > self.maxTotalLines && self.data[i].values.length > 0)
-                  //   self.pop("data."+i+".values");
                   self.set("data."+i+".lastExceeds",message.content[i].lastExceeds);
                 }
             }
@@ -113,12 +117,9 @@
               for (var i=0; i < self.data.length; i++) {
                 while (self.data[i].values.length > 0)
                   self.pop("data."+i+".values");
-                var k = 0;
-                if (message.content[i].values.length > self.maxTotalLines)
-                  k = message.content[i].values.length - self.maxTotalLines;
-                for (var j=k; j < message.content[i].values.length; j++) {
-                  self.unshift("data."+i+".values",message.content[i].values[j]);
-                }
+                overhead = (messageLength > self.maxTotalLines) ? messageLength - self.maxTotalLines : 0;
+                for (var j=overhead; j < message.content[i].values.length; j++)
+                  self.push("data."+i+".values",message.content[i].values[j]);
                 self.set("data."+i+".lastExceeds",message.content[i].lastExceeds);
               }
             }
@@ -206,14 +207,17 @@
       },
 
       maxTotalLinesChanged: function(newValue, oldValue) {
-      //   if (this.data && newValue < oldValue && newValue>0)
-      //     for (var i=0; i < this.data.length; i++) {
-      //       while (this.data[i].data.length > newValue)
-      //         this.shift("data."+i+".values");
-      //     }
-      //   else {
-      //     this.maxTotalLines = oldValue;
-      //   }
+        var dataLength, overhead;
+        if (newValue && this.data && newValue>0)
+          for (var i=0; i < this.data.length; i++) {
+            dataLength = this.data[i].values.length;
+            overhead = (dataLength > newValue) ? dataLength - newValue : 0;
+            for (var j = dataLength - overhead; j < dataLength; j++)
+              this.pop("data."+i+".values");
+          }
+        else {
+          this.maxTotalLines = oldValue;
+        }
       }
     });
   });
