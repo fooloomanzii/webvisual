@@ -66,36 +66,26 @@
       behaviors: [ScrollBehavior, DataBehavior, LanguageBehavior, PageBehavior, Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
-        animationConfig: {
-          value: function() {
-            return {
-              'entry': [
-                {
-                  name: 'hero-animation',
-                  id: 'heroSign',
-                  toPage: this
-                },
-                {
-                  name: 'hero-animation',
-                  id: 'heroCaption',
-                  toPage: this
-                }
-              ],
-              'exit': [
-                {
-                  name: 'hero-animation',
-                  id: 'heroSign',
-                  fromPage: this
-                },
-                {
-                  name: 'hero-animation',
-                  id: 'heroCaption',
-                  fromPage: this
-                }
-              ]
-            }
-          }
-        }
+        // animationConfig: {
+        //   value: function() {
+        //     return {
+        //       'entry': [
+        //         {
+        //           name: 'hero-animation',
+        //           id: 'heroSign',
+        //           toPage: this
+        //         }
+        //       ],
+        //       'exit': [
+        //         {
+        //           name: 'hero-animation',
+        //           id: 'heroSign',
+        //           fromPage: this
+        //         }
+        //       ]
+        //     }
+        //   }
+        // }
       },
 
       setSelectedElement: function(e) {
@@ -106,10 +96,9 @@
           this.selectedElement = item;
           this.linkPaths('selectedElement', 'data.' + key);
           this.notifyPath('selectedElement.values', this.selectedElement.values);
-          this.sharedElements = {
-            'heroSign': e.currentTarget.children[0],
-            'heroCaption': e.currentTarget.children[1]
-          };
+          // this.sharedElements = {
+          //   'heroSign': e.currentTarget.children[0]
+          // };
           this.fire('selectevent');
         }
       }

@@ -142,27 +142,45 @@
       behaviors: [ScrollBehavior, DataBehavior, LanguageBehavior, PageBehavior, Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
-        sharedElements: {
-          value: function() {
-            return {
-              'heroSign': this.$.selectedElementSign,
-              'heroCaption': this.$.selectedElementCaption
-            }
-          }
-        },
+        // sharedElements: {
+        //   value: function() {
+        //     return {
+        //       'heroSign': this.$.selectedElementSign,
+        //       'heroCaption': this.$.selectedElementCaption
+        //     }
+        //   }
+        // },
         animationConfig: {
           value: function() {
             return {
               'entry': [
                 {
-                  name: 'hero-animation',
-                  id: 'heroSign',
-                  toPage: this
+                  name: 'slide-from-left-animation',
+                  node: this.$.selectedElementSign,
+                  timing: {
+                    duration: 500
+                  }
                 },
                 {
-                  name: 'hero-animation',
-                  id: 'heroCaption',
-                  toPage: this
+                  name: 'slide-from-left-animation',
+                  node: this.$.selectedElementCaption,
+                  timing: {
+                    duration: 500
+                  }
+                },
+                {
+                  name: 'scale-up-animation',
+                  node: this.$.selectedElementTable,
+                  timing: {
+                    duration: 500
+                  }
+                },
+                {
+                  name: 'scale-up-animation',
+                  node: this.$.selectedElementMap,
+                  timing: {
+                    duration: 500
+                  }
                 }
               ],
               'exit': [ {
@@ -185,14 +203,18 @@
                   height: "64px",
                 },
                 {
-                  name: 'hero-animation',
-                  id: 'heroSign',
-                  fromPage: this
+                  name: 'slide-left-animation',
+                  node: this.$.selectedElementSign,
+                  timing: {
+                    duration: 250
+                  }
                 },
                 {
-                  name: 'hero-animation',
-                  id: 'heroCaption',
-                  fromPage: this
+                  name: 'slide-left-animation',
+                  node: this.$.selectedElementCaption,
+                  timing: {
+                    duration: 250
+                  }
                 }]
             }
           }
