@@ -75,8 +75,8 @@
 
     <section id="outer">
 
-      <template is="dom-if" if="[[headline]]" restamp>
-        <paper-button id="head" class="top" on-tap="toggleCollapse">[[headline]]</paper-button>
+      <template is="dom-if" if="{{headline}}" restamp>
+        <paper-button id="head" class="top" on-tap="toggleCollapse">{{headline}}</paper-button>
       </template>
       <section id="cardMain" class="content">
           <iron-collapse id="cardCollapse" opened duration="1">

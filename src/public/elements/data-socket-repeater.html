@@ -14,7 +14,17 @@
           data: {
             type: Array,
             value: function() { return []; },
+            notify: true,
+            readOnly: true
+          },
+          groups: {
+            type: Object,
+            value: function() { return {}; },
             notify: true
+          },
+          keys: {
+            type: Array,
+            value: function() { return ["kind","method","room","roomNr","all"]; }
           },
           lastMessage: {
             type: Date,
@@ -40,16 +50,6 @@
           doAppend: {
             type: Boolean,
             value: false,
-            notify: true
-          },
-          groups: { // TODO: maybe better in own/settings socket + keys + language
-            type: Object,
-            value: function() { return {}; },
-            notify: true
-          },
-          keys: {
-            type: Array,
-            value: function() { return ["kind","method","room","roomNr"]; },
             notify: true
           },
           interval: {
@@ -107,7 +107,7 @@
                 for (var i=0; i < self.data.length; i++) { // for all messurement-data-alements existing
                   messageLength = message.content[i].values.length;
                   for (var j=0; j < messageLength; j++) {
-                    dataLength = self.unshift("data."+i+".values",message.content[i].values[j]);
+                    self.unshift("data."+i+".values",message.content[i].values[j]);
                     if (dataLength > self.maxTotalLines) self.pop("data."+i+".values");
                   }
                   self.set("data."+i+".lastExceeds",message.content[i].lastExceeds);

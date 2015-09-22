@@ -24,9 +24,9 @@
   </style>
 
   <template>
-    <number-validate minvalue="[[minvalue]]" maxvalue="[[maxvalue]]"></number-validate>
-    <paper-input-container always-float-label auto-validate invalid="[[invalid]]">
-      <label>[[label]]</label>
+    <number-validate minvalue="{{minvalue}}" maxvalue="{{maxvalue}}"></number-validate>
+    <paper-input-container always-float-label auto-validate invalid="{{invalid}}">
+      <label>{{label}}</label>
       <input is="iron-input"
         bind-value="{{value}}"
         invalid="{{invalid}}"
@@ -34,10 +34,10 @@
         inputmode="number"
         prevent-invalid-input
         minlength="1"
-        maxlength="[[maxlength]]"
+        maxlength="{{maxlength}}"
         validator="number-validate">
-      <paper-input-error>[[errorMessage]]</paper-input-error>
-      <number-input-unit unit="[[unit]]"></number-input-unit>
+      <paper-input-error>{{errorMessage}}</paper-input-error>
+      <number-input-unit unit="{{unit}}"></number-input-unit>
     </paper-input-container>
   </template>
 

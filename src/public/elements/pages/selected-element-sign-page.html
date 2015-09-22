@@ -86,7 +86,7 @@
             <span id="roomNr">{{selectedElement.roomNr}}</span>
           </section>
           <table-element id="selectedElementTable" class="selectedElement" element="{{selectedElement}}"></table-element>
-          <!-- <line-chart id="selectedElementChart" element="[[selectedElement]]" fit></line-chart> -->
+          <!-- <line-chart id="selectedElementChart" element="{{selectedElement}}" fit></line-chart> -->
           <leaflet-map id="selectedElementMap" latitude="50.904" longitude="6.41041" zoom="18" no-inertia></leaflet-map>
         </section>
     </main-toolbar>
@@ -96,19 +96,19 @@
     <neon-animated-pages id="pages" selected="0">
 
     <section id="mainContent" class="page">
-      <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup">
-        <post-card class="group" headline="[[groupedItem.group]]">
+      <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup" delay="200">
+        <post-card class="group" headline="{{groupedItem.group}}">
 
           <template id="elementlist" is="dom-repeat" items="{{data}}" as="element">
-            <template is="dom-if" if="[[groupElements(element,groupedItem)]]" restamp>
+            <template is="dom-if" if="{{groupElements(element,groupedItem)}}" restamp>
               <section class="card" on-click="setSelectedElement">
 
-                  <sign-element element="[[element]]"></sign-element>
-                  <section class="caption" id="[[element.id]]">
-                    <span id="kind">[[element.kind]]</span>
-                    <span id="method">[[element.method]]</span>
-                    <span id="room">[[element.room]]</span>
-                    <span id="roomNr">[[element.roomNr]]</span>
+                  <sign-element element="{{element}}"></sign-element>
+                  <section class="caption" id="{{element.id}}">
+                    <span id="kind">{{element.kind}}</span>
+                    <span id="method">{{element.method}}</span>
+                    <span id="room">{{element.room}}</span>
+                    <span id="roomNr">{{element.roomNr}}</span>
                   </section>
 
               </section>
@@ -116,9 +116,6 @@
           </template>
         </post-card>
       </template>
-
-
-      <array-selector id="selector" items="{{data}}" selected="{{selectedElement}}"></array-selector>
 
     </section>
 
@@ -128,7 +125,7 @@
         <post-card headline="Gruppieren nach">
           <paper-menu attr-for-selected="id" selected="{{groupBy}}">
             <template is="dom-repeat" items="{{keys}}" as="key">
-              <paper-item id="[[key]]">[[key]]</paper-item>
+              <paper-item id="{{key}}">{{key}}</paper-item>
             </template>
           </paper-menu>
         </post-card>
@@ -186,6 +183,16 @@
                   name: 'height-animation',
                   node: this.$.toolbar,
                   height: "64px",
+                },
+                {
+                  name: 'hero-animation',
+                  id: 'heroSign',
+                  fromPage: this
+                },
+                {
+                  name: 'hero-animation',
+                  id: 'heroCaption',
+                  fromPage: this
                 }]
             }
           }
@@ -205,18 +212,27 @@
       },
 
       _onClose: function(opened){
-        this.fire("deselectedevent");
+        this.fire("deselectevent");
       },
+
+      // _onNext: function(opened){
+      //   this.fire("nextselectevent");
+      // },
 
       setSelectedElement: function(e) {
         if (e){
-          if (this.selectedElement == e.model.element){
-            // this.$.selector.deselect(e.model.element)
+          var item = e.model.element;
+          if (this.selectedElement == item){
+            this.unlinkPaths('selectedElement');
             this._onClose();
           }
           else {
-            this.$.selector.deselect(this.selectedElement);
-            this.$.selector.select(e.model.element);
+            this.unlinkPaths('selectedElement');
+            var icol = Polymer.Collection.get(this.data);
+            var key = icol.getKey(item);
+            this.selectedElement = item;
+            this.linkPaths('selectedElement', 'data.' + key);
+            // this._onNext();
           }
         }
       }

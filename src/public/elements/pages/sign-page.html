@@ -21,19 +21,19 @@
     <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab>
 
     <section id="mainContent" class="page">
-      <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup">
-        <post-card class="group" headline="[[groupedItem.group]]">
+      <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup" delay="200">
+        <post-card class="group" headline="{{groupedItem.group}}">
 
-          <template is="dom-repeat" items="{{data}}" as="element" observe="values element.values">
-            <template is="dom-if" if="[[groupElements(element,groupedItem)]]" restamp>
+          <template is="dom-repeat" items="{{data}}" as="element">
+            <template is="dom-if" if="{{groupElements(element,groupedItem)}}" restamp>
               <section class="card" on-click="setSelectedElement">
 
-                  <sign-element element="[[element]]"></sign-element>
-                  <section class="caption" id="[[element.id]]">
-                    <span id="kind">[[element.kind]]</span>
-                    <span id="method">[[element.method]]</span>
-                    <span id="room">[[element.room]]</span>
-                    <span id="roomNr">[[element.roomNr]]</span>
+                  <sign-element element="{{element}}"></sign-element>
+                  <section class="caption" id="{{element.id}}">
+                    <span id="kind">{{element.kind}}</span>
+                    <span id="method">{{element.method}}</span>
+                    <span id="room">{{element.room}}</span>
+                    <span id="roomNr">{{element.roomNr}}</span>
                   </section>
 
               </section>
@@ -42,7 +42,6 @@
         </post-card>
       </template>
 
-      <array-selector id="selector" items="{{data}}" selected="{{selectedElement}}"></array-selector>
     </section>
 
     <!-- Page-Options -->
@@ -51,7 +50,7 @@
         <post-card headline="Gruppieren nach">
           <paper-menu attr-for-selected="id" selected="{{groupBy}}">
             <template is="dom-repeat" items="{{keys}}" as="key">
-              <paper-item id="[[key]]">[[key]]</paper-item>
+              <paper-item id="{{key}}">{{key}}</paper-item>
             </template>
           </paper-menu>
         </post-card>
@@ -70,6 +69,18 @@
         animationConfig: {
           value: function() {
             return {
+              'entry': [
+                {
+                  name: 'hero-animation',
+                  id: 'heroSign',
+                  toPage: this
+                },
+                {
+                  name: 'hero-animation',
+                  id: 'heroCaption',
+                  toPage: this
+                }
+              ],
               'exit': [
                 {
                   name: 'hero-animation',
@@ -89,12 +100,17 @@
 
       setSelectedElement: function(e) {
         if (e){
-          this.$.selector.select(e.model.element);
+          var item = e.model.element;
+          var icol = Polymer.Collection.get(this.data);
+          var key = icol.getKey(item);
+          this.selectedElement = item;
+          this.linkPaths('selectedElement', 'data.' + key);
+          this.notifyPath('selectedElement.values', this.selectedElement.values);
           this.sharedElements = {
             'heroSign': e.currentTarget.children[0],
             'heroCaption': e.currentTarget.children[1]
           };
-          this.fire('selectedevent');
+          this.fire('selectevent');
         }
       }
 

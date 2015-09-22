@@ -5,20 +5,13 @@
     properties: {
         element: {
           type: Object,
-          value: function() { return {"values":[]}; },
+          value: function() { return {}; },
           notify: true
         },
         timeFormat: {
           type: String,
           value: "HH:mm:ss"
         }
-    },
-
-    observers: [
-      'valuesChanged(element.values.splices)'
-    ],
-
-    valuesChanged: function(changeRecord) {
     },
 
     firstX: function(change) {
