@@ -88,29 +88,29 @@
     }
   </style>
   <template>
-    <section id="mainContent" style$="{{firstStyle(element.values.*)}}">
+    <section id="mainContent" style$="{{computeStyle(element.values.*,0)}}">
       <paper-ripple id="ripple" recenters></paper-ripple>
 
       <section class="actualValueSection">
         <template is="dom-if" if="{{!element.isBoolean}}" restamp>
-          <span class="valueSection">{{firstY(element.values.*)}}</span><span class="unitSection">{{element.unit}}</span>
+          <span class="valueSection">{{computeY(element.values.*,0)}}</span><span class="unitSection">{{element.unit}}</span>
         </template>
         <template is="dom-if" if="{{element.isBoolean}}" restamp>
-          <iron-icon icon={{firstIcon(element.values.*)}}></iron-icon>
+          <iron-icon icon={{computeIcon(element.values.*,0)}}></iron-icon>
         </template>
       </section>
 
       <section class="lowerSection">
         <template is="dom-if" if="{{showExceeds}}" restamp>
           <template is="dom-if" if="{{element.lastExceeds}}" restamp>
-            <span class="exceedsDateSection">{{computeX(element.lastExceeds.x)}}</span><span class="exceedsValueSection">{{computeY(element.lastExceeds.y,element.lastExceeds.exceeds)}}<span> </span><span>{{element.unit}}</span></span>
+            <span class="exceedsDateSection">{{computeLastExceedsX()}}</span><span class="exceedsValueSection">{{computeLastExceedsY()}}<span> </span><span>{{element.unit}}</span></span>
           </template>
           <template is="dom-if" if="{{!element.lastExceeds}}" restamp>
-            <span class="dateSection">{{firstX(element.values.*)}}</span>
+            <span class="dateSection">{{computeX(element.values.*,0)}}</span>
           </template>
         </template>
         <template is="dom-if" if="{{!showExceeds}}" restamp>
-          <span class="dateSection">{{firstX(element.values.*)}}</span>
+          <span class="dateSection">{{computeX(element.values.*,0)}}</span>
         </template>
       </section>
     </section>

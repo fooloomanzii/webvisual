@@ -14,73 +14,87 @@
         }
     },
 
-    firstX: function(change) {
+    computeIcon: function(change, index) {
       if (change.base && change.base.length != 0){
-        var date = this.get('x', change.base[0]);
-        return this.computeX(date);
-      }
-      else
-        return undefined
-    },
-
-    firstY: function(change) {
-      if (change.base && change.base.length != 0){
-        var value = this.get('y', change.base[0]);
-        var exceeds = this.get('exceeds', change.base[0]);
-        return this.computeY(value, exceeds)
-      }
-      else
-        return undefined;
-    },
-
-    firstStyle: function(change) {
-      if (change.base && change.base.length != 0){
-        var exceeds = this.get('exceeds', change.base[0]);
-        return this.computeStyle(exceeds);
-      }
-      else
-        return undefined;
-    },
-
-    firstIcon: function(change) {
-      if (change.base && change.base.length != 0){
-        var exceeds = this.get('exceeds', change.base[0]);
+        var exceeds = this.get('exceeds', change.base[index]);
         if(exceeds == true || exceeds == false)
           return "error-outline";
         else
           return "";
       }
-      else
-        return undefined;
     },
 
-    computeX: function(date){
-      if(date)
+    computeX: function(change, index){
+      if (change.base && change.base.length != 0){
+        var date = this.get('x', change.base[index]);
+        if(date !== undefined)
+          return $.format.toBrowserTimeZone(date,this.timeFormat);
+      }
+    },
+
+    computeY: function(change, index){
+      if (change.base && change.base.length != 0){
+        var value = this.get('y', change.base[index]);
+        var exceeds = this.get('exceeds', change.base[index]);
+        if (value !== undefined) {
+          if (this.element.isBoolean){
+            if (exceeds==true || exceeds==false)
+              return "✗";
+            else
+              return "✓";
+          }
+          else
+            return value;
+        }
+      }
+    },
+    computeStyle: function(change, index){
+      if (change.base && change.base.length != 0){
+        var exceeds = this.get('exceeds', change.base[index]);
+        if(exceeds == true)
+          return "background: rgb(255, 21, 41); color: #f1f1f1;";
+        else if(exceeds == false)
+          return "background: rgb(255, 20, 110); color: #f1f1f1;";
+        else if(exceeds == null)
+          return "background: rgb(0, 202, 53); color: #f1f1f1;";
+        else if(exceeds === undefined)
+          return "background: rgba(236, 249, 97); color: #1f1f1f;";
+      }
+    },
+
+    computeLastExceedsX: function(){
+      var date = this.element.lastExceeds.x;
+      if(date !== undefined)
         return $.format.toBrowserTimeZone(date,this.timeFormat);
     },
 
-    computeY: function(value,exceeds){
-      if(!value && value !=0)
-        return undefined;
-      else if (this.element.isBoolean){
-        if (exceeds==true || exceeds==false)
-          return "✗";
+    computeLastExceedsY: function(){
+      var value = this.element.lastExceeds.y;
+      var exceeds = this.element.lastExceeds.exceeds;
+      if (value !== undefined) {
+        if (this.element.isBoolean){
+          if (exceeds==true || exceeds==false)
+            return "✗";
+          else
+            return "✓";
+        }
         else
-          return "✓";
-      }
-      else {
-        return value;
+          return value;
       }
     },
 
-    computeStyle: function(exceeds){
+    computeLastExceedsStyle: function(){
+      var exceeds = this.element.lastExceeds.exceeds;
       if(exceeds == true)
         return "background: rgb(255, 21, 41); color: #f1f1f1;";
       else if(exceeds == false)
         return "background: rgb(255, 20, 110); color: #f1f1f1;";
-      else
+      else if(exceeds == null)
         return "background: rgb(0, 202, 53); color: #f1f1f1;";
+      else if(exceeds === undefined)
+        return "background: rgba(236, 249, 97); color: #1f1f1f;";
     }
+
   };
 
 </script>

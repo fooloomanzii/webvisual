@@ -13,18 +13,23 @@ paper-material {
 }
 
 paper-button iron-icon {
-  margin-right: 0.62em;
+  margin-left: 0.5em;
+  margin-right: 1em;
+  min-width: 1.5em;
 }
 paper-item iron-icon {
-  margin-right: 0.62em;
+  margin-left: 0.25em;
+  margin-right: 1em;
+  min-width: 1.5em;
 }
 paper-button.sidemenu {
-  padding: 0.5em;
+  padding: 1.25em 0.75em;
 }
 
 paper-button iron-icon.right-icon{
   padding: 0.25em;
   margin: 0em;
+  margin-right: 0.25em;
   height: 1em;
   width: 1em;
   border-radius: 50%;
@@ -70,6 +75,7 @@ paper-fab#extension {
 paper-button.sidemenu {
   margin: 0.25em 0em;
   width: 100%;
+  display: flex;
 }
 
 .collapse-content paper-button {

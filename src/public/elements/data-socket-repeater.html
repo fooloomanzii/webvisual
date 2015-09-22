@@ -102,13 +102,14 @@
           if (time - self.lastMessage >= self.interval*1000){
             self.set("lastMessage", time);
 
-            var overhead, messageLength, dataLength;
+            var overhead, messageLength;
             if (self.doAppend){
                 for (var i=0; i < self.data.length; i++) { // for all messurement-data-alements existing
                   messageLength = message.content[i].values.length;
+                  overhead = ((messageLength + self.data[i].values.length) > self.maxTotalLines);
                   for (var j=0; j < messageLength; j++) {
                     self.unshift("data."+i+".values",message.content[i].values[j]);
-                    if (dataLength > self.maxTotalLines) self.pop("data."+i+".values");
+                    if (overhead) self.pop("data."+i+".values");
                   }
                   self.set("data."+i+".lastExceeds",message.content[i].lastExceeds);
                 }

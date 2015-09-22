@@ -64,14 +64,14 @@
   </style>
   <template>
     <table id="content">
-      <!-- <template is="dom-if" if="{{showCaption}}" restamp>
+      <template is="dom-if" if="{{showCaption}}" restamp>
         <caption>
           <span>{{element.roomNr}}</span><span>, </span>
           <span>{{element.room}}</span><span>, </span>
           <span>{{element.kind}}</span><span>, </span>
           <span>{{element.method}}</span>
         </caption>
-      </template> -->
+      </template>
       <thead>
         <tr>
           <th id="xHead">Datum</th>
@@ -79,18 +79,18 @@
         </tr>
       </thead>
       <tbody>
-        <!-- <template is="dom-if" if="{{showExceeds}}" restamp>
+        <template is="dom-if" if="{{showExceeds}}" restamp>
           <template is="dom-if" if="{{element.lastExceeds}}" restamp>
-            <tr id="lastExceeds" style={{computeStyle(element.lastExceeds.exceeds)}}>
-              <td>{{computeX(element.lastExceeds.x)}}</td>
-              <td>{{computeY(element.lastExceeds.y,element.lastExceeds.exceeds)}}</td>
+            <tr id="lastExceeds" style={{computeLastExceedsStyle()}}>
+              <td>{{computeLastExceedsX()}}</td>
+              <td>{{computeLastExceedsY()}}</td>
             </tr>
           </template>
-        </template> -->
-        <template is="dom-repeat" id="values" items="{{element.values}}" as="value">
-          <tr style$={{computeStyle(value.exceeds)}}>
-            <td>{{computeX(value.x)}}</td>
-            <td>{{computeY(value.y,value.exceeds)}}</td>
+        </template>
+        <template is="dom-repeat" id="values" items="{{element.values}}" index-as="i">
+          <tr style$={{computeStyle(element.values.*,i)}}>
+            <td>{{computeX(element.values.*,i)}}</td>
+            <td>{{computeY(element.values.*,i)}}</td>
           </tr>
         </template>
       </tbody>
@@ -102,102 +102,36 @@
     Polymer({
       is: 'table-element',
 
-      behaviors: [ScrollBehavior, LanguageBehavior],
+      behaviors: [ScrollBehavior, LanguageBehavior, ElementBehavior],
 
       properties: {
-          showCaption: {
-            type: Boolean,
-            notify: true,
-            reflectToAttribute: true
-          },
-          showExceeds: {
-            type: Boolean,
-            notify: true,
-            reflectToAttribute: true
-          },
-
-              element: {
-                type: Object,
-                value: function() { return {}; },
-                notify: true
-              },
-              timeFormat: {
-                type: String,
-                value: "HH:mm:ss"
-              }
-          },
-
-          firstX: function(change) {
-            if (change.base && change.base.length != 0){
-              var date = this.get('x', change.base[0]);
-              return this.computeX(date);
-            }
-            else
-              return undefined
-          },
-
-          firstY: function(change) {
-            if (change.base && change.base.length != 0){
-              var value = this.get('y', change.base[0]);
-              var exceeds = this.get('exceeds', change.base[0]);
-              return this.computeY(value, exceeds)
-            }
-            else
-              return undefined;
-          },
-
-          firstStyle: function(change) {
-            if (change.base && change.base.length != 0){
-              var exceeds = this.get('exceeds', change.base[0]);
-              return this.computeStyle(exceeds);
-            }
-            else
-              return undefined;
-          },
-
-          firstIcon: function(change) {
-            if (change.base && change.base.length != 0){
-              var exceeds = this.get('exceeds', change.base[0]);
-              if(exceeds == true || exceeds == false)
-                return "error-outline";
-              else
-                return "";
-            }
-            else
-              return undefined;
-          },
-
-          computeX: function(date){
-            if(date)
-              return $.format.toBrowserTimeZone(date,this.timeFormat);
-          },
-
-          computeY: function(value,exceeds){
-            if(!value && value !=0)
-              return undefined;
-            else if (this.element.isBoolean){
-              if (exceeds==true || exceeds==false)
-                return "✗";
-              else
-                return "✓";
-            }
-            else {
-              return value;
-            }
-          },
+        showCaption: {
+          type: Boolean,
+          notify: true,
+          reflectToAttribute: true
+        },
+        showExceeds: {
+          type: Boolean,
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
 
       attached: function(){
         // this.$.xHead.innerText = this.getDescription('x');
         // this.$.yHead.innerText = this.getDescription('y');
       },
 
-      computeStyle: function(exceeds){
+      computeStyle: function(change, index){
+        var exceeds = this.get('exceeds', change.base[index]);
         if(exceeds == true)
           return "background: rgba(255, 21, 41,0.8); color: #f1f1f1;";
         else if(exceeds == false)
           return "background: rgba(255, 20, 110,0.8); color: #f1f1f1;";
-        else
+        else if(exceeds == null)
           return "background: transparent; color: #1f1f1f;";
+        else if(exceeds == null)
+          return "background: rgba(236, 249, 97,0.8); color: #1f1f1f;";
       }
       // scrollHandler: function(e) {
       // }
