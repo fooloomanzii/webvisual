@@ -26,6 +26,7 @@ src/test/OLD/*.txt
 *desktop.ini
 *thumbs.db
 hero.svg
+.bower.json
 
 # Mail login #
 src/config/mail.json
