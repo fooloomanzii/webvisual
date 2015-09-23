@@ -43,13 +43,12 @@
           },
           maxTotalLines: {
             type: Number,
-            observer: 'maxTotalLinesChanged',
+            observer: '_maxTotalLinesChanged',
             value: 100,
             notify: true
           },
           maxLines: {
             type: Number,
-            observer: 'maxTotalLinesChanged',
             value: this.maxTotalLines
           },
           doAppend: {
@@ -64,77 +63,76 @@
           },
           interval: {
             type: Number,
-            value: 5,
+            value: 2,
             notify: true
           }
       },
 
       ready: function(){
-        // TODO: sort the data points?
         var self = this;
-        var dataSocket = io.connect('https://'+window.location.host+this.socket, {secure: true});
+        this.dataSocket = io.connect('https://'+window.location.host+this.socket, {secure: true});
+
         // Receiving the FIRST Data
-        dataSocket.on('first', function(message) {
-          if(message === undefined || message.content === undefined) return; // Check the Existence
-
-          self.set("lastMessage", new Date(message.time));
-          self.setLanguage(message.language);
-          self.setKeys(message.groupingKeys);
-
-          var messageContent;
-          // for Polymer (to notice Array change) special treatment to integrate data
-          for (var i in message.content) {
-            messageContent = message.content[i];
-            if (!self.data[i])  // if no reconnection
-              self.push("data",{});
-            for (var key in messageContent) {
-              if(key != "values")
-                self.set("data."+i+"."+key, messageContent[key]);
-            }
-            self.set("data."+i+".values", []);
-            self.setDataPoint(messageContent,i);
-          }
-          self.grouping(message.content,message.exclusiveGroups);
-          self.fire("dataloaded");
+        this.dataSocket.on('first', function(message) {
+          self._onFirstData(message);
         });
 
         // Receive FURTHER Data
-        dataSocket.on('data', function(message) {
-          if(message === undefined || message.content === undefined) return; // Check for Existence
-          var time = new Date(message.time);
-          if (time - self.lastMessage >= self.interval*1000){
-            self.set("lastMessage", time);
-            for (var i=0; i < self.data.length; i++) { // for all messurement-data-alements existing
-              self.setDataPoint(message.content[i],i);
-            }
-          }
+        this.dataSocket.on('data', function(message) {
+          self._onData(message);
         });
 
         //*** Wrong Data
-        dataSocket.on('mistake', function() {
+        this.dataSocket.on('mistake', function() {
           self.set("lastMistake", new Date());
           console.warn("error in data-connection");
         });
 
         //*** Disconnect
-        dataSocket.on('disconnect', function() {
+        this.dataSocket.on('disconnect', function() {
           self.set("lastError", new Date());
           console.warn("client disconnected");
         });
 
         //*** Disconnect
-        dataSocket.on('connect_error', function() {
+        this.dataSocket.on('connect_error', function() {
           self.set("lastError", new Date());
           console.warn("error in connection");
         });
 
       },
 
-      setLanguage: function(language){
+      _onFirstData: function(message){
+        if(message === undefined || message.content === undefined) return; // Check the Existence
+        this.set("lastMessage", new Date(message.time));
+        this._setLanguage(message.language);
+        this._setKeys(message.groupingKeys);
+
+        // for Polymer (to notice Array change) special treatment to integrate data
+        for (var i in message.content) {
+          this._initDataPoint(message.content[i],i);
+          this._setValues(message.content[i],i);
+        }
+        this._setGroups(message.content,message.exclusiveGroups);
+        this.fire("dataloaded");
+      },
+
+      _onData: function(message){
+        if(message === undefined || message.content === undefined) return; // Check for Existence
+        var time = new Date(message.time);
+        if (time - this.lastMessage >= this.interval*1000){
+          this.set("lastMessage", time);
+          for (var i in message.content) { // for all messurement-data-alements existing
+            this._setValues(message.content[i],i);
+          }
+        }
+      },
+
+      _setLanguage: function(language){
         // TODO: create and set languageset
       },
 
-      setKeys: function(keys){
+      _setKeys: function(keys){
         for (var i; i < keys.length; i++){
           if(this.keys.indexOf(keys[i]) == -1)
             this.push("keys",keys[i]);
@@ -143,7 +141,7 @@
           this.push("keys","all");
       },
 
-      setDataPoint: function(messageContent, i){
+      _setValues: function(messageContent, i){
         if (this.newestDataLast) {
           for (var j=0; j < messageContent.values.length; j++)
             this.unshift("data."+i+".values",messageContent.values[j]);
@@ -159,7 +157,24 @@
         this.set("data."+i+".lastExceeds",messageContent.lastExceeds);
       },
 
-      grouping: function(content,exclusiveGroups){ // Referencing on group-identities
+      _initDataPoint: function(messageContent,i){
+        if(this.data[i]) {
+          if(!this.data[i].values)
+            this.set("data."+i+".values",[]);
+          else
+            this.splice("data."+i+".values",0,this.data[i].values.length);
+        }
+        else {
+          this.push("data",{});
+          for (var key in messageContent) {
+            if(key != "values")
+              this.set("data."+i+"."+key, messageContent[key]);
+          }
+          this.set("data."+i+".values", []);
+        }
+      },
+
+      _setGroups: function(content,exclusiveGroups){ // Referencing on group-identities
         if(content){
           var where, innerkey, needToSet;
           if(exclusiveGroups){
@@ -206,7 +221,7 @@
         }
       },
 
-      maxTotalLinesChanged: function(newValue, oldValue) {
+      _maxTotalLinesChanged: function(newValue, oldValue) {
         var newValue = parseInt(newValue);
         if (newValue && this.data && newValue>0){
           this.maxLines = newValue;

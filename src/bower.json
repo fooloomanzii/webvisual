@@ -7,16 +7,14 @@
     "fooloomanzii <hannes-b@web.de>"
   ],
   "dependencies": {
-    "iron-elements": "PolymerElements/iron-elements#~1.0.3",
-    "iron-list": "PolymerElements/iron-list#~1.1.1",
-    "jquery": "~2.1.4",
-    "leaflet-map": "~1.1.0",
+    "iron-elements": "PolymerElements/iron-elements",
+    "iron-list": "PolymerElements/iron-list",
+    "jquery": "*",
+    "leaflet-map": "*",
     "neon-animation": "PolymerElements/neon-animation",
-    "nvd3": "https://github.com/novus/nvd3",
     "paper-elements": "PolymerElements/paper-elements",
-    "platinum-push-messaging": "PolymerElements/platinum-push-messaging",
-    "poly-nvd3": "~1.4.0",
+    "poly-nvd3": "*",
     "polymer": "Polymer/polymer",
-    "underscore": "~1.8.3"
+    "underscore": "*"
   }
 }
