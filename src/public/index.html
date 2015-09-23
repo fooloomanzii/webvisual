@@ -16,12 +16,10 @@
   <template is="dom-bind" id="autobind-template">
 
   <data-socket-repeater id="datasocket"
-    do-append
     data="{{data}}"
     max-total-lines="{{maxLines}}"
     interval="{{interval}}"
     groups="{{groups}}"
-    grouped-data="{{groupedData}}"
     on-dataloaded="grouping"
     last-message="{{lastMessage}}"
     last-mistake="{{lastMistake}}"
@@ -85,13 +83,15 @@
               </paper-item>
 
               <paper-item>
-                <iron-icon icon="editor:format-line-spacing"></iron-icon>
-                <number-input id="maxLineInput" default="1000" label="Anzahl an Messpunkten" value="{{maxLines}}" minvalue="1"></number-input>
+                <paper-input label="Anzahl an Messpunkten" value="{{maxLines}}" min="1" type="number" inputmode="number" step="1" auto-validate required prevent-invalid-input>
+                  <iron-icon prefix icon="editor:format-line-spacing"></iron-icon>
+                </paper-input>
               </paper-item>
-
               <paper-item>
-                <iron-icon icon="image:timelapse"></iron-icon>
-                <number-input id="maxLineInput" default="3" label="Aktualisierungsrate auf dem Display" value="{{interval}}" minvalue="0" unit="Sekunden"></number-input>
+                <paper-input label="Aktualisierungsintervall" value="{{interval}}" min="0" always-float type="number" inputmode="number" step="0.1" auto-validate required prevent-invalid-input>
+                  <iron-icon prefix icon="image:timelapse"></iron-icon>
+                  <div suffix style="font-size:0.6em">Sekunden</div>
+                </paper-input>
               </paper-item>
 
             </section>
