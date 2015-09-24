@@ -48,6 +48,13 @@ section#mainContent.dark {
   background: #666666;
 }
 
+paper-fab#extension {
+  position: fixed;
+  bottom: 1em;
+  right: 2em;
+  z-index: 5;
+}
+
 section.card {
   background: white;
   border-radius: 2px 2px 2px 3px;

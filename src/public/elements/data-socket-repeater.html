@@ -6,12 +6,18 @@
       is: 'data-socket-repeater',
 
       properties: {
-          socket: {
+          socketname: {
             type: String,
             value: "/data",
             notify: true
           },
           data: {
+            type: Array,
+            value: function() { return []; },
+            notify: true,
+            readOnly: true
+          },
+          ids: {
             type: Array,
             value: function() { return []; },
             notify: true,
@@ -69,37 +75,50 @@
       },
 
       ready: function(){
+        this.socket = io.connect('https://'+window.location.host+this.socketname, {secure: true});
         var self = this;
-        this.dataSocket = io.connect('https://'+window.location.host+this.socket, {secure: true});
-
-        // Receiving the FIRST Data
-        this.dataSocket.on('first', function(message) {
-          self._onFirstData(message);
+        this.async(function(){
+          self.connect(self);
         });
+      },
 
+      connect: function() {
+        this._init();
+        var self = this;
+        // Receiving the FIRST Data
+        this.socket.on('first', function(message) {
+          self._onFirstData(message);
+          console.info("client has established connection to: "+window.location.host);
+        });
         // Receive FURTHER Data
-        this.dataSocket.on('data', function(message) {
+        this.socket.on('data', function(message) {
           self._onData(message);
         });
-
-        //*** Wrong Data
-        this.dataSocket.on('mistake', function() {
+        // TODO: following senseless?
+        // Wrong Data
+        this.socket.on('mistake', function() {
           self.set("lastMistake", new Date());
-          console.warn("error in data-connection");
+          console.warn("error in data-connection to: "+window.location.host);
         });
-
-        //*** Disconnect
-        this.dataSocket.on('disconnect', function() {
+        // Disconnect
+        this.socket.on('disconnect', function() {
           self.set("lastError", new Date());
-          console.warn("client disconnected");
+          console.warn("client disconnected to: "+window.location.host);
         });
-
-        //*** Disconnect
-        this.dataSocket.on('connect_error', function() {
+        // Disconnect
+        this.socket.on('connect_error', function() {
           self.set("lastError", new Date());
-          console.warn("error in connection");
+          console.warn("error in connection to: "+window.location.host);
         });
+      },
 
+      reconnect: function() {
+
+      },
+
+      disconnect: function() {
+        if (this.socket)
+          this.socket.disconnect();
       },
 
       _onFirstData: function(message){
@@ -109,9 +128,9 @@
         this._setKeys(message.groupingKeys);
 
         // for Polymer (to notice Array change) special treatment to integrate data
-        for (var i in message.content) {
-          this._initDataPoint(message.content[i],i);
-          this._setValues(message.content[i],i);
+        for (var id in message.content) {
+          this._initDataPoint(message.content[id],this._getIndex(id));
+          this._setValues(message.content[id],this._getIndex(id));
         }
         this._setGroups(message.content,message.exclusiveGroups);
         this.fire("dataloaded");
@@ -122,10 +141,22 @@
         var time = new Date(message.time);
         if (time - this.lastMessage >= this.interval*1000){
           this.set("lastMessage", time);
-          for (var i in message.content) { // for all messurement-data-alements existing
-            this._setValues(message.content[i],i);
+          for (var id in message.content) { // for all messurement-data-alements existing
+            this._setValues(message.content[id],this._getIndex(id));
           }
         }
+      },
+
+      _getIndex: function(id){
+        var check = this.ids.indexOf(id);
+        if(check !== -1)
+          return check;
+        else
+          return this._setId(id);
+      },
+
+      _setId: function(id){
+        return this.push("ids",id) - 1;
       },
 
       _setLanguage: function(language){
@@ -155,6 +186,12 @@
         if (this.data[i].values.length > this.maxLines)
           this.splice("data."+i+".values",this.maxLines,this.data[i].values.length)
         this.set("data."+i+".lastExceeds",messageContent.lastExceeds);
+      },
+
+      _init: function(){
+        this.splice("data",0,this.data.length);
+        this.splice("ids",0,this.ids.length);
+        this.set("groups",{});
       },
 
       _initDataPoint: function(messageContent,i){

@@ -55,7 +55,7 @@ function processData(locals, currentData) {
       keys =  _.keys(settings.unnamedType);
     }
 
-    // rename double-id
+    // rename doubled-ids
     for (var i=0; i<locals.types.length; i++)
       for (var j=i+1; j<locals.types.length; j++)
         if(locals.types[i] && locals.types[j] && locals.types[i].id == locals.types[j].id)
@@ -88,10 +88,11 @@ function processData(locals, currentData) {
     // Join Data to the Object, which is used by the website
     var element, key, type;
     for (var i=0; i<dateArray.length; i++) {
-      var k = 0;
+      var k = "";
       for (var j=0; j<valuesArray[i].length; j++) {
       // head-data of measuring-points
         if(settings.ignore.indexOf(j) == -1){ // ignored are not in returnObject
+          k = settings.types[j].id || (settings.unnamedType.id + j);
           if(!processedData[k]) {
             element = {};
             type = settings.types[j] || [];
@@ -100,8 +101,6 @@ function processData(locals, currentData) {
               element[key] = type[key] || settings.unnamedType[key];
             }
             element.values = [];
-            if (element.id == settings.unnamedType.id)
-              element.id += k;
             element.lastExceeds = lastExceedsArray[j];
             processedData[k] = element;
           }
@@ -116,7 +115,6 @@ function processData(locals, currentData) {
             lastExceedsArray[j] = processedData[k].lastExceeds = {"x": dateArray[i],
                                                                   "y": valuesArray[i][j],
                                                                   "exceeds": exceedsArray[i][j]};
-          k++;
         }
       }
     }

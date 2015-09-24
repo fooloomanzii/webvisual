@@ -17,7 +17,8 @@ src/public-src
 src/node_modules
 
 # Tests #
-src/test/OLD/*.txt
+src/**/test/
+src/**/demo/
 
 # Logs #
 # *.log

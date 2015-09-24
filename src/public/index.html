@@ -184,9 +184,9 @@
 
 <script>
   var template = document.querySelector('#autobind-template');
+
   window.addEventListener('WebComponentsReady', function(e) {
     var colorschema = "light";
-
     template.changeTheme = function(){
       if(colorschema == "dark") {
         $('*').removeClass("dark");
@@ -269,9 +269,10 @@
     //   }
     // };
     template.grouping = function(e) {
-      var page = document.querySelector('.element-page');
+      var page = document.querySelector('pages-element');
       if (page) {
         page.setSelectedGroup();
+        page.loaded();
       }
     };
     template.computeDate = function(date){

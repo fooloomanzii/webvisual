@@ -65,13 +65,6 @@ paper-item.date {
  * Submenu
  */
 
-paper-fab#extension {
-  position: fixed;
-  bottom: 1em;
-  right: 1.5em;
-  z-index: 100;
-}
-
 paper-button.sidemenu {
   margin: 0.25em 0em;
   width: 100%;

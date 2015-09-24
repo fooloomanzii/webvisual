@@ -1,5 +1,8 @@
 <dom-module id="sign-page">
   <style>
+    host: {
+      opacity: 0;
+    }
     section#mainContent {
       height: calc(100vh - 64px);
     }
@@ -18,7 +21,6 @@
     </main-toolbar>
 
     <!-- Page Option Button -->
-    <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab>
 
     <section id="mainContent" class="page">
       <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup" delay="200">
@@ -41,6 +43,8 @@
           </template>
         </post-card>
       </template>
+
+      <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab>
 
     </section>
 
@@ -101,6 +105,13 @@
           // };
           this.fire('selectevent');
         }
+      },
+
+      attached: function() {
+        this.async(function() {
+          var nodeList = Polymer.dom(this.root).querySelectorAll('post-card');
+          this.nodes = Array.prototype.slice.call(nodeList);
+        });
       }
 
     });

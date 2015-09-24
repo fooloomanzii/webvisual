@@ -2,9 +2,21 @@
 
 <dom-module id="pages-element">
   <style>
+    paper-spinner#loadSpinner {
+      position: fixed;
+      bottom: 50%;
+      right: 50%;
+      z-index: 5;
+      --paper-spinner-layer-1-color: rgb(4, 143, 205);
+      --paper-spinner-layer-2-color: rgb(60, 109, 235);
+      --paper-spinner-layer-3-color: rgb(110, 161, 154);
+      --paper-spinner-layer-4-color: rgb(75, 184, 29);
+    }
+
   </style>
   <template>
     <link href="../../css/page.css" type="text/css" rel="stylesheet"/>
+    <paper-spinner id="loadSpinner" active></paper-spinner>
     <neon-animated-pages id="pages" selected="0">
 
       <sign-page id="nothingSelected" class="element-page" data="{{data}}" groups="{{groups}}"
@@ -28,10 +40,9 @@
     Polymer({
       is: 'pages-element',
 
-      behaviors: [DataBehavior, PageBehavior],
-
-      properties: {
-      },
+      behaviors: [DataBehavior, PageBehavior,
+        Polymer.NeonAnimatableBehavior, Polymer.NeonAnimationRunnerBehavior
+      ],
 
       _onSelected: function(event) {
         this.$.pages.selected = 1;
@@ -40,13 +51,20 @@
 
       _onDeselected: function(event) {
         this.$.pages.selected = 0;
-      }
+      },
+
       // ,
       //
       // _onNextselected: function(event) {
       //   this.unlinkPaths('selectedElement');
       //   this.$.pages.selected = (this.$.pages.selected == 1) ? 2 : 1;
       // }
+
+      loaded: function() {
+        this.toggleAttribute('active',false,this.$.loadSpinner);
+
+        // this.playAnimation('entry');
+      }
 
     });
 

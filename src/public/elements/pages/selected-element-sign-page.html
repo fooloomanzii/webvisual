@@ -93,7 +93,6 @@
 
     <!-- Page Option Button -->
     <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab>
-    <neon-animated-pages id="pages" selected="0">
 
     <section id="mainContent" class="page">
       <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup" delay="200">
@@ -116,6 +115,8 @@
           </template>
         </post-card>
       </template>
+
+      <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab>
 
     </section>
 
@@ -177,6 +178,13 @@
                 },
                 {
                   name: 'scale-up-animation',
+                  node: this.$.extension,
+                  timing: {
+                    duration: 500
+                  }
+                },
+                {
+                  name: 'scale-up-animation',
                   node: this.$.selectedElementMap,
                   timing: {
                     duration: 500
@@ -214,6 +222,27 @@
                   node: this.$.selectedElementCaption,
                   timing: {
                     duration: 250
+                  }
+                },
+                {
+                  name: 'scale-down-animation',
+                  node: this.$.selectedElementTable,
+                  timing: {
+                    duration: 500
+                  }
+                },
+                {
+                  name: 'scale-down-animation',
+                  node: this.$.extension,
+                  timing: {
+                    duration: 500
+                  }
+                },
+                {
+                  name: 'scale-down-animation',
+                  node: this.$.selectedElementMap,
+                  timing: {
+                    duration: 500
                   }
                 }]
             }
