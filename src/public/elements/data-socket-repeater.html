@@ -6,7 +6,7 @@
       is: 'data-socket-repeater',
 
       properties: {
-          socket: {
+          socketname: {
             type: String,
             value: "/data",
             notify: true
@@ -14,7 +14,23 @@
           data: {
             type: Array,
             value: function() { return []; },
+            notify: true,
+            readOnly: true
+          },
+          ids: {
+            type: Array,
+            value: function() { return []; },
+            notify: true,
+            readOnly: true
+          },
+          groups: {
+            type: Object,
+            value: function() { return {}; },
             notify: true
+          },
+          keys: {
+            type: Array,
+            value: function() { return ["kind","method","room","roomNr","all"]; }
           },
           lastMessage: {
             type: Date,
@@ -33,134 +49,122 @@
           },
           maxTotalLines: {
             type: Number,
-            observer: 'maxTotalLinesChanged'
+            observer: '_maxTotalLinesChanged',
+            value: 100,
+            notify: true
+          },
+          maxLines: {
+            type: Number,
+            value: this.maxTotalLines
           },
           doAppend: {
             type: Boolean,
-            value: false,
+            value: true,
             notify: true
           },
-          groups: { // TODO: maybe better in own/settings socket + keys + language
-            type: Object,
-            value: function() { return {}; },
+          newestDataLast: {
+            type: Boolean,
+            value: true,
             notify: true
-          },
-          keys: {
-            type: Array,
-            value: function() { return ["kind","method","room","roomNr"]; }
           },
           interval: {
             type: Number,
+            value: 2,
             notify: true
           }
       },
 
       ready: function(){
+        this.socket = io.connect('https://'+window.location.host+this.socketname, {secure: true});
         var self = this;
-        var dataSocket = io.connect('https://'+window.location.host+this.socket, {secure: true});
-        
-        dataSocket.on('connect', function(socket) {
-          // TODO: search for cookies with datapatterns
-          // then emit found cookies or null
-          var cookies = null;
-          dataSocket.emit('clientdata', cookies);
+        this.async(function(){
+          self.connect(self);
         });
-        
-        // Receiving the first Data
-        dataSocket.on('first', function(message) {
-          if(message === undefined || message.content === undefined) return; // Check the Existence
-
-          self.set("lastMessage", new Date(message.time));
-          self.setLanguage(message.language);
-          self.setKeys(message.groupingKeys);
-          self.grouping(message.content,message.exclusiveGroups);
-
-          var k, val;
-          // for Polymer (to notice Array change) special treatment of integrating data
-          for (var i in message.content) {
-            val = message.content[i];
-            if (!self.data[i])  // if no reconnection
-              self.push("data",{});
-            for (var key in val) {
-              if(key != "values")
-                self.set("data."+i+"."+key, val[key]);
-            }
-            self.set("data."+i+".values", []);
-            k = 0;
-            if (message.content[i].values.length > self.maxTotalLines)
-              k = message.content[i].values.length - self.maxTotalLines;
-            for (var j=k; j < message.content[i].values.length; j++) {
-              self.unshift("data."+i+".values",message.content[i].values[j]);
-            }
-          }
-
-          self.fire("dataloaded");
-        });
-
-        // Receive another Data
-        dataSocket.on('data', function(message) {
-          if(message === undefined || message.content === undefined) return; // Check for Existence
-
-          var time = new Date(message.time);
-
-          if (time - self.lastMessage >= self.interval*1000){
-            self.set("lastMessage", time);
-
-            var k = 0;
-            if (self.doAppend){
-                for (var i=0; i < self.data.length; i++) {
-                  while (message.content[i].values.length + self.data[i].values.length > self.maxTotalLines && self.data[i].values.length > 0)
-                    self.pop("data."+i+".values");
-                  k = 0;
-                  if (message.content[i].values.length > self.maxTotalLines)
-                    k = message.content[i].values.length - self.maxTotalLines;
-                  for (var j=k; j < message.content[i].values.length; j++) {
-                    self.unshift("data."+i+".values",message.content[i].values[j]);
-                  }
-                  self.set("data."+i+".lastExceeds",message.content[i].lastExceeds);
-                }
-            }
-            else {
-              for (var i=0; i < self.data.length; i++) {
-                while (self.data[i].values.length > 0)
-                  self.pop("data."+i+".values");
-                var k = 0;
-                if (message.content[i].values.length > self.maxTotalLines)
-                  k = message.content[i].values.length - self.maxTotalLines;
-                for (var j=k; j < message.content[i].values.length; j++) {
-                  self.unshift("data."+i+".values",message.content[i].values[j]);
-                }
-                self.set("data."+i+".lastExceeds",message.content[i].lastExceeds);
-              }
-            }
-          }
-        });
-
-        //*** Wrong Data
-        dataSocket.on('mistake', function() {
-          self.set("lastMistake", new Date());
-          console.warn("error in data-connection");
-        });
-
-        //*** Disconnect
-        dataSocket.on('disconnect', function() {
-          self.set("lastError", new Date());
-          console.warn("client disconnected");
-        });
-
-        //*** Disconnect
-        dataSocket.on('connect_error', function() {
-          self.set("lastError", new Date());
-          console.warn("error in connection");
-        });
-
       },
 
-      setLanguage: function(language){
+      connect: function() {
+        this._init();
+        var self = this;
+        // Receiving the FIRST Data
+        this.socket.on('first', function(message) {
+          self._onFirstData(message);
+          console.info("client has established connection to: "+window.location.host);
+        });
+        // Receive FURTHER Data
+        this.socket.on('data', function(message) {
+          self._onData(message);
+        });
+        // TODO: following senseless?
+        // Wrong Data
+        this.socket.on('mistake', function() {
+          self.set("lastMistake", new Date());
+          console.warn("error in data-connection to: "+window.location.host);
+        });
+        // Disconnect
+        this.socket.on('disconnect', function() {
+          self.set("lastError", new Date());
+          console.warn("client disconnected to: "+window.location.host);
+        });
+        // Disconnect
+        this.socket.on('connect_error', function() {
+          self.set("lastError", new Date());
+          console.warn("error in connection to: "+window.location.host);
+        });
+      },
+
+      reconnect: function() {
+        this.disconnect();
+        this.connect();
+      },
+
+      disconnect: function() {
+        if (this.socket)
+          this.socket.disconnect();
+      },
+
+      _onFirstData: function(message){
+        if(message === undefined || message.content === undefined) return; // Check the Existence
+        this.set("lastMessage", new Date(message.time));
+        this._setLanguage(message.language);
+        this._setKeys(message.groupingKeys);
+
+        // for Polymer (to notice Array change) special treatment to integrate data
+        for (var id in message.content) {
+          this._initDataPoint(message.content[id],this._getIndex(id));
+          this._setValues(message.content[id],this._getIndex(id));
+        }
+        this._setGroups(message.content,message.exclusiveGroups);
+        this.fire("dataloaded");
+      },
+
+      _onData: function(message){
+        if(message === undefined || message.content === undefined) return; // Check for Existence
+        var time = new Date(message.time);
+        if (time - this.lastMessage >= this.interval*1000){
+          this.set("lastMessage", time);
+          for (var id in message.content) { // for all messurement-data-alements existing
+            this._setValues(message.content[id],this._getIndex(id));
+          }
+        }
+      },
+
+      _getIndex: function(id){
+        var check = this.ids.indexOf(id);
+        if(check !== -1)
+          return check;
+        else
+          return this._setId(id);
+      },
+
+      _setId: function(id){
+        return this.push("ids",id) - 1;
+      },
+
+      _setLanguage: function(language){
         // TODO: create and set languageset
       },
 
-      setKeys: function(keys){
+      _setKeys: function(keys){
         for (var i; i < keys.length; i++){
           if(this.keys.indexOf(keys[i]) == -1)
             this.push("keys",keys[i]);
@@ -169,7 +173,46 @@
           this.push("keys","all");
       },
 
-      grouping: function(content,exclusiveGroups){ // Referencing on group-identities
+      _setValues: function(messageContent, i){
+        if (this.newestDataLast) {
+          for (var j=0; j < messageContent.values.length; j++)
+            this.unshift("data."+i+".values",messageContent.values[j]);
+        }
+        else {
+          for (var j=messageContent.values.length-1; j >=0; j--)
+            this.unshift("data."+i+".values",messageContent.values[j]);
+        }
+        if (!this.doAppend)
+          this.splice("data."+i+".values",messageContent.values.length,this.data[i].values.length)
+        if (this.data[i].values.length > this.maxLines)
+          this.splice("data."+i+".values",this.maxLines,this.data[i].values.length)
+        this.set("data."+i+".lastExceeds",messageContent.lastExceeds);
+      },
+
+      _init: function(){
+        this.splice("data",0,this.data.length);
+        this.splice("ids",0,this.ids.length);
+        this.set("groups",{});
+      },
+
+      _initDataPoint: function(messageContent,i){
+        if(this.data[i]) {
+          if(!this.data[i].values)
+            this.set("data."+i+".values",[]);
+          else
+            this.splice("data."+i+".values",0,this.data[i].values.length);
+        }
+        else {
+          this.push("data",{});
+          for (var key in messageContent) {
+            if(key != "values")
+              this.set("data."+i+"."+key, messageContent[key]);
+          }
+          this.set("data."+i+".values", []);
+        }
+      },
+
+      _setGroups: function(content,exclusiveGroups){ // Referencing on group-identities
         if(content){
           var where, innerkey, needToSet;
           if(exclusiveGroups){
@@ -216,15 +259,17 @@
         }
       },
 
-      maxTotalLinesChanged: function(newValue, oldValue) {
-      //   if (this.data && newValue < oldValue && newValue>0)
-      //     for (var i=0; i < this.data.length; i++) {
-      //       while (this.data[i].data.length > newValue)
-      //         this.shift("data."+i+".values");
-      //     }
-      //   else {
-      //     this.maxTotalLines = oldValue;
-      //   }
+      _maxTotalLinesChanged: function(newValue, oldValue) {
+        var newValue = parseInt(newValue);
+        if (newValue && this.data && newValue>0){
+          this.maxLines = newValue;
+          for (var i=0; i < this.data.length; i++) {
+            if (this.data[i].values.length > newValue)
+              this.splice("data."+i+".values",newValue,this.data[i].values.length)
+          }
+        }
+        else
+          this.maxTotalLines = oldValue;
       }
     });
   });

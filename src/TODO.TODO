@@ -1,41 +1,27 @@
 Messdatenvisualisierung:
   Relevant:
-   ☐ vernuenftige Verarbeitung der geparsten Werte: maximale Anzahl an zu sendenden Werten, seperate Verwaltung der Werte Anzahl pro Socket? (Aufwaendig!)
-   ☐ Kein Konsolenfenster im Produktionsmodus
+   ☐ Run.bat abschaffen und durch Scripte im NPM-->package.json ersetzen (Aufruf: npm start)
 
-  Weniger relevant:
-   ☐ Dem Client den Fehler uebermitteln, wenn einer auftritt
-   ☐ Navigationsleiste durchgehend anzeigen. Seiteninhalte per AJAX nachladen (Singlepage Applikation!)
+  Graphen:
+   ☐ wieder integrieren
 
-   Graphen:
-    ☐ LINE: Zeitliche Skalierung der x-Achse, abhaengig von dem Interval der Messwerte #public/js/graphs/graphs/line.js
-    ☐ LINE: Meldung, wenn nicht alle Datensätze dargestellt werden können (mangels Farben)
+  Mail:
+   ☐ wieder ordentlich integrieren
 
-   Mail:
-    ☐ Alarmemail bei Überschreitung, max einmal täglich
-    ☐ Einmal täglich Statusmail mit aktuellen Werten
+  MongoDb:
+   ☐ Integration in Webseite
+   ☐ Modell für Abfrage einzelner Messgeräte erstellen
+   ☐ Modell anpassbar machen
 
 Module:
   Ideen:
-   ☐ Eigenes Modul (connect.js?) erstellen, das eine passende Zusatzebene bereitstellt
+   ☐ Messbuch-Funktionen mit Speichern in der und Abruf der Datenbank --> exta eigenständige Datenbank?
 
   Copywatch:
-   ☐ Kommentar Option hinzufügen, um Zeilen ignorieren zu können
-   ☐ Copywatch auf MongoDB umstellen
+   ☐ Parse Optionen anpassen
 
-  Data_parser:
-   ☐ Unit-Test fuer setOptions schreiben
 
 Bugfix:
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
- ✔ abstraktere bereitsstellung der verschiedenen Kommunikationsebenen (anstatt copywatch direkt nutzen, lieber eine Ebene als Kommunikator zwischen schalten. Vereinfacht die Verwendung anderer Protokolle wie z.B. TCP-IP oder aehnliches) @done (13-10-22 17 :18) @project(Messdatenvisualisierung / Relevant)
- ✔ Append Option um angeben zu können, ob neue Daten die alten überschreiben oder zusätzlich gespeichert werden sollen @done (13-10-22 17:15) @project(Copywatch)
- ✔ Errorhandling in copywatch #modules/copywatch/lib/copywatch.js @done (13-08-21 10:37) @project(Messdatenvisualisierung / Weniger relevant)
- ✔ Copywatch von der Data_Parser Verbindung befreien @done (13-08-05 10 :44) @project(Module)
- ✔ Copywatch Rueckfallmechanik wenn eine weitere unrelevante Datei im Verzeichnis erzeugt wird, dass ueberwacht wird @done (13-07-26 15 :38) @project(Bugfix)
- ✔ implementiere die copy Funktion des copywatch-Moduls @done (13-04-11 16:30) @project(Messdatenvisualisierung / Relevant)
- ✔ websockets @done (13-06-07 13:55) @project(Messdatenvisualisierung / Relevant)
- ✔ copywatch - watching nicht beenden wenn die Datei geloescht wird @done (13-07-15 13:15) @project(Messdatenvisualisierung / Relevant)
- ✔ Schalte das Data_Parser Modul zwischen das Original- und Copy-File von Copywatch (Ergo: Erzeuge eine einfach lesbare Kopie) @done (13-05-02 14:39) @project(Module / Ideen)
- ✔ Rueckfallmechanik in App.js, wenn die Datei nicht vorhanden ist @done (13-07-15 13:15) - Durch die copywatch Aenderung bezueglich geloeschter Dateien behoben. @project(Bugfix)
+ ✔ MongoDb: automatischer Start im Background

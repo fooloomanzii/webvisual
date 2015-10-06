@@ -10,6 +10,7 @@
   //      currentData.exceeds <-- Object of Boolean-Arrays
   //  Return:
   //    JSON-Object-Structure:
+  //      conten: Object of:
   //      content: Object of:
   //       "0": { "id":".." , "room":"..", "kind":"..", "method":"..", lastExceeds:
   //            {"x":"..", "y":"..", "exceeds":".."}, "unit":"..", "values":
@@ -34,8 +35,8 @@ function processData(locals, currentData) {
   var valuesArray   = [],
       exceedsArray  = [],
       dateArray     = [],
-      processedData = [],
-      returnObject  = {};
+      processedData = {},
+      returnObject = {};
 
   arrangeLabels(locals);
 
@@ -54,6 +55,12 @@ function processData(locals, currentData) {
     if(keys.length == 0){
       keys =  _.keys(settings.unnamedType);
     }
+
+    // rename doubled-ids
+    for (var i=0; i<locals.types.length; i++)
+      for (var j=i+1; j<locals.types.length; j++)
+        if(locals.types[i] && locals.types[j] && locals.types[i].id == locals.types[j].id)
+          locals.types[j].id += "("+j+")";
   }
 
   function arrangeData(data, exceeds){
@@ -71,21 +78,22 @@ function processData(locals, currentData) {
           if(!lastExceedsArray)
             lastExceedsArray.push(null);
         }
-        dateArray[i] = data[i].date;
+        dateArray[i] = Date.parse(data[i].date);
       }
       // Otherwise: append the Data to that Arrays
       else {
         valuesArray.push(data[i].values);
-        dateArray.push(data[i].date);
+        dateArray.push(Date.parse(data[i].date));
       }
     }
     // Join Data to the Object, which is used by the website
     var element, key, type;
     for (var i=0; i<dateArray.length; i++) {
-      var k = 0;
+      var k = "";
       for (var j=0; j<valuesArray[i].length; j++) {
       // head-data of measuring-points
         if(settings.ignore.indexOf(j) == -1){ // ignored are not in returnObject
+          k = settings.types[j].id || (settings.unnamedType.id + j);
           if(!processedData[k]) {
             element = {};
             type = settings.types[j] || [];
@@ -94,23 +102,20 @@ function processData(locals, currentData) {
               element[key] = type[key] || settings.unnamedType[key];
             }
             element.values = [];
-            if (element.id == settings.unnamedType.id)
-              element.id += k;
             element.lastExceeds = lastExceedsArray[j];
             processedData[k] = element;
           }
           // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored
-          // TODO "k" indizies rausnehmen, da die für datenbank unwichtig sind
+
           processedData[k].values.push({"x":    dateArray[i],
-                                             "y":   valuesArray[i][j],
-                                             "exceeds": exceedsArray[i][j]
+                                        "y":   valuesArray[i][j],
+                                        "exceeds": exceedsArray[i][j]
                                       })
           // store last Exceeding Data (lastExceedsArray is created each server-session)
           if(exceedsArray[i][j] != null)
             lastExceedsArray[j] = processedData[k].lastExceeds = {"x": dateArray[i],
-                                                                       "y": valuesArray[i][j],
-                                                                       "exceeds": exceedsArray[i][j]};
-          k++;
+                                                                  "y": valuesArray[i][j],
+                                                                  "exceeds": exceedsArray[i][j]};
         }
       }
     }

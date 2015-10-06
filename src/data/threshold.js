@@ -24,7 +24,6 @@ function getExceeds(data, exceedsHandler){
   if(data === undefined || !Array.isArray(data) || data.length == 0) return [];
 
   //// Laden der Konfiguration
-  //TODO verbessern, da config wird immer grösser. Bei Großen Datenmengen kommt es zum Abtürzen.
   var config= _.defaults(require('../config/config.json'), defaults);
 
   //// Auslesen der Grenzwerte der einzelnen Elemente

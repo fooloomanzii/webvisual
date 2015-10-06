@@ -9,12 +9,8 @@
 
 # Some folders #
 
-src/build
-src/public-dep
-src/public-src
-
 # Node Stuff #
-src/node_modules
+# src/node_modules
 
 # Tests #
 src/test/OLD/*.txt
