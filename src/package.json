@@ -25,13 +25,14 @@
   	"async": "*"
   },
   "devDependencies": {
-    "grunt": "~0.4.1",
-    "grunt-contrib-uglify": "~0.2.4",
-    "grunt-contrib-copy": "~0.4.1",
-    "grunt-open": "~0.2.2",
-    "grunt-contrib-clean": "~0.5.0",
-    "grunt-contrib-cssmin": "~0.6.2",
-    "grunt-env": "~0.4.0"
+    "grunt": "*",
+    "grunt-contrib-uglify": "*",
+    "grunt-contrib-copy": "*",
+    "grunt-open": "*",
+    "grunt-contrib-clean": "*",
+    "grunt-contrib-cssmin": "*",
+    "grunt-env": "*",
+    "grunt-bower-task": "*"
   },
   "engines": {
     "node": ">= 1.0",

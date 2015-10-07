@@ -2,29 +2,29 @@
 /*
  * Module dependencies
  */
-var 
+var
     // custom: DATAMODULE
     dataModule   = require('./data'),
     // custom: ROUTING
     routes       = require('./routes'),
     // custom: MAILHELPER
-    mailHelper   = new require('./modules/mailhelper')('exceeds'),  
+    mailHelper   = new require('./modules/mailhelper')('exceeds'),
     // EXPRESS
-    express      = require('express'),                              
+    express      = require('express'),
     // EXPRESS-ERROR-HANDLER
-    errorHandler = require('express-error-handler'),                
+    errorHandler = require('express-error-handler'),
     // FS <-- File System
-    fs           = require('fs'),               
+    fs           = require('fs'),
     // UNDERSCORE <-- js extensions
-    _            = require('underscore'),       
-    // DEFAULTSDEEP <-- extended underscrore/lodash _.defaults, 
+    _            = require('underscore'),
+    // DEFAULTSDEEP <-- extended underscrore/lodash _.defaults,
     // for default-value in   deeper structures
-    defaultsDeep = require('merge-defaults'),   
+    defaultsDeep = require('merge-defaults'),
     // MORGAN <-- logger
-    morgan       = require('morgan'),           
+    morgan       = require('morgan'),
     // dateFormat
-    dateFormat   = require('dateFormat'),       
-    
+    dateFormat   = require('dateFormat'),
+
     /* Database Server + Client */
     //TODO mongoose lösung finden
     mongoose     = require('mongoose'),
@@ -41,7 +41,7 @@ var
 
     /* Current connected clients */
     clients      = [],
-    
+
     /* Default config */
     defaults     = { connections : [],
                      command_file: 'commands.json',
@@ -206,9 +206,9 @@ var dataFile = new dataHandler( {
               exceeds: threshold.getExceeds(data),
               data: data
             });
-            
+
             dbcontroller.appendData(
-              currentData.content, 
+              currentData.content,
               function (err, appendedData, tmpDB) {
                 //TODO: handle the error
                 clients.forEach(function(client){
@@ -240,14 +240,14 @@ var dataSocket = io.of('/data');
 
 // Handle connections of new clients
 dataSocket.on('connection', function(socket) {
-                 
-   socket.on('clientdata', function(patterns) {
+
+   socket.on('clientConfig', function(patterns) {
      var current_client = new Client(socket, patterns);
      clients.push(current_client);
      dbcontroller.getData(current_client.firstPattern,
          function (err, data) {
-            //TODO: handle the error
-       
+            //TODO: important! if two lines change then send in the same kind of object
+
             var message = {
                content: data,
                time: new Date(), // current message time
@@ -259,7 +259,7 @@ dataSocket.on('connection', function(socket) {
          }
      );
    });
- 
+
 });
 
 /*
@@ -271,13 +271,13 @@ db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function (callback) {
   datamodel.remove({},function(){
-  
+
   // start the handler for new measuring data
   dataFile.connect();
-  
+
   // make the Server available for Clients
   server.listen(config.port);
-  
+
   });
 });
 
@@ -309,7 +309,7 @@ process.on('uncaughtException', function(err) {
   } catch (e) {
     if(e.message !== 'Not running') {}
     server.close();
-    mongoClient.close();
+    mongoose.close();
       throw e;
   }
   throw err;
@@ -319,7 +319,7 @@ process.on('uncaughtException', function(err) {
 process.on('SIGINT', function(err) {
   try {
     server.close();
-    mongoClient.close();
+    mongoose.close();
   } catch (err) {
     if(err.message !== 'Not running')
       throw err;
@@ -329,7 +329,7 @@ process.on('SIGINT', function(err) {
 process.on('exit', function(err) {
   try {
     server.close();
-    mongoClient.close();
+    mongoose.close();
   } catch (err) {
     if(err.message !== 'Not running')
       throw err;
