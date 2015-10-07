@@ -11,6 +11,26 @@
             value: "/data",
             notify: true
           },
+          config: {
+            type: Object,
+            value: function() {
+              return {  "firstPattern": {
+                          "query": {},
+                          "time": {
+                            "from": "2015-01-01"
+                          },
+                          "limit": -1
+                        },
+                        "appendPattern": {
+                          "query": {},
+                          "time": {
+                            "from": "2015-01-01"
+                          },
+                          "limit": -1
+                        }};
+              },
+            notify: true
+          },
           data: {
             type: Array,
             value: function() { return []; },
@@ -83,11 +103,14 @@
       },
 
       connect: function() {
-        this._init();
         var self = this;
+        // Config
+        this.socket.on('connect', function() {
+          self.socket.emit('clientConfig', self.config);
+        });
         // Receiving the FIRST Data
         this.socket.on('first', function(message) {
-          self._onFirstData(message);
+          self._onData(message);
           console.info("client has established connection to: "+window.location.host);
         });
         // Receive FURTHER Data
@@ -113,38 +136,48 @@
       },
 
       reconnect: function() {
-
+        this.disconnect();
+        this.connect();
       },
 
       disconnect: function() {
-        if (this.socket)
+        if (this.socket){
           this.socket.disconnect();
-      },
-
-      _onFirstData: function(message){
-        if(message === undefined || message.content === undefined) return; // Check the Existence
-        this.set("lastMessage", new Date(message.time));
-        this._setLanguage(message.language);
-        this._setKeys(message.groupingKeys);
-
-        // for Polymer (to notice Array change) special treatment to integrate data
-        for (var id in message.content) {
-          this._initDataPoint(message.content[id],this._getIndex(id));
-          this._setValues(message.content[id],this._getIndex(id));
+          this._init();
         }
-        this._setGroups(message.content,message.exclusiveGroups);
-        this.fire("dataloaded");
       },
 
       _onData: function(message){
-        if(message === undefined || message.content === undefined) return; // Check for Existence
-        var time = new Date(message.time);
-        if (time - this.lastMessage >= this.interval*1000){
-          this.set("lastMessage", time);
-          for (var id in message.content) { // for all messurement-data-alements existing
-            this._setValues(message.content[id],this._getIndex(id));
+        if(message === undefined) return; // Check for Existence
+        if(!this.data || this.data.length === 0)
+          this._onFirstData(message);
+        else {
+          var time = new Date(message.time);
+          if (time - this.lastMessage >= this.interval*1000){
+            this.set("lastMessage", time);
+            for (var i in message.content) { // for all messurement-data-alements existing
+              this._setValues(message.content[i],this._getIndex(message.content[i].id));
+            }
           }
         }
+      },
+
+      _onFirstData: function(message){
+        if(message === undefined) return; // Check the Existence
+        this._init();
+        this.set("lastMessage", new Date(message.time));
+        if (message.language) this._setLanguage(message.language);
+        if (message.groupingKeys) this._setKeys(message.groupingKeys);
+
+        // for Polymer (to notice Array change) special treatment to integrate data
+        var id;
+        for (var i in message.content) {
+          id = this._getIndex(message.content[i].id);
+          this._initDataPoint(message.content[i],id);
+          this._setValues(message.content[i],id);
+        }
+        this._setGroups(message.content,message.exclusiveGroups);
+        this.fire("dataloaded");
       },
 
       _getIndex: function(id){
@@ -156,7 +189,7 @@
       },
 
       _setId: function(id){
-        return this.push("ids",id) - 1;
+        return (this.push("ids",id) - 1);
       },
 
       _setLanguage: function(language){
@@ -173,6 +206,8 @@
       },
 
       _setValues: function(messageContent, i){
+        if (!this.doAppend)
+          this._initDataPoint(messageContent, i)
         if (this.newestDataLast) {
           for (var j=0; j < messageContent.values.length; j++)
             this.unshift("data."+i+".values",messageContent.values[j]);
@@ -181,8 +216,6 @@
           for (var j=messageContent.values.length-1; j >=0; j--)
             this.unshift("data."+i+".values",messageContent.values[j]);
         }
-        if (!this.doAppend)
-          this.splice("data."+i+".values",messageContent.values.length,this.data[i].values.length)
         if (this.data[i].values.length > this.maxLines)
           this.splice("data."+i+".values",this.maxLines,this.data[i].values.length)
         this.set("data."+i+".lastExceeds",messageContent.lastExceeds);
@@ -191,28 +224,26 @@
       _init: function(){
         this.splice("data",0,this.data.length);
         this.splice("ids",0,this.ids.length);
-        this.set("groups",{});
       },
 
       _initDataPoint: function(messageContent,i){
-        if(this.data[i]) {
-          if(!this.data[i].values)
-            this.set("data."+i+".values",[]);
-          else
-            this.splice("data."+i+".values",0,this.data[i].values.length);
-        }
-        else {
+        while (this.data.length <= i)
           this.push("data",{});
-          for (var key in messageContent) {
-            if(key != "values")
-              this.set("data."+i+"."+key, messageContent[key]);
-          }
-          this.set("data."+i+".values", []);
+        if(!this.data[i].values){
+          this.set("data."+i+".values",[]);
+          this.push("data."+i+".values",{"x":"","y":"","exceeds":null});
+        }
+        // else // creates problems in linking
+        //   this.splice("data."+i+".values",0,this.data[i].values.length);
+        for (var key in messageContent) {
+          if(key != "values" && !this.data[i][key])
+            this.set("data."+i+"."+key, messageContent[key]);
         }
       },
 
       _setGroups: function(content,exclusiveGroups){ // Referencing on group-identities
         if(content){
+          this.set("groups",{});
           var where, innerkey, needToSet;
           if(exclusiveGroups){
             for (var key in exclusiveGroups) {

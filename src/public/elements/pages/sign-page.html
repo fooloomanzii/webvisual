@@ -17,7 +17,7 @@
 
     <main-toolbar id="toolbar" class="has-shadow paper-header normal">
         <paper-icon-button icon="menu" class="mainmenu header" on-click="toggleDrawer"></paper-icon-button>
-        <logo-element class="header"></logo-element>
+        <logo-element id="logo" class="header"></logo-element>
     </main-toolbar>
 
     <!-- Page Option Button -->
@@ -70,6 +70,21 @@
       behaviors: [ScrollBehavior, DataBehavior, LanguageBehavior, PageBehavior, Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
+        animationConfig: {
+          value: function() {
+            return {
+              'entry': [
+                {
+                  name: 'slide-from-left-animation',
+                  node: this.$.toolbar,
+                  timing: {
+                    duration: 500
+                  }
+                }
+              ]
+            }
+          }
+        }
         // animationConfig: {
         //   value: function() {
         //     return {

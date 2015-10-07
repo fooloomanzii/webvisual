@@ -5,8 +5,7 @@
     properties: {
         element: {
           type: Object,
-          value: function() { return {}; },
-          notify: true
+          value: function() { return {}; }
         },
         timeFormat: {
           type: String,
@@ -27,8 +26,11 @@
     computeX: function(change, index){
       if (change.base && change.base.length != 0){
         var date = this.get('x', change.base[index]);
-        if(date !== undefined)
+        if((date !== undefined) && (date != "")){
           return $.format.toBrowserTimeZone(date,this.timeFormat);
+        }
+        else
+          return " ";
       }
     },
 
@@ -36,7 +38,7 @@
       if (change.base && change.base.length != 0){
         var value = this.get('y', change.base[index]);
         var exceeds = this.get('exceeds', change.base[index]);
-        if (value !== undefined) {
+        if ((value !== undefined) && (value !== "")) {
           if (this.element.isBoolean){
             if (exceeds==true || exceeds==false)
               return "✗";
@@ -46,6 +48,8 @@
           else
             return value;
         }
+        else
+          return " ";
       }
     },
     computeStyle: function(change, index){

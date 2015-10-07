@@ -6,7 +6,7 @@
     :host {
       display: block;
       position: relative;
-      overflow: hidden;
+      overflow: hidden !important;
       font-family: Roboto;
       font-weight: normal;
       cursor: pointer;
@@ -29,7 +29,6 @@
     }
 
     #mainContent {
-      overflow-y: hidden;
       margin: 0em;
       padding: 0em;
       background: #005B82;
@@ -47,9 +46,9 @@
       padding: 10px 8px;
       display: flex;
       flex-direction: row;
-      overflow: hidden;
     }
     #lower {
+      overflow: hidden !important;
       box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
       padding: 0px;
       width: 100%;
@@ -124,9 +123,18 @@
         type: Boolean,
         value: false,
         reflectToAttribute: true
+      },
+      animationConfig: {
+        value: function() {
+          return {
+            'entry': [
+              {name: 'fade-in-animation', node: this},
+              {animatable: this.$.header, type: 'entry'}
+            ]
+          }
+        }
       }
     }
-
   });
   </script>
 </dom-module>
