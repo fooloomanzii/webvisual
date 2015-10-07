@@ -1,0 +1,36 @@
+<link rel="import" href="../../components/polymer/polymer.html">
+<link rel="import" href="../../components/neon-animation/neon-animation-behavior.html">
+<link rel="import" href="../../components/neon-animation/web-animations.html">
+
+<script>
+
+  Polymer({
+
+    is: 'fill-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+      var fill = config.fill;
+
+      var fillArray = [];
+      for (var i=0; i< fill.length; i++)
+        fillArray.push({"fill":fill[i]});
+      node.style.fill = fill[0];
+
+      this._effect = new KeyframeEffect(node, fillArray,
+        this.timingFromConfig(config));
+
+      fillArray = null;
+      return this._effect;
+    },
+
+    complete: function(config) {
+      config.node.style.fill = config.fill[0];
+    }
+  });
+
+</script>

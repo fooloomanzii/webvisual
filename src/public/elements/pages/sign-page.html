@@ -11,13 +11,21 @@
         display: block;
       }
     }
+    logo-element {
+      position: fixed;
+      top: 10px;
+      left: 76px;
+      z-index: 1000;
+      height: 44px;
+      color: white;
+    }
   </style>
 
   <template>
-
+    <logo-element id="logo"></logo-element>
     <main-toolbar id="toolbar" class="has-shadow paper-header normal">
         <paper-icon-button icon="menu" class="mainmenu header" on-click="toggleDrawer"></paper-icon-button>
-        <logo-element id="logo" class="header"></logo-element>
+
     </main-toolbar>
 
     <!-- Page Option Button -->
@@ -70,15 +78,33 @@
       behaviors: [ScrollBehavior, DataBehavior, LanguageBehavior, PageBehavior, Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
+        sharedElements: {
+          value: function() {
+            return {
+              'ripple': this.$.logo
+            }
+          }
+        },
         animationConfig: {
           value: function() {
             return {
               'entry': [
                 {
-                  name: 'slide-from-left-animation',
+                  name: 'transform-animation',
                   node: this.$.toolbar,
+                  transformOrigin: "50% 0%",
+                  transformFrom: "scale(0,0)",
+                  transformTo: "scale(1,1)",
                   timing: {
-                    duration: 500
+                    duration: 1000
+                  }
+                },
+                {
+                  name: 'hero-animation',
+                  id: 'ripple',
+                  toPage: this,
+                  timing: {
+                    duration: 1500
                   }
                 }
               ]

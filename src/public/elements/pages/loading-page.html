@@ -1,0 +1,77 @@
+<dom-module id="loading-page">
+  <style>
+    host: {
+    }
+    section#mainContent {
+      height: 100%;
+    }
+    /*@media all and (min-width: 0px) and (max-width: 600px) {
+      section#mainContent {
+        display: block;
+      }
+    }*/
+    paper-spinner#loadSpinner {
+      position: fixed;
+      bottom: 50%;
+      right: 50%;
+      z-index: 5;
+      --paper-spinner-layer-1-color: rgb(4, 143, 205);
+      --paper-spinner-layer-2-color: rgb(60, 109, 235);
+      --paper-spinner-layer-3-color: rgb(110, 161, 154);
+      --paper-spinner-layer-4-color: rgb(75, 184, 29);
+    }
+    logo-element {
+      position: fixed;
+      bottom: calc(50% - 32px);
+      right: calc(50% - 156px);
+      z-index: 1000;
+      height: 128px;
+      color: #005B82;
+    }
+  </style>
+
+  <template>
+    <paper-spinner id="loadSpinner" active></paper-spinner>
+    <logo-element id="logo" class="header"></logo-element>
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'loading-page',
+
+      behaviors: [Polymer.NeonSharedElementAnimatableBehavior],
+
+      properties: {
+        sharedElements: {
+          value: function() {
+            return {
+              'ripple': this.$.logo
+            }
+          }
+        },
+        animationConfig: {
+          value: function() {
+            return {
+              'entry': [
+
+              ],
+              'exit': [
+                {
+                  name: 'hero-animation',
+                  id: 'ripple',
+                  fromPage: this,
+                  timing: {
+                    duration: 2000
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    });
+
+  </script>
+
+</dom-module>

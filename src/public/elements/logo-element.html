@@ -246,13 +246,32 @@
           return [];
         }
       },
-      logo: {
-        type: Node
-      },
       animationConfig: {
         value: function() {
           return {
-            'entry': [
+            'loading': [
+              {
+                name: 'fill-animation',
+                node: this.$.logo,
+                fill: ["currentColor", "rgb(134, 175, 128)", "rgb(1, 168, 242)"],
+                timing: {
+                  duration: 1200,
+                  fill: "both",
+                  iterations: +Infinity,
+                  direction: "alternate-reverse",
+                }
+              },
+              {
+                name: 'fill-animation',
+                node: this.$.headline,
+                fill: ["currentColor", "rgb(175, 128, 141)"],
+                timing: {
+                  duration: 1500,
+                  fill: "backwards",
+                  iterations: 2,
+                  direction: "alternate",
+                }
+              },
               {
                 name: 'cascaded-animation',
                 animation: 'transform-animation',
@@ -270,11 +289,52 @@
             ]
           }
         }
+      },
+      play: {
+        type: 'boolean',
+        value: false,
+        observer: "_toggleClass"
+      },
+      loaded: {
+        type: 'boolean',
+        value: false
+      },
+      exceeds: {
+        type: 'boolean',
+        value: null
       }
     },
-    listeners:
-      {animationiteration : "cancelAnimation"},
-
+    listeners: {
+      "animationiteration":"cancelAnimation"
+    },
+    play: function() {
+      this.play = true;
+      // var animate = (this.play ? 'animated' : 'notanimated');
+      // if (this.exceeds == true) {
+      //   animate += ' true';
+      // }
+      // else if (this.exceeds == false) {
+      //   animate += ' false';
+      // }
+      // else if (this.exceeds == null) {
+      //   animate += ' null';
+      // }
+      // this.$.logo.setAttribute('class',animate);
+    },
+    stop: function() {
+      this.play = false;
+    },
+    exceedsChanged: function(){
+      this.play = true;
+    },
+    attached: function() {
+      this.play = true;
+    },
+    _toggleClass: function(bool) {
+      this.toggleClass("animate",bool,this.$.logo);
+      this.toggleClass("animate",bool,this.$.headline);
+      this.toggleClass("animate",bool,this.$.line);
+    },
     cancelAnimation: function(){
 
           console.log("log at beginning of each subsequent iteration");
@@ -293,7 +353,6 @@
     },
 
     attached: function(){
-      this.set("logo",this.$.logo);
       this.push("headline",this.$.J);
       this.push("headline",this.$.Ü);
       this.push("headline",this.$.L);
@@ -317,8 +376,9 @@
       this.push("line",this.$.r2);
       this.push("line",this.$.u2);
       this.push("line",this.$.m);
-      this.set("animationConfig.entry.0.nodes",this.line);
-      this.playAnimation('entry');
+      this.set("animationConfig.loading.1.nodes",this.headline);
+      this.set("animationConfig.loading.2.nodes",this.line);
+      this.playAnimation('loading');
     }
   });
 </script>
