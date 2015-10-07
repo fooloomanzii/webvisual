@@ -7,14 +7,17 @@
 .jshintrc
 .project
 
-# Some folders #
+# Bower Components #
+src/public/components/*
+!src/public/components/README.md
 
-src/build
-src/public-dep
-src/public-src
+# Node Modules #
+src/node_modules/*
+!src/node_modules/README.md
 
-# Node Stuff #
-src/node_modules
+# DB #
+data/db/*
+!**/README.md
 
 # Tests #
 src/**/test/
@@ -26,7 +29,6 @@ src/**/demo/
 # Other files #
 *desktop.ini
 *thumbs.db
-hero.svg
 .bower.json
 
 # Mail login #
