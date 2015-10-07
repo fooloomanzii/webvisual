@@ -92,7 +92,7 @@
       "kind"  : "",
       "method"   : "",
       "unit"     : "",
-      "threshold": {"from":null, "to":null},
+      "threshold": {"from":null,"to":null},
       "isBoolean": false
     },
 
