@@ -1,0 +1,140 @@
+<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="behaviors/element-behavior.html">
+
+<dom-module id="main-toolbar">
+  <style is="costum-style">
+    :host {
+      display: block;
+      position: relative;
+      overflow: hidden !important;
+      font-family: Roboto;
+      font-weight: normal;
+      cursor: pointer;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      -webkit-tap-highlight-color:rgba(0,0,0,0);
+      transition: height 0.18s ease-in;
+      margin: 0em;
+      padding: 0em;
+      height: 64px;
+      max-height: 40vh;
+    }
+    :host[opened]{
+      height: 30vh;
+    }
+
+    #mainContent {
+      margin: 0em;
+      padding: 0em;
+      background: #005B82;
+      color: #f1f1f1;
+      height: 100%;
+    }
+
+    #mainContent.dark {
+      background: #345475;
+      color: #669DB4;
+    }
+    #header {
+      height: 44px;
+      width: calc(100% - 16px);
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: row;
+    }
+    #lower {
+      overflow: hidden !important;
+      box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
+      padding: 0px;
+      width: 100%;
+      height: calc(100% - 64px);
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      background: #f1f1f1;
+    }
+    #lower:after {
+      box-shadow: 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
+    }
+    #lower.dark{
+      background: #8A8A8A;
+    }
+
+    #header ::content logo-element {
+      margin-left: 8px;
+      height: 100%;
+    }
+    #header ::content paper-icon-button {
+      padding: 10px;
+      margin: 0px 8px;
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #header ::content paper-icon-button:hover {
+      background: #669DB4;
+      border-radius: 50%;
+      box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 5px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    }
+    #lower ::content sign-element > * {
+      height: 100%;
+    }
+    .flex {
+      -ms-flex: 1;
+      -webkit-flex: 1;
+      flex: 1;
+    }
+
+  </style>
+  <template>
+
+    <section id="mainContent">
+      <section id="header">
+        <content select=".header"></content>
+        <div class="flex"></div>
+        <content select=".tabs"></content>
+        <content select=".icon-toggle"></content>
+      </section>
+      <section id="lower">
+        <content select="#lowerToolbar"></content>
+      </section>
+    </section>
+
+  </template>
+
+  <script>
+
+  Polymer({
+    is: 'main-toolbar',
+
+    hostAttributes: {
+      'role': 'toolbar'
+    },
+
+    behaviors: [ElementBehavior, Polymer.NeonAnimationRunnerBehavior],
+
+    properties: {
+      opened: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
+      },
+      animationConfig: {
+        value: function() {
+          return {
+            'entry': [
+              {name: 'fade-in-animation', node: this},
+              {animatable: this.$.header, type: 'entry'}
+            ]
+          }
+        }
+      }
+    }
+  });
+  </script>
+</dom-module>

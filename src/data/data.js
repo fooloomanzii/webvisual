@@ -234,9 +234,9 @@ connectionFn.udp = {
    *                             to end the connection
    * @param  {Function} callback A callback function which recieves a potential error.
    */
-  close: function() {
+  close: function(config, callback) {
     // Close the connection
-    udpwatch.unwatch();
+    udpwatch.unwatch(config.port, callback);
   },
 
   /**

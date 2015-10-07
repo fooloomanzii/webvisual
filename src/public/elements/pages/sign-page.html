@@ -1,0 +1,136 @@
+<dom-module id="sign-page">
+  <style>
+    host: {
+      opacity: 0;
+    }
+    section#mainContent {
+      height: calc(100vh - 64px);
+    }
+    @media all and (min-width: 0px) and (max-width: 600px) {
+      section#mainContent {
+        display: block;
+      }
+    }
+  </style>
+
+  <template>
+
+    <main-toolbar id="toolbar" class="has-shadow paper-header normal">
+        <paper-icon-button icon="menu" class="mainmenu header" on-click="toggleDrawer"></paper-icon-button>
+        <logo-element id="logo" class="header"></logo-element>
+    </main-toolbar>
+
+    <!-- Page Option Button -->
+
+    <section id="mainContent" class="page">
+      <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup" delay="200">
+        <post-card class="group" headline="{{groupedItem.group}}">
+
+          <template is="dom-repeat" items="{{data}}" as="element">
+            <template is="dom-if" if="{{groupElements(element,groupedItem)}}" restamp>
+              <section class="card" on-click="setSelectedElement">
+
+                  <sign-element element="{{element}}"></sign-element>
+                  <section class="caption" id="{{element.id}}">
+                    <span id="kind">{{element.kind}}</span>
+                    <span id="method">{{element.method}}</span>
+                    <span id="room">{{element.room}}</span>
+                    <span id="roomNr">{{element.roomNr}}</span>
+                  </section>
+
+              </section>
+            </template>
+          </template>
+        </post-card>
+      </template>
+
+      <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab>
+
+    </section>
+
+    <!-- Page-Options -->
+    <paper-dialog id="optionDialog" entry-animation="slide-to-up-animation" exit-animation="slide-to-down-animation">
+      <section class="horizontal layout">
+        <post-card headline="Gruppieren nach">
+          <paper-menu attr-for-selected="id" selected="{{groupBy}}">
+            <template is="dom-repeat" items="{{keys}}" as="key">
+              <paper-item id="{{key}}">{{key}}</paper-item>
+            </template>
+          </paper-menu>
+        </post-card>
+      </section>
+    </paper-dialog>
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'sign-page',
+
+      behaviors: [ScrollBehavior, DataBehavior, LanguageBehavior, PageBehavior, Polymer.NeonSharedElementAnimatableBehavior],
+
+      properties: {
+        animationConfig: {
+          value: function() {
+            return {
+              'entry': [
+                {
+                  name: 'slide-from-left-animation',
+                  node: this.$.toolbar,
+                  timing: {
+                    duration: 500
+                  }
+                }
+              ]
+            }
+          }
+        }
+        // animationConfig: {
+        //   value: function() {
+        //     return {
+        //       'entry': [
+        //         {
+        //           name: 'hero-animation',
+        //           id: 'heroSign',
+        //           toPage: this
+        //         }
+        //       ],
+        //       'exit': [
+        //         {
+        //           name: 'hero-animation',
+        //           id: 'heroSign',
+        //           fromPage: this
+        //         }
+        //       ]
+        //     }
+        //   }
+        // }
+      },
+
+      setSelectedElement: function(e) {
+        if (e){
+          var item = e.model.element;
+          var icol = Polymer.Collection.get(this.data);
+          var key = icol.getKey(item);
+          this.selectedElement = item;
+          this.linkPaths('selectedElement', 'data.' + key);
+          this.notifyPath('selectedElement.values', this.selectedElement.values);
+          // this.sharedElements = {
+          //   'heroSign': e.currentTarget.children[0]
+          // };
+          this.fire('selectevent');
+        }
+      },
+
+      attached: function() {
+        this.async(function() {
+          var nodeList = Polymer.dom(this.root).querySelectorAll('post-card');
+          this.nodes = Array.prototype.slice.call(nodeList);
+        });
+      }
+
+    });
+
+  </script>
+
+</dom-module>

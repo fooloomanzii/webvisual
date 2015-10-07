@@ -1,114 +1,116 @@
 <dom-module id="sign-element">
   <style>
-  :host {
-    position: relative;
-    color: #f1f1f1;;
-    border-radius: 3px 3px 0px 0px;
-    overlay: hidden;
-    display: block;
-    outline: none;
-    cursor: pointer;
-    font-family: 'Roboto-Condensed-Light';
-    font-style: normal;
-    user-select: none;
-    background: white;
-    font-size: 1em;
-    line-height: 1;
-  }
-  .main {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    border-radius: inherit;
-    min-height: 5em;
-    min-width: 7em;
-  }
-  .main.dark{
-    color: #d3d3d3;
-  }
-  .actualValueSection {
-    display: flex;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
-    padding: 1em 1em 0.25em 1em;
-    align-items: center;
-    -ms-flex: 1;
-    -webkit-flex: 1;
-    flex: 1;
-    flex-direction: row;
-    justify-content: center;
-  }
-  .valueSection {
-    font-size: 1.75em;
-    font-style: normal;
-    font-weight: 300;
-  }
-  .unitSection {
-    padding-left: 0.3em;
-    font-size: 0.8em;
-  }
-  .dateSection {
-    font-family: Roboto-Condensed-Light-Italic;
-    font-size: 0.6em;
-    color: #5a5a5a;
-  }
-  .lowerSection {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: bottom;
-    padding: 0.25em 0.75em 0.5em 0.75em;
-    line-height: 1em;
-  }
-  .exceedsDateSection {
-    font-family: Roboto-Condensed-Light-Italic;
-    font-size: 0.75em;
-  }
-  .exceedsValueSection {
-    padding-left: 0.75em;
-    font-size: 0.8em;
-  }
-  iron-icon{
-    --iron-icon-height: 1.75em;
-    --iron-icon-width: 1.75em;
-    color: currentColor;
-    animation-name: exceed-animation;
-    animation-duration: 2s;
-    animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite;
-  }
-  @keyframes exceed-animation {
-      0%   {transform: scale(1);}
-      33%  {transform: scale(1.10);}
-      100% {transform: scale(1);}
-  }
-  #ripple {
-    color: #1d1d1d;
-  }
+    :host {
+      position: relative;
+      color: #f1f1f1;;
+      border-radius: 2px 2px 0px 0px;
+      overlay: hidden;
+      display: block;
+      outline: none;
+      cursor: pointer;
+      font-family: 'Roboto-Condensed-Light';
+      font-style: normal;
+      user-select: none;
+      background: transparent;
+      font-size: 1em;
+      line-height: 1;
+      box-shadow: inherit;
+    }
+    #mainContent {
+      box-shadow: inherit;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      border-radius: inherit;
+      min-height: 5em;
+      min-width: 7em;
+    }
+    #mainContent.dark{
+      color: #d3d3d3;
+    }
+    .actualValueSection {
+      display: flex;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
+      padding: 1em 1em 0.25em 1em;
+      align-items: center;
+      -ms-flex: 1;
+      -webkit-flex: 1;
+      flex: 1;
+      flex-direction: row;
+      justify-content: center;
+    }
+    .valueSection {
+      font-size: 1.75em;
+      font-style: normal;
+      font-weight: 300;
+    }
+    .unitSection {
+      padding-left: 0.3em;
+      font-size: 0.8em;
+    }
+    .dateSection {
+      font-family: Roboto-Condensed-Light-Italic;
+      font-size: 0.6em;
+      color: #5a5a5a;
+    }
+    .lowerSection {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: bottom;
+      padding: 0.25em 0.75em 0.5em 0.75em;
+      line-height: 1em;
+    }
+    .exceedsDateSection {
+      font-family: Roboto-Condensed-Light-Italic;
+      font-size: 0.75em;
+    }
+    .exceedsValueSection {
+      padding-left: 0.75em;
+      font-size: 0.8em;
+    }
+    iron-icon{
+      --iron-icon-height: 1.75em;
+      --iron-icon-width: 1.75em;
+      color: currentColor;
+      animation-name: exceed-animation;
+      animation-duration: 2s;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+    }
+    @keyframes exceed-animation {
+        0%   {transform: scale(1);}
+        33%  {transform: scale(1.10);}
+        100% {transform: scale(1);}
+    }
+    #ripple {
+      color: #1d1d1d;
+    }
   </style>
   <template>
-    <section class="main" style$="{{firstStyle(element.values.*)}}">
-      <paper-ripple id="ripple" class="fill" fit initialOpaciy="0.10"></paper-ripple>
+    <section id="mainContent" style$="{{computeStyle(element.values.*,0)}}">
+      <paper-ripple id="ripple" recenters opacity-decay-velocity="1.2"></paper-ripple>
 
       <section class="actualValueSection">
-        <template is="dom-if" if="[[!element.isBoolean]]" restamp>
-          <span class="valueSection">[[firstY(element.values.*)]]</span><span class="unitSection">[[element.unit]]</span>
+        <template is="dom-if" if="{{!element.isBoolean}}" restamp>
+          <span class="valueSection">{{computeY(element.values.*,0)}}</span><span class="unitSection">{{element.unit}}</span>
         </template>
-        <template is="dom-if" if="[[element.isBoolean]]" restamp>
-          <iron-icon icon=[[firstIcon(element.values.*)]]></iron-icon>
+        <template is="dom-if" if="{{element.isBoolean}}" restamp>
+          <iron-icon icon={{computeIcon(element.values.*,0)}}></iron-icon>
         </template>
       </section>
 
       <section class="lowerSection">
-        <template is="dom-if" if="[[showExceeds]]" restamp>
-          <template is="dom-if" if="[[element.lastExceeds]]" restamp>
-            <span class="exceedsDateSection">[[computeX(element.lastExceeds.x)]]</span><span class="exceedsValueSection">[[computeY(element.lastExceeds.y,element.lastExceeds.exceeds)]]<span> </span><span>[[element.unit]]</span></span>
+        <template is="dom-if" if="{{showExceeds}}" restamp>
+          <template is="dom-if" if="{{element.lastExceeds}}" restamp>
+            <span class="exceedsDateSection">{{computeLastExceedsX()}}</span><span class="exceedsValueSection">{{computeLastExceedsY()}}<span> </span><span>{{element.unit}}</span></span>
           </template>
-          <template is="dom-if" if="[[!element.lastExceeds]]" restamp>
-            <span class="dateSection">[[firstX(element.values.*)]]</span>
+          <template is="dom-if" if="{{!element.lastExceeds}}" restamp>
+            <span class="dateSection">{{computeX(element.values.*,0)}}</span>
           </template>
         </template>
-        <template is="dom-if" if="[[!showExceeds]]" restamp>
-          <span class="dateSection">[[firstX(element.values.*)]]</span>
+        <template is="dom-if" if="{{!showExceeds}}" restamp>
+          <span class="dateSection">{{computeX(element.values.*,0)}}</span>
         </template>
       </section>
     </section>
@@ -119,15 +121,9 @@
     Polymer({
       is: 'sign-element',
 
+      behaviors: [ElementBehavior, AnimatableBehavior],
+
       properties: {
-          element: {
-            type: Object,
-            value: function() { return {"values":[]}; }
-          },
-          timeFormat: {
-            type: String,
-            value: "HH:mm:ss"
-          },
           showExceeds: {
             type: Boolean,
             value: true,
@@ -135,77 +131,8 @@
           }
       },
 
-      firstX: function(change) {
-        if (change.base && change.base.length != 0){
-          var date = this.get('x', change.base[0]);
-          return this.computeX(date);
-        }
-        else
-          return undefined
-      },
-
-      firstY: function(change) {
-        if (change.base && change.base.length != 0){
-          var value = this.get('y', change.base[0]);
-          var exceeds = this.get('exceeds', change.base[0]);
-          return this.computeY(value, exceeds)
-        }
-        else
-          return undefined;
-      },
-
-      firstStyle: function(change) {
-        if (change.base && change.base.length != 0){
-          var exceeds = this.get('exceeds', change.base[0]);
-          return this.computeStyle(exceeds);
-        }
-        else
-          return undefined;
-      },
-
-      firstIcon: function(change) {
-        if (change.base && change.base.length != 0){
-          var exceeds = this.get('exceeds', change.base[0]);
-          if(exceeds == true || exceeds == false)
-            return "error-outline";
-          else
-            return "";
-        }
-        else
-          return undefined;
-      },
-
-      computeX: function(date){
-        if(date)
-          return $.format.toBrowserTimeZone(date,this.timeFormat);
-        else
-          return undefined;
-      },
-
-      computeY: function(value,exceeds){
-        if(!value && value !=0)
-          return undefined;
-        else if (this.element.isBoolean){
-          if (exceeds==true || exceeds==false)
-            return "✗";
-          else
-            return "✓";
-        }
-        else {
-          return value;
-        }
-      },
-
-      computeStyle: function(exceeds){
-        if(exceeds == true)
-          return "background: rgb(255, 21, 41);";
-        else if(exceeds == false)
-          return "background: rgb(255, 20, 110);";
-        else
-          return "background: rgb(0, 202, 53);";
-      },
-
-      scrollHandler: function(e) {
+      attached: function(){
+        // this.playAnimation('entry');
       }
 
     });

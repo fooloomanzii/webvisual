@@ -1,0 +1,31 @@
+<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../components/poly-nvd3/nvd3-behavior.html">
+
+<script>
+    Polymer({
+        is: "line-chart",
+        nvModel: nv.models.lineChart ,
+        behaviors: [NVD3Behavior, ElementBehavior],
+        customize: function(chart, svg) {
+          chart.xAxis.tickFormat(
+            function(d) {
+              return d3.time.format('%X')(new Date(d));
+            });
+          chart.staggerLabels(true);
+        },
+
+        observers:
+          ["pushData(element.*)"],
+
+        pushData: function(){
+          if (Object.keys(this.data).length == 0 && this.element && Object.keys(this.element).length != 0){
+            this.push('data',{"values":[], "key":"", "color":""});
+            this.set('data.0.values',this.element.values);
+            this.set('data.0.key',this.element.kind);
+            this.set('data.0.color',"#80A1D5");
+          }
+          this._update();
+        }
+
+    });
+</script>

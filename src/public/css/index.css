@@ -12,26 +12,27 @@ paper-material {
    margin: 0em;
 }
 
-paper-icon-button {
-  margin: 0em 0.5em 0em 0.5em;
+paper-input paper-input-container{
+  padding: 0em;
 }
 
 paper-button iron-icon {
-  margin-right: 0.62em;
+  margin-left: 0.5em;
+  margin-right: 1em;
+  min-width: 1.5em;
 }
 paper-item iron-icon {
-  margin-right: 0.62em;
+  margin-left: 0.25em;
+  margin-right: 1em;
+  min-width: 1.5em;
 }
 paper-button.sidemenu {
-  padding: 0.5em;
+  padding: 1.25em 0.75em;
 }
 
 paper-button iron-icon.right-icon{
-  padding: 0.25em;
   margin: 0em;
-  height: 1em;
-  width: 1em;
-  border-radius: 50%;
+  margin-right: 0.25em;
   transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
 }
 paper-button iron-icon.right-icon:hover{
@@ -43,10 +44,6 @@ paper-button .content{
   justify-content: flex-start;
   align-items: center;
   flex-direction: row;
-}
-
-logo-element {
-  margin-left: 0.62em;
 }
 
 paper-item.date {
@@ -68,16 +65,10 @@ paper-item.date {
  * Submenu
  */
 
-paper-fab#extension {
-  position: fixed;
-  bottom: 1em;
-  right: 1.5em;
-  z-index: 100;
-}
-
 paper-button.sidemenu {
   margin: 0.25em 0em;
   width: 100%;
+  display: flex;
 }
 
 .collapse-content paper-button {
