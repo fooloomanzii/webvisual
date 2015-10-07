@@ -8,7 +8,7 @@
 .project
 
 # Bower Components #
-# src/public/components/*
+src/public/components/*
 !src/public/components/README.md
 
 # Node Modules #
