@@ -303,13 +303,14 @@ db.once('open', function (callback) {
  */
 
  // TODO: make shure that the server is not closing (or is restarting) with errors
+ // and pretty this part
 process.on('uncaughtException', function(err) {
   try {
+    server.close();
+    mongoose.disconnect();
     console.warn(err.message);
   } catch (e) {
-    if(e.message !== 'Not running') {}
-    server.close();
-    mongoose.close();
+    if(e.message !== 'Not running')
       throw e;
   }
   throw err;
@@ -319,7 +320,7 @@ process.on('uncaughtException', function(err) {
 process.on('SIGINT', function(err) {
   try {
     server.close();
-    mongoose.close();
+    mongoose.disconnect();
   } catch (err) {
     if(err.message !== 'Not running')
       throw err;
@@ -329,7 +330,7 @@ process.on('SIGINT', function(err) {
 process.on('exit', function(err) {
   try {
     server.close();
-    mongoose.close();
+    mongoose.disconnect();
   } catch (err) {
     if(err.message !== 'Not running')
       throw err;
