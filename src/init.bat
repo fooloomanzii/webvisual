@@ -19,6 +19,7 @@ exit
 :UPDATE
 echo Install packages. This can take a moment ...
 start /WAIT cmd /C "cd %~dp0 & npm.cmd update"
+start /WAIT cmd /C "cd %~dp0 & npm.cmd bower update"
 goto:eof
 
 :END
