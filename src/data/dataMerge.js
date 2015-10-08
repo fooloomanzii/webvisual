@@ -38,7 +38,6 @@ function processData(locals, currentData) {
       returnObject  = {};
 
   arrangeLabels(locals);
-
   arrangeData(currentData.data, currentData.exceeds);
 
   function arrangeLabels(locals) {
@@ -102,14 +101,14 @@ function processData(locals, currentData) {
           // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored
           // TODO "k" indizies rausnehmen, da die für datenbank unwichtig sind
           processedData[k].values.push({"x":    dateArray[i],
-                                             "y":   valuesArray[i][j],
-                                             "exceeds": exceedsArray[i][j]
+                                        "y":   valuesArray[i][j],
+                                        "exceeds": exceedsArray[i][j]
                                       })
           // store last Exceeding Data (lastExceedsArray is created each server-session)
           if(exceedsArray[i][j] != null)
             lastExceedsArray[j] = processedData[k].lastExceeds = {"x": dateArray[i],
-                                                                       "y": valuesArray[i][j],
-                                                                       "exceeds": exceedsArray[i][j]};
+                                                                  "y": valuesArray[i][j],
+                                                                  "exceeds": exceedsArray[i][j]};
           k++;
         }
       }
@@ -119,7 +118,6 @@ function processData(locals, currentData) {
       // TODO: socket for each messurement-device possible?
     returnObject = {time: currentData.time, content: processedData};
   }
-
   return returnObject;
 }
 

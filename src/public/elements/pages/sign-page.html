@@ -15,14 +15,18 @@
       position: fixed;
       top: 10px;
       left: 76px;
-      z-index: 1000;
       height: 44px;
-      color: white;
+      color: #f1f1f1;
+      z-index: 10;
+    }
+    main-toolbar {
+      z-index: 5;
     }
   </style>
 
   <template>
-    <logo-element id="logo"></logo-element>
+
+    <logo-element id="logo" class="mainmenu header"></logo-element>
     <main-toolbar id="toolbar" class="has-shadow paper-header normal">
         <paper-icon-button icon="menu" class="mainmenu header" on-click="toggleDrawer"></paper-icon-button>
 
@@ -81,7 +85,7 @@
         sharedElements: {
           value: function() {
             return {
-              'ripple': this.$.logo
+              'herologo': this.$.logo
             }
           }
         },
@@ -90,22 +94,9 @@
             return {
               'entry': [
                 {
-                  name: 'transform-animation',
-                  node: this.$.toolbar,
-                  transformOrigin: "50% 0%",
-                  transformFrom: "scale(0,0)",
-                  transformTo: "scale(1,1)",
-                  timing: {
-                    duration: 1000
-                  }
-                },
-                {
                   name: 'hero-animation',
-                  id: 'ripple',
+                  id: 'herologo',
                   toPage: this,
-                  timing: {
-                    duration: 1500
-                  }
                 }
               ]
             }

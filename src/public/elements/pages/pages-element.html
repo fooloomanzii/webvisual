@@ -1,4 +1,4 @@
-<link rel="import" href="../../import-customs.html"/>
+<link rel="import" href="../../import-behaviours.html"/>
 
 <dom-module id="pages-element">
   <style></style>
@@ -30,12 +30,10 @@
     Polymer({
       is: 'pages-element',
 
-      behaviors: [DataBehavior, PageBehavior,
-        Polymer.NeonAnimatableBehavior, Polymer.NeonAnimationRunnerBehavior
-      ],
+      behaviors: [DataBehavior, PageBehavior],
 
       ready: function(){
-        this.animateInitialSelection = true;
+
       },
 
       _onSelected: function(event) {
@@ -58,8 +56,10 @@
         // this.toggleAttribute('active',false,this.$.loadSpinner);
         var self = this;
         setTimeout(function() {
+          // this is a bug in webanimations and and animations with intervall
+          self.$.loading.$.logo.fire('neon-animation-finish');
           self.$.pages.selected = 1;
-        },2500);
+        },5000);
 
         // this.playAnimation('entry');
       }

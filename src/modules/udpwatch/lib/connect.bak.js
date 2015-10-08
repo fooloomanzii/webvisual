@@ -22,11 +22,11 @@ var parser      = require('../../data_parser'),
 var udpsocket = require('dgram').createSocket('udp4');
 
 udpsocket.on('message', function(message, rinfo) {
-  console.log('udp-server got message: "' + message + '" from ' + rinfo.address + ':' + rinfo.port);
+  console.log('UDP-server got message: "' + message + '" from ' + rinfo.address + ':' + rinfo.port);
   });
 udpsocket.on('listening', function() {
   var address = udpsocket.address();
-    console.log('udp-server listening on ' + address.address + ':' + address.port );
+    console.log('UDP-server listening on ' + address.address + ':' + address.port );
 });
 
 udpsocket.bind(4000);

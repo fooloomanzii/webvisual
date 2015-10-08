@@ -5,7 +5,7 @@ var _        = require('underscore'),
 
 /*
  * Controls all operations over the database within defined Data Model
- * 
+ *
  * dataModel - instance of mongoose.model('model name', schema);
  * logger - (not yet implemented) makes possible to log all operations;
  */
@@ -14,11 +14,11 @@ var DBController = function (dataModel) {
     this.ApiResponse = require('./api-response.js');
     this.ApiMessages = require('./api-messages.js');
     this.dataModel = dataModel;
-    
+
 };
 
 /*
- * Appends data to Database. 
+ * Appends data to Database.
  * Data should look like schema of the dataModel.
  * Calls the callback with possible error and success response
  * newData: can be one Object or Array of Objects
@@ -63,19 +63,19 @@ DBController.prototype.getData = function (request, callback, options) {
 
 DBController.prototype.getTest = function (callback) {
   /*this.getData( [{
-              query: { id: 'DI0-1' }, 
-              time:  { from: moment().subtract(1, 'months') }, 
+              query: { id: 'DI0-1' },
+              time:  { from: moment().subtract(1, 'months') },
               getProperties: true,
               limit: 2
             }, {
-              query: { id: 'DI0-2' }, 
-              time:  { from: moment().subtract(1, 'months') }, 
+              query: { id: 'DI0-2' },
+              time:  { from: moment().subtract(1, 'months') },
               getProperties: false,
               limit: -1
-            }], callback, 
+            }], callback,
             {sort: {'id': 1}});*/
   this.getData( {
-    query: { id: 'DI0-1' }, 
+    query: { id: 'DI0-1' },
     getProperties: true
   }, callback);
 };

@@ -4,6 +4,11 @@
     }
     section#mainContent {
       height: 100%;
+      width: 100%;
+      position: fixed;
+      background:#669DB4;
+      color: #f1f1f1;
+      z-index: 5;
     }
     /*@media all and (min-width: 0px) and (max-width: 600px) {
       section#mainContent {
@@ -22,17 +27,18 @@
     }
     logo-element {
       position: fixed;
-      bottom: calc(50% - 32px);
-      right: calc(50% - 156px);
-      z-index: 1000;
-      height: 128px;
-      color: #005B82;
+      /*top: 50vh;*/
+      left: 19vw;
+      width: 62vw;
+      z-index: 10;
     }
   </style>
 
   <template>
-    <paper-spinner id="loadSpinner" active></paper-spinner>
-    <logo-element id="logo" class="header"></logo-element>
+    <section id="mainContent">
+      <!-- <paper-spinner id="loadSpinner" active></paper-spinner> -->
+      <logo-element id="logo" class="header"></logo-element>
+    </section>
   </template>
 
   <script>
@@ -46,7 +52,7 @@
         sharedElements: {
           value: function() {
             return {
-              'ripple': this.$.logo
+              'herologo': this.$.logo
             }
           }
         },
@@ -54,15 +60,19 @@
           value: function() {
             return {
               'entry': [
-
+                {animatable: this.$.logo, type: 'loading'}
               ],
               'exit': [
                 {
                   name: 'hero-animation',
-                  id: 'ripple',
-                  fromPage: this,
+                  id: 'herologo',
+                  fromPage: this
+                },
+                {
+                  name: 'fade-out-animation',
+                  node: this.$.mainContent,
                   timing: {
-                    duration: 2000
+                    duration: 1000
                   }
                 }
               ]

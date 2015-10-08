@@ -1,5 +1,5 @@
 <link rel="import" href="../../components/polymer/polymer.html">
-<link rel="import" href="../../components/neon-animation/neon-animation-behavior.html">
+<link rel="import" href="../../components/neon-animation/neon-shared-element-animation-behavior.html">
 <link rel="import" href="../../components/neon-animation/web-animations.html">
 
 <script>
@@ -9,7 +9,7 @@
     is: 'fill-animation',
 
     behaviors: [
-      Polymer.NeonAnimationBehavior
+      Polymer.NeonSharedElementAnimationBehavior
     ],
 
     configure: function(config) {
@@ -18,8 +18,10 @@
 
       var fillArray = [];
       for (var i=0; i< fill.length; i++)
-        fillArray.push({"fill":fill[i]});
-      node.style.fill = fill[0];
+        fillArray.unshift({"fill": fill[i]});
+      // node.style.opacity = '';
+      // node.style.fill = fill[0];
+      // node.style.opacity = '1';
 
       this._effect = new KeyframeEffect(node, fillArray,
         this.timingFromConfig(config));
@@ -29,7 +31,7 @@
     },
 
     complete: function(config) {
-      config.node.style.fill = config.fill[0];
+      config.node.style.fill = "red";
     }
   });
 
