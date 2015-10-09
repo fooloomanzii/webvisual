@@ -57,6 +57,7 @@
         var self = this;
         setTimeout(function() {
           // this is a bug in webanimations and and animations with intervall
+          self.$.loading.$.logo.cancelAnimation();
           self.$.loading.$.logo.fire('neon-animation-finish');
           self.$.pages.selected = 1;
         },5000);

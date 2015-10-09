@@ -1,11 +1,11 @@
 <dom-module id="loading-page">
   <style>
-    host: {
-    }
     section#mainContent {
       height: 100%;
       width: 100%;
       position: fixed;
+      display: flex;
+      justify-content: center;
       background:#669DB4;
       color: #f1f1f1;
       z-index: 5;
@@ -25,19 +25,21 @@
       --paper-spinner-layer-3-color: rgb(110, 161, 154);
       --paper-spinner-layer-4-color: rgb(75, 184, 29);
     }
-    logo-element {
-      position: fixed;
-      /*top: 50vh;*/
-      left: 19vw;
+    section#loadingWindow {
+      align-self: center;
+      height: 38vh;
       width: 62vw;
+    }
+    logo-element {
       z-index: 10;
     }
   </style>
 
   <template>
     <section id="mainContent">
-      <!-- <paper-spinner id="loadSpinner" active></paper-spinner> -->
-      <logo-element id="logo" class="header"></logo-element>
+      <section id="loadingWindow">
+        <logo-element id="logo" class="header"></logo-element>
+      </section>
     </section>
   </template>
 
