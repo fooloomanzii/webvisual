@@ -5,6 +5,14 @@
   <template>
     <link href="../../css/page.css" type="text/css" rel="stylesheet"/>
 
+    <data-socket-repeater id="datasocket"
+      data="{{data}}"
+      max-total-lines="{{maxLines}}"
+      interval="{{interval}}"
+      groups="{{groups}}"
+      on-dataloaded="loaded">
+    </data-socket-repeater>
+
     <neon-animated-pages id="pages" selected="0" animate-initial-selection>
 
       <loading-page id="loading"></loading-page>
@@ -17,10 +25,6 @@
        selected-group="{{selectedGroup}}"
        on-deselectevent="_onDeselected"
        selected-element="{{selectedElement}}"></selected-element-sign-page>
-
-      <!-- <selected-element-sign-page id="nextSelected" class="element-page" data="{{data}}" groups="{{groups}}"
-        selected-group="{{selectedGroup}}" on-deselectevent="_onDeselected" on-nextselectevent="_onNextselected"
-        selected-element="{{selectedElement}}"></selected-element-sign-page> -->
 
     </neon-animated-pages>
   </template>
@@ -45,20 +49,11 @@
         this.$.pages.selected = 1;
       },
 
-      // ,
-      //
-      // _onNextselected: function(event) {
-      //   this.unlinkPaths('selectedElement');
-      //   this.$.pages.selected = (this.$.pages.selected == 1) ? 2 : 1;
-      // }
-
       loaded: function() {
-        // this.toggleAttribute('active',false,this.$.loadSpinner);
         var self = this;
         setTimeout(function() {
           // this is a bug in webanimations and and animations with intervall
           self.$.loading.$.logo.cancelAnimation();
-          self.$.loading.$.logo.fire('neon-animation-finish');
           self.$.pages.selected = 1;
         },5000);
 

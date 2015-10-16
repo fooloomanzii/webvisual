@@ -2,15 +2,15 @@
 <style>
   :host{
     color: currentColor;
-    /*vertical-align: middle;*/
     fill: currentcolor;
     flex-direction: row;
     display: flex;
+    align-items: center;
+    height: 100%;
   }
 
   #logo {
     color: currentColor;
-    align-self: flex-start;
     height: calc(100% / 8 * 7);
     margin-right: calc(100% / 47 * 3);
   }
@@ -18,123 +18,7 @@
   #script {
     color: currentColor;
     height: calc(100% / 32 * 29);
-    align-self: flex-end;
   }
-
-  /* animate the logo*/
-  /* seperated animation-declaration, because of compatibilty (firefox)
-      if possible at some time, change the fill-color to declaritive variable*/
-  /*.animated.null {
-    animation-name: progress-animation-null;
-    animation-duration: 2s;
-    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    animation-iteration-count: infinite;
-  }
-  @keyframes progress-animation-null {
-      0%   {opacity: 1.0; transform: scale(1);}
-      40%  {opacity: 0.8; transform: scale(0.8);}
-      70%  {opacity: 1 ; transform: scale(0.95);}
-      100% {opacity: 1.; transform: scale(1);}
-  }
-
-  .animated.false {
-    animation-name: progress-animation-false;
-    animation-duration: 2s;
-    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    animation-iteration-count: infinite;
-  }
-  @keyframes progress-animation-false {
-      0%   {fill:currentColor; transform: scale(1);}
-      30%  {fill:var(--exceeds-false-color); transform: scale(0.8);}
-      66%  {fill:currentColor; transform: scale(0.95);}
-      100% {fill:currentColor; transform: scale(1);}
-  }
-
-  .animated.true {
-    animation-name: progress-animation-true;
-    animation-duration: 2s;
-    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    animation-iteration-count: infinite;
-  }
-  @keyframes progress-animation-true {
-      0%   {fill:currentColor; transform: scale(1);}
-      30%  {fill:var(--exceeds-true-color); transform: scale(0.8);}
-      66%  {fill:currentColor; transform: scale(0.95);}
-      100% {fill:currentColor; transform: scale(1);}
-  }*/
-
-/* TODO: change animation to animatable-behaviour*/
-  /* animate the title at start*/
-  /*#script #line path {
-    animation-name: start-1-animation;
-    animation-fill-mode: forwards;
-    animation-duration: 1.5s;
-    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    animation-iteration-count: 5;
-    animation-direction: alternate;
-    opacity: 0;
-    transform: translateX(1500px);
-  }
-
-  #script #headline path {
-    animation-name: start-2-animation;
-    animation-fill-mode: forwards;
-    animation-duration: 1.5s;
-    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    animation-iteration-count: 1;
-    opacity: 0;
-    transform: scale(0,0);
-    transform-origin: 50% 50%;
-  }
-
-  #logo path {
-    animation-name: start-2-animation;
-    animation-fill-mode: forwards;
-    animation-duration: 1.5s;
-    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    animation-iteration-count: 5;
-    animation-direction: alternate;
-    fill: #f5f5f5;
-    transform: scale(0,0);
-    transform-origin: 50% 50%;
-  }
-
-  @keyframes start-1-animation {
-    0%   {opacity: 0}
-    100% {opacity: 1;transform: translate(0px,0px)}
-  }
-
-  @keyframes start-2-animation {
-    0%  {fill: #f5f5f5;}
-    80% {fill: #4ede4b;transform: scale(1)}
-    100% {fill: #4d71ee;transform: scale(1)}
-  }
-
-  #logo path#Logo {animation-delay: 500ms;}
-  #script path#J {animation-delay: 800ms;}
-  #script path#Ü {animation-delay: 1000ms;}
-  #script path#L {animation-delay: 1200ms;}
-  #script path#I {animation-delay: 1400ms;}
-  #script path#C {animation-delay: 1600ms;}
-  #script path#H {animation-delay: 1800ms;}
-  #script path#f {animation-delay: 500ms;}
-  #script path#o {animation-delay: 600ms;}
-  #script path#r {animation-delay: 700ms;}
-  #script path#s {animation-delay: 800ms;}
-  #script path#c2 {animation-delay: 900ms;}
-  #script path#h2 {animation-delay: 1000ms;}
-  #script path#u {animation-delay: 1100ms;}
-  #script path#n {animation-delay: 1200ms;}
-  #script path#g {animation-delay: 1300ms;}
-  #script path#s2 {animation-delay: 1400ms;}
-  #script path#z {animation-delay: 1500ms;}
-  #script path#e {animation-delay: 1600ms;}
-  #script path#n2 {animation-delay: 1700ms;}
-  #script path#t {animation-delay: 1800ms;}
-  #script path#r2 {animation-delay: 1900ms;}
-  #script path#u2 {animation-delay: 2000ms;}
-  #script path#m {animation-delay: 2100ms;}*/
-
 </style>
 
 
@@ -240,18 +124,6 @@
           }
         }
       },
-      headline: {
-        type: Array,
-        value: function() {
-          return [];
-        }
-      },
-      line: {
-        type: Array,
-        value: function() {
-          return [];
-        }
-      },
       animationConfig: {
         value: function() {
           var logo = this.$.logo;
@@ -283,14 +155,14 @@
           return {
             'loading': [
               {
-                name: 'fill-animation',
+                name: 'fill-and-bounce-animation',
                 node: logo,
-                fill: ["currentColor", "#005B82"],
+                fill: ["currentColor", "#669DB4"],
+                bounce: '0.5',
                 timing: {
-                  delay: 500,
                   duration: 2000,
-                  iterationStart: 0.5,
-                  iterations: 100,
+                  iterationStart: 2,
+                  iterations: +Infinity,
                   direction: "alternate",
                   easing: "ease"
                 }
@@ -300,10 +172,9 @@
                 animation: 'fade-in-animation',
                 nodes: headline,
                 timing: {
-                  delay: 500,
-                  duration: 1500,
-                  iterationStart: 1,
-                  iterations: 2,
+                  duration: 3000,
+                  iterationStart: 2,
+                  iterations: 1,
                   easing: "ease"
                 }
               },
@@ -315,7 +186,8 @@
                 transformFrom: "scale(0,0)",
                 transformTo: "scale(1,1)",
                 timing: {
-                  duration: 1700,
+                  duration: 3000,
+                  iterationStart: 2,
                   iterations: +Infinity,
                   direction: "alternate",
                 }
@@ -323,48 +195,14 @@
             ]
           }
         }
-      },
-      play: {
-        type: 'boolean',
-        value: false,
-        observer: "_toggleClass"
-      },
-      loaded: {
-        type: 'boolean',
-        value: false
-      },
-      exceeds: {
-        type: 'boolean',
-        value: null
       }
     },
-    play: function() {
-      this.play = true;
-      // var animate = (this.play ? 'animated' : 'notanimated');
-      // if (this.exceeds == true) {
-      //   animate += ' true';
-      // }
-      // else if (this.exceeds == false) {
-      //   animate += ' false';
-      // }
-      // else if (this.exceeds == null) {
-      //   animate += ' null';
-      // }
-      // this.$.logo.setAttribute('class',animate);
-    },
-    stop: function() {
-      this.play = false;
-    },
-    exceedsChanged: function(){
-      this.play = true;
-    },
-    attached: function() {
-      this.play = true;
-    },
-    _toggleClass: function(bool) {
-      this.toggleClass("animate",bool,this.$.logo);
-      this.toggleClass("animate",bool,this.$.headline);
-      this.toggleClass("animate",bool,this.$.line);
+    cancelAnimation: function() {
+      if (this._player) {
+        this._player.cancel();
+        this._player = null;
+      }
+      this.fire('neon-animation-finish');
     }
   });
 </script>

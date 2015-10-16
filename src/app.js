@@ -319,7 +319,9 @@ process.on('uncaughtException', function(err) {
 /* SIGINT can usually be generated with Ctrl-C */
 process.on('SIGINT', function(err) {
   try {
+    console.log('close server');
     server.close();
+    console.log('disconnect db');  
     mongoose.disconnect();
   } catch (err) {
     if(err.message !== 'Not running')

@@ -10,25 +10,17 @@
       color: #f1f1f1;
       z-index: 5;
     }
-    /*@media all and (min-width: 0px) and (max-width: 600px) {
-      section#mainContent {
-        display: block;
+    @media all and (min-width: 0px) and (max-width: 950px) , all and (orientation: portrait) {
+      section#loadingWindow {
+        align-self: center;
+        height: 38vh;
+        width: 62vw !important;
       }
-    }*/
-    paper-spinner#loadSpinner {
-      position: fixed;
-      bottom: 50%;
-      right: 50%;
-      z-index: 5;
-      --paper-spinner-layer-1-color: rgb(4, 143, 205);
-      --paper-spinner-layer-2-color: rgb(60, 109, 235);
-      --paper-spinner-layer-3-color: rgb(110, 161, 154);
-      --paper-spinner-layer-4-color: rgb(75, 184, 29);
     }
     section#loadingWindow {
       align-self: center;
       height: 38vh;
-      width: 62vw;
+      width: 38vw;
     }
     logo-element {
       z-index: 10;
@@ -38,7 +30,7 @@
   <template>
     <section id="mainContent">
       <section id="loadingWindow">
-        <logo-element id="logo" class="header"></logo-element>
+        <logo-element id="logo"></logo-element>
       </section>
     </section>
   </template>
