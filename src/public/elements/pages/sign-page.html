@@ -1,4 +1,8 @@
+<!-- Custom-Style-Element -->
+<link rel="import" href="../../css/app-theme.html">
 <dom-module id="sign-page">
+  <!-- CSS Style -->
+  <link href="../../css/index.css" type="text/css" rel="stylesheet"/>
   <style>
     host: {
       opacity: 0;
@@ -11,6 +15,17 @@
         display: block;
       }
     }
+    /*paper-drawer-panel {
+      --paper-drawer-panel-left-drawer-container: {
+        background-color: rgba(255, 255, 255, 0.50);
+      };
+    }
+    paper-drawer-panel.dark {
+      --paper-drawer-panel-left-drawer-container: {
+        background-color: rgba(170, 170, 170, 0.90);
+      };
+    }*/
+
     logo-element {
       position: fixed;
       top: 10px;
@@ -26,14 +41,13 @@
 
   <template>
 
-  <!-- <paper-drawer-panel id="mainPanel" force-narrow="true"> -->
+  <paper-drawer-panel id="mainPanel" force-narrow="true">
 
     <!-- SIDEMENU -->
-    <!-- <paper-header-panel drawer id="drawerPanel">
-      <iron-selector multi selectable="paper-button.sidemenu.collapsable"> -->
+    <paper-header-panel drawer id="drawerPanel">
+      <iron-selector multi selectable="paper-button.sidemenu.collapsable">
 
-        <!-- Page Routing -->
-        <!-- <paper-button collapse-id="pageview" class="sidemenu collapsable" on-tap="toggleCollapse">
+        <paper-button collapse-id="pageview" class="sidemenu collapsable" on-tap="toggleCollapse">
           <iron-icon icon="pageview"></iron-icon>
           <span class="flex">Anzeige</span>
           <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="pageview"></iron-icon>
@@ -41,19 +55,15 @@
 
           <iron-collapse class="sidemenu collapse pageview">
             <section class="collapse-content">
-
               <iron-selector selected="0">
                 <paper-button class="sidemenu"><iron-icon icon="view-module"></iron-icon>Übersicht</paper-button>
                 <paper-button class="sidemenu"><iron-icon icon="view-list"></iron-icon>Tabelle</paper-button>
                 <paper-button class="sidemenu"><iron-icon icon="assessment"></iron-icon>Graphen</paper-button>
               </iron-selector>
-
             </section>
-          </iron-collapse> -->
+          </iron-collapse>
 
-        <!-- Main Settings -->
-
-        <!-- <paper-button collapse-id="settings" class="sidemenu collapsable" on-tap="toggleCollapse">
+        <paper-button collapse-id="settings" class="sidemenu collapsable" on-tap="toggleCollapse">
           <iron-icon icon="settings"></iron-icon>
           <span class="flex">Einstellungen</span>
           <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="settings"></iron-icon>
@@ -95,18 +105,14 @@
               </paper-item>
 
             </section>
-          </iron-collapse> -->
+          </iron-collapse>
 
-        <!-- Log-File -->
-
-        <!-- <paper-button dialog-id="log" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
+        <paper-button dialog-id="log" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
           <iron-icon icon="history"></iron-icon>
           <span class="flex">Log</span>
-        </paper-button> -->
+        </paper-button>
 
-        <!-- Informations -->
-
-        <!-- <paper-button collapse-id="information" class="sidemenu collapsable" on-tap="toggleCollapse">
+        <paper-button collapse-id="information" class="sidemenu collapsable" on-tap="toggleCollapse">
           <iron-icon icon="description"></iron-icon>
           <span class="flex">Informationen</span>
           <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="information"></iron-icon>
@@ -117,8 +123,8 @@
               <paper-button dialog-id="data" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
                 <iron-icon icon="receipt"></iron-icon>
                 <span class="flex">Daten</span>
-              </paper-button> -->
-              <!-- <paper-item class="date">
+              </paper-button>
+              <paper-item class="date">
                 <iron-icon icon="swap-vert"></iron-icon>
                 <span class="flex">letzte Nachricht</span>
                 <span class="italic">{{computeDate(lastMessage)}}</span>
@@ -132,8 +138,8 @@
                 <iron-icon icon="warning"></iron-icon>
                 <span class="flex">letzte fehlerhafte Nachricht</span>
                 <span class="italic">{{computeDate(lastMistake)}}</span>
-              </paper-item> -->
-            <!-- </section>
+              </paper-item>
+            </section>
           </iron-collapse>
 
         <paper-button class="sidemenu" dialog-id="Login" dialog-class="mainmenu" on-tap="openDialog">
@@ -141,45 +147,45 @@
           <span class="flex">Login</span>
         </paper-button>
       </iron-selector>
-    </paper-header-panel> -->
+    </paper-header-panel>
 
     <!-- MAIN VIEW -->
+    <paper-header-panel main>
 
-    <logo-element id="logo" class=""></logo-element>
-    <main-toolbar id="toolbar" class="">
-        <paper-icon-button icon="menu" class="" on-click="toggleDrawer">
-        </paper-icon-button>
-    </main-toolbar>
+      <logo-element id="logo" class=""></logo-element>
+      <main-toolbar id="toolbar" class="paper-header">
+        <paper-icon-button icon="menu" class="header" on-click="toggleDrawer"></paper-icon-button>
+      </main-toolbar>
 
-    <section id="mainContent" class="page">
-      <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup" delay="200">
-        <post-card class="group" headline="{{groupedItem.group}}">
+      <section id="mainContent" class="page">
+        <!-- <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup" delay="200">
+          <post-card class="group" headline="{{groupedItem.group}}">
 
-          <template is="dom-repeat" items="{{data}}" as="element">
-            <template is="dom-if" if="{{groupElements(element,groupedItem)}}" restamp>
-              <section class="card" on-click="setSelectedElement">
+            <template is="dom-repeat" items="{{data}}" as="element">
+              <template is="dom-if" if="{{groupElements(element,groupedItem)}}" restamp>
+                <section class="card" on-click="setSelectedElement">
 
-                  <sign-element element="{{element}}"></sign-element>
-                  <section class="caption" id="{{element.id}}">
-                    <span id="kind">{{element.kind}}</span>
-                    <span id="method">{{element.method}}</span>
-                    <span id="room">{{element.room}}</span>
-                    <span id="roomNr">{{element.roomNr}}</span>
-                  </section>
+                    <sign-element element="{{element}}"></sign-element>
+                    <section class="caption" id="{{element.id}}">
+                      <span id="kind">{{element.kind}}</span>
+                      <span id="method">{{element.method}}</span>
+                      <span id="room">{{element.room}}</span>
+                      <span id="roomNr">{{element.roomNr}}</span>
+                    </section>
 
-              </section>
+                </section>
+              </template>
             </template>
-          </template>
-        </post-card>
-      </template>
+          </post-card>
+        </template>
 
-      <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab>
+        <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab> -->
 
-    </section>
+      </section>
 
       <!-- <pages-element main class="element-page" data="{{data}}" groups="{{groups}}" on-drawer-toggle-pressed="toggleDrawer"></pages-element> -->
-
-  <!-- </paper-drawer-panel> -->
+    </paper-header-panel>
+  </paper-drawer-panel>
 
   <!-- Dialogs -->
 

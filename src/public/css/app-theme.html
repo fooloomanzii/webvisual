@@ -83,6 +83,7 @@
         padding: 0.2em;
         background: var(--default-button-color);
         color: currentColor;
+        fill: currentColor;
         font-family: inherit;
         text-align: left;
         text-transform: none;
@@ -187,6 +188,12 @@
       transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     };
 
+    --paper-drawer-panel-drawer-container: {
+        color: var(--drawer-text-color);
+        background-color: var(--primary-drawer-color);
+        align-items: center;
+        };
+
 }
 
 /* General styles */
@@ -208,10 +215,10 @@ body.dark {
   background-color: var(--dark-secondary-background-color);
 }
 
-paper-drawer-panel {
+paper-drawer-panel.dark {
   --paper-drawer-panel-drawer-container: {
       color: var(--drawer-text-color);
-      background-color: var(--primary-drawer-color);
+      background-color: blue;
       align-items: center;
       z-index: 100;
       };

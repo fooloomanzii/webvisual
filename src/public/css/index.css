@@ -51,16 +51,6 @@ paper-item.date {
   font-size: 0.75em;
 }
 
-/* SIDEMENU & SUBMENU */
-
-.paper-drawer-panel-0 iron-selector.paper-drawer-panel > #drawer.paper-drawer-panel {
-  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.paper-drawer-panel-0 iron-selector.paper-drawer-panel > #drawer.paper-drawer-panel.dark {
-  background-color: rgba(170, 170, 170, 0.75);
-}
-
 /*
  * Submenu
  */
