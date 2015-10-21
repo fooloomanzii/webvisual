@@ -28,22 +28,22 @@
     }
     section#messageBox {
       align-self: center;
-      align-items: stretch;
+      align-items: center;
       display: flex;
       justify-content: space-around;
       width: 37vw;
-      height: 3em;
+      height: 2.5em;
       font-family: Roboto-Condensed-Light;
       font-size: 1em;
-      background: rgba(255, 255, 255, 0.1);
+      /*background: rgba(255, 255, 255, 0.1);*/
       /*border-top: thin dashed #f1f1f1;*/
       border-radius: 0.75em;
     }
     span {
-      padding: 1em 0.5em;
+      /*padding: 1em 0.5em;*/
     }
     rects-element {
-      color: #669DB4;
+      color: #f1f1f1;
       max-width: 15vw;
     }
   </style>
@@ -53,9 +53,9 @@
 
       <logo-element id="logo"></logo-element>
 
-      <rects-element id="pointsLeft"></rects-element>
-      <section id="messageBox">
 
+      <section id="messageBox">
+        <rects-element id="pointsLeft"></rects-element>
         <span>{{message.content}}</span>
         <rects-element id="pointsRight"></rects-element>
       </section>

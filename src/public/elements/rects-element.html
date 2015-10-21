@@ -16,31 +16,31 @@
 </style>
 
 <template>
-  <svg id="points" viewBox="0 0 192 12">
+  <svg id="points" viewBox="0 0 192 32">
     <g
        id="points">
       <rect
-         height="12" width="1"
+         height="32" width="1"
          y="6"
          x="6"
          id="point1" />
       <rect
-         height="12" width="1"
+         height="32" width="1"
          y="6"
          x="32"
          id="point2" />
       <rect
-         height="12" width="2"
+         height="32" width="2"
          y="6"
          x="64"
          id="point3" />
       <rect
-         height="12" width="3"
+         height="32" width="3"
          y="6"
          x="96"
          id="point4" />
       <rect
-         height="12" width="2"
+         height="32" width="2"
          y="6"
          x="128"
          id="point5" />
@@ -48,9 +48,9 @@
          id="point6"
          x="160"
          y="6"
-         height="12" width="1" />
+         height="32" width="1" />
       <rect
-         height="12" width="1"
+         height="32" width="1"
          y="6"
          x="186"
          id="point7" />
@@ -82,9 +82,9 @@
                 name: 'cascaded-animation',
                 nodes: allpoints,
                 animation: 'transform-animation',
-                transformOrigin: "1000% 50%",
-                transformFrom: "scale(0,0)",
-                transformTo: "scale(1,1)",
+                transformOrigin: "0% 0%",
+                transformFrom: "translateX(300px)",
+                transformTo: "translateX(0)",
                 timing: {
                   duration: 1000,
                   iterationStart: 2,
@@ -98,9 +98,9 @@
                 name: 'cascaded-animation',
                 nodes: allpoints,
                 animation: 'transform-animation',
-                transformOrigin: "-1000% 50%",
-                transformFrom: "scale(0,0)",
-                transformTo: "scale(1,1)",
+                transformOrigin: "0% 0%",
+                transformFrom: "translateX(-300px)",
+                transformTo: "translateX(0)",
                 timing: {
                   duration: 1000,
                   iterationStart: 2,
