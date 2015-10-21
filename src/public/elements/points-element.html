@@ -1,0 +1,93 @@
+<dom-module id="points-element">
+<style>
+  :host{
+    color: currentColor;
+    fill: currentcolor;
+    flex-direction: row;
+    display: flex;
+    /*align-items: flex-start;*/
+    height: 4px;
+  }
+  #points {
+    color: currentColor;
+  }
+
+</style>
+
+<template>
+  <svg id="points" viewBox="0 0 16 416" height="16pt" width="16pt">
+    <g><circle r="8" cy="8" cx="8" id="point1"/>
+      <circle r="8" cy="8" cx="56" id="point2"/>
+      <circle r="8" cy="8" cx="120" id="point3"/>
+      <circle r="8" cy="8" cx="200" id="point4"/>
+      <circle r="8" cy="8" cx="296" id="point5"/>
+      <circle r="8" cy="8" cx="408" id="point6"/>
+    </g>
+  </svg>
+</template>
+
+<script>
+  Polymer({
+
+    is: 'points-element',
+
+    behaviors: [Polymer.NeonAnimationRunnerBehavior],
+
+    properties: {
+      animationConfig: {
+        value: function() {
+          var allpoints = [];
+          allpoints.push(this.$.point1);
+          allpoints.push(this.$.point2);
+          allpoints.push(this.$.point3);
+          allpoints.push(this.$.point4);
+          allpoints.push(this.$.point5);
+          allpoints.push(this.$.point6);
+          return {
+            'from-right': [
+              {
+                name: 'cascaded-animation',
+                nodes: allpoints,
+                animation: 'transform-animation',
+                transformOrigin: "1000% 50%",
+                transformFrom: "scale(0,0)",
+                transformTo: "scale(1,1)",
+                timing: {
+                  duration: 1000,
+                  iterationStart: 2,
+                  iterations: +Infinity,
+                  direction: "alternate",
+                }
+              }
+            ],
+            'from-left': [
+              {
+                name: 'cascaded-animation',
+                nodes: allpoints,
+                animation: 'transform-animation',
+                transformOrigin: "-1000% 50%",
+                transformFrom: "scale(0,0)",
+                transformTo: "scale(1,1)",
+                timing: {
+                  duration: 1000,
+                  iterationStart: 2,
+                  iterations: +Infinity,
+                  direction: "alternate",
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    cancelAnimation: function() {
+      if (this._player) {
+        this._player.cancel();
+        this._player = null;
+      }
+      this.fire('neon-animation-finish');
+    }
+  });
+</script>
+
+</dom-module>

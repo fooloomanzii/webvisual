@@ -5,44 +5,69 @@
       width: 100%;
       position: fixed;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       background:#669DB4;
       color: #f1f1f1;
-      z-index: 5;
+      /*z-index: 5;*/
     }
     @media all and (min-width: 0px) and (max-width: 950px) , all and (orientation: portrait) {
-      section#loadingWindow {
-        align-self: center;
-        height: 38vh;
+      logo-element {
+        height: 20vw !important;
         width: 62vw !important;
       }
-    }
-    section#loadingWindow {
-      align-self: center;
-      height: 38vh;
-      width: 38vw;
+      section#messageBox {
+        width: 61vw !important;
+      }
     }
     logo-element {
-      z-index: 10;
+      align-self: center;
+      height: 14vw;
+      width: 38vw;
+      padding-bottom: 2em;
+    }
+    section#messageBox {
+      align-self: center;
+      display: flex;
+      justify-content: space-around;
+      width: 37vw;
+      font-family: Roboto-Condensed-Light;
+      font-size: 1em;
+      background: rgba(255, 255, 255, 0.1);
+      /*border-top: thin dashed #f1f1f1;*/
+      border-radius: 0.75em;
+      transition: all 2s ease;
+    }
+    span {
+      padding: 1.25em;
     }
   </style>
 
   <template>
     <section id="mainContent">
-      <section id="loadingWindow">
-        <logo-element id="logo"></logo-element>
+
+      <logo-element id="logo"></logo-element>
+
+      <section id="messageBox">
+        <points-element id="points"></points-element>
+        <span>{{message.content}}</span>
       </section>
     </section>
   </template>
 
   <script>
 
-    Polymer({
+  Polymer({
       is: 'loading-page',
 
       behaviors: [Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
+        message: {
+          type: Object,
+          value: function() { return {"time": new Date(), "content": "Seiteninhalt wird geladen..."}; },
+          notify: true
+        },
         sharedElements: {
           value: function() {
             return {
@@ -54,28 +79,29 @@
           value: function() {
             return {
               'entry': [
-                {animatable: this.$.logo, type: 'loading'}
+                {animatable: this.$.logo, type: 'loading'},
+                {animatable: this.$.points, type: 'from-left'}
               ],
               'exit': [
                 {
                   name: 'hero-animation',
                   id: 'herologo',
                   fromPage: this
-                },
-                {
-                  name: 'fade-out-animation',
-                  node: this.$.mainContent,
-                  timing: {
-                    duration: 1000
-                  }
                 }
               ]
             }
           }
         }
+      },
+
+      computeDate: function(date){
+        if((date !== undefined) && (date != "")){
+          return $.format.toBrowserTimeZone(date,"HH:mm:ss");
+        }
+        else
+          return " ";
       }
     });
-
   </script>
 
 </dom-module>

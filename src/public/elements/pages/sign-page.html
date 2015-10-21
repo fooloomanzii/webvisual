@@ -3,12 +3,14 @@
 <dom-module id="sign-page">
   <!-- CSS Style -->
   <link href="../../css/index.css" type="text/css" rel="stylesheet"/>
+  <link href="../../css/page.css" type="text/css" rel="stylesheet"/>
   <style>
     host: {
       opacity: 0;
     }
     section#mainContent {
-      height: calc(100vh - 64px);
+      align-self: stretch;
+      background: #6642BF;
     }
     @media all and (min-width: 0px) and (max-width: 600px) {
       section#mainContent {
@@ -32,10 +34,13 @@
       left: 76px;
       height: 44px;
       color: #f1f1f1;
-      z-index: 10;
+      /*z-index: 10;*/
+    }
+    logo-element.dark {
+      color: #669DB4;
     }
     main-toolbar {
-      z-index: 5;
+      /*z-index: 5;*/
     }
   </style>
 
@@ -47,13 +52,12 @@
     <paper-header-panel drawer id="drawerPanel">
       <iron-selector multi selectable="paper-button.sidemenu.collapsable">
 
-        <paper-button collapse-id="pageview" class="sidemenu collapsable" on-tap="toggleCollapse">
+        <!-- <paper-button collapse-id="pageview" class="sidemenu collapsable" on-tap="toggleCollapse">
           <iron-icon icon="pageview"></iron-icon>
           <span class="flex">Anzeige</span>
           <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="pageview"></iron-icon>
-        </paper-button>
-
-          <iron-collapse class="sidemenu collapse pageview">
+        </paper-button> -->
+          <!-- <iron-collapse class="sidemenu collapse pageview">
             <section class="collapse-content">
               <iron-selector selected="0">
                 <paper-button class="sidemenu"><iron-icon icon="view-module"></iron-icon>Übersicht</paper-button>
@@ -61,7 +65,7 @@
                 <paper-button class="sidemenu"><iron-icon icon="assessment"></iron-icon>Graphen</paper-button>
               </iron-selector>
             </section>
-          </iron-collapse>
+          </iron-collapse> -->
 
         <paper-button collapse-id="settings" class="sidemenu collapsable" on-tap="toggleCollapse">
           <iron-icon icon="settings"></iron-icon>
@@ -157,7 +161,10 @@
         <paper-icon-button icon="menu" class="header" on-click="toggleDrawer"></paper-icon-button>
       </main-toolbar>
 
-      <section id="mainContent" class="page">
+      <section id="mainContent" class="fit">
+        <div class="r3">
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </div>
         <!-- <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup" delay="200">
           <post-card class="group" headline="{{groupedItem.group}}">
 

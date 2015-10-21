@@ -9,19 +9,18 @@
 </head>
 <dom-module id="pages-element">
   <style>
+    :host {
+      height: 100%;
+      width: 100%;
+    }
     #pages {
       height: 100%;
-      width: 100%
+      width: 100%;
     }
   </style>
   <template>
-    <link href="../../css/page.css" type="text/css" rel="stylesheet"/>
-    <data-socket-repeater id="datasocket"
-      data="{{data}}" max-total-lines="{{maxLines}}" interval="{{interval}}"
-      groups="{{groups}}" on-dataloaded="_onLoaded">
-    </data-socket-repeater>
     <neon-animated-pages id="pages" selected="0" animate-initial-selection>
-      <loading-page id="loading"></loading-page>
+      <loading-page id="loading" message="{{message}}"></loading-page>
       <sign-page id="nothingSelected" class="element-page" data="{{data}}" groups="{{groups}}"
         selected-group="{{selectedGroup}}" on-selectevent="_onSelected"
         selected-element="{{selectedElement}}"></sign-page>
@@ -29,40 +28,42 @@
         groups="{{groups}}" selected-group="{{selectedGroup}}" on-deselectevent="_onDeselected"
         selected-element="{{selectedElement}}"></selected-element-sign-page> -->
     </neon-animated-pages>
+    <data-socket-repeater id="datasocket"
+      data="{{data}}" max-total-lines="{{maxLines}}" interval="{{interval}}"
+      groups="{{groups}}" on-dataloaded="_onLoaded" message="{{message}}">
+    </data-socket-repeater>
   </template>
   <script>
-    Polymer({
-      is: 'pages-element',
-      behaviors: [DataBehavior, PageBehavior],
-      attached: function(){
-        this.start = new Date();
-      },
-      _onSelected: function(event) {
-        this.$.pages.selected = 2;
-        this.$.firstSelected.fire('resize');
-      },
-      _onDeselected: function(event) {
-        this.$.pages.selected = 1;
-      },
-      _onLoaded: function() {
-        this.setSelectedGroup();
-        var self = this;
-        var wait = new Date() - this.start;
-        wait = (wait < 3100) ? 3500 - wait : 0;
-        console.log(wait);
-        this.async(function() {
-          // this is a bug in webanimations and and animations with intervall
-          self.$.loading.$.logo.cancelAnimation();
-          self.$.pages.selected = 1;
-        },wait);
-      }});
+    HTMLImports.whenReady(function() {
+      Polymer({
+        is: 'pages-element',
+        behaviors: [DataBehavior, PageBehavior],
+        attached: function(){
+          this.start = new Date();
+        },
+        _onSelected: function(event) {
+          this.$.pages.selected = 2;
+          this.$.firstSelected.fire('resize');
+        },
+        _onDeselected: function(event) {
+          this.$.pages.selected = 1;
+        },
+        _onLoaded: function() {
+          this.setSelectedGroup();
+          var self = this;
+          var wait = new Date() - this.start;
+          this.set("message.time",new Date()); this.set("message.content", "die Seite wird geladen...");
+          wait = (wait < 3500) ? 35000 - wait : 0;
+          console.log(wait);
+          this.async(function() {
+            // this is a bug in webanimations and and animations with intervall
+            self.$.loading.$.logo.cancelAnimation();
+            self.$.pages.selected = 1;
+          },wait);
+        }});
+      });
   </script>
 </dom-module>
-<style>
-  body {
-    margin: 0;
-  }
-</style>
-<body>
+<body class="fullbleed">
     <pages-element></pages-element>
 </body>
