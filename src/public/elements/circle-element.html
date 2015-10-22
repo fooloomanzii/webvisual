@@ -2,6 +2,7 @@
 <style>
   :host{
     display: flex;
+    flex-direction: row;
     align-self: center;
     align-items: center;
   }
@@ -13,12 +14,20 @@
   #circle5{ fill: #128BCF;}
 </style>
 <template>
-  <svg id="svg" viewBox="0 0 148 16">
-    <circle r="8" cy="8" cx="8"   id="circle1" />
-    <circle r="8" cy="8" cx="40"  id="circle2" />
-    <circle r="8" cy="8" cx="72"  id="circle3" />
-    <circle r="8" cy="8" cx="108" id="circle4" />
-    <circle r="8" cy="8" cx="140" id="circle5" />
+  <svg id="circle1" viewBox="0 0 32 16">
+    <circle r="8" cy="8" cx="16"/>
+  </svg>
+  <svg id="circle2" viewBox="0 0 32 16">
+    <circle r="8" cy="8" cx="16"/>
+  </svg>
+  <svg id="circle3" viewBox="0 0 32 16">
+    <circle r="8" cy="8" cx="16"/>
+  </svg>
+  <svg id="circle4" viewBox="0 0 32 16">
+    <circle r="8" cy="8" cx="16"/>
+  </svg>
+  <svg id="circle5" viewBox="0 0 32 16">
+    <circle r="8" cy="8" cx="16"/>
   </svg>
 </template>
 
@@ -40,10 +49,7 @@
               {
                 name: 'cascaded-animation',
                 nodes: allcircles,
-                animation: 'transform-animation',
-                transformOrigin: "50% 50%",
-                transformFrom: "scale(0,0)",
-                transformTo: "scale(1,1)",
+                animation: 'scale-up-animation',
                 nodedelay: 200,
                 timing: {
                   duration: 1000,
