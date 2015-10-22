@@ -1,5 +1,5 @@
+<script src="../socket.io/socket.io.js"></script>
 <dom-module id="data-socket-repeater">
-
   <script>
   HTMLImports.whenReady(function() {
     Polymer({
@@ -52,24 +52,15 @@
             type: Array,
             value: function() { return ["kind","method","room","roomNr","all"]; }
           },
-          lastMessage: {
-            type: Date,
-            value: 0,
-            notify: true
-          },
-          message: {
+          status: {
             type: Object,
-            value: function() { return {"time":0, "content": ""}; },
-            notify: true
-          },
-          lastMistake: {
-            type: Date,
-            value: 0,
-            notify: true
-          },
-          lastError: {
-            type: Date,
-            value: 0,
+            value: function() { return {"message": "...",
+                                        "time": {
+                                          "lastData": 0,
+                                          "lastStatus": 0,
+                                          "lastMistake": 0,
+                                          "lastError": 0
+                                        }}; },
             notify: true
           },
           maxTotalLines: {
@@ -94,13 +85,14 @@
           },
           interval: {
             type: Number,
-            value: 2,
+            value: 2000,
             notify: true
           }
       },
 
       ready: function(){
         this.socket = io.connect('https://'+window.location.host+this.socketname, {secure: true});
+        this.set("status.time.lastStatus",new Date()); this.set("status.message", "connecting to "+window.location.host);
         var self = this;
         this.async(function(){
           self.connect(self);
@@ -111,7 +103,7 @@
         var self = this;
         // Config
         this.socket.on('connect', function() {
-          self.set("message.time",new Date()); self.set("message.content", "connecting to  "+window.location.host);
+          self.set("status.time.lastStatus",new Date()); self.set("status.message", "configuring connection");
           self.socket.emit('clientConfig', self.config);
         });
         // Receiving the FIRST Data
@@ -126,17 +118,17 @@
         // TODO: following senseless?
         // Wrong Data
         this.socket.on('mistake', function() {
-          self.set("lastMistake", new Date());
+          self.set("status.time.lastMistake", new Date());
           console.warn("error in data-connection to: "+window.location.host);
         });
         // Disconnect
         this.socket.on('disconnect', function() {
-          self.set("lastError", new Date());
+          self.set("status.time.lastError", new Date());
           console.warn("client disconnected to: "+window.location.host);
         });
         // Disconnect
         this.socket.on('connect_error', function() {
-          self.set("lastError", new Date());
+          self.set("status.time.lastError", new Date());
           console.warn("error in connection to: "+window.location.host);
         });
       },
@@ -158,9 +150,9 @@
         if(!this.data || this.data.length === 0)
           this._onFirstData(message);
         else {
-          var time = new Date(message.time);
-          if (time - this.lastMessage >= this.interval*1000){
-            this.set("lastMessage", time);
+          var time = new Date();
+          if (time - this.status.time.lastData >= this.interval){ // TODO: Configure it at server
+            this.set("status.time.lastData", time);
             for (var i in message.content) { // for all messurement-data-alements existing
               this._setValues(message.content[i],this._getIndex(message.content[i].id));
             }
@@ -171,8 +163,9 @@
       _onFirstData: function(message){
         if(message === undefined) return; // Check the Existence
         this._init();
-        this.set("message.time",new Date()); this.set("message.content", "processing data");
-        this.set("lastMessage", new Date(message.time));
+        var time = new Date();
+        this.set("status.time.lastStatus",new Date()); this.set("status.message", "processing first data");
+        this.set("status.time.lastData", time);
         if (message.language) this._setLanguage(message.language);
         if (message.groupingKeys) this._setKeys(message.groupingKeys);
 
@@ -183,7 +176,7 @@
           this._initDataPoint(message.content[i],id);
           this._setValues(message.content[i],id);
         }
-        this.set("message.time",new Date()); this.set("message.content", "grouping");
+        this.set("status.time.lastStatus",new Date()); this.set("status.message", "grouping elements");
         this._setGroups(message.content,message.exclusiveGroups);
         this.fire("dataloaded");
       },
@@ -298,6 +291,7 @@
       },
 
       _maxTotalLinesChanged: function(newValue, oldValue) {
+        // to enshure, that a change doesn't crash the data
         var newValue = parseInt(newValue);
         if (newValue && this.data && newValue>0){
           this.maxLines = newValue;

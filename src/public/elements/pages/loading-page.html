@@ -1,3 +1,6 @@
+<link rel="import" href="../logo-element.html"/>
+<link rel="import" href="../circle-element.html"/>
+
 <dom-module id="loading-page">
   <style>
     section#mainContent {
@@ -36,7 +39,7 @@
       font-family: Roboto-Condensed-Light;
       font-size: 1em;
       padding-left: 10vw;
-      padding-bottom: 6vh;
+      padding-bottom: 4vh;
     }
     circle-element {
       padding-left: 10vw;
@@ -46,7 +49,7 @@
   <template>
     <section id="mainContent">
       <logo-element id="logo"></logo-element>
-      <section id="messageBox">{{message.content}}</section>
+      <section id="messageBox">{{status.message}}</section>
       <circle-element id="circle"></circle-element>
     </section>
   </template>
@@ -59,9 +62,15 @@
       behaviors: [Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
-        message: {
+        status: {
           type: Object,
-          value: function() { return {"time": new Date(), "content": "..."}; },
+          value: function() { return {"message": "...",
+                                      "time": {
+                                        "lastData": 0,
+                                        "lastStatus": 0,
+                                        "lastMistake": 0,
+                                        "lastError": 0
+                                      }}; },
           notify: true
         },
         sharedElements: {

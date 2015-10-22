@@ -7,11 +7,6 @@ section#main[dark] {
   background: #5E5E5E;
 }
 
-paper-material {
-   padding: 1em 0.5em;
-   margin: 0em;
-}
-
 paper-input paper-input-container{
   padding: 0em;
 }
@@ -144,7 +139,7 @@ paper-dialog.sidemenu {
  font-weight: normal;
  font-style: normal;
 }
-
+/*
 @font-face {
  font-family: Roboto-Thin;
  src: url('fonts/Roboto-Thin.ttf') format('truetype');
@@ -164,7 +159,7 @@ paper-dialog.sidemenu {
  src: url('fonts/RobotoCondensed-Regular.ttf') format('truetype');
  font-weight: normal;
  font-style: normal;
-}
+}*/
 
 @font-face {
  font-family: Roboto-Condensed-Light;
@@ -173,12 +168,12 @@ paper-dialog.sidemenu {
  font-style: normal;
 }
 
-@font-face {
+/*@font-face {
  font-family: Roboto-Condensed-Light-Italic;
  src: url('fonts/RobotoCondensed-LightItalic.ttf') format('truetype');
  font-weight: normal;
  font-style: normal;
-}
+}*/
 
 @font-face {
  font-family: Roboto-Bold;
@@ -187,9 +182,9 @@ paper-dialog.sidemenu {
  font-style: normal;
 }
 
-@font-face {
+/*@font-face {
  font-family: Lobster;
  src: url('fonts/Lobster-Regular.ttf') format('truetype');
  font-weight: normal;
  font-style: normal;
-}
+}*/

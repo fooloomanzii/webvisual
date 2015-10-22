@@ -1,23 +1,20 @@
+<link rel="import" href="animations/fill-and-bounce-animation.html"/>
 <dom-module id="logo-element">
 <style>
   :host{
-    color: currentColor;
     fill: currentcolor;
     flex-direction: row;
     display: flex;
     align-items: center;
-    /*height: 100%;*/
   }
   :host[dark] {
-    color: #A8CCDB;
+    fill: #A8CCDB;
   }
   #logo {
-    color: currentColor;
     height: calc(100% / 8 * 7);
     margin-right: calc(100% / 47 * 3);
   }
   #script {
-    color: currentColor;
     height: calc(100% / 32 * 29);
   }
 </style>
@@ -127,7 +124,7 @@
                 bounce: '0.5',
                 timing: {
                   duration: 2000,
-                  iterationStart: 2,
+                  iterationStart: 1,
                   iterations: +Infinity,
                   direction: "alternate",
                   easing: "ease"
