@@ -10,24 +10,13 @@
     }
     section#mainContent {
       align-self: stretch;
-      background: #6642BF;
+      /*background: #6642BF;*/
     }
     @media all and (min-width: 0px) and (max-width: 600px) {
       section#mainContent {
         display: block;
       }
     }
-    /*paper-drawer-panel {
-      --paper-drawer-panel-left-drawer-container: {
-        background-color: rgba(255, 255, 255, 0.50);
-      };
-    }
-    paper-drawer-panel.dark {
-      --paper-drawer-panel-left-drawer-container: {
-        background-color: rgba(170, 170, 170, 0.90);
-      };
-    }*/
-
     logo-element {
       position: fixed;
       top: 10px;
@@ -37,7 +26,11 @@
       /*z-index: 10;*/
     }
     logo-element.dark {
-      color: #669DB4;
+      position: fixed;
+      top: 10px;
+      left: 76px;
+      height: 44px;
+      color: #A8CCDB;
     }
     main-toolbar {
       /*z-index: 5;*/
@@ -162,10 +155,10 @@
       </main-toolbar>
 
       <section id="mainContent" class="fit">
-        <div class="r3">
+        <!-- <div class="r3">
           Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-        </div>
-        <!-- <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup" delay="200">
+        </div> -->
+        <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup" delay="200">
           <post-card class="group" headline="{{groupedItem.group}}">
 
             <template is="dom-repeat" items="{{data}}" as="element">
@@ -186,7 +179,7 @@
           </post-card>
         </template>
 
-        <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab> -->
+        <paper-fab mini icon="extension" id="extension" on-click="openOption"></paper-fab>
 
       </section>
 

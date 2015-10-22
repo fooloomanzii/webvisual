@@ -1,0 +1,68 @@
+<dom-module id="circle-element">
+<style>
+  :host{
+    display: flex;
+    align-self: center;
+    align-items: center;
+  }
+  svg { height: 16px;}
+  #circle1{ fill: #CF1212;}
+  #circle2{ fill: #CF7D12;}
+  #circle3{ fill: #C5CF12;}
+  #circle4{ fill: #21CF12;}
+  #circle5{ fill: #128BCF;}
+</style>
+<template>
+  <svg id="svg" viewBox="0 0 148 16">
+    <circle r="8" cy="8" cx="8"   id="circle1" />
+    <circle r="8" cy="8" cx="40"  id="circle2" />
+    <circle r="8" cy="8" cx="72"  id="circle3" />
+    <circle r="8" cy="8" cx="108" id="circle4" />
+    <circle r="8" cy="8" cx="140" id="circle5" />
+  </svg>
+</template>
+
+<script>
+  Polymer({
+    is: 'circle-element',
+    behaviors: [Polymer.NeonAnimationRunnerBehavior],
+    properties: {
+      animationConfig: {
+        value: function() {
+          var allcircles = [];
+          allcircles.push(this.$.circle1);
+          allcircles.push(this.$.circle2);
+          allcircles.push(this.$.circle3);
+          allcircles.push(this.$.circle4);
+          allcircles.push(this.$.circle5);
+          return {
+            'loading': [
+              {
+                name: 'cascaded-animation',
+                nodes: allcircles,
+                animation: 'transform-animation',
+                transformOrigin: "50% 50%",
+                transformFrom: "scale(0,0)",
+                transformTo: "scale(1,1)",
+                nodedelay: 200,
+                timing: {
+                  duration: 1000,
+                  iterationStart: 2,
+                  iterations: +Infinity
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    cancelAnimation: function() {
+      if (this._player) {
+        this._player.cancel();
+        this._player = null;
+      }
+      this.fire('neon-animation-finish');
+    }
+  });
+</script>
+</dom-module>

@@ -24,41 +24,30 @@
       align-self: center;
       height: 14vw;
       width: 38vw;
-      padding-bottom: 5em;
+      padding-bottom: 4vh;
     }
     section#messageBox {
       align-self: center;
       align-items: center;
       display: flex;
       justify-content: space-around;
-      width: 37vw;
+      width: 38vw;
       height: 2.5em;
       font-family: Roboto-Condensed-Light;
       font-size: 1em;
-      /*background: rgba(255, 255, 255, 0.1);*/
-      /*border-top: thin dashed #f1f1f1;*/
-      border-radius: 0.75em;
+      padding-left: 10vw;
+      padding-bottom: 6vh;
     }
-    span {
-      /*padding: 1em 0.5em;*/
-    }
-    rects-element {
-      color: #f1f1f1;
-      max-width: 15vw;
+    circle-element {
+      padding-left: 10vw;
     }
   </style>
 
   <template>
     <section id="mainContent">
-
       <logo-element id="logo"></logo-element>
-
-
-      <section id="messageBox">
-        <rects-element id="pointsLeft"></rects-element>
-        <span>{{message.content}}</span>
-        <rects-element id="pointsRight"></rects-element>
-      </section>
+      <section id="messageBox">{{message.content}}</section>
+      <circle-element id="circle"></circle-element>
     </section>
   </template>
 
@@ -72,7 +61,7 @@
       properties: {
         message: {
           type: Object,
-          value: function() { return {"time": new Date(), "content": "Seiteninhalt wird geladen..."}; },
+          value: function() { return {"time": new Date(), "content": "..."}; },
           notify: true
         },
         sharedElements: {
@@ -86,28 +75,32 @@
           value: function() {
             return {
               'entry': [
-                {animatable: this.$.logo, type: 'loading'},
-                {animatable: this.$.pointsLeft, type: 'from-left'},
-                {animatable: this.$.pointsRight, type: 'from-right'}
+                {animatable: this.$.logo,   type: 'loading'},
+                {animatable: this.$.circle, type: 'loading'}
               ],
               'exit': [
                 {
                   name: 'hero-animation',
                   id: 'herologo',
                   fromPage: this
+                },
+                {
+                  name: 'fade-out-animation',
+                  node: this
                 }
               ]
             }
           }
         }
       },
-
-      computeDate: function(date){
-        if((date !== undefined) && (date != "")){
-          return $.format.toBrowserTimeZone(date,"HH:mm:ss");
+      cancelAnimation: function() {
+        this.$.logo.cancelAnimation();
+        this.$.circle.cancelAnimation();
+        if (this._player) {
+          this._player.cancel();
+          this._player = null;
         }
-        else
-          return " ";
+        this.fire('neon-animation-finish');
       }
     });
   </script>

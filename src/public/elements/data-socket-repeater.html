@@ -111,9 +111,8 @@
         var self = this;
         // Config
         this.socket.on('connect', function() {
-          self.set("message.time",new Date()); self.set("message.content", "Verbinde zu "+window.location.host);
+          self.set("message.time",new Date()); self.set("message.content", "connecting to  "+window.location.host);
           self.socket.emit('clientConfig', self.config);
-          self.set("message.time",new Date()); self.set("message.content", "Verbinding hergestellt zu "+window.location.host);
         });
         // Receiving the FIRST Data
         this.socket.on('first', function(message) {
@@ -172,7 +171,7 @@
       _onFirstData: function(message){
         if(message === undefined) return; // Check the Existence
         this._init();
-        this.set("message.time",new Date()); this.set("message.content", "Verarbeite Messdaten");
+        this.set("message.time",new Date()); this.set("message.content", "processing data");
         this.set("lastMessage", new Date(message.time));
         if (message.language) this._setLanguage(message.language);
         if (message.groupingKeys) this._setKeys(message.groupingKeys);
@@ -184,7 +183,7 @@
           this._initDataPoint(message.content[i],id);
           this._setValues(message.content[i],id);
         }
-        this.set("message.time",new Date()); this.set("message.content", "Gruppiere Messdaten");
+        this.set("message.time",new Date()); this.set("message.content", "grouping");
         this._setGroups(message.content,message.exclusiveGroups);
         this.fire("dataloaded");
       },
