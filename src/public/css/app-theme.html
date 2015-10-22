@@ -203,7 +203,7 @@ body {
   transition: all 0.56s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-body.dark {
+body[dark] {
   background-color: var(--dark-secondary-background-color);
 }
 
@@ -228,7 +228,7 @@ paper-toolbar {
   @apply(--paper-toolbar);
 }
 
-paper-toolbar.dark {
+paper-toolbar[dark] {
   background-color: var(--dark-primary-color);
   color: var(--dark-icon-color);
 }
@@ -250,7 +250,7 @@ paper-item {
   @apply(--item-theme)
 }
 
-paper-item.dark {
+paper-item[dark] {
   background: var(--dark-button-color);
 }
 
@@ -258,7 +258,7 @@ paper-button {
   @apply(--button-theme)
 }
 
-paper-button.dark {
+paper-button[dark] {
   background: var(--dark-button-color);
 }
 
@@ -271,11 +271,11 @@ paper-button:hover {
   opacity: 1;
 }
 
-paper-item.dark:hover {
+paper-item[dark]:hover {
   background: var(--secondary-hover-color);
 }
 
-paper-button.dark:hover {
+paper-button[dark]:hover {
   background: var(--secondary-hover-color);
 }
 
@@ -304,7 +304,7 @@ paper-icon-button:hover {
               0 1px 5px 0 rgba(0, 0, 0, 0.12),
               0 3px 1px -2px rgba(0, 0, 0, 0.2);
 }
-paper-icon-button.dark:hover {
+paper-icon-button[dark]:hover {
   color: #f1f1f1;
 }
 
@@ -326,7 +326,7 @@ paper-material {
   background: var(--default-primary-background-color);
 }
 
-paper-material.dark {
+paper-material[dark] {
   background: var(--dark-primary-background-color);
 }
 
@@ -344,7 +344,7 @@ paper-material.dark {
               0 3px 1px -2px rgba(0, 0, 0, 0.2);*/
 }
 
-.iron-selected.dark {
+.iron-selected[dark] {
   color: var(--dark-primary-color);
   background: var(--dark-selected-color);
 }
@@ -361,7 +361,7 @@ iron-collapse {
   background-color: var(--secondary-drawer-color);
 }
 
-.collapse-content.dark {
+.collapse-content[dark] {
   background-color: var(--dark-secondary-drawer-color);
 }
 
@@ -391,11 +391,11 @@ paper-dialog > *:last-child {
   padding: 0.25em 0.25em 0.55em 0.25em;
 }
 
-paper-dialog.dark {
+paper-dialog[dark] {
   background: var(--dark-primary-background-color);
 }
 
-paper-dialog.dark > *:first-child {
+paper-dialog[dark] > *:first-child {
   color: var(--light-primary-color);
   background: var(--dark-primary-color);
 }

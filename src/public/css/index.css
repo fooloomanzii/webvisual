@@ -3,7 +3,7 @@ section#main {
   height: 100%;
 }
 
-section#main.dark {
+section#main[dark] {
   background: #5E5E5E;
 }
 

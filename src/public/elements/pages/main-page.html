@@ -25,13 +25,13 @@
       color: #f1f1f1;
       /*z-index: 10;*/
     }
-    logo-element.dark {
+    /*logo-element[dark] {
       position: fixed;
       top: 10px;
       left: 76px;
       height: 44px;
       color: #A8CCDB;
-    }
+    }*/
     main-toolbar {
       /*z-index: 5;*/
     }
@@ -39,7 +39,7 @@
 
   <template>
 
-  <paper-drawer-panel id="mainPanel" force-narrow="true">
+  <paper-drawer-panel force-narrow="true">
 
     <!-- SIDEMENU -->
     <paper-header-panel drawer id="drawerPanel">
@@ -151,7 +151,7 @@
 
       <logo-element id="logo" class=""></logo-element>
       <main-toolbar id="toolbar" class="paper-header">
-        <paper-icon-button icon="menu" class="header" on-click="toggleDrawer"></paper-icon-button>
+        <paper-icon-button icon="menu" class="header"  paper-drawer-toggle></paper-icon-button>
       </main-toolbar>
 
       <section id="mainContent" class="fit">
@@ -281,17 +281,13 @@
 
       changeTheme: function(){
         if(this.colorschema == "dark") {
-          $('*').removeClass("dark");
+          $('*').removeAttr("dark");
           this.colorschema = "light";
         }
         else {
-          $('*').addClass("dark");
+          $('*').attr("dark",true);
           this.colorschema = "dark";
         }
-      },
-
-      toggleDrawer: function(){
-        this.$.mainPanel.togglePanel();
       },
 
       toggleCollapse: function(e){
