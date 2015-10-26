@@ -40,7 +40,7 @@ var
     Client       = dataModule.client,       // extension: of DATAMODULE
 
     /* Current connected clients */
-    clients      = [],
+    clients      = {},
 
     /* Default config */
     defaults     = { connections : [],
@@ -211,7 +211,7 @@ var dataFile = new dataHandler( {
               currentData.content,
               function (err, appendedData, tmpDB) {
                 //TODO: handle the error
-                clients.forEach(function(client){
+                _.each(clients, function(client){
                   dbcontroller.getUpdate(tmpDB,
                     client.appendPattern,
                     function (err, data) {
@@ -225,7 +225,7 @@ var dataFile = new dataHandler( {
                   );
                 });
                 tmpDB.find({},function(err, data){
-                  console.log(data);
+                  //console.log(data);
                   tmpDB.remove({});
                 });
               }
@@ -243,11 +243,10 @@ dataSocket.on('connection', function(socket) {
 
    socket.on('clientConfig', function(patterns) {
      var current_client = new Client(socket, patterns);
-     clients[socket.id] = current_client;
      dbcontroller.getData(current_client.firstPattern,
          function (err, data) {
             //TODO: important! if two lines change then send in the same kind of object
-
+       
             var message = {
                content: data,
                time: new Date(), // current message time
@@ -256,6 +255,9 @@ dataSocket.on('connection', function(socket) {
                exclusiveGroups: config.locals.exclusiveGroups
             };
             socket.emit('first', message);
+            
+            // append the client to array after sending first message
+            clients[socket.id] = current_client;
          }
      );
      
