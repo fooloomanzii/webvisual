@@ -4,7 +4,7 @@
     "file": {
       "copy": false,
       "mode": "all",
-      "path_folder": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Datafile/",
+      "path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
       "#path_folder": "",
       "path": "HNF_Datafile.txt",
       "#path": "data2.txt"
@@ -29,7 +29,7 @@
   "logs": {
     "external_log": "HNF.log",
     "#external_log_path": "",
-    "external_log_path": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Log/",
+    "external_log_path": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Log\\",
     "http_server_log":   "/../logs/http-error.log"
     },
 

@@ -243,7 +243,7 @@ dataSocket.on('connection', function(socket) {
 
    socket.on('clientConfig', function(patterns) {
      var current_client = new Client(socket, patterns);
-     clients.push(current_client);
+     clients[socket.id] = current_client;
      dbcontroller.getData(current_client.firstPattern,
          function (err, data) {
             //TODO: important! if two lines change then send in the same kind of object
@@ -258,6 +258,11 @@ dataSocket.on('connection', function(socket) {
             socket.emit('first', message);
          }
      );
+     
+     // by disconnect remove socket from list
+     socket.on('disconnect', function() {
+       delete clients[socket.id];
+     });
    });
 
 });
