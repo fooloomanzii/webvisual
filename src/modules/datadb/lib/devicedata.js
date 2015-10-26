@@ -35,7 +35,7 @@
    */
   DeviceModel.statics.append = function (newData, callback) {
     /* model with unique name */
-    var tmpModel = mongoose.model('tmp-'+(new Date()), DeviceModel);
+    var tmpModel = mongoose.model('tmp_'+(new Date()).getTime(), DeviceModel);
     var self = this;
     if(!_.isArray(newData)){
       return save(self, tmpModel, newData, function(err, appendedData){

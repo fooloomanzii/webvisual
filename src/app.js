@@ -225,8 +225,10 @@ var dataFile = new dataHandler( {
                   );
                 });
                 tmpDB.find({},function(err, data){
-                  //console.log(data);
-                  tmpDB.remove({});
+                  mongoose.connection.db.dropCollection(tmpDB.modelName, function(err, result) {
+                    /*if(err) console.log(err)
+                    else console.log(tmpDB.modelName + ' removed');*/
+                  });
                 });
               }
             );
