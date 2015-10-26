@@ -29,22 +29,112 @@
   <link href="../../css/index.css" type="text/css" rel="stylesheet"/>
   <link href="../../css/page.css" type="text/css" rel="stylesheet"/>
   <style>
-    :host{
+    :host {
+      font-family: Roboto;
+      font-style: normal;
       display: flex;
       flex-direction: column;
+      position: relative;
+      width: 100%;
+      height: 100%;
     }
+
+    main-toolbar: {
+      overflow: hidden !important;
+    }
+
+    main-toolbar:after {
+      position: absolute;
+      height: 6px;
+      bottom: -6px;
+      box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
+      content: "";
+      width: 100%;
+      left: 0px;
+      right: 0px;
+      z-index: 5;
+      overflow: hidden !important;
+    }
+
     section#mainContent {
-      align-self: stretch;
       display: flex;
-      flex-direction: row;
       flex-wrap: wrap;
-      /*background: #6642BF;*/
+      align-content: flex-start;
+      align-self: stretch;
+      flex-direction: row;
+      position: relative;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      -ms-flex: 1 1 0.000000001px;
+      -webkit-flex: 1;
+      flex: 1;
+      -webkit-flex-basis: 0.000000001px;
+      flex-basis: 0.000000001px;
+      background: #CCCCCC;
+    }
+
+    section#mainContent[main] {
+      box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
     }
     @media all and (min-width: 0px) and (max-width: 600px) {
       section#mainContent {
         display: block;
       }
     }
+    section#mainContent[dark] {
+      background: #666666;
+    }
+    section.card {
+      background: white;
+      border-radius: 2px 2px 2px 3px;
+      border: thin solid lightgrey;
+      border-radius: 2px;
+      align-self: stretch;
+    }
+    section.card[dark] {
+      background: #a8a8a8;
+      border: thin solid #606060;
+    }
+    section.caption {
+      flex-direction: column;
+      line-height: 1.4;
+      display: flex;
+      padding: 0.35em 0.65em 0.4em 0.6em;
+    }
+    #kind {
+      font-family: Roboto-Bold;
+      font-size: 1em;
+    }
+    #method {
+      font-size: 0.75em;
+    }
+    #room {
+      font-size: 0.9em;
+    }
+    #roomNr {
+      font-size: 0.6em;
+    }
+    post-card.group #cardContent{
+      padding: 0.5em 0em 0em 0.5em;
+    }
+    post-card.group {
+      transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      margin: 0.75em;
+      box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 10px 0 rgba(0, 0, 0, 0.12),
+                  0 2px 4px -1px rgba(0, 0, 0, 0.4);
+      align-self: baseline;
+    }
+    paper-dialog#optionDialog {
+      border-radius: 5px 5px 0px 0px;
+      position: fixed;
+      margin: 0em 0em;
+      bottom: 0em;
+      max-height: 38vh;
+      min-width: 40vw;
+      max-width: calc(100vw - 3em);
+    }
+
     logo-element {
       position: fixed;
       top: 10px;
