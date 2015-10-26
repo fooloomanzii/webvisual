@@ -10,6 +10,12 @@
       selectedGroup: {
         type: Array,
         value: function() { return []; },
+        notify: true,
+        observer: "buildUpPage"
+      },
+      ids: {
+        type: Array,
+        value: function() { return []; },
         notify: true
       },
       groupBy: {
@@ -31,10 +37,11 @@
 
     setSelectedElement: function(id) {
     },
-
     setSelectedGroup: function(){
       if(this.groups && this.groupBy && this.groupBy in this.groups)
         this.set("selectedGroup",this.groups[this.groupBy]);
+    },
+    buildUpPage: function (newGroup, oldGroup) {
     },
     sortGroup: function(first,next){
       if (first.ids.length > next.ids.length)
@@ -46,13 +53,6 @@
       if (first > next)
       return -1;
       else return 1;
-    },
-    openOption: function(){
-      if (this.$.optionDialog)
-        this.$.optionDialog.open();
-    },
-    toggleDrawer: function() {
-      this.fire("drawer-toggle-pressed");
     }
   };
 
