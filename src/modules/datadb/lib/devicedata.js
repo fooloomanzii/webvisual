@@ -19,6 +19,18 @@
     values    : [Schema.Types.Mixed] // Measured Data
   });
   
+  var tmpModel;
+  
+  function createTmpDB(){
+    tmpModel = mongoose.model('tmp_'+(new Date()).getTime(), DeviceModel);
+  }
+  
+  DeviceModel.statics.updateTmpDB = function (callback) {
+    var oldTmp = tmpModel;
+    createTmpDB();
+    callback(oldTmp);
+  }
+  
   // Functions
   
   /*
@@ -52,7 +64,7 @@
       save(self, tmpModel, data, done);
     }, function(err, appendedData){
       // remove all elements == null
-      appendedData = appendedData.filter(function(n){ return n != undefined }); 
+      appendedData = appendedData.filter(function(n){ return n != undefined });
       // fill the temporary model with data from current update
       tmpModel.create(appendedData, function(err){
         callback(err, appendedData, tmpModel);

@@ -25,6 +25,7 @@
     },
 
   "port": 3000,
+  "updateIntervall": 5000,
 
   "logs": {
     "external_log": "HNF.log",

@@ -2,7 +2,8 @@
 /*
  * Module dependencies
  */
-var
+var // ASYNC <-- one callback for a lot of async operations 
+    async        = require('async'),
     // custom: DATAMODULE
     dataModule   = require('./data'),
     // custom: ROUTING
@@ -206,12 +207,12 @@ var dataFile = new dataHandler( {
               exceeds: threshold.getExceeds(data),
               data: data
             });
-
+            
             dbcontroller.appendData(
               currentData.content,
               function (err, appendedData, tmpDB) {
                 //TODO: handle the error
-                _.each(clients, function(client){
+                async.each(clients, function(client){
                   dbcontroller.getUpdate(tmpDB,
                     client.appendPattern,
                     function (err, data) {
@@ -220,11 +221,12 @@ var dataFile = new dataHandler( {
                          content: data,
                          time: new Date(), // current message time
                       };
+                      console.log(data);
                       client.socket.emit('data', message);
                     }
                   );
-                });
-                tmpDB.find({},function(err, data){
+                },
+                function(err){
                   mongoose.connection.db.dropCollection(tmpDB.modelName, function(err, result) {
                     /*if(err) console.log(err)
                     else console.log(tmpDB.modelName + ' removed');*/
@@ -236,6 +238,12 @@ var dataFile = new dataHandler( {
         ]
       }
     });
+
+// Send new data on constant time intervals
+/*var i =0;
+setInterval(function() { 
+  
+}, config.updateIntervall)*/
 
 // Data Socket
 var dataSocket = io.of('/data');
