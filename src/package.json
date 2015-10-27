@@ -5,6 +5,7 @@
   "scripts": {
     "prestart": "start /b mongod --dbpath ../data/db",
     "start": "node app.js",
+    "stop": "taskkill /IM node.exe /F", 
     "poststop": "mongo admin --eval 'db.shutdownServer()'"
   },
   "dependencies": {

@@ -1,6 +1,4 @@
 @echo off
-call init.bat
-echo Packages installed.
 
 title Messdatenvisualierung (Server)
 echo MongoDB is launching. Please wait...
