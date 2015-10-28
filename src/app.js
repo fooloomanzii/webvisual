@@ -208,30 +208,39 @@ var dataFile = new dataHandler( {
               data: data
             });
             
+            var tmpData = data;
+            
             dbcontroller.appendData(
               currentData.content,
               function (err, appendedData, tmpDB) {
                 //TODO: handle the error
-                async.each(clients, function(client){
-                  dbcontroller.getUpdate(tmpDB,
-                    client.appendPattern,
-                    function (err, data) {
-                      //TODO: handle the error
-                      var message = {
-                         content: data,
-                         time: new Date(), // current message time
-                      };
-                      console.log(data);
-                      client.socket.emit('data', message);
+                async.each(clients, 
+                    function(client, callback){
+                      dbcontroller.getUpdate(tmpDB,
+                        client.appendPattern,
+                        function (err, data) {
+                          if(data.length < 1){
+                            //empty data
+                            return;
+                          }
+                          //TODO: handle the error
+                          var message = {
+                             content: data,
+                             time: new Date(), // current message time
+                          };
+                          client.socket.emit('data', message);
+                          callback();
+                        }
+                      );
+                    },
+                    function(err){
+                      mongoose.connection.db.dropCollection(tmpDB.modelName, 
+                          function(err, result) {
+                            if(err) console.log(err);
+                          }
+                      );
                     }
-                  );
-                },
-                function(err){
-                  mongoose.connection.db.dropCollection(tmpDB.modelName, function(err, result) {
-                    /*if(err) console.log(err)
-                    else console.log(tmpDB.modelName + ' removed');*/
-                  });
-                });
+                );
               }
             );
           }
@@ -287,7 +296,7 @@ db = mongoose.connection;
 //TODO properly react on error
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function (callback) {
-  datamodel.remove({},function(){
+  //datamodel.remove({},function(){ //clean up the database
 
   // start the handler for new measuring data
   dataFile.connect();
@@ -295,7 +304,7 @@ db.once('open', function (callback) {
   // make the Server available for Clients
   server.listen(config.port);
 
-  });
+  //});
 });
 
 /*
