@@ -29,7 +29,7 @@ start /B /WAIT cmd /C "cd %~dp0" >NUL 2>&1
 title Remove MongoDB Service
 
 rem remove the service
-mongod -f .\config\mongodb.conf --remove --serviceName MongoDB
+mongod --remove --serviceName MongoDB
 if "%ERRORLEVEL%"=="0" goto END
 
 :ERROR

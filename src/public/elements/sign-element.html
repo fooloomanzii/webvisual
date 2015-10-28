@@ -107,7 +107,7 @@
             <span class="exceedsDateSection">{{computeLastExceedsX()}}</span><span class="exceedsValueSection">{{computeLastExceedsY()}}<span> </span><span>{{element.unit}}</span></span>
           </template>
           <template is="dom-if" if="{{!element.lastExceeds}}" restamp>
-            <span class="dateSection">{{computeX(element.values.*,0)}}</span>
+            <span class="dateSection" on-click="clickit">{{computeX(element.values.*,0)}}</span>
           </template>
         </template>
         <template is="dom-if" if="{{!showExceeds}}" restamp>
@@ -119,7 +119,7 @@
 
   <script>
 
-    Polymer({
+    SignElement = Polymer({
       is: 'sign-element',
 
       behaviors: [ElementBehavior],
@@ -131,8 +131,14 @@
             notify: true
           }
       },
+      // 
+      // factoryImpl: function(vals){
+      //     this.element.values = vals;
+      //     this.notifyPath('element.values.*',this.element.values);
+      // },
 
-      attached: function(){
+      clickit: function(){
+        console.log("test");
       }
 
     });

@@ -377,8 +377,28 @@
         }
       },
 
-      buildUpPage: function (newGroup, oldGroup) {
-        if(newGroup && newGroup.length!=0) {
+      buildUpPage: function (selectedGroup, oldGroup) {
+        if(selectedGroup && selectedGroup.length!=0) {
+          if(this.allSignNodes && this.data && this.allSignNodes.length == 0 && this.data.length != 0) {
+            // create sign-elements by constructor
+            var sign;
+            for (var i = 0; i < this.data.length; i++) {
+              var col = Polymer.Collection.get(this.data[i].values);
+              sign = new SignElement();
+              sign.set('element.values',col.userArray)
+              sign.notifyPath('element.values', col.userArray);
+              // sign.notifyPath('element.values.*',sign.element);
+              this.push('allSignNodes',sign);
+              Polymer.dom(this.$.mainContent).appendChild(sign);
+            }
+          }
+          else if (this.allSignNodes && this.allSignNodes.length != this.data.length) {
+            // regroup all signs
+          }
+          else {
+            // check if certain signNodes already exist and if some should be added or deleted
+          }
+          // this.groupElements();
         }
       },
 
