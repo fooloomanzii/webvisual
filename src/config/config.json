@@ -100,9 +100,9 @@
     "groupingKeys" : ["roomNr", "room", "kind", "method"],
 
     "exclusiveGroups": {
-      "roomNr": [{"group":"Diverse", "ids":["DI6-1","DI0-2","DI1-2"]},
-                 {"group":"kombinierter Alarm", "ids":["DI2-2","DI3-2","DI4-2","DI5-2"]},
-                 {"group":"4006", "ids":["DI3-5","DI4-5","DI5-5","DI6-5"]}
+      "roomNr": [{"name":"Diverse", "ids":["DI6-1","DI0-2","DI1-2"]},
+                 {"name":"kombinierter Alarm", "ids":["DI2-2","DI3-2","DI4-2","DI5-2"]},
+                 {"name":"4006", "ids":["DI3-5","DI4-5","DI5-5","DI6-5"]}
                 ]
     },
 

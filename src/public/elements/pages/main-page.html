@@ -38,44 +38,6 @@
       width: 100%;
       height: 100%;
     }
-
-    main-toolbar: {
-      overflow: hidden !important;
-    }
-
-    main-toolbar:after {
-      position: absolute;
-      height: 6px;
-      bottom: -6px;
-      box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
-      content: "";
-      width: 100%;
-      left: 0px;
-      right: 0px;
-      z-index: 5;
-      overflow: hidden !important;
-    }
-
-    section#mainContent {
-      display: flex;
-      flex-wrap: wrap;
-      align-content: flex-start;
-      align-self: stretch;
-      flex-direction: row;
-      position: relative;
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
-      -ms-flex: 1 1 0.000000001px;
-      -webkit-flex: 1;
-      flex: 1;
-      -webkit-flex-basis: 0.000000001px;
-      flex-basis: 0.000000001px;
-      background: #CCCCCC;
-    }
-
-    section#mainContent[main] {
-      box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
-    }
     @media all and (min-width: 0px) and (max-width: 600px) {
       section#mainContent {
         display: block;
@@ -156,6 +118,44 @@
     paper-drawer-panel {
       position: relative;
       flex: 1;
+    }
+    section#mainPanel {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      position: relative;
+    }
+    section#mainContent {
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      flex-direction: row;
+      position: relative;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      -ms-flex: 1 1 0.000000001px;
+      -webkit-flex: 1;
+      flex: 1;
+      -webkit-flex-basis: 0.000000001px;
+      flex-basis: 0.000000001px;
+      background: #CCCCCC;
+    }
+    section#dropShadow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: -6px;
+      height: 6px;
+      pointer-events: none;
+      box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
+      -webkit-transition: opacity 0.5s;
+      transition: opacity 0.5s;
+      opacity: 0;
+    }
+    section#dropShadow.has-shadow {
+      opacity: 1;
     }
   </style>
 
@@ -273,27 +273,30 @@
     </section>
 
     <!-- MAIN VIEW -->
-    <section main id="mainContent">
-      <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupedItem" sort="sortGroup" delay="200">
-        <post-card class="group" headline="{{groupedItem.group}}" on-click="setSelectedElement">
+    <section main id="mainPanel">
+      <section main id="mainContent">
+        <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupItems" sort="sortGroup" delay="300">
+          <post-card class="group" headline="{{groupItems.name}}">
 
-          <template is="dom-repeat" items="{{data}}" as="element">
-            <template is="dom-if" if="{{groupElements(element,groupedItem)}}" restamp>
-              <section class="card" on-click="setSelectedElement">
+            <template is="dom-repeat" items="{{data}}" as="element">
+              <template is="dom-if" if="{{groupElements(element,groupItems)}}" restamp>
+                <section class="card" on-click="setSelectedElement">
 
-                  <sign-element element="{{element}}"></sign-element>
-                  <section class="caption" id="{{element.id}}">
-                    <span id="kind">{{element.kind}}</span>
-                    <span id="method">{{element.method}}</span>
-                    <span id="room">{{element.room}}</span>
-                    <span id="roomNr">{{element.roomNr}}</span>
-                  </section>
+                    <sign-element element="{{element}}"></sign-element>
+                    <section class="caption" id="{{element.id}}">
+                      <span id="kind">{{element.kind}}</span>
+                      <span id="method">{{element.method}}</span>
+                      <span id="room">{{element.room}}</span>
+                      <span id="roomNr">{{element.roomNr}}</span>
+                    </section>
 
-              </section>
+                </section>
+              </template>
             </template>
-          </template>
-        </post-card>
-      </template>
+          </post-card>
+        </template>
+      </section>
+      <section id="dropShadow" class="has-shadow"></section>
     </section>
   </paper-drawer-panel>
 
@@ -348,7 +351,7 @@
     Polymer({
       is: 'main-page',
 
-      behaviors: [ScrollBehavior, DataBehavior, LanguageBehavior, PageBehavior, Polymer.NeonSharedElementAnimatableBehavior],
+      behaviors: [PageBehavior, ScrollBehavior, DataBehavior, LanguageBehavior, Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
         sharedElements: {
@@ -374,31 +377,6 @@
         colorschema: {
           type: String,
           value: "light"
-        }
-      },
-
-      buildUpPage: function (selectedGroup, oldGroup) {
-        if(selectedGroup && selectedGroup.length!=0) {
-          if(this.allSignNodes && this.data && this.allSignNodes.length == 0 && this.data.length != 0) {
-            // create sign-elements by constructor
-            var sign;
-            for (var i = 0; i < this.data.length; i++) {
-              var col = Polymer.Collection.get(this.data[i].values);
-              sign = new SignElement();
-              sign.set('element.values',col.userArray)
-              sign.notifyPath('element.values', col.userArray);
-              // sign.notifyPath('element.values.*',sign.element);
-              this.push('allSignNodes',sign);
-              Polymer.dom(this.$.mainContent).appendChild(sign);
-            }
-          }
-          else if (this.allSignNodes && this.allSignNodes.length != this.data.length) {
-            // regroup all signs
-          }
-          else {
-            // check if certain signNodes already exist and if some should be added or deleted
-          }
-          // this.groupElements();
         }
       },
 

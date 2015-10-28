@@ -4,16 +4,14 @@
 <dom-module id="main-toolbar">
   <style is="costum-style">
     :host {
-      display: block;
+      display: flex;
+      flex-direction: column;
       position: relative;
       overflow: hidden !important;
       font-family: Roboto;
       font-weight: normal;
       cursor: pointer;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
+      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
       -webkit-touch-callout: none;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -28,6 +26,8 @@
       height: 30vh;
     }
     #mainContent {
+      display: flex;
+      flex-direction: column;
       margin: 0em;
       padding: 0em;
       background: #005B82;
@@ -84,7 +84,6 @@
       -webkit-flex: 1;
       flex: 1;
     }
-
   </style>
   <template>
 
@@ -96,7 +95,7 @@
         <content select=".icon-toggle"></content>
       </section>
       <section id="lower">
-        <content select="#lowerToolbar"></content>
+        <content select=".lower"></content>
       </section>
     </section>
 

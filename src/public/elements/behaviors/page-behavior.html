@@ -1,5 +1,4 @@
 <script>
-// TODO: maybe loose that
   PageBehavior = {
     properties: {
       selectedElement: {
@@ -10,8 +9,7 @@
       selectedGroup: {
         type: Array,
         value: function() { return []; },
-        notify: true,
-        observer: "buildUpPage"
+        notify: true
       },
       ids: {
         type: Array,
@@ -31,7 +29,7 @@
     },
 
     groupElements: function(item,group){
-      if (group.group == "all")
+      if (group.name == "all")
         return true;
       else if (group.ids.indexOf(item.id) != -1)
         return true;
@@ -44,8 +42,6 @@
     setSelectedGroup: function(){
       if(this.groups && this.groupBy && this.groupBy in this.groups)
         this.set("selectedGroup",this.groups[this.groupBy]);
-    },
-    buildUpPage: function (newGroup, oldGroup) {
     },
     sortGroup: function(first,next){
       if (first.ids.length > next.ids.length)
