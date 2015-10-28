@@ -46,6 +46,7 @@
    * e.g. append({id: "1", room: "room"});
    */
   DeviceModel.statics.append = function (newData, callback) {
+    if(newData === undefined) return;
     /* model with unique name */
     var tmpModel = mongoose.model('tmp_'+(new Date()).getTime(), DeviceModel);
     var self = this;
@@ -61,6 +62,7 @@
     }
 
     async.map(newData, function(data, done) {
+      if(data === undefined) return;
       save(self, tmpModel, data, done);
     }, function(err, appendedData){
       // remove all elements == null
@@ -101,11 +103,12 @@
           newData.values=newValues;
           model.create(newData, callback);
         } else { // device exists -> append the values
-          // build array of not existed values
+          // build array of non existed values
+          
           var valuesDiff = _.filter(newValues, 
             function(obj){ 
               var ret = true;
-              result[0].values.forEach(
+              result[0].values.forEach( //
                 function(value){
                   if(_.isEqual(value, obj)){
                     ret = false;
