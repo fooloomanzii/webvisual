@@ -4,29 +4,27 @@
   // Process incoming Data
 
   //  Parameters:
-  //    locals: configuration (config.json)
+  //    settings: configuration (dataConfig)
   //    currentData: data (copywatch & exceeds)
   //      currentData.data <-- Array of Strings
   //      currentData.exceeds <-- Object of Boolean-Arrays
   //  Return:
   //    JSON-Object-Structure:
   //      content: Object of:
-  //       "0": { "id":".." , "room":"..", "kind":"..", "method":"..", lastExceeds:
-  //            {"x":"..", "y":"..", "exceeds":".."}, "unit":"..", "values":
-  //            [ {"x":"..", "y":"..", "exceeds":".."}, {..} , .. ] },
-  //       "2":
+  //       "0": { "id":"..", lastExceeds: {"x":"..", "y":"..", "exceeds":".."},
+  //                "values": [ {"x":"..", "y":"..", "exceeds":".."}, {..} , .. ] },
+  //       "1":
 
   // Session Variables
   // (don't change, if server is not restartet)
-  var _            = require('underscore'),
-      dateFormat   = require('dateFormat'),
+  var dateFormat   = require('dateFormat'),
+      _            = require('underscore'),
       settings   = {},
-      keys       = [],
       lastExceedsArray = [];
 
-function processData(locals, currentData) {
+function processData(settings, currentData) {
 
-  if(locals === undefined ||
+  if(settings === undefined ||
      currentData === undefined)
     return; // Check the Existence
 
@@ -37,23 +35,7 @@ function processData(locals, currentData) {
       processedData = [],
       returnObject  = {};
 
-  arrangeLabels(locals);
   arrangeData(currentData.data, currentData.exceeds);
-
-  function arrangeLabels(locals) {
-    if(!settings.types)
-      settings.types = locals.types;
-    if(!settings.ignore)
-      settings.ignore = locals.ignore;
-    if(!settings.timeFormat)
-      settings.timeFormat = locals.timeFormat;
-    if(!settings.unnamedType)
-      settings.unnamedType = locals.unnamedType;
-
-    if(keys.length == 0){
-      keys =  _.keys(settings.unnamedType);
-    }
-  }
 
   function arrangeData(data, exceeds){
     if(!data || data.length == 0 ) return;  // Check for Existence
@@ -79,27 +61,24 @@ function processData(locals, currentData) {
       }
     }
     // Join Data to the Object, which is used by the website
-    var element, key, type;
+    var element;
     for (var i=0; i<dateArray.length; i++) {
       var k = 0;
       for (var j=0; j<valuesArray[i].length; j++) {
       // head-data of measuring-points
         if(settings.ignore.indexOf(j) == -1){ // ignored are not in returnObject
+          // if it didn't exist before in process for return
           if(!processedData[k]) {
             element = {};
-            type = settings.types[j] || [];
-            for (var m=0; m<keys.length; m++){
-              key = keys[m];
-              element[key] = type[key] || settings.unnamedType[key];
-            }
+            if(settings.types[j] && settings.types[j].id)
+              element.id = settings.types[j].id;
+            else
+              element.id = settings.unnamedType.id + k;
             element.values = [];
-            if (element.id == settings.unnamedType.id)
-              element.id += k;
             element.lastExceeds = lastExceedsArray[j];
             processedData[k] = element;
           }
           // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored
-          // TODO "k" indizies rausnehmen, da die für datenbank unwichtig sind
           processedData[k].values.push({"x":    dateArray[i],
                                         "y":   valuesArray[i][j],
                                         "exceeds": exceedsArray[i][j]
