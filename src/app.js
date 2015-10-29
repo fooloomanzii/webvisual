@@ -2,7 +2,7 @@
 /*
  * Module dependencies
  */
-var // ASYNC <-- one callback for a lot of async operations 
+var // ASYNC <-- one callback for a lot of async operations
     async        = require('async'),
     // custom: DATAMODULE
     dataModule   = require('./data'),
@@ -38,6 +38,7 @@ var // ASYNC <-- one callback for a lot of async operations
     threshold    = dataModule.threshold,    // extension: of DATAMODULE
     dataHandler  = dataModule.dataHandler,  // extension: of DATAMODULE
     dataMerge    = dataModule.dataMerge,    // extension: of DATAMODULE
+    dataConfig   = dataModule.dataConfig,   // extension: of DATAMODULE
     Client       = dataModule.client,       // extension: of DATAMODULE
 
     /* Current connected clients */
@@ -191,6 +192,7 @@ mailHelper.setDelay(1000);
  */
 
 //DATAHANDLER - established the data connections
+var dataConf = dataConfig.getConfig (config.locals);
 var dataFile = new dataHandler( {
       // Object used the Configuration
       connection: config.connections,
@@ -203,13 +205,10 @@ var dataFile = new dataHandler( {
           function(type, data) {
 
             // Process data to certain format
-            var currentData = dataMerge.processData(config.locals,{
-              exceeds: threshold.getExceeds(data),
-              data: data
-            });
-            
+            var currentData = dataMerge.processData ( dataConf,
+                              {exceeds: threshold.getExceeds(data), data: data });
             var tmpData = data;
-            
+
             dbcontroller.appendData(
               currentData.content,
               function (err, appendedData, tmpDB) {
@@ -243,7 +242,7 @@ var dataFile = new dataHandler( {
                       );
                     },
                     function(err){
-                      mongoose.connection.db.dropCollection(tmpDB.modelName, 
+                      mongoose.connection.db.dropCollection(tmpDB.modelName,
                           function(err, result) {
                             if(err){
                               console.log("app.js db Drop Error:")
@@ -263,8 +262,8 @@ var dataFile = new dataHandler( {
 
 // Send new data on constant time intervals
 /*var i =0;
-setInterval(function() { 
-  
+setInterval(function() {
+
 }, config.updateIntervall)*/
 
 // Data Socket
@@ -282,23 +281,25 @@ dataSocket.on('connection', function(socket) {
           console.log(err);
         }
         //TODO: important! if two lines change then send in the same kind of object
-         
+
         var message = {
            content: data,
            time: new Date(), // current message time
            language: config.locals.language,
            groupingKeys: config.locals.groupingKeys,
-           exclusiveGroups: config.locals.exclusiveGroups
+           exclusiveGroups: config.locals.exclusiveGroups,
+           types: dataConf.types,
+           unnamedType: dataConf.unnamedType
         };
         socket.emit('first', message);
-        
+
         // append the client to array after sending first message
         clients[socket.id] = current_client;
       }
     );
-     
+
     // by disconnect remove socket from list
-    socket.on('disconnect', 
+    socket.on('disconnect',
       function() {
         delete clients[socket.id];
       }
@@ -365,7 +366,7 @@ process.on('SIGINT', function(err) {
   try {
     console.log('close server');
     server.close();
-    console.log('disconnect db');  
+    console.log('disconnect db');
     mongoose.disconnect();
   } catch (err) {
     if(err.message !== 'Not running')
