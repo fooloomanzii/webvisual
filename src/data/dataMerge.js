@@ -19,7 +19,6 @@
   // (don't change, if server is not restartet)
   var dateFormat   = require('dateFormat'),
       _            = require('underscore'),
-      settings   = {},
       lastExceedsArray = [];
 
 function processData(settings, currentData) {
