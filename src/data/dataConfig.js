@@ -26,7 +26,7 @@
     // all defined types are processed
     for (var i=0; i<locals.types.length; i++) {
       // ignored if set in locals.ignore
-      if(locals.ignore && locals.ignore.indexOf(i) != -1){
+      if(locals.ignore && locals.ignore.indexOf(i) == -1){
         type = locals.types[i] || {};
         for (var j=0; j<keys.length; j++){
           type[keys[j]] = type[keys[j]] || locals.unnamedType[keys[j]];
@@ -34,6 +34,7 @@
         // id has to be different from unnamedType
         if (type.id == locals.unnamedType.id)
           type.id += i;
+        types.push(type);
       }
     }
 

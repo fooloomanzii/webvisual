@@ -52,6 +52,10 @@
             type: Array,
             value: function() { return ["kind","method","room","roomNr","all"]; }
           },
+          allKeys: {
+            type: Array,
+            value: function() { return []; }
+          },
           status: {
             type: Object,
             value: function() { return {"message": "...",
@@ -104,6 +108,7 @@
         // Config
         this.socket.on('connect', function() {
           self.set("status.time.lastStatus",new Date()); self.set("status.message", "configuring connection");
+          self.set("config.firstPattern.time.from",new Date()-3600000)
           self.socket.emit('clientConfig', self.config);
         });
         // Receiving the FIRST Data
@@ -166,18 +171,19 @@
         var time = new Date();
         this.set("status.time.lastStatus",new Date()); this.set("status.message", "processing first data");
         this.set("status.time.lastData", time);
-        if (message.language) this._setLanguage(message.language);
+
         if (message.groupingKeys) this._setKeys(message.groupingKeys);
+        this._setAllKeys(message.unnamedType);
 
         // for Polymer (to notice Array change) special treatment to integrate data
         var id;
         for (var i in message.content) {
           id = this._getIndex(message.content[i].id);
-          this._initDataPoint(message.content[i],id);
+          this._initDataPoint(message.content[i],id,message.types,message.unnamedType);
           this._setValues(message.content[i],id);
         }
         this.set("status.time.lastStatus",new Date()); this.set("status.message", "grouping elements");
-        this._setGroups(message.content,message.exclusiveGroups);
+        this._setGroups(message.exclusiveGroups);
         this.fire("dataloaded");
       },
 
@@ -206,6 +212,13 @@
           this.push("keys","all");
       },
 
+      _setAllKeys: function(unnamedType) {
+        var allkeys = _.keys(unnamedType);
+        for (var i=0; i < allkeys.length; i++)
+          if (this.allKeys.indexOf(allkeys[i]) == -1)
+            this.push("allKeys", allkeys[i]);
+      },
+
       _setValues: function(messageContent, i){
         if (!this.doAppend)
           this._initDataPoint(messageContent, i)
@@ -227,23 +240,29 @@
         // this.splice("ids",0,this.ids.length);
       },
 
-      _initDataPoint: function(messageContent,i){
+      _initDataPoint: function(messageContent,i,types,unnamedType){
         while (this.data.length <= i)
           this.push("data",{});
+
         if(!this.data[i].values){
           this.set("data."+i+".values",[]);
           this.push("data."+i+".values",{"x":"","y":"","exceeds":null});
         }
-        // else // creates problems in linking
-        //   this.splice("data."+i+".values",0,this.data[i].values.length);
-        for (var key in messageContent) {
-          if(key != "values" && !this.data[i][key])
-            this.set("data."+i+"."+key, messageContent[key]);
+
+        var key;
+        for (var j=0; j <= this.allKeys.length; j++) {
+          key = this.allKeys[j];
+          if(key != "values" && !this.data[i][key]){
+            if(types[i] && types[i][key])
+              this.set("data."+i+"."+key, types[i][key]);
+            else
+              this.set("data."+i+"."+key, unnamedType[key]);
+          }
         }
       },
 
-      _setGroups: function(content,exclusiveGroups){ // Referencing on group-identities
-        if(content){
+      _setGroups: function(exclusiveGroups){ // Referencing on group-identities
+        if(this.data){
           this.set("groups",{});
           var where, innerkey, needToSet;
           if(exclusiveGroups){
@@ -259,7 +278,7 @@
               }
             }
           }
-          for (var i in content){
+          for (var i=0; i < this.data.length; i++){
             for (var j=0; j<this.keys.length; j++){
               innerkey = this.keys[j];
               if (!this.groups[innerkey])
@@ -268,21 +287,21 @@
               needToSet = true;
               if (exclusiveGroups && exclusiveGroups[innerkey])
                 for (var k=0; k<exclusiveGroups[innerkey].length; k++){
-                  if(exclusiveGroups[innerkey][k].ids.indexOf(content[i].id) != -1){
+                  if(exclusiveGroups[innerkey][k].ids.indexOf(this.data[i].id) != -1){
                     needToSet = false;
                     break;
                   }
                 }
 
               if(needToSet){
-                where = _.findIndex(this.groups[innerkey],{"name": content[i][innerkey]});
+                where = _.findIndex(this.groups[innerkey],{"name": this.data[i][innerkey]});
                 if (where == -1){
                   this.push("groups."+innerkey,{});
                   where = this.groups[innerkey].length-1;
-                  this.set("groups."+innerkey+"."+where+".name",content[i][innerkey]);
+                  this.set("groups."+innerkey+"."+where+".name",this.data[i][innerkey]);
                   this.set("groups."+innerkey+"."+where+".ids",[]);
                   }
-                this.push("groups."+innerkey+"."+where+".ids",content[i].id);
+                this.push("groups."+innerkey+"."+where+".ids",this.data[i].id);
               }
             }
           }
