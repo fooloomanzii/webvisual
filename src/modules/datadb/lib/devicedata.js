@@ -1,5 +1,9 @@
 (function(){
   'use strict';
+  
+  // Global variables
+  var values_to_compare = 1; // number of last values in database to compare
+  
   // Variables
   var mongoose = require('mongoose'),
       Schema   = mongoose.Schema,
@@ -8,16 +12,27 @@
       async    = require('async');
   
   var DeviceModel = new Schema({
-  	id        : String, // Measuring Device ID
-    roomNr    : String, // Room Number
-    room      : String, // Room Type
-    kind      : String, // What is measured
-    method    : String, // Type of Measure
-    threshold : Schema.Types.Object, // Thresholds: {'from':null,'to':null}
-    isBoolean : Boolean, // true if Measure is boolean
-    unit      : String, // Measuring units
-    values    : [Schema.Types.Mixed] // Measured Data
-  });
+    	id        : String, // Measuring Device ID
+      roomNr    : String, // Room Number
+      room      : String, // Room Type
+      kind      : String, // What is measured
+      method    : String, // Type of Measure
+      threshold : Schema.Types.Object, // Thresholds: {'from':null,'to':null}
+      isBoolean : Boolean, // true if Measure is boolean
+      unit      : String, // Measuring units
+      values    : [{       // Measured Data
+        x       : Date,   // Time of Measure
+        y       : Number, // Measured Value
+        exceds  : Boolean // false = under the limit, 
+                          // true = over the limit, 
+                          // null = ok.
+      }]
+    }, 
+    // significant performance impact
+    { autoIndex: false } // http://mongoosejs.com/docs/guide.html
+  );
+  
+  DeviceModel.index( { "id": 1, "values.x": 1 } );
   
   var tmpModel;
   
@@ -61,12 +76,13 @@
       });
     }
 
-    async.map(newData, function(data, done) {
+    async.map(newData, function(data, callback) {
       if(data === undefined) return;
-      save(self, tmpModel, data, done);
+      save(self, tmpModel, data, callback);
     }, function(err, appendedData){
       // remove all elements == null
       appendedData = appendedData.filter(function(n){ return n != undefined });
+      if(err) return callback(err, appendedData);
       // fill the temporary model with data from current update
       tmpModel.create(appendedData, function(err){
         callback(err, appendedData, tmpModel);
@@ -82,35 +98,31 @@
     delete newData.values;
     if(newValues === undefined) newValues = {};
     
-    model.find( // prevent data merging from other devices with same id
-      { id: newData.id },
+    model.aggregate([ // prevent data merging from other devices with same id
+      {'$match' : { id: newData.id }},
+      {'$unwind': "$values" },
+      {'$sort'  : { "values.x" : -1 }},
+      {'$limit' : values_to_compare },
+      {'$group' : { 
+        '_id'        : '$id', 
+        'values'     : { '$push': '$values' }
+      }}],
       function(err, result){
         if (err) return callback(err);
         
-        if(result && result[0]) {
-          for(var item in newData){
-            // compare every property
-            if(result[0][item]!==undefined && 
-                !_.isEqual(result[0][item], newData[item])){
-              // property is unequal
-              // the changes need to be made before appending of data
-              return callback(new Error("Device with same id exists!"));
-            }
-          }
-        }
+        //TODO compare properties (room, roomNr etc.)
         
-        if(_.isEmpty(result)){ // nothing was found ( with this.find() )
+        if(_.isEmpty(result)){ // nothing was found ( with model.aggregate() )
           newData.values=newValues;
           model.create(newData, callback);
         } else { // device exists -> append the values
           // build array of non existed values
-          
           var valuesDiff = _.filter(newValues, 
             function(obj){ 
               var ret = true;
               result[0].values.forEach( //
                 function(value){
-                  if(_.isEqual(value, obj)){
+                  if(_.isEqual(value.x, obj.x) && _.isEqual(value.y, obj.y) ){
                     ret = false;
                     return;
                   }
@@ -129,12 +141,13 @@
               // just append the new values
               { $push: {values: {$each: valuesDiff} } },
               function(err) {
+                
                 if (err) { return callback(err); }
                 
                 callback(err, 
-                    { id     : newData.id,
-                      values : valuesDiff
-                    }
+                  { id     : newData.id,
+                    values : valuesDiff
+                  }
                 );
               }
             );
@@ -258,13 +271,7 @@
       }
       if(time === undefined){ // no time.from and no time.to
         try {
-          if(!limit) {
-            time = new Date(request.time);
-          } else if (limit < 0) {
-            time['$lte'] = new Date(request.time.to);
-          } else {
-            time['$gte'] = new Date(request.time.from);
-          }
+          time = new Date(request.time);
         } catch (e) {
           console.warn('time is wrong!');
           return;
@@ -344,15 +351,17 @@
             // extend results with other properties (then 'id' and 'values')
             model.find( {id: {$in: _.keys(values)}} )
                 .sort(sort)
-                .exec(function(err, items) {
-                  if(err) return callback(err);
-      
-                  items.forEach(function(item) {
-                    item.values = values[item.id];
-                  });
-
-                  callback(err, items);
-            });
+                .exec(
+                    function(err, items) {
+                      if(err) return callback(err);
+          
+                      items.forEach(function(item) {
+                        item.values = values[item.id];
+                      });
+                      callback
+                      callback(err, items);
+                    }
+                );
           } else { // !getProperties
             results.forEach(function(item) {
               if(limit){

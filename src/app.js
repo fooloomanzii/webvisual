@@ -213,17 +213,26 @@ var dataFile = new dataHandler( {
             dbcontroller.appendData(
               currentData.content,
               function (err, appendedData, tmpDB) {
-                //TODO: handle the error
+                if(err){
+                  console.log("app.js dberr1:")
+                  console.log(err);
+                  if(!tmpDB) return;
+                }
                 async.each(clients, 
                     function(client, callback){
                       dbcontroller.getUpdate(tmpDB,
                         client.appendPattern,
                         function (err, data) {
+                          if(err){
+                            console.log("app.js dberr2:")
+                            console.log(err);
+                            callback();
+                            return;
+                          }
                           if(data.length < 1){
                             //empty data
                             return;
                           }
-                          //TODO: handle the error
                           var message = {
                              content: data,
                              time: new Date(), // current message time
@@ -236,7 +245,10 @@ var dataFile = new dataHandler( {
                     function(err){
                       mongoose.connection.db.dropCollection(tmpDB.modelName, 
                           function(err, result) {
-                            if(err) console.log(err);
+                            if(err){
+                              console.log("app.js db Drop Error:")
+                              console.log(err);
+                            }
                           }
                       );
                     }
@@ -260,32 +272,37 @@ var dataSocket = io.of('/data');
 // Handle connections of new clients
 dataSocket.on('connection', function(socket) {
 
-   socket.on('clientConfig', function(patterns) {
-     var current_client = new Client(socket, patterns);
-     dbcontroller.getData(current_client.firstPattern,
-         function (err, data) {
-            //TODO: important! if two lines change then send in the same kind of object
-       
-            var message = {
-               content: data,
-               time: new Date(), // current message time
-               language: config.locals.language,
-               groupingKeys: config.locals.groupingKeys,
-               exclusiveGroups: config.locals.exclusiveGroups
-            };
-            socket.emit('first', message);
-            
-            // append the client to array after sending first message
-            clients[socket.id] = current_client;
-         }
-     );
+  socket.on('clientConfig', function(patterns) {
+    var current_client = new Client(socket, patterns);
+    dbcontroller.getData(current_client.firstPattern,
+      function (err, data) {
+        if(err){
+          console.log("app.js dberr first:")
+          console.log(err);
+        }
+        //TODO: important! if two lines change then send in the same kind of object
+         
+        var message = {
+           content: data,
+           time: new Date(), // current message time
+           language: config.locals.language,
+           groupingKeys: config.locals.groupingKeys,
+           exclusiveGroups: config.locals.exclusiveGroups
+        };
+        socket.emit('first', message);
+        
+        // append the client to array after sending first message
+        clients[socket.id] = current_client;
+      }
+    );
      
-     // by disconnect remove socket from list
-     socket.on('disconnect', function() {
-       delete clients[socket.id];
-     });
-   });
-
+    // by disconnect remove socket from list
+    socket.on('disconnect', 
+      function() {
+        delete clients[socket.id];
+      }
+    );
+  });
 });
 
 /*
