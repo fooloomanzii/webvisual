@@ -216,8 +216,8 @@ var dataFile = new dataHandler( {
                 if(err){
                   console.log("app.js dberr1:")
                   console.log(err);
-                  if(!tmpDB) return;
                 }
+                if(!tmpDB) return;
                 async.each(clients, 
                     function(client, callback){
                       dbcontroller.getUpdate(tmpDB,
@@ -248,6 +248,7 @@ var dataFile = new dataHandler( {
                             if(err){
                               console.log("app.js db Drop Error:")
                               console.log(err);
+                              console.log("data: "+appendedData);
                             }
                           }
                       );
