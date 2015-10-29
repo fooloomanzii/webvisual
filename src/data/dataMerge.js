@@ -66,14 +66,15 @@ function processData(settings, currentData) {
       var k = 0;
       for (var j=0; j<valuesArray[i].length; j++) {
       // head-data of measuring-points
-        if(settings.ignore.indexOf(j) == -1){ // ignored are not in returnObject
+        if(settings.ignore.indexOf(j) == -1){ // ignored are not in returnObject and so ALSO NOT in DataBase
           // if it didn't exist before in process for return
           if(!processedData[k]) {
             element = {};
-            if(settings.types[j] && settings.types[j].id)
-              element.id = settings.types[j].id;
+            if(settings.types[k] && settings.types[k].id)
+              element.id = settings.types[k].id;
             else
               element.id = settings.unnamedType.id + k;
+
             element.values = [];
             element.lastExceeds = lastExceedsArray[j];
             processedData[k] = element;
