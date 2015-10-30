@@ -31,7 +31,7 @@
     groupElements: function(item,group){
       if (group.name == "all")
         return true;
-      else if (group.ids.indexOf(item.id) != -1)
+      else if (group.ids && group.ids.indexOf(item.id) != -1)
         return true;
       else
         return false;
@@ -40,8 +40,10 @@
     setSelectedElement: function(id) {
     },
     setSelectedGroup: function(){
-      if(this.groups && this.groupBy && this.groupBy in this.groups)
+      if(this.groups && this.groupBy && this.groupBy in this.groups){
         this.set("selectedGroup",this.groups[this.groupBy]);
+        this.linkPaths("selectedGroup","groups."+this.groupBy);
+      }
     },
     sortGroup: function(first,next){
       if (first.ids.length > next.ids.length)
