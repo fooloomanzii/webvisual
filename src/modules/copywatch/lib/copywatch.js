@@ -401,7 +401,7 @@ function _create_watch_options(mode, options) {
 function _handle_change(event, path, currStat, prevStat, options) {
   // Test/create event - process the changes
   if (event === 'update' || event === 'create') {
-    console.log(path_util.basename(path)+' was updated');
+    // console.log(path_util.basename(path)+' was updated');
     if (options.mode === 'append') {
       options.work_function(path, prevStat.size, undefined, options.process, options.content, options.copy_path);
     } else if (options.mode === 'prepend') {
