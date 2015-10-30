@@ -212,10 +212,7 @@ var dataFile = new dataHandler( {
             dbcontroller.appendData(
               currentData.content,
               function (err, appendedData, tmpDB) {
-                if(err){
-                  console.log("app.js dberr1:")
-                  console.log(err);
-                }
+                if(err) console.warn(err.message);
                 if(!tmpDB) return;
                 async.each(clients, 
                     function(client, callback){
@@ -223,8 +220,7 @@ var dataFile = new dataHandler( {
                         client.appendPattern,
                         function (err, data) {
                           if(err){
-                            console.log("app.js dberr2:")
-                            console.log(err);
+                            console.warn(err.message);
                             callback();
                             return;
                           }
@@ -242,7 +238,11 @@ var dataFile = new dataHandler( {
                       );
                     },
                     function(err){
-                     //do anything after all clients got the data
+                      if(err) console.warn(err.message);
+                      // cleanize current tmp
+                      tmpDB.remove({},function(err){
+                        if(err) console.warn(err.message);
+                      });
                     }
                 );
               }
@@ -269,8 +269,8 @@ dataSocket.on('connection', function(socket) {
     dbcontroller.getData(current_client.firstPattern,
       function (err, data) {
         if(err){
-          console.log("app.js dberr first:")
-          console.log(err);
+          console.warn("app.js dberr first:")
+          console.warn(err.message);
         }
         //TODO: important! if two lines change then send in the same kind of object
 
