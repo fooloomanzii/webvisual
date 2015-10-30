@@ -211,8 +211,40 @@ var dataFile = new dataHandler( {
 
             dbcontroller.appendData(
               currentData.content,
-              function (err, appendedData) {
+              function (err, appendedData, tmpDB) {
                 if(err) console.warn(err.stack);
+                if(!tmpDB) return;
+                async.each(clients, 
+                    function(client, callback){
+                      dbcontroller.getUpdate(tmpDB,
+                        client.appendPattern,
+                        function (err, data) {
+                          if(err){
+                            console.warn(err.stack);
+                            callback();
+                            return;
+                          }
+                          if(data.length < 1){
+                            //empty data
+                            return;
+                          }
+                          var message = {
+                             content: data,
+                             time: new Date(), // current message time
+                          };
+                          client.socket.emit('data', message);
+                          callback();
+                        }
+                      );
+                    },
+                    function(err){
+                      if(err) console.warn(err.stack);
+                      // cleanize current tmp
+                      tmpDB.remove({},function(err){
+                        if(err) console.warn(err.stack);
+                      });
+                    }
+                );
               }
             );
           }
@@ -258,46 +290,6 @@ dataSocket.on('connection', function(socket) {
     );
   });
 });
-
-//Send new data on constant time intervals
-setInterval(
-  function(){
-    datamodel.getNewData(function(tmpDB){
-      if(!tmpDB) return;
-      async.each(clients, 
-          function(client, callback){
-            dbcontroller.getUpdate(tmpDB,
-              client.appendPattern,
-              function (err, data) {
-                if(err){
-                  console.warn(err.stack);
-                  callback();
-                  return;
-                }
-                if(data.length < 1){
-                  //empty data
-                  return;
-                }
-                var message = {
-                   content: data,
-                   time: new Date(), // current message time
-                };
-                client.socket.emit('data', message);
-                callback();
-              }
-            );
-          },
-          function(err){
-            if(err) console.warn(err.stack);
-            // cleanize current tmp
-            tmpDB.remove({},function(err){
-              if(err) console.warn(err.stack);
-            });
-          }
-      );
-    });
-  }, config.updateIntervall 
-);
 
 /*
  * Get SERVER.io and server running!
