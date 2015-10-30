@@ -291,23 +291,22 @@
           query = device.find({});
         }
         
-        query.sort({ "x": -1 }).limit(limit);
-        
-        /*
+        // limit the query
         if( limit < 0 ){
-          query.sort({"x":1})
-               .slice(-limit);
+          query.sort({"x":-1})
+               .limit(-limit);
         } else {
           query.sort({"x":1})
-               .slice(limit);
-        }*/
+               .limit(limit);
+        }
+        query.select('-_id -__v');
         
         query.exec(function(err, values){
           if(err) return callback(err);
           
-          values.forEach(function(item) {
-            delete item._id;
-          });
+          // sort ascending by date
+          if( limit < 0 ) _.sortBy(values, function(obj){ return obj.x; });
+          
           done(null, {'id':name.id, 'values': values});
         });
       }, function(err, result){

@@ -57,9 +57,6 @@
    *                   (+) for first N values
    *                   (0) no extra limits :)
    *              default: null (no extra limits)
-   *      getProperties - false to get only id and values
-   *                      true to get everything else
-   *              default: true
    *      sort  - { property : 1 to specify ascending order
    *                          -1 to specify descending order }
    *              default: {id : 1}
@@ -115,10 +112,6 @@
     var limit;
     if(request.limit){
       limit = request.limit;
-    }
-    var getProperties = true;
-    if(request.getProperties !== undefined){
-      getProperties = request.getProperties;
     }
     
     var time;
@@ -180,18 +173,17 @@
       }
       query.push(
         // Sort values by time ascending
-        {'$sort': {'values.x': 1}},
+        // {'$sort': {'values.x': 1}},
+          
         // Put all found elements together, grouped by _id
         {'$group' : {
           '_id'        : '$id',
           'values'     : { '$push': '$values' }
         }}
       );
-      if(!getProperties){ //presort results if no properties are needed
-        query.push(
-          {'$sort': sort}
-        );
-      }
+      query.push(
+        {'$sort': sort}
+      );
     } else { // time and limit are undefined
       query.push(
         {'$sort': sort}
@@ -206,60 +198,26 @@
 
         // different way to search with the time against without
         if(time !== undefined || limit){
-          if(getProperties){
-            var values = {}; // hashMap to group values by id
-            results.forEach(function(item) {
-              if(item.values){ // prevent empty results
-                if(limit){
-                  if(limit<0)
-                    values[item._id] = item.values.slice(limit);
-                  else
-                    values[item._id] = item.values.slice(0, limit);
-                } else {
-                  values[item._id] = item.values;
-                }
-              }
-            });
-  
-            // extend results with other properties (then 'id' and 'values')
-            model.find( {id: {$in: _.keys(values)}} )
-                .sort(sort)
-                .exec(
-                    function(err, items) {
-                      if(err) return callback(err);
-          
-                      items.forEach(function(item) {
-                        item.values = values[item.id];
-                      });
-                      callback
-                      callback(err, items);
-                    }
-                );
-          } else { // !getProperties
-            results.forEach(function(item) {
-              if(limit){
-                if(limit<0)
-                  item.values = item.values.slice(limit);
-                else
-                  item.values = item.values.slice(0, limit);
-              }
-              item.id = item._id;
-              delete item._id;
-            });
-            callback(err, results);
-          }
-        } else { // time  and limit are undefined
-          if(getProperties){
-            results.forEach(function(item) {
-              delete item._id;
-            });
-          } else { // !getProperties
-            for(var key in results){
-              results[key] = { 
-                  id: results[key].id, 
-                  values: results[key].values 
-              };
+          results.forEach(function(item) {
+            if(limit){
+              if(limit<0)
+                item.values = item.values.slice(limit);
+              else
+                item.values = item.values.slice(0, limit);
             }
+            item.values.forEach(function(obj) {
+              delete obj._id;
+            });
+            item.id = item._id;
+            delete item._id;
+          });
+          callback(err, results);
+        } else { // time  and limit are undefined
+          for(var key in results){
+            results[key] = { 
+                id: results[key].id, 
+                values: results[key].values 
+            };
           }
           
           callback(err, results);

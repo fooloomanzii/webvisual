@@ -59,8 +59,8 @@ var config;
       config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json'));
     }
     catch (err) {
-      console.log('There has been an error parsing the config-file.')
-      console.log(err);
+      console.warn('There has been an error parsing the config-file.')
+      console.warn(err.stack);
     }
 
     // Use defaults for undefined values
@@ -212,7 +212,7 @@ var dataFile = new dataHandler( {
             dbcontroller.appendData(
               currentData.content,
               function (err, appendedData, tmpDB) {
-                if(err) console.warn(err.message);
+                if(err) console.warn(err.stack);
                 if(!tmpDB) return;
                 async.each(clients, 
                     function(client, callback){
@@ -220,7 +220,7 @@ var dataFile = new dataHandler( {
                         client.appendPattern,
                         function (err, data) {
                           if(err){
-                            console.warn(err.message);
+                            console.warn(err.stack);
                             callback();
                             return;
                           }
@@ -238,10 +238,10 @@ var dataFile = new dataHandler( {
                       );
                     },
                     function(err){
-                      if(err) console.warn(err.message);
+                      if(err) console.warn(err.stack);
                       // cleanize current tmp
                       tmpDB.remove({},function(err){
-                        if(err) console.warn(err.message);
+                        if(err) console.warn(err.stack);
                       });
                     }
                 );
@@ -268,10 +268,8 @@ dataSocket.on('connection', function(socket) {
     var current_client = new Client(socket, patterns);
     dbcontroller.getData(current_client.firstPattern,
       function (err, data) {
-        if(err){
-          console.warn("app.js dberr first:")
-          console.warn(err.message);
-        }
+        if(err) console.warn(err.stack);
+
         //TODO: important! if two lines change then send in the same kind of object
 
         var message = {
