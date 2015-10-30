@@ -3,12 +3,6 @@
   
   // --- Variables --- //
   
-  // Global variables
-  var values_to_compare = 1; // number of last values in database to compare
-  var max_limit = 100;
-  var num_of_tmps = 15;
-  var cur_tmp = 0;
-  
   // Dependencies
   var mongoose = require('mongoose'),
       Schema   = mongoose.Schema,
@@ -17,6 +11,16 @@
       async    = require('async'),
       tmpModel = require('./tmpdata.js');
   
+  // Global variables
+  var values_to_compare = 1; // number of last values in database to compare
+  var max_limit = 100; // maximal limit of values for one device to query
+  var cur_tmp = 0; // index of current temporary Database
+  var num_of_tmps = 15; // number of temporary Databases
+  var tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel); // temporary Database
+  var tmp_is_free; // boolean to see the current state of tmp
+  var new_data_callback; // special callback to use if tmpDB in use
+  
+  // Database Model (represents value)
   var StorageModel = new Schema({      
       x       : Date,   // Time of Measure
       y       : Number, // Measured Value
@@ -30,6 +34,24 @@
   
   // Set the indexing
   StorageModel.index( { "x": 1 } );
+  
+  function getNewData(callback){
+    if(!tmp_is_free){ // last tmpDB is in use
+      new_data_callback = callback;
+    } else {
+      new_data_callback = null;
+      create_new_tmpDB(callback);
+    }
+  }
+  
+  // private function - switches tmpDB and passes old tmpDB to callback
+  function create_new_tmpDB(callback){
+    var last_tmpDB = tmpDB;
+    cur_tmp = (cur_tmp + 1) % num_of_tmps;
+    tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel);
+    callback(last_tmpDB);
+  }
+
   
   // --- Functions --- //
   
@@ -47,9 +69,6 @@
    */
   function append(newData, callback) {
     if(newData === undefined) return;
-    /* model with unique name */
-    var tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel);
-    cur_tmp = (cur_tmp + 1) % num_of_tmps;
     
     var self = this;
     if(!_.isArray(newData)){
@@ -57,8 +76,11 @@
         // remove all elements == null
         appendedData = appendedData.filter(function(n){ return n != undefined }); 
         // fill the temporary model with data from current update
+        tmp_is_free = false;
         tmpDB.create(appendedData, function(err){
-          callback(err, appendedData, tmpDB);
+          tmp_is_free = true;
+          if(new_data_callback) create_new_tmpDB(new_data_callback);
+          if(callback) callback(err, appendedData, tmpDB);
         });
       });
     }
@@ -71,8 +93,13 @@
       appendedData = appendedData.filter(function(n){ return n != undefined });
       if(err) return callback(err, appendedData);
       // fill the temporary model with data from current update
+      tmp_is_free = false;
       tmpDB.create(appendedData, function(err){
-        callback(err, appendedData, tmpDB);
+        tmp_is_free = true;
+        if(new_data_callback){
+          create_new_tmpDB(new_data_callback);
+        }
+        if(callback) callback(err, appendedData);
       });
     });
   };
@@ -320,6 +347,7 @@
   
   // Module exports
   module.exports = {
+    'getNewData': getNewData,
     'append': append,
     'query' : query
   };
