@@ -1,4 +1,4 @@
 module.exports = {
     controller: require('./lib/dbcontroller'),
-    devicedata: require('./lib/devicedata')
+    storagemodel: require('./lib/storagemodel')
 };

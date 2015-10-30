@@ -48,7 +48,7 @@ if exist "%temp%\mongodb.conf" ( del "%temp%\mongodb.conf" )
 echo dbpath = %dbpath% >> %temp%\mongodb.conf
 echo port = %port% >> %temp%\mongodb.conf
 echo logpath = %logpath% >> %temp%\mongodb.conf
-mongod -config %temp%\mongodb.conf --install --serviceName %name% --serviceDisplayName "MongoDB Server Instance %port%" --serviceDescription "MongoDB Server Instance running on %port%"
+mongod -config %temp%\mongodb.conf --install --serviceName %name% --serviceDisplayName "MongoDB Server Instance %port%" --serviceDescription "MongoDB Server Instance running on %port%" --nojournal
 if "%ERRORLEVEL%"=="0" goto LOOP
 
 :ERROR

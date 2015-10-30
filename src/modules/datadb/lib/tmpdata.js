@@ -1,8 +1,7 @@
 (function(){
   'use strict';
   
-  // Global variables
-  var values_to_compare = 1; // number of last values in database to compare
+  //--- Variables --- //
   
   // Variables
   var mongoose = require('mongoose'),
@@ -11,19 +10,12 @@
       _        = require('underscore'),
       async    = require('async');
   
-  var DeviceModel = new Schema({
-    	id        : String, // Measuring Device ID
-      roomNr    : String, // Room Number
-      room      : String, // Room Type
-      kind      : String, // What is measured
-      method    : String, // Type of Measure
-      threshold : Schema.Types.Object, // Thresholds: {'from':null,'to':null}
-      isBoolean : Boolean, // true if Measure is boolean
-      unit      : String, // Measuring units
+  var TMPModel = new Schema({
+      id        : String, // Measuring Device ID
       values    : [{       // Measured Data
         x       : Date,   // Time of Measure
         y       : Number, // Measured Value
-        exceds  : Boolean // false = under the limit, 
+        exceeds  : Boolean // false = under the limit, 
                           // true = over the limit, 
                           // null = ok.
       }]
@@ -32,130 +24,10 @@
     { autoIndex: false } // http://mongoosejs.com/docs/guide.html
   );
   
-  DeviceModel.index( { "id": 1, "values.x": 1 } );
+  // Set the indexing
+  TMPModel.index( { "id": 1, "values.x" : 1 } );
   
-  var tmpModel;
-  
-  function createTmpDB(){
-    tmpModel = mongoose.model('tmp_'+(new Date()).getTime(), DeviceModel);
-  }
-  
-  DeviceModel.statics.updateTmpDB = function (callback) {
-    var oldTmp = tmpModel;
-    createTmpDB();
-    callback(oldTmp);
-  }
-  
-  // Functions
-  
-  /*
-   * Append new Document to the Collection
-   * newData - is a normal data-object
-   * The 'id' is unique property = there cannot be two objects with the same id
-   * ATTENSION!! 
-   *    By saving new object with id of existing item, you'll get the error!
-   *    to set new Properties of devise call function updateDevice()
-   *    
-   * Values never get overwritten or removed. They just getting appended.
-   * 
-   * e.g. append({id: "1", room: "room"});
-   */
-  DeviceModel.statics.append = function (newData, callback) {
-    if(newData === undefined) return;
-    /* model with unique name */
-    var tmpModel = mongoose.model('tmp_'+(new Date()).getTime(), DeviceModel);
-    var self = this;
-    if(!_.isArray(newData)){
-      return save(self, tmpModel, newData, function(err, appendedData){
-        // remove all elements == null
-        appendedData = appendedData.filter(function(n){ return n != undefined }); 
-        // fill the temporary model with data from current update
-        tmpModel.create(appendedData, function(err){
-          callback(err, appendedData, tmpModel);
-        });
-      });
-    }
-
-    async.map(newData, function(data, callback) {
-      if(data === undefined) return;
-      save(self, tmpModel, data, callback);
-    }, function(err, appendedData){
-      // remove all elements == null
-      appendedData = appendedData.filter(function(n){ return n != undefined });
-      if(err) return callback(err, appendedData);
-      // fill the temporary model with data from current update
-      tmpModel.create(appendedData, function(err){
-        callback(err, appendedData, tmpModel);
-      });
-    });
-  };
-  
-  /* Private function - append()'s helper */
-  function save(model, tmpModel, newData, callback){
-    
-    // divide newData on Values and Device properties
-    var newValues = newData.values;
-    delete newData.values;
-    if(newValues === undefined) newValues = {};
-    
-    model.aggregate([ // prevent data merging from other devices with same id
-      {'$match' : { id: newData.id }},
-      {'$unwind': "$values" },
-      {'$sort'  : { "values.x" : -1 }},
-      {'$limit' : values_to_compare },
-      {'$group' : { 
-        '_id'        : '$id', 
-        'values'     : { '$push': '$values' }
-      }}],
-      function(err, result){
-        if (err) return callback(err);
-        
-        //TODO compare properties (room, roomNr etc.)
-        
-        if(_.isEmpty(result)){ // nothing was found ( with model.aggregate() )
-          newData.values=newValues;
-          model.create(newData, callback);
-        } else { // device exists -> append the values
-          // build array of non existed values
-          var valuesDiff = _.filter(newValues, 
-            function(obj){ 
-              var ret = true;
-              result[0].values.forEach( //
-                function(value){
-                  if(_.isEqual(value.x, obj.x) && _.isEqual(value.y, obj.y) ){
-                    ret = false;
-                    return;
-                  }
-                }
-              )
-              return ret;
-            }
-          );
-          
-          if(_.isEmpty(valuesDiff)){
-            callback(err, null);
-          } else {
-            model.update(
-              // criteria
-              { id: newData.id },
-              // just append the new values
-              { $push: {values: {$each: valuesDiff} } },
-              function(err) {
-                
-                if (err) { return callback(err); }
-                
-                callback(err, 
-                  { id     : newData.id,
-                    values : valuesDiff
-                  }
-                );
-              }
-            );
-          }
-        }
-      }
-    );
-  }
+  //--- Functions --- //
   
   /*
    *                           !!! ATTENSION !!! 
@@ -203,7 +75,7 @@
    * or just call findData(callback);
    * 
    */
-  DeviceModel.statics.query = function (request, callback, options) {
+  TMPModel.statics.query = function (request, callback, options) {
     var self = this;
     if(!_.isArray(request)){
       return find(self, request, callback);
@@ -396,6 +268,6 @@
   };
   
   // Module exports
-  module.exports = mongoose.model('devicemodel', DeviceModel);
+  module.exports = TMPModel;
 
 })();

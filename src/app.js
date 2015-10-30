@@ -30,7 +30,7 @@ var // ASYNC <-- one callback for a lot of async operations
     //TODO mongoose lösung finden
     mongoose     = require('mongoose'),
     datadb       = require('./modules/datadb'),
-    datamodel    = datadb.devicedata,
+    datamodel    = datadb.storagemodel,
     dbcontroller = new datadb.controller(datamodel, {}),
     // The database
     db,
@@ -242,12 +242,11 @@ var dataFile = new dataHandler( {
                       );
                     },
                     function(err){
-                      mongoose.connection.db.dropCollection(tmpDB.modelName,
+                     mongoose.connection.db.dropCollection(tmpDB.modelName,
                           function(err, result) {
                             if(err){
                               console.log("app.js db Drop Error:")
                               console.log(err);
-                              console.log("data: "+appendedData);
                             }
                           }
                       );
