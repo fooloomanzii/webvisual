@@ -6,6 +6,8 @@
   // Global variables
   var values_to_compare = 1; // number of last values in database to compare
   var max_limit = 100;
+  var num_of_tmps = 15;
+  var cur_tmp = 0;
   
   // Dependencies
   var mongoose = require('mongoose'),
@@ -14,20 +16,6 @@
       _        = require('underscore'),
       async    = require('async'),
       tmpModel = require('./tmpdata.js');
-  
-  var DeviceModel = new Schema({
-    	id        : String, // Measuring Device ID
-      roomNr    : String, // Room Number
-      room      : String, // Room Type
-      kind      : String, // What is measured
-      method    : String, // Type of Measure
-      threshold : Schema.Types.Object, // Thresholds: {'from':null,'to':null}
-      isBoolean : Boolean, // true if Measure is boolean
-      unit      : String // Measuring units
-    }, 
-    // significant performance impact
-    { autoIndex: false } // http://mongoosejs.com/docs/guide.html
-  );
   
   var StorageModel = new Schema({      
       x       : Date,   // Time of Measure
@@ -41,7 +29,6 @@
   );
   
   // Set the indexing
-  DeviceModel.index( { "id": 1 } );
   StorageModel.index( { "x": 1 } );
   
   // --- Functions --- //
@@ -61,7 +48,9 @@
   function append(newData, callback) {
     if(newData === undefined) return;
     /* model with unique name */
-    var tmpDB = mongoose.model('_tmp_'+(new Date()).getTime(), tmpModel);
+    var tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel);
+    cur_tmp = (cur_tmp + 1) % num_of_tmps;
+    
     var self = this;
     if(!_.isArray(newData)){
       return save(newData, function(err, appendedData){

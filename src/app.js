@@ -242,14 +242,7 @@ var dataFile = new dataHandler( {
                       );
                     },
                     function(err){
-                     mongoose.connection.db.dropCollection(tmpDB.modelName,
-                          function(err, result) {
-                            if(err){
-                              console.log("app.js db Drop Error:")
-                              console.log(err);
-                            }
-                          }
-                      );
+                     //do anything after all clients got the data
                     }
                 );
               }

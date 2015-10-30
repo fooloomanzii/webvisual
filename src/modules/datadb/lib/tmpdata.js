@@ -169,6 +169,7 @@
     if(time !== undefined || limit){
       query.push(
         // Unwind the 'inventories' array
+        // TODO crashes the server in worst case (if to much new data!)
         {'$unwind' : '$values'}
       );
       if(time !== undefined){
