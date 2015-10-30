@@ -100,7 +100,7 @@
         );
       }, function(err){
         // remove nulls = removed values
-        newValues.filter(function(val) { return val !== null; }).join(", ");
+        newValues = newValues.filter(function(val) { return val; });
         
         if(_.isEmpty(newValues)){
           callback(null, null);
