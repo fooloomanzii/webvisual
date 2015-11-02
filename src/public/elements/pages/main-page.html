@@ -167,10 +167,11 @@
     }
     logo-element {
       position: fixed;
-      top: 10px;
-      left: 76px;
-      height: 44px;
       color: #f1f1f1;
+      height: 44px;
+      top: 10px;
+      bottom: auto;
+      left: 76px;
       z-index: 10;
     }
   </style>
@@ -397,7 +398,7 @@
     Polymer({
       is: 'main-page',
 
-      behaviors: [PageBehavior, DataBehavior, LanguageBehavior, Polymer.NeonSharedElementAnimatableBehavior],
+      behaviors: [PageBehavior, DataBehavior, Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
         sharedElements: {

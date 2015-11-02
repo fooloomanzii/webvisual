@@ -12,6 +12,28 @@
         timeFormat: {
           type: String,
           value: "HH:mm:ss"
+        },
+        lastExceedsStyle: {
+          type: Object,
+          value: function() {
+            return {
+              "true":  "background: rgb(255, 21, 41); color: #f1f1f1;",
+              "false": "background: rgb(255, 20, 110); color: #f1f1f1;",
+              "none":  "background: rgb(0, 202, 53); color: #f1f1f1;",
+              "undef": "background: rgba(236, 249, 97); color: #1f1f1f;"
+            };
+          }
+        },
+        exceedsStyle: {
+          type: Object,
+          value: function() {
+            return {
+              "true":  "background: rgb(255, 21, 41); color: #f1f1f1;",
+              "false": "background: rgb(255, 20, 110); color: #f1f1f1;",
+              "none":  "background: rgb(0, 202, 53); color: #f1f1f1;",
+              "undef": "background: rgba(236, 249, 97); color: #1f1f1f;"
+            };
+          }
         }
     },
 
@@ -28,7 +50,7 @@
     computeX: function(change, index){
       if (change.base && change.base.length != 0){
         var date = this.get('x', change.base[index]);
-        if((date !== undefined) && (date != "")){
+        if(date){
           return $.format.toBrowserTimeZone(date,this.timeFormat);
         }
         else
@@ -55,50 +77,56 @@
       }
     },
     computeStyle: function(change, index){
-      if (change.base && change.base.length != 0){
+      if (change.base && change.base.length != 0 && this.exceedsStyle){
         var exceeds = this.get('exceeds', change.base[index]);
         if(exceeds == true)
-          return "background: rgb(255, 21, 41); color: #f1f1f1;";
+          return this.exceedsStyle.true;
         else if(exceeds == false)
-          return "background: rgb(255, 20, 110); color: #f1f1f1;";
+          return this.exceedsStyle.false;
         else if(exceeds == null)
-          return "background: rgb(0, 202, 53); color: #f1f1f1;";
+          return this.exceedsStyle.none;
         else if(exceeds === undefined)
-          return "background: rgba(236, 249, 97); color: #1f1f1f;";
+          return this.exceedsStyle.undef;
       }
     },
 
     computeLastExceedsX: function(){
-      var date = this.element.lastExceeds.x;
-      if(date !== undefined)
-        return $.format.toBrowserTimeZone(date,this.timeFormat);
+      if (this.element && this.element.lastExceeds && this.element.lastExceeds.x) {
+        var date = this.element.lastExceeds.x;
+        if(date !== undefined)
+          return $.format.toBrowserTimeZone(date,this.timeFormat);
+      }
     },
 
     computeLastExceedsY: function(){
-      var value = this.element.lastExceeds.y;
-      var exceeds = this.element.lastExceeds.exceeds;
-      if (value !== undefined) {
-        if (this.element.isBoolean){
-          if (exceeds==true || exceeds==false)
-            return "✗";
+      if (this.element && this.element.lastExceeds && this.element.lastExceeds.y && this.element.lastExceeds.exceeds) {
+        var value = this.element.lastExceeds.y;
+        var exceeds = this.element.lastExceeds.exceeds;
+        if (value !== undefined) {
+          if (this.element.isBoolean){
+            if (exceeds==true || exceeds==false)
+              return "✗";
+            else
+              return "✓";
+          }
           else
-            return "✓";
+            return value;
         }
-        else
-          return value;
       }
     },
 
     computeLastExceedsStyle: function(){
-      var exceeds = this.element.lastExceeds.exceeds;
-      if(exceeds == true)
-        return "background: rgb(255, 21, 41); color: #f1f1f1;";
-      else if(exceeds == false)
-        return "background: rgb(255, 20, 110); color: #f1f1f1;";
-      else if(exceeds == null)
-        return "background: rgb(0, 202, 53); color: #f1f1f1;";
-      else if(exceeds === undefined)
-        return "background: rgba(236, 249, 97); color: #1f1f1f;";
+      if (this.element && this.element.lastExceeds && this.element.lastExceeds.exceeds && this.lastExceedsStyle) {
+        var exceeds = this.element.lastExceeds.exceeds;
+        if(exceeds == true)
+          return this.lastExceedsStyle.true;
+        else if(exceeds == false)
+          return this.lastExceedsStyle.false;
+        else if(exceeds == null)
+          return this.lastExceedsStyle.none;
+      }
+      else
+        return this.lastExceedsStyle.undef;
     }
 
   };

@@ -21,7 +21,7 @@
     :host[opened]{
       height: auto;
     }
-    #mainContent {
+    section#mainContent {
       display: flex;
       flex-direction: column;
       margin: 0em;
@@ -29,11 +29,11 @@
       background: #005B82;
       color: #f1f1f1;
     }
-    #mainContent[dark] {
+    section#mainContent[dark] {
       background: #345475;
       color: #A8CCDB;
     }
-    #header {
+    section#header {
       height: 44px;
       width: calc(100% - 16px);
       padding: 10px 8px;
@@ -41,7 +41,7 @@
       flex-direction: row;
       align-items: center;
     }
-    #lower {
+    section#lower {
       max-height: 128px;
       overflow: hidden !important;
       padding: 0.5em;
@@ -50,11 +50,11 @@
       align-items: stretch;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
     }
-    #header ::content paper-icon-button {
+    section#header ::content paper-icon-button {
       margin: 0px 8px;
       transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    #header ::content paper-icon-button:hover {
+    section#header ::content paper-icon-button:hover {
       background: #669DB4;
       color: #f1f1f1;
       border-radius: 50%;
@@ -62,24 +62,56 @@
                   0 1px 5px 0 rgba(0, 0, 0, 0.12),
                   0 3px 1px -2px rgba(0, 0, 0, 0.2);
     }
-    #lower ::content .card {
+    section#lower ::content .card {
       display: flex;
       flex-wrap: wrap;
       border: this solid #252D36;
     }
-    #lower ::content sign-element {
+    section#lower ::content sign-element {
       height: auto;
     }
-    #lower ::content table-element {
+    section#lower ::content table-element {
       height: 7em;
     }
-    #lower ::content .caption {
+    section#lower ::content .caption {
       padding: 1em 0.7em;
     }
-    @media all and (min-width: 800px) {
-      #lower ::content .card {
+    section#selSign {
+      display: flex;
+      flex-direction: row;
+    }
+    @media all and (max-width: 400px) {
+      section#lower ::content .card {
         display: flex;
         flex-direction: row;
+      }
+      section#lower {
+        font-size: 0.9em;
+        max-height: 104px;
+      }
+    }
+    @media all and (min-width: 400px) and (max-width: 600px) {
+      section#lower {
+        font-size: 1em;
+        max-height: 128px;
+      }
+    }
+    @media all and (min-width: 600px) and (max-width: 1000px) {
+      section#lower {
+        font-size: 1.1em;
+        max-height: 192px;
+      }
+    }
+    @media all and (min-width: 1001px) and (max-width: 1400px) {
+      section#lower {
+        font-size: 1.15em;
+        max-height: 224px;
+      }
+    }
+    @media all and (min-width: 1401px) {
+      section#lower {
+        font-size: 1.2em;
+        max-height: 272px;
       }
     }
     .flex {
@@ -99,7 +131,10 @@
         </section>
       </section>
       <section id="lower">
-        <content id="sign" select="#selectedElementSign,#selectedElementCaption,#selectedElementTable"></content>
+        <section id="selSign">
+          <content id="sign" select="#selectedElementSign,#selectedElementCaption"></content>
+        </section>
+        <content id="table" select="#selectedElementTable"></content>
       </section>
     </section>
 
@@ -119,7 +154,9 @@
     ],
 
     attached: function() {
-      var nodes = Polymer.dom(this.$.sign).getDistributedNodes();
+      var nodeSign  = Polymer.dom(this.$.sign).getDistributedNodes();
+      var nodeTable = Polymer.dom(this.$.table).getDistributedNodes();
+      var nodes = nodeSign.concat(nodeTable);
       this.animationConfig.in[0].nodes = Array.prototype.slice.call(nodes);
       this.animationConfig.out[0].nodes = Array.prototype.slice.call(nodes);
     },
@@ -138,7 +175,7 @@
               {
                 name: 'cascaded-animation',
                 animation: 'scale-up-animation',
-                nodeDelay: 50
+                nodeDelay: 80
               }
             ],
             'out': [
@@ -147,7 +184,7 @@
                 animation: 'transform-animation',
                 transformFrom: 'none',
                 transformTo: 'translateX(-500%)',
-                nodeDelay: 50
+                nodeDelay: 1
               }
             ]
           };

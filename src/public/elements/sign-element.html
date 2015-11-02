@@ -51,7 +51,7 @@
       font-size: 0.8em;
     }
     .dateSection {
-      font-family: Roboto-Condensed-Light-Italic;
+      font-family: Roboto-Condensed-Light;
       font-size: 0.6em;
       color: #5a5a5a;
     }
@@ -64,7 +64,7 @@
       line-height: 1em;
     }
     .exceedsDateSection {
-      font-family: Roboto-Condensed-Light-Italic;
+      font-family: Roboto-Condensed-Light;
       font-size: 0.75em;
     }
     .exceedsValueSection {
@@ -108,7 +108,7 @@
             <span class="exceedsDateSection">{{computeLastExceedsX()}}</span><span class="exceedsValueSection">{{computeLastExceedsY()}}<span> </span><span>{{element.unit}}</span></span>
           </template>
           <template is="dom-if" if="{{!element.lastExceeds}}" restamp>
-            <span class="dateSection" on-click="clickit">{{computeX(element.values.*,0)}}</span>
+            <span class="dateSection">{{computeX(element.values.*,0)}}</span>
           </template>
         </template>
         <template is="dom-if" if="{{!showExceeds}}" restamp>
