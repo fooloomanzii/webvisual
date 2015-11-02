@@ -30,7 +30,7 @@ var // ASYNC <-- one callback for a lot of async operations
     //TODO mongoose lösung finden
     mongoose     = require('mongoose'),
     datadb       = require('./modules/datadb'),
-    datamodel    = datadb.storagemodel,
+    datamodel    = datadb.devicemodel,
     dbcontroller = new datadb.controller(datamodel, {}),
     // The database
     db,

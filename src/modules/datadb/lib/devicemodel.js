@@ -3,6 +3,11 @@
   
   // --- Variables --- //
   
+  // Important DB Collection Names (!! please remove renamed collections !!)
+  var devicelistDB_name = "devices"; // list of devices
+  var tmpDB_prefix = "tmp_"; // prefix to tmpDB id
+  var deviceDB_prefix = "device_"; // prefix to device id
+  
   // Global variables
   var values_to_compare = 1; // number of last values in database to compare
   var max_limit = 100; // maximal limit of values for one device to query
@@ -17,6 +22,14 @@
       async    = require('async'),
       tmpModel = require('./tmpdata.js');
   
+  var DeviceModel = new Schema({
+      id        : String, // Measuring Device ID
+      storage   : String  // Name of the Collection with Device values
+    }, 
+    // significant performance impact
+    { autoIndex: false } // http://mongoosejs.com/docs/guide.html
+  );
+  
   var StorageModel = new Schema({      
       x       : Date,   // Time of Measure
       y       : Number, // Measured Value
@@ -29,6 +42,7 @@
   );
   
   // Set the indexing
+  DeviceModel.index( { "id": 1 } );
   StorageModel.index( { "x": 1 } );
   
   // --- Functions --- //
@@ -45,15 +59,15 @@
    * 
    * e.g. append({id: "1", room: "room"});
    */
-  function append(newData, callback) {
+  DeviceModel.statics.append = function (newData, callback) {
     if(newData === undefined) return;
-    /* model with unique name */
-    var tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel);
+    /* switch current tmp */
+    var tmpDB = mongoose.model(tmpDB_prefix + cur_tmp, tmpModel);
     cur_tmp = (cur_tmp + 1) % num_of_tmps;
     
     var self = this;
     if(!_.isArray(newData)){
-      return save(newData, function(err, appendedData){
+      return save(self, newData, function(err, appendedData){
         // remove all elements == null
         appendedData = appendedData.filter(function(n){ return n != undefined }); 
         // fill the temporary model with data from current update
@@ -65,7 +79,7 @@
 
     async.map(newData, function(data, callback) {
       if(data === undefined) return;
-      save(data, callback);
+      save(self, data, callback);
     }, function(err, appendedData){
       // remove all elements == null
       appendedData = appendedData.filter(function(n){ return n != undefined });
@@ -78,45 +92,72 @@
   };
   
   /* Private function - append()'s helper */
-  function save(newData, callback){
+  function save(model, newData, callback){
+    var isError = false;
     // divide newData on Values and Device properties
     var newValues = newData.values;
+    delete newData.values;
     if(newValues === undefined) newValues = {};
     
     // open values collection or create new one
-    var storage = mongoose.model('device_'+newData.id, StorageModel);
-    
-    //TODO prevent data merging from other devices with same id
-    
-    // build array of non existed values
-    async.forEachOf(newValues, function(value, pos, callback){
-        storage.findOne({'x':value.x, 'y':value.y},
-          function(err, result){
-            if (err) return callback(err);
-            // something found => value exists
-            if(!_.isEmpty(result)) newValues[pos]=null;
-            callback();
-          }
-        );
-      }, function(err){
-        // remove nulls = removed values
-        newValues = newValues.filter(function(val) { return val; });
+    model.findOne({'id':newData.id}, 
+      function(err, result){
+        if(err){ 
+          console.warn("Somee DB Error by search for device!");
+          console.warn(err.stack);
+          return;
+        }
         
-        if(_.isEmpty(newValues)){
-          callback(null, null);
-        } else {
-          storage.create(newValues,
-            function(err) {
-              if (err) { return callback(err); }
-              
-              callback( null, 
-                { id     : newData.id.toLowerCase(),
-                  values : newValues
+        var storage;
+        if(result && result.storage){ // the device is in the list
+          storage = mongoose.model(result.storage, StorageModel);
+        } else { // write device to the list
+          // create new collection of values and save it by device description
+          newData.storage = deviceDB_prefix + newData.id;
+          model.update({'id':newData.id}, newData, {upsert: true},
+             function(err) {
+              if (err) { 
+                console.warn("Device can't be written to the list!");
+                console.warn(err.stack);
+              }
+            }
+          );
+          storage = mongoose.model(newData.storage, StorageModel);
+        }
+        
+        //TODO allow to change device description
+        
+        // build array of non existed values
+        async.forEachOf(newValues, function(value, pos, callback){
+            storage.findOne({'x':value.x, 'y':value.y},
+              function(err, result){
+                if (err) return callback(err);
+                // something found => value exists
+                if(!_.isEmpty(result)) newValues[pos]=null;
+                callback();
+              }
+            );
+          }, function(err){
+            // remove nulls = removed values
+            newValues = newValues.filter(function(val) { return val; });
+            
+            if(_.isEmpty(newValues)){
+              callback(null, null);
+            } else {
+              storage.create(newValues,
+                function(err) {
+                  if (err) { return callback(err); }
+                  
+                  callback( null, 
+                    { id     : newData.id.toLowerCase(),
+                      values : newValues
+                    }
+                  );
                 }
               );
             }
-          );
-        }
+          }
+        );
       }
     );
   }
@@ -168,10 +209,10 @@
    * or just call findData(callback);
    * 
    */
-  function query(request, callback, options) {
+  DeviceModel.statics.query = function(request, callback, options) {
     var self = this;
     if(!_.isArray(request)){
-      return find(request, callback);
+      return find(self, request, callback);
     }
     
     var sort;
@@ -185,7 +226,7 @@
     }
 
     async.map(request, function(query, done) {
-      find(query, done);
+      find(self, query, done);
     }, function(err, result){
       for(var i in result){
         result[i]=result[i][0];
@@ -197,7 +238,7 @@
   };
   
   /* Private function - query()'s helper */
-  function find(request, callback) {
+  function find(model, request, callback) {
     if(!request) request = {};
     if(_.isFunction(request)){
       callback = request;
@@ -262,33 +303,25 @@
       sort = {'id' : 1}; // default sort
     }
     
-    mongoose.connection.db.listCollections().toArray(function(err, names) {
-      var devices = names.map(function(name){
-        var id = name.name.match(/^device_(.*?)$/);
-        if(!id) return null;
-        if(request.query && request.query.id){
-          if(_.indexOf(request.query.id, id[1]) > -1){
-            name.id = id[1];
-            return name;
-          } else {
-            return null;
-          }
-        } else {
-          name.id = id[1];
-          return name;
-        }
-      });
-      
-      // remove nulls = removed devices
-      devices = devices.filter(function(val) { return val; });
-      
-      async.map(devices, function(name, done){
-        var device = mongoose.model(name.name, StorageModel);
+    var device_query = request.query;
+    
+    if(device_query === undefined){ // if no query, search for everything
+      device_query = {};
+    }
+    
+    model.find(device_query, function(err, devices) {
+      if(err){
+        console.warn("Error by searching for devices!");
+        console.warn(err.stack);
+        return;
+      }
+      async.map(devices, function(device, done){
+        var values_collection = mongoose.model(device.storage, StorageModel);
         var query;
         if(time !== undefined){
-          query = device.find({ 'x': time });
+          query = values_collection.find({ 'x': time });
         } else {
-          query = device.find({});
+          query = values_collection.find({});
         }
         
         // limit the query
@@ -307,7 +340,7 @@
           // sort ascending by date
           if( limit < 0 ) _.sortBy(values, function(obj){ return obj.x; });
           
-          done(null, {'id':name.id, 'values': values});
+          done(null, {'id':device.id, 'values': values});
         });
       }, function(err, result){
         if(err) callback(err);
@@ -319,9 +352,6 @@
   };
   
   // Module exports
-  module.exports = {
-    'append': append,
-    'query' : query
-  };
+  module.exports = mongoose.model(devicelistDB_name, DeviceModel);
 
 })();
