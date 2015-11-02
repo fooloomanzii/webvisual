@@ -193,7 +193,7 @@
     },
 
     handleTrack: function(e) {
-      if (this.opened && (e.detail.state == 'end') && e.detail.dy < 0)
+      if (e.target == this.$.lower && this.opened && (e.detail.state == 'end') && e.detail.dy < 0)
         this.fire('deselect');
     }
 
