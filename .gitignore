@@ -34,4 +34,7 @@ src/**/demo/
 # Mail login #
 src/config/mail.json
 
+# SSL (Https Certificate) #
+src/ssl/*
+
 *.prefs
