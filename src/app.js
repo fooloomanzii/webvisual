@@ -216,6 +216,7 @@ var dataFile = new dataHandler( {
                 if(!tmpDB) return;
                 async.each(clients, 
                     function(client, callback){
+                      if(!client.hasFirst) return callback();
                       dbcontroller.getUpdate(tmpDB,
                         client.appendPattern,
                         function (err, data) {
@@ -278,6 +279,7 @@ dataSocket.on('connection', function(socket) {
         socket.emit('first', message);
 
         // append the client to array after sending first message
+        current_client.hasFirst=true;
         clients[socket.id] = current_client;
       }
     );

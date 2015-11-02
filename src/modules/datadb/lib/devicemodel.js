@@ -149,7 +149,7 @@
                   if (err) { return callback(err); }
                   
                   callback( null, 
-                    { id     : newData.id.toLowerCase(),
+                    { id     : newData.id,
                       values : newValues
                     }
                   );
