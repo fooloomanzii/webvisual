@@ -85,6 +85,11 @@
             type: Number,
             value: this.maxTotalLines
           },
+          interval: {
+            type: Number,
+            value: 0,
+            notify: true
+          },
           doAppend: {
             type: Boolean,
             value: true,
@@ -93,11 +98,6 @@
           newestDataLast: {
             type: Boolean,
             value: false,
-            notify: true
-          },
-          interval: {
-            type: Number,
-            value: 2000,
             notify: true
           }
       },
