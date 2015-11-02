@@ -4,10 +4,9 @@
     "file": {
       "copy": false,
       "mode": "all",
-      "path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
-      "#path_folder": "",
-      "path": "HNF_Datafile.txt",
-      "#path": "data2.txt"
+      "#path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
+      "path_folder": "",
+      "path": "HNF_Datafile.txt"
       },
     "udp": {
       "log": false,
@@ -45,7 +44,7 @@
       {"id":"DI3-1", "roomNr":"3005", "room":"Bypack", "kind":"H₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
       {"id":"DI4-1", "roomNr":"4006", "room":"Reinraum", "kind":"H₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
       {"id":"DI5-1", "roomNr":"4006", "room":"Reinraum", "kind":"H₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI6-1", "roomNr":"2032 3005 4006", "room":"diverse", "kind":"H₂", "method":"Störung", "isBoolean": true, "threshold": {"from":0,"to":0}},
+      {"id":"DI6-1", "roomNr":"2032 3005 4006", "room":"Diverse", "kind":"H₂", "method":"Störung", "isBoolean": true, "threshold": {"from":0,"to":0}},
       {"id":"DI7-1", "method":"Reserve", "isBoolean": true},
 
       {"id":"DI0-2", "method":"Gerätefehler", "isBoolean": true, "threshold": {"from":0,"to":0}},

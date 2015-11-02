@@ -17,14 +17,14 @@
               return {  "firstPattern": {
                           "query": {},
                           "time": {
-                            "from": "2015-10-28 18:30:00"
+                            "from": ""
                           },
                           "limit": -10
                         },
                         "appendPattern": {
                           "query": {},
                           "time": {
-                            "from": "2015-01-01"
+                            "from": "2015-11-01"
                           },
                           "limit": -1
                         }};
@@ -92,7 +92,7 @@
           },
           newestDataLast: {
             type: Boolean,
-            value: true,
+            value: false,
             notify: true
           },
           interval: {
@@ -189,10 +189,8 @@
           for (var i in message.content) { // for all messurement-data-alements existing
             this._setValues(message.content[i],this._getIndex(message.content[i].id));
           }
-          var t = new Date();
           if (oldLen < message.content.length)
             this._implGroups(); // regrouping if a longer content noticed
-          console.log("grouping "+ (t - new Date()));
         }
       },
 

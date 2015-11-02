@@ -13,6 +13,7 @@
   <link rel="import" href="elements/data-socket-repeater.html"/>
 </head>
 <dom-module id="pages-element">
+  <link href="css/index.css" type="text/css" rel="stylesheet"/>
   <style>
     :host {
       height: 100%;
@@ -24,7 +25,7 @@
     }
   </style>
   <template>
-    <neon-animated-pages id="pages" selected="0" animate-initial-selection>
+    <neon-animated-pages id="pages" animate-initial-selection>
       <loading-page id="loadPage" status="{{status}}"></loading-page>
       <main-page id="mainPage" class="element-page" data="{{data}}" groups="{{groups}}"
         selected-group="{{selectedGroup}}" selected-element="{{selectedElement}}"></main-page>
@@ -35,10 +36,12 @@
     </data-socket-repeater>
   </template>
   <script>
-    HTMLImports.whenReady(function() {
+    window.addEventListener('WebComponentsReady', function(e) {
       Polymer({
         is: 'pages-element',
         attached: function(){
+          this.$.pages.set('selected', '0');
+          // this.$.loadPage.playAnimation('entry');
           this.start = new Date();
         },
         _onLoaded: function() {
@@ -46,12 +49,12 @@
           var self = this;
           var wait = new Date() - this.start;
           this.set("status.time.lastStatus",new Date()); this.set("status.message", "loading...");
-          wait = (wait < 4000) ? 4000 - wait : 0;
+          wait = (wait < 3500) ? 3500 - wait : 0;
           console.log(wait);
           this.async(function() {
             // this is a bug in webanimations and and animations with intervall
             self.$.loadPage.cancelAnimation();
-            self.$.pages.selected = 1;
+            this.$.pages.set('selected', '1');
           },wait);
         }});
       });

@@ -1,6 +1,3 @@
-<link rel="import" href="../components/polymer/polymer.html">
-<link rel="import" href="behaviors/element-behavior.html">
-
 <dom-module id="main-toolbar">
   <style is="costum-style">
     :host {
@@ -16,14 +13,13 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       -webkit-tap-highlight-color:rgba(0,0,0,0);
-      transition: height 0.18s ease-in;
       margin: 0em;
       padding: 0em;
       height: 64px;
-      max-height: 40vh;
+      max-height: 48vh;
     }
     :host[opened]{
-      height: 30vh;
+      height: auto;
     }
     #mainContent {
       display: flex;
@@ -32,7 +28,6 @@
       padding: 0em;
       background: #005B82;
       color: #f1f1f1;
-      height: 100%;
     }
     #mainContent[dark] {
       background: #345475;
@@ -47,22 +42,13 @@
       align-items: center;
     }
     #lower {
+      max-height: 128px;
       overflow: hidden !important;
-      box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
-      padding: 0px;
-      width: 100%;
-      height: calc(100% - 64px);
+      padding: 0.5em;
       display: flex;
       flex-direction: row;
       align-items: stretch;
-      background: #f1f1f1;
-    }
-    #lower[dark]{
-      background: #8A8A8A;
-    }
-    #header ::content logo-element {
-      margin-left: 8px;
-      height: 100%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
     }
     #header ::content paper-icon-button {
       margin: 0px 8px;
@@ -76,8 +62,25 @@
                   0 1px 5px 0 rgba(0, 0, 0, 0.12),
                   0 3px 1px -2px rgba(0, 0, 0, 0.2);
     }
-    #lower ::content sign-element > * {
-      height: 100%;
+    #lower ::content .card {
+      display: flex;
+      flex-wrap: wrap;
+      border: this solid #252D36;
+    }
+    #lower ::content sign-element {
+      height: auto;
+    }
+    #lower ::content table-element {
+      height: 7em;
+    }
+    #lower ::content .caption {
+      padding: 1em 0.7em;
+    }
+    @media all and (min-width: 800px) {
+      #lower ::content .card {
+        display: flex;
+        flex-direction: row;
+      }
     }
     .flex {
       -ms-flex: 1;
@@ -87,15 +90,16 @@
   </style>
   <template>
 
-    <section id="mainContent">
+    <section id="mainContent" on-track="handleTrack">
       <section id="header">
         <content select=".header"></content>
         <div class="flex"></div>
-        <content select=".tabs"></content>
-        <content select=".icon-toggle"></content>
+        <section hidden="{{!opened}}">
+          <content select=".toggle-icon"></content>
+        </section>
       </section>
       <section id="lower">
-        <content select=".lower"></content>
+        <content id="sign" select="#selectedElementSign,#selectedElementCaption,#selectedElementTable"></content>
       </section>
     </section>
 
@@ -110,7 +114,15 @@
       'role': 'toolbar'
     },
 
-    behaviors: [ElementBehavior, Polymer.NeonAnimationRunnerBehavior],
+    behaviors: [
+      Polymer.NeonAnimationRunnerBehavior
+    ],
+
+    attached: function() {
+      var nodes = Polymer.dom(this.$.sign).getDistributedNodes();
+      this.animationConfig.in[0].nodes = Array.prototype.slice.call(nodes);
+      this.animationConfig.out[0].nodes = Array.prototype.slice.call(nodes);
+    },
 
     properties: {
       opened: {
@@ -119,16 +131,35 @@
         reflectToAttribute: true
       },
       animationConfig: {
+        type: Object,
         value: function() {
           return {
-            'entry': [
-              {name: 'fade-in-animation', node: this},
-              {animatable: this.$.header, type: 'entry'}
+            'in': [
+              {
+                name: 'cascaded-animation',
+                animation: 'scale-up-animation',
+                nodeDelay: 50
+              }
+            ],
+            'out': [
+              {
+                name: 'cascaded-animation',
+                animation: 'transform-animation',
+                transformFrom: 'none',
+                transformTo: 'translateX(-500%)',
+                nodeDelay: 50
+              }
             ]
-          }
+          };
         }
       }
+    },
+
+    handleTrack: function(e) {
+      if (this.opened && (e.detail.state == 'end') && e.detail.dy < 0)
+        this.fire('deselect');
     }
+
   });
   </script>
 </dom-module>

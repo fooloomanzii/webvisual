@@ -14,27 +14,24 @@
 
     configure: function(config) {
       var node = config.node;
-      var fromProperty = config.from || node.offsetHeight;
+      var fromProperty = node.offsetHeight;
+      var to = config.to;
 
       if (!config.timing) {
         config.timing = {
-          duration: 180,
-          easing: "linear",
+          duration: 500,
+          easing: "ease",
           fill: "both"
         }
       }
 
       this._effect = new KeyframeEffect(node, [
         {'height': fromProperty},
-        {'height': config.height}
+        {'height': to}
       ], this.timingFromConfig(config));
 
       return this._effect;
-    },
-
-    complete: function(config) {
     }
-
   });
 
 </script>
