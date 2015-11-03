@@ -103,7 +103,7 @@
     model.findOne({'id':newData.id}, 
       function(err, result){
         if(err){ 
-          console.warn("Somee DB Error by search for device!");
+          console.warn("Some DB Error by search for device!");
           console.warn(err.stack);
           return;
         }
@@ -129,11 +129,11 @@
         
         // build array of non existed values
         async.forEachOf(newValues, function(value, pos, callback){
-            storage.find({'x':value.x, 'y':value.y}).limit(1).exec( 
+            storage.find().sort({'x':-1}).limit(1).exec( 
               function(err, result){
                 if (err) return callback(err);
                 // something found => value exists
-                if(!_.isEmpty(result)) newValues[pos]=null;
+                if(_.isEqual(result[0], value)) newValues[pos]=null;
                 callback();
               }
             );
@@ -300,7 +300,7 @@
     if(request.sort){
       sort = request.sort;
     } else {
-      sort = {'id' : 1}; // default sort
+      sort = { 'id' : 1 }; // default sort
     }
     
     var device_query = request.query;
