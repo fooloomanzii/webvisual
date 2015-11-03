@@ -20,12 +20,24 @@
       color: #f1f1f1;
       border-radius: 4px 5px 0px 0px;
       padding: 0.5em 1em 0.5em 0.5em;
+      border: thin solid transparent;
+    }
+
+    paper-button:hover {
+      border: thin solid rgba(140, 140, 140, 0.5);
+      border-bottom: thin solid rgba(90, 90, 90, 0.5);
     }
 
     paper-button[dark] {
       background: #345475;
       color: #A8CCDB;
     }
+
+    paper-button[dark]:hover {
+      border: thin solid rgba(80, 80, 80, 0.5);
+      border-bottom: thin solid rgba(30, 30, 30, 0.5);
+    }
+
 
     #outer {
       background: #f1f1f1;
@@ -34,6 +46,11 @@
       box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
                   0 1px 10px 0 rgba(0, 0, 0, 0.12),
                   0 2px 4px -1px rgba(0, 0, 0, 0.4);
+    }
+    #outer:hover {
+      box-shadow: 0 5px 6px 0 rgba(0, 0, 0, 0.14),
+                  0 2px 11px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 5px -2px rgba(0, 0, 0, 0.4);
     }
     #outer[dark] {
       background: #8A8A8A;

@@ -11,8 +11,15 @@ paper-item iron-icon {
   margin-right: 1em;
   min-width: 1.5em;
 }
+paper-button: {
+  transition: none;
+}
 paper-button.sidemenu {
   padding: 1.25em 0.75em;
+}
+paper-button.sidemenu:hover {
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 5%,rgba(0,0,0,0.08) 40%);
+  box-shadow: 0 1px 1px rgba(200, 200, 200, 0.2) inset,0 -1px 1px rgba(210, 210, 210,0.1) inset,0 1px 0px rgba(200, 200, 200,0.2) inset;
 }
 paper-button iron-icon.right-icon{
   margin: 0em;
@@ -22,7 +29,6 @@ paper-button iron-icon.right-icon{
 paper-button iron-icon.right-icon:hover{
   background: rgba(255,255,255, 0.75);
 }
-
 paper-button .content{
   display: flex;
   justify-content: flex-start;
