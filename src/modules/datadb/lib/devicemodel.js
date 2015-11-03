@@ -128,8 +128,8 @@
         //TODO allow to change device description
         
         // build array of non existed values
-        async.forEachOf(newValues, function(value, pos, callback){
-            storage.find({'x' : value.x }, 
+        /*async.forEachOf(newValues, function(value, pos, callback){
+            storage.find({ 'x' : value.x }, 
               function(err, result){
                 if (err) return callback(err);
                 // something found => value exists
@@ -147,7 +147,7 @@
           }, function(err){
             // remove nulls = removed values
             newValues = newValues.filter(function(val) { return val; });
-            
+            */
             if(_.isEmpty(newValues)){
               callback(null, null);
             } else {
@@ -163,8 +163,8 @@
                 }
               );
             }
-          }
-        );
+          //}
+        //);
       }
     );
   }
