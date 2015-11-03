@@ -90,7 +90,7 @@
     }
   </style>
   <template>
-    <section id="mainContent" style$="{{computeStyle(element.values.*,0)}}">
+    <section id="mainContent" style$="{{computeStyle(element.values.*,0)}}" dark$="[[dark]]">
       <paper-ripple id="ripple" recenters opacity-decay-velocity="1.2"></paper-ripple>
 
       <section class="actualValueSection">
@@ -129,6 +129,12 @@
           showExceeds: {
             type: Boolean,
             value: true,
+            notify: true
+          },
+          dark: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true,
             notify: true
           }
       }

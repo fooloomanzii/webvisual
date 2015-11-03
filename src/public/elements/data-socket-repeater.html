@@ -310,6 +310,8 @@
             }
           }
         }
+        if (!this.groups.all[0].name)
+          this.groups.all[0].name = 'all';
       },
 
       _maxTotalLinesChanged: function(newValue, oldValue) {

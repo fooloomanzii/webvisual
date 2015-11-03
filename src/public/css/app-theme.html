@@ -105,11 +105,10 @@
         min-height: none;
         margin: 0em;
         padding: 0.5em 1em;
+        justify-content: space-between;
+        align-items: center;
         background: var(--default-button-color);
         color: currentColor;
-        text-align: left;
-        text-transform: none;
-        font-weight: normal;
         font-family: Roboto;
         cursor: pointer;
         -webkit-user-select: none;
@@ -146,13 +145,6 @@
         -webkit-touch-callout: none;
         -webkit-tap-highlight-color:rgba(0,0,0,0);
         transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
-        };
-
-    --paper-menu: {
-        font-family: Roboto;
-        margin: 0em;
-        padding: 0em;
-        background: none;
         };
 
     --paper-tabs: {
@@ -268,16 +260,6 @@ paper-icon-button:hover {
 }
 paper-icon-button[dark]:hover {
   color: #f1f1f1;
-}
-
-paper-toggle-button#colorschema {
-  --paper-toggle-button-checked-bar-color: #000000;
-  --paper-toggle-button-checked-button-color: #404388;
-  --paper-toggle-button-checked-ink-color: #404388;
-  --paper-toggle-button-unchecked-bar-color: #838383;
-  --paper-toggle-button-unchecked-button-color: #ffffff;
-  --paper-toggle-button-unchecked-ink-color: #404388;
-  padding: 0em;
 }
 
 .iron-selected {
