@@ -125,46 +125,23 @@
           storage = mongoose.model(newData.storage, StorageModel);
         }
         
-        //TODO allow to change device description
+        //TODO somehow CPU efficient check for identical values in database
         
-        // build array of non existed values
-        /*async.forEachOf(newValues, function(value, pos, callback){
-            storage.find({ 'x' : value.x }, 
-              function(err, result){
-                if (err) return callback(err);
-                // something found => value exists
-                if(!_.isEmpty(result)){
-                  for(var r in result){
-                    if(r.y == value.y){
-                      newValues[pos]=null;
-                      continue;
-                    }
-                  }
-                }
-                callback();
-              }
-            );
-          }, function(err){
-            // remove nulls = removed values
-            newValues = newValues.filter(function(val) { return val; });
-            */
-            if(_.isEmpty(newValues)){
-              callback(null, null);
-            } else {
-              storage.create(newValues,
-                function(err) {
-                  if (err) { return callback(err); }
-                  
-                  callback( null, 
-                    { id     : newData.id,
-                      values : newValues
-                    }
-                  );
+        if(_.isEmpty(newValues)){
+          callback(null, null);
+        } else {
+          storage.create(newValues,
+            function(err) {
+              if (err) { return callback(err); }
+              
+              callback( null, 
+                { id     : newData.id,
+                  values : newValues
                 }
               );
             }
-          //}
-        //);
+          );
+        }
       }
     );
   }
