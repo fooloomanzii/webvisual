@@ -129,7 +129,7 @@
         
         // build array of non existed values
         async.forEachOf(newValues, function(value, pos, callback){
-            storage.find({'x':value.x, 'y':value.y}.limit(1).exec( 
+            storage.find({'x':value.x, 'y':value.y}).limit(1).exec( 
               function(err, result){
                 if (err) return callback(err);
                 // something found => value exists
