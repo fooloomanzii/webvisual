@@ -199,37 +199,39 @@ var dataFile = new dataHandler( {
       connection: config.connections,
       listener: {
         error: function(type, err) {
-          dataSocket.emit('mistake', { error: err, time: new Date()});
+          dataSocket.emit('mistake', { error: err, time: new Date() });
       },
       data: [
           // SocketIO Listener
           function(type, data) {
 
             // Process data to certain format
-            var currentData = dataMerge.processData ( dataConf,
-                              {exceeds: threshold.getExceeds(data), data: data });
+            var currentData = dataMerge.processData (
+                    dataConf, {exceeds: threshold.getExceeds(data), data: data });
             var tmpData = data;
 
+            // Save new Data in Database and send for each client the updated Data
             dbcontroller.appendData(
               currentData.content,
               function (err, appendData) {
                 if(err) console.warn(err.stack);
 
+                // for each client the updated data is sent in a row asynchronously
                 async.each(clients,
                   function(client, callback){
-                      if(!client.hasFirst) return callback();
-                      
-                      var message = {
-                         content: appendData,
-                         time: new Date(), // current message time
-                      };
+                    if(!client.hasFirst) return callback();
 
-                      client.socket.emit('data', message);
-                      callback();
-                    },
-                    function(err){
-                      if(err) console.warn(err.stack);
-                    }
+                    var message = {
+                       content: appendData,
+                       time: new Date(), // current message time
+                    };
+
+                    client.socket.emit('data', message);
+                    callback();
+                  },
+                  function(err){
+                    if(err) console.warn(err.stack);
+                  }
                 );
               }
             );
