@@ -313,11 +313,11 @@
         query.select('-__v');
         
         query.exec(function(err, values){
-          if(err) return callback(err);
+          if(err) return done(err);
           
           num_of_values[0]+=values.length;
           if(num_of_values[0]>max_query_limit){
-            return callback(
+            return done(
                 new Error("values limit overrun! "+num_of_values[0]+"values!")
             );
           }
@@ -327,7 +327,7 @@
           
           done(null, {'id':device.id, 'values': values});
         });
-      }, function(err, result){
+      }, function(err, result) {
         if(err) callback(err);
         else {
           callback(null, result);
