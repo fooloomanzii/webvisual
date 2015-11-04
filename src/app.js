@@ -212,39 +212,23 @@ var dataFile = new dataHandler( {
 
             dbcontroller.appendData(
               currentData.content,
-              function (err, appendedData, tmpDB) {
+              function (err, appendData) {
                 if(err) console.warn(err.stack);
-                if(!tmpDB) return;
-                async.each(clients, 
-                    function(client, callback){
+
+                async.each(clients,
+                  function(client, callback){
                       if(!client.hasFirst) return callback();
-                      dbcontroller.getUpdate(tmpDB,
-                        client.appendPattern,
-                        function (err, data) {
-                          if(err){
-                            console.warn(err.stack);
-                            callback();
-                            return;
-                          }
-                          if(data.length < 1){
-                            //empty data
-                            return;
-                          }
-                          var message = {
-                             content: data,
-                             time: new Date(), // current message time
-                          };
-                          client.socket.emit('data', message);
-                          callback();
-                        }
-                      );
+                      
+                      var message = {
+                         content: appendData,
+                         time: new Date(), // current message time
+                      };
+
+                      client.socket.emit('data', message);
+                      callback();
                     },
                     function(err){
                       if(err) console.warn(err.stack);
-                      // cleanize current tmp
-                      tmpDB.remove({},function(err){
-                        if(err) console.warn(err.stack);
-                      });
                     }
                 );
               }

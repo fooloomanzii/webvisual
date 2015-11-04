@@ -12,6 +12,7 @@
 <link rel="import" href="../../components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../../components/paper-slider/paper-slider.html">
 <link rel="import" href="../../components/paper-dialog-scrollable/paper-dialog-scrollable.html">
 <link rel="import" href="../../css/app-theme.html">
 
@@ -203,7 +204,6 @@
     <paper-drawer-panel id="mainView" force-narrow="true">
       <!-- SIDEMENU -->
       <section drawer id="drawerPanel">
-        <iron-selector multi selectable="paper-button.sidemenu.collapsable">
           <paper-button collapse-id="settings" class="sidemenu collapsable" on-tap="toggleCollapse">
             <iron-icon icon="settings"></iron-icon>
             <span class="flex">Einstellungen</span>
@@ -211,7 +211,7 @@
           </paper-button>
 
             <iron-collapse class="sidemenu collapse settings">
-              <section class="indention-1 collapse-content">
+              <section class="indention collapse-content">
                 <paper-button collapse-id="grouping" class="sidemenu" on-tap="toggleCollapse">
                   <iron-icon icon="reorder"></iron-icon>
                   <span class="flex">Gruppierung</span>
@@ -219,7 +219,7 @@
                 </paper-button>
 
                   <iron-collapse class="sidemenu collapse grouping">
-                    <paper-radio-group selected="{{groupBy}}" class="indention-2">
+                    <paper-radio-group selected="{{groupBy}}" class="indention">
                       <paper-radio-button name="roomNr">Raumnummer</paper-radio-button>
                       <paper-radio-button name="room">Raumname</paper-radio-button>
                       <paper-radio-button name="kind">Typ</paper-radio-button>
@@ -239,9 +239,12 @@
                 </paper-item>
 
                 <paper-item>
-                  <paper-input label="Anzahl an Messpunkten" value="{{maxTotalLines}}" min="1" type="number" inputmode="number" step="1" auto-validate required prevent-invalid-input>
-                    <iron-icon prefix icon="editor:format-line-spacing"></iron-icon>
-                  </paper-input>
+                  <!-- <paper-input label="Anzahl an Messpunkten" value="{{maxTotalLines}}" min="1" type="number" inputmode="number" step="1" auto-validate required prevent-invalid-input> -->
+
+                    <paper-slider max="500" min="1" step="1" value="{{maxTotalLines}}" editable>Messpunkte</paper-slider>
+                    <div>Messpunkte</div>
+                    <!-- <iron-icon prefix icon="editor:format-line-spacing"></iron-icon> -->
+                  <!-- </paper-input> -->
                 </paper-item>
                 <paper-item>
                   <paper-input label="Aktualisierungsintervall" value="{{interval}}" min="0" always-float type="number" inputmode="number" step="0.1" auto-validate required prevent-invalid-input>
@@ -274,7 +277,7 @@
             <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="pageview"></iron-icon>
           </paper-button>
             <iron-collapse class="sidemenu collapse pageview">
-              <section class="indention-1 collapse-content">
+              <section class="indention collapse-content">
                 <iron-selector selected="0">
                   <paper-button class="sidemenu"><iron-icon icon="view-module"></iron-icon>Übersicht</paper-button>
                   <paper-button class="sidemenu"><iron-icon icon="view-list"></iron-icon>Tabelle</paper-button>
@@ -295,7 +298,7 @@
           </paper-button>
 
             <iron-collapse class="sidemenu collapse information">
-              <section class="indention-1 collapse-content">
+              <section class="indention collapse-content">
                 <paper-button dialog-id="data" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
                   <iron-icon icon="receipt"></iron-icon>
                   <span class="flex">Daten</span>
@@ -322,7 +325,6 @@
             <iron-icon icon="social:person-outline"></iron-icon>
             <span class="flex">Login</span>
           </paper-button> -->
-        </iron-selector>
       </section>
 
       <!-- MAIN VIEW -->
