@@ -32,16 +32,6 @@ DBController.prototype.appendData = function (newData, callback) {
 };
 
 /*
- * Search for some query in tmpDB and call the callback with found data
- * How to use the function read by devicedata.js/query
- */
-DBController.prototype.getUpdate = function (model, request, callback, options) {
-  model.query(request, function (err, result) {
-    callback(err, result);
-  }, options);
-};
-
-/*
  * Calls the callback with all existing data as argument
  */
 DBController.prototype.getAllData = function (callback) {
