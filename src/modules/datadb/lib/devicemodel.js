@@ -190,38 +190,8 @@
    * or just call findData(callback);
    * 
    */
-  DeviceModel.statics.query = function(request, callback, options) {
+  DeviceModel.statics.query = function(request, callback) {
     var self = this;
-    // shared variable to summarize number of values by all find() calls
-    var num_of_values = [0];
-    if(!_.isArray(request)){
-      return find(self, request, callback, num_of_values);
-    }
-    
-    var sort;
-    var sortOrder;
-    if(options && options.sort){
-      sort = _.keys(options.sort)[0];
-      sortOrder = options.sort[sort];
-    } else {
-      sort = 'id';
-      sortOrder = 1; // default sort
-    }
-
-    async.map(request, function(query, done) {
-      find(self, query, done, num_of_values);
-    }, function(err, result){
-      for(var i in result){
-        result[i]=result[i][0];
-      }
-      result = _.sortBy(result, sort);
-      if(sortOrder < 0) result = result.reverse();
-      callback(err, result);
-    });
-  };
-  
-  /* Private function - query()'s helper */
-  function find(model, request, callback, num_of_values) {
     if(!request) request = {};
     if(_.isFunction(request)){
       callback = request;
@@ -265,13 +235,6 @@
       }
     }
     
-    var limit;
-    if(request.limit){
-      limit = request.limit;
-    } else {
-      limit = -max_query_limit;
-    }
-    
     var sort;
     if(request.sort){
       sort = request.sort;
@@ -285,13 +248,30 @@
       device_query = {};
     }
     
-    model.find(device_query, function(err, devices) {
+    self.find(device_query, function(err, devices) {
       if(err){
         console.warn("Error by searching for devices!");
         console.warn(err.stack);
         return callback(err);
       }
       if(devices.length == 0) return callback(null, null);
+      
+      // divide the limit on number of devices to get temporary max_limit
+      var limit = max_query_limit/devices.length; // temporary max_limit
+      if(request.limit){
+        if(request.limit < -limit){
+          limit = -limit;
+        } else if(request.limit == 0) {
+          limit = -limit;
+        // } else if(request.limit > limit) {
+        //   limit = limit;
+        } else {
+          limit = request.limit;
+        } 
+      } else {
+        limit = -limit;
+      }
+      limit|=limit; // parse to integer without round up
       
       async.map(devices, function(device, done){
         var values_collection = mongoose.model(device.storage, StorageModel);
@@ -314,13 +294,6 @@
         
         query.exec(function(err, values){
           if(err) return done(err);
-          
-          num_of_values[0]+=values.length;
-          if(num_of_values[0]>max_query_limit){
-            return done(
-                new Error("values limit overrun! "+num_of_values[0]+"values!")
-            );
-          }
           
           // sort ascending by date
           if( limit < 0 ) _.sortBy(values, function(obj){ return obj.x; });
