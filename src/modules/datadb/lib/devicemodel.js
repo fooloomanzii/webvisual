@@ -7,8 +7,11 @@
   var devicelistDB_name = "devices"; // list of devices
   var deviceDB_prefix = "device_"; // prefix to device id
   
-  // Global variables
-  var max_query_limit = 5000; // maximal limit of values to query (by one request)
+  /* Global variables */
+  // maximal limit of values to query (by one request)
+  var max_query_limit = 5000; 
+  // default size in Mb for values collections per device
+  var defalut_storage_size = 50; 
   
   // Dependencies
   var mongoose = require('mongoose'),
@@ -21,7 +24,7 @@
       id        : String, // Measuring Device ID
       storage   : String  // Name of the Collection with Device values
     }, 
-    // significant performance impact
+    // significant performance improvement
     { autoIndex: false } // http://mongoosejs.com/docs/guide.html
   );
   
@@ -33,13 +36,23 @@
                         // true = over the limit, 
                         // null = ok.
     }, 
-    // significant performance impact
-    { autoIndex: false } // http://mongoosejs.com/docs/guide.html
+    // options
+    { 
+      // Define fixed size in bytes
+      //   autoIndexId: false - shuts off the indexing by _id
+      capped: { size: 1024*1024*defalut_storage_size, autoIndexId: false },
+      // Versioning (__v) is important for updates. 
+      // No updates => versioning is useless
+      versionKey: false, // gets versioning off 
+      autoIndex: false // significant performance improvement
+    } 
+
   );
   
   // Set the indexing
   DeviceModel.index( { "id": 1 } ); // index devices on ids
   StorageModel.index( { "x": 1 } ); // index values on time
+  
   
   // --- Functions --- //
   
@@ -179,8 +192,10 @@
    */
   DeviceModel.statics.query = function(request, callback, options) {
     var self = this;
+    // shared variable to summarize number of values by all find() calls
+    var num_of_values = [0];
     if(!_.isArray(request)){
-      return find(self, request, callback);
+      return find(self, request, callback, num_of_values);
     }
     
     var sort;
@@ -194,7 +209,7 @@
     }
 
     async.map(request, function(query, done) {
-      find(self, query, done);
+      find(self, query, done, num_of_values);
     }, function(err, result){
       for(var i in result){
         result[i]=result[i][0];
@@ -206,7 +221,7 @@
   };
   
   /* Private function - query()'s helper */
-  function find(model, request, callback) {
+  function find(model, request, callback, num_of_values) {
     if(!request) request = {};
     if(_.isFunction(request)){
       callback = request;
@@ -214,20 +229,6 @@
     }
     if(!callback) callback = function(err, results){ };
     
-    var limit;
-    if(request.limit){
-      if(request.limit < -max_query_limit){
-        request.limit = -max_query_limit
-      } else if(request.limit == 0) {
-        request.limit = -max_query_limit;
-      } else if(request.limit > max_query_limit) {
-        request.limit = max_query_limit
-      } else {
-        limit = request.limit;
-      } 
-    } else {
-      limit = -max_query_limit;
-    }
     /*
     var getProperties = true;
     if(request.getProperties !== undefined){
@@ -264,6 +265,13 @@
       }
     }
     
+    var limit;
+    if(request.limit){
+      limit = request.limit;
+    } else {
+      limit = -max_query_limit;
+    }
+    
     var sort;
     if(request.sort){
       sort = request.sort;
@@ -281,8 +289,10 @@
       if(err){
         console.warn("Error by searching for devices!");
         console.warn(err.stack);
-        return;
+        return callback(err);
       }
+      if(devices.length == 0) return callback(null, null);
+      
       async.map(devices, function(device, done){
         var values_collection = mongoose.model(device.storage, StorageModel);
         var query;
@@ -300,10 +310,17 @@
           query.sort({"x":1})
                .limit(limit);
         }
-        query.select('-_id -__v');
+        query.select('-__v');
         
         query.exec(function(err, values){
           if(err) return callback(err);
+          
+          num_of_values[0]+=values.length;
+          if(num_of_values[0]>max_query_limit){
+            return callback(
+                new Error("values limit overrun! "+num_of_values[0]+"values!")
+            );
+          }
           
           // sort ascending by date
           if( limit < 0 ) _.sortBy(values, function(obj){ return obj.x; });
