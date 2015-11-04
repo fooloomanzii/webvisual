@@ -34,12 +34,10 @@ paper-button .content{
   align-items: center;
   flex-direction: row;
 }
-paper-item {
+paper-item.sidemenu {
   font-size: 0.85em;
 }
-
 paper-slider {
-  margin-right: 0.5em;
 }
 paper-item.date {
   font-family: Roboto-Condensed-Light;

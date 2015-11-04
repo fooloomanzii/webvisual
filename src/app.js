@@ -213,7 +213,7 @@ var dataFile = new dataHandler( {
             // Save new Data in Database and send for each client the updated Data
             dbcontroller.appendData(
               currentData.content,
-              function (err, appendData) {
+              function (err, appendedData) {
                 if(err) console.warn(err.stack);
 
                 // for each client the updated data is sent in a row asynchronously
@@ -222,7 +222,7 @@ var dataFile = new dataHandler( {
                     if(!client.hasFirst) return callback();
 
                     var message = {
-                       content: appendData,
+                       content: appendedData,
                        time: new Date(), // current message time
                     };
 

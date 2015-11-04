@@ -114,10 +114,25 @@
       color: #1d1d1d;
     }
     paper-radio-button {
-      --paper-radio-button-checked-color: #005B82;
-      --paper-radio-button-checked-ink-color: #005B82;
+      --paper-radio-button-checked-color: #388E3C;
+      --paper-radio-button-checked-ink-color: #388E3C;
       --paper-radio-button-unchecked-color: #1d1d1d;
       --paper-radio-button-unchecked-ink-color: #1d1d1d;
+    }
+    paper-slider {
+      --paper-slider-active-color: #1565C0;
+      --paper-slider-knob-color: #1565C0;
+      --paper-slider-pin-color: #1565C0;
+      --paper-slider-knob-start-border-color: #1565C0;
+      --paper-slider-knob-start-color: #1565C0;
+    }
+    paper-toggle-button {
+      --paper-toggle-button-unchecked-bar-color:	#000000
+      --paper-toggle-button-unchecked-button-color: #606060;
+      --paper-toggle-button-unchecked-ink-color: #1f1f1f;
+      --paper-toggle-button-checked-bar-color:	#B71C1C;
+      --paper-toggle-button-checked-button-color:	#B71C1C;
+      --paper-toggle-button-checked-ink-color:	#B71C1C;
     }
     #kind {
       font-family: Roboto-Bold;
@@ -229,29 +244,35 @@
                   </iron-collapse>
 
                 <paper-item>
-                    <iron-icon icon="editor:border-style"></iron-icon>
-                    <paper-toggle-button id="border-style" checked="{{withoutWindow}}">Fensterstil</paper-toggle-button>
+                  <iron-icon icon="editor:border-style"></iron-icon>
+                  <paper-toggle-button id="border-style" checked="{{withoutWindow}}">Fensterstil</paper-toggle-button>
                 </paper-item>
 
                 <paper-item>
-                    <iron-icon icon="settings-brightness"></iron-icon>
-                    <paper-toggle-button id="colorschema" on-change="changeTheme">Farbschema</paper-toggle-button>
+                  <iron-icon icon="settings-brightness"></iron-icon>
+                  <paper-toggle-button id="colorschema" on-change="changeTheme">Farbschema</paper-toggle-button>
                 </paper-item>
 
-                <paper-item>
-                  <!-- <paper-input label="Anzahl an Messpunkten" value="{{maxTotalLines}}" min="1" type="number" inputmode="number" step="1" auto-validate required prevent-invalid-input> -->
+                <paper-button collapse-id="measurement" class="sidemenu" on-tap="toggleCollapse">
+                  <iron-icon icon="filter-list"></iron-icon>
+                  <span class="flex">Messwerte</span>
+                  <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="measurement"></iron-icon>
+                </paper-button>
 
-                    <paper-slider max="500" min="1" step="1" value="{{maxTotalLines}}" editable>Messpunkte</paper-slider>
-                    <div>Messpunkte</div>
-                    <!-- <iron-icon prefix icon="editor:format-line-spacing"></iron-icon> -->
-                  <!-- </paper-input> -->
-                </paper-item>
-                <paper-item>
-                  <paper-input label="Aktualisierungsintervall" value="{{interval}}" min="0" always-float type="number" inputmode="number" step="0.1" auto-validate required prevent-invalid-input>
-                    <iron-icon prefix icon="image:timelapse"></iron-icon>
-                    <div suffix style="font-size:0.6em">Sekunden</div>
-                  </paper-input>
-                </paper-item>
+                  <iron-collapse class="sidemenu collapse measurement">
+                    <section class="indention collapse-content">
+                      <paper-item class="sidemenu">
+                        <iron-icon icon="editor:format-line-spacing"></iron-icon>
+                        <section>Anzahl der Messwerte</section>
+                      </paper-item>
+                      <paper-slider max="500" min="1" step="1" value="{{maxTotalLines}}" pin id="maxlines"></paper-slider>
+                      <paper-item class="sidemenu">
+                        <iron-icon icon="image:timelapse"></iron-icon>
+                        <div>Aktualisierung in ms</div>
+                      </paper-item>
+                      <paper-slider max="20000" min="0" step="100" value="{{interval}}" pin id="freq"></paper-slider>
+                    </section>
+                  </iron-collapse>
 
                 <!-- <paper-button collapse-id="language" class="sidemenu" on-tap="toggleCollapse">
                   <iron-icon icon="language"></iron-icon>
