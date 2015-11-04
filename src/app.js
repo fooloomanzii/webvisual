@@ -81,8 +81,9 @@ _.mixin({
 
 // Configure SSL Encription
 var sslOptions  = {
-    key: fs.readFileSync(__dirname + '/ssl/server.key'),
-    cert: fs.readFileSync(__dirname + '/ssl/server.crt'),
+    key: fs.readFileSync(__dirname + '/ssl/ca.key'),
+    cert: fs.readFileSync(__dirname + '/ssl/ca.crt'),
+    passphrase: require('./ssl/ca.pw').password,
     ca: fs.readFileSync(__dirname + '/ssl/ca.crt'),
     requestCert: true,
     rejectUnauthorized: false
