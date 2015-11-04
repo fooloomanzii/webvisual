@@ -53,13 +53,14 @@ mongod -config %temp%\mongodb.conf --install --serviceName %name% --serviceDispl
 if "%ERRORLEVEL%"=="0" goto LOOP
 
 :ERROR
+echo %ERRORLEVEL%
 echo Cannot install the service! 
 pause
 goto:eof
 
 rem try to start the service till service is created
 :LOOP
-sc start MongoDB >NUL 2>&1
+sc start %name% >NUL 2>&1
 if NOT "%ERRORLEVEL%"=="0" goto LOOP
 
 rem remove the temporary config file

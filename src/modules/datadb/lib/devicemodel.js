@@ -5,23 +5,18 @@
   
   // Important DB Collection Names (!! please remove renamed collections !!)
   var devicelistDB_name = "devices"; // list of devices
-  var tmpDB_prefix = "tmp_"; // prefix to tmpDB id
   var deviceDB_prefix = "device_"; // prefix to device id
   
   // Global variables
-  var values_to_compare = 1; // number of last values in database to compare
-  var max_limit = 100; // maximal limit of values for one device to query
-  var cur_tmp = 0; // index of current temporary Database
-  var num_of_tmps = 15; // number of temporary Databases
+  var max_query_limit = 5000; // maximal limit of values to query (by one request)
   
   // Dependencies
   var mongoose = require('mongoose'),
       Schema   = mongoose.Schema,
-      moment   = require('moment'),
       _        = require('underscore'),
-      async    = require('async'),
-      tmpModel = require('./tmpdata.js');
+      async    = require('async');
   
+  // Schema to store the device properties
   var DeviceModel = new Schema({
       id        : String, // Measuring Device ID
       storage   : String  // Name of the Collection with Device values
@@ -30,6 +25,7 @@
     { autoIndex: false } // http://mongoosejs.com/docs/guide.html
   );
   
+  // Schema to store the values
   var StorageModel = new Schema({      
       x       : Date,   // Time of Measure
       y       : Number, // Measured Value
@@ -42,8 +38,8 @@
   );
   
   // Set the indexing
-  DeviceModel.index( { "id": 1 } );
-  StorageModel.index( { "x": 1 } );
+  DeviceModel.index( { "id": 1 } ); // index devices on ids
+  StorageModel.index( { "x": 1 } ); // index values on time
   
   // --- Functions --- //
   
@@ -61,19 +57,11 @@
    */
   DeviceModel.statics.append = function (newData, callback) {
     if(newData === undefined) return;
-    /* switch current tmp */
-    var tmpDB = mongoose.model(tmpDB_prefix + cur_tmp, tmpModel);
-    cur_tmp = (cur_tmp + 1) % num_of_tmps;
-    
+   
     var self = this;
     if(!_.isArray(newData)){
       return save(self, newData, function(err, appendedData){
-        // remove all elements == null
-        appendedData = appendedData.filter(function(n){ return n != undefined }); 
-        // fill the temporary model with data from current update
-        tmpDB.create(appendedData, function(err){
-          callback(err, appendedData, tmpDB);
-        });
+          callback(err, appendedData);
       });
     }
 
@@ -81,13 +69,9 @@
       if(data === undefined) return;
       save(self, data, callback);
     }, function(err, appendedData){
-      // remove all elements == null
-      appendedData = appendedData.filter(function(n){ return n != undefined });
       if(err) return callback(err, appendedData);
-      // fill the temporary model with data from current update
-      tmpDB.create(appendedData, function(err){
-        callback(err, appendedData, tmpDB);
-      });
+      
+      callback(err, appendedData);
     });
   };
   
@@ -232,17 +216,17 @@
     
     var limit;
     if(request.limit){
-      if(request.limit < -max_limit){
-        request.limit = -max_limit
+      if(request.limit < -max_query_limit){
+        request.limit = -max_query_limit
       } else if(request.limit == 0) {
-        request.limit = -max_limit;
-      } else if(request.limit > max_limit) {
-        request.limit = max_limit
+        request.limit = -max_query_limit;
+      } else if(request.limit > max_query_limit) {
+        request.limit = max_query_limit
       } else {
         limit = request.limit;
       } 
     } else {
-      limit = -max_limit;
+      limit = -max_query_limit;
     }
     /*
     var getProperties = true;
