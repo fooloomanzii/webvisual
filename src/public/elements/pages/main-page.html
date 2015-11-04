@@ -87,7 +87,7 @@
       background: #666666;
     }
     paper-button.sidemenu {
-      margin: 0.25em 0em;
+      /*margin: 0.25em 0em;*/
       width: 100%;
       display: flex;
     }
@@ -114,8 +114,8 @@
       color: #1d1d1d;
     }
     paper-radio-button {
-      --paper-radio-button-checked-color: #388E3C;
-      --paper-radio-button-checked-ink-color: #388E3C;
+      --paper-radio-button-checked-color: #B71C1C;
+      --paper-radio-button-checked-ink-color: #B71C1C;
       --paper-radio-button-unchecked-color: #1d1d1d;
       --paper-radio-button-unchecked-ink-color: #1d1d1d;
     }
@@ -125,14 +125,25 @@
       --paper-slider-pin-color: #1565C0;
       --paper-slider-knob-start-border-color: #1565C0;
       --paper-slider-knob-start-color: #1565C0;
+      --paper-slider-font-color: #1d1d1d;
+    }
+    paper-slider {
+      --paper-input-container-input {
+        font-size: 0.5em;
+      };
     }
     paper-toggle-button {
-      --paper-toggle-button-unchecked-bar-color:	#000000
-      --paper-toggle-button-unchecked-button-color: #606060;
-      --paper-toggle-button-unchecked-ink-color: #1f1f1f;
-      --paper-toggle-button-checked-bar-color:	#B71C1C;
-      --paper-toggle-button-checked-button-color:	#B71C1C;
-      --paper-toggle-button-checked-ink-color:	#B71C1C;
+      --paper-toggle-button-unchecked-bar-color: #333333;
+      --paper-toggle-button-unchecked-button-color: #f1f1f1;
+      --paper-toggle-button-unchecked-ink-color: #1d1d1d;
+      --paper-toggle-button-checked-bar-color:	#FDD835;
+      --paper-toggle-button-checked-button-color:	#FDD835;
+      --paper-toggle-button-checked-ink-color:	#FDD835;
+    }
+    paper-toggle-button#colorschema{
+      --paper-toggle-button-checked-bar-color:	#1d1d1d;
+      --paper-toggle-button-checked-button-color:	#1d1d1d;
+      --paper-toggle-button-checked-ink-color:	#1d1d1d;
     }
     #kind {
       font-family: Roboto-Bold;
@@ -265,12 +276,12 @@
                         <iron-icon icon="editor:format-line-spacing"></iron-icon>
                         <section>Anzahl der Messwerte</section>
                       </paper-item>
-                      <paper-slider max="500" min="1" step="1" value="{{maxTotalLines}}" pin id="maxlines"></paper-slider>
+                      <paper-slider max="500" min="1" step="1" value="{{maxTotalLines}}" editable id="maxlines"></paper-slider>
                       <paper-item class="sidemenu">
                         <iron-icon icon="image:timelapse"></iron-icon>
                         <div>Aktualisierung in ms</div>
                       </paper-item>
-                      <paper-slider max="20000" min="0" step="100" value="{{interval}}" pin id="freq"></paper-slider>
+                      <paper-slider max="20000" min="0" step="100" value="{{interval}}" editable id="freq"></paper-slider>
                     </section>
                   </iron-collapse>
 
