@@ -11,6 +11,9 @@ set dbpath=%~dp0..\data\db
 set port=27017
 set logpath=%~dp0..\data\db\mongo.log
 
+rem Dependencies
+set loop_limit = 100;
+
 rem Get Admin Rights to install the Service
 :: BatchGotAdmin
 :-------------------------------------
@@ -53,16 +56,21 @@ mongod -config %temp%\mongodb.conf --install --serviceName %name% --serviceDispl
 if "%ERRORLEVEL%"=="0" goto LOOP
 
 :ERROR
-echo %ERRORLEVEL%
+if "%ERRORLEVEL%"=="20" goto LOOP
+
 echo Cannot install the service! 
 pause
 goto:eof
 
 rem try to start the service till service is created
 :LOOP
+set /a loop_limit=%loop_limit%-1
+if %loop_limit% LSS 0 goto END
+
 sc start %name% >NUL 2>&1
 if NOT "%ERRORLEVEL%"=="0" goto LOOP
 
+:END
 rem remove the temporary config file
 if exist "%temp%\mongodb.conf" ( del "%temp%\mongodb.conf" )
 
