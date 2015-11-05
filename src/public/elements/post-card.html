@@ -9,6 +9,7 @@
       -ms-user-select: none;
       user-select: none;
       -webkit-touch-callout: none;
+      padding: 0.4em;
     }
 
     paper-button {
@@ -61,36 +62,26 @@
       box-shadow: none;
     }
     #cardContent {
-      -ms-flex-direction: row;
-      -webkit-flex-direction: row;
       flex-direction: row;
-      display: -ms-flexbox;
-      display: -webkit-flex;
       display: flex;
-      -ms-flex-wrap: wrap;
-      -webkit-flex-wrap: wrap;
       flex-wrap: wrap;
-      -ms-flex-pack: center;
-      -webkit-justify-content: center;
       justify-content: center;
-      -ms-flex-align: center;
-      -webkit-align-items: center;
       align-items: center;
       padding: 0.5em 0em 0em 0.5em;
     }
     @media all and (min-width: 750px) and (max-width: 1280px) and (orientation: portrait) {
       #outer:not([name='all']) {
-        max-width: 45vw;
+        max-width: 24em;
       }
     }
     @media all and (min-width: 600px) and (max-width: 1280px) and (orientation: landscape) {
       #outer:not([name='all']) {
-        max-width: 45vw;
+        max-width: 24em;
       }
     }
     @media all and (min-width: 1280px) {
       #outer:not([name='all']) {
-        max-width: 30vw;
+        max-width: 32em;
       }
     }
     ::content .card {
