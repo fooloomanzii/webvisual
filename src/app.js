@@ -75,16 +75,38 @@ _.mixin({
   }
 });
 
+//Checks for program arguments and runs the responsible operations
+//e.g. "node app.js <arg1> <arg2>"
+//   "-port <portnumber>" changes server port on <portnumber>
+function checkArguments(){
+  for(var i=0; i<process.argv.length; i++){
+   switch(process.argv[i]) {
+     case "-port": // next argument need to be a port number
+       // isNaN() checks if content is not a number
+       if(!isNaN(process.argv[++i])){
+           config.port = process.argv[i];
+       } else {// next argument isn't a port number, so check it in next loop
+         i--;
+       }
+       break;
+     default:
+     // react on unrecognized arguments
+   }
+  }
+}
+
+//check for program arguments
+checkArguments();
+
 /*
  * Configure the APP
  */
 
-// Configure SSL Encription
+// Configure SSL Encryption
 var sslOptions  = {
     key: fs.readFileSync(__dirname + '/ssl/ca.key'),
     cert: fs.readFileSync(__dirname + '/ssl/ca.crt'),
     passphrase: require('./ssl/ca.pw').password,
-    ca: fs.readFileSync(__dirname + '/ssl/ca.crt'),
     requestCert: true,
     rejectUnauthorized: false
   };
@@ -92,7 +114,7 @@ var sslOptions  = {
 // General
 var app    = express(),
     server = require('https').createServer(sslOptions, app),
-    io     = require('socket.io').listen(server, sslOptions); //
+    io     = require('socket.io').listen(server); //
 
 // Path to static folder
 app.use(express.static(__dirname + '/public'));
@@ -280,26 +302,6 @@ dataSocket.on('connection', function(socket) {
   });
 });
 
-// Checks for program arguments and runs the responsible operations
-// e.g. "node app.js <arg1> <arg2>"
-//      "-port <portnumber>" changes server port on <portnumber>
-function checkArguments(){
-  for(var i=0; i<process.argv.length; i++){
-    switch(process.argv[i]) {
-      case "-port": // next argument need to be a port number
-        // isNaN() checks if content is not a number
-        if(!isNaN(process.argv[++i])){
-            config.port = process.argv[i];
-        } else {// next argument isn't a port number, so check it in next loop
-          i--;
-        }
-        break;
-      default:
-      // react on unrecognized arguments
-    }
-  }
-}
-
 /*
  * Get SERVER.io and server running!
  */
@@ -312,9 +314,6 @@ db.once('open', function (callback) {
 
   // start the handler for new measuring data
   dataFile.connect();
-
-  // check for program arguments
-  checkArguments();
   
   // make the Server available for Clients
   server.listen(config.port);
