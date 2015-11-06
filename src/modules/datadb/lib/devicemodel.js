@@ -3,10 +3,9 @@
   
   // --- Variables --- //
   
+  /* Global variables */
   // Important DB Collection Names (!! please remove renamed collections !!)
   var devicelistDB_name = "devices"; // list of devices
-  
-  /* Global variables */
   // maximal limit of values to query (by one request)
   var max_query_limit = 5000; 
   // default limit of values to be stored per device
@@ -85,11 +84,11 @@
     async.map(newData, function(data, async_callback) {
       if(data === undefined) return;
       
-      save(self, data, callback);
+      save(self, data, async_callback);
     }, function(err, appendedData){
       if(err) return callback(err, appendedData);
-      
-      async_callback(err, appendedData);
+
+      callback(err, appendedData);
     });
   };
   
@@ -102,7 +101,7 @@
     // If no values, can check the device and save if it's new
     if(newData.values === undefined) newData.values = {};
     
-    model.find( // search for device
+    /*model.find( // search for device
       { 'id': newData.id },
       // which properties mongodb passes to server
       { 'storage_limit' : 1 , // 1 = include, 0 = exclude
@@ -140,30 +139,36 @@
             // if no new values here, we are done
             callback(err, null);
           } else {
+      */
             model.update(
               // criteria
               { id: newData.id },
               // append the new values
               { $push: {values: {
-                          $each: valuesDiff, 
+                          //$each: valuesDiff, 
+                          $each: newData.values
                           // limit number of elements in existing array
-                          $slice: result.storage_limit
+                          // $slice: result.storage_limit
                        }} 
               },
+              //TODO Testwise!! Remove after test!
+              { upsert: true },
               function(err) {
                 if (err) { return callback(err); }
                 
-                callback(err, 
+                callback(null, 
                   { id     : newData.id,
-                    values : valuesDiff
+                    //values : valuesDiff
+                    values : newData.values
                   }
                 );
               }
             );
+       /*
           }
         }
       }
-    );
+    );*/
   }
   
   /*
