@@ -11,9 +11,6 @@ set dbpath=%~dp0..\data\db
 set port=27017
 set logpath=%~dp0..\data\db\mongo.log
 
-rem Dependencies
-set loop_limit = 100;
-
 rem Get Admin Rights to install the Service
 :: BatchGotAdmin
 :-------------------------------------
@@ -42,6 +39,9 @@ if '%errorlevel%' NEQ '0' (
 goto START
 
 :START
+rem Dependencies
+set loop_limit=10000;
+
 start /B /WAIT cmd /C "cd %~dp0" >NUL 2>&1
 title MongoDB Service Installation
 echo MongoDB Service is launching. Please wait...
@@ -57,7 +57,7 @@ if "%ERRORLEVEL%"=="0" goto LOOP
 
 :ERROR
 if "%ERRORLEVEL%"=="20" goto LOOP
-
+:ERROR2
 echo Cannot install the service! 
 pause
 goto:eof
@@ -65,7 +65,7 @@ goto:eof
 rem try to start the service till service is created
 :LOOP
 set /a loop_limit=%loop_limit%-1
-if %loop_limit% LSS 0 goto END
+if %loop_limit% LSS 0 goto ERROR2
 
 sc start %name% >NUL 2>&1
 if NOT "%ERRORLEVEL%"=="0" goto LOOP
