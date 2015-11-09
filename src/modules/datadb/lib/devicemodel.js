@@ -340,32 +340,84 @@
      );
   }
   
+  
   // Test function for development cases
   DeviceModel.statics.test = function (callback) {
-    self.find({}, function(err, devices) {
+    var tmp2 = function(model1, model2, id, devices, pos){
+      var query = model1.find({_id: {$gt: id}}).sort({_id: 1 }).limit(100);
+          query.exec(function(err, results){
+        
+        if(results.length < 1){
+          console.log("OK. "+devices[pos].storage);
+          tmp(devices, pos+1);
+          return;
+        }
+        
+        var last_id=results[results.length-1]._id;
+        var _results=_.map(results, function(item){
+          item=item.toObject(); 
+          item._id=item.x.getTime(); 
+          return item;
+          }
+        );
+        model2.create(_results, 
+          function (err, small) {
+            if (err) {
+              console.warn("1."+err);
+              return;
+            }
+            tmp2(model1, model2, last_id, devices, pos);
+          }
+        );
+      );
+    }
+    
+    var tmp = function(devices, pos){
+      if( pos<devices.length ){
+        var device=devices[pos];
+      } else {
+        return;
+      }
+      var values_collection = mongoose.model(device.storage, StorageModel2);
+      var values_collection2 = mongoose.model('tmp_'+device.storage, StorageModel);
+          
+          var query = values_collection.find({}).sort({_id: 1 }).limit(100);
+      
+          query.exec(function(err, results){
+        
+        if(results.length < 1){
+          console.log("!!!!!!!!OK. "+device.storage);
+          tmp(devices, pos+1);
+          return;
+        }
+        
+        var id=results[results.length-1]._id;
+        var _results=_.map(results, function(item){
+          item=item.toObject();
+          item._id=item.x.getTime(); 
+          return item;});
+        }
+
+        values_collection2.create(_results, 
+          function (err, small) {
+            if (err) {
+              console.warn("1."+err);
+              return;
+            }
+            tmp2(values_collection, values_collection2, id, devices, pos);
+          }
+        );
+      });
+    }
+    
+    this.find({}, function(err, devices) {
+      
       if(err){
         return callback(err);
       }
       if(devices.length == 0) return callback(null, null);
-      
-      async.map(devices, function(device, done){
-        var values_collection = mongoose.model(device.storage, StorageModel);
-        
-        var query = values_collection.find({});
-        
-        query.exec(function(err, results){
-          if(err) return done(err);
-            
-          oldIDs = results.map(function(item){return item._id});
-          results.forEach(function(item){item._id=item.x.getTime()});
-          values_collection.create(results);
-          values_collection.remove(oldIDs);
-          callback();
-        });
-      }, function(err, result) {
-        if(err) return callback(err);
-        callback(null, result);
-      });
+
+      tmp(devices, 0);
     });
   }
   
