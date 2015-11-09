@@ -31,6 +31,16 @@ DBController.prototype.getData = function (request, callback) {
   });
 };
 
+/*
+ * Sets new fixed size in kilobytes to collection of values for given device id
+ */
+DBController.prototype.resize = function (id, newSize, callback) {
+  this.dataModel.setStorageSize(id, newSize, function (err, result) {
+    callback(err, result);
+  });
+};
+
+
 //Test function for development cases
 DBController.prototype.test = function (callback) {
   this.dataModel.test(function (err, result) {

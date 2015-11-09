@@ -330,13 +330,27 @@
    */
   DeviceModel.statics.setStorageSize = function (id, size, callback) {
     if(size <= 0) return callback(new Error("Wrong storage size"));
-    model.findOne({'id':newData.id}, 
+    this.findOne({'_id':id}, 
         function(err, result){
           if(err){ 
             console.warn("Some DB Error by search for device!");
-            console.warn(err.stack);
-            return;
+            return callback(err);
           }
+          if(!result){ // id wasn't found
+            return callback(new Error("Id for resizing wasn't found!"));
+          }
+          
+          mongoose.connection.db.command(
+              { convertToCapped: result.storage, size: size*1024 }, 
+              function(err){
+                if(err){ 
+                  console.warn("Cannot resize given collection!");
+                  console.warn(err.stack);
+                  return callback(err);
+                }
+                console.log(id+"'s storage was resized on "+size+" kb.")
+              }
+          );
         }
      );
   }
