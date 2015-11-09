@@ -40,7 +40,7 @@ goto START
 
 :START
 rem Dependencies
-set loop_limit=10000;
+set loop_limit=500
 
 start /B /WAIT cmd /C "cd %~dp0" >NUL 2>&1
 title MongoDB Service Installation

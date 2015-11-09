@@ -54,7 +54,7 @@
   // mongoose Schema to store the device properties
   var DeviceModel = new Schema({
       id        : String, // Measuring Device ID
-      values    : [ValuesModel]  // Name of the Collection with Device values
+      storage   : String  // Name of the Collection with Device values
     }, 
     // significant performance improvement
     { autoIndex: false } // http://mongoosejs.com/docs/guide.html
@@ -143,16 +143,16 @@
         
         //TODO somehow CPU efficient check for identical values in database
         
-        if(_.isEmpty(newValues)){
+        if(_.isEmpty(newData.values)){
           callback(null, null);
         } else {
-          storage.create(newValues,
+          storage.create(newData.values,
             function(err) {
               if (err) { return callback(err); }
               
               callback( null, 
                 { id     : newData.id,
-                  values : newValues
+                  values : newData.values
                 }
               );
             }
