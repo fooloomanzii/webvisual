@@ -106,7 +106,7 @@ checkArguments();
 var sslOptions  = {
     key: fs.readFileSync(__dirname + '/ssl/ca.key'),
     cert: fs.readFileSync(__dirname + '/ssl/ca.crt'),
-    passphrase: require('./ssl/ca.pw').password,
+    passphrase: require('./ssl/ca.pw.json').password,
     requestCert: true,
     rejectUnauthorized: false
   };
