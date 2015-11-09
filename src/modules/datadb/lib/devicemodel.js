@@ -343,10 +343,11 @@
   
   // Test function for development cases
   DeviceModel.statics.test = function (callback) {
+    
     var tmp2 = function(model1, model2, id, devices, pos){
       var query = model1.find({_id: {$gt: id}}).sort({_id: 1 }).limit(100);
-          query.exec(function(err, results){
-        
+      query.exec(function(err, results){
+    
         if(results.length < 1){
           console.log("OK. "+devices[pos].storage);
           tmp(devices, pos+1);
@@ -369,7 +370,7 @@
             tmp2(model1, model2, last_id, devices, pos);
           }
         );
-      );
+      });
     }
     
     var tmp = function(devices, pos){
@@ -381,9 +382,9 @@
       var values_collection = mongoose.model(device.storage, StorageModel2);
       var values_collection2 = mongoose.model('tmp_'+device.storage, StorageModel);
           
-          var query = values_collection.find({}).sort({_id: 1 }).limit(100);
-      
-          query.exec(function(err, results){
+      var query = values_collection.find({}).sort({_id: 1 }).limit(100);
+  
+      query.exec(function(err, results){
         
         if(results.length < 1){
           console.log("!!!!!!!!OK. "+device.storage);
@@ -395,8 +396,8 @@
         var _results=_.map(results, function(item){
           item=item.toObject();
           item._id=item.x.getTime(); 
-          return item;});
-        }
+          return item;
+        });
 
         values_collection2.create(_results, 
           function (err, small) {
