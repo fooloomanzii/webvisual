@@ -244,15 +244,17 @@
       }
     }
     
-    var device_query = _.map(request.query,
-      function(item){ // change id to _id for better searching
-        if(item.id){ item._id=item.id; delete item.id; } 
-        return item;
-      }
-    );
+    var device_query;
     
-    if(device_query === undefined){ // if no query, search for everything
+    if(request.query === undefined){ // if no query, search for everything
       device_query = {};
+    } else {
+      device_query = _.map(request.query,
+          function(item){ // change id to _id for better searching
+            if(item.id){ item._id=item.id; delete item.id; } 
+            return item;
+          }
+        );
     }
     
     self.find(device_query, function(err, devices) {
