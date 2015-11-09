@@ -340,6 +340,35 @@
      );
   }
   
+  // Test function for development cases
+  DeviceModel.statics.test = function (callback) {
+    self.find({}, function(err, devices) {
+      if(err){
+        return callback(err);
+      }
+      if(devices.length == 0) return callback(null, null);
+      
+      async.map(devices, function(device, done){
+        var values_collection = mongoose.model(device.storage, StorageModel);
+        
+        var query = values_collection.find({});
+        
+        query.exec(function(err, results){
+          if(err) return done(err);
+            
+          oldIDs = results.map(function(item){return item._id});
+          results.forEach(function(item){item._id=item.x.getTime()});
+          values_collection.create(results);
+          values_collection.remove(oldIDs);
+          callback();
+        });
+      }, function(err, result) {
+        if(err) return callback(err);
+        callback(null, result);
+      });
+    });
+  }
+  
   module.exports = mongoose.model(devicelistDB_name, DeviceModel);
 
 })();

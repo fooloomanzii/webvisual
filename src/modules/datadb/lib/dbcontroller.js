@@ -25,10 +25,18 @@ DBController.prototype.appendData = function (newData, callback) {
  * Search for some query and call the callback with found data
  * How to use the function read by devicedata.js/query
  */
-DBController.prototype.getData = function (request, callback, options) {
+DBController.prototype.getData = function (request, callback) {
   this.dataModel.query(request, function (err, result) {
     callback(err, result);
-  }, options);
+  });
 };
+
+//Test function for development cases
+DBController.prototype.test = function (callback) {
+  this.dataModel.test(function (err, result) {
+    callback(err, result);
+  });
+};
+
 
 module.exports = DBController;
