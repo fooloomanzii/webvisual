@@ -305,7 +305,7 @@ dataSocket.on('connection', function(socket) {
 /*
  * Get SERVER.io and server running!
  */
-mongoose.connect("mongodb://localhost:27017/test2");
+mongoose.connect("mongodb://localhost:27017/test");
 db = mongoose.connection;
 //TODO properly react on error
 db.on('error', console.error.bind(console, 'connection error:'));
