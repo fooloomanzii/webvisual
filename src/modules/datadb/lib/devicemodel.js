@@ -1,17 +1,29 @@
 (function(){
   'use strict';
   
+  /** Further Development Note
+   * The following DB-Structure was chosen because of low CPU usage.
+   * 
+   * It was also tested { device.values = [value1, value2...] },
+   * but big nested array isn't performant and needs to many CPU resources
+   * for all art of operations.
+   * 
+   * Current version need < 1% CPU by writing, independent of DB size.
+   * Read operations are always stressful.. 
+   * and so it's hard to find better solution..
+   **/
+  
   // --- Variables --- //
   
   /* Global variables */
   // Important DB Collection Names (!! please remove renamed collections !!)
   var devicelistDB_name = "devices"; // list of devices
+  var deviceDB_prefix = "device_"; // prefix to device id
+   
   // maximal limit of values to query (by one request)
   var max_query_limit = 5000; 
-  // default limit of values to be stored per device
-  var defalut_storage_limit = 1000000; 
-  // number of last values in database to compare
-  var values_to_compare = 5; 
+  // default size in kb for values collections per device
+  var defalut_storage_size = 50*1024; 
   
   // Dependencies
   var mongoose = require('mongoose'),
@@ -19,17 +31,19 @@
       _        = require('underscore'),
       async    = require('async');
   
-  // mongoose Schema to store the values
-  var ValuesModel = new Schema({      
+  // Mongoose Schema to store the values
+  var StorageModel = new Schema({      
       x       : Date,   // Time of Measure
       y       : Number, // Measured Value
       exceeds : Boolean // false = under the limit, 
                         // true = over the limit, 
                         // null = ok.
     }, 
-    // Options
-    { // spare the place by disabling "_id"
-      _id: false,
+    // options
+    { 
+      // Define fixed size in bytes
+      //   autoIndexId: false - shuts off the indexing by _id
+      capped: { size: 1024*1024*defalut_storage_size, autoIndexId: false },
       // Versioning (__v) is important for updates. 
       // No updates => versioning is useless
       versionKey: false, // gets versioning off 
@@ -40,7 +54,6 @@
   // mongoose Schema to store the device properties
   var DeviceModel = new Schema({
       id        : String, // Measuring Device ID
-      storage_limit : Number,  // limit of values to be stored per device
       values    : [ValuesModel]  // Name of the Collection with Device values
     }, 
     // significant performance improvement
@@ -49,6 +62,7 @@
   
   // Set the indexing
   DeviceModel.index( { "id": 1 } ); // index devices by id
+  StorageModel.index( { "x": 1 } ); // index values on time
   
   
   // --- Functions --- //
@@ -60,7 +74,7 @@
    *    The 'id' is unique property! 
    *    There cannot be two or more devices with the same id!
    *    
-   * Every device with non existed ID will be automatic created
+   * Every device with non existed ID will be automaticly created
    * Every unnecessary property (newData.blabla) doesn't affect this operation
    * Values never get overwritten or removed. They just getting appended.
    * 
@@ -101,74 +115,51 @@
     // If no values, can check the device and save if it's new
     if(newData.values === undefined) newData.values = {};
     
-    /*model.find( // search for device
-      { 'id': newData.id },
-      // which properties mongodb passes to server
-      { 'storage_limit' : 1 , // 1 = include, 0 = exclude
-        // by array we give a number of elements we need ($slice)
-        // (minus = last values, plus = first values)
-        'values' : { '$slice': -values_to_compare } },
+    // open values collection or create new one
+    model.findOne({'id':newData.id}, 
       function(err, result){
-        if (err) return callback(err);
+        if(err){ 
+          console.warn("Some DB Error by search for device!");
+          console.warn(err.stack);
+          return;
+        }
         
-        if(_.isEmpty(result)){ // device with given id wasn't found
-          // create new document for that device
-          newData.storage_limit = defalut_storage_limit; // set limit to default
-          model.create(newData, function(err, appendedData){
-            delete appendedData.storage_limit; // limit is useless for callback
-            callback(err, appendedData);
-          });
-        } else { // device exists -> append the values
-          // build array of non existed values
-          var valuesDiff = _.filter(newData.values, 
-            function(obj){ 
-              var ret = true;
-              result[0].values.forEach( //
-                function(value){
-                  if( _.isEqual(value.x, obj.x) && _.isEqual(value.y, obj.y) ){
-                    ret = false;
-                    return;
-                  }
-                }
-              )
-              return ret;
+        var storage;
+        if(result && result.storage){ // the device is in the list and have .storage
+          storage = mongoose.model(result.storage, StorageModel);
+        } else { // write device to the list
+          // create new collection of values and save it by device description
+          newData.storage = deviceDB_prefix + newData.id;
+          model.update({'id':newData.id}, newData, {upsert: true},
+             function(err) {
+              if (err) { 
+                console.warn("Device can't be written to the list!");
+                console.warn(err.stack);
+              }
             }
           );
-          
-          if(_.isEmpty(valuesDiff)){
-            // if no new values here, we are done
-            callback(err, null);
-          } else {
-      */
-            model.update(
-              // criteria
-              { id: newData.id },
-              // append the new values
-              { $push: {values: {
-                          //$each: valuesDiff, 
-                          $each: newData.values
-                          // limit number of elements in existing array
-                          // $slice: result.storage_limit
-                       }} 
-              },
-              //TODO Testwise!! Remove after test!
-              { upsert: true },
-              function(err) {
-                if (err) { return callback(err); }
-                
-                callback(null, 
-                  { id     : newData.id,
-                    //values : valuesDiff
-                    values : newData.values
-                  }
-                );
-              }
-            );
-       /*
-          }
+          storage = mongoose.model(newData.storage, StorageModel);
+        }
+        
+        //TODO somehow CPU efficient check for identical values in database
+        
+        if(_.isEmpty(newValues)){
+          callback(null, null);
+        } else {
+          storage.create(newValues,
+            function(err) {
+              if (err) { return callback(err); }
+              
+              callback( null, 
+                { id     : newData.id,
+                  values : newValues
+                }
+              );
+            }
+          );
         }
       }
-    );*/
+    );
   }
   
   /*
@@ -252,9 +243,7 @@
       device_query = {};
     }
     
-    self.find(device_query, 
-        // to check the query_limit, search only for devices
-        { 'id':1 }, function(err, devices) {
+    self.find(device_query, function(err, devices) {
       if(err){
         return callback(err);
       }
@@ -280,25 +269,34 @@
       // does a parallel search for values for every device
       //   and packs all results in one array
       async.map(devices, function(device, done){
+        // query collection with values for current device
+        var values_collection = mongoose.model(device.storage, StorageModel);
+        
         var query;
         
         if(time !== undefined){
-          query = self.find({ 'id': device.id, 'values.x': time });
+          query = values_collection.find({ 'x': time });
         } else {
-          query = self.find({ 'id': device.id });
+          query = values_collection.find({});
         }
         
-        // 0 = exclude, 1 = include
-        query.select({  '_id': 0, // don't need _id of device by output
-                        'id': 1,
-                        // slice values by given limit
-                        'values' : { '$slice': limit } 
-        });
+        // limit the query
+        if( limit < 0 ){
+          query.sort({"x":-1})
+               .limit(-limit);
+        } else {
+          query.sort({"x":1})
+               .limit(limit);
+        }
+        query.select('-_id -__v'); // exclude '_id' & '__v'
         
         query.exec(function(err, results){
           if(err) return done(err);
+
+          // sort ascending by date
+          if( limit < 0 ) _.sortBy(values, function(obj){ return obj.x; });
           
-          done(null, results[0]);
+          done(null, {'id':device.id, 'values': results});
         });
       }, function(err, result) {
         if(err) return callback(err);
