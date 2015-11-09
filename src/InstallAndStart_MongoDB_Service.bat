@@ -40,11 +40,13 @@ goto START
 
 :START
 rem Dependencies
-set loop_limit=500
-
+set loop_limit=1000
 start /B /WAIT cmd /C "cd %~dp0" >NUL 2>&1
 title MongoDB Service Installation
 echo MongoDB Service is launching. Please wait...
+
+rem Check if dbpath exists. If not -> create it.
+if not exist "%dbpath%" ( mkdir "%dbpath%" )
 
 rem create temporary config file and install the service
 if exist "%temp%\mongodb.conf" ( del "%temp%\mongodb.conf" )
