@@ -32,8 +32,11 @@
       async    = require('async');
   
   // Mongoose Schema to store the values
-  var StorageModel = new Schema({      
-      x       : Date,   // Time of Measure
+  var StorageModel = new Schema({   
+      _id     : Number, // x.getTime()
+      x       : { type: Date, // Time of Measure
+                  index: true // Index values by time
+                },   
       y       : Number, // Measured Value
       exceeds : Boolean // false = under the limit, 
                         // true = over the limit, 
@@ -53,16 +56,12 @@
   );
   // mongoose Schema to store the device properties
   var DeviceModel = new Schema({
-      id        : String, // Measuring Device ID
+      _id       : String, // Measuring Device ID
       storage   : String  // Name of the Collection with Device values
     }, 
     // significant performance improvement
     { autoIndex: false } // http://mongoosejs.com/docs/guide.html
   );
-  
-  // Set the indexing
-  DeviceModel.index( { "id": 1 } ); // index devices by id
-  StorageModel.index( { "x": 1 } ); // index values on time
   
   
   // --- Functions --- //
@@ -116,7 +115,7 @@
     if(newData.values === undefined) newData.values = {};
     
     // open values collection or create new one
-    model.findOne({'id':newData.id}, 
+    model.findOne({'_id':newData.id}, 
       function(err, result){
         if(err){ 
           console.warn("Some DB Error by search for device!");
@@ -130,7 +129,7 @@
         } else { // write device to the list
           // create new collection of values and save it by device description
           newData.storage = deviceDB_prefix + newData.id;
-          model.update({'id':newData.id}, newData, { upsert: true },
+          model.update({'_id':newData.id}, newData, { upsert: true },
              function(err) {
               if (err) { 
                 console.warn("Device can't be written to the list!");
@@ -146,13 +145,21 @@
         if(_.isEmpty(newData.values)){
           callback(null, null);
         } else {
-          storage.create(newData.values,
+          // set custom _id for each value and save changed array to new variable
+          var valuesToAppend = _.map(
+            newData.values, 
+            function(item){
+              item._id=item.x.getTime();
+              return item;
+            }
+          );
+          storage.create(valuesToAppend,
             function(err) {
               if (err) { return callback(err); }
               
               callback( null, 
                 { id     : newData.id,
-                  values : newData.values
+                  values : newData.values //still the old values
                 }
               );
             }
@@ -215,7 +222,7 @@
       if(request.time.from !== undefined){
         try {
           time = {};
-          time['$gte'] = new Date(request.time.from);
+          time['$gte'] = new Date(request.time.from).getTime();
         } catch (e) {
           return callback(new Error('requested time.from is wrong!'));
         }
@@ -223,21 +230,26 @@
       if(request.time.to !== undefined){
         try {
           if(!time) time = {};
-          time['$lt'] = new Date(request.time.to);
+          time['$lt'] = new Date(request.time.to).getTime();
         } catch (e) {
           return callback(new Error('requested time.to is wrong!'));
         }
       }
       if(time === undefined){ // no time.from and no time.to
         try {
-          time = new Date(request.time);
+          time = new Date(request.time).getTime();
         } catch (e) {
           return callback(new Error('requested time is wrong!'));
         }
       }
     }
     
-    var device_query = request.query;
+    var device_query = _.map(request.query,
+      function(item){ // change id to _id for better searching
+        if(item.id){ item._id=item.id; delete item.id; } 
+        return item;
+      }
+    );
     
     if(device_query === undefined){ // if no query, search for everything
       device_query = {};
@@ -282,10 +294,10 @@
         
         // limit the query
         if( limit < 0 ){
-          query.sort({"x":-1})
+          query.sort({"_id":-1})
                .limit(-limit);
         } else {
-          query.sort({"x":1})
+          query.sort({"_id":1})
                .limit(limit);
         }
         query.select('-_id -__v'); // exclude '_id' & '__v'
@@ -305,6 +317,26 @@
       });
     });
   };
+  
+  /*
+   * Change size for existing Storage-Collection
+   * Arguments:
+   *    id = id of device
+   *    size = new size in kilobytes, that need to be set ( greater than 0 )
+   *    callback = calls a function(err) at the end
+   */
+  DeviceModel.statics.setStorageSize = function (id, size, callback) {
+    if(size <= 0) return callback(new Error("Wrong storage size"));
+    model.findOne({'id':newData.id}, 
+        function(err, result){
+          if(err){ 
+            console.warn("Some DB Error by search for device!");
+            console.warn(err.stack);
+            return;
+          }
+        }
+     );
+  }
   
   module.exports = mongoose.model(devicelistDB_name, DeviceModel);
 
