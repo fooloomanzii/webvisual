@@ -43,7 +43,7 @@
     { 
       // Define fixed size in bytes
       //   autoIndexId: false - shuts off the indexing by _id
-      capped: { size: 1024*1024*defalut_storage_size, autoIndexId: false },
+      capped: { size: 1024*defalut_storage_size, autoIndexId: false },
       // Versioning (__v) is important for updates. 
       // No updates => versioning is useless
       versionKey: false, // gets versioning off 
@@ -130,7 +130,7 @@
         } else { // write device to the list
           // create new collection of values and save it by device description
           newData.storage = deviceDB_prefix + newData.id;
-          model.update({'id':newData.id}, newData, {upsert: true},
+          model.update({'id':newData.id}, newData, { upsert: true },
              function(err) {
               if (err) { 
                 console.warn("Device can't be written to the list!");
