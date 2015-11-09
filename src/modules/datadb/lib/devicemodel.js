@@ -294,7 +294,7 @@
           if(err) return done(err);
 
           // sort ascending by date
-          if( limit < 0 ) _.sortBy(values, function(obj){ return obj.x; });
+          if( limit < 0 ) _.sortBy(results, function(obj){ return obj.x; });
           
           done(null, {'id':device.id, 'values': results});
         });
