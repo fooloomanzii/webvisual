@@ -128,7 +128,8 @@
           storage = mongoose.model(result.storage, StorageModel);
         } else { // write device to the list
           // create new collection of values and save it by device description
-          newData.storage = deviceDB_prefix + newData.id;
+          // collection names are always lower case
+          newData.storage = (deviceDB_prefix + newData.id).toLowerCase();
           model.update({'_id':newData.id}, newData, { upsert: true },
              function(err) {
               if (err) { 
