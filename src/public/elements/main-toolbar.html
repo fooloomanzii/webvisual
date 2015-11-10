@@ -53,6 +53,14 @@
     section#mainContent ::content paper-icon-button {
       transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     }
+    section#mainContent ::content .card, section#mainContent ::content .noncard {
+      border: none;
+    }
+    section#mainContent[dark] ::content .card, section#mainContent[dark] ::content .noncard {
+      border-right: thin solid #606060;
+    }
+
+
     section#header ::content paper-icon-button {
       margin-right: 12px;
     }
@@ -104,6 +112,9 @@
       section#lower[expanded] ::content .card {
         flex: 1;
       }
+      section#lower[expanded][dark] ::content .caption {
+        border-top: thin solid #606060;
+      }
     }
     @media all and (max-width: 440px) {
       section#header ::content paper-icon-button {
@@ -135,6 +146,9 @@
       section#lower[expanded] ::content .card {
         flex: 1;
       }
+      section#lower[expanded][dark] ::content .caption {
+        border-top: thin solid #606060;
+      }   
       section#lower ::content .noncard {
         height: calc(38vh - 64px - 1em);
       }
