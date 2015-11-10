@@ -227,7 +227,10 @@
 
       <table-element id="selectedElementTable" class="selectedElement noncard" element="{{selectedElement}}"></table-element>
       <!-- <line-chart id="selectedElementChart" data="{{selectedElement}}" fit></line-chart> -->
-      <leaflet-map id="selectedElementMap" class="noncard" latitude="50.904" longitude="6.41041" zoom="18" max-zoom="22"></leaflet-map>
+      <leaflet-map id="selectedElementMap" class="noncard" latitude="50.904" longitude="6.41041" zoom="18" max-zoom="22">
+        <!-- <leaflet-tilelayer url="http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png" minzoom="2" maxzoom="20">
+        </leaflet-tilelayer> // just for test different tile-layers -->
+      </leaflet-map>
 
     </main-toolbar>
 

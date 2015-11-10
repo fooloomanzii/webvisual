@@ -67,13 +67,6 @@
                   0 1px 5px 0 rgba(0, 0, 0, 0.12),
                   0 3px 1px -2px rgba(0, 0, 0, 0.2);
     }
-    section#lower ::content .noncard {
-      height: 7em;
-    }
-    section#lower ::content .card {
-      height: auto;
-      margin: 0em;
-    }
     section#lower ::content leaflet-map {
       width: 100%;
       border-radius: 0px 2px 2px 0px;
@@ -91,31 +84,70 @@
     section#lower[expanded] ::content .sign {
       border-radius: 2px 0px 0px 0px;
     }
+    section#lower ::content .card {
+      height: auto;
+      margin: 0em;
+    }
+    section#lower[expanded] section#selSign {
+      display: flex;
+      flex-direction: row;
+    }
+    section#lower section#selSign {
+      display: flex;
+      flex-direction: row;
+    }
+    @media all and (min-height: 780px){
+      section#lower[expanded] section#selSign {
+        display: flex;
+        flex-direction: column;
+      }
+      section#lower[expanded] ::content .card {
+        flex: 1;
+      }
+    }
     @media all and (max-width: 440px) {
       section#header ::content paper-icon-button {
         margin-right: 6px;
       }
-      section#selSign {
+      section#lower section#selSign {
         display: flex;
         flex-direction: column;
       }
-      section#lower ::content .noncard {
-        height: 14em;
+      section#lower[expanded] section#selSign {
+        display: flex;
+        flex-direction: column;
       }
       section#lower ::content .card {
         flex: 1;
       }
+      section#lower ::content .noncard {
+        height: calc(48vh - 64px - 1em);
+      }
       section#lower {
         font-size: 0.9em;
+      }
+    }
+    @media all and (max-width: 440px) and (min-height: 700px){
+      section#lower[expanded] section#selSign {
+        display: flex;
+        flex-direction: column;
+      }
+      section#lower[expanded] ::content .card {
+        flex: 1;
+      }
+      section#lower ::content .noncard {
+        height: calc(38vh - 64px - 1em);
       }
     }
     @media all and (min-width: 441px) {
       section#lower {
         font-size: 1em;
       }
-      section#selSign {
-        display: flex;
-        flex-direction: row;
+      section#lower ::content .noncard {
+        height: 7em;
+      }
+      section#lower[expanded] ::content .noncard {
+        height: calc(38vh - 64px - 1em);
       }
     }
     @media all and (min-width: 600px) and (max-width: 1000px) {
@@ -137,15 +169,6 @@
       -ms-flex: 1;
       -webkit-flex: 1;
       flex: 1;
-    }
-    section#lower[expanded] ::content .noncard {
-      height: calc(38vh - 64px - 1em);
-    }
-    section#lower[expanded] ::content .card {
-      flex: 1;
-    }
-    section#lower[expanded] #selSign {
-      flex-direction: column;
     }
   </style>
   <template>
