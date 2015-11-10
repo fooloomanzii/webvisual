@@ -290,7 +290,7 @@
         var query;
         
         if(time !== undefined){
-          query = values_collection.find({ 'x': time });
+          query = values_collection.find({ '_id': time });
         } else {
           query = values_collection.find({});
         }
