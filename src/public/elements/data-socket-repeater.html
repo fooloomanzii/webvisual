@@ -1,7 +1,7 @@
 <script src="../socket.io/socket.io.js"></script>
 <dom-module id="data-socket-repeater">
   <script>
-  HTMLImports.whenReady(function() {
+  window.addEventListener('WebComponentsReady', function(e) {
     Polymer({
       is: 'data-socket-repeater',
 
@@ -93,12 +93,14 @@
           doAppend: {
             type: Boolean,
             value: true,
-            notify: true
+            notify: true,
+            reflectToAttribute: true
           },
           newestDataLast: {
             type: Boolean,
             value: false,
-            notify: true
+            notify: true,
+            reflectToAttribute: true
           }
       },
 
@@ -158,10 +160,17 @@
         }
       },
 
+      _init: function() {
+        this.set('data',[]);
+        this.set('ids',[]);
+        this.set('groups',{"all":[{"name":"all","ids":[]}]});
+        this.set('types',[]);
+      },
+
       _onFirstData: function(message){
         if(message === undefined) return; // Check the Existence
         var time = new Date();
-        this.set("status.time.lastStatus",new Date()); this.set("status.message", "processing first data");
+        this.set("status.time.lastStatus", time); this.set("status.message", "processing first data");
         this.set("status.time.lastData", time);
 
         this._setKeys(message.groupingKeys);
@@ -229,7 +238,13 @@
 
       _setValues: function(messageContent, i){
         if (!this.doAppend)
-          this._initDataPoint(messageContent, i)
+        // {
+        //   this.set("data."+i+".values",null);
+        //   this.set("data."+i+".values",[]);
+        // }
+          // this.splice("data."+i+".values",0,this.data[i].values.length - 1);
+          while (this.data[i].values.length > 0)
+            this.pop("data."+i+".values");
         if (this.newestDataLast) {
           for (var j=0; j < messageContent.values.length; j++)
             this.unshift("data."+i+".values",messageContent.values[j]);
@@ -263,6 +278,7 @@
           }
         }
       },
+
       _implExclusiveGroups: function() {
         for (var key in this.exclusiveGroups) {
           if(!this.groups[key])

@@ -42,17 +42,22 @@
       align-items: center;
     }
     section#lower {
-      max-height: 128px;
       overflow: hidden !important;
       padding: 0.5em;
       display: flex;
       flex-direction: row;
       align-items: stretch;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    section#mainContent ::content paper-icon-button {
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     }
     section#header ::content paper-icon-button {
-      margin: 0px 8px;
-      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-right: 12px;
+    }
+    section#header ::content paper-icon-button.menu-icon {
+      margin: 0px 16px;
     }
     section#header ::content paper-icon-button:hover {
       background: #669DB4;
@@ -62,56 +67,70 @@
                   0 1px 5px 0 rgba(0, 0, 0, 0.12),
                   0 3px 1px -2px rgba(0, 0, 0, 0.2);
     }
-    section#lower ::content .card {
-      display: flex;
-      flex-wrap: wrap;
-      border: this solid #252D36;
-    }
-    section#lower ::content sign-element {
-      height: auto;
-    }
-    section#lower ::content table-element {
+    section#lower ::content .noncard {
       height: 7em;
+    }
+    section#lower ::content .card {
+      height: auto;
+      margin: 0em;
+    }
+    section#lower ::content leaflet-map {
+      width: 100%;
+      border-radius: 0px 2px 2px 0px;
     }
     section#lower ::content .caption {
       padding: 1em 0.7em;
+      border-radius: 0px;
     }
-    section#selSign {
-      display: flex;
-      flex-direction: row;
+    section#lower[expanded] ::content .caption {
+      border-radius: 0px 0px 0px 2px;
     }
-    @media all and (max-width: 400px) {
-      section#lower ::content .card {
+    section#lower ::content .sign {
+      border-radius: 2px 0px 0px 2px;
+    }
+    section#lower[expanded] ::content .sign {
+      border-radius: 2px 0px 0px 0px;
+    }
+    @media all and (max-width: 440px) {
+      section#header ::content paper-icon-button {
+        margin-right: 6px;
+      }
+      section#selSign {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
+      }
+      section#lower ::content .noncard {
+        height: 14em;
+      }
+      section#lower ::content .card {
+        flex: 1;
       }
       section#lower {
         font-size: 0.9em;
-        max-height: 104px;
       }
     }
-    @media all and (min-width: 400px) and (max-width: 600px) {
+    @media all and (min-width: 441px) {
       section#lower {
         font-size: 1em;
-        max-height: 128px;
+      }
+      section#selSign {
+        display: flex;
+        flex-direction: row;
       }
     }
     @media all and (min-width: 600px) and (max-width: 1000px) {
       section#lower {
         font-size: 1.1em;
-        max-height: 192px;
       }
     }
     @media all and (min-width: 1001px) and (max-width: 1400px) {
       section#lower {
         font-size: 1.15em;
-        max-height: 224px;
       }
     }
     @media all and (min-width: 1401px) {
       section#lower {
         font-size: 1.2em;
-        max-height: 272px;
       }
     }
     .flex {
@@ -119,14 +138,24 @@
       -webkit-flex: 1;
       flex: 1;
     }
+    section#lower[expanded] ::content .noncard {
+      height: calc(38vh - 64px - 1em);
+    }
+    section#lower[expanded] ::content .card {
+      flex: 1;
+    }
+    section#lower[expanded] #selSign {
+      flex-direction: column;
+    }
   </style>
   <template>
 
-    <section id="mainContent" on-track="handleTrack">
+    <section id="mainContent" on-track="_handleTrack">
       <section id="header">
-        <content select=".header"></content>
+        <content select=".menu-icon"></content>
         <div class="flex"></div>
         <section hidden="{{!opened}}">
+          <paper-icon-button icon="{{_computeExpandIcon(expanded)}}" class="expand-icon" on-click="_expandView"></paper-icon-button>
           <content select=".toggle-icon"></content>
         </section>
       </section>
@@ -135,6 +164,8 @@
           <content id="sign" select="#selectedElementSign,#selectedElementCaption"></content>
         </section>
         <content id="table" select="#selectedElementTable"></content>
+        <content id="graph" select="#selectedElementGraph"></content>
+        <content id="map" select="#selectedElementMap"></content>
       </section>
     </section>
 
@@ -156,7 +187,8 @@
     attached: function() {
       var nodeSign  = Polymer.dom(this.$.sign).getDistributedNodes();
       var nodeTable = Polymer.dom(this.$.table).getDistributedNodes();
-      var nodes = nodeSign.concat(nodeTable);
+      var nodeMap = Polymer.dom(this.$.map).getDistributedNodes();
+      var nodes = nodeSign.concat(nodeTable,nodeMap);
       this.animationConfig.in[0].nodes = Array.prototype.slice.call(nodes);
       this.animationConfig.out[0].nodes = Array.prototype.slice.call(nodes);
     },
@@ -165,7 +197,14 @@
       opened: {
         type: Boolean,
         value: false,
-        reflectToAttribute: true
+        reflectToAttribute: true,
+        observer: "_updateView"
+      },
+      expanded: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true,
+        notify: true
       },
       animationConfig: {
         type: Object,
@@ -175,7 +214,7 @@
               {
                 name: 'cascaded-animation',
                 animation: 'scale-up-animation',
-                nodeDelay: 80
+                nodeDelay: 1
               }
             ],
             'out': [
@@ -190,9 +229,28 @@
       }
     },
 
-    handleTrack: function(e) {
+    _handleTrack: function(e) {
       if (e.target == this.$.lower && this.opened && (e.detail.state == 'end') && e.detail.dy < 0)
         this.fire('deselect');
+    },
+
+    _updateView: function() {
+      this.fire('resize');
+    },
+
+    _expandView: function() {
+      if (this.opened) {
+        this.set('expanded',!this.expanded);
+        this.toggleAttribute('expanded',this.expanded,this.$.lower);
+        this.fire('resize');
+      }
+    },
+
+    _computeExpandIcon: function() {
+      if (this.expanded)
+        return 'expand-less';
+      else
+        return 'expand-more';
     }
 
   });
