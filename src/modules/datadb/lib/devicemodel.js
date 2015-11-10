@@ -154,17 +154,44 @@
               return item;
             }
           );
-          storage.create(valuesToAppend,
-            function(err) {
-              if (err) { return callback(err); }
-              
-              callback( null, 
-                { id     : newData.id,
-                  values : newData.values //still the old values
+          
+          
+          // append_new_values defined as function 
+          //   for recursive solution of problem values
+          // append_tries = count tries for problem values
+          var append_new_values = function(newValues, append_tries){
+            storage.create(newValues,
+              function(err) {
+                if (err) { 
+                  console.log("1");
+                  if(err.code == 11000 && append_tries < 1000){
+                    // duplicate _id error (try to increase _id's millisecond)
+                    var err_value = err.toJSON().op; // value caused a problem
+                    // set ( milliseconds + 1 ) % 1000
+                    var old_id_time = new Date( err_value._id );
+                    old_id_time.setMilliseconds(
+                        ( old_id_time.getMilliseconds()+1 ) % 1000
+                    );
+                    err_value._id = old_id_time.getTime();
+                    console.log(err_value._id);
+                    // try again
+                    append_tries++;
+                    append_new_values(err_value, append_tries);
+                    return;
+                  }
+                  return callback(err); 
                 }
-              );
-            }
-          );
+                
+                callback( null, 
+                  { id     : newData.id,
+                    values : newData.values //still the old values
+                  }
+                );
+              }
+            );
+          }
+          
+          append_new_values(valuesToAppend, 0);
         }
       }
     );
