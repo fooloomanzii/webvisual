@@ -296,11 +296,13 @@
         }
         
         // limit the query
+        // The $natural parameter returns items according to their natural 
+        // order within the database. It's the fastest order to sort.
         if( limit < 0 ){
-          query.sort({"_id":-1})
+          query.sort({ $natural:-1 })
                .limit(-limit);
         } else {
-          query.sort({"_id":1})
+          query.sort({ $natural:1 })
                .limit(limit);
         }
         query.select('-_id -__v'); // exclude '_id' & '__v'
