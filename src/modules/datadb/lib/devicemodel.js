@@ -33,10 +33,8 @@
   
   // Mongoose Schema to store the values
   var StorageModel = new Schema({   
-      _id     : Number, // x.getTime()
-      x       : { type: Date, // Time of Measure
-                  index: true // Index values by time
-                },   
+      _id     : Number, // index = x.getTime()
+      x       : Date, // Time of Measure  
       y       : Number, // Measured Value
       exceeds : Boolean // false = under the limit, 
                         // true = over the limit, 
@@ -46,21 +44,25 @@
     { 
       // Define fixed size in bytes
       //   autoIndexId: false - shuts off the indexing by _id
-      capped: { size: 1024*defalut_storage_size, autoIndexId: false },
+      capped: { size: 1024*defalut_storage_size },
       // Versioning (__v) is important for updates. 
       // No updates => versioning is useless
-      versionKey: false, // gets versioning off 
-      autoIndex: false // significant performance improvement
+      versionKey: false // gets versioning off 
+      
+      //, autoIndex: false // significant performance improvement 
+      // TODO check if index is registered and register it manually
     } 
 
   );
   // mongoose Schema to store the device properties
   var DeviceModel = new Schema({
-      _id       : String, // Measuring Device ID
+      _id       : String, // index = Measuring Device ID
       storage   : String  // Name of the Collection with Device values
     }, 
-    // significant performance improvement
-    { autoIndex: false } // http://mongoosejs.com/docs/guide.html
+    // options
+    { // significant performance improvement
+      //autoIndex: false // http://mongoosejs.com/docs/guide.html
+    } 
   );
   
   
@@ -155,43 +157,66 @@
             }
           );
           
-          
-          // append_new_values defined as function 
-          //   for recursive solution of problem values
-          // append_tries = count tries for problem values
-          var append_new_values = function(newValues, append_tries){
-            storage.create(newValues,
+          // append_new_values serves to properly writing 
+          //    of possible values with identical time
+          // append_tries = writing tries count for problem values
+          var append_new_values = function(newValue, append_tries, done){
+            storage.create(newValue,
               function(err) {
                 if (err) { 
-                  console.log("1");
+                  // 11000 = duplicate _id error 
                   if(err.code == 11000 && append_tries < 1000){
-                    // duplicate _id error (try to increase _id's millisecond)
-                    var err_value = err.toJSON().op; // value caused a problem
-                    // set ( milliseconds + 1 ) % 1000
-                    var old_id_time = new Date( err_value._id );
-                    old_id_time.setMilliseconds(
-                        ( old_id_time.getMilliseconds()+1 ) % 1000
-                    );
-                    err_value._id = old_id_time.getTime();
-                    console.log(err_value._id);
-                    // try again
-                    append_tries++;
-                    append_new_values(err_value, append_tries);
-                    return;
+                    // check if value is the same. 
+                    // if yes, we don't need to write it to db.
+                    return storage.findById(newValue._id, function (err, result) {
+                      if(err){ // hard to handle....
+                        console.warn("Cannot find "+newValue._id);
+                        console.warn(err.stack);
+                        return done();
+                      }
+                      
+                      if(result.y === newValue.y) return done();
+                      
+                      // (try to increase _id's millisecond)
+                      // set ( milliseconds + 1 ) % 1000
+                      var old_id_time = new Date( newValue._id );
+                      old_id_time.setMilliseconds(
+                          ( old_id_time.getMilliseconds()+1 ) % 1000
+                      );
+                      newValue._id = old_id_time.getTime();
+                      // try again
+                      append_tries++;
+                      return append_new_values(newValue, append_tries, done);
+                      
+                    });
                   }
-                  return callback(err); 
+                  // append_tries >= 1000 or error != 11000
+                  return done(err); 
                 }
-                
-                callback( null, 
-                  { id     : newData.id,
-                    values : newData.values //still the old values
-                  }
-                );
+                // no errors
+                return done( null, newValue );
               }
             );
           }
           
-          append_new_values(valuesToAppend, 0);
+          // append all values parallel
+          async.map(
+              valuesToAppend, 
+              function(value, callback){
+                append_new_values(value, 0, callback);
+              },
+              function(err, appendedValues){
+                if(err) return callback(err, appendedValues);
+
+                callback( null, 
+                  { id     : newData.id,
+                    values : appendedValues. // values, that was appended
+                             // remove 'undefined' values
+                             filter(function(item){ return item })
+                  }
+                );
+              }
+          );
         }
       }
     );
