@@ -60,8 +60,6 @@
     section#mainContent[dark] ::content .incard, section#mainContent[dark] ::content .noncard {
       border-right: thin solid #606060;
     }
-
-
     section#header ::content paper-icon-button {
       margin-right: 12px;
     }
@@ -95,6 +93,7 @@
     }
     section#lower ::content .incard {
       height: auto;
+      min-height: 3em;
       margin: 0em;
     }
     section#lower[expanded] section#selSign {
@@ -104,9 +103,6 @@
     section#lower section#selSign {
       display: flex;
       flex-direction: row;
-    }
-    section#lower[expanded] ::content .caption {
-      border-top: thin solid #BBBBBB;
     }
     @media all and (min-height: 690px){
       section#lower[expanded] section#selSign {
@@ -119,21 +115,23 @@
       section#lower[expanded][dark] ::content .caption {
         border-top: thin solid #606060;
       }
+      section#lower[expanded] ::content .caption {
+        border-top: thin solid #BBBBBB;
+      }
+      section#lower[expanded] ::content .noncard {
+        height: calc(48vh - 64px - 1em);
+      }
     }
-    @media all and (max-width: 440px) {
-      section#header ::content paper-icon-button {
-        margin-right: 6px;
-      }
+    @media all and (max-width: 610px) {
       section#lower section#selSign {
-        display: flex;
-        flex-direction: column;
-      }
-      section#lower[expanded] section#selSign {
         display: flex;
         flex-direction: column;
       }
       section#lower ::content .incard {
         flex: 1;
+      }
+      section#header ::content paper-icon-button {
+        margin-right: 6px;
       }
       section#lower ::content .noncard {
         height: calc(48vh - 64px - 1em);
@@ -141,8 +139,6 @@
       section#lower {
         font-size: 0.9em;
       }
-    }
-    @media all and (max-width: 440px) and (min-height: 700px){
       section#lower[expanded] section#selSign {
         display: flex;
         flex-direction: column;
@@ -156,20 +152,49 @@
       section#lower ::content .caption {
         border-top: thin solid #BBBBBB;
       }
-
-      section#lower ::content .noncard {
-        height: calc(38vh - 64px - 1em);
-      }
     }
-    @media all and (min-width: 441px) {
+    @media all and (min-width: 611px) {
+      section#lower section#selSign {
+        display: flex;
+        flex-direction: row;
+      }
+      section#lower[dark] ::content .caption {
+        border-top: none;
+      }
+      section#lower ::content .caption {
+        border-top: none;
+      }
+      section#lower ::content .noncard {
+        height: 8em;
+      }
       section#lower {
         font-size: 1em;
       }
-      section#lower ::content .noncard {
-        height: 7em;
-      }
       section#lower[expanded] ::content .noncard {
         height: calc(38vh - 64px - 1em);
+      }
+    }
+    @media all and (min-width: 611px) and (max-width: 1000px) and (orientation: landscape) {
+      section#lower[expanded] section#selSign {
+        display: flex;
+        flex-direction: column;
+      }
+      section#lower[expanded] ::content .incard {
+        flex: 1;
+      }
+      section#lower[expanded][dark] ::content .caption {
+        border-top: thin solid #606060;
+      }
+      section#lower[expanded] ::content .caption {
+        border-top: thin solid #BBBBBB;
+      }
+      section#lower[expanded] ::content .noncard {
+        height: calc(48vh - 64px - 1em);
+      }
+    }
+    @media all and (min-width: 1000px) and (orientation: portrait) {
+      section#lower[expanded] ::content .noncard {
+        height: calc(32vh - 64px - 1em);
       }
     }
     @media all and (min-width: 600px) and (max-width: 1000px) {
