@@ -19,7 +19,10 @@
       padding: 0em;
       background: #669DB4;
       color: #f1f1f1;
-      border-radius: 4px 5px 0px 0px;
+      border-top-left-radius: inherit;
+      border-top-right-radius: inherit;
+      border-bottom-left-radius: 0px;
+      border-bottom-right-radius: 0px;
       padding: 0.5em 1em 0.5em 0.75em;
       border: thin solid transparent;
     }
@@ -49,9 +52,9 @@
                   0 2px 4px -1px rgba(0, 0, 0, 0.4);
     }
     #outer:hover {
-      box-shadow: 0 5px 6px 0 rgba(0, 0, 0, 0.14),
-                  0 2px 11px 0 rgba(0, 0, 0, 0.12),
-                  0 3px 5px -2px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 18px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 5px -1px rgba(0, 0, 0, 0.4);
     }
     #outer[dark] {
       background: #8A8A8A;
@@ -71,12 +74,12 @@
     }
     @media all and (min-width: 750px) and (max-width: 1280px) and (orientation: portrait) {
       #outer:not([name='all']) {
-        max-width: 24em;
+        max-width: 23.55em;
       }
     }
     @media all and (min-width: 600px) and (max-width: 1280px) and (orientation: landscape) {
       #outer:not([name='all']) {
-        max-width: 24em;
+        max-width: 23.55em;
       }
     }
     @media all and (min-width: 1280px) {

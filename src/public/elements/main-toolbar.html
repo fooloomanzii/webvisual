@@ -16,7 +16,7 @@
       margin: 0em;
       padding: 0em;
       height: 64px;
-      max-height: 48vh;
+      max-height: 52vh;
     }
     :host[opened]{
       height: auto;
@@ -53,10 +53,11 @@
     section#mainContent ::content paper-icon-button {
       transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    section#mainContent ::content .card, section#mainContent ::content .noncard {
-      border: none;
+    section#mainContent ::content .incard, section#mainContent ::content .noncard {
+      border-top: none;
+      border-right: thin solid #BBBBBB;
     }
-    section#mainContent[dark] ::content .card, section#mainContent[dark] ::content .noncard {
+    section#mainContent[dark] ::content .incard, section#mainContent[dark] ::content .noncard {
       border-right: thin solid #606060;
     }
 
@@ -92,7 +93,7 @@
     section#lower[expanded] ::content .sign {
       border-radius: 2px 0px 0px 0px;
     }
-    section#lower ::content .card {
+    section#lower ::content .incard {
       height: auto;
       margin: 0em;
     }
@@ -104,12 +105,15 @@
       display: flex;
       flex-direction: row;
     }
-    @media all and (min-height: 780px){
+    section#lower[expanded] ::content .caption {
+      border-top: thin solid #BBBBBB;
+    }
+    @media all and (min-height: 690px){
       section#lower[expanded] section#selSign {
         display: flex;
         flex-direction: column;
       }
-      section#lower[expanded] ::content .card {
+      section#lower[expanded] ::content .incard {
         flex: 1;
       }
       section#lower[expanded][dark] ::content .caption {
@@ -128,7 +132,7 @@
         display: flex;
         flex-direction: column;
       }
-      section#lower ::content .card {
+      section#lower ::content .incard {
         flex: 1;
       }
       section#lower ::content .noncard {
@@ -143,12 +147,16 @@
         display: flex;
         flex-direction: column;
       }
-      section#lower[expanded] ::content .card {
+      section#lower[expanded] ::content .incard {
         flex: 1;
       }
-      section#lower[expanded][dark] ::content .caption {
+      section#lower[dark] ::content .caption {
         border-top: thin solid #606060;
-      }   
+      }
+      section#lower ::content .caption {
+        border-top: thin solid #BBBBBB;
+      }
+
       section#lower ::content .noncard {
         height: calc(38vh - 64px - 1em);
       }

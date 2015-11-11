@@ -61,7 +61,7 @@
       flex: 1;
       -webkit-flex-basis: 0.000000001px;
       flex-basis: 0.000000001px;
-      background: #CCCCCC;
+      background: #BBBBBB;
       padding: 0.4em;
     }
     section#dropShadow {
@@ -87,6 +87,7 @@
       }
       post-card {
         padding: 0em;
+        border-radius: 0em;
       }
     }
     section#mainContent[dark] {
@@ -99,16 +100,16 @@
     }
     section.card {
       border-radius: 2px 2px 2px 3px;
-      border: thin solid lightgrey;
+      border: thin solid #BBBBBB;
       border-radius: 2px;
       align-self: stretch;
-      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     }
     section.card[dark] {
       border: thin solid #606060;
     }
     section.caption {
       background: white;
+      border-top: thin solid #BBBBBB;
       color: #1f1f1f;
       flex-direction: column;
       line-height: 1.4;
@@ -218,8 +219,8 @@
       <paper-icon-button icon="menu" class="menu-icon" on-click="togglePanel"></paper-icon-button>
       <paper-icon-button icon="remove" class="toggle-icon" on-click="deselectElement"></paper-icon-button>
 
-      <sign-element id="selectedElementSign" class="selectedElement sign card" element="{{selectedElement}}" on-click="deselectElement"></sign-element>
-      <section id="selectedElementCaption" class="selectedElement caption card">
+      <sign-element id="selectedElementSign" class="selectedElement sign incard" element="{{selectedElement}}" on-click="deselectElement"></sign-element>
+      <section id="selectedElementCaption" class="selectedElement caption incard">
         <span id="kind">{{selectedElement.kind}}</span>
         <span id="method">{{selectedElement.method}}</span>
         <span id="room">{{selectedElement.room}}</span>
