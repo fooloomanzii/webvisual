@@ -46,8 +46,8 @@ var // ASYNC <-- one callback for a lot of async operations
 
     /* Default config */
     defaults     = { connections : [],
-                     command_file: 'commands.json',
                      port        : 3000,
+                     updateIntervall : 1000
     };
 
     // Configuration from config-file, uses default values, if necessary
@@ -234,28 +234,10 @@ var dataFile = new dataHandler( {
 
             // Save new Data in Database and send for each client the updated Data
             dbcontroller.appendData(
-              currentData.content,
-              function (err, appendedData) {
-                if(err) console.warn(err.stack);
-
-                // for each client the updated data is sent in a row asynchronously
-                async.each(clients,
-                  function(client, callback){
-                    if(!client.hasFirst) return callback();
-
-                    var message = {
-                       content: appendedData,
-                       time: new Date(), // current message time
-                    };
-
-                    client.socket.emit('data', message);
-                    callback();
-                  },
-                  function(err){
-                    if(err) console.warn(err.stack);
-                  }
-                );
-              }
+                currentData.content,
+                function (err, appendedData) {
+                  if(err) console.warn(err.stack);
+                }
             );
           }
         ]
@@ -301,6 +283,48 @@ dataSocket.on('connection', function(socket) {
     );
   });
 });
+
+
+//Send new data on constant time intervals
+setInterval(
+  function(){
+    dbcontroller.switchTmpDB(function(tmpDB){
+      if(!tmpDB) return;
+      async.each(clients, 
+          function(client, callback){
+            dbcontroller.getDataFromModel(tmpDB,
+              client.appendPattern,
+              function (err, data) {
+                if(err){
+                  console.warn(err.stack);
+                  callback();
+                  return;
+                }
+                if(data.length < 1){
+                  //empty data
+                  return;
+                }
+                var message = {
+                   content: data,
+                   time: new Date(), // current message time
+                };
+                client.socket.emit('data', message);
+                callback();
+              }
+            );
+          },
+          function(err){
+            if(err) console.warn(err.stack);
+            // cleanize current tmp
+            tmpDB.remove({},function(err){
+              if(err) console.warn(err.stack);
+            });
+          }
+      );
+    });
+  }, config.updateIntervall 
+);
+
 
 /*
  * Get SERVER.io and server running!

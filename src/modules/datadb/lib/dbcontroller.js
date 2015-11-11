@@ -16,8 +16,8 @@ var DBController = function (dataModel) {
  */
 DBController.prototype.appendData = function (newData, callback) {
   // append - is custom function in the custom model
-  this.dataModel.append(newData, function(err, appendedData, tmpModel){
-    callback(err, appendedData, tmpModel);
+  this.dataModel.append(newData, function(err, appendedData){
+    callback(err, appendedData);
   });
 };
 
@@ -30,6 +30,25 @@ DBController.prototype.getData = function (request, callback) {
     callback(err, result);
   });
 };
+
+/*
+ * Search for some query in tmpDB and call the callback with found data
+ * How to use the function read by devicedata.js/query
+ */
+DBController.prototype.getDataFromModel = function (model, request, callback) {
+  model.query(request, function (err, result) {
+    callback(err, result);
+  });
+};
+
+/*
+ * Switches Temporary Database to the next one 
+ * and passes the current one per callback
+ */
+DBController.prototype.switchTmpDB = function (callback) {
+  this.dataModel.switchTmpDB(callback);
+};
+
 
 /*
  * Sets new fixed size in kilobytes to collection of values for given device id

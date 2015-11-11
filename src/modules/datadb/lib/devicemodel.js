@@ -13,6 +13,14 @@
    * and so it's hard to find better solution..
    **/
   
+  // Dependencies
+  var mongoose = require('mongoose'),
+      Schema   = mongoose.Schema,
+      _        = require('underscore'),
+      async    = require('async'),
+      tmpModel = require('./tmpmodel.js');
+  
+  
   // --- Variables --- //
   
   /* Global variables */
@@ -25,11 +33,12 @@
   // default size in kb for values collections per device
   var defalut_storage_size = 50*1024; 
   
-  // Dependencies
-  var mongoose = require('mongoose'),
-      Schema   = mongoose.Schema,
-      _        = require('underscore'),
-      async    = require('async');
+  // tmpDB helpful variables
+  var cur_tmp = 0; // index of current temporary Database
+  var num_of_tmps = 3; // number of temporary Databases
+  var tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel); // temporary Database
+  var tmp_is_free; // boolean to see the current state of tmp
+  var tmp_switch_callback; // special callback to use if tmpDB in use
   
   // Mongoose Schema to store the values
   var StorageModel = new Schema({   
@@ -68,6 +77,25 @@
   
   // --- Functions --- //
   
+  
+  DeviceModel.statics.switchTmpDB = function(callback){
+    if(!tmp_is_free){ // last tmpDB is in use
+      tmp_switch_callback = callback;
+    } else {
+      tmp_switch_callback = null;
+      create_new_tmpDB(callback);
+    }
+  }
+  
+  // private function - switches tmpDB and passes old tmpDB to callback
+  function create_new_tmpDB(callback){
+    var last_tmpDB = tmpDB;
+    cur_tmp = (cur_tmp + 1) % num_of_tmps;
+    tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel);
+    callback(last_tmpDB);
+  }
+  
+  
   /*
    * Append new Document to the Collection
    * newData - is a normal data-object or Array of data-objects
@@ -90,7 +118,13 @@
     var self = this; // allow to pass this model to global functions
     if(!_.isArray(newData)){
       return save(self, newData, function(err, appendedData){
-          callback(err, appendedData);
+        // fill the temporary model with data from current update
+        tmp_is_free = false;
+        tmpDB.create(appendedData, function(err){
+          tmp_is_free = true;
+          if(tmp_switch_callback) create_new_tmpDB(tmp_switch_callback);
+          if(callback) callback(err, appendedData);
+        });
       });
     }
 
@@ -101,9 +135,23 @@
       
       save(self, data, async_callback);
     }, function(err, appendedData){
+      // remove all elements == null
+      appendedData = appendedData.filter(function(n){ return n });
       if(err) return callback(err, appendedData);
-
-      callback(err, appendedData);
+      
+      // fill the temporary model with data from current update
+      tmp_is_free = false;
+      tmpDB.create(appendedData, function(err){
+        if(err){
+          console.log("here");
+          console.log(appendedData[0].values);
+        }
+        tmp_is_free = true;
+        if(tmp_switch_callback){
+          create_new_tmpDB(tmp_switch_callback);
+        }
+        if(callback) callback(err, appendedData);
+      });
     });
   };
   
@@ -157,6 +205,7 @@
             }
           );
           
+          // TODO stress test (lot of devices and values parallel)
           // append_new_values serves to properly writing 
           //    of possible values with identical time
           // append_tries = writing tries count for problem values
@@ -194,6 +243,7 @@
                   return done(err); 
                 }
                 // no errors
+                delete newValue._id; // we don't need _id anymore
                 return done( null, newValue );
               }
             );
