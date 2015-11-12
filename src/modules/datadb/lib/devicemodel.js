@@ -20,7 +20,6 @@
       async    = require('async'),
       tmpModel = require('./tmpmodel.js');
   
-  
   // --- Variables --- //
   
   /* Global variables */
@@ -37,8 +36,6 @@
   var cur_tmp = 0; // index of current temporary Database
   var num_of_tmps = 3; // number of temporary Databases
   var tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel); // temporary Database
-  var tmp_is_free; // boolean to see the current state of tmp
-  var tmp_switch_callback; // special callback to use if tmpDB in use
   
   // Mongoose Schema to store the values
   var StorageModel = new Schema({   
@@ -89,20 +86,15 @@
    * and passes the current one per callback
    */
   DeviceModel.statics.switchTmpDB = function(callback){
-    if(!tmp_is_free){ // last tmpDB is in use
-      tmp_switch_callback = callback;
-    } else {
-      tmp_switch_callback = null;
-      create_new_tmpDB(callback);
-    }
-  }
-  
-  // private function - switches tmpDB and passes old tmpDB to callback
-  function create_new_tmpDB(callback){
     var last_tmpDB = tmpDB;
     cur_tmp = (cur_tmp + 1) % num_of_tmps;
     tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel);
     if(callback) callback(last_tmpDB);
+  }
+  
+  // private function - switches tmpDB and passes old tmpDB to callback
+  function create_new_tmpDB(callback){
+    
   }
   
   
@@ -137,7 +129,7 @@
     var self = this;
     async.each(devices, 
         function(device, done){
-          self.update({'_id':device.id}, device, { upsert: true },
+          self.update( {'_id':device.id}, device, { upsert: true },
               function(err) {
                if (err) { 
                  console.warn("Device can't be written to the list!");
@@ -176,12 +168,11 @@
     if(!_.isArray(newData)){
       return save(self, newData, function(err, appendedData){
         // fill the temporary model with data from current update
-        tmp_is_free = false;
-        tmpDB.create(appendedData, function(err){
-          tmp_is_free = true;
-          if(tmp_switch_callback) create_new_tmpDB(tmp_switch_callback);
-          if(callback) callback(err, appendedData);
-        });
+        tmpDB.update({'_id':result.id}, result, {upsert: true },
+            function(err){
+                if(callback) callback(err, appendedData);
+            }
+        );
       });
     }
 
@@ -190,25 +181,19 @@
     async.map(newData, function(data, async_callback) {
       if(data === undefined) return;
       
-      save(self, data, async_callback);
+      save(self, data, function(err, result){
+        
+        // fill the temporary model with data from current update
+        tmpDB.update({'_id':result.id}, result, {upsert: true },
+            function(err){
+              async_callback(err, result);
+            }
+        );
+      });
     }, function(err, appendedData){
       // remove all elements == null
       appendedData = appendedData.filter(function(n){ return n });
-      if(err) return callback(err, appendedData);
-      
-      // fill the temporary model with data from current update
-      tmp_is_free = false;
-      tmpDB.create(appendedData, function(err){
-        if(err){
-          console.log("here");
-          console.log(appendedData[0].values);
-        }
-        tmp_is_free = true;
-        if(tmp_switch_callback){
-          create_new_tmpDB(tmp_switch_callback);
-        }
-        if(callback) callback(err, appendedData);
-      });
+      return callback(err, appendedData);
     });
   };
   

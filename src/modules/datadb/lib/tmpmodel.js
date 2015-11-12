@@ -6,19 +6,33 @@
   // Variables
   var mongoose = require('mongoose'),
       Schema   = mongoose.Schema,
-      moment   = require('moment'),
       _        = require('underscore'),
       async    = require('async');
   
+  var ValuesModel = new Schema({   
+    x       : Date, // Time of Measure  
+    y       : Number, // Measured Value
+    exceeds : Boolean // false = under the limit, 
+                      // true = over the limit, 
+                      // null = ok.
+  }, 
+  // options
+  { 
+    // Versioning (__v) is important for updates. 
+    // No updates => versioning is useless
+    versionKey: false, // gets versioning off 
+    _id: false,
+    autoIndex: false // significant performance improvement 
+    // TODO check if index is registered and register it manually
+  } 
+
+);
+  
   var TMPModel = new Schema({
+      // VERY IMPORTANT to use your OWN _id! Without it, db will endless grow!
+      _id       : String, 
       id        : String, // Measuring Device ID
-      values    : [{       // Measured Data
-        x       : Date,   // Time of Measure
-        y       : Number, // Measured Value
-        exceeds  : Boolean // false = under the limit, 
-                          // true = over the limit, 
-                          // null = ok.
-      }]
+      values    : [ValuesModel] // Measured Data
     }, 
     // significant performance impact
     { autoIndex: false } // http://mongoosejs.com/docs/guide.html
@@ -27,78 +41,46 @@
   //--- Functions --- //
   
   /*
-   *                           !!! ATTENSION !!! 
-   *   If there are no 'time' or 'limit', values may be UNSORTED BY TIME!
-   *   
-   * Description:  
-   *  Function to search for some data and call the callback with found results
+   * Searches for objects to match the given request
    *  Possible request properties:
-   *      query - properties to search for: room: "...", unit: "...", id  : "..."
-   *              default: null
+   *      query - properties to search for: {room: "..", unit: "..", id: ".."}
+   *              default: null (all devices)
    *      time  - moment(...) : http://momentjs.com/docs/
    *                OR Date OR parameter to create new Date(parameter)
    *                OR {from: ..., to: ...} OR {from: ...} OR {to: ...}
-   *                from/to is the same as 'time' (except nesting from/to)
-   *                'from' is included, 'to' is excluded
+   *                'from/to'-objects have the same structure 
+   *                as 'time' without 'from/to'
    *              e.g. '2015-08-15' or 12345 (to parse Date from)
    *                   or { from: moment('2015-08-15').add(2, 'months'),
    *                        to: moment().subtract(1, 'day') }
    *              default: null
-   *      limit - maximal number (integer) of values to be returned,
+   *      limit - maximal number of values per device to be returned,
    *              appending on time:
    *                   (-) for values before time/time.to  (e.g. last N values)
    *                   (+) for values after time/time.from (e.g. first N values)
-   *                   (0) no extra limits :)
+   *                   (0) last max_query_limit/(number of devices) values
+   *                       before time/time.to
    *              or without time:
    *                   (-) for last N values
    *                   (+) for first N values
-   *                   (0) no extra limits :)
+   *                   (0) last max_query_limit/(number of devices) values
    *              default: null (no extra limits)
-   *      sort  - { property : 1 to specify ascending order
-   *                          -1 to specify descending order }
-   *              default: {id : 1}
    *                     
-   * all properties are optional 
+   * all request properties are optional
    * and need to be in the query object (order has no influence)
-   * e.g. request = { query: { roomNr: "1" }, 
-   *                  time:  { from: moment().subtract(1, 'months') },
-   *                  sort:  { room: "-1" } }
-   *      it requests data with roomNr = "1" from 1 month till now,
-   *      sorted descending by room name
-   * to receive all the data leave query as null : findData(null, callback)
-   * or just call findData(callback);
-   * 
+   * e.g. request = { query: { id: "1" }, 
+   *                  limit: -15,
+   *                  time:  { from: moment().subtract(1, 'months') }
+   *                 }
+   *      it requests data for device with id = "1" from 1 month till now,
+   *      limited to last 15 values per device
+   *      
+   * you can also leave the request as null : findData(null, callback)
+   * or just call findData(callback); to get data for all existing devices, 
+   * last max_query_limit/(number of devices) values each device
    */
-  TMPModel.statics.query = function (request, callback, options) {
+  TMPModel.statics.query = function (request, callback) {
     var self = this;
-    if(!_.isArray(request)){
-      return find(self, request, callback);
-    }
-    
-    var sort;
-    var sortOrder;
-    if(options && options.sort){
-      sort = _.keys(options.sort)[0];
-      sortOrder = options.sort[sort];
-    } else {
-      sort = 'id';
-      sortOrder = 1; // default sort
-    }
-
-    async.map(request, function(query, done) {
-      find(self, query, done);
-    }, function(err, result){
-      for(var i in result){
-        result[i]=result[i][0];
-      }
-      result = _.sortBy(result, sort);
-      if(sortOrder < 0) result = result.reverse();
-      callback(err, result);
-    });
-  };
-  
-  /* Private function - query()'s helper */
-  function find(model, request, callback) {
     if(!request) request = {};
     if(_.isFunction(request)){
       callback = request;
@@ -106,20 +88,16 @@
     }
     if(!callback) callback = function(err, results){ };
     
-    var limit;
-    if(request.limit){
-      limit = request.limit;
-    }
+    var limit = request.limit;
     
-    var time;
+    var time; // create variable time for the DB query
     if(request.time !== undefined) {
       if(request.time.from !== undefined){
         try {
-          if(!time) time = {};
+          time = {};
           time['$gte'] = new Date(request.time.from);
         } catch (e) {
-          console.warn('time.from is wrong!');
-          return;
+          return callback(new Error('requested time.from is wrong!'));
         }
       }
       if(request.time.to !== undefined){
@@ -127,100 +105,59 @@
           if(!time) time = {};
           time['$lt'] = new Date(request.time.to);
         } catch (e) {
-          console.warn('time.to is wrong!');
-          return;
+          return callback(new Error('requested time.to is wrong!'));
         }
       }
       if(time === undefined){ // no time.from and no time.to
         try {
           time = new Date(request.time);
         } catch (e) {
-          console.warn('time is wrong!');
-          return;
+          return callback(new Error('requested time is wrong!'));
         }
       }
     }
-    
-    var sort;
-    if(request.sort){
-      sort = request.sort;
+    var device_query;
+    if(request.query === undefined){ // if no query, search for everything
+      device_query = {};
     } else {
-      sort = {'id' : 1}; // default sort
-    }
-    
-    var query = [];
-    if(request.query && !_.isEmpty(request.query)){
-      query.push({'$match': request.query });
-    } else {
-      query.push({'$match': {} }); // null query (search for everything)
-    }
-    
-    // different way to search with the time against without
-    if(time !== undefined || limit){
-      query.push(
-        // Unwind the 'inventories' array
-        // TODO crashes the server in worst case (if to much new data!)
-        {'$unwind' : '$values'}
-      );
-      if(time !== undefined){
-        query.push(
-          // Get only elements where 'values.x' equals mTime1
-          {'$match' : { 'values.x': time } }
-        );
-      }
-      query.push(
-        // Sort values by time ascending
-        // {'$sort': {'values.x': 1}},
-          
-        // Put all found elements together, grouped by _id
-        {'$group' : {
-          '_id'        : '$id',
-          'values'     : { '$push': '$values' }
-        }}
-      );
-      query.push(
-        {'$sort': sort}
-      );
-    } else { // time and limit are undefined
-      query.push(
-        {'$sort': sort}
-      );
-    }
-    
-    //var self = this;
-    model.aggregate( 
-      query,
-      function(err, results) {
-        if(err) return callback(err);
-
-        // different way to search with the time against without
-        if(time !== undefined || limit){
-          results.forEach(function(item) {
-            if(limit){
-              if(limit<0)
-                item.values = item.values.slice(limit);
-              else
-                item.values = item.values.slice(0, limit);
-            }
-            item.values.forEach(function(obj) {
-              delete obj._id;
-            });
-            item.id = item._id;
-            delete item._id;
-          });
-          callback(err, results);
-        } else { // time  and limit are undefined
-          for(var key in results){
-            results[key] = { 
-                id: results[key].id, 
-                values: results[key].values 
-            };
+      device_query = _.map(request.query,
+          function(item){ // change id to _id for better searching
+            if(item.id){ item._id=item.id; delete item.id; } 
+            return item;
           }
-          
-          callback(err, results);
-        }
+        );
+    }
+
+    require('./devicemodel.js').find(device_query, function(err, devices) {
+      if(err){
+        return callback(err);
       }
-    );
+      if(devices.length == 0) return callback(null, null);
+      // get array of IDs
+      devices = devices.map(function(item){return item.id});
+      
+      var query;
+      
+      query = self.find({ '_id': { $in: devices }});
+      
+      if(time){
+        if(limit)
+          query.select({'id':1, 
+                       'values': { $elemMatch: { 'x': time }, $slice: limit }});
+        else
+          query.select({'id':1, 'values': { $elemMatch: { 'x': time }}});
+      } else if(limit) {
+        query.select({'id':1, 'values': { $slice: limit }});
+      }
+      
+      query.exec(function(err, results){
+        if(results.length < 1) return callback(err);
+        results.forEach(function(item) {
+          delete item._id;
+        });        
+        callback(err, results);
+      });      
+    });
   };
   
   // Module exports
