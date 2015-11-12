@@ -460,8 +460,9 @@
         query.exec(function(err, results){
           if(err) return done(err);
 
-          // sort ascending by date
-          if( limit < 0 ) _.sortBy(results, function(obj){ return obj.x; });
+          // sort ascending by date 
+          // don't need, because client sorts this
+          // if( limit < 0 ) _.sortBy(results, function(obj){ return obj.x; });
           
           done(null, {'id':device.id, 'values': results});
         });
