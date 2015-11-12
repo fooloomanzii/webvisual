@@ -151,7 +151,8 @@
       }
 
       query.exec(function(err, results){
-        if(results === undefined || results.length < 1) return callback(err);
+        if(err) return callback(err);
+        if(results.length < 1) return callback(err);
         results.forEach(function(item) {
           delete item._id;
         });
