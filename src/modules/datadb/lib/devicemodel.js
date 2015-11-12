@@ -66,6 +66,13 @@
   // mongoose Schema to store the device properties
   var DeviceModel = new Schema({
       _id       : String, // index = Measuring Device ID
+      roomNr    : String, // Room Number
+      room      : String, // Room Type
+      kind      : String, // What is measured
+      method    : String, // Type of Measure
+      threshold : Schema.Types.Object, // Thresholds: {'from':null,'to':null}
+      isBoolean : Boolean, // true if Measure is boolean
+      unit      : String, // Measuring units
       storage   : String  // Name of the Collection with Device values
     }, 
     // options
@@ -77,7 +84,10 @@
   
   // --- Functions --- //
   
-  
+  /*
+   * Switches Temporary Database to the next one 
+   * and passes the current one per callback
+   */
   DeviceModel.statics.switchTmpDB = function(callback){
     if(!tmp_is_free){ // last tmpDB is in use
       tmp_switch_callback = callback;
@@ -92,9 +102,56 @@
     var last_tmpDB = tmpDB;
     cur_tmp = (cur_tmp + 1) % num_of_tmps;
     tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel);
-    callback(last_tmpDB);
+    if(callback) callback(last_tmpDB);
   }
   
+  
+  // Creates or updates the device in database
+  DeviceModel.statics.setDevice = function(device, callback){
+    if(device === undefined){
+      if(callback) return callback(new Error("device undefined!"));
+      return;
+    }
+    this.update({'_id':device.id}, device, { upsert: true },
+        function(err) {
+         if (err) { 
+           console.warn("Device can't be written to the list!");
+           console.warn(err.stack);
+         }
+         if(callback) callback(err);
+       }
+     );
+  }
+  
+  // Creates or updates list of devices in database using given array "devices"
+  DeviceModel.statics.setDevices = function(devices, callback){
+    if(devices === undefined){
+      if(callback) return callback(new Error("devices undefined!"));
+      return;
+    }
+    if(!_.isArray(devices)){
+      if(callback) return callback(new Error("devices is not an array!"));
+      return;
+    }
+    devices.filter(function(item){return item}); //filter out empty devices
+    var self = this;
+    async.each(devices, 
+        function(device, done){
+          self.update({'_id':device.id}, device, { upsert: true },
+              function(err) {
+               if (err) { 
+                 console.warn("Device can't be written to the list!");
+                 console.warn(err.stack);
+               }
+               done(err);
+             }
+          );
+        },
+        function(err){
+          if(callback) callback(err);
+        }
+    )
+  }
   
   /*
    * Append new Document to the Collection
@@ -159,7 +216,8 @@
   // saves the data in passed collection (model)
   function save(model, newData, callback){
     if(newData.id === undefined){ // WTF?? need an id, to arrange the values
-      return callback(new Error("No id!"));
+      if(callback) return callback(new Error("No id!"));
+      else return;
     }
     // If no values, can check the device and save if it's new
     if(newData.values === undefined) newData.values = {};
@@ -180,7 +238,9 @@
           // create new collection of values and save it by device description
           // collection names are always lower case
           newData.storage = (deviceDB_prefix + newData.id).toLowerCase();
-          model.update({'_id':newData.id}, newData, { upsert: true },
+          model.update({'_id':newData.id}, 
+              { $set: { 'storage': newData.storage }}, 
+              { upsert: true },
              function(err) {
               if (err) { 
                 console.warn("Device can't be written to the list!");
@@ -256,7 +316,10 @@
                 append_new_values(value, 0, callback);
               },
               function(err, appendedValues){
-                if(err) return callback(err, appendedValues);
+                if(err){
+                  if(callback) return callback(err, appendedValues);
+                  else return;
+                }
 
                 callback( null, 
                   { id     : newData.id,
@@ -275,7 +338,7 @@
   /*
    * Searches for objects to match the given request
    *  Possible request properties:
-   *      query - search for device/devices per id: id  : "..."
+   *      query - properties to search for: {room: "..", unit: "..", id: ".."}
    *              default: null (all devices)
    *      time  - moment(...) : http://momentjs.com/docs/
    *                OR Date OR parameter to create new Date(parameter)
@@ -438,10 +501,13 @@
         function(err, result){
           if(err){ 
             console.warn("Some DB Error by search for device!");
-            return callback(err);
+            if(callback) return callback(err);
+            return;
           }
           if(!result){ // id wasn't found
-            return callback(new Error("Id for resizing wasn't found!"));
+            if(callback) 
+              return callback(new Error("Id for resizing wasn't found!"));
+            return;
           }
           
           mongoose.connection.db.command(
@@ -450,7 +516,8 @@
                 if(err){ 
                   console.warn("Cannot resize given collection!");
                   console.warn(err.stack);
-                  return callback(err);
+                  if(callback) return callback(err);
+                  return;
                 }
                 console.log(id+"'s storage was resized on "+size+" kb.")
               }

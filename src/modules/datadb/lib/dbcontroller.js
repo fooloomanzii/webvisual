@@ -7,6 +7,25 @@ var DBController = function (dataModel) {
     this.dataModel = dataModel;
 };
 
+
+/*
+ * Creates or updates the device in database
+ */
+DBController.prototype.setDevice = function (device, callback) {
+  // setDevice - is custom function in the dataModel
+  this.dataModel.setDevice(device, function(err){
+    if(callback) callback(err);
+  });
+};
+
+//Creates or updates list of devices in database using given array "devices"
+DBController.prototype.setDevices = function (devices, callback) {
+  // setDevice - is custom function in the dataModel
+  this.dataModel.setDevices(devices, function(err){
+    if(callback) callback(err);
+  });
+};
+
 /*
  * Appends data to Database.
  * Data should look like schema of the dataModel.
@@ -15,9 +34,9 @@ var DBController = function (dataModel) {
  * callback: function(err, appendedData);
  */
 DBController.prototype.appendData = function (newData, callback) {
-  // append - is custom function in the custom model
+  // append - is custom function in the dataModel
   this.dataModel.append(newData, function(err, appendedData){
-    callback(err, appendedData);
+    if(callback) callback(err, appendedData);
   });
 };
 
@@ -26,8 +45,9 @@ DBController.prototype.appendData = function (newData, callback) {
  * How to use the function read by devicedata.js/query
  */
 DBController.prototype.getData = function (request, callback) {
+  //query - is custom function in the dataModel
   this.dataModel.query(request, function (err, result) {
-    callback(err, result);
+    if(callback) callback(err, result);
   });
 };
 
@@ -37,7 +57,7 @@ DBController.prototype.getData = function (request, callback) {
  */
 DBController.prototype.getDataFromModel = function (model, request, callback) {
   model.query(request, function (err, result) {
-    callback(err, result);
+    if(callback) callback(err, result);
   });
 };
 
@@ -55,7 +75,7 @@ DBController.prototype.switchTmpDB = function (callback) {
  */
 DBController.prototype.resize = function (id, newSize, callback) {
   this.dataModel.setStorageSize(id, newSize, function (err, result) {
-    callback(err, result);
+    if(callback) callback(err, result);
   });
 };
 
@@ -63,7 +83,7 @@ DBController.prototype.resize = function (id, newSize, callback) {
 //Test function for development cases
 DBController.prototype.test = function (callback) {
   this.dataModel.test(function (err, result) {
-    callback(err, result);
+    if(callback) callback(err, result);
   });
 };
 

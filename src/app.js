@@ -335,7 +335,11 @@ db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function (callback) {
   //datamodel.remove({},function(){ //clean up the database
-
+  
+  dbcontroller.setDevices(dataConf.types, function(err){
+    if(err) console.warn(err.stack);
+  });
+  
   // start the handler for new measuring data
   dataFile.connect();
   
