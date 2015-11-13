@@ -98,34 +98,23 @@
     }
     section#lower[expanded] section#selSign {
       display: flex;
-      flex-direction: row;
+      flex-direction: column;
+    }
+    section#lower[expanded] ::content .incard {
+      flex: 1;
+    }
+    section#lower[expanded][dark] ::content .caption {
+      border-top: thin solid #606060;
+    }
+    section#lower[expanded] ::content .caption {
+      border-top: thin solid #BBBBBB;
     }
     section#lower section#selSign {
       display: flex;
       flex-direction: row;
     }
-    @media all and (min-height: 690px) and (max-width: 1000px){
-      section#lower[expanded] section#selSign {
-        display: flex;
-        flex-direction: column;
-      }
-      section#lower[expanded] ::content .incard {
-        flex: 1;
-      }
-      section#lower[expanded][dark] ::content .caption {
-        border-top: thin solid #606060;
-      }
-      section#lower[expanded] ::content .caption {
-        border-top: thin solid #BBBBBB;
-      }
-      section#lower[expanded] ::content .noncard {
-        height: calc(48vh - 64px - 1em);
-      }
-    }
-    @media all and (min-height: 690px) and (max-width: 610px){
-      section#lower ::content .noncard {
-        height: calc(38vh - 64px - 1em);
-      }
+    section#lower[expanded] ::content .noncard {
+      min-height: 11em;
     }
     @media all and (max-width: 610px) {
       section#lower section#selSign {
@@ -139,23 +128,24 @@
         margin-right: 6px;
       }
       section#lower ::content .noncard {
-        height: calc(48vh - 64px - 1em);
+        height: calc(38vh - 64px - 1em);
       }
       section#lower {
         font-size: 0.9em;
-      }
-      section#lower[expanded] section#selSign {
-        display: flex;
-        flex-direction: column;
-      }
-      section#lower[expanded] ::content .incard {
-        flex: 1;
       }
       section#lower[dark] ::content .caption {
         border-top: thin solid #606060;
       }
       section#lower ::content .caption {
         border-top: thin solid #BBBBBB;
+      }
+    }
+    @media all and (max-height: 690px) and (max-width: 610px){
+      section#lower[expanded] ::content .noncard {
+        height: calc(48vh - 64px - 1em);
+      }
+      section#lower ::content .noncard {
+        height: calc(48vh - 64px - 1em);
       }
     }
     @media all and (min-width: 611px) {
@@ -177,24 +167,6 @@
       }
       section#lower[expanded] ::content .noncard {
         height: calc(38vh - 64px - 1em);
-      }
-    }
-    @media all and (min-width: 611px) and (max-width: 1000px) and (orientation: landscape) {
-      section#lower[expanded] section#selSign {
-        display: flex;
-        flex-direction: column;
-      }
-      section#lower[expanded] ::content .incard {
-        flex: 1;
-      }
-      section#lower[expanded][dark] ::content .caption {
-        border-top: thin solid #606060;
-      }
-      section#lower[expanded] ::content .caption {
-        border-top: thin solid #BBBBBB;
-      }
-      section#lower[expanded] ::content .noncard {
-        height: calc(48vh - 64px - 1em);
       }
     }
     @media all and (min-width: 1000px) and (orientation: portrait) {
