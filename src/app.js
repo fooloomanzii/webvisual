@@ -45,9 +45,10 @@ var // ASYNC <-- one callback for a lot of async operations
     clients      = {},
 
     /* Default config */
-    defaults     = { connections : [],
-                     port        : 3000,
-                     updateIntervall : 1000
+    defaults     = { connections    : [],
+                     port           : 3000,
+                     updateIntervall: 1000,
+                     dbName         : "test"
     };
 
     // Configuration from config-file, uses default values, if necessary
@@ -290,7 +291,7 @@ setInterval(
   function(){
     dbcontroller.switchTmpDB(function(tmpDB){
       if(!tmpDB) return;
-      async.each(clients, 
+      async.each(clients,
           function(client, callback){
             dbcontroller.getDataFromModel(tmpDB,
               client.appendPattern,
@@ -322,27 +323,30 @@ setInterval(
           }
       );
     });
-  }, config.updateIntervall 
+  }, config.updateIntervall
 );
 
 
 /*
  * Get SERVER.io and server running!
  */
-mongoose.connect("mongodb://localhost:27017/test");
+mongoose.connect("mongodb://localhost:27017/" + config.dbName);
 db = mongoose.connection;
 //TODO properly react on error
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function (callback) {
   //datamodel.remove({},function(){ //clean up the database
-  
+
+  console.log("MongoDB is connected to collection '%s'",
+      config.dbName);
+
   dbcontroller.setDevices(dataConf.types, function(err){
     if(err) console.warn(err.stack);
   });
-  
+
   // start the handler for new measuring data
   dataFile.connect();
-  
+
   // make the Server available for Clients
   server.listen(config.port);
 
