@@ -337,7 +337,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function (callback) {
   //datamodel.remove({},function(){ //clean up the database
 
-  console.log("MongoDB is connected to collection '%s'",
+  console.log("MongoDB is connected to database '%s'",
       config.dbName);
 
   dbcontroller.setDevices(dataConf.types, function(err){
