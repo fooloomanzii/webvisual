@@ -1,0 +1,36 @@
+<script src="../components/openlayers/ol.js"></script>
+// bower install openlayers=https://github.com/openlayers/ol3/releases/download/v3.11.1/v3.11.1-dist.zip
+<dom-module id="open-layers-element">
+  <link href="../components/openlayers/ol.css" type="text/css" rel="stylesheet"/>
+  <style>
+  </style>
+  <template>
+    <div id="map">
+
+    </div>
+  </template>
+<script>
+    Polymer({
+        is: "open-layers-element",
+
+        properties: {
+          showExceeds: {
+            type: Boolean,
+            value: true,
+            notify: true
+          },
+          dark: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true,
+            notify: true
+          }
+        }
+
+        customize: function() {
+        },
+
+        attached: function() {
+        }
+    });
+</script>
