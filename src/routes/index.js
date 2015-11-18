@@ -3,8 +3,7 @@
 
 var fs        = require('fs'),
     path      = require('path'),
-    config    = require('../config/config.json'),
-    copywatch = require('../modules/copywatch');
+    config    = require('../config/config.json');
 
 /**
  * function: Route in Public Filesystem

@@ -2,15 +2,7 @@
 /*
  * Module dependencies
  */
-var // ASYNC <-- one callback for a lot of async operations
-    async        = require('async'),
-    // custom: DATAMODULE
-    dataModule   = require('./data'),
-    // custom: ROUTING
-    routes       = require('./routes'),
-    // custom: MAILHELPER
-    mailHelper   = new require('./modules/mailhelper')('exceeds'),
-    // EXPRESS
+var // EXPRESS
     express      = require('express'),
     // EXPRESS-ERROR-HANDLER
     errorHandler = require('express-error-handler'),
@@ -23,49 +15,27 @@ var // ASYNC <-- one callback for a lot of async operations
     defaultsDeep = require('merge-defaults'),
     // MORGAN <-- logger
     morgan       = require('morgan'),
-    // dateFormat
-    dateFormat   = require('dateFormat'),
-
-    /* Database Server + Client */
-    //TODO mongoose lösung finden
-    mongoose     = require('mongoose'),
-    datadb       = require('./modules/datadb'),
-    datamodel    = datadb.devicemodel,
-    dbcontroller = new datadb.controller(datamodel, {}),
-    // The database
-    db,
-    /* Class variables */
-    threshold    = dataModule.threshold,    // extension: of DATAMODULE
-    dataHandler  = dataModule.dataHandler,  // extension: of DATAMODULE
-    dataMerge    = dataModule.dataMerge,    // extension: of DATAMODULE
-    dataConfig   = dataModule.dataConfig,   // extension: of DATAMODULE
-    Client       = dataModule.client,       // extension: of DATAMODULE
-
-    /* Current connected clients */
-    clients      = {},
-
+    // custom: ROUTING
+    routes       = require('./routes'),
+    // DATA-MODULE
+    dataModule   = require('./data_module'),
     /* Default config */
     defaults     = { connections    : [],
                      port           : 3000,
                      updateIntervall: 1000,
-                     dbName         : "test"
-    };
+                     dbName         : "test"},
+    config;
 
-    // Configuration from config-file, uses default values, if necessary
-    // TODO: make configs dynamical loaded (or watched)
+try {
+  config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json'));
+}
+catch (err) {
+  console.warn('There has been an error parsing the config-file.')
+  console.warn(err.stack);
+}
 
-var config;
-
-    try {
-      config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json'));
-    }
-    catch (err) {
-      console.warn('There has been an error parsing the config-file.')
-      console.warn(err.stack);
-    }
-
-    // Use defaults for undefined values
-    config = defaultsDeep(config,defaults);
+// Use defaults for undefined values
+config = defaultsDeep(config,defaults);
 
 /*
  * Extend UNDERSCORE
@@ -114,8 +84,7 @@ var sslOptions  = {
 
 // General
 var app    = express(),
-    server = require('https').createServer(sslOptions, app),
-    io     = require('socket.io').listen(server); //
+    server = require('https').createServer(sslOptions, app);
 
 // Path to static folder
 app.use(express.static(__dirname + '/public'));
@@ -198,177 +167,8 @@ app.use(function(req, res) {
   }
 });
 
-
-/*
- * Init MAILHELPER
- */
-mailHelper.init({
-  from:    config.mail.from, // sender address
-  to:      config.mail.to,   // list of receivers
-  subject: config.mail.subject
- });
-mailHelper.setType('html');
-mailHelper.setDelay(1000);
-
-
-/*
- * Configure SOCKET.IO (watch the data file)
- */
-
-//DATAHANDLER - established the data connections
-var dataConf = dataConfig.getConfig (config.locals);
-var dataFile = new dataHandler( {
-      // Object used the Configuration
-      connection: config.connections,
-      listener: {
-        error: function(type, err) {
-          dataSocket.emit('mistake', { error: err, time: new Date() });
-      },
-      data: [
-          // SocketIO Listener
-          function(type, data) {
-
-            // Process data to certain format
-            var currentData = dataMerge.processData (
-                    dataConf, {exceeds: threshold.getExceeds(data), data: data });
-            var tmpData = data;
-
-            // Save new Data in Database and send for each client the updated Data
-            dbcontroller.appendData(
-                currentData.content,
-                function (err, appendedData) {
-                  if(err) console.warn(err.stack);
-                }
-            );
-          }
-        ]
-      }
-    });
-
-// Data Socket
-var dataSocket = io.of('/data');
-
-// Handle connections of new clients
-dataSocket.on('connection', function(socket) {
-
-  socket.on('clientConfig', function(patterns) {
-    var current_client = new Client(socket, patterns);
-    dbcontroller.getData(current_client.firstPattern,
-      function (err, data) {
-        if(err) console.warn(err.stack);
-
-        //TODO: important! if two lines change then send in the same kind of object
-
-        var message = {
-           content: data,
-           time: new Date(), // current message time
-           language: config.locals.language,
-           groupingKeys: config.locals.groupingKeys,
-           exclusiveGroups: config.locals.exclusiveGroups,
-           types: dataConf.types,
-           unnamedType: dataConf.unnamedType
-        };
-        socket.emit('first', message);
-
-        // append the client to array after sending first message
-        current_client.hasFirst=true;
-        clients[socket.id] = current_client;
-      }
-    );
-
-    // by disconnect remove socket from list
-    socket.on('disconnect',
-      function() {
-        delete clients[socket.id];
-      }
-    );
-  });
-});
-
-
-//Send new data on constant time intervals
-setInterval(
-  function(){
-    dbcontroller.switchTmpDB(function(tmpDB){
-      if(!tmpDB) return;
-      async.each(clients,
-          function(client, callback){
-            dbcontroller.getDataFromModel(tmpDB,
-              client.appendPattern,
-              function (err, data) {
-                if(err){
-                  console.warn(err.stack);
-                  callback();
-                  return;
-                }
-                if(data.length < 1){
-                  //empty data
-                  return;
-                }
-                var message = {
-                   content: data,
-                   time: new Date(), // current message time
-                };
-                client.socket.emit('data', message);
-                callback();
-              }
-            );
-          },
-          function(err){
-            if(err) console.warn(err.stack);
-            // cleanize current tmp
-            tmpDB.remove({},function(err){
-              if(err) console.warn(err.stack);
-            });
-          }
-      );
-    });
-  }, config.updateIntervall
-);
-
-
-/*
- * Get SERVER.io and server running!
- */
-mongoose.connect("mongodb://localhost:27017/" + config.dbName);
-db = mongoose.connection;
-//TODO properly react on error
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function (callback) {
-  //datamodel.remove({},function(){ //clean up the database
-
-  console.log("MongoDB is connected to database '%s'",
-      config.dbName);
-
-  dbcontroller.setDevices(dataConf.types, function(err){
-    if(err) console.warn(err.stack);
-  });
-
-  // start the handler for new measuring data
-  dataFile.connect();
-
-  // make the Server available for Clients
-  server.listen(config.port);
-
-  //});
-});
-
-/*
- * Start Mail Server
- */
-
-// mailHelper.startDelayed(function(error,info){
-//   if(error){
-//     console.log('Mailing error: ' + error);
-//   }
-//   else{
-//     if (info.response) console.log('E-Mail sent: ' + info.response);
-//     else{
-//       for( var i in info.pending[0].recipients[0]) console.log(i);
-//       console.log('E-Mail sent: ' + info.pending[0].recipients[0]);
-//     }
-//   }
-// });
+// connect the DATA-Module
+dataModule.connect(config,server);
 
 /*
  * Handle various process events
@@ -379,7 +179,7 @@ db.once('open', function (callback) {
 process.on('uncaughtException', function(err) {
   try {
     server.close();
-    mongoose.disconnect();
+    dataModule.disconnect();
     console.warn(err.message);
   } catch (e) {
     if(e.message !== 'Not running')
@@ -394,7 +194,7 @@ process.on('SIGINT', function(err) {
     console.log('close server');
     server.close();
     console.log('disconnect db');
-    mongoose.disconnect();
+    dataModule.disconnect();
   } catch (err) {
     if(err.message !== 'Not running')
       throw err;
@@ -404,7 +204,7 @@ process.on('SIGINT', function(err) {
 process.on('exit', function(err) {
   try {
     server.close();
-    mongoose.disconnect();
+    dataModule.disconnect();
   } catch (err) {
     if(err.message !== 'Not running')
       throw err;
