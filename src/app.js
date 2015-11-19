@@ -13,8 +13,6 @@ var // EXPRESS
     // DEFAULTSDEEP <-- extended underscrore/lodash _.defaults,
     // for default-value in   deeper structures
     defaultsDeep = require('merge-defaults'),
-    // MORGAN <-- logger
-    morgan       = require('morgan'),
     // custom: ROUTING
     routes       = require('./routes'),
     // DATA-MODULE
@@ -24,7 +22,11 @@ var // EXPRESS
                      port           : 3000,
                      updateIntervall: 1000,
                      dbName         : "test"},
-    config;
+    // Config Object
+    config,
+    // Logger
+    winston = require('winston');
+
 
 try {
   config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json'));
@@ -90,21 +92,31 @@ var app    = express(),
 app.use(express.static(__dirname + '/public'));
 
 // Configure VIEW ENGINE
-app.set('view engine', 'jade');
-app.set('views', __dirname + '/views');
+// app.set('view engine', 'jade');
+// app.set('views', __dirname + '/views');
 
 /*
  * Defining Errors
  */
 
-// if Error: Defined in serverLogMode, which kind of errors, are written in HTTPSERVERLOGFILE by MORGAN
-// Server-Log-File and -Mode (used by MORGAN) for Server-Mistakes (Http-Status-Code above 500)
-// TODO: if necessary, catch different HTTP errors, or other errors
-var serverLogFile    = __dirname + config.logs.http_server_log,
-    serverLogMode    = { stream: fs.createWriteStream(serverLogFile, {flags: 'a'}),
-                        skip: function (req, res) { return res.statusCode < 500 }},
-    logFormat        = ':date[clf] - ":status" - :remote-addr - ":method :url" - :response-time ms :res[content-length]';
-app.use(morgan(logFormat, serverLogMode));
+//
+// Configure CLI output on the default logger
+//
+winston.cli();
+
+//
+// Configure CLI on an instance of winston.Logger
+//
+var logger = new winston.Logger({
+ transports: [
+   new (winston.transports.Console)()
+ ],
+ exceptionHandlers: [
+   new winston.transports.File({ filename: __dirname + config.logs.server_log })
+ ]
+});
+
+logger.cli();
 
 // if Error: EADDRINUSE --> log in console
 server.on('error', function (e) {
