@@ -169,9 +169,9 @@
 
       _onFirstData: function(message){
         if(message === undefined) return; // Check the Existence
-        var time = new Date();
-        this.set("status.time.lastStatus", time); this.set("status.message", "processing first data");
-        this.set("status.time.lastData", time);
+        // var time = new Date();
+        // this.set("status.time.lastStatus", time); this.set("status.message", "processing first data");
+        // this.set("status.time.lastData", time);
 
         this._setKeys(message.groupingKeys);
         this._setAllKeys(message.unnamedType);
@@ -193,7 +193,7 @@
         if(message === undefined) return; // Check for Existence
         var time = new Date();
         if (time - this.status.time.lastData >= this.interval){ // TODO: Configure it at server
-          this.set("status.time.lastData", time);
+          // this.set("status.time.lastData", time);
           var oldLen = this.data.length;
           for (var i in message.content) { // for all messurement-data-alements existing
             this._setValues(message.content[i],this._getIndex(message.content[i].id));
@@ -238,11 +238,6 @@
 
       _setValues: function(messageContent, i){
         if (!this.doAppend)
-        // {
-        //   this.set("data."+i+".values",null);
-        //   this.set("data."+i+".values",[]);
-        // }
-          // this.splice("data."+i+".values",0,this.data[i].values.length - 1);
           while (this.data[i].values.length > 0)
             this.pop("data."+i+".values");
         if (this.newestDataLast) {
@@ -279,7 +274,7 @@
         }
       },
 
-      _implExclusiveGroups: function() {
+      _implExclusiveGroups: function() { // create the preset-Groups
         for (var key in this.exclusiveGroups) {
           if(!this.groups[key])
             this.set("groups."+key,[]);
@@ -293,7 +288,7 @@
           }
         }
       },
-      _implGroups: function(){ // Referencing on group-identities
+      _implGroups: function(){ // create Groups
         var where, key, needToSet;
 
         for (var i=0; i < this.data.length; i++){

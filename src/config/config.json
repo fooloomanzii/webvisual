@@ -2,7 +2,6 @@
   "connections": {
     "db": { },
     "file": {
-      "copy": false,
       "mode": "all",
       "path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
       "#path_folder": "",
