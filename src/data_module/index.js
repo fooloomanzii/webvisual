@@ -71,7 +71,6 @@ function connect (config, server, err) {
         data: [
             // SocketIO Listener
             function(type, data) {
-
               // Process data to certain format
               var currentData = dataMerge( dataConf, {exceeds: threshold(data,dataConf.types), data: data } );
               var tmpData = data;

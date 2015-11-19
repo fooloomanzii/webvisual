@@ -98,7 +98,7 @@
           },
           newestDataLast: {
             type: Boolean,
-            value: false,
+            value: true,
             notify: true,
             reflectToAttribute: true
           }
@@ -129,6 +129,8 @@
         // Receive FURTHER Data
         this.socket.on('data', function(message) {
           self._onData(message);
+          if (message.content[0].values.length !== 1)
+            console.log(message.content[0].values.length);
         });
         // TODO: following senseless?
         // Wrong Data
