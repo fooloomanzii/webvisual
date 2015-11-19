@@ -36,6 +36,8 @@
   var cur_tmp = 0; // index of current temporary Database
   var num_of_tmps = 3; // number of temporary Databases
   var tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel); // temporary Database
+  var tmpIsInUse = false;
+  var tmp_switch_callback;
   
   // Mongoose Schema to store the values
   var StorageModel = new Schema({   
@@ -87,15 +89,15 @@
    */
   DeviceModel.statics.switchTmpDB = function(callback){
     var last_tmpDB = tmpDB;
+    // "tmpDB == last_tmpDB" is true
     cur_tmp = (cur_tmp + 1) % num_of_tmps;
-    tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel);
-    if(callback) callback(last_tmpDB);
-  }
-  
-  // private function - switches tmpDB and passes old tmpDB to callback
-  function create_new_tmpDB(callback){
-    
-  }
+    tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel); 
+    // "tmpDB == last_tmpDB" is false
+    if(callback){
+      if(tmpIsInUse) tmp_switch_callback = callback;
+      else callback(last_tmpDB);
+    }
+  }  
   
   
   // Creates or updates the device in database
@@ -163,14 +165,21 @@
    */
   DeviceModel.statics.append = function (newData, callback) {
     if(newData === undefined) return;
-   
+    tmpIsInUse = true;
+    var curr_tmpDB = tmpDB;
+    
     var self = this; // allow to pass this model to global functions
     if(!_.isArray(newData)){
       return save(self, newData, function(err, appendedData){
         // fill the temporary model with data from current update
-        tmpDB.update({'_id':result.id}, result, {upsert: true },
+        curr_tmpDB.update({'_id':appendedData.id}, { pushAll: { 'values' : appendedData.values } }, {upsert: true },
             function(err){
-                if(callback) callback(err, appendedData);
+              tmpIsInUse = false;
+              if(tmp_switch_callback && curr_tmpDB != tmpDB){
+                tmp_switch_callback(curr_tmpDB);
+                tmp_switch_callback = null;
+              }
+              callback(err, appendedData);
             }
         );
       });
@@ -182,18 +191,22 @@
       if(data === undefined) return;
       
       save(self, data, function(err, result){
-        
         // fill the temporary model with data from current update
-        tmpDB.update({'_id':result.id}, result, {upsert: true },
+        curr_tmpDB.update({'_id':result.id}, { 'id':result.id, $pushAll: { 'values' : result.values } }, {upsert: true },
             function(err){
               async_callback(err, result);
             }
         );
       });
     }, function(err, appendedData){
+      tmpIsInUse = false;
       // remove all elements == null
+      if(tmp_switch_callback && curr_tmpDB != tmpDB){
+        tmp_switch_callback(curr_tmpDB);
+        tmp_switch_callback = null;
+      }
       appendedData = appendedData.filter(function(n){ return n });
-      return callback(err, appendedData);
+      callback(err, appendedData);
     });
   };
   
@@ -269,8 +282,6 @@
                         return done();
                       }
                       
-                      if(result.y === newValue.y) return done();
-                      
                       // (try to increase _id's millisecond)
                       // set ( milliseconds + 1 ) % 1000
                       var old_id_time = new Date( newValue._id );
@@ -308,9 +319,7 @@
 
                 callback( null, 
                   { id     : newData.id,
-                    values : appendedValues. // values, that was appended
-                             // remove 'undefined' values
-                             filter(function(item){ return item })
+                    values : appendedValues
                   }
                 );
               }
