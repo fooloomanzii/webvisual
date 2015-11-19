@@ -23,6 +23,7 @@ data/db/*
 src/public/maps
 src/**/test/
 src/**/demo/
+!src/tests/
 
 # Logs #
 # *.log
