@@ -379,23 +379,24 @@
     
     var time; // create variable time for the DB query
     if(request.time !== undefined) {
-      if(request.time.from !== undefined){
-        try {
-          time = {};
-          time['$gte'] = new Date(request.time.from).getTime();
-        } catch (e) {
-          return callback(new Error('requested time.from is wrong!'));
+      if(request.time.from !== undefined || request.time.to !== undefined){
+        if(request.time.from){
+          try {
+            time = {};
+            time['$gte'] = new Date(request.time.from).getTime();
+          } catch (e) {
+            return callback(new Error('requested time.from is wrong!'));
+          }
         }
-      }
-      if(request.time.to !== undefined){
-        try {
-          if(!time) time = {};
-          time['$lt'] = new Date(request.time.to).getTime();
-        } catch (e) {
-          return callback(new Error('requested time.to is wrong!'));
+        if(request.time.to){
+          try {
+            if(!time) time = {};
+            time['$lt'] = new Date(request.time.to).getTime();
+          } catch (e) {
+            return callback(new Error('requested time.to is wrong!'));
+          }
         }
-      }
-      if(time === undefined){ // no time.from and no time.to
+      } else { // no time.from and no time.to
         try {
           time = new Date(request.time).getTime();
         } catch (e) {
