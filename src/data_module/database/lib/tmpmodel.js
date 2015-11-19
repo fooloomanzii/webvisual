@@ -142,12 +142,12 @@
 
       if(time){
         if(limit)
-          query.select({'id':1,
+          query.select({'_id':0, 'id':1,
                        'values': { $elemMatch: { 'x': time }, $slice: limit }});
         else
-          query.select({'id':1, 'values': { $elemMatch: { 'x': time }}});
+          query.select({'_id':0, 'id':1, 'values': { $elemMatch: { 'x': time }}});
       } else if(limit) {
-        query.select({'id':1, 'values': { $slice: limit }});
+        query.select({'_id':0, 'id':1, 'values': { $slice: limit }});
       }
 
       query.exec(function(err, results){
