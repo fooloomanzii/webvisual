@@ -5,7 +5,7 @@
   "scripts": {
     "prestart": "start /b mongod --dbpath ../data/db",
     "start": "node app.js",
-    "stop": "taskkill /IM node.exe /F", 
+    "stop": "taskkill /IM node.exe /F",
     "poststop": "mongo admin --eval 'db.shutdownServer()'"
   },
   "dependencies": {
@@ -26,14 +26,6 @@
   	"async": "*"
   },
   "devDependencies": {
-    "grunt": "*",
-    "grunt-contrib-uglify": "*",
-    "grunt-contrib-copy": "*",
-    "grunt-open": "*",
-    "grunt-contrib-clean": "*",
-    "grunt-contrib-cssmin": "*",
-    "grunt-env": "*",
-    "grunt-bower-task": "*"
   },
   "engines": {
     "node": ">= 1.0",
