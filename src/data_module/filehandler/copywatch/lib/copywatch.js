@@ -414,8 +414,8 @@ function _handle_change(event, path, currStat, prevStat, options) {
   else if (event === 'delete') {
     console.log(path_util.basename(path)+' was deleted');
     // We don't need to delete the copied file if there is no copied file
-    fs.exists(copy_path+_extension, function(exists) {
-      if(exists) fs.unlink(copy_path+_extension, options.watch_error);
+    fs.exists(options.copy_path+_extension, function(exists) {
+      if(exists) fs.unlink(options.copy_path+_extension, options.watch_error);
     });
   }
 }

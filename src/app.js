@@ -186,7 +186,7 @@ dataModule.connect(config,server);
  * Handle various process events
  */
 
- // TODO: make shure that the server is not closing (or is restarting) with errors
+ // TODO: make sure that the server is not closing (or is restarting) with errors
  // and pretty this part
 process.on('uncaughtException', function(err) {
   try {
