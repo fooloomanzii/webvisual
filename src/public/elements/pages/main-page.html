@@ -172,33 +172,36 @@
     }
     /* Dialogs */
     paper-dialog.sidemenu {
-      top: 0px;
+      top: calc(64px);
       right: 0px;
       margin: 1.5em;
       position: fixed;
       width: calc(100vw - 3em);
     }
+    :host[opened] paper-dialog.sidemenu {
+      top: calc(64px + 11em);
+    }
     @media all and (min-width: 480px) and (max-width: 600px) and (orientation : landscape) {
       paper-dialog.sidemenu {
-        width: calc(100vw - 16em);
+        width: calc(100vw - 18em);
       }
     }
     @media all and (min-width: 600px) and (max-width: 840px) and (orientation: portrait) {
       paper-dialog.sidemenu {
-        width: calc(100vw - 16em);
+        width: calc(100vw - 18em);
       }
     }
     @media all and (min-width: 600px) and (max-width: 840px) and (orientation : landscape) {
       paper-dialog.sidemenu {
-        width: calc(100vw - 21em);
+        width: calc(100vw - 18em);
       }
     }
     @media all and (min-width: 840px) {
       paper-dialog.sidemenu {
-        width: calc(100vw - 24em);
+        width: calc(100vw - 20em);
         margin: 1.5em 3em;
         max-width: 840px;
-        left: 18em;
+        left: 16em;
       }
     }
     logo-element#logo {
@@ -478,6 +481,11 @@
           type: Number,
           value: 500,
           notify: true
+        },
+        opened: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
         }
       },
       setSelectedElement: function(e) {
@@ -496,6 +504,7 @@
             this.notifyPath('selectedElement.values', this.selectedElement.values);
             if (!this.$.toolbar.opened){
               this.$.toolbar.toggleAttribute('opened',true);
+              this.toggleAttribute('opened',true);
               this.$.toolbar.playAnimation('in');
             }
           }
@@ -504,10 +513,12 @@
 
       deselectElement: function() {
         this.$.toolbar.playAnimation('out');
+        this.$.mainView.closeDrawer();
         this.async(function(){
           this.unlinkPaths('selectedElement');
           this.selectedElement = null;
           this.$.toolbar.toggleAttribute('opened',false);
+          this.toggleAttribute('opened',false);
         },320);
       },
 
@@ -550,6 +561,8 @@
         if (!button.hasAttribute('dialog-id') || !button.hasAttribute('dialog-class')) {
           return;
         }
+        if (this.$.toolbar.expanded)
+          this.$.toolbar._expandView();
         var id = button.getAttribute('dialog-id');
         var className = button.getAttribute('dialog-class');
         var aj = button.getAttribute('ajax');

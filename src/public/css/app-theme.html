@@ -164,7 +164,7 @@
       };
 
     --paper-input-container-label: {
-        font-family: Light-Italic;
+        font-family: Light;
         text-align: center;
         font-size: 0.9em;
         text-align: left;
@@ -172,12 +172,19 @@
       };
 
     --paper-dialog: {
-        font-family: Regular-Condensed;
+        font-family: Light;
         border-radius: 5px;
         color: currentColor;
         text-rendering: inherit;
         font-weight: normal;
         line-height: 1.4em;
+      };
+
+    --paper-dialog-title {
+        font-family: Bold;
+        margin: 0em;
+        padding: 0.5em;
+        text-align: center;
       };
 
     --default-transition: {
@@ -289,24 +296,18 @@ iron-collapse {
  * Dialogs
  */
 
-paper-dialog > *:first-child {
-  margin: 0em;
-  padding: 0.5em;
-  text-align: center;
-}
-
 paper-dialog paper-dialog-scrollable {
   margin: 0.5em 0em;
   padding: 0em;
   font-size: 0.95em;
 }
 
-paper-dialog > * {
+paper-dialog * {
   margin: 0em;
   padding: 0em 1.5em 1.5em 1.5em;
 }
 
-paper-dialog > *:last-child {
+paper-dialog *:last-child {
   padding: 0.25em 0.25em 0.55em 0.25em;
 }
 

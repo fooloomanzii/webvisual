@@ -83,6 +83,11 @@ paper-toggle-button {
   border-top: thin solid white;
   border-bottom: thin solid white;
 }
+
+paper-dialog h2 {
+  font-family: Bold !important;
+  padding-left: 2em;
+}
 /*
  * Fonts
  */
