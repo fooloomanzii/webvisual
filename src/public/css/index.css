@@ -47,7 +47,7 @@ paper-item.sidemenu {
 paper-slider {
 }
 paper-item.date {
-  font-family: Roboto-Condensed-Light;
+  font-family: Light;
   font-size: 0.75em;
 }
 paper-radio-button  {
@@ -83,22 +83,29 @@ paper-toggle-button {
  * Fonts
  */
 @font-face {
- font-family: Roboto;
- src: url('fonts/Roboto-Regular.ttf') format('truetype');
+ font-family: Regular;
+ src: url('fonts/FiraSans-Book.otf') format('truetype');
  font-weight: normal;
  font-style: normal;
 }
 
 @font-face {
- font-family: Roboto-Condensed-Light;
- src: url('fonts/RobotoCondensed-Light.ttf') format('truetype');
+ font-family: Light;
+ src: url('fonts/FiraSans-Light.otf') format('truetype');
  font-weight: normal;
  font-style: normal;
 }
 
 @font-face {
- font-family: Roboto-Bold;
- src: url('fonts/Roboto-Bold.ttf') format('truetype');
+ font-family: Thin;
+ src: url('fonts/FiraSans-Hair.otf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
+
+@font-face {
+ font-family: Bold;
+ src: url('fonts/FiraSans-Medium.otf') format('truetype');
  font-weight: normal;
  font-style: normal;
 }
