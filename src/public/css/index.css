@@ -3,6 +3,9 @@ body, html {
   width: 100%;
   margin: 0em;
   padding: 0em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 paper-button iron-icon {
   margin-left: 0.5em;
@@ -28,12 +31,13 @@ paper-button.sidemenu:hover {
   border-bottom: thin solid  rgba(200, 200, 200, 0.3);
 }
 paper-button iron-icon.right-icon{
-  margin: 0em;
-  margin-right: 0.25em;
-  transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0em 0.65em;
+  background: rgba(255,255,255, 0.0);
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 paper-button iron-icon.right-icon:hover{
   background: rgba(255,255,255, 0.75);
+  border-radius: 50%;
 }
 paper-button .content{
   display: flex;

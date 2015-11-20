@@ -75,7 +75,8 @@
                   0 3px 1px -2px rgba(0, 0, 0, 0.2);
     }
     section#lower ::content leaflet-map {
-      width: 100%;
+      min-width: 10em;
+      flex: 1;
       border-radius: 0px 2px 2px 0px;
     }
     section#lower ::content .caption {
@@ -200,6 +201,7 @@
     <section id="mainContent" on-track="_handleTrack">
       <section id="header">
         <content select=".menu-icon"></content>
+        <content select="logo-element"></content>
         <div class="flex"></div>
         <section hidden="{{!opened}}">
           <paper-icon-button icon="{{_computeExpandIcon(expanded)}}" class="expand-icon" on-click="_expandView"></paper-icon-button>
@@ -207,7 +209,7 @@
         </section>
       </section>
       <section id="lower">
-        <section id="selSign">
+        <section id="selSign" class="">
           <content id="sign" select="#selectedElementSign,#selectedElementCaption"></content>
         </section>
         <content id="table" select="#selectedElementTable"></content>

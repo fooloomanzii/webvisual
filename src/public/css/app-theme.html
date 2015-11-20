@@ -17,9 +17,9 @@
     font-weight: normal;
     text-align: left;
     line-height: 1.4rem;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing:antialiased;
+    -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     word-wrap: break-word;
     color: var(--default-primary-text-color);
 
@@ -95,6 +95,7 @@
         -ms-user-select: none;
         user-select: none;
         transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+        align-items: flex-end;
       };
 
     --paper-button-disabled: {
@@ -112,6 +113,8 @@
         color: currentColor;
         font-family: Regular;
         cursor: pointer;
+        text-align: left;
+        text-transform: none;
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
@@ -211,6 +214,7 @@ paper-icon-button {
 iron-icon {
   --iron-icon-height: 24px;
   --iron-icon-width: 24px;
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 paper-item {
