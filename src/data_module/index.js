@@ -58,7 +58,7 @@ function connect (config, server, err) {
    */
 
   var io = require('socket.io').listen(server);
-
+  configuration.get();
   //dataFileHandler - established the data connections
   var dataConf = configuration.arrangeTypes( config.locals );
   var dataFile = new dataFileHandler( {
@@ -66,11 +66,9 @@ function connect (config, server, err) {
         connection: config.connections,
         listener: {
           error: function(type, err) {
-            dataSocket.emit('mistake', { error: err, time: new Date() });
-        },
-        data: [
-            // SocketIO Listener
-            function(type, data) {
+              dataSocket.emit('mistake', { error: err, time: new Date() });
+            },
+          data: function(type, data) {
               // Process data to certain format
               var currentData = dataMerge( dataConf, {exceeds: threshold(data,dataConf.types), data: data } );
               var tmpData = data;
@@ -83,8 +81,7 @@ function connect (config, server, err) {
                   }
               );
             }
-          ]
-        }
+          }
       });
 
   // Data Socket

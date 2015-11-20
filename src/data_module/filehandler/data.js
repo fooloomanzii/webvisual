@@ -270,7 +270,8 @@ dataFileHandler = (function() {
           //here is the space for reactions on the mistaken data
           throw new Error(messages.functions.DataErrorMsgFn(type, err));
         },
-        data: console.log
+        data: function(type, data) {
+        }
       }
     };
 
