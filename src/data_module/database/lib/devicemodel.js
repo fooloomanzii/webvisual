@@ -27,10 +27,13 @@
   var devicelistDB_name = "devices"; // list of devices
   var deviceDB_prefix = "device_"; // prefix to device id
    
+  // TODO set it from config.json
   // maximal limit of values to query (by one request)
   var max_query_limit = 5000; 
   // default size in kb for values collections per device
   var defalut_storage_size = 50*1024; 
+  // true if identical values need to be saved, false if not
+  var save_identical_values = true;
   
   // tmpDB helpful variables
   var cur_tmp = 0; // index of current temporary Database
@@ -153,8 +156,9 @@
    * ATTENSION!! 
    *    The 'id' is unique property! 
    *    There cannot be two or more devices with the same id!
-   *    
-   * Every device with non existed ID will be automaticly created
+   *  
+   * If no values were appended, callback passes null as appendedData
+   * Every device with non existed ID will be automatically created
    * Every unnecessary property (newData.blabla) doesn't affect this operation
    * Values never get overwritten or removed. They just getting appended.
    * 
@@ -171,6 +175,7 @@
     var self = this; // allow to pass this model to global functions
     if(!_.isArray(newData)){
       return save(self, newData, function(err, appendedData){
+        if(appendedData.values.length<1) return callback(err, null);
         // fill the temporary model with data from current update
         curr_tmpDB.update({'_id':appendedData.id}, { pushAll: { 'values' : appendedData.values } }, {upsert: true },
             function(err){
@@ -191,6 +196,7 @@
       if(data === undefined) return;
       
       save(self, data, function(err, result){
+        if(result.values.length<1) return async_callback(err);
         // fill the temporary model with data from current update
         curr_tmpDB.update({'_id':result.id}, { 'id':result.id, $pushAll: { 'values' : result.values } }, {upsert: true },
             function(err){
@@ -200,13 +206,13 @@
       });
     }, function(err, appendedData){
       tmpIsInUse = false;
-      // remove all elements == null
       if(tmp_switch_callback && curr_tmpDB != tmpDB){
         tmp_switch_callback(curr_tmpDB);
         tmp_switch_callback = null;
       }
+      // remove all elements == null
       appendedData = appendedData.filter(function(n){ return n });
-      callback(err, appendedData);
+      callback(err, (appendedData.length>0)?appendedData:null);
     });
   };
   
@@ -281,6 +287,8 @@
                         console.warn(err.stack);
                         return done();
                       }
+                      if(!save_identical_values && result.y === newValue.y) 
+                        return done();
                       
                       // (try to increase _id's millisecond)
                       // set ( milliseconds + 1 ) % 1000
@@ -319,7 +327,9 @@
 
                 callback( null, 
                   { id     : newData.id,
-                    values : appendedValues
+                    values : appendedValues. // values, that were appended
+                            // remove 'undefined' values
+                            filter(function(item){ return item })
                   }
                 );
               }
