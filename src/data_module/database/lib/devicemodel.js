@@ -1,68 +1,68 @@
 (function(){
   'use strict';
-  
+
   /** Further Development Note
    * The following DB-Structure was chosen because of low CPU usage.
-   * 
+   *
    * It was also tested { device.values = [value1, value2...] },
    * but big nested array isn't performant and needs to many CPU resources
    * for all art of operations.
-   * 
+   *
    * Current version need < 1% CPU by writing, independent of DB size.
-   * Read operations are always stressful.. 
+   * Read operations are always stressful..
    * and so it's hard to find better solution..
    **/
-  
+
   // Dependencies
   var mongoose = require('mongoose'),
       Schema   = mongoose.Schema,
       _        = require('underscore'),
       async    = require('async'),
       tmpModel = require('./tmpmodel.js');
-  
+
   // --- Variables --- //
-  
+
   /* Global variables */
   // Important DB Collection Names (!! please remove renamed collections !!)
   var devicelistDB_name = "devices"; // list of devices
   var deviceDB_prefix = "device_"; // prefix to device id
-   
+
   // TODO set it from config.json
   // maximal limit of values to query (by one request)
-  var max_query_limit = 5000; 
+  var max_query_limit = 5000;
   // default size in kb for values collections per device
-  var defalut_storage_size = 50*1024; 
+  var default_storage_size = 50*1024;
   // true if identical values need to be saved, false if not
   var save_identical_values = true;
-  
+
   // tmpDB helpful variables
   var cur_tmp = 0; // index of current temporary Database
   var num_of_tmps = 3; // number of temporary Databases
   var tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel); // temporary Database
   var tmpIsInUse = false;
   var tmp_switch_callback;
-  
+
   // Mongoose Schema to store the values
-  var StorageModel = new Schema({   
+  var StorageModel = new Schema({
       _id     : Number, // index = x.getTime()
-      x       : Date, // Time of Measure  
+      x       : Date, // Time of Measure
       y       : Number, // Measured Value
-      exceeds : Boolean // false = under the limit, 
-                        // true = over the limit, 
+      exceeds : Boolean // false = under the limit,
+                        // true = over the limit,
                         // null = ok.
-    }, 
+    },
     // options
-    { 
+    {
       // Define fixed size in bytes
       //   autoIndexId: false - shuts off the indexing by _id
-      capped: { size: 1024*defalut_storage_size },
-      // Versioning (__v) is important for updates. 
+      capped: { size: 1024*default_storage_size },
+      // Versioning (__v) is important for updates.
       // No updates => versioning is useless
-      versionKey: false // gets versioning off 
-      
-      //, autoIndex: false // significant performance improvement 
+      versionKey: false // gets versioning off
+
+      //, autoIndex: false // significant performance improvement
       // TODO check if index is registered and register it manually
-    } 
+    }
 
   );
   // mongoose Schema to store the device properties
@@ -76,33 +76,33 @@
       isBoolean : Boolean, // true if Measure is boolean
       unit      : String, // Measuring units
       storage   : String  // Name of the Collection with Device values
-    }, 
+    },
     // options
     { // significant performance improvement
       //autoIndex: false // http://mongoosejs.com/docs/guide.html
-    } 
+    }
   );
-  
-  
+
+
   // --- Functions --- //
-  
+
   /*
-   * Switches Temporary Database to the next one 
+   * Switches Temporary Database to the next one
    * and passes the current one per callback
    */
   DeviceModel.statics.switchTmpDB = function(callback){
     var last_tmpDB = tmpDB;
     // "tmpDB == last_tmpDB" is true
     cur_tmp = (cur_tmp + 1) % num_of_tmps;
-    tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel); 
+    tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel);
     // "tmpDB == last_tmpDB" is false
     if(callback){
       if(tmpIsInUse) tmp_switch_callback = callback;
       else callback(last_tmpDB);
     }
-  }  
-  
-  
+  }
+
+
   // Creates or updates the device in database
   DeviceModel.statics.setDevice = function(device, callback){
     if(device === undefined){
@@ -111,7 +111,7 @@
     }
     this.update({'_id':device.id}, device, { upsert: true },
         function(err) {
-         if (err) { 
+         if (err) {
            console.warn("Device can't be written to the list!");
            console.warn(err.stack);
          }
@@ -119,7 +119,7 @@
        }
      );
   }
-  
+
   // Creates or updates list of devices in database using given array "devices"
   DeviceModel.statics.setDevices = function(devices, callback){
     if(devices === undefined){
@@ -132,11 +132,11 @@
     }
     devices.filter(function(item){return item}); //filter out empty devices
     var self = this;
-    async.each(devices, 
+    async.each(devices,
         function(device, done){
           self.update( {'_id':device.id}, device, { upsert: true },
               function(err) {
-               if (err) { 
+               if (err) {
                  console.warn("Device can't be written to the list!");
                  console.warn(err.stack);
                }
@@ -149,20 +149,20 @@
         }
     )
   }
-  
+
   /*
    * Append new Document to the Collection
    * newData - is a normal data-object or Array of data-objects
-   * ATTENSION!! 
-   *    The 'id' is unique property! 
+   * ATTENSION!!
+   *    The 'id' is unique property!
    *    There cannot be two or more devices with the same id!
-   *  
+   *
    * If no values were appended, callback passes null as appendedData
    * Every device with non existed ID will be automatically created
    * Every unnecessary property (newData.blabla) doesn't affect this operation
    * Values never get overwritten or removed. They just getting appended.
-   * 
-   * e.g. append({id: "1", 
+   *
+   * e.g. append({id: "1",
    *                values: [{x=<time>, y=<value>, exceeds=false},...]
    *             }, callback);
    * or append([{id: "1", values: [..]},{id: "2", values: [..]}], callback);
@@ -171,11 +171,11 @@
     if(newData === undefined) return;
     tmpIsInUse = true;
     var curr_tmpDB = tmpDB;
-    
+
     var self = this; // allow to pass this model to global functions
     if(!_.isArray(newData)){
       return save(self, newData, function(err, appendedData){
-        if(appendedData.values.length<1) return callback(err, null);
+        if(appendedData.values.length < 1) return callback(err, null);
         // fill the temporary model with data from current update
         curr_tmpDB.update({'_id':appendedData.id}, { pushAll: { 'values' : appendedData.values } }, {upsert: true },
             function(err){
@@ -190,32 +190,36 @@
       });
     }
 
-    // append all data from array parallel, 
+    // append all data from array parallel,
     // and pack all returned data to one array to pass it to callback
-    async.map(newData, function(data, async_callback) {
-      if(data === undefined) return;
-      
-      save(self, data, function(err, result){
-        if(result.values.length<1) return async_callback(err);
-        // fill the temporary model with data from current update
-        curr_tmpDB.update({'_id':result.id}, { 'id':result.id, $pushAll: { 'values' : result.values } }, {upsert: true },
-            function(err){
-              async_callback(err, result);
-            }
-        );
-      });
-    }, function(err, appendedData){
-      tmpIsInUse = false;
-      if(tmp_switch_callback && curr_tmpDB != tmpDB){
-        tmp_switch_callback(curr_tmpDB);
-        tmp_switch_callback = null;
+    async.map(
+      newData,
+      function(data, async_callback) {
+        if(data === undefined) return;
+
+        save(self, data, function(err, result){
+          if(result.values.length<1) return async_callback(err);
+          // fill the temporary model with data from current update
+          curr_tmpDB.update({'_id':result.id}, { 'id':result.id, $pushAll: { 'values' : result.values } }, {upsert: true },
+              function(err){
+                async_callback(err, result);
+              }
+          );
+        })
+      },
+      function(err, appendedData){
+        tmpIsInUse = false;
+        if(tmp_switch_callback && curr_tmpDB != tmpDB){
+          tmp_switch_callback(curr_tmpDB);
+          tmp_switch_callback = null;
+        }
+        // remove all elements == null
+        appendedData = appendedData.filter(function(n){ return n });
+        callback(err, (appendedData.length>0)?appendedData:null);
       }
-      // remove all elements == null
-      appendedData = appendedData.filter(function(n){ return n });
-      callback(err, (appendedData.length>0)?appendedData:null);
-    });
+    );
   };
-  
+
   /* Global function - append()'s helper */
   // saves the data in passed collection (model)
   function save(model, newData, callback){
@@ -225,16 +229,16 @@
     }
     // If no values, can check the device and save if it's new
     if(newData.values === undefined) newData.values = {};
-    
+
     // open values collection or create new one
-    model.findOne({'_id':newData.id}, 
+    model.findOne({'_id':newData.id},
       function(err, result){
-        if(err){ 
+        if(err){
           console.warn("Some DB Error by search for device!");
           console.warn(err.stack);
           return;
         }
-        
+
         var storage;
         if(result && result.storage){ // the device is in the list and have .storage
           storage = mongoose.model(result.storage, StorageModel);
@@ -242,11 +246,11 @@
           // create new collection of values and save it by device description
           // collection names are always lower case
           newData.storage = (deviceDB_prefix + newData.id).toLowerCase();
-          model.update({'_id':newData.id}, 
-              { $set: { 'storage': newData.storage }}, 
+          model.update({'_id':newData.id},
+              { $set: { 'storage': newData.storage }},
               { upsert: true },
              function(err) {
-              if (err) { 
+              if (err) {
                 console.warn("Device can't be written to the list!");
                 console.warn(err.stack);
               }
@@ -254,32 +258,35 @@
           );
           storage = mongoose.model(newData.storage, StorageModel);
         }
-        
+
+// TODO Kommentierung: noch aktuell???
         //TODO somehow CPU efficient check for identical values in database
-        
+
         if(_.isEmpty(newData.values)){
           callback(null, null);
         } else {
           // set custom _id for each value and save changed array to new variable
           var valuesToAppend = _.map(
-            newData.values, 
+            newData.values,
             function(item){
-              item._id=item.x.getTime();
+
+// TODO Die Zeit als ID???
+              item._id = item.x.getTime();
               return item;
             }
           );
-          
+
           // TODO stress test (lot of devices and values parallel)
-          // append_new_values serves to properly writing 
+          // append_new_values serves to properly writing
           //    of possible values with identical time
           // append_tries = writing tries count for problem values
           var append_new_values = function(newValue, append_tries, done){
             storage.create(newValue,
               function(err) {
-                if (err) { 
-                  // 11000 = duplicate _id error 
+                if (err) {
+                  // 11000 = duplicate _id error
                   if(err.code == 11000 && append_tries < 1000){
-                    // check if value is the same. 
+                    // check if value is the same.
                     // if yes, we don't need to write it to db.
                     return storage.findById(newValue._id, function (err, result) {
                       if(err){ // hard to handle....
@@ -287,9 +294,9 @@
                         console.warn(err.stack);
                         return done();
                       }
-                      if(!save_identical_values && result.y === newValue.y) 
+                      if(!save_identical_values && result.y === newValue.y)
                         return done();
-                      
+
                       // (try to increase _id's millisecond)
                       // set ( milliseconds + 1 ) % 1000
                       var old_id_time = new Date( newValue._id );
@@ -300,11 +307,12 @@
                       // try again
                       append_tries++;
                       return append_new_values(newValue, append_tries, done);
-                      
+
                     });
                   }
                   // append_tries >= 1000 or error != 11000
-                  return done(err); 
+                  // <-- Error-Code 11000 = duplicate _id error
+                  return done(err);
                 }
                 // no errors
                 delete newValue._id; // we don't need _id anymore
@@ -312,10 +320,10 @@
               }
             );
           }
-          
+
           // append all values parallel
           async.map(
-              valuesToAppend, 
+              valuesToAppend,
               function(value, callback){
                 append_new_values(value, 0, callback);
               },
@@ -325,7 +333,7 @@
                   else return;
                 }
 
-                callback( null, 
+                callback( null,
                   { id     : newData.id,
                     values : appendedValues. // values, that were appended
                             // remove 'undefined' values
@@ -338,7 +346,7 @@
       }
     );
   }
-  
+
   /*
    * Searches for objects to match the given request
    *  Possible request properties:
@@ -347,7 +355,7 @@
    *      time  - moment(...) : http://momentjs.com/docs/
    *                OR Date OR parameter to create new Date(parameter)
    *                OR {from: ..., to: ...} OR {from: ...} OR {to: ...}
-   *                'from/to'-objects have the same structure 
+   *                'from/to'-objects have the same structure
    *                as 'time' without 'from/to'
    *              e.g. '2015-08-15' or 12345 (to parse Date from)
    *                   or { from: moment('2015-08-15').add(2, 'months'),
@@ -364,18 +372,18 @@
    *                   (+) for first N values
    *                   (0) last max_query_limit/(number of devices) values
    *              default: null (no extra limits)
-   *                     
+   *
    * all request properties are optional
    * and need to be in the query object (order has no influence)
-   * e.g. request = { query: { id: "1" }, 
+   * e.g. request = { query: { id: "1" },
    *                  limit: -15,
    *                  time:  { from: moment().subtract(1, 'months') }
    *                 }
    *      it requests data for device with id = "1" from 1 month till now,
    *      limited to last 15 values per device
-   *      
+   *
    * you can also leave the request as null : findData(null, callback)
-   * or just call findData(callback); to get data for all existing devices, 
+   * or just call findData(callback); to get data for all existing devices,
    * last max_query_limit/(number of devices) values each device
    */
   DeviceModel.statics.query = function(request, callback) {
@@ -386,7 +394,7 @@
       request = {};
     }
     if(!callback) callback = function(err, results){ };
-    
+
     var time; // create variable time for the DB query
     if(request.time !== undefined) {
       if(request.time.from !== undefined || request.time.to !== undefined){
@@ -414,26 +422,26 @@
         }
       }
     }
-    
+
     var device_query;
-    
+
     if(request.query === undefined){ // if no query, search for everything
       device_query = {};
     } else {
       device_query = _.map(request.query,
           function(item){ // change id to _id for better searching
-            if(item.id){ item._id=item.id; delete item.id; } 
+            if(item.id){ item._id=item.id; delete item.id; }
             return item;
           }
         );
     }
-    
+
     self.find(device_query, function(err, devices) {
       if(err){
         return callback(err);
       }
       if(devices.length == 0) return callback(null, null);
-      
+
       // get temporary max_limit
       var limit = max_query_limit/devices.length;
       if(request.limit){
@@ -445,55 +453,62 @@
         //   limit = limit;
         } else {
           limit = request.limit;
-        } 
+        }
       } else {
         limit = -limit;
       }
       limit|=limit; // parse to integer without round up
-      
+
       // does a parallel search for values for every device
       //   and packs all results in one array
-      async.map(devices, function(device, done){
-        // query collection with values for current device
-        var values_collection = mongoose.model(device.storage, StorageModel);
-        
-        var query;
-        
-        if(time !== undefined){
-          query = values_collection.find({ '_id': time });
-        } else {
-          query = values_collection.find({});
-        }
-        
-        // limit the query
-        // The $natural parameter returns items according to their natural 
-        // order within the database. It's the fastest order to sort.
-        if( limit < 0 ){
-          query.sort({ $natural:-1 })
-               .limit(-limit);
-        } else {
-          query.sort({ $natural:1 })
-               .limit(limit);
-        }
-        query.select('-_id -__v'); // exclude '_id' & '__v'
-        
-        query.exec(function(err, results){
-          if(err) return done(err);
+      async.map(
+        devices,
+        function(device, done){
+          // query collection with values for current device
+          var values_collection = mongoose.model(device.storage, StorageModel);
 
-          // sort ascending by date 
-          // don't need, because client sorts this
-          // if( limit < 0 ) _.sortBy(results, function(obj){ return obj.x; });
-          
-          done(null, {'id':device.id, 'values': results});
-        });
-      }, function(err, result) {
-        if(err) return callback(err);
-        // send all queried results from queried devices as one array back
-        callback(null, result);
-      });
+          var query;
+
+          if(time !== undefined){
+            query = values_collection.find({ '_id': time });
+          } else {
+            query = values_collection.find({});
+          }
+
+          // limit the query
+          // The $natural parameter returns items according to their natural
+          // order within the database. It's the fastest order to sort.
+          if( limit < 0 ){
+            query.sort({ $natural:-1 })
+                 .limit(-limit);
+          } else {
+            query.sort({ $natural:1 })
+                 .limit(limit);
+          }
+          query.select('-_id -__v'); // exclude '_id' & '__v'
+
+          query.exec(function(err, results){
+            if(err) return done(err);
+
+            // sort ascending by date
+
+// TODO: der Client sortiert nicht, es sei denn du meinst die Datenbank selbst???
+
+            // don't need, because client sorts this
+            // if( limit < 0 ) _.sortBy(results, function(obj){ return obj.x; });
+
+            done(null, {'id':device.id, 'values': results});
+          });
+        },
+        function(err, result) {
+          if(err) return callback(err);
+          // send all queried results from queried devices as one array back
+          callback(null, result);
+        }
+      );
     });
   };
-  
+
   /*
    * Change size for existing Storage-Collection
    * Arguments:
@@ -503,23 +518,23 @@
    */
   DeviceModel.statics.setStorageSize = function (id, size, callback) {
     if(size <= 0) return callback(new Error("Wrong storage size"));
-    this.findOne({'_id':id}, 
+    this.findOne({'_id':id},
         function(err, result){
-          if(err){ 
+          if(err){
             console.warn("Some DB Error by search for device!");
             if(callback) return callback(err);
             return;
           }
           if(!result){ // id wasn't found
-            if(callback) 
+            if(callback)
               return callback(new Error("Id for resizing wasn't found!"));
             return;
           }
-          
+
           mongoose.connection.db.command(
-              { convertToCapped: result.storage, size: size*1024 }, 
+              { convertToCapped: result.storage, size: size*1024 },
               function(err){
-                if(err){ 
+                if(err){
                   console.warn("Cannot resize given collection!");
                   console.warn(err.stack);
                   if(callback) return callback(err);
@@ -531,29 +546,29 @@
         }
      );
   }
-  
-  
+
+// TODO verständliche Funktionen --> was soll hier getestet werden???
   // Test function for development cases
   DeviceModel.statics.test = function (callback) {
-    
+
     var tmp2 = function(model1, model2, id, devices, pos){
       var query = model1.find({_id: {$gt: id}}).sort({_id: 1 }).limit(100);
       query.exec(function(err, results){
-    
+
         if(results.length < 1){
           console.log("OK. "+devices[pos].storage);
           tmp(devices, pos+1);
           return;
         }
-        
+
         var last_id=results[results.length-1]._id;
         var _results=_.map(results, function(item){
-          item=item.toObject(); 
-          item._id=item.x.getTime(); 
+          item=item.toObject();
+          item._id=item.x.getTime();
           return item;
           }
         );
-        model2.create(_results, 
+        model2.create(_results,
           function (err, small) {
             if (err) {
               console.warn("1."+err);
@@ -564,47 +579,51 @@
         );
       });
     }
-    
+// TODO verständliche Variablennamen --> tmp???
     var tmp = function(devices, pos){
       if( pos<devices.length ){
         var device=devices[pos];
       } else {
         return;
       }
+// TODO verständliche Variablennamen --> values_collection2???
       var values_collection = mongoose.model(device.storage, StorageModel2);
       var values_collection2 = mongoose.model('tmp_'+device.storage, StorageModel);
-          
+
       var query = values_collection.find({}).sort({_id: 1 }).limit(100);
-  
+
       query.exec(function(err, results){
-        
+
         if(results.length < 1){
           console.log("!!!!!!!!OK. "+device.storage);
           tmp(devices, pos+1);
           return;
         }
-        
-        var id=results[results.length-1]._id;
-        var _results=_.map(results, function(item){
-          item=item.toObject();
-          item._id=item.x.getTime(); 
+
+        var id = results[results.length-1]._id;
+        var _results = _.map(results, function(item){
+          item = item.toObject();
+// TODO x.getTime ist nicht die wirkliche Zeit
+          item._id = item.x.getTime();
           return item;
         });
 
-        values_collection2.create(_results, 
+        values_collection2.create(_results,
           function (err, small) {
             if (err) {
+// TODO verständliche Log-level
               console.warn("1."+err);
               return;
             }
+// TODO verständliche Variablennamen --> tmp2???
             tmp2(values_collection, values_collection2, id, devices, pos);
           }
         );
       });
     }
-    
+
     this.find({}, function(err, devices) {
-      
+
       if(err){
         return callback(err);
       }
@@ -613,7 +632,7 @@
       tmp(devices, 0);
     });
   }
-  
+
   module.exports = mongoose.model(devicelistDB_name, DeviceModel);
 
 })();

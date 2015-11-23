@@ -40,6 +40,10 @@
 
   //--- Functions --- //
 
+// TODO: Kommentierung: wofür ist tmpmodel??? wie ist der Ablauf der Durchführung???
+//      Es reicht nicht die Kommentierung der anderen Module zu kopieren bzw. nur die
+//      Variablen zu beschreiben, die es nicht mal gibt!!!
+
   /*
    * Searches for objects to match the given request
    *  Possible request properties:
@@ -123,7 +127,7 @@
     } else {
       device_query = _.map(request.query,
           function(item){ // change id to _id for better searching
-            if(item.id){ item._id=item.id; delete item.id; }
+            if(item.id){ item._id = item.id; delete item.id; }
             return item;
           }
         );
@@ -150,7 +154,7 @@
       } else if(limit) {
         query.select({'_id':0, 'id':1, 'values': { $slice: limit }});
       }
-
+// TODO Kommentierung: was wird hier gelöscht???
       query.exec(function(err, results){
         if(err) return callback(err);
         results.forEach(function(item) {
