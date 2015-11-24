@@ -203,12 +203,12 @@
         <content select=".menu-icon"></content>
         <content select="logo-element"></content>
         <div class="flex"></div>
-        <section hidden="{{!opened}}">
+        <section hidden$="{{!opened}}">
           <paper-icon-button icon="{{_computeExpandIcon(expanded)}}" class="expand-icon" on-click="_expandView"></paper-icon-button>
           <content select=".toggle-icon"></content>
         </section>
       </section>
-      <section id="lower">
+      <section id="lower" hidden$="{{!opened}}">
         <section id="selSign" class="">
           <content id="sign" select="#selectedElementSign,#selectedElementCaption"></content>
         </section>
