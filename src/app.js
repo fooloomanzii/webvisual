@@ -92,8 +92,8 @@ var app    = express(),
 app.use(express.static(__dirname + '/public'));
 
 // Configure VIEW ENGINE
-// app.set('view engine', 'jade');
-// app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+app.set('views', __dirname + '/views');
 
 /*
  * Defining Errors
