@@ -402,7 +402,7 @@ function _handle_change(event, path, currStat, prevStat, options) {
   // Test/create event - process the changes
   if (event === 'update' || event === 'create') {
     if (event === 'create')
-      console.log(path_util.basename(path)+' was created.');
+      console.log('"'+path_util.basename(path)+'" was created.');
     if (options.mode === 'append') {
       options.work_function(path, prevStat.size, undefined, options.process, options.content, options.copy_path);
     } else if (options.mode === 'prepend') {
@@ -413,7 +413,7 @@ function _handle_change(event, path, currStat, prevStat, options) {
   }
   //  Delete event - delete the copied version
   else if (event === 'delete') {
-    console.warn('"'+resFile+'"', "was deleted.\n"+
+    console.warn('"'+path_util.basename(path)+'"', "was deleted.\n"+
       "copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
     // We don't need to delete the copied file if there is no copied file
     fs.exists(options.copy_path+_extension, function(exists) {
