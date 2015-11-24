@@ -491,11 +491,7 @@
             if(err) return done(err);
 
             // sort ascending by date
-
-// TODO: der Client sortiert nicht, es sei denn du meinst die Datenbank selbst???
-
-            // don't need, because client sorts this
-            // if( limit < 0 ) _.sortBy(results, function(obj){ return obj.x; });
+            if( limit < 0 ) _.sortBy(results, function(obj){ return obj.x; });
 
             done(null, {'id':device.id, 'values': results});
           });
@@ -545,92 +541,6 @@
           );
         }
      );
-  }
-
-// TODO verständliche Funktionen --> was soll hier getestet werden???
-  // Test function for development cases
-  DeviceModel.statics.test = function (callback) {
-
-    var tmp2 = function(model1, model2, id, devices, pos){
-      var query = model1.find({_id: {$gt: id}}).sort({_id: 1 }).limit(100);
-      query.exec(function(err, results){
-
-        if(results.length < 1){
-          console.log("OK. "+devices[pos].storage);
-          tmp(devices, pos+1);
-          return;
-        }
-
-        var last_id=results[results.length-1]._id;
-        var _results=_.map(results, function(item){
-          item=item.toObject();
-          item._id=item.x.getTime();
-          return item;
-          }
-        );
-        model2.create(_results,
-          function (err, small) {
-            if (err) {
-              console.warn("1."+err);
-              return;
-            }
-            tmp2(model1, model2, last_id, devices, pos);
-          }
-        );
-      });
-    }
-// TODO verständliche Variablennamen --> tmp???
-    var tmp = function(devices, pos){
-      if( pos<devices.length ){
-        var device=devices[pos];
-      } else {
-        return;
-      }
-// TODO verständliche Variablennamen --> values_collection2???
-      var values_collection = mongoose.model(device.storage, StorageModel2);
-      var values_collection2 = mongoose.model('tmp_'+device.storage, StorageModel);
-
-      var query = values_collection.find({}).sort({_id: 1 }).limit(100);
-
-      query.exec(function(err, results){
-
-        if(results.length < 1){
-          console.log("!!!!!!!!OK. "+device.storage);
-          tmp(devices, pos+1);
-          return;
-        }
-
-        var id = results[results.length-1]._id;
-        var _results = _.map(results, function(item){
-          item = item.toObject();
-// TODO x.getTime ist nicht die wirkliche Zeit
-          item._id = item.x.getTime();
-          return item;
-        });
-
-        values_collection2.create(_results,
-          function (err, small) {
-            if (err) {
-// TODO verständliche Log-level
-              console.warn("1."+err);
-              return;
-            }
-// TODO verständliche Variablennamen --> tmp2???
-            tmp2(values_collection, values_collection2, id, devices, pos);
-          }
-        );
-      });
-    }
-
-    this.find({}, function(err, devices) {
-
-      if(err){
-        return callback(err);
-      }
-      if(devices.length == 0) return callback(null, null);
-
-      tmp(devices, 0);
-    });
   }
 
   module.exports = mongoose.model(devicelistDB_name, DeviceModel);

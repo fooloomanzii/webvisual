@@ -79,13 +79,4 @@ DBController.prototype.resize = function (id, newSize, callback) {
   });
 };
 
-
-//Test function for development cases
-DBController.prototype.test = function (callback) {
-  this.dataModel.test(function (err, result) {
-    if(callback) callback(err, result);
-  });
-};
-
-
 module.exports = DBController;
