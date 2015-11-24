@@ -26,21 +26,22 @@
   // Important DB Collection Names (!! please remove renamed collections !!)
   var devicelistDB_name = "devices"; // list of devices
   var deviceDB_prefix = "device_"; // prefix to device id
+  var tmpDB_prefix = "tmp_"; // prefix to temporary collection
 
-  // TODO set it from config.json
   // maximal limit of values to query (by one request)
   var max_query_limit = 5000;
-  // default size in kb for values collections per device
-  var default_storage_size = 50*1024;
+  // default size in Megabytes for values collections per device
+  var default_storage_size = 50;
   // true if identical values need to be saved, false if not
   var save_identical_values = true;
 
-  // tmpDB helpful variables
-  var cur_tmp = 0; // index of current temporary Database
-  var num_of_tmps = 3; // number of temporary Databases
-  var tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel); // temporary Database
-  var tmpIsInUse = false;
-  var tmp_switch_callback;
+  // tmpDB help variables
+  var cur_tmp = 0; // index of current temporary collection
+  // TODO write a function, that defines if there is need for more tmp collections
+  var num_of_tmps = 3; // number of temporary collections
+  var tmpDB = mongoose.model(tmpDB_prefix+cur_tmp, tmpModel); // temporary collection
+  var tmpIsInUse = false; // true if new data is been currently written to tmpDB
+  var tmp_switch_callback; // temporary callback pointer
 
   // Mongoose Schema to store the values
   var StorageModel = new Schema({
@@ -55,7 +56,7 @@
     {
       // Define fixed size in bytes
       //   autoIndexId: false - shuts off the indexing by _id
-      capped: { size: 1024*default_storage_size },
+      capped: { size: 1024*1024*default_storage_size },
       // Versioning (__v) is important for updates.
       // No updates => versioning is useless
       versionKey: false // gets versioning off
@@ -85,6 +86,68 @@
 
 
   // --- Functions --- //
+  
+  
+  /*
+   * Initializes Model with new default values from options-Object
+   * Possible properties to change:
+   *   max_query_limit : maximal limit of values to query (by one request)
+   *   default_storage_size : default fixed size in Megabytes 
+   *                          for collection of values per device.
+   *                          It will be used only by creation of new device
+   *   
+   *   save_identical_values : true if identical values need to be saved
+   *                           false if not
+   *                           it also indicates if client needs to receive 
+   *                           the identical values
+   *                           
+   * e.g.: options = { max_query_limit = 10000 };
+   *                           
+   * callback passes back an error-array, if there are any problems
+   *   or nothing if nothing goes wrong.
+   *                           
+   * !!WARNING!! The model is preinitilized with default values, so
+   *             if there is any option wrong or empty, 
+   *             this option wont be changed
+   *             
+   */
+  var init = function(options, callback){
+    if(options == undefined) return callback();
+    
+    var errors = [];
+
+    if(options.max_query_limit != undefined){
+      if(!_.isNumber(options.max_query_limit)){
+        errors.push(new Error("max_query_limit is not a Number!"));
+      } else if (options.max_query_limit <= 0) {
+        errors.push(new Error("max_query_limit need to be positive!"));
+      } else {
+        max_query_limit = options.max_query_limit;
+      }
+    }
+    
+    // TODO properly change the size in Schema options!!
+    if(options.default_storage_size != undefined){
+      if(!_.isNumber(options.default_storage_size)){
+        errors.push(new Error("default_storage_size is not a Number!"));
+      } else if (options.default_storage_size <= 0) {
+        errors.push(new Error("default_storage_size need to be positive!"));
+      } else {
+        default_storage_size = options.default_storage_size;
+      }
+    }
+
+    if(options.save_identical_values != undefined){
+      if(!_.isBoolean(options.save_identical_values)){
+        errors.push(new Error("save_identical_values is not a Boolean!"));
+      } else {
+        save_identical_values = options.save_identical_values;
+      }
+    }
+    
+    if(errors.length < 1) return callback();
+    else return callback(errors);
+  }
 
   /*
    * Switches Temporary Database to the next one
@@ -294,6 +357,8 @@
                         console.warn(err.stack);
                         return done();
                       }
+                      
+                      
                       if(!save_identical_values && result.y === newValue.y)
                         return done();
 
@@ -543,6 +608,9 @@
      );
   }
 
-  module.exports = mongoose.model(devicelistDB_name, DeviceModel);
+  module.exports = {
+      init : init,
+      model : mongoose.model(devicelistDB_name, DeviceModel)
+  }
 
 })();

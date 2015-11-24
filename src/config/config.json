@@ -1,17 +1,10 @@
 {
   "connections": {
-    "db": { },
     "file": {
       "mode": "all",
       "path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
       "#path_folder": "",
       "path": "HNF_Datafile.txt"
-      },
-    "udp": {
-      "log": false,
-      "log_path": "/../../data/udp/",
-      "mode": "append",
-      "port": 4000
       }
     },
 
@@ -21,10 +14,16 @@
     "subject": "Data",
     "content": "Folgende Messgeräte senden kritische Messwerte:\n"
     },
+    
+  "database": {
+    "name": "HNF-GDS",
+    "max_query_limit": 5000,
+    "default_storage_size": 100,
+    "save_identical_values": false
+  },
 
   "port": 3000,
   "updateIntervall" : 1000,
-  "dbName": "HNF-GDS",
 
   "logs": {
     "external_log":      "HNF.log",

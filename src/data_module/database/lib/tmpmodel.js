@@ -133,7 +133,7 @@
         );
     }
 
-    require('./devicemodel.js').find(device_query, function(err, devices) {
+    require('./devicemodel.js').model.find(device_query, function(err, devices) {
       if(err){
         return callback(err);
       }

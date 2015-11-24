@@ -1,4 +1,1 @@
-module.exports = {
-    controller: require('./lib/dbcontroller'),
-    devicemodel: require('./lib/devicemodel')
-};
+module.exports = require('./lib/dbcontroller');

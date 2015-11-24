@@ -1,27 +1,35 @@
 /*
  * Controls all operations over the database within defined Data Model
- *
- * dataModel - instance of mongoose.model('model name', schema);
+ * Checks all the pre-conditions of the Data Model functions
  */
-var DBController = function (dataModel) {
-    this.dataModel = dataModel;
-};
 
+// Port to the Data Model
+var devicemodel = require('./devicemodel.js'),
+    dataModel   = devicemodel.model;
+
+var DBController = function() { }
+  
+// devicemodel initializing function
+DBController.prototype.init = function(options, callback){
+  devicemodel.init(options, function(err){
+    if(callback) callback(err);
+  });
+}
 
 /*
  * Creates or updates the device in database
  */
 DBController.prototype.setDevice = function (device, callback) {
   // setDevice - is custom function in the dataModel
-  this.dataModel.setDevice(device, function(err){
+  dataModel.setDevice(device, function(err){
     if(callback) callback(err);
   });
 };
 
-//Creates or updates list of devices in database using given array "devices"
+// Creates or updates list of devices in database using given array "devices"
 DBController.prototype.setDevices = function (devices, callback) {
   // setDevice - is custom function in the dataModel
-  this.dataModel.setDevices(devices, function(err){
+  dataModel.setDevices(devices, function(err){
     if(callback) callback(err);
   });
 };
@@ -35,7 +43,7 @@ DBController.prototype.setDevices = function (devices, callback) {
  */
 DBController.prototype.appendData = function (newData, callback) {
   // append - is custom function in the dataModel
-  this.dataModel.append(newData, function(err, appendedData){
+  dataModel.append(newData, function(err, appendedData){
     if(callback) callback(err, appendedData);
   });
 };
@@ -46,7 +54,7 @@ DBController.prototype.appendData = function (newData, callback) {
  */
 DBController.prototype.getData = function (request, callback) {
   //query - is custom function in the dataModel
-  this.dataModel.query(request, function (err, result) {
+  dataModel.query(request, function (err, result) {
     if(callback) callback(err, result);
   });
 };
@@ -66,17 +74,26 @@ DBController.prototype.getDataFromModel = function (model, request, callback) {
  * and passes the current one per callback
  */
 DBController.prototype.switchTmpDB = function (callback) {
-  this.dataModel.switchTmpDB(callback);
+  dataModel.switchTmpDB(callback);
 };
-
 
 /*
  * Sets new fixed size in kilobytes to collection of values for given device id
  */
 DBController.prototype.resize = function (id, newSize, callback) {
-  this.dataModel.setStorageSize(id, newSize, function (err, result) {
+  dataModel.setStorageSize(id, newSize, function (err, result) {
     if(callback) callback(err, result);
   });
 };
 
-module.exports = DBController;
+/*
+ * Sets new fixed size in kilobytes to collection of values for given device id
+ */
+DBController.prototype.resize = function (id, newSize, callback) {
+  dataModel.setStorageSize(id, newSize, function (err, result) {
+    if(callback) callback(err, result);
+  });
+};
+
+// DBController is a Class, because it's easier to set what need to be exported
+module.exports = new DBController();

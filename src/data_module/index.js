@@ -22,9 +22,7 @@ var // ASYNC <-- one callback for a lot of async operations
 
     /* Database Server + Client */
     mongoose     = require('mongoose'),
-    database     = require('./database'),
-    datamodel    = database.devicemodel,
-    dbcontroller = new database.controller(datamodel, {}),
+    dbcontroller     = require('./database'),
     // The database
     db,
     /* Class variables */
@@ -125,60 +123,69 @@ function connect (config, server, err) {
   });
 
 
-  //Send new data on constant time intervals
-  setInterval(
-    function(){
-      dbcontroller.switchTmpDB(function(tmpDB){
-        if(!tmpDB) return;
-        async.each(clients,
-            function(client, callback){
-              dbcontroller.getDataFromModel(tmpDB,
-                client.appendPattern,
-                function (err, data) {
-                  if(err){
-                    console.warn(err.stack);
+  var serve_clients_with_data = function(updateIntervall){
+    //Send new data on constant time intervals
+    setInterval(
+      function(){
+        dbcontroller.switchTmpDB(function(tmpDB){
+          if(!tmpDB) return;
+          async.each(clients,
+              function(client, callback){
+                dbcontroller.getDataFromModel(tmpDB,
+                  client.appendPattern,
+                  function (err, data) {
+                    if(err){
+                      console.warn(err.stack);
+                      callback();
+                      return;
+                    }
+                    if(data.length < 1){
+                      //empty data
+                      return;
+                    }
+                    var message = {
+                       content: data,
+                       time: new Date(), // current message time
+                    };
+                    client.socket.emit('data', message);
                     callback();
-                    return;
                   }
-                  if(data.length < 1){
-                    //empty data
-                    return;
-                  }
-                  var message = {
-                     content: data,
-                     time: new Date(), // current message time
-                  };
-                  client.socket.emit('data', message);
-                  callback();
-                }
-              );
-            },
-            function(err){
-              if(err) console.warn(err.stack);
-              // cleanize current tmp
-              tmpDB.remove({},function(err){
+                );
+              },
+              function(err){
                 if(err) console.warn(err.stack);
-              });
-            }
-        );
-      });
-    }, config.updateIntervall
-  );
-
+                // cleanize current tmp
+                tmpDB.remove({},function(err){
+                  if(err) console.warn(err.stack);
+                });
+              }
+          );
+        });
+      }, updateIntervall
+    );
+  };
 
   /*
    * Get SERVER.io and server running!
    */
-  mongoose.connect("mongodb://localhost:27017/" + config.dbName);
+  mongoose.connect("mongodb://localhost:27017/" + config.database.name);
   db = mongoose.connection;
   //TODO properly react on error
   db.on('error', console.error.bind(console, 'connection error:'));
   db.once('open', function (callback) {
-    //datamodel.remove({},function(){ //clean up the database
-
     console.log("MongoDB is connected to database '%s'",
         config.dbName);
+    
+    // initialize database controller with values from config,json
+    dbcontroller.init(config.database, function(err){
+      if(err) { 
+        err.forEach(function(error){
+          console.warn(error.stack);
+        })
+      }
+    });
 
+    // register the properties of devices in the database
     dbcontroller.setDevices(dataConf.types, function(err){
       if(err) console.warn(err.stack);
     });
@@ -188,6 +195,8 @@ function connect (config, server, err) {
 
     // make the Server available for Clients
     server.listen(config.port);
+    
+    serve_clients_with_data(config.updateIntervall);
 
   });
 
