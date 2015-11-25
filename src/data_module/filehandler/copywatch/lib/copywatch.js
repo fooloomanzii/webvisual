@@ -371,9 +371,8 @@ function _create_watch_options(mode, options) {
     // It was already checked if content is a valid function
     if (options.content) {
       // Just process the file and give the data to the specified callback
-
-      // read option, if you like to watch a complete file (e.g. watching a json-file)
       if (nOptions.mode === "complete")
+          // read option, if you like to watch a complete file (e.g. watching a json-file)
         nOptions.work_function = _process_read_complete_file;
       else
         nOptions.work_function = _process_read;
@@ -565,7 +564,7 @@ function watch(mode, file, options, next) {
     next = options;
     options = {};
   }
-  
+
   // Process the options; use default values if necessary
   options = _create_watch_options(mode, options || {});
 
