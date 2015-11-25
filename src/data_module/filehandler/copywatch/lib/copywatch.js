@@ -89,7 +89,7 @@ function _check_mode(mode) {
     mode = mode.toLowerCase();
 
     // and check if it's a valid mode
-    if (!(mode === 'append' || mode === 'prepend' || mode === 'all')) {
+    if (!(mode === 'append' || mode === 'prepend' || mode === 'all' || mode === 'complete')) {
       return new Error(mode+" - Not a valid mode.");
     }
   } else {
@@ -283,8 +283,8 @@ function _process_read(path, start, end, process, callback) {
   });
 }
 
-// Read JSON
-function _process_json(path, start, end, process, callback) {
+// Read a complete file (e.g. a json file)
+function _process_read_complete_file(path, start, end, process, callback) {
   // (starts same as _process_read)
   // Define variables
   var processedData = [],
@@ -303,7 +303,7 @@ function _process_json(path, start, end, process, callback) {
   });
 
   // Reading the stream
-  var tmpBuffer = "", linecount = 0;
+  var tmpBuffer = "";
 
   read.on('readable', function() {
     var chunk;
@@ -324,13 +324,12 @@ function _process_json(path, start, end, process, callback) {
 
     // Try to parse the data-String in JSON
     try {
-      processedData = JSON.parse(tmpBuffer);
+      processedData = process(tmpBuffer);
     }
     catch(err) {
-      console.warn("Invalid JSON-Format in file '"+path+"'.\n"+err);
+      console.warn("Invalid Format in file '"+path+"'.\n"+err);
       errorData.push({
         file: path,
-        lineNumber: linecount,
         error: err
       });
     }
@@ -347,7 +346,6 @@ function _process_json(path, start, end, process, callback) {
 function _create_watch_options(mode, options) {
   var nOptions =  {
     mode: mode,
-    json: options.json,
     firstCopy: ((options.firstCopy !== undefined) ? options.firstCopy : _default.firstCopy),
     watch_error: options.watch_error || _default.watch_error,
     work_function: _default.work_function,
@@ -370,16 +368,15 @@ function _create_watch_options(mode, options) {
 
   // copy option; a boolean
   if(options.copy === false) {
-    // JSON read option
-    if (options.json) {
-      nOptions.mode = "all";
-      nOptions.work_function = _process_json;
-      nOptions.process = null;
-    }
     // It was already checked if content is a valid function
-    else if (options.content) {
+    if (options.content) {
       // Just process the file and give the data to the specified callback
-      nOptions.work_function = _process_read;
+
+      // read option, if you like to watch a complete file (e.g. watching a json-file)
+      if (nOptions.mode === "complete")
+        nOptions.work_function = _process_read_complete_file;
+      else
+        nOptions.work_function = _process_read;
     } else {
       /*  There is no point in doing nothing on a change.  This probably
       wasn't the users intention and failing quitly would just confuse. */
@@ -408,6 +405,8 @@ function _handle_change(event, path, currStat, prevStat, options) {
     } else if (options.mode === 'prepend') {
       options.work_function(path, 0, (currStat.size - prevStat.size), options.process, options.content, options.copy_path);
     } else if (options.mode === 'all') {
+      options.work_function(path, undefined, undefined, options.process, options.content, options.copy_path);
+    } else if (options.mode === 'complete') {
       options.work_function(path, undefined, undefined, options.process, options.content, options.copy_path);
     }
   }
@@ -566,6 +565,7 @@ function watch(mode, file, options, next) {
     next = options;
     options = {};
   }
+  
   // Process the options; use default values if necessary
   options = _create_watch_options(mode, options || {});
 

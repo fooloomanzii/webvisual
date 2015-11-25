@@ -14,10 +14,10 @@ function _readFromFile(configPath) {
   var options = {
     "file": {
       "copy": false,
-      "mode": "all",
-      "json": true,
+      "mode": "complete",
       "path_folder": (__dirname + '/../../config/'),
-      "path": "config.json"
+      "path": "config.json",
+      "process": JSON.parse
       }
     }
   var configFile =
