@@ -197,7 +197,8 @@ process.on('uncaughtException', function(err) {
     if(e.message !== 'Not running')
       throw e;
   }
-  throw err;
+  // try to reconnect
+  dataModule.connect(config,server);
 });
 
 /* SIGINT can usually be generated with Ctrl-C */
