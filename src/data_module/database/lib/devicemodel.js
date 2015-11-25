@@ -561,10 +561,11 @@
 
             // sort ascending by date
             if( limit < 0 ) {
-              results = _.sortBy(results, function(obj){ 
-                return obj.x.getTime(); 
+              results= _.sortBy(results, function(obj){ 
+                return obj.x; 
               });
             }
+
             
             done(null, {'id':device.id, 'values': results});
           });
