@@ -560,9 +560,12 @@
             if(err) return done(err);
 
             // sort ascending by date
-// TODO: dies scheint keine Auswirkung zu haben
-            if( limit < 0 ) _.sortBy(results, function(obj){ return obj.x; });
-
+            if( limit < 0 ) {
+              results = _.sortBy(results, function(obj){ 
+                return obj.x.getTime(); 
+              });
+            }
+            
             done(null, {'id':device.id, 'values': results});
           });
         },
