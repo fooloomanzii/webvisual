@@ -86,34 +86,34 @@
 
 
   // --- Functions --- //
-  
-  
+
+
   /*
    * Initializes Model with new default values from options-Object
    * Possible properties to change:
    *   max_query_limit : maximal limit of values to query (by one request)
-   *   default_storage_size : default fixed size in Megabytes 
+   *   default_storage_size : default fixed size in Megabytes
    *                          for collection of values per device.
    *                          It will be used only by creation of new device
-   *   
+   *
    *   save_identical_values : true if identical values need to be saved
    *                           false if not
-   *                           it also indicates if client needs to receive 
+   *                           it also indicates if client needs to receive
    *                           the identical values
-   *                           
+   *
    * e.g.: options = { max_query_limit = 10000 };
-   *                           
+   *
    * callback passes back an error-array, if there are any problems
    *   or nothing if nothing goes wrong.
-   *                           
+   *
    * !!WARNING!! The model is preinitilized with default values, so
-   *             if there is any option wrong or empty, 
+   *             if there is any option wrong or empty,
    *             this option wont be changed
-   *             
+   *
    */
   var init = function(options, callback){
     if(options == undefined) return callback();
-    
+
     var errors = [];
 
     if(options.max_query_limit != undefined){
@@ -125,7 +125,7 @@
         max_query_limit = options.max_query_limit;
       }
     }
-    
+
     // TODO properly change the size in Schema options!!
     if(options.default_storage_size != undefined){
       if(!_.isNumber(options.default_storage_size)){
@@ -144,7 +144,7 @@
         save_identical_values = options.save_identical_values;
       }
     }
-    
+
     if(errors.length < 1) return callback();
     else return callback(errors);
   }
@@ -216,7 +216,7 @@
   /*
    * Append new Document to the Collection
    * newData - is a normal data-object or Array of data-objects
-   * ATTENSION!!
+   * ATTENTION!!
    *    The 'id' is unique property!
    *    There cannot be two or more devices with the same id!
    *
@@ -252,7 +252,7 @@
         );
       });
     }
-
+// TODO: gibt es einen eindeutigen Punkt, den man im Codo erkennen kann, wenn die Daten an socket.io/client abgesendet werden???
     // append all data from array parallel,
     // and pack all returned data to one array to pass it to callback
     async.map(
@@ -277,6 +277,8 @@
           tmp_switch_callback = null;
         }
         // remove all elements == null
+// TODO: was/wofür wird gefiltert??? bzw. warum wird etwas null?
+//            <-- der Kommentar ist sehr missverständlich (wirkt wie auskommentierter Code)
         appendedData = appendedData.filter(function(n){ return n });
         callback(err, (appendedData.length>0)?appendedData:null);
       }
@@ -286,6 +288,7 @@
   /* Global function - append()'s helper */
   // saves the data in passed collection (model)
   function save(model, newData, callback){
+// TODO: Kommentar: WTF??? warum?
     if(newData.id === undefined){ // WTF?? need an id, to arrange the values
       if(callback) return callback(new Error("No id!"));
       else return;
@@ -357,8 +360,8 @@
                         console.warn(err.stack);
                         return done();
                       }
-                      
-                      
+
+
                       if(!save_identical_values && result.y === newValue.y)
                         return done();
 
@@ -375,6 +378,7 @@
 
                     });
                   }
+// TODO: Kommentare sollten kein Pseudo-code sein
                   // append_tries >= 1000 or error != 11000
                   // <-- Error-Code 11000 = duplicate _id error
                   return done(err);
@@ -556,6 +560,7 @@
             if(err) return done(err);
 
             // sort ascending by date
+// TODO: dies scheint keine Auswirkung zu haben
             if( limit < 0 ) _.sortBy(results, function(obj){ return obj.x; });
 
             done(null, {'id':device.id, 'values': results});
