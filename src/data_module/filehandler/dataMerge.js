@@ -20,10 +20,10 @@ module.exports = processData;
   // Session Variables
   // (don't change, if server is not restartet)
 var dateFormat   = require('dateFormat'),
-    _            = require('underscore'),
-    lastExceedsArray = [];
+    _            = require('underscore');
+// var lastExceedsArray = [];
 
-function processData(settings, currentData) {
+function processData(configurationID, settings, currentData) {
 
   if(settings === undefined ||
      currentData === undefined)
@@ -34,7 +34,7 @@ function processData(settings, currentData) {
       exceedsArray  = [],
       dateArray     = [],
       processedData = [],
-      returnObject  = {};
+      returnObject  = {id: configurationID};
 
   arrangeData(currentData.data, currentData.exceeds);
 
@@ -50,8 +50,9 @@ function processData(settings, currentData) {
       if(valuesArray[i] && dateArray[i]) {
         for (var l=0; l<data[i].values.length; l++) {
           valuesArray[i][l] = data[i].values[l];
-          if(!lastExceedsArray)
-            lastExceedsArray.push(null);
+// TODO: Handle lastExceeds db-wise
+          // if(!lastExceedsArray)
+          //   lastExceedsArray.push(null);
         }
         dateArray[i] = data[i].date;
       }
@@ -77,7 +78,8 @@ function processData(settings, currentData) {
               element.id = settings.unnamedType.id + k;
 
             element.values = [];
-            element.lastExceeds = lastExceedsArray[j];
+// TODO: Handle lastExceeds db-wise
+//            element.lastExceeds = lastExceedsArray[j];
             processedData[k] = element;
           }
           // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored
@@ -86,17 +88,17 @@ function processData(settings, currentData) {
                                         "exceeds": exceedsArray[i][j]
                                       })
           // store last Exceeding Data (lastExceedsArray is created each server-session)
-          if(exceedsArray[i][j] != null)
-            lastExceedsArray[j] = processedData[k].lastExceeds = {"x": dateArray[i],
-                                                                  "y": valuesArray[i][j],
-                                                                  "exceeds": exceedsArray[i][j]};
+// TODO: Handle lastExceeds db-wise
+          // if(exceedsArray[i][j] != null)
+          //   lastExceedsArray[j] = processedData[k].lastExceeds = {"x": dateArray[i],
+          //                                                         "y": valuesArray[i][j],
+          //                                                         "exceeds": exceedsArray[i][j]};
           k++;
         }
       }
     }
 
       // Creation of an Return Object
-      // TODO: socket for each messurement-device possible?
     returnObject = {time: currentData.time, content: processedData};
   }
   return returnObject;

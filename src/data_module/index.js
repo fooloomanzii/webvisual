@@ -14,17 +14,11 @@ var // ASYNC <-- one callback for a lot of async operations
     mailer   = new require('./mail')('exceeds'),
     // FS <-- File System
     fs           = require('fs'),
-    // UNDERSCORE <-- js extensions
-    _            = require('underscore'),
-    // DEFAULTSDEEP <-- extended underscrore/lodash _.defaults,
-    // for default-value in   deeper structures
-    defaultsDeep = require('merge-defaults'),
 
     /* Database Server + Client */
-    mongoose     = require('mongoose'),
+    mongoose         = require('mongoose'),
     dbcontroller     = require('./database'),
-    // The database
-    db,
+
     /* Class variables */
     threshold        = filehandler.threshold,    // extension: of DATAMODULE
     dataFileHandler  = filehandler.dataFileHandler,  // extension: of DATAMODULE
@@ -33,14 +27,14 @@ var // ASYNC <-- one callback for a lot of async operations
     Client           = require('./clients'),       // extension: of DATAMODULE
 
     /* Current connected clients */
-    clients      = {},
+    clients       = {},
+    // array of configurations
+    configArray   = [],
+    // The databases
+    dbArray       = [],
+    // mongoose-connection array
+    mongooseArray = [];
 
-    /* Default config */
-    defaults     = { connections    : [],
-                     port           : 3000,
-                     updateIntervall: 1000,
-                     dbName         : "test"
-    };
 
 function connect (config, server, err) {
 
@@ -49,30 +43,37 @@ function connect (config, server, err) {
     return; // Check the Existence
   }
 
-  initMailer(config.mail);
+  //initMailer(config.mail);
 
   /*
    * Configure SOCKET.IO (watch the data file)
    */
 
   var io = require('socket.io').listen(server);
-  configuration.get();
+
+// TODO: Test for an array of configurations
+  configArray = config.configurations;
+
   //dataFileHandler - established the data connections
-  var dataConf = configuration.arrangeTypes( config.locals );
-  var dataFile = new dataFileHandler( {
+  var dataConf = [];
+  var dataFile = [];
+  var dbControllerArray = [];
+
+  for (var i = 0; i < configArray.length; i++) {
+    dataConf.push(configuration.arrangeTypes( configArray[i].locals ));
+    dataFile.push(new dataFileHandler( {
         // Object used the Configuration
-        connection: config.connections,
+        connection: configArray[i].connections,
         listener: {
           error: function(type, err) {
               dataSocket.emit('mistake', { error: err, time: new Date() });
             },
           data: function(type, data) {
               // Process data to certain format
-              var currentData = dataMerge( dataConf, {exceeds: threshold(data,dataConf.types), data: data } );
-              var tmpData = data;
+              var currentData = dataMerge( i, dataConf[i], {exceeds: threshold(data,dataConf[i].types), data: data } );
 
               // Save new Data in Database and send for each client the updated Data
-              dbcontroller.appendData(
+              dbControllerArray[i].appendData(
                   currentData.content,
                   function (err, appendedData) {
                     if(err) console.warn(err.stack);
@@ -80,8 +81,9 @@ function connect (config, server, err) {
               );
             }
           }
-      });
-
+      })
+    );
+  }
   // Data Socket
   var dataSocket = io.of('/data');
 
@@ -90,28 +92,30 @@ function connect (config, server, err) {
 
     socket.on('clientConfig', function(patterns) {
       var current_client = new Client(socket, patterns);
-      dbcontroller.getData(current_client.firstPattern,
-        function (err, data) {
-          if(err) console.warn(err.stack);
+      for (var i = 0; i < configArray.length; i++) {
+        dbControllerArray[i].getData(current_client.firstPattern,
+          function (err, data) {
+            if(err) console.warn(err.stack);
 
-          //TODO: important! if two lines change then send in the same kind of object
+            //TODO: important! if two lines change then send in the same kind of object
 
-          var message = {
-             content: data,
-             time: new Date(), // current message time
-             language: config.locals.language,
-             groupingKeys: config.locals.groupingKeys,
-             exclusiveGroups: config.locals.exclusiveGroups,
-             types: dataConf.types,
-             unnamedType: dataConf.unnamedType
-          };
-          socket.emit('first', message);
+            var message = {
+               id: i,
+               content: data,
+               time: new Date(), // current message time
+               groupingKeys: configArray[i].locals.groupingKeys,
+               exclusiveGroups: configArray[i].locals.exclusiveGroups,
+               types: dataConf[i].types,
+               unnamedType: dataConf[i].unnamedType
+            };
+            socket.emit('first', message);
 
-          // append the client to array after sending first message
-          current_client.hasFirst=true;
-          clients[socket.id] = current_client;
-        }
-      );
+            // append the client to array after sending first message
+            current_client.hasFirst=true;
+            clients[socket.id] = current_client;
+          }
+        );
+      }
 
       // by disconnect remove socket from list
       socket.on('disconnect',
@@ -127,40 +131,42 @@ function connect (config, server, err) {
     //Send new data on constant time intervals
     setInterval(
       function(){
-        dbcontroller.switchTmpDB(function(tmpDB){
-          if(!tmpDB) return;
-          async.each(clients,
-              function(client, callback){
-                dbcontroller.getDataFromModel(tmpDB,
-                  client.appendPattern,
-                  function (err, data) {
-                    if(err){
-                      console.warn(err.stack);
+        for (var i = 0; i < configArray.length; i++)
+          dbControllerArray[i].switchTmpDB(function(tmpDB){
+            if(!tmpDB) return;
+            async.each(clients,
+                function(client, callback){
+                  dbControllerArray[i].getDataFromModel(tmpDB,
+                    client.appendPattern,
+                    function (err, data) {
+                      if(err){
+                        console.warn(err.stack);
+                        callback();
+                        return;
+                      }
+                      if(data.length < 1){
+                        //empty data
+                        return;
+                      }
+                      var message = {
+                         id: i,
+                         content: data,
+                         time: new Date(), // current message time
+                      };
+                      client.socket.emit('data', message);
                       callback();
-                      return;
                     }
-                    if(data.length < 1){
-                      //empty data
-                      return;
-                    }
-                    var message = {
-                       content: data,
-                       time: new Date(), // current message time
-                    };
-                    client.socket.emit('data', message);
-                    callback();
-                  }
-                );
-              },
-              function(err){
-                if(err) console.warn(err.stack);
-                // cleanize current tmp
-                tmpDB.remove({},function(err){
+                  );
+                },
+                function(err){
                   if(err) console.warn(err.stack);
-                });
-              }
-          );
-        });
+                  // cleanize current tmp
+                  tmpDB.remove({},function(err){
+                    if(err) console.warn(err.stack);
+                  });
+                }
+            );
+          });
       }, updateIntervall
     );
   };
@@ -168,37 +174,44 @@ function connect (config, server, err) {
   /*
    * Get SERVER.io and server running!
    */
-  mongoose.connect("mongodb://localhost:27017/" + config.database.name);
-  db = mongoose.connection;
-  //TODO properly react on error
-  db.on('error', console.error.bind(console, 'connection error:'));
-  db.once('open', function (callback) {
-    console.log("MongoDB is connected to database '%s'",
-        config.dbName);
-    
-    // initialize database controller with values from config,json
-    dbcontroller.init(config.database, function(err){
-      if(err) { 
-        err.forEach(function(error){
-          console.warn(error.stack);
-        })
-      }
+
+  for (var i = 0; i < configArray.length; i++) {
+    console.log(configArray[i].database.name);
+    dbArray.push(mongoose.createConnection("mongodb://localhost:27017/" + configArray[i].database.name));
+    //TODO properly react on error
+    dbArray[i].on('error', console.error.bind(console, 'connection error:'));
+    dbArray[i].once('open', function (callback) {
+// TODO: das geht so nicht, weil i nicht mehr vorhanden, wenn das aufgerufen wird
+//       man müsste das im device controller erzeugen
+//       da muss die Datenbank, die man nutzen möcht angegeben werden und die Konfiguration geschehen#
+//       mongoose müsste gar nicht außerhalb existieren
+      console.log("MongoDB is connected to database '%s'",
+          configArray[i].database.name);
+
+      dbControllerArray.push(new dbcontroller(config.configurations[i].database, function(err){
+        if(err) {
+          err.forEach(function(error){
+            console.warn(error.stack);
+          })
+        }
+      }));
+
+      // register the properties of devices in the database
+      dbControllerArray[i].setDevices(dataConf[i].types, function(err){
+        if(err) console.warn(err.stack);
+      });
+
+      // start the handler for new measuring data
+      dataFile[i].connect();
+
+      serve_clients_with_data(config.updateIntervall);
     });
+  }
 
-    // register the properties of devices in the database
-    dbcontroller.setDevices(dataConf.types, function(err){
-      if(err) console.warn(err.stack);
-    });
+  // make the Server available for Clients
+  server.listen(config.port);
 
-    // start the handler for new measuring data
-    dataFile.connect();
 
-    // make the Server available for Clients
-    server.listen(config.port);
-    
-    serve_clients_with_data(config.updateIntervall);
-
-  });
 
   /*
    * Start Mail Server
@@ -220,7 +233,7 @@ function connect (config, server, err) {
 }
 
 function disconnect() {
-  mongoose.disconnect();
+  // mongoose.disconnect();
 }
 
 function initMailer(config) {

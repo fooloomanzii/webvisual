@@ -1,27 +1,4 @@
 {
-  "connections": {
-    "file": {
-      "mode": "all",
-      "path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
-      "#path_folder": "dw",
-      "path": "HNF_Datafile.txt"
-      }
-    },
-
-  "mail": {
-    "from": "SCADA <webvisual.test@gmail.com>",
-    "to": "ersatzprogramm@gmail.com",
-    "subject": "Data",
-    "content": "Folgende Messgeräte senden kritische Messwerte:\n"
-    },
-
-  "database": {
-    "name": "HNF-GDS",
-    "max_query_limit": 5000,
-    "default_storage_size": 100,
-    "save_identical_values": false
-  },
-
   "port": 3000,
   "updateIntervall" : 3000,
 
@@ -32,89 +9,162 @@
     "server_log":        "/../logs/server-error.log"
     },
 
-  "locals":{
+  "configurations": [
+    {
+      "connections": {
+        "file": {
+          "mode": "all",
+          "path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
+          "path": "HNF_Datafile.txt"
+          }
+        },
 
-    "ignore": [0,8,16,17,21,22,27,32],
+      "mail": {
+        "from": "SCADA <webvisual.test@gmail.com>",
+        "to": "ersatzprogramm@gmail.com",
+        "subject": "Data",
+        "content": "Folgende Messgeräte senden kritische Messwerte:\n"
+        },
 
-    "types": [
-      {"id":"Binary", "roomNr":"test", "room":"test", "kind":"Test", "method":"Binärzahl", "isBoolean": false, "threshold": {"from":0,"to":10000000}, "unit":"₂"},
-      {"id":"DI0-1", "roomNr":"2032", "room":"Gaslager", "kind":"H₂", "method":"brennbar", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI1-1", "roomNr":"2032", "room":"Gaslager", "kind":"H₂", "method":"brennbar", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI2-1", "roomNr":"3005", "room":"Bypack", "kind":"H₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI3-1", "roomNr":"3005", "room":"Bypack", "kind":"H₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI4-1", "roomNr":"4006", "room":"Reinraum", "kind":"H₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI5-1", "roomNr":"4006", "room":"Reinraum", "kind":"H₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI6-1", "roomNr":"2032 3005 4006", "room":"", "kind":"H₂", "method":"Störung", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI7-1", "method":"Reserve", "isBoolean": true},
+      "database": {
+        "name": "HNF-GDS",
+        "max_query_limit": 5000,
+        "default_storage_size": 100,
+        "save_identical_values": false
+      },
 
-      {"id":"DI0-2", "method":"Gerätefehler", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI1-2", "method":"Wartung", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI2-2", "roomNr":"2030", "room":"Gaslager", "kind":"Alarm2", "method":"korrosiv", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI3-2", "roomNr":"2032", "room":"Gaslager", "kind":"Alarm2", "method":"brennbar", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI4-2", "roomNr":"3005", "room":"Bypack", "kind":"Alarm2", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI5-2", "roomNr":"4006", "room":"Reinraum", "kind":"Alarm2", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI6-2", "roomNr":"4006", "room":"Reinraum", "kind":"HBr", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI7-2", "method":"Reserve", "isBoolean": true},
+      "locals":{
 
-      {"id":"DI0-3", "method":"Reserve", "isBoolean": true},
-      {"id":"DI1-3", "roomNr":"4006", "room":"Reinraum", "kind":"Cl₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI2-3", "roomNr":"2030", "room":"Gaslager", "kind":"Cl₂", "method":"korrosiv", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI3-3", "roomNr":"2030", "room":"Gaslager", "kind":"HBr", "method":"korrosiv", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI4-3", "method":"Reserve", "isBoolean": true},
-      {"id":"DI5-3", "method":"Reserve", "isBoolean": true},
-      {"id":"DI6-3", "roomNr":"4006", "room":"Reinraum", "kind":"NH₃", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI7-3", "roomNr":"3005", "room":"Bypack", "kind":"NH₃", "isBoolean": true, "threshold": {"from":0,"to":0}},
+        "ignore": [0,8,16,17,21,22,27,32],
 
-      {"id":"DI0-4", "roomNr":"2032", "room":"Gaslager", "kind":"NH₃", "method":"brennbar", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI1-4", "roomNr":"4006", "room":"Reinraum", "kind":"BCl₃", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI2-4", "method":"Reserve", "isBoolean": true},
-      {"id":"DI3-4", "roomNr":"3005", "room":"Bypack", "kind":"BCl₃", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI4-4", "roomNr":"4006", "room":"Reinraum", "kind":"SiH₄", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI5-4", "roomNr":"3005", "room":"Bypack", "kind":"SiH₄", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI6-4", "roomNr":"2032", "room":"Gaslager", "kind":"SiH₄", "method":"brennbar", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI7-4", "method":"Reserve", "isBoolean": true},
+        "types": [
+          {"id":"Binary", "roomNr":"test", "room":"test", "kind":"Test", "method":"Binärzahl", "isBoolean": false, "threshold": {"from":0,"to":10000000}, "unit":"₂"},
+          {"id":"DI0-1", "roomNr":"2032", "room":"Gaslager", "kind":"H₂", "method":"brennbar", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI1-1", "roomNr":"2032", "room":"Gaslager", "kind":"H₂", "method":"brennbar", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI2-1", "roomNr":"3005", "room":"Bypack", "kind":"H₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI3-1", "roomNr":"3005", "room":"Bypack", "kind":"H₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI4-1", "roomNr":"4006", "room":"Reinraum", "kind":"H₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI5-1", "roomNr":"4006", "room":"Reinraum", "kind":"H₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI6-1", "roomNr":"2032 3005 4006", "room":"", "kind":"H₂", "method":"Störung", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI7-1", "method":"Reserve", "isBoolean": true},
 
-      {"id":"DI0-5", "roomNr":"4006", "room":"Reinraum", "kind":"Cl₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI1-5", "roomNr":"3005", "room":"Bypack", "kind":"HBr", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI2-5", "roomNr":"2030", "room":"Gaslager", "kind":"BCl₃", "method":"korrosiv", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI3-5", "roomNr":"4006-21", "room":"Reinraum", "kind":"O₂", "method":"Mangel 19%", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI4-5", "roomNr":"4006-21", "room":"Reinraum", "kind":"O₂", "method":"Mangel 17%", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI5-5", "roomNr":"4006-23", "room":"Reinraum", "kind":"O₂", "method":"Mangel 19%", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI6-5", "roomNr":"4006-23", "room":"Reinraum", "kind":"O₂", "method":"Mangel 17%", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI7-5", "roomNr":"4006", "room":"Reinraum", "kind":"Midas System", "method":"Störung", "isBoolean": true, "threshold": {"from":0,"to":0}}
-    ],
+          {"id":"DI0-2", "method":"Gerätefehler", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI1-2", "method":"Wartung", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI2-2", "roomNr":"2030", "room":"Gaslager", "kind":"Alarm2", "method":"korrosiv", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI3-2", "roomNr":"2032", "room":"Gaslager", "kind":"Alarm2", "method":"brennbar", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI4-2", "roomNr":"3005", "room":"Bypack", "kind":"Alarm2", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI5-2", "roomNr":"4006", "room":"Reinraum", "kind":"Alarm2", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI6-2", "roomNr":"4006", "room":"Reinraum", "kind":"HBr", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI7-2", "method":"Reserve", "isBoolean": true},
 
-    "unnamedType" : {
-      "id"    : "id",
-      "room"  : "",
-      "roomNr": "",
-      "kind"  : "",
-      "method"   : "",
-      "unit"     : "",
-      "threshold": {"from":null,"to":null},
-      "isBoolean": false
+          {"id":"DI0-3", "method":"Reserve", "isBoolean": true},
+          {"id":"DI1-3", "roomNr":"4006", "room":"Reinraum", "kind":"Cl₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI2-3", "roomNr":"2030", "room":"Gaslager", "kind":"Cl₂", "method":"korrosiv", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI3-3", "roomNr":"2030", "room":"Gaslager", "kind":"HBr", "method":"korrosiv", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI4-3", "method":"Reserve", "isBoolean": true},
+          {"id":"DI5-3", "method":"Reserve", "isBoolean": true},
+          {"id":"DI6-3", "roomNr":"4006", "room":"Reinraum", "kind":"NH₃", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI7-3", "roomNr":"3005", "room":"Bypack", "kind":"NH₃", "isBoolean": true, "threshold": {"from":0,"to":0}},
+
+          {"id":"DI0-4", "roomNr":"2032", "room":"Gaslager", "kind":"NH₃", "method":"brennbar", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI1-4", "roomNr":"4006", "room":"Reinraum", "kind":"BCl₃", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI2-4", "method":"Reserve", "isBoolean": true},
+          {"id":"DI3-4", "roomNr":"3005", "room":"Bypack", "kind":"BCl₃", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI4-4", "roomNr":"4006", "room":"Reinraum", "kind":"SiH₄", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI5-4", "roomNr":"3005", "room":"Bypack", "kind":"SiH₄", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI6-4", "roomNr":"2032", "room":"Gaslager", "kind":"SiH₄", "method":"brennbar", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI7-4", "method":"Reserve", "isBoolean": true},
+
+          {"id":"DI0-5", "roomNr":"4006", "room":"Reinraum", "kind":"Cl₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI1-5", "roomNr":"3005", "room":"Bypack", "kind":"HBr", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI2-5", "roomNr":"2030", "room":"Gaslager", "kind":"BCl₃", "method":"korrosiv", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI3-5", "roomNr":"4006-21", "room":"Reinraum", "kind":"O₂", "method":"Mangel 19%", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI4-5", "roomNr":"4006-21", "room":"Reinraum", "kind":"O₂", "method":"Mangel 17%", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI5-5", "roomNr":"4006-23", "room":"Reinraum", "kind":"O₂", "method":"Mangel 19%", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI6-5", "roomNr":"4006-23", "room":"Reinraum", "kind":"O₂", "method":"Mangel 17%", "isBoolean": true, "threshold": {"from":0,"to":0}},
+          {"id":"DI7-5", "roomNr":"4006", "room":"Reinraum", "kind":"Midas System", "method":"Störung", "isBoolean": true, "threshold": {"from":0,"to":0}}
+        ],
+
+        "unnamedType" : {
+          "id"    : "id",
+          "room"  : "",
+          "roomNr": "",
+          "kind"  : "",
+          "method"   : "",
+          "unit"     : "",
+          "threshold": {"from":null,"to":null},
+          "isBoolean": false
+        },
+
+        "groupingKeys" : ["roomNr", "room", "kind", "method"],
+
+        "exclusiveGroups": {
+          "roomNr": [{"name":"Diverse", "ids":["DI6-1","DI0-2","DI1-2"]},
+                     {"name":"kombinierter Alarm", "ids":["DI2-2","DI3-2","DI4-2","DI5-2"]},
+                     {"name":"4006", "ids":["DI3-5","DI4-5","DI5-5","DI6-5"]}
+                    ]
+        },
+
+        "language": {
+          "types": ["en","de","fr","es","ru"],
+          "elements": {
+            "all": ["all","Alle","","",""],
+            "date": ["date","Datum","","",""],
+            "room": ["room","Raum","","",""],
+            "kind": ["kind","Typ","","",""],
+            "method": ["method","Methode","","",""],
+            "value": ["value","Wert","","",""]
+          }
+        }
+      }
     },
+    {
+      "connections": {
+        "file": {
+          "mode": "all",
+          "path_folder": "",
+          "path": "HNF_Datafile.txt"
+          }
+        },
 
-    "groupingKeys" : ["roomNr", "room", "kind", "method"],
+      "mail": {
+        "from": "",
+        "to": "",
+        "subject": "",
+        "content": ""
+        },
 
-    "exclusiveGroups": {
-      "roomNr": [{"name":"Diverse", "ids":["DI6-1","DI0-2","DI1-2"]},
-                 {"name":"kombinierter Alarm", "ids":["DI2-2","DI3-2","DI4-2","DI5-2"]},
-                 {"name":"4006", "ids":["DI3-5","DI4-5","DI5-5","DI6-5"]}
-                ]
-    },
+      "database": {
+        "name": "DBTest",
+        "max_query_limit": 5000,
+        "default_storage_size": 100,
+        "save_identical_values": false
+      },
 
-    "language": {
-      "types": ["en","de","fr","es","ru"],
-      "elements": {
-        "all": ["all","Alle","","",""],
-        "date": ["date","Datum","","",""],
-        "room": ["room","Raum","","",""],
-        "kind": ["kind","Typ","","",""],
-        "method": ["method","Methode","","",""],
-        "value": ["value","Wert","","",""]
+      "locals":{
+
+        "ignore": [],
+
+        "types": [
+        ],
+
+        "unnamedType" : {
+          "id"       : "id",
+          "propA"    : "",
+          "propB"    : "",
+          "propC"    : "",
+          "unit"     : "",
+          "threshold": {"from":null,"to":null},
+          "isBoolean": false
+        },
+
+        "groupingKeys" : ["propA", "propB", "propC", "unit"],
+
+        "exclusiveGroups": {
+          "propA":  [{"name":"Spezial", "ids":["id1","id2"]}],
+          "propB":  [{"name":"Spezial", "ids":["id3","id4"]}]
+        }
       }
     }
-
-  }
+  ]
 }

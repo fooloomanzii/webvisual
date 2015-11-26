@@ -7,10 +7,9 @@
 var devicemodel = require('./devicemodel.js'),
     dataModel   = devicemodel.model;
 
-var DBController = function() { }
-  
+// TODO: könnte man init als Konstruktor verwenden?
 // devicemodel initializing function
-DBController.prototype.init = function(options, callback){
+function DBController (options, callback){
   devicemodel.init(options, function(err){
     if(callback) callback(err);
   });
@@ -70,7 +69,7 @@ DBController.prototype.getDataFromModel = function (model, request, callback) {
 };
 
 /*
- * Switches Temporary Database to the next one 
+ * Switches Temporary Database to the next one
  * and passes the current one per callback
  */
 DBController.prototype.switchTmpDB = function (callback) {
@@ -96,4 +95,4 @@ DBController.prototype.resize = function (id, newSize, callback) {
 };
 
 // DBController is a Class, because it's easier to set what need to be exported
-module.exports = new DBController();
+module.exports = DBController;

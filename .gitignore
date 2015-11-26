@@ -1,5 +1,5 @@
 # Packaged Stuff #
-# *.exe
+*.exe
 
 # Config files
 src/config/config.json
