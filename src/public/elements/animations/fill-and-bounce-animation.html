@@ -1,0 +1,49 @@
+<link rel="import" href="../../components/polymer/polymer.html">
+<link rel="import" href="../../components/neon-animation/neon-shared-element-animation-behavior.html">
+<link rel="import" href="../../components/neon-animation/web-animations.html">
+
+<script>
+
+  Polymer({
+
+    is: 'fill-and-bounce-animation',
+
+    behaviors: [
+      Polymer.NeonSharedElementAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+      var fill = config.fill;
+      var bounce = config.bounce || '1';
+
+      this.setPrefixedProperty(node, 'transformOrigin', '50% 50%');
+
+      // setting bounce and fill array if just one argument is given
+      if(typeof bounce == "string")
+        bounce = ['1',bounce];
+      if(typeof fill == "string")
+        fill = ['currentColor',fill];
+
+      // creating a loop of effects
+      var len = (fill.length > bounce.length) ? fill.length : bounce.length;
+      var effectArray = [];
+
+      for(var i=0, j=0; i < len || j < len; i++, j++) {
+        if(i == fill.length) i = 0;
+        if(j == bounce.length) j = 0;
+        effectArray.unshift({"fill": fill[i],"transform": 'scale('+bounce[j]+','+bounce[j]+')'});
+      }
+
+      this._effect = new KeyframeEffect(node, effectArray,
+        this.timingFromConfig(config));
+
+      return this._effect;
+    },
+
+    complete: function(config) {
+      config.node.style.fill = "currentColor";
+    }
+  });
+
+</script>

@@ -1,286 +1,65 @@
+<!DOCTYPE html>
 <head>
   <title>webvisual</title>
-  <!-- Meta-Tag: Set the viewport-->
   <meta name="viewport" charset="utf-8" content="width=device-width, initial-scale=1, user-scalable=yes, minimum-scale=0.3"/>
-
-  <!-- Web-Components -->
   <script src="components/webcomponentsjs/webcomponents.min.js"></script>
-
-  <!-- Imported Elements and Scripts -->
-  <link rel="import" href="imports.html"/>
-  <link rel="import" href="import-customs.html"/>
-
+  <script src="components/jquery/dist/jquery.min.js"></script>
+  <script src="components/underscore/underscore-min.js"></script>
+  <link rel="import" href="components/polymer/polymer.html">
+  <link rel="import" href="components/neon-animation/neon-animation.html">
+  <link rel="import" href="elements/juelich-icon.html">
+  <link rel="import" href="import-behaviours.html">
+  <link rel="import" href="elements/pages/loading-page.html">
+  <link rel="import" href="elements/pages/main-page.html">
+  <link rel="import" href="elements/data-socket-repeater.html"/>
 </head>
-
-<body>
-
-  <template is="dom-bind" id="autobind-template">
-
-  <data-socket-repeater id="datasocket"
-    data="{{data}}"
-    max-total-lines="{{maxLines}}"
-    interval="{{interval}}"
-    groups="{{groups}}"
-    on-dataloaded="grouping"
-    last-message="{{lastMessage}}"
-    last-mistake="{{lastMistake}}"
-    last-error="{{lastError}}">
-  </data-socket-repeater>
-
-  <paper-drawer-panel id="mainPanel" force-narrow="true">
-
-    <!-- SIDEMENU -->
-    <paper-header-panel drawer id="drawerPanel">
-      <iron-selector multi selectable="paper-button.sidemenu.collapsable">
-
-        <!-- Page Routing -->
-        <paper-button collapse-id="pageview" class="sidemenu collapsable" on-tap="toggleCollapse">
-          <iron-icon icon="pageview"></iron-icon>
-          <span class="flex">Anzeige</span>
-          <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="pageview"></iron-icon>
-        </paper-button>
-
-          <iron-collapse class="sidemenu collapse pageview">
-            <section class="collapse-content">
-
-              <iron-selector selected="0">
-                <paper-button class="sidemenu"><iron-icon icon="view-module"></iron-icon>Übersicht</paper-button>
-                <paper-button class="sidemenu"><iron-icon icon="view-list"></iron-icon>Tabelle</paper-button>
-                <paper-button class="sidemenu"><iron-icon icon="assessment"></iron-icon>Graphen</paper-button>
-              </iron-selector>
-
-            </section>
-          </iron-collapse>
-
-        <!-- Main Settings -->
-
-        <paper-button collapse-id="settings" class="sidemenu collapsable" on-tap="toggleCollapse">
-          <iron-icon icon="settings"></iron-icon>
-          <span class="flex">Einstellungen</span>
-          <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="settings"></iron-icon>
-        </paper-button>
-
-          <iron-collapse class="sidemenu collapse settings">
-            <section class="collapse-content">
-              <paper-button collapse-id="language" class="sidemenu" on-tap="toggleCollapse">
-                <iron-icon icon="language"></iron-icon>
-                <span class="flex">Sprachauswahl</span>
-                <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="language"></iron-icon>
-              </paper-button>
-                <iron-collapse class="sidemenu collapse language">
-                  <paper-tabs id="language" selected="1">
-                    <paper-tab>en</paper-tab>
-                    <paper-tab>de</paper-tab>
-                    <paper-tab>fr</paper-tab>
-                    <paper-tab>es</paper-tab>
-                    <paper-tab>ru</paper-tab>
-                  </paper-tabs>
-                </iron-collapse>
-
-              <paper-item>
-                  <iron-icon icon="invert-colors"></iron-icon>
-                  <span class="flex-3">Farbschema</span>
-                  <paper-toggle-button class="flex" id="colorschema" on-change="changeTheme"></paper-toggle-button>
-              </paper-item>
-
-              <paper-item>
-                <paper-input label="Anzahl an Messpunkten" value="{{maxLines}}" min="1" type="number" inputmode="number" step="1" auto-validate required prevent-invalid-input>
-                  <iron-icon prefix icon="editor:format-line-spacing"></iron-icon>
-                </paper-input>
-              </paper-item>
-              <paper-item>
-                <paper-input label="Aktualisierungsintervall" value="{{interval}}" min="0" always-float type="number" inputmode="number" step="0.1" auto-validate required prevent-invalid-input>
-                  <iron-icon prefix icon="image:timelapse"></iron-icon>
-                  <div suffix style="font-size:0.6em">Sekunden</div>
-                </paper-input>
-              </paper-item>
-
-            </section>
-          </iron-collapse>
-
-        <!-- Log-File -->
-
-        <paper-button dialog-id="log" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
-          <iron-icon icon="history"></iron-icon>
-          <span class="flex">Log</span>
-        </paper-button>
-
-        <!-- Informations -->
-
-        <paper-button collapse-id="information" class="sidemenu collapsable" on-tap="toggleCollapse">
-          <iron-icon icon="description"></iron-icon>
-          <span class="flex">Informationen</span>
-          <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="information"></iron-icon>
-        </paper-button>
-
-          <iron-collapse class="sidemenu collapse information">
-            <section class="collapse-content">
-              <paper-button dialog-id="data" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
-                <iron-icon icon="receipt"></iron-icon>
-                <span class="flex">Daten</span>
-              </paper-button>
-              <!-- <paper-item class="date">
-                <iron-icon icon="swap-vert"></iron-icon>
-                <span class="flex">letzte Nachricht</span>
-                <span class="italic">{{computeDate(lastMessage)}}</span>
-              </paper-item>
-              <paper-item class="date">
-                <iron-icon icon="remove-circle-outline"></iron-icon>
-                <span class="flex">letzte Fehlverbindung</span>
-                <span class="italic">{{computeDate(lastError)}}</span>
-              </paper-item>
-              <paper-item class="date">
-                <iron-icon icon="warning"></iron-icon>
-                <span class="flex">letzte fehlerhafte Nachricht</span>
-                <span class="italic">{{computeDate(lastMistake)}}</span>
-              </paper-item> -->
-            </section>
-          </iron-collapse>
-
-        <paper-button class="sidemenu" dialog-id="Login" dialog-class="mainmenu" on-tap="openDialog">
-          <iron-icon icon="social:person-outline"></iron-icon>
-          <span class="flex">Login</span>
-        </paper-button>
-      </iron-selector>
-    </paper-header-panel>
-    <!-- MAIN VIEW -->
-      <pages-element main class="element-page" data="{{data}}" groups="{{groups}}" on-drawer-toggle-pressed="toggleDrawer"></pages-element>
-
-  </paper-drawer-panel>
-
-  <!-- Dialogs -->
-
-    <!-- Log-in -->
-  <paper-dialog class="mainmenu" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-    <h2 class="dialog-title">Login</h2>
-    <section class="dialog-section" vertical layout center>
-      <paper-input label="Benutzername"></paper-input>
-      <paper-input label="Passwort" type="password"></paper-input>
-    </section>
-    <div class="buttons">
-      <paper-button dialog-dismiss><iron-icon icon="close"></iron-icon>abbrechen</paper-button>
-      <paper-button dialog-confirm><iron-icon icon="check"></iron-icon>anmelden</paper-button>
-    </div>
-  </paper-dialog>
-
-    <!-- Files -->
-
-    <iron-ajax id="ajaxElement" auto url=""
-        params=''
-        handle-as="text" last-response="{{ajaxLogResponse}}"></iron-ajax>
-
-    <paper-dialog class="sidemenu" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-      <h2 class="dialog-title"></h2>
-      <paper-dialog-scrollable>[[ajaxLogResponse]]</paper-dialog-scrollable>
-      <div class="buttons">
-        <paper-button disabled><iron-icon icon="mail"></iron-icon>Send</paper-button>
-        <paper-button disabled><iron-icon icon="print"></iron-icon>Print</paper-button>
-        <paper-button onclick="document.querySelector('iron-ajax').generateRequest()"><iron-icon icon="refresh"></iron-icon>Reload</paper-button>
-        <paper-button dialog-confirm><iron-icon icon="check"></iron-icon>OK</paper-button>
-      </div>
-    </paper-dialog>
-
+<dom-module id="pages-element">
+  <link href="css/index.css" type="text/css" rel="stylesheet"/>
+  <style>
+    :host {
+      height: 100%;
+      width: 100%;
+    }
+    #pages {
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+  <template>
+    <neon-animated-pages id="pages" animate-initial-selection>
+      <loading-page id="loadPage" status="{{status}}"></loading-page>
+      <main-page id="mainPage" class="element-page" data="{{data}}" groups="{{groups}}"
+        elected-element="{{selectedElement}}" max-total-lines="{{maxLines}}" interval="{{interval}}"></main-page>
+    </neon-animated-pages>
+    <data-socket-repeater id="datasocket"
+      data="{{data}}" max-total-lines="{{maxLines}}" interval="{{interval}}"
+      groups="{{groups}}" on-dataloaded="_onLoaded" status="{{status}}">
+    </data-socket-repeater>
   </template>
+  <script>
+    window.addEventListener('WebComponentsReady', function(e) {
+      Polymer({
+        is: 'pages-element',
+        attached: function(){
+          this.$.pages.set('selected', '0');
+          // this.$.loadPage.playAnimation('entry');
+          this.start = new Date();
+        },
+        _onLoaded: function() {
+          this.$.mainPage.setSelectedGroup();
+          var self = this;
+          var wait = new Date() - this.start;
+          this.set("status.time.lastStatus",new Date()); this.set("status.message", "loading...");
+          wait = (wait < 3500) ? 3500 - wait : 0;
+          this.async(function() {
+            // this is a bug in webanimations and and animations with intervall
+            self.$.loadPage.cancelAnimation();
+            this.$.pages.set('selected', '1');
+          },wait);
+        }});
+      });
+  </script>
+</dom-module>
+<body class="fullbleed">
+    <pages-element></pages-element>
 </body>
-
-<script>
-  var template = document.querySelector('#autobind-template');
-
-  window.addEventListener('WebComponentsReady', function(e) {
-    var colorschema = "light";
-    template.changeTheme = function(){
-      if(colorschema == "dark") {
-        $('*').removeClass("dark");
-        colorschema = "light";
-      }
-      else {
-        $('*').addClass("dark");
-        colorschema = "dark";
-      }
-    };
-    template.toggleDrawer = function(){
-      this.$.mainPanel.togglePanel();
-    };
-    // template.resizeToolbar = function(e){
-    //   element = e.currentTarget;
-    //
-    //     if (e.detail.state == "start"){
-    //       startY = e.detail.y;
-    //       startHeight = parseInt(element.style.height) || element.offsetHeight;
-    //       maxHeight = 19*parseInt(window.innerHeight)/50; // golden-ratio
-    //     }
-    //     if (e.detail.state == "track"){
-    //       if (startY > startHeight-8 && e.detail.y > (startHeight + e.detail.dy)-8){
-    //         element.style.height = (startHeight + e.detail.dy + 3*e.detail.ddy) + 'px';
-    //         element.style.cursor = "n-resize";
-    //         element.className = "";
-    //       }
-    //     }
-    //     if (e.detail.state == "end" && !(e.detail.dy == 0)){
-    //       elementHeight = parseInt(element.style.height);
-    //       element.style.cursor = "pointer";
-    //       element.className = "has-shadow";
-    //
-    //       if (elementHeight < maxHeight)
-    //         element.style.height = Math.round(elementHeight/40)*40;
-    //       else {
-    //         element.style.height = Math.round(maxHeight/40)*40;;
-    //       }
-    //     }
-    // };
-    template.toggleCollapse = function(e){
-      var button = e.currentTarget;
-      if (!button.hasAttribute('collapse-id')) {
-        return;
-      }
-      var id = button.getAttribute('collapse-id');
-      var collapse = document.querySelector('iron-collapse.'+id);
-      var iconbutton = document.querySelector('iron-icon.collapse-arrow#'+id);
-      if (collapse) {
-        collapse.toggle();
-        if (iconbutton) {
-          if (iconbutton.getAttribute('icon') == 'arrow-drop-down')
-            iconbutton.setAttribute('icon','arrow-drop-up');
-          else
-            iconbutton.setAttribute('icon','arrow-drop-down');
-        }
-
-      }
-    };
-    template.openDialog = function(e){
-      var button = e.currentTarget;
-      if (!button.hasAttribute('dialog-id') || !button.hasAttribute('dialog-class')) {
-        return;
-      }
-      var id = button.getAttribute('dialog-id');
-      var className = button.getAttribute('dialog-class');
-      var aj = button.getAttribute('ajax');
-      var dialog = document.querySelector('paper-dialog.'+className);
-      $('paper-dialog.'+className+' .dialog-title').text(id);
-      if (typeof aj === 'string')
-        $('iron-ajax').attr('url','/'+id);
-      if (dialog) {
-        dialog.open();
-      }
-    };
-    // template.openOption = function(e){
-    //   var page = document.querySelector('.element-page');
-    //   if (page) {
-    //     page.openOption();
-    //   }
-    // };
-    template.grouping = function(e) {
-      var page = document.querySelector('pages-element');
-      if (page) {
-        page.setSelectedGroup();
-        page.loaded();
-      }
-    };
-    template.computeDate = function(date){
-      if(date)
-        return $.format.toBrowserTimeZone(date,"dd.MM.yy HH:mm:ss");
-      else
-        return undefined;
-    };
-  });
-</script>

@@ -1,3 +1,4 @@
+<link rel="import" href="../components/paper-ripple/paper-ripple.html">
 <dom-module id="sign-element">
   <style>
     :host {
@@ -5,10 +6,10 @@
       color: #f1f1f1;;
       border-radius: 2px 2px 0px 0px;
       overlay: hidden;
-      display: block;
+      display: flex;
       outline: none;
       cursor: pointer;
-      font-family: 'Roboto-Condensed-Light';
+      font-family: 'Light';
       font-style: normal;
       user-select: none;
       background: transparent;
@@ -23,9 +24,10 @@
       flex-direction: column;
       border-radius: inherit;
       min-height: 5em;
+      width: 100%;
       min-width: 7em;
     }
-    #mainContent.dark{
+    #mainContent[dark]{
       color: #d3d3d3;
     }
     .actualValueSection {
@@ -49,7 +51,7 @@
       font-size: 0.8em;
     }
     .dateSection {
-      font-family: Roboto-Condensed-Light-Italic;
+      font-family: Light;
       font-size: 0.6em;
       color: #5a5a5a;
     }
@@ -62,7 +64,7 @@
       line-height: 1em;
     }
     .exceedsDateSection {
-      font-family: Roboto-Condensed-Light-Italic;
+      font-family: Light;
       font-size: 0.75em;
     }
     .exceedsValueSection {
@@ -88,7 +90,7 @@
     }
   </style>
   <template>
-    <section id="mainContent" style$="{{computeStyle(element.values.*,0)}}">
+    <section id="mainContent" style$="{{computeStyle(element.values.*,0)}}" dark$="[[dark]]">
       <paper-ripple id="ripple" recenters opacity-decay-velocity="1.2"></paper-ripple>
 
       <section class="actualValueSection">
@@ -118,20 +120,32 @@
 
   <script>
 
-    Polymer({
+    SignElement = Polymer({
       is: 'sign-element',
 
       behaviors: [ElementBehavior],
+
+      created: function(){
+        this.exceedsStyle = {
+          true:  "background: rgb(255, 21, 41); color: #f1f1f1;",
+          false: "background: rgb(255, 20, 110); color: #f1f1f1;",
+          none:  "background: rgb(0, 202, 53); color: #f1f1f1;",
+          undef: "background: rgb(236, 249, 97); color: #1f1f1f;"
+        };
+      },
 
       properties: {
           showExceeds: {
             type: Boolean,
             value: true,
             notify: true
+          },
+          dark: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true,
+            notify: true
           }
-      },
-
-      attached: function(){
       }
 
     });

@@ -1,101 +1,81 @@
 <dom-module id="table-element">
   <style>
     :host {
-      overlay: hidden;
-      display: block;
-      color: currentColor;
-      background: inherit;
+      /*height needs to be set by outer element*/
     }
-    table {
-      display: block;
-      width: 100%;
+    section#mainContent {
+      display: flex;
+      flex-direction: column;
       height: 100%;
+      background: white;
+      color: #1f1f1f;
+    }
+    section#mainContent[dark] {
+      background: #a8a8a8;
+      color: #1d1d1d;
+    }
+    section#content{
+      height: 100%;
+      min-width: 10em;
       border-collapse: collapse;
       text-align: center;
       font-size: 0.7em;
+      overflow: hidden;
     }
-    table thead {
-      display: block;
+    section#head {
       height: 2.5em;
-      margin-right: 1em;
-    }
-    table thead tr{
       line-height: 2.5em;
       display: flex;
+      flex-direction: row;
       align-items: center;
     }
-    table tbody tr {
+    section#tr {
       line-height: 1.8em;
       display: flex;
+      flex-direction: row;
       align-items: center;
     }
-    table tbody {
+    section#body {
       border-top: thin solid #8c8c8c;
-      display: block;
+      width: 100%;
       height: calc(100% - 2.5em);
       overflow-x: auto;
       overflow-y: scroll;
     }
-    caption {
-      font-family: Roboto-Condensed-Light-Italic;
+    section#td {
+      font-family: Light;
       font-size: 1em;
     }
-    th {
-      font-family: Roboto;
-      font-size: 1.1em;
+    section#td.x {
+      min-width: 3.5em;
     }
-    td {
-      font-family: Roboto-Condensed;
-      font-size: 1em;
-    }
-    tr:hover {
+    section#tr:hover {
       background-color: rgba(137, 137, 137, 0.25) !important;
       color: #1f1f1f !important;
     }
-    th, td, caption {
+    section#th, section#td{
       padding: 0em 1em;
       display: flex;
       white-space: nowrap;
-      flex: 1;
     }
-    tr#lastExceeds{
-      border: thin solid #FF7E7E;
-    }
-
   </style>
   <template>
-    <table id="content">
-      <template is="dom-if" if="{{showCaption}}" restamp>
-        <caption>
-          <span>{{element.roomNr}}</span><span>, </span>
-          <span>{{element.room}}</span><span>, </span>
-          <span>{{element.kind}}</span><span>, </span>
-          <span>{{element.method}}</span>
-        </caption>
-      </template>
-      <thead>
-        <tr>
-          <th id="xHead">Datum</th>
-          <th id="yHead">Wert</th>
-        </tr>
-      </thead>
-      <tbody>
-        <template is="dom-if" if="{{showExceeds}}" restamp>
-          <template is="dom-if" if="{{element.lastExceeds}}" restamp>
-            <tr id="lastExceeds" style={{computeLastExceedsStyle()}}>
-              <td>{{computeLastExceedsX()}}</td>
-              <td>{{computeLastExceedsY()}}</td>
-            </tr>
+    <section id="mainContent">
+      <section id="content">
+        <section id="head">
+          <section id="td" class="x">Datum</section>
+          <section id="td" class="y">Wert</section>
+        </section>
+        <section id="body">
+          <template is="dom-repeat" id="values" items="{{element.values}}" index-as="i">
+            <section id="tr" style$={{computeStyle(element.values.*,i)}}>
+              <section id="td" class="x">{{computeX(element.values.*,i)}}</section>
+              <section id="td" class="y">{{computeY(element.values.*,i)}}</section>
+            </section>
           </template>
-        </template>
-        <template is="dom-repeat" id="values" items="{{element.values}}" index-as="i">
-          <tr style$={{computeStyle(element.values.*,i)}}>
-            <td>{{computeX(element.values.*,i)}}</td>
-            <td>{{computeY(element.values.*,i)}}</td>
-          </tr>
-        </template>
-      </tbody>
-    </table>
+        </section>
+      </section>
+    </section>
   </template>
 
   <script>
@@ -103,40 +83,21 @@
     Polymer({
       is: 'table-element',
 
-      behaviors: [ScrollBehavior, LanguageBehavior, ElementBehavior],
+      behaviors: [ElementBehavior],
 
       properties: {
-        showCaption: {
-          type: Boolean,
-          notify: true,
-          reflectToAttribute: true
-        },
-        showExceeds: {
-          type: Boolean,
-          notify: true,
-          reflectToAttribute: true
+        exceedsStyle: {
+          type: Object,
+          value: function() {
+            return {
+              "true":  "background: rgb(255, 21, 41); color: #f1f1f1;",
+              "false": "background: rgb(255, 20, 110); color: #f1f1f1;",
+              "none":  "background: none; color: #1f1f1f;",
+              "undef": "background: rgb(236, 249, 97); color: #1f1f1f;"
+            };
+          }
         }
-      },
-
-      attached: function(){
-        // this.$.xHead.innerText = this.getDescription('x');
-        // this.$.yHead.innerText = this.getDescription('y');
-      },
-
-      computeStyle: function(change, index){
-        var exceeds = this.get('exceeds', change.base[index]);
-        if(exceeds == true)
-          return "background: rgba(255, 21, 41,0.8); color: #f1f1f1;";
-        else if(exceeds == false)
-          return "background: rgba(255, 20, 110,0.8); color: #f1f1f1;";
-        else if(exceeds == null)
-          return "background: transparent; color: #1f1f1f;";
-        else if(exceeds == null)
-          return "background: rgba(236, 249, 97,0.8); color: #1f1f1f;";
       }
-      // scrollHandler: function(e) {
-      // }
-
     });
 
   </script>

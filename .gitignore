@@ -2,7 +2,7 @@
 # *.exe
 
 # Config files
-# src/config.json
+src/config/config.json
 .settings/*
 .jshintrc
 .project
@@ -20,8 +20,10 @@ data/db/*
 !**/README.md
 
 # Tests #
+src/public/maps
 src/**/test/
 src/**/demo/
+!src/tests/
 
 # Logs #
 # *.log
@@ -33,5 +35,10 @@ src/**/demo/
 
 # Mail login #
 src/config/mail.json
+
+# SSL (Https Certificate) #
+src/ssl/*
+!src/ssl/**/default/*
+!src/ssl/README.md
 
 *.prefs

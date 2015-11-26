@@ -3,8 +3,7 @@
 
 var fs        = require('fs'),
     path      = require('path'),
-    config    = require('../config/config.json'),
-    copywatch = require('../modules/copywatch');
+    config    = require('../config/config.json');
 
 /**
  * function: Route in Public Filesystem
@@ -14,6 +13,7 @@ function route(route_path, json_obj) {
 
   return function(req, res)
   {
+    res.get('X-Frame-Options');
     res.render(route_path, json_obj);
     res.end();
   };

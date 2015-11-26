@@ -1,7 +1,6 @@
 <dom-module id="post-card">
   <style>
     :host {
-      font-family: Roboto;
       border-radius: 4px 5px 4px 5px;
       cursor: pointer;
       -webkit-user-select: none;
@@ -9,72 +8,98 @@
       -ms-user-select: none;
       user-select: none;
       -webkit-touch-callout: none;
+      padding: 0.4em;
     }
 
     paper-button {
+      font-family: Thin;
       width: 100%;
-      font-size: 0.9rem;
+      font-size: 1.1em;
       margin: 0em;
       padding: 0em;
       background: #669DB4;
-      color: #f1f1f1;
-      border-radius: 4px 5px 0px 0px;
-      padding: 0.55em 1em 0.5em 1em;
+      color: white;
+      border-top-left-radius: inherit;
+      border-top-right-radius: inherit;
+      border-bottom-left-radius: 0px;
+      border-bottom-right-radius: 0px;
+      padding: 8px 12px;
+      border: thin solid transparent;
+      text-align: left;
+      text-transform: none;
     }
 
-    paper-button.dark {
+    paper-button:hover {
+      border: thin solid rgba(140, 140, 140, 0.5);
+      border-bottom: thin solid rgba(90, 90, 90, 0.5);
+    }
+
+    paper-button[dark] {
       background: #345475;
       color: #A8CCDB;
     }
 
+    paper-button[dark]:hover {
+      border: thin solid rgba(80, 80, 80, 0.5);
+      border-bottom: thin solid rgba(30, 30, 30, 0.5);
+    }
+
+
     #outer {
       background: #f1f1f1;
       border-radius: inherit;
+      transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 10px 0 rgba(0, 0, 0, 0.12),
+                  0 2px 4px -1px rgba(0, 0, 0, 0.4);
     }
-    #outer.dark {
+    #outer:hover {
+      box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 18px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 5px -1px rgba(0, 0, 0, 0.4);
+    }
+    #outer[dark] {
       background: #8A8A8A;
     }
-
+    #outer[name='all'], #outer[nowindow] {
+      background: transparent;
+      border-radius: inherit;
+      box-shadow: none;
+    }
     #cardContent {
-      -ms-flex-direction: row;
-      -webkit-flex-direction: row;
       flex-direction: row;
-      display: -ms-flexbox;
-      display: -webkit-flex;
       display: flex;
-      -ms-flex-wrap: wrap;
-      -webkit-flex-wrap: wrap;
       flex-wrap: wrap;
-      -ms-flex-pack: center;
-      -webkit-justify-content: center;
       justify-content: center;
-      -ms-flex-align: center;
-      -webkit-align-items: center;
       align-items: center;
+      padding: 0.5em 0em 0em 0.5em;
     }
     @media all and (min-width: 750px) and (max-width: 1280px) and (orientation: portrait) {
-      :host {
-        max-width: 45vw;
+      #outer:not([name='all']) {
+        max-width: 23.55em;
       }
     }
     @media all and (min-width: 600px) and (max-width: 1280px) and (orientation: landscape) {
-      :host {
-        max-width: 45vw;
+      #outer:not([name='all']) {
+        max-width: 23.55em;
       }
     }
     @media all and (min-width: 1280px) {
-      :host {
-        max-width: 30vw;
+      #outer:not([name='all']) {
+        max-width: 32em;
       }
     }
+    ::content .card {
+      margin: 0em 0.55em 0.55em 0em;
+    }
+
   </style>
   <template>
 
-    <section id="outer">
+    <section id="outer" name$="{{title}}" nowindow$="{{withoutWindow}}" dark$="[[dark]]">
 
-      <template is="dom-if" if="{{headline}}" restamp>
-        <paper-button id="head" class="top" on-tap="toggleCollapse">{{headline}}</paper-button>
-      </template>
+
+      <paper-button id="head" class="top" on-tap="toggleCollapse" hidden$="{{showTitle(headline,withoutWindow)}}" dark$="[[dark]]">{{title}}</paper-button>
       <section id="cardMain" class="content">
           <iron-collapse id="cardCollapse" opened duration="1">
 
@@ -96,12 +121,27 @@
     properties: {
       headline: {
         type: String,
-        reflectToAttribute: true,
-        observer: "calculatePlaceholder"
+        notify: true
       },
       placeholder: {
         type: String,
         value: "Diverse"
+      },
+      title: {
+        type: String,
+        computed: "getTitle(headline,placeholder)"
+      },
+      withoutWindow: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true,
+        notify: true
+      },
+      dark: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true,
+        notify: true
       }
     },
 
@@ -109,11 +149,18 @@
       this.$.cardCollapse.toggle();
     },
 
-    calculatePlaceholder: function(){
-      if (this.headline == "")
-        this.headline = this.placeholder;
-      if (this.headline == "all")
-        this.style.maxWidth = "92vw";
+    getTitle: function(headline,placeholder){
+      if (headline)
+        return headline;
+      else
+        return placeholder;
+    },
+
+    showTitle: function(headline,withoutWindow) {
+      if(headline=='all' || withoutWindow)
+        return true;
+      else
+        return false;
     }
 
   });

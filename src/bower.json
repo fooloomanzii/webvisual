@@ -16,5 +16,8 @@
     "poly-nvd3": "*",
     "polymer": "Polymer/polymer",
     "underscore": "*"
-  }
+  },
+  "ignoredDependencies": [
+    "PolymerElements/font-roboto"
+  ]
 }

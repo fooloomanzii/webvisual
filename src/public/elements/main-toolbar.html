@@ -1,104 +1,220 @@
-<link rel="import" href="../components/polymer/polymer.html">
-<link rel="import" href="behaviors/element-behavior.html">
-
 <dom-module id="main-toolbar">
   <style is="costum-style">
     :host {
-      display: block;
+      display: flex;
+      flex-direction: column;
       position: relative;
       overflow: hidden !important;
-      font-family: Roboto;
+      font-family: Regular;
       font-weight: normal;
       cursor: pointer;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
+      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
       -webkit-touch-callout: none;
       text-overflow: ellipsis;
       white-space: nowrap;
       -webkit-tap-highlight-color:rgba(0,0,0,0);
-      transition: height 0.18s ease-in;
       margin: 0em;
       padding: 0em;
       height: 64px;
-      max-height: 40vh;
+      max-height: 52vh;
     }
     :host[opened]{
-      height: 30vh;
+      height: auto;
     }
-
-    #mainContent {
+    section#mainContent {
+      display: flex;
+      flex-direction: column;
       margin: 0em;
       padding: 0em;
       background: #005B82;
       color: #f1f1f1;
-      height: 100%;
     }
-
-    #mainContent.dark {
+    section#mainContent[dark] {
       background: #345475;
-      color: #669DB4;
+      color: #A8CCDB;
     }
-    #header {
+    section#header {
       height: 44px;
       width: calc(100% - 16px);
       padding: 10px 8px;
       display: flex;
       flex-direction: row;
+      align-items: center;
     }
-    #lower {
+    section#lower {
       overflow: hidden !important;
-      box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
-      padding: 0px;
-      width: 100%;
-      height: calc(100% - 64px);
+      padding: 0.5em;
       display: flex;
       flex-direction: row;
       align-items: stretch;
-      background: #f1f1f1;
-    }
-    #lower.dark{
-      background: #8A8A8A;
-    }
-
-    #header ::content logo-element {
-      margin-left: 8px;
-      height: 100%;
-    }
-    #header ::content paper-icon-button {
-      padding: 10px;
-      margin: 0px 8px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
       transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    #header ::content paper-icon-button:hover {
+    section#mainContent ::content paper-icon-button {
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    section#mainContent ::content .incard, section#mainContent ::content .noncard {
+      border-top: none;
+      border-right: thin solid #BBBBBB;
+    }
+    section#mainContent[dark] ::content .incard, section#mainContent[dark] ::content .noncard {
+      border-right: thin solid #606060;
+    }
+    section#header ::content paper-icon-button {
+      margin-right: 12px;
+    }
+    section#header ::content paper-icon-button.menu-icon {
+      margin: 0px 16px;
+    }
+    section#header ::content paper-icon-button:hover {
       background: #669DB4;
+      color: #f1f1f1;
       border-radius: 50%;
       box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
                   0 1px 5px 0 rgba(0, 0, 0, 0.12),
                   0 3px 1px -2px rgba(0, 0, 0, 0.2);
     }
-    #lower ::content sign-element > * {
-      height: 100%;
+    section#lower ::content leaflet-map {
+      min-width: 10em;
+      flex: 1;
+      border-radius: 0px 2px 2px 0px;
+    }
+    section#lower ::content .caption {
+      padding: 1em 0.7em;
+      border-radius: 0px;
+    }
+    section#lower[expanded] ::content .caption {
+      border-radius: 0px 0px 0px 2px;
+    }
+    section#lower ::content .sign {
+      border-radius: 2px 0px 0px 2px;
+    }
+    section#lower[expanded] ::content .sign {
+      border-radius: 2px 0px 0px 0px;
+    }
+    section#lower ::content .incard {
+      height: auto;
+      min-height: 3em;
+      margin: 0em;
+    }
+    section#lower[expanded] section#selSign {
+      display: flex;
+      flex-direction: column;
+    }
+    section#lower[expanded] ::content .incard {
+      flex: 1;
+    }
+    section#lower[expanded][dark] ::content .caption {
+      border-top: thin solid #606060;
+    }
+    section#lower[expanded] ::content .caption {
+      border-top: thin solid #BBBBBB;
+    }
+    section#lower section#selSign {
+      display: flex;
+      flex-direction: row;
+    }
+    section#lower[expanded] ::content .noncard {
+      min-height: 11em;
+    }
+    @media all and (max-width: 610px) {
+      section#lower section#selSign {
+        display: flex;
+        flex-direction: column;
+      }
+      section#lower ::content .incard {
+        flex: 1;
+      }
+      section#header ::content paper-icon-button {
+        margin-right: 6px;
+      }
+      section#lower ::content .noncard {
+        height: calc(38vh - 64px - 1em);
+      }
+      section#lower {
+        font-size: 0.9em;
+      }
+      section#lower[dark] ::content .caption {
+        border-top: thin solid #606060;
+      }
+      section#lower ::content .caption {
+        border-top: thin solid #BBBBBB;
+      }
+    }
+    @media all and (max-height: 690px) and (max-width: 610px){
+      section#lower[expanded] ::content .noncard {
+        height: calc(48vh - 64px - 1em);
+      }
+      section#lower ::content .noncard {
+        height: calc(48vh - 64px - 1em);
+      }
+    }
+    @media all and (min-width: 611px) {
+      section#lower section#selSign {
+        display: flex;
+        flex-direction: row;
+      }
+      section#lower[dark] ::content .caption {
+        border-top: none;
+      }
+      section#lower ::content .caption {
+        border-top: none;
+      }
+      section#lower ::content .noncard {
+        height: 8em;
+      }
+      section#lower {
+        font-size: 1em;
+      }
+      section#lower[expanded] ::content .noncard {
+        height: calc(38vh - 64px - 1em);
+      }
+    }
+    @media all and (min-width: 1000px) and (orientation: portrait) {
+      section#lower[expanded] ::content .noncard {
+        height: calc(32vh - 64px - 1em);
+      }
+    }
+    @media all and (min-width: 600px) and (max-width: 1000px) {
+      section#lower {
+        font-size: 1.1em;
+      }
+    }
+    @media all and (min-width: 1001px) and (max-width: 1400px) {
+      section#lower {
+        font-size: 1.15em;
+      }
+    }
+    @media all and (min-width: 1401px) {
+      section#lower {
+        font-size: 1.2em;
+      }
     }
     .flex {
       -ms-flex: 1;
       -webkit-flex: 1;
       flex: 1;
     }
-
   </style>
   <template>
 
-    <section id="mainContent">
+    <section id="mainContent" on-track="_handleTrack">
       <section id="header">
-        <content select=".header"></content>
+        <content select=".menu-icon"></content>
+        <content select="logo-element"></content>
         <div class="flex"></div>
-        <content select=".tabs"></content>
-        <content select=".icon-toggle"></content>
+        <section hidden$="{{!opened}}">
+          <paper-icon-button icon="{{_computeExpandIcon(expanded)}}" class="expand-icon" on-click="_expandView"></paper-icon-button>
+          <content select=".toggle-icon"></content>
+        </section>
       </section>
-      <section id="lower">
-        <content select="#lowerToolbar"></content>
+      <section id="lower" hidden$="{{!opened}}">
+        <section id="selSign" class="">
+          <content id="sign" select="#selectedElementSign,#selectedElementCaption"></content>
+        </section>
+        <content id="table" select="#selectedElementTable"></content>
+        <content id="graph" select="#selectedElementGraph"></content>
+        <content id="map" select="#selectedElementMap"></content>
       </section>
     </section>
 
@@ -113,25 +229,79 @@
       'role': 'toolbar'
     },
 
-    behaviors: [ElementBehavior, Polymer.NeonAnimationRunnerBehavior],
+    behaviors: [
+      Polymer.NeonAnimationRunnerBehavior
+    ],
+
+    attached: function() {
+      var nodeSign  = Polymer.dom(this.$.sign).getDistributedNodes();
+      var nodeTable = Polymer.dom(this.$.table).getDistributedNodes();
+      var nodeMap = Polymer.dom(this.$.map).getDistributedNodes();
+      var nodes = nodeSign.concat(nodeTable,nodeMap);
+      this.animationConfig.in[0].nodes = Array.prototype.slice.call(nodes);
+      this.animationConfig.out[0].nodes = Array.prototype.slice.call(nodes);
+    },
 
     properties: {
       opened: {
         type: Boolean,
         value: false,
-        reflectToAttribute: true
+        reflectToAttribute: true,
+        observer: "_updateView"
+      },
+      expanded: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true,
+        notify: true
       },
       animationConfig: {
+        type: Object,
         value: function() {
           return {
-            'entry': [
-              {name: 'fade-in-animation', node: this},
-              {animatable: this.$.header, type: 'entry'}
+            'in': [
+              {
+                name: 'cascaded-animation',
+                animation: 'scale-up-animation',
+                nodeDelay: 1
+              }
+            ],
+            'out': [
+              {
+                name: 'cascaded-animation',
+                animation: 'fade-out-animation',
+                nodeDelay: 1
+              }
             ]
-          }
+          };
         }
       }
+    },
+
+    _handleTrack: function(e) {
+      if (e.target == this.$.lower && this.opened && (e.detail.state == 'end') && e.detail.dy < 0)
+        this.fire('deselect');
+    },
+
+    _updateView: function() {
+      this.fire('resize');
+    },
+
+    _expandView: function() {
+      if (this.opened) {
+        this.set('expanded',!this.expanded);
+        this.toggleAttribute('expanded',this.expanded,this.$.lower);
+        this.fire('resize');
+      }
+    },
+
+    _computeExpandIcon: function() {
+      if (this.expanded)
+        return 'expand-less';
+      else
+        return 'expand-more';
     }
+
   });
   </script>
 </dom-module>

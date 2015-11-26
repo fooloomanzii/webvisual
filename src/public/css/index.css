@@ -1,21 +1,12 @@
-section#main {
-  background: #CCCCCC;
+body, html {
   height: 100%;
-}
-
-section#main.dark {
-  background: #5E5E5E;
-}
-
-paper-material {
-   padding: 1em 0.5em;
-   margin: 0em;
-}
-
-paper-input paper-input-container{
+  width: 100%;
+  margin: 0em;
   padding: 0em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
-
 paper-button iron-icon {
   margin-left: 0.5em;
   margin-right: 1em;
@@ -26,180 +17,104 @@ paper-item iron-icon {
   margin-right: 1em;
   min-width: 1.5em;
 }
-paper-button.sidemenu {
-  padding: 1.25em 0.75em;
+paper-button: {
+  transition: none;
 }
-
+paper-button.sidemenu {
+  padding: 1.3em 0.8em;
+  border-top: thin solid rgba(200, 200, 200, 0);
+  border-bottom: thin solid  rgba(200, 200, 200, 0);
+}
+paper-button.sidemenu:hover {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.02) 5%,rgba(50,50,50,0.10) 40%);
+  border-top: thin solid rgba(200, 200, 200, 0.3);
+  border-bottom: thin solid  rgba(200, 200, 200, 0.3);
+}
 paper-button iron-icon.right-icon{
-  margin: 0em;
-  margin-right: 0.25em;
-  transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0em 0.65em;
+  background: rgba(255,255,255, 0.0);
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 paper-button iron-icon.right-icon:hover{
   background: rgba(255,255,255, 0.75);
+  border-radius: 50%;
 }
-
 paper-button .content{
   display: flex;
   justify-content: flex-start;
   align-items: center;
   flex-direction: row;
 }
-
+paper-item.sidemenu {
+  font-size: 0.85em;
+}
+paper-slider {
+}
 paper-item.date {
-  font-family: Roboto-Condensed-Light;
+  font-family: Light;
   font-size: 0.75em;
 }
-
-/* SIDEMENU & SUBMENU */
-
-.paper-drawer-panel-0 iron-selector.paper-drawer-panel > #drawer.paper-drawer-panel {
-  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+paper-radio-button  {
+  display: block;
+  padding: 0.5em 1em;
+  font-size: 0.85em;
 }
-
-.paper-drawer-panel-0 iron-selector.paper-drawer-panel > #drawer.paper-drawer-panel.dark {
-  background-color: rgba(170, 170, 170, 0.75);
+paper-toggle-button {
+  display: block;
+  font-size: 0.85em;
 }
-
-/*
- * Submenu
- */
-
-paper-button.sidemenu {
-  margin: 0.25em 0em;
-  width: 100%;
-  display: flex;
-}
-
 .collapse-content paper-button {
   margin: 0em;
 }
-
-.collapse-content {
-  margin: 0.25em 0em 0.25em 1em;
-  width: calc(100% - 1em);
+.indention {
+  margin: 0em 0em 0.25em 1.5em;
+  width: calc(100% - 1.5em);
+  background: rgba(255, 255, 255, 0.5);
+  /*border-top: thin solid rgba(170, 170, 170, 0.5);*/
+  border-bottom: thin solid rgba(170, 170, 170, 0.5);
 }
-
-/* Sidemenu */
-
 .collapse-content paper-button {
   width: 100%;
 }
-
 .collapse-content paper-toggle-button {
   padding: 0.5em;
 }
-
 .collapse-content paper-tabs {
   border-top: thin solid white;
   border-bottom: thin solid white;
 }
 
-/* Dialogs */
-paper-dialog.sidemenu {
-  top: 0px;
-  right: 0px;
-  margin: 1.5em;
-  position: fixed;
-  width: calc(100vw - 3em);
+paper-dialog h2 {
+  font-family: Bold !important;
+  padding-left: 2em;
 }
-
-/* Screens */
-/* mobile-small */
-@media all and (min-width: 0px) and (max-width: 480px) {
-}
-/* mobile-large */
-@media all and (min-width: 361px) and (orientation: portrait) {
-}
-/* mobile-small-landscape */
-@media all and (min-width: 0px) and (max-width: 480px) and (orientation: landscape) {
-}
-/* mobile-large-landscape */
-@media all and (min-width: 481px) and (orientation: landscape) { }
-/* tablet-small-landscape */
-@media all and (min-width: 600px) and (max-width: 960px) and (orientation: landscape) { }
-/* tablet-large-landscape */
-@media all and (min-width: 961px) and (orientation: landscape) { }
-
-@media all and (min-width: 480px) and (max-width: 600px) and (orientation : landscape) {
-  paper-dialog.sidemenu {
-    width: calc(100vw - 16em);
-  }
-}
-@media all and (min-width: 600px) and (max-width: 840px) and (orientation: portrait) {
-  paper-dialog.sidemenu {
-    width: calc(100vw - 16em);
-  }
-}
-@media all and (min-width: 600px) and (max-width: 840px) and (orientation : landscape) {
-  paper-dialog.sidemenu {
-    width: calc(100vw - 21em);
-  }
-}
-@media all and (min-width: 840px) {
-  paper-dialog.sidemenu {
-    width: calc(100vw - 24em);
-    margin: 1.5em 3em;
-    max-width: 840px;
-    left: 18em;
-  }
-}
-
 /*
  * Fonts
  */
 @font-face {
- font-family: Roboto;
- src: url('fonts/Roboto-Regular.ttf') format('truetype');
+ font-family: Regular;
+ src: url('fonts/FiraSans-Book.otf') format('truetype');
  font-weight: normal;
  font-style: normal;
 }
 
 @font-face {
- font-family: Roboto-Thin;
- src: url('fonts/Roboto-Thin.ttf') format('truetype');
+ font-family: Light;
+ src: url('fonts/FiraSans-ExtraLight.otf') format('truetype');
  font-weight: normal;
  font-style: normal;
 }
 
 @font-face {
- font-family: Roboto-Light;
- src: url('fonts/Roboto-Light.ttf') format('truetype');
+ font-family: Thin;
+ src: url('fonts/FiraSans-Hair.otf') format('truetype');
  font-weight: normal;
  font-style: normal;
 }
 
 @font-face {
- font-family: Roboto-Condensed;
- src: url('fonts/RobotoCondensed-Regular.ttf') format('truetype');
- font-weight: normal;
- font-style: normal;
-}
-
-@font-face {
- font-family: Roboto-Condensed-Light;
- src: url('fonts/RobotoCondensed-Light.ttf') format('truetype');
- font-weight: normal;
- font-style: normal;
-}
-
-@font-face {
- font-family: Roboto-Condensed-Light-Italic;
- src: url('fonts/RobotoCondensed-LightItalic.ttf') format('truetype');
- font-weight: normal;
- font-style: normal;
-}
-
-@font-face {
- font-family: Roboto-Bold;
- src: url('fonts/Roboto-Bold.ttf') format('truetype');
- font-weight: normal;
- font-style: normal;
-}
-
-@font-face {
- font-family: Lobster;
- src: url('fonts/Lobster-Regular.ttf') format('truetype');
+ font-family: Bold;
+ src: url('fonts/FiraSans-SemiBold.otf') format('truetype');
  font-weight: normal;
  font-style: normal;
 }

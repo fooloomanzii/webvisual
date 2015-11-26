@@ -12,14 +12,14 @@
 /* Application theme */
 
 :root {
-    font-family: Roboto;
+    font-family: Regular;
     font-size: 1em;
     font-weight: normal;
     text-align: left;
     line-height: 1.4rem;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing:antialiased;
+    -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     word-wrap: break-word;
     color: var(--default-primary-text-color);
 
@@ -80,9 +80,11 @@
     --paper-button: {
         border-radius: 3px;
         min-height: none;
+        margin: 0em;
         padding: 0.2em;
         background: var(--default-button-color);
         color: currentColor;
+        fill: currentColor;
         font-family: inherit;
         text-align: left;
         text-transform: none;
@@ -92,7 +94,8 @@
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
-        transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+        align-items: flex-end;
       };
 
     --paper-button-disabled: {
@@ -104,13 +107,14 @@
         min-height: none;
         margin: 0em;
         padding: 0.5em 1em;
+        justify-content: space-between;
+        align-items: center;
         background: var(--default-button-color);
         color: currentColor;
+        font-family: Regular;
+        cursor: pointer;
         text-align: left;
         text-transform: none;
-        font-weight: normal;
-        font-family: Roboto;
-        cursor: pointer;
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
@@ -132,7 +136,7 @@
     --paper-toolbar: {
         background-color: var(--default-primary-color);
         color: var(--default-icon-color);
-        font-family: Roboto;
+        font-family: Regular;
         padding: 0.5em;
         min-height: 2.5em;
         max-height: 50vh;
@@ -147,27 +151,20 @@
         transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
         };
 
-    --paper-menu: {
-        font-family: Roboto;
-        margin: 0em;
-        padding: 0em;
-        background: none;
-        };
-
     --paper-tabs: {
-        font-family: Roboto-Condensed;
+        font-family: Regular-Condensed;
         margin: 0em;
         padding: 0em;
         background: none;
         };
 
     --paper-input-container-input: {
-        font-family: Roboto-Condensed-Light;
+        font-family: Light;
         text-align: center;
       };
 
     --paper-input-container-label: {
-        font-family: Roboto-Condensed-Light-Italic;
+        font-family: Light;
         text-align: center;
         font-size: 0.9em;
         text-align: left;
@@ -175,7 +172,7 @@
       };
 
     --paper-dialog: {
-        font-family: Roboto-Condensed;
+        font-family: Light;
         border-radius: 5px;
         color: currentColor;
         text-rendering: inherit;
@@ -183,8 +180,22 @@
         line-height: 1.4em;
       };
 
+    --paper-dialog-title {
+        font-family: Bold;
+        margin: 0em;
+        padding: 0.5em;
+        text-align: center;
+      };
+
     --default-transition: {
       transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    };
+
+    --paper-drawer-panel-drawer-container: {
+      overflow-y: auto;
+      color: var(--drawer-text-color);
+      background-color: var(--primary-drawer-color);
+      align-items: center;
     };
 
 }
@@ -196,63 +207,8 @@ body {
   transition: all 0.56s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-span.italic{
-  font-style: italic;
-}
-
-h1, h2, h3, h4, h5 {
-  font-family: Roboto;
-}
-
-body.dark {
+body[dark] {
   background-color: var(--dark-secondary-background-color);
-}
-
-paper-drawer-panel {
-  --paper-drawer-panel-drawer-container: {
-      color: var(--drawer-text-color);
-      background-color: var(--primary-drawer-color);
-      align-items: center;
-      z-index: 100;
-      };
-}
-
-[drawer] {
-  cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
-  -webkit-tap-highlight-color:rgba(0,0,0,0);
-}
-
-paper-header-panel {
-  --paper-header-panel-standard-container: {
-      background: none;
-  };
-
-  --paper-header-panel-cover-container: {
-      background: none;
-  };
-
-  --paper-header-panel-waterfall-container: {
-      background: none;
-  };
-
-  --paper-header-panel-waterfall-tall-container: {
-      background: none;
-  };
-}
-
-
-paper-toolbar {
-  @apply(--paper-toolbar);
-}
-
-paper-toolbar.dark {
-  background-color: var(--dark-primary-color);
-  color: var(--dark-icon-color);
 }
 
 /*
@@ -264,14 +220,16 @@ paper-icon-button {
 }
 
 iron-icon {
-  @apply(--icon-button-theme)
+  --iron-icon-height: 24px;
+  --iron-icon-width: 24px;
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 paper-item {
   @apply(--item-theme)
 }
 
-paper-item.dark {
+paper-item[dark] {
   background: var(--dark-button-color);
 }
 
@@ -279,7 +237,7 @@ paper-button {
   @apply(--button-theme)
 }
 
-paper-button.dark {
+paper-button[dark] {
   background: var(--dark-button-color);
 }
 
@@ -287,16 +245,7 @@ paper-item:hover {
   background: var(--secondary-hover-color);
 }
 
-paper-button:hover {
-  background: var(--secondary-hover-color);
-  opacity: 1;
-}
-
-paper-item.dark:hover {
-  background: var(--secondary-hover-color);
-}
-
-paper-button.dark:hover {
+paper-item[dark]:hover {
   background: var(--secondary-hover-color);
 }
 
@@ -304,65 +253,26 @@ paper-ripple {
   color: var(--ink-color);
 }
 
-paper-fab {
-  @apply(--icon-button-theme)
-}
-
-paper-fab {
-  opacity: 0.3;
-}
-
-paper-fab:hover {
-  opacity: 1;
-}
-
 paper-icon-button:hover {
   background: var(--primary-hover-color);
-  fill: white;
+  color: #f1f1f1;
   opacity: 1;
   border-radius: 50%;
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
               0 1px 5px 0 rgba(0, 0, 0, 0.12),
               0 3px 1px -2px rgba(0, 0, 0, 0.2);
 }
-
-paper-toggle-button#colorschema {
-  --paper-toggle-button-checked-bar-color: #000000;
-  --paper-toggle-button-checked-button-color: #404388;
-  --paper-toggle-button-checked-ink-color: #404388;
-  --paper-toggle-button-unchecked-bar-color: #838383;
-  --paper-toggle-button-unchecked-button-color: #ffffff;
-  --paper-toggle-button-unchecked-ink-color: #404388;
-  padding: 0em;
+paper-icon-button[dark]:hover {
+  color: #f1f1f1;
 }
-
-/*
- * Paper-Material
- */
-
-paper-material {
-  background: var(--default-primary-background-color);
-}
-
-paper-material.dark {
-  background: var(--dark-primary-background-color);
-}
-
-/*
- * Iron-Selected
- */
 
 .iron-selected {
   font-weight: normal;
   color: var(--dark-primary-color);
-  /*transform: rotate3d(5, 1, 0.1, 10deg) scale(1.1);*/
   background: var(--selected-color);
-  /*box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-              0 1px 5px 0 rgba(0, 0, 0, 0.12),
-              0 3px 1px -2px rgba(0, 0, 0, 0.2);*/
 }
 
-.iron-selected.dark {
+.iron-selected[dark] {
   color: var(--dark-primary-color);
   background: var(--dark-selected-color);
 }
@@ -379,7 +289,7 @@ iron-collapse {
   background-color: var(--secondary-drawer-color);
 }
 
-.collapse-content.dark {
+.collapse-content[dark] {
   background-color: var(--dark-secondary-drawer-color);
 }
 
@@ -387,33 +297,26 @@ iron-collapse {
  * Dialogs
  */
 
-paper-dialog > *:first-child {
-  margin: 0em;
-  padding: 0.5em;
-  text-align: center;
-  /*background: var(--light-primary-color);*/
-}
-
 paper-dialog paper-dialog-scrollable {
   margin: 0.5em 0em;
   padding: 0em;
   font-size: 0.95em;
 }
 
-paper-dialog >* {
+paper-dialog * {
   margin: 0em;
   padding: 0em 1.5em 1.5em 1.5em;
 }
 
-paper-dialog > *:last-child {
+paper-dialog *:last-child {
   padding: 0.25em 0.25em 0.55em 0.25em;
 }
 
-paper-dialog.dark {
+paper-dialog[dark] {
   background: var(--dark-primary-background-color);
 }
 
-paper-dialog.dark > *:first-child {
+paper-dialog[dark] > *:first-child {
   color: var(--light-primary-color);
   background: var(--dark-primary-color);
 }
@@ -430,47 +333,4 @@ paper-tab:hover {
    background: var(--secondary-hover-color);
    border-radius: 2px;
  }
-
-/*
- * Divs, Paragraphs
- */
-
-
-/*
- * Spezifications for certain Views
- */
- @media all and (min-width: 0px) and (max-width: 480px) {
- }
-/* mobile-small */
-@media all and (min-width: 0px) and (max-width: 360px) and (orientation: portrait) { }
-/* mobile-large */
-@media all and (min-width: 361px) and (orientation: portrait) { }
-/* mobile-small-landscape */
-@media all and (min-width: 0px) and (max-width: 480px) and (orientation: landscape) { }
-/* mobile-large-landscape */
-@media all and (min-width: 481px) and (orientation: landscape) { }
-/* tablet-small-landscape */
-@media all and (min-width: 600px) and (max-width: 960px) and (orientation: landscape) { }
-/* tablet-large-landscape */
-@media all and (min-width: 961px) and (orientation: landscape) { }
-/* tablet-small */
-@media all and (min-width: 600px) and (orientation: portrait) { }
-/* tablet-large */
-@media all and (min-width: 601px) and (max-width: 840px) and (orientation : portrait) { }
-/* desktop-x-small-landscape */
-@media all and (min-width: 0px) and (max-width: 480px) and (orientation: landscape) { }
-/* desktop-x-small */
-@media all and (min-width: 0px) and (max-width: 480px) and (max-aspect-ratio: 4/3) { }
-/* desktop-small-landscape */
-@media all and (min-width: 481px) and (max-width: 840px) and (orientation: landscape) { }
-/* desktop-small */
-@media all and (min-width: 481px) and (max-width: 840px) and (max-aspect-ratio: 4/3) { }
-/* desktop-medium-landscape */
-@media all and (min-width: 841px) and (max-width: 1280px) and (orientation: landscape) { }
-/* desktop-medium */
-@media all and (min-width: 841px) and (max-width: 1280px) and (max-aspect-ratio: 4/3) { }
-/* desktop-large */
-@media all and (min-width: 1281px) and (max-width: 1600px) { }
-/* desktop-xlarge */
-@media all and (min-width: 1601px) and (max-width: 1920px) { }
 </style>

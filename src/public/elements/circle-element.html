@@ -1,0 +1,74 @@
+<dom-module id="circle-element">
+<style>
+  :host{
+    display: flex;
+    flex-direction: row;
+    align-self: center;
+    align-items: center;
+  }
+  svg { height: 18px;}
+  #circle1{ fill: #E41A1A;}
+  #circle2{ fill: #E45D1A;}
+  #circle3{ fill: #E4D61A;}
+  #circle4{ fill: #67E41A;}
+  #circle5{ fill: #1AA9E4;}
+</style>
+<template>
+  <svg id="circle1" viewBox="0 0 32 18">
+    <circle r="8" cy="9" cx="16" stroke="#252D36" stroke-width="0.25"/>
+  </svg>
+  <svg id="circle2" viewBox="0 0 32 18">
+    <circle r="8" cy="9" cx="16" stroke="#252D36" stroke-width="0.25"/>
+  </svg>
+  <svg id="circle3" viewBox="0 0 32 18">
+    <circle r="8" cy="9" cx="16" stroke="#252D36" stroke-width="0.25"/>
+  </svg>
+  <svg id="circle4" viewBox="0 0 32 18">
+    <circle r="8" cy="9" cx="16" stroke="#252D36" stroke-width="0.25"/>
+  </svg>
+  <svg id="circle5" viewBox="0 0 32 18">
+    <circle r="8" cy="9" cx="16" stroke="#252D36" stroke-width="0.25"/>
+  </svg>
+</template>
+
+<script>
+  Polymer({
+    is: 'circle-element',
+    behaviors: [Polymer.NeonAnimationRunnerBehavior],
+    properties: {
+      animationConfig: {
+        value: function() {
+          var allcircles = [];
+          allcircles.push(this.$.circle1);
+          allcircles.push(this.$.circle2);
+          allcircles.push(this.$.circle3);
+          allcircles.push(this.$.circle4);
+          allcircles.push(this.$.circle5);
+          return {
+            'loading': [
+              {
+                name: 'cascaded-animation',
+                nodes: allcircles,
+                animation: 'scale-up-animation',
+                nodedelay: 200,
+                timing: {
+                  duration: 1000,
+                  iterationStart: 2,
+                  iterations: +Infinity
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    cancelAnimation: function() {
+      if (this._player) {
+        this._player.cancel();
+        this._player = null;
+      }
+      this.fire('neon-animation-finish');
+    }
+  });
+</script>
+</dom-module>

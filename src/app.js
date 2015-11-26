@@ -2,17 +2,12 @@
 /*
  * Module dependencies
  */
-var
-    // custom: DATAMODULE
-    dataModule   = require('./data'),
-    // custom: ROUTING
-    routes       = require('./routes'),
-    // custom: MAILHELPER
-    mailHelper   = new require('./modules/mailhelper')('exceeds'),
-    // EXPRESS
+var // EXPRESS
     express      = require('express'),
     // EXPRESS-ERROR-HANDLER
     errorHandler = require('express-error-handler'),
+    // X-FRAME-OPTIONS <-- prevent Clickjacking
+    xFrameOptions = require('x-frame-options'),
     // FS <-- File System
     fs           = require('fs'),
     // UNDERSCORE <-- js extensions
@@ -20,49 +15,31 @@ var
     // DEFAULTSDEEP <-- extended underscrore/lodash _.defaults,
     // for default-value in   deeper structures
     defaultsDeep = require('merge-defaults'),
-    // MORGAN <-- logger
-    morgan       = require('morgan'),
-    // dateFormat
-    dateFormat   = require('dateFormat'),
-
-    /* Database Server + Client */
-    //TODO mongoose lösung finden
-    mongoose     = require('mongoose'),
-    datadb       = require('./modules/datadb'),
-    datamodel    = datadb.devicedata,
-    dbcontroller = new datadb.controller(datamodel, {}),
-    // The database
-    db,
-    /* Class variables */
-    threshold    = dataModule.threshold,    // extension: of DATAMODULE
-    dataHandler  = dataModule.dataHandler,  // extension: of DATAMODULE
-    dataMerge    = dataModule.dataMerge,    // extension: of DATAMODULE
-    Client       = dataModule.client,       // extension: of DATAMODULE
-
-    /* Current connected clients */
-    clients      = [],
-
+    // custom: ROUTING
+    routes       = require('./routes'),
+    // DATA-MODULE
+    dataModule   = require('./data_module'),
     /* Default config */
-    defaults     = { connections : [],
-                     command_file: 'commands.json',
-                     port        : 3000,
-    };
+    defaults     = { connections    : [],
+                     port           : 3000,
+                     updateIntervall: 1000,
+                     dbName         : "test"},
+    // Config Object
+    config,
+    // Logger
+    winston = require('winston');
 
-    // Configuration from config-file, uses default values, if necessary
-    // TODO: make configs dynamical loaded (or watched)
 
-var config;
+try {
+  config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json'));
+}
+catch (err) {
+  console.warn('There has been an error parsing the config-file.')
+  console.warn(err.stack);
+}
 
-    try {
-      config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json'));
-    }
-    catch (err) {
-      console.log('There has been an error parsing the config-file.')
-      console.log(err);
-    }
-
-    // Use defaults for undefined values
-    config = defaultsDeep(config,defaults);
+// Use defaults for undefined values
+config = defaultsDeep(config,defaults);
 
 /*
  * Extend UNDERSCORE
@@ -73,23 +50,48 @@ _.mixin({
   }
 });
 
+//Checks for program arguments and runs the responsible operations
+//e.g. "node app.js <arg1> <arg2>"
+//   "-port <portnumber>" changes server port on <portnumber>
+function checkArguments(){
+  for(var i=0; i<process.argv.length; i++){
+   switch(process.argv[i]) {
+     case "-port": // next argument need to be a port number
+       // isNaN() checks if content is not a number
+       if(!isNaN(process.argv[++i])){
+           config.port = process.argv[i];
+       } else {// next argument isn't a port number, so check it in next loop
+         i--;
+       }
+       break;
+     default:
+     // react on unrecognized arguments
+   }
+  }
+}
+
+//check for program arguments
+checkArguments();
+
 /*
  * Configure the APP
  */
 
-// Configure SSL Encription
+// Configure SSL Encryption
 var sslOptions  = {
-    key: fs.readFileSync(__dirname + '/ssl/server.key'),
-    cert: fs.readFileSync(__dirname + '/ssl/server.crt'),
-    ca: fs.readFileSync(__dirname + '/ssl/ca.crt'),
+    key: fs.readFileSync(__dirname + '/ssl/ca.key'),
+    cert: fs.readFileSync(__dirname + '/ssl/ca.crt'),
+    passphrase: require('./ssl/ca.pw.json').password,
     requestCert: true,
     rejectUnauthorized: false
   };
 
 // General
 var app    = express(),
-    server = require('https').createServer(sslOptions, app),
-    io     = require('socket.io').listen(server, sslOptions); //
+    server = require('https').createServer(sslOptions, app);
+
+// Prevent Clickjacking
+app.use(xFrameOptions());
 
 // Path to static folder
 app.use(express.static(__dirname + '/public'));
@@ -102,14 +104,24 @@ app.set('views', __dirname + '/views');
  * Defining Errors
  */
 
-// if Error: Defined in serverLogMode, which kind of errors, are written in HTTPSERVERLOGFILE by MORGAN
-// Server-Log-File and -Mode (used by MORGAN) for Server-Mistakes (Http-Status-Code above 500)
-// TODO: if necessary, catch different HTTP errors, or other errors
-var serverLogFile    = __dirname + config.logs.http_server_log,
-    serverLogMode    = { stream: fs.createWriteStream(serverLogFile, {flags: 'a'}),
-                        skip: function (req, res) { return res.statusCode < 500 }},
-    logFormat        = ':date[clf] - ":status" - :remote-addr - ":method :url" - :response-time ms :res[content-length]';
-app.use(morgan(logFormat, serverLogMode));
+//
+// Configure CLI output on the default logger
+//
+winston.cli();
+
+//
+// Configure CLI on an instance of winston.Logger
+//
+var logger = new winston.Logger({
+ transports: [
+   new (winston.transports.Console)()
+ ],
+ exceptionHandlers: [
+   new winston.transports.File({ filename: __dirname + config.logs.server_log })
+ ]
+});
+
+logger.cli();
 
 // if Error: EADDRINUSE --> log in console
 server.on('error', function (e) {
@@ -172,155 +184,36 @@ app.use(function(req, res) {
   }
 });
 
-
-/*
- * Init MAILHELPER
- */
-mailHelper.init({
-  from:    config.mail.from, // sender address
-  to:      config.mail.to,   // list of receivers
-  subject: config.mail.subject
- });
-mailHelper.setType('html');
-mailHelper.setDelay(1000);
-
-
-/*
- * Configure SOCKET.IO (watch the data file)
- */
-
-//DATAHANDLER - established the data connections
-var dataFile = new dataHandler( {
-      // Object used the Configuration
-      connection: config.connections,
-      listener: {
-        error: function(type, err) {
-          dataSocket.emit('mistake', { error: err, time: new Date()});
-      },
-      data: [
-          // SocketIO Listener
-          function(type, data) {
-
-            // Process data to certain format
-            var currentData = dataMerge.processData(config.locals,{
-              exceeds: threshold.getExceeds(data),
-              data: data
-            });
-
-            dbcontroller.appendData(
-              currentData.content,
-              function (err, appendedData, tmpDB) {
-                //TODO: handle the error
-                clients.forEach(function(client){
-                  dbcontroller.getUpdate(tmpDB,
-                    client.appendPattern,
-                    function (err, data) {
-                      //TODO: handle the error
-                      var message = {
-                         content: data,
-                         time: new Date(), // current message time
-                      };
-                      client.socket.emit('data', message);
-                    }
-                  );
-                });
-                tmpDB.find({},function(err, data){
-                  console.log(data);
-                  tmpDB.remove({});
-                });
-              }
-            );
-          }
-        ]
-      }
-    });
-
-// Data Socket
-var dataSocket = io.of('/data');
-
-// Handle connections of new clients
-dataSocket.on('connection', function(socket) {
-
-   socket.on('clientConfig', function(patterns) {
-     var current_client = new Client(socket, patterns);
-     clients.push(current_client);
-     dbcontroller.getData(current_client.firstPattern,
-         function (err, data) {
-            //TODO: important! if two lines change then send in the same kind of object
-
-            var message = {
-               content: data,
-               time: new Date(), // current message time
-               language: config.locals.language,
-               groupingKeys: config.locals.groupingKeys,
-               exclusiveGroups: config.locals.exclusiveGroups
-            };
-            socket.emit('first', message);
-         }
-     );
-   });
-
-});
-
-/*
- * Get SERVER.io and server running!
- */
-mongoose.connect("mongodb://localhost:27017/");
-db = mongoose.connection;
-//TODO properly react on error
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function (callback) {
-  datamodel.remove({},function(){
-
-  // start the handler for new measuring data
-  dataFile.connect();
-
-  // make the Server available for Clients
-  server.listen(config.port);
-
-  });
-});
-
-/*
- * Start Mail Server
- */
-
-// mailHelper.startDelayed(function(error,info){
-//   if(error){
-//     console.log('Mailing error: ' + error);
-//   }
-//   else{
-//     if (info.response) console.log('E-Mail sent: ' + info.response);
-//     else{
-//       for( var i in info.pending[0].recipients[0]) console.log(i);
-//       console.log('E-Mail sent: ' + info.pending[0].recipients[0]);
-//     }
-//   }
-// });
+// connect the DATA-Module
+dataModule.connect(config,server);
 
 /*
  * Handle various process events
  */
 
- // TODO: make shure that the server is not closing (or is restarting) with errors
+ // TODO: make sure that the server is not closing (or is restarting) with errors
  // and pretty this part
 process.on('uncaughtException', function(err) {
   try {
     server.close();
-    mongoose.disconnect();
+    dataModule.disconnect();
     console.warn(err.message);
   } catch (e) {
     if(e.message !== 'Not running')
       throw e;
   }
-  throw err;
+  // try to reconnect
+  console.error(err);
+  dataModule.connect(config,server);
 });
 
 /* SIGINT can usually be generated with Ctrl-C */
 process.on('SIGINT', function(err) {
   try {
+    console.log('close server');
     server.close();
-    mongoose.disconnect();
+    console.log('disconnect db');
+    dataModule.disconnect();
   } catch (err) {
     if(err.message !== 'Not running')
       throw err;
@@ -330,7 +223,7 @@ process.on('SIGINT', function(err) {
 process.on('exit', function(err) {
   try {
     server.close();
-    mongoose.disconnect();
+    dataModule.disconnect();
   } catch (err) {
     if(err.message !== 'Not running')
       throw err;

@@ -1,19 +1,10 @@
 {
   "connections": {
-    "db": { },
     "file": {
-      "copy": false,
       "mode": "all",
-      "path_folder": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Datafile/",
-      "#path_folder": "",
-      "path": "HNF_Datafile.txt",
-      "#path": "data2.txt"
-      },
-    "udp": {
-      "log": false,
-      "log_path": "/../../data/udp/",
-      "mode": "append",
-      "port": 4000
+      "path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
+      "#path_folder": "dw",
+      "path": "HNF_Datafile.txt"
       }
     },
 
@@ -24,13 +15,21 @@
     "content": "Folgende Messgeräte senden kritische Messwerte:\n"
     },
 
+  "database": {
+    "name": "HNF-GDS",
+    "max_query_limit": 5000,
+    "default_storage_size": 100,
+    "save_identical_values": false
+  },
+
   "port": 3000,
+  "updateIntervall" : 3000,
 
   "logs": {
-    "external_log": "HNF.log",
-    "#external_log_path": "",
-    "external_log_path": "//ibn-vsrv.ibn-net.kfa-juelich.de/HNF-GDS$/Log/",
-    "http_server_log":   "/../logs/http-error.log"
+    "external_log":      "HNF.log",
+    "external_log_path": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Log\\",
+    "http_server_log":   "/../logs/http-error.log",
+    "server_log":        "/../logs/server-error.log"
     },
 
   "locals":{
@@ -45,7 +44,7 @@
       {"id":"DI3-1", "roomNr":"3005", "room":"Bypack", "kind":"H₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
       {"id":"DI4-1", "roomNr":"4006", "room":"Reinraum", "kind":"H₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
       {"id":"DI5-1", "roomNr":"4006", "room":"Reinraum", "kind":"H₂", "isBoolean": true, "threshold": {"from":0,"to":0}},
-      {"id":"DI6-1", "roomNr":"2032 3005 4006", "room":"diverse", "kind":"H₂", "method":"Störung", "isBoolean": true, "threshold": {"from":0,"to":0}},
+      {"id":"DI6-1", "roomNr":"2032 3005 4006", "room":"", "kind":"H₂", "method":"Störung", "isBoolean": true, "threshold": {"from":0,"to":0}},
       {"id":"DI7-1", "method":"Reserve", "isBoolean": true},
 
       {"id":"DI0-2", "method":"Gerätefehler", "isBoolean": true, "threshold": {"from":0,"to":0}},
@@ -99,9 +98,9 @@
     "groupingKeys" : ["roomNr", "room", "kind", "method"],
 
     "exclusiveGroups": {
-      "roomNr": [{"group":"Diverse", "ids":["DI6-1","DI0-2","DI1-2"]},
-                 {"group":"kombinierter Alarm", "ids":["DI2-2","DI3-2","DI4-2","DI5-2"]},
-                 {"group":"4006", "ids":["DI3-5","DI4-5","DI5-5","DI6-5"]}
+      "roomNr": [{"name":"Diverse", "ids":["DI6-1","DI0-2","DI1-2"]},
+                 {"name":"kombinierter Alarm", "ids":["DI2-2","DI3-2","DI4-2","DI5-2"]},
+                 {"name":"4006", "ids":["DI3-5","DI4-5","DI5-5","DI6-5"]}
                 ]
     },
 

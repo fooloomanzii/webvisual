@@ -1,54 +1,77 @@
+<link rel="import" href="../logo-element.html"/>
+<link rel="import" href="../circle-element.html"/>
+
 <dom-module id="loading-page">
   <style>
-    host: {
-    }
     section#mainContent {
       height: 100%;
       width: 100%;
       position: fixed;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       background:#669DB4;
-      color: #f1f1f1;
-      z-index: 5;
+      color: white;
     }
-    /*@media all and (min-width: 0px) and (max-width: 600px) {
-      section#mainContent {
-        display: block;
+    @media all and (min-width: 0px) and (max-width: 950px) , all and (orientation: portrait) {
+      logo-element {
+        height: 20vw !important;
+        width: 62vw !important;
       }
-    }*/
-    paper-spinner#loadSpinner {
-      position: fixed;
-      bottom: 50%;
-      right: 50%;
-      z-index: 5;
-      --paper-spinner-layer-1-color: rgb(4, 143, 205);
-      --paper-spinner-layer-2-color: rgb(60, 109, 235);
-      --paper-spinner-layer-3-color: rgb(110, 161, 154);
-      --paper-spinner-layer-4-color: rgb(75, 184, 29);
+      section#messageBox {
+        width: 61vw !important;
+      }
     }
     logo-element {
-      position: fixed;
-      /*top: 50vh;*/
-      left: 19vw;
-      width: 62vw;
-      z-index: 10;
+      align-self: center;
+      height: 14vw;
+      width: 38vw;
+      padding-bottom: 4vh;
+    }
+    section#messageBox {
+      align-self: center;
+      align-items: center;
+      display: flex;
+      justify-content: space-around;
+      width: 38vw;
+      height: 2.5em;
+      font-family: Thin;
+      font-size: 1em;
+      padding-left: 10vw;
+      padding-bottom: 4vh;
+    }
+    circle-element {
+      padding-left: 10vw;
     }
   </style>
 
   <template>
     <section id="mainContent">
-      <!-- <paper-spinner id="loadSpinner" active></paper-spinner> -->
-      <logo-element id="logo" class="header"></logo-element>
+      <logo-element id="logo"></logo-element>
+      <section id="messageBox">{{status.message}}</section>
+      <circle-element id="circle"></circle-element>
     </section>
   </template>
 
   <script>
 
-    Polymer({
+  Polymer({
       is: 'loading-page',
 
       behaviors: [Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
+        status: {
+          type: Object,
+          value: function() { return {"message": "...",
+                                      "time": {
+                                        "lastData": 0,
+                                        "lastStatus": 0,
+                                        "lastMistake": 0,
+                                        "lastError": 0
+                                      }}; },
+          notify: true
+        },
         sharedElements: {
           value: function() {
             return {
@@ -60,7 +83,8 @@
           value: function() {
             return {
               'entry': [
-                {animatable: this.$.logo, type: 'loading'}
+                {animatable: this.$.logo,   type: 'loading'},
+                {animatable: this.$.circle, type: 'loading'}
               ],
               'exit': [
                 {
@@ -70,18 +94,23 @@
                 },
                 {
                   name: 'fade-out-animation',
-                  node: this.$.mainContent,
-                  timing: {
-                    duration: 1000
-                  }
+                  node: this
                 }
               ]
             }
           }
         }
+      },
+      cancelAnimation: function() {
+        this.$.logo.cancelAnimation();
+        this.$.circle.cancelAnimation();
+        if (this._player) {
+          this._player.cancel();
+          this._player = null;
+        }
+        this.fire('neon-animation-finish');
       }
     });
-
   </script>
 
 </dom-module>
