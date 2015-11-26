@@ -65,6 +65,7 @@ function connect (config, server, err) {
         listener: {
           error: function(type, err) {
               dataSocket.emit('mistake', { error: err, time: new Date() });
+              console.warn("dataSocket error:\n"+err.stack);
             },
           data: function(type, data) {
               // Process data to certain format

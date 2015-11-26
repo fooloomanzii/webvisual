@@ -13,6 +13,7 @@ function route(route_path, json_obj) {
 
   return function(req, res)
   {
+    res.get('X-Frame-Options');
     res.render(route_path, json_obj);
     res.end();
   };
