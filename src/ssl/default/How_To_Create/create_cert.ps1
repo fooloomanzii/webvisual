@@ -15,7 +15,7 @@ $domain = "hnf-gds.ibn.kfa-juelich.de"   # Domain Name (Address)
 $email = "n.tiefes@fz-juelich.de"        # Email Address
 $days = "1100"                           # Certificate validity duration in days
 
-$pass_length = 500;                      # Length of passphrase (min 4, max 1024)
+$pass_length = 256;                      # Length of passphrase (min 4, max 1024)
 
 # -- Paths --
 $output_dir = ".\cert"                   # where to write output files
@@ -45,6 +45,7 @@ $subj = "/C=$country/ST=$state/L=$city/O=$company/OU=$company_unit/CN=$domain/em
 # generate the certificate signing request          
 ./openssl.exe req -passin pass:$pass `
             -new `
+            -sha256 `
             -key "$output_dir\ca.key" `
             -subj $subj `
             -out "$output_dir\$($domain)_CSR.pem"
@@ -52,6 +53,7 @@ $subj = "/C=$country/ST=$state/L=$city/O=$company/OU=$company_unit/CN=$domain/em
 # Create self-signed public key
 ./openssl.exe x509 -passin pass:$pass `
             -req `
+            -sha256 `
             -days $days% `
             -in "$output_dir\$($domain)_CSR.pem" `
             -signkey "$output_dir\ca.key"`
