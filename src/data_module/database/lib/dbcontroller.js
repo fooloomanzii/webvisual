@@ -3,18 +3,20 @@
  * Checks all the pre-conditions of the Data Model functions
  */
 
-// Port to the Data Model
-
+/* Node.js Module Dependencies */
 var mongoose     = require('mongoose'),
     EventEmitter = require('events').EventEmitter;
 
-var devicemodel = require('./devicemodel.js'),
-    dataModel   = devicemodel.model,
-    db;
+/* Custom Module Dependencies */
+var DeviceModel = require('./devicemodel.js');
 
 var DBController = function() { 
   
-  var self;
+  /* Global private variables */
+  var self,
+// TODO !!! change functions to handle multiple dbmodels!!!
+      dbmodels = [],
+      dataModel;
   
   function _Class() {
     // Ensure the constructor was called correctly with 'new'
@@ -27,20 +29,24 @@ var DBController = function() {
 
   _Class.prototype.connect = function(databases){
     _(databases).map(function(config, dbname){
-      mongoose.connect("mongodb://localhost:27017/" + dbname);
-      var db = mongoose.connection;
+      var db = mongoose.createConnection("mongodb://localhost:27017/" + dbname);
       
       // Events forwarding
       db.on('error', function(err) { self.emit('error', err); });
       db.once('open', function (callback) {
         console.log("MongoDB is connected to database '%s'", dbname);
         
-        devicemodel.init(config.database, function(err){
+        var newDeviceModel = new DeviceModel(db);
+        dbmodels.push( newDeviceModel.model );
+        dataModel = newDeviceModel.model;
+        
+        newDeviceModel.init(config.database, function(err){
           if(err) { 
             err.forEach(function(error){
               self.emit('error', error);
             })
           }    
+          
           self.emit('open');
         });
       });

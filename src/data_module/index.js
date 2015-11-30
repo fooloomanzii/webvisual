@@ -104,7 +104,7 @@ function connect (config, server, err) {
              unnamedType: dataConf.unnamedType
           };
           socket.emit('first', message);
-
+          
           // append the client to array after sending first message
           current_client.hasFirst=true;
           clients[socket.id] = current_client;
@@ -120,7 +120,7 @@ function connect (config, server, err) {
     });
   });
 
-
+//TODO !!! change db functions to handle multiple dbmodels!!!
   var serve_clients_with_data = function(updateIntervall){
     //Send new data on constant time intervals
     setInterval(
@@ -179,6 +179,10 @@ function connect (config, server, err) {
     server.listen(config.port);
     
     serve_clients_with_data(config.updateIntervall);
+  });
+  
+  dbcontroller.once('error', function (err) {
+    console.warn(err.stack);
   });
   
   dbcontroller.connect(config.databases);
