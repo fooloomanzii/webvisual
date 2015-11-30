@@ -21,10 +21,7 @@ var // ASYNC <-- one callback for a lot of async operations
     defaultsDeep = require('merge-defaults'),
 
     /* Database Server + Client */
-    mongoose     = require('mongoose'),
     dbcontroller     = require('./database'),
-    // The database
-    db,
     /* Class variables */
     threshold        = filehandler.threshold,    // extension: of DATAMODULE
     dataFileHandler  = filehandler.dataFileHandler,  // extension: of DATAMODULE
@@ -167,26 +164,10 @@ function connect (config, server, err) {
   };
 
   /*
-   * Get SERVER.io and server running!
+   * Get SERVER.io, mongoose and server running!
    */
-  mongoose.connect("mongodb://localhost:27017/" + config.database.name);
-  db = mongoose.connection;
-  //TODO properly react on error
-  db.on('error', console.error.bind(console, 'connection error:'));
-  db.once('open', function (callback) {
-    console.log("MongoDB is connected to database '%s'",
-        config.dbName);
-    
-    // initialize database controller with values from config,json
-    dbcontroller.init(config.database, function(err){
-      if(err) { 
-        err.forEach(function(error){
-          console.warn(error.stack);
-        })
-      }
-    });
-
-    // register the properties of devices in the database
+  dbcontroller.once('open', function () { 
+ // register the properties of devices in the database
     dbcontroller.setDevices(dataConf.types, function(err){
       if(err) console.warn(err.stack);
     });
@@ -198,8 +179,9 @@ function connect (config, server, err) {
     server.listen(config.port);
     
     serve_clients_with_data(config.updateIntervall);
-
   });
+  
+  dbcontroller.connect(config.databases);
 
   /*
    * Start Mail Server
@@ -221,7 +203,7 @@ function connect (config, server, err) {
 }
 
 function disconnect() {
-  mongoose.disconnect();
+  dbcontroller.disconnect();
 }
 
 function initMailer(config) {
