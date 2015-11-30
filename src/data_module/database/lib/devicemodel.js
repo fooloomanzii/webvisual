@@ -1,5 +1,11 @@
-(function(){
-  'use strict';
+// Dependencies
+var mongoose = require('mongoose'),
+    Schema   = mongoose.Schema,
+    _        = require('underscore'),
+    async    = require('async');
+
+var DeviceModel = (function(){
+  //'use strict';
 
   /** Further Development Note
    * The following DB-Structure was chosen because of low CPU usage.
@@ -13,20 +19,17 @@
    * and so it's hard to find better solution..
    **/
 
-  // Dependencies
-  var mongoose = require('mongoose'),
-      Schema   = mongoose.Schema,
-      _        = require('underscore'),
-      async    = require('async'),
-      tmpModel = require('./tmpmodel.js');
-
   // --- Variables --- //
-
+  // Custom dependencies
+  TmpModel = require('./tmpmodel.js');
+  
   /* Global variables */
   // Important DB Collection Names (!! please remove renamed collections !!)
   var devicelistDB_name = "devices"; // list of devices
   var deviceDB_prefix = "device_"; // prefix to device id
   var tmpDB_prefix = "tmp_"; // prefix to temporary collection
+  
+  var currDB; // this database
 
   // maximal limit of values to query (by one request)
   var max_query_limit = 5000;
@@ -39,12 +42,14 @@
   var cur_tmp = 0; // index of current temporary collection
   // TODO write a function, that defines if there is need for more tmp collections
   var num_of_tmps = 3; // number of temporary collections
-  var tmpDB = mongoose.model(tmpDB_prefix+cur_tmp, tmpModel); // temporary collection
+  var tmpDB; // temporary collection
   var tmpIsInUse = false; // true if new data is been currently written to tmpDB
   var tmp_switch_callback; // temporary callback pointer
 
-  // Mongoose Schema to store the values
-  var StorageModel = new Schema({
+  //--- Mongoose Schemas --- //
+  // Schema to store the values
+  var StorageSchema = new Schema(
+    {
       _id     : Number, // index = x.getTime()
       x       : Date, // Time of Measure
       y       : Number, // Measured Value
@@ -66,8 +71,9 @@
     }
 
   );
-  // mongoose Schema to store the device properties
-  var DeviceModel = new Schema({
+  // Schema to store the device properties
+  var DeviceSchema = new Schema(
+    {
       _id       : String, // index = Measuring Device ID
       roomNr    : String, // Room Number
       room      : String, // Room Type
@@ -83,10 +89,25 @@
       //autoIndex: false // http://mongoosejs.com/docs/guide.html
     }
   );
-
+  
+  // --- Constructor --- //
+  // database is an instance of mongoose.createConnection
+  function _Class(database) {
+    if(!database) return new Error("database need to be defined!!");
+    
+    // Ensure the constructor was called correctly with 'new'
+    if( !(this instanceof _Class) ) return new _Class(config);
+    
+    currDB = database;
+    
+    _Class.prototype.model = currDB.model(devicelistDB_name, DeviceSchema);
+    // set local tmpModel
+    tmpModel = new TmpModel(this.model).model;
+    // create initial tmpDB
+    tmpDB = mongoose.model(tmpDB_prefix+cur_tmp, tmpModel);
+  }
 
   // --- Functions --- //
-
 
   /*
    * Initializes Model with new default values from options-Object
@@ -111,7 +132,7 @@
    *             this option wont be changed
    *
    */
-  var init = function(options, callback){
+  _Class.prototype.init = function(options, callback){
     if(options == undefined) return callback();
 
     var errors = [];
@@ -153,11 +174,11 @@
    * Switches Temporary Database to the next one
    * and passes the current one per callback
    */
-  DeviceModel.statics.switchTmpDB = function(callback){
+  DeviceSchema.statics.switchTmpDB = function(callback){
     var last_tmpDB = tmpDB;
     // "tmpDB == last_tmpDB" is true
     cur_tmp = (cur_tmp + 1) % num_of_tmps;
-    tmpDB = mongoose.model('tmp_'+cur_tmp, tmpModel);
+    tmpDB = currDB.model('tmp_'+cur_tmp, tmpModel);
     // "tmpDB == last_tmpDB" is false
     if(callback){
       if(tmpIsInUse) tmp_switch_callback = callback;
@@ -167,7 +188,7 @@
 
 
   // Creates or updates the device in database
-  DeviceModel.statics.setDevice = function(device, callback){
+  DeviceSchema.statics.setDevice = function(device, callback){
     if(device === undefined){
       if(callback) return callback(new Error("device undefined!"));
       return;
@@ -184,7 +205,7 @@
   }
 
   // Creates or updates list of devices in database using given array "devices"
-  DeviceModel.statics.setDevices = function(devices, callback){
+  DeviceSchema.statics.setDevices = function(devices, callback){
     if(devices === undefined){
       if(callback) return callback(new Error("devices undefined!"));
       return;
@@ -230,7 +251,7 @@
    *             }, callback);
    * or append([{id: "1", values: [..]},{id: "2", values: [..]}], callback);
    */
-  DeviceModel.statics.append = function (newData, callback) {
+  DeviceSchema.statics.append = function (newData, callback) {
     if(newData === undefined) return;
     tmpIsInUse = true;
     var curr_tmpDB = tmpDB;
@@ -307,7 +328,7 @@
 
         var storage;
         if(result && result.storage){ // the device is in the list and have .storage
-          storage = mongoose.model(result.storage, StorageModel);
+          storage = currDB.model(result.storage, StorageSchema);
         } else { // write device to the list
           // create new collection of values and save it by device description
           // collection names are always lower case
@@ -322,7 +343,7 @@
               }
             }
           );
-          storage = mongoose.model(newData.storage, StorageModel);
+          storage = currDB.model(newData.storage, StorageSchema);
         }
 
 // TODO Kommentierung: noch aktuell???
@@ -455,7 +476,7 @@
    * or just call findData(callback); to get data for all existing devices,
    * last max_query_limit/(number of devices) values each device
    */
-  DeviceModel.statics.query = function(request, callback) {
+  DeviceSchema.statics.query = function(request, callback) {
     var self = this;
     if(!request) request = {};
     if(_.isFunction(request)){
@@ -534,7 +555,7 @@
         devices,
         function(device, done){
           // query collection with values for current device
-          var values_collection = mongoose.model(device.storage, StorageModel);
+          var values_collection = currDB.model(device.storage, StorageSchema);
 
           var query;
 
@@ -555,7 +576,7 @@
                  .limit(limit);
           }
           query.select('-_id -__v'); // exclude '_id' & '__v'
-
+          
           query.exec(function(err, results){
             if(err) return done(err);
 
@@ -586,7 +607,7 @@
    *    size = new size in kilobytes, that need to be set ( greater than 0 )
    *    callback = calls a function(err) at the end
    */
-  DeviceModel.statics.setStorageSize = function (id, size, callback) {
+  DeviceSchema.statics.setStorageSize = function (id, size, callback) {
     if(size <= 0) return callback(new Error("Wrong storage size"));
     this.findOne({'_id':id},
         function(err, result){
@@ -601,7 +622,7 @@
             return;
           }
 
-          mongoose.connection.db.command(
+          currDB.connection.db.command(
               { convertToCapped: result.storage, size: size*1024 },
               function(err){
                 if(err){
@@ -616,10 +637,8 @@
         }
      );
   }
-
-  module.exports = {
-      init : init,
-      model : mongoose.model(devicelistDB_name, DeviceModel)
-  }
-
+  
+  return _Class;
 })();
+
+module.exports = DeviceModel;

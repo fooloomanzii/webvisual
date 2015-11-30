@@ -18,7 +18,7 @@ set "email=n.tiefes@fz-juelich.de"&       rem Email Address
 set "days=1100"&                          rem Certificate validity duration in days
 
 rem Length of passphrase (min 4, max 1024)
-set pass_length=500;                    
+set pass_length=256;                    
 
 rem -- Paths --
 set output_dir=.\cert&                    rem where to write output files
@@ -51,6 +51,7 @@ openssl req -passin pass:%pass% ^
 rem Create self-signed public key
 openssl x509 -passin pass:%pass% ^
             -req ^
+            -sha256 ^
             -days %days% ^
             -in %output_dir%\%domain%_CSR.pem ^
             -signkey %output_dir%\ca.key ^

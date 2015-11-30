@@ -16,8 +16,7 @@ var // ASYNC <-- one callback for a lot of async operations
     fs           = require('fs'),
 
     /* Database Server + Client */
-    mongoose         = require('mongoose'),
-    dbcontroller     = require('./database'),
+    DBcontroller     = require('./database'),
 
     /* Class variables */
     threshold        = filehandler.threshold,    // extension: of DATAMODULE
@@ -67,6 +66,7 @@ function connect (config, server, err) {
         listener: {
           error: function(type, err) {
               dataSocket.emit('mistake', { error: err, time: new Date() });
+              console.warn("dataSocket error:\n"+err.stack);
             },
           data: function(type, data) {
               // Process data to certain format
@@ -126,12 +126,12 @@ function connect (config, server, err) {
     });
   });
 
-
+//TODO !!! change db functions to handle multiple dbmodels!!!
   var serve_clients_with_data = function(updateIntervall){
     //Send new data on constant time intervals
     setInterval(
       function(){
-        for (var i = 0; i < configArray.length; i++)
+        for (var i = 0; i < dbControllerArray.length; i++)
           dbControllerArray[i].switchTmpDB(function(tmpDB){
             if(!tmpDB) return;
             async.each(clients,
@@ -172,15 +172,13 @@ function connect (config, server, err) {
   };
 
   /*
-   * Get SERVER.io and server running!
+   * Get SERVER.io, mongoose and server running!
    */
-
   for (var i = 0; i < configArray.length; i++) {
     console.log(configArray[i].database.name);
-    dbArray.push(mongoose.createConnection("mongodb://localhost:27017/" + configArray[i].database.name));
-    //TODO properly react on error
-    dbArray[i].on('error', console.error.bind(console, 'connection error:'));
-    dbArray[i].once('open', function (callback) {
+    dbControllerArray.push(new DBcontroller());
+
+    dbControllerArray[i].once('open', function (callback) {
 // TODO: das geht so nicht, weil i nicht mehr vorhanden, wenn das aufgerufen wird
 //       man müsste das im device controller erzeugen
 //       da muss die Datenbank, die man nutzen möcht angegeben werden und die Konfiguration geschehen#
@@ -204,14 +202,19 @@ function connect (config, server, err) {
       // start the handler for new measuring data
       dataFile[i].connect();
 
-      serve_clients_with_data(config.updateIntervall);
+      // make the Server available for Clients
+      if(i == configArray.length-1){
+        server.listen(config.port);
+        serve_clients_with_data(config.updateIntervall);
+      }
     });
   }
+  
+  dbControllerArray[i].on('error', function (err) {
+    console.warn(err.stack);
+  });
 
-  // make the Server available for Clients
-  server.listen(config.port);
-
-
+  dbControllerArray[i].connect(configArray[i].database);
 
   /*
    * Start Mail Server
@@ -233,7 +236,9 @@ function connect (config, server, err) {
 }
 
 function disconnect() {
-  // mongoose.disconnect();
+  for (var i = 0; i < dbControllerArray.length; i++) {
+    dbControllerArray[i].disconnect();
+  }
 }
 
 function initMailer(config) {

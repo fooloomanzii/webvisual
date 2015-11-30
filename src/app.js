@@ -6,6 +6,8 @@ var // EXPRESS
     express      = require('express'),
     // EXPRESS-ERROR-HANDLER
     errorHandler = require('express-error-handler'),
+    // X-FRAME-OPTIONS <-- prevent Clickjacking
+    xFrameOptions = require('x-frame-options'),
     // FS <-- File System
     fs           = require('fs'),
     // UNDERSCORE <-- js extensions
@@ -87,6 +89,9 @@ var sslOptions  = {
 // General
 var app    = express(),
     server = require('https').createServer(sslOptions, app);
+
+// Prevent Clickjacking
+app.use(xFrameOptions());
 
 // Path to static folder
 app.use(express.static(__dirname + '/public'));

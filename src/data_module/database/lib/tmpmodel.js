@@ -1,44 +1,60 @@
-(function(){
-  'use strict';
+// Dependencies
+var mongoose = require('mongoose'),
+    Schema   = mongoose.Schema,
+    _        = require('underscore'),
+    async    = require('async');
 
-  //--- Variables --- //
 
-  // Variables
-  var mongoose = require('mongoose'),
-      Schema   = mongoose.Schema,
-      _        = require('underscore'),
-      async    = require('async');
+var TmpModel = (function(){
+  //'use strict';
 
-  var ValuesModel = new Schema({
-    x       : Date, // Time of Measure
-    y       : Number, // Measured Value
-    exceeds : Boolean // false = under the limit,
-                      // true = over the limit,
-                      // null = ok.
-  },
-  // options
-  {
-    // Versioning (__v) is important for updates.
-    // No updates => versioning is useless
-    versionKey: false, // gets versioning off
-    _id: false,
-    autoIndex: false // significant performance improvement
-    // TODO check if index is registered and register it manually
-  }
+  // --- Variables --- //
+  var currDeviceModel; // link to devicemodel
+  
+  //--- Mongoose Schemas --- //
+  var ValuesSchema = new Schema(
+    {
+      x       : Date, // Time of Measure
+      y       : Number, // Measured Value
+      exceeds : Boolean // false = under the limit,
+                        // true = over the limit,
+                        // null = ok.
+    },
+    // options
+    {
+      // Versioning (__v) is important for updates.
+      // No updates => versioning is useless
+      versionKey: false, // gets versioning off
+      _id: false,
+      autoIndex: false // significant performance improvement
+      // TODO check if index is registered and register it manually
+    }
+  );
 
-);
-
-  var TMPModel = new Schema({
+  var TMPSchema = new Schema({
       // VERY IMPORTANT to use your OWN _id! Without it, db will endless grow!
       _id       : String,
       id        : String, // Measuring Device ID
-      values    : [ValuesModel] // Measured Data
+      values    : [ValuesSchema] // Measured Data
     },
     // significant performance impact
     { autoIndex: false } // http://mongoosejs.com/docs/guide.html
   );
-
-  //--- Functions --- //
+  
+  // --- Constructor --- //
+  //database is an instance of mongoose.createConnection
+  function _Class(deviceModel) {
+    if(!deviceModel) return new Error("database need to be defined!!");
+    
+    // Ensure the constructor was called correctly with 'new'
+    if( !(this instanceof _Class) ) return new _Class(config);
+    
+    currDeviceModel = deviceModel;
+  }
+  
+  _Class.prototype.model = TMPSchema;
+  
+  // --- Functions --- //
 
 // TODO: Kommentierung: wofür ist tmpmodel??? wie ist der Ablauf der Durchführung???
 //      Es reicht nicht die Kommentierung der anderen Module zu kopieren bzw. nur die
@@ -83,7 +99,7 @@
    * or just call findData(callback); to get data for all existing devices,
    * last max_query_limit/(number of devices) values each device
    */
-  TMPModel.statics.query = function (request, callback) {
+  TMPSchema.statics.query = function (request, callback) {
     var self = this;
     if(!request) request = {};
     if(_.isFunction(request)){
@@ -133,7 +149,7 @@
         );
     }
 
-    require('./devicemodel.js').model.find(device_query, function(err, devices) {
+    currDeviceModel.find(device_query, function(err, devices) {
       if(err){
         return callback(err);
       }
@@ -164,8 +180,9 @@
       });
     });
   };
-
-  // Module exports
-  module.exports = TMPModel;
-
+  
+  return _Class;
 })();
+
+// Module exports
+module.exports = TmpModel;
