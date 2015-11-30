@@ -204,7 +204,7 @@ process.on('uncaughtException', function(err) {
   }
   // try to reconnect
   console.error(err);
-  dataModule.connect(config,server);
+  //dataModule.connect(config,server);
 });
 
 /* SIGINT can usually be generated with Ctrl-C */

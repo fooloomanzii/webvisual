@@ -29,10 +29,8 @@ var // ASYNC <-- one callback for a lot of async operations
     clients       = {},
     // array of configurations
     configArray   = [],
-    // The databases
-    dbArray       = [],
-    // mongoose-connection array
-    mongooseArray = [];
+    // array of various database controllers
+    dbControllerArray = [];
 
 
 function connect (config, server, err) {
@@ -56,10 +54,11 @@ function connect (config, server, err) {
   //dataFileHandler - established the data connections
   var dataConf = [];
   var dataFile = [];
-  var dbControllerArray = [];
 
   for (var i = 0; i < configArray.length; i++) {
     dataConf.push(configuration.arrangeTypes( configArray[i].locals ));
+    
+// TODO pass i to the callback!!
     dataFile.push(new dataFileHandler( {
         // Object used the Configuration
         connection: configArray[i].connections,
@@ -90,6 +89,7 @@ function connect (config, server, err) {
   // Handle connections of new clients
   dataSocket.on('connection', function(socket) {
 
+ // TODO pass i to the callback!!
     socket.on('clientConfig', function(patterns) {
       var current_client = new Client(socket, patterns);
       for (var i = 0; i < configArray.length; i++) {
@@ -176,46 +176,36 @@ function connect (config, server, err) {
    */
   for (var i = 0; i < configArray.length; i++) {
     console.log(configArray[i].database.name);
-    dbControllerArray.push(new DBcontroller());
+    dbControllerArray.push(new DBcontroller(i));
 
-    dbControllerArray[i].once('open', function (callback) {
+    dbControllerArray[i].once('open', function (index) {
 // TODO: das geht so nicht, weil i nicht mehr vorhanden, wenn das aufgerufen wird
 //       man müsste das im device controller erzeugen
 //       da muss die Datenbank, die man nutzen möcht angegeben werden und die Konfiguration geschehen#
 //       mongoose müsste gar nicht außerhalb existieren
-      console.log("MongoDB is connected to database '%s'",
-          configArray[i].database.name);
-
-      dbControllerArray.push(new dbcontroller(config.configurations[i].database, function(err){
-        if(err) {
-          err.forEach(function(error){
-            console.warn(error.stack);
-          })
-        }
-      }));
 
       // register the properties of devices in the database
-      dbControllerArray[i].setDevices(dataConf[i].types, function(err){
+      dbControllerArray[index].setDevices(dataConf[index].types, function(err){
         if(err) console.warn(err.stack);
       });
 
       // start the handler for new measuring data
-      dataFile[i].connect();
+      dataFile[index].connect();
 
       // make the Server available for Clients
-      if(i == configArray.length-1){
+      if(index == configArray.length-1){
+        console.log("a");
         server.listen(config.port);
         serve_clients_with_data(config.updateIntervall);
       }
     });
-  }
   
-  dbControllerArray[i].on('error', function (err) {
-    console.warn(err.stack);
-  });
-
-  dbControllerArray[i].connect(configArray[i].database);
-
+    dbControllerArray[i].on('error', function (err) {
+      console.warn(err.stack);
+    });
+  
+    dbControllerArray[i].connect(configArray[i].database);
+  }
   /*
    * Start Mail Server
    */
@@ -236,9 +226,9 @@ function connect (config, server, err) {
 }
 
 function disconnect() {
-  for (var i = 0; i < dbControllerArray.length; i++) {
+  /*for (var i = 0; i < dbControllerArray.length; i++) {
     dbControllerArray[i].disconnect();
-  }
+  }*/
 }
 
 function initMailer(config) {

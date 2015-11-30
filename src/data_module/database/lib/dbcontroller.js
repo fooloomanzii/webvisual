@@ -14,13 +14,15 @@ var DBController = function() {
   
   /* Global private variables */
   var self,
-      dataModel;
+      dataModel,
+      index;
   
-  function _Class() {
+  function _Class(currIndex) {
     // Ensure the constructor was called correctly with 'new'
     if( !(this instanceof _Class) ) return new _Class(config);
     
     self=this;
+    index = currIndex;
   }
   
   _Class.prototype = new EventEmitter;
@@ -43,7 +45,7 @@ var DBController = function() {
           })
         }    
         
-        self.emit('open');
+        self.emit('open', index);
       });
     });
   };
