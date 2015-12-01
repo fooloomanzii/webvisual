@@ -83,9 +83,10 @@ function processData(configurationID, settings, currentData) {
             processedData[k] = element;
           }
           // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored
-          if (exceedsArray && exceedsArray[i][j])
+          if (exceedsArray && exceedsArray.length != 0 && exceedsArray[i][j])
             exceedsElement = exceedsArray[i][j];
           else exceedsElement = null;
+
           processedData[k].values.push({"x":    dateArray[i],
                                         "y":   valuesArray[i][j],
                                         "exceeds": exceedsElement
