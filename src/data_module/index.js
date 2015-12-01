@@ -58,21 +58,21 @@ function connect (config, server, err) {
   for (var i = 0; i < configArray.length; i++) {
     dataConf.push(configuration.arrangeTypes( configArray[i].locals ));
     
-// TODO pass i to the callback!!
     dataFile.push(new dataFileHandler( {
+        index: i,
         // Object used the Configuration
         connection: configArray[i].connections,
         listener: {
-          error: function(type, err) {
+          error: function(type, err, index) {
               dataSocket.emit('mistake', { error: err, time: new Date() });
               console.warn("dataSocket error:\n"+err.stack);
             },
-          data: function(type, data) {
+          data: function(type, data, index) {
               // Process data to certain format
-              var currentData = dataMerge( i, dataConf[i], {exceeds: threshold(data,dataConf[i].types), data: data } );
+              var currentData = dataMerge( index, dataConf[index], {exceeds: threshold(data, dataConf[index].types), data: data } );
 
               // Save new Data in Database and send for each client the updated Data
-              dbControllerArray[i].appendData(
+              dbControllerArray[index].appendData(
                   currentData.content,
                   function (err, appendedData) {
                     if(err) console.warn(err.stack);
@@ -89,24 +89,23 @@ function connect (config, server, err) {
   // Handle connections of new clients
   dataSocket.on('connection', function(socket) {
 
- // TODO pass i to the callback!!
     socket.on('clientConfig', function(patterns) {
       var current_client = new Client(socket, patterns);
       for (var i = 0; i < configArray.length; i++) {
         dbControllerArray[i].getData(current_client.firstPattern,
-          function (err, data) {
+          function (err, data, index) {
             if(err) console.warn(err.stack);
 
             //TODO: important! if two lines change then send in the same kind of object
 
             var message = {
-               id: i,
+               id: index,
                content: data,
                time: new Date(), // current message time
-               groupingKeys: configArray[i].locals.groupingKeys,
-               exclusiveGroups: configArray[i].locals.exclusiveGroups,
-               types: dataConf[i].types,
-               unnamedType: dataConf[i].unnamedType
+               groupingKeys: configArray[index].locals.groupingKeys,
+               exclusiveGroups: configArray[index].locals.exclusiveGroups,
+               types: dataConf[index].types,
+               unnamedType: dataConf[index].unnamedType
             };
             socket.emit('first', message);
 
