@@ -42,6 +42,7 @@ function processData(configurationID, settings, currentData) {
     if(!data || data.length == 0 ) return;  // Check for Existence
 
     // Set the Arrays of Exceeds 'exceedsArray'
+
     var exceedsArray = exceeds;
 
     // Set the Array of Values 'valuesArray' and Array of Timestamps 'dateArray'
@@ -63,7 +64,7 @@ function processData(configurationID, settings, currentData) {
       }
     }
     // Join Data to the Object, which is used by the website
-    var element;
+    var element, exceedsElement;
     for (var i=0; i<dateArray.length; i++) {
       var k = 0;
       for (var j=0; j<valuesArray[i].length; j++) {
@@ -76,16 +77,18 @@ function processData(configurationID, settings, currentData) {
               element.id = settings.types[k].id;
             else
               element.id = settings.unnamedType.id + k;
-
             element.values = [];
 // TODO: Handle lastExceeds db-wise
 //            element.lastExceeds = lastExceedsArray[j];
             processedData[k] = element;
           }
           // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored
+          if (exceedsArray && exceedsArray[i][j])
+            exceedsElement = exceedsArray[i][j];
+          else exceedsElement = null;
           processedData[k].values.push({"x":    dateArray[i],
                                         "y":   valuesArray[i][j],
-                                        "exceeds": exceedsArray[i][j]
+                                        "exceeds": exceedsElement
                                       })
           // store last Exceeding Data (lastExceedsArray is created each server-session)
 // TODO: Handle lastExceeds db-wise
