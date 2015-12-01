@@ -273,6 +273,9 @@ dataFileHandler = (function() {
         }
       }
     };
+  
+  // private variables
+  var index;
 
   // jshint newcap: false
   // Constructor
@@ -293,6 +296,9 @@ dataFileHandler = (function() {
 
     // Process the given listener
     this._addListener(config.listener);
+    
+    // Save current index
+    index = config.index;
   }
 
   // Extend with properties; null values are just place holder for instantiated properties
@@ -346,9 +352,9 @@ dataFileHandler = (function() {
     return function(error, data) {
       // TODO: Array or not array?
       if(error) {
-        self._emitter.emit('error', type, error);
+        self._emitter.emit('error', type, error, index);
       } else {
-        self._emitter.emit('data', type, data);
+        self._emitter.emit('data', type, data, index);
       }
     };
   };

@@ -60,7 +60,7 @@ var DBController = function() {
   _Class.prototype.setDevice = function (device, callback) {
     // setDevice - is custom function in the dataModel
     dataModel.setDevice(device, function(err){
-      if(callback) callback(err);
+      if(callback) callback(err, index);
     });
   };
 
@@ -68,7 +68,7 @@ var DBController = function() {
   _Class.prototype.setDevices = function (devices, callback) {
     // setDevice - is custom function in the dataModel
     dataModel.setDevices(devices, function(err){
-      if(callback) callback(err);
+      if(callback) callback(err, index);
     });
   };
 
@@ -82,7 +82,7 @@ var DBController = function() {
   _Class.prototype.appendData = function (newData, callback) {
     // append - is custom function in the dataModel
     dataModel.append(newData, function(err, appendedData){
-      if(callback) callback(err, appendedData);
+      if(callback) callback(err, appendedData, index);
     });
   };
 
@@ -93,7 +93,7 @@ var DBController = function() {
   _Class.prototype.getData = function (request, callback) {
     //query - is custom function in the dataModel
     dataModel.query(request, function (err, result) {
-      if(callback) callback(err, result);
+      if(callback) callback(err, result, index);
     });
   };
 
@@ -103,7 +103,7 @@ var DBController = function() {
    */
   _Class.prototype.getDataFromModel = function (model, request, callback) {
     model.query(request, function (err, result) {
-      if(callback) callback(err, result);
+      if(callback) callback(err, result, index);
     });
   };
 
@@ -112,7 +112,7 @@ var DBController = function() {
    * and passes the current one per callback
    */
   _Class.prototype.switchTmpDB = function (callback) {
-    dataModel.switchTmpDB(callback);
+    dataModel.switchTmpDB(callback, index);
   };
 
   /*
@@ -120,7 +120,7 @@ var DBController = function() {
    */
   _Class.prototype.resize = function (id, newSize, callback) {
     dataModel.setStorageSize(id, newSize, function (err, result) {
-      if(callback) callback(err, result);
+      if(callback) callback(err, result, index);
     });
   };
 
@@ -129,7 +129,7 @@ var DBController = function() {
    */
   _Class.prototype.resize = function (id, newSize, callback) {
     dataModel.setStorageSize(id, newSize, function (err, result) {
-      if(callback) callback(err, result);
+      if(callback) callback(err, result, index);
     });
   };
   
