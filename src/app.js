@@ -207,6 +207,19 @@ process.on('uncaughtException', function(err) {
   //dataModule.connect(config,server);
 });
 
+process.on('ECONNRESET', function(err) {
+  try {
+    // server.close();
+    // dataModule.disconnect();
+  } catch (e) {
+    if(e.message !== 'Not running')
+      throw e;
+  }
+  // try to reconnect
+  console.error('ECONNRESET: '+err);
+  // dataModule.connect(config,server);
+});
+
 /* SIGINT can usually be generated with Ctrl-C */
 process.on('SIGINT', function(err) {
   try {
