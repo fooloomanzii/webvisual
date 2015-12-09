@@ -74,6 +74,12 @@
                   0 1px 5px 0 rgba(0, 0, 0, 0.12),
                   0 3px 1px -2px rgba(0, 0, 0, 0.2);
     }
+
+    /*TODO: richtiges Platzieren ohne Schrinken */
+    section#header div.logo-element-placeholder {
+      height: 44px;
+      width: 130px;
+    }
     section#lower ::content leaflet-map {
       min-width: 10em;
       flex: 1;
@@ -201,8 +207,9 @@
     <section id="mainContent" on-track="_handleTrack">
       <section id="header">
         <content select=".menu-icon"></content>
-        <content select="logo-element"></content>
+        <div class="logo-element-placeholder"></div>
         <div class="flex"></div>
+        <content select=".header"></content>
         <section hidden$="{{!opened}}">
           <paper-icon-button icon="{{_computeExpandIcon(expanded)}}" class="expand-icon" on-click="_expandView"></paper-icon-button>
           <content select=".toggle-icon"></content>

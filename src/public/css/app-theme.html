@@ -65,9 +65,9 @@
     /* Components */
     --paper-fab-background: var(--light-primary-color);
     --paper-fab-keyboard-focus-background: var(--light-primary-color);
-    --paper-icon-button-ink-color: var(--ink-color);
+    --paper-icon-button-ink-color: currentColor;
     --paper-tabs-selection-bar-color: var(--selected-color);
-    --paper-tab-ink: var(--secondary-hover-color);
+    --paper-tab-ink: currentColor;
     --paper-dialog-background-color: var(--default-primary-background-color);
     --paper-dialog-button-color: var(--default-primary-text-color);
     --paper-dialog-color: var(--default-primary-text-color);
@@ -247,10 +247,6 @@ paper-item:hover {
 
 paper-item[dark]:hover {
   background: var(--secondary-hover-color);
-}
-
-paper-ripple {
-  color: var(--ink-color);
 }
 
 paper-icon-button:hover {

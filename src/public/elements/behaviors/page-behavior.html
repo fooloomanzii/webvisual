@@ -16,6 +16,11 @@
         value: function() { return []; },
         notify: true
       },
+      selectedFileId: {
+        type: Number,
+        value: 0,
+        notify: true
+      },
       groupBy: {
         type: String,
         value: "roomNr",
@@ -46,9 +51,9 @@
     setSelectedElement: function(e) {
     },
     setSelectedGroup: function(){
-      if(this.groups && this.groupBy && this.groupBy in this.groups){
-        this.set("selectedGroup",this.groups[this.groupBy]);
-        this.linkPaths("selectedGroup","groups."+this.groupBy);
+      if(this.groups && this.groupBy && this.groups[this.selectedFileId] && this.groupBy in this.groups[this.selectedFileId]){
+        this.set("selectedGroup", this.groups[this.selectedFileId][this.groupBy]);
+        this.linkPaths("selectedGroup", "groups." + this.selectedFileId + "." + this.groupBy);
       }
     },
     sortGroup: function(first,next){

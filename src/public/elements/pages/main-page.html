@@ -50,7 +50,7 @@
     section#mainContent {
       display: flex;
       flex-wrap: wrap;
-      align-content: space-between;
+      align-content: flex-start;
       flex-direction: row;
       position: relative;
       overflow-y: auto;
@@ -221,6 +221,13 @@
     <logo-element id="logo"></logo-element>
     <main-toolbar id="toolbar" class="paper-header" on-deselect="deselectElement">
       <paper-icon-button icon="menu" class="menu-icon" on-click="togglePanel"></paper-icon-button>
+      <paper-tabs id="files" class="header" selected="{{selectedFileId}}">
+        <template is="dom-repeat" items="{{fileIds}}">
+          <paper-tab>{{item}}</paper-tab>
+        </template>
+      </paper-tabs>
+
+
       <paper-icon-button icon="remove" class="toggle-icon" on-click="deselectElement"></paper-icon-button>
 
       <sign-element id="selectedElementSign" class="selectedElement sign incard" element="{{selectedElement}}" on-click="deselectElement"></sign-element>
@@ -229,6 +236,7 @@
         <span id="method">{{selectedElement.method}}</span>
         <span id="room">{{selectedElement.room}}</span>
         <span id="roomNr">{{selectedElement.roomNr}}</span>
+        <span id="roomNr">{{selectedElement.filename}}</span>
       </section>
 
       <table-element id="selectedElementTable" class="selectedElement noncard" element="{{selectedElement}}"></table-element>
@@ -375,26 +383,33 @@
       <!-- MAIN VIEW -->
       <section main id="mainPanel">
         <section main id="mainContent">
-          <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupItems" sort="sortGroup" delay="300">
-            <post-card class="group" headline="{{groupItems.name}}" without-window="{{withoutWindow}}" dark$="[[dark]]">
 
-              <template is="dom-repeat" items="{{data}}" as="element">
-                <template is="dom-if" if="{{groupElements(element,groupItems)}}" restamp>
-                  <section class="card" on-click="setSelectedElement" dark$="[[dark]]">
+          <template id="filetemplate" is="dom-repeat" items="{{data}}" as="fileItem" index-as="fileindex">
+            <template is="dom-if" if="{{isSelectedFile(fileindex,selectedFileId)}}" restamp>
+              <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupItems" sort="sortGroup" delay="300">
+                <post-card class="group" headline="{{groupItems.name}}" without-window="{{withoutWindow}}" dark$="[[dark]]">
 
-                      <sign-element element="{{element}}" dark$="[[dark]]"></sign-element>
-                      <section class="caption" id="{{element.id}}" dark$="[[dark]]">
-                        <span id="kind">{{element.kind}}</span>
-                        <span id="method">{{element.method}}</span>
-                        <span id="room">{{element.room}}</span>
-                        <span id="roomNr">{{element.roomNr}}</span>
+                  <template is="dom-repeat" items="{{fileItem}}" as="element">
+                    <template is="dom-if" if="{{groupElements(element,groupItems)}}" restamp>
+                      <section class="card" on-click="setSelectedElement" dark$="[[dark]]">
+
+                          <sign-element element="{{element}}" dark$="[[dark]]"></sign-element>
+                          <section class="caption" id="{{element.id}}" dark$="[[dark]]">
+                            <span id="kind">{{element.kind}}</span>
+                            <span id="method">{{element.method}}</span>
+                            <span id="room">{{element.room}}</span>
+                            <span id="roomNr">{{element.roomNr}}</span>
+                            <span id="roomNr">{{element.filename}}</span>
+                          </section>
+
                       </section>
-
-                  </section>
-                </template>
+                    </template>
+                  </template>
+                </post-card>
               </template>
-            </post-card>
+            </template>
           </template>
+
         </section>
         <section id="dropShadow" class="has-shadow"></section>
       </section>
@@ -488,6 +503,11 @@
           reflectToAttribute: true
         }
       },
+
+      isSelectedFile: function(fileid, selectedFileId) {
+        return (fileid == selectedFileId);
+      },
+
       setSelectedElement: function(e) {
         if (e){
           var item = e.model.element;
@@ -497,10 +517,11 @@
           else {
             this.unlinkPaths('selectedElement');
             this.selectedElement = null;
-            var icol = Polymer.Collection.get(this.data);
+
+            var icol  = Polymer.Collection.get(this.data[this.selectedFileId]);
             var key = icol.getKey(item);
             this.selectedElement = item;
-            this.linkPaths('selectedElement', 'data.' + key);
+            this.linkPaths('selectedElement', 'data.#'+ this.selectedFileId + "." + key);
             this.notifyPath('selectedElement.values', this.selectedElement.values);
             if (!this.$.toolbar.opened){
               this.$.toolbar.toggleAttribute('opened',true);

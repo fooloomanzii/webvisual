@@ -28,11 +28,11 @@
   <template>
     <neon-animated-pages id="pages" animate-initial-selection>
       <loading-page id="loadPage" status="{{status}}"></loading-page>
-      <main-page id="mainPage" class="element-page" data="{{data}}" groups="{{groups}}"
+      <main-page id="mainPage" class="element-page" data="{{data}}" file-ids="{{fileIds}}" groups="{{groups}}"
         elected-element="{{selectedElement}}" max-total-lines="{{maxLines}}" interval="{{interval}}"></main-page>
     </neon-animated-pages>
     <data-socket-repeater id="datasocket"
-      data="{{data}}" max-total-lines="{{maxLines}}" interval="{{interval}}"
+      data="{{data}}" file-ids="{{fileIds}}" max-total-lines="{{maxLines}}" interval="{{interval}}"
       groups="{{groups}}" on-dataloaded="_onLoaded" status="{{status}}">
     </data-socket-repeater>
   </template>

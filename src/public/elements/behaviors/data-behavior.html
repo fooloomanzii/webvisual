@@ -9,14 +9,33 @@
         notify: true
       },
       groups: {
-        type: Object,
-        value: function() { return {}; },
+        type: Array,
+        value: function() { return []; },
         notify: true
       },
       keys: {
         type: Array,
-        value: function() { return ["kind","method","room","roomNr","all"]; }
+        value: function() { return []; }
+      },
+      fileIds: {
+        type: Array,
+        value: function() { return []; },
+        notify: true
       }
+    },
+
+    _getFileIndex: function(fileName) {
+      if(this.fileIds.indexOf(fileName) !== -1)
+        return check;
+      else
+        return undefined;
+    },
+
+    _getElement: function(fileName) {
+      if(this.fileIds.indexOf(fileName) !== -1)
+        return check;
+      else
+        return undefined;
     }
   };
 

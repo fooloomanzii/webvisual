@@ -43,22 +43,33 @@
             notify: true,
             readOnly: true
           },
+          fileIds: {
+            type: Array,
+            value: function() { return []; },
+            notify: true,
+            readOnly: true
+          },
           groups: {
-            type: Object,
-            value: function() { return {"all":[{"name":"all","ids":[]}]}; },
+            type: Array,
+            value: function() { return []; },
+            notify: true
+          },
+          exclusiveGroups: {
+            type: Array,
+            value: function() { return []; },
             notify: true
           },
           keys: {
             type: Array,
-            value: function() { return ["kind","method","room","roomNr","all"]; }
+            value: function() { return []; }
           },
-          allKeys: {
+          keysForUsage: {
             type: Array,
             value: function() { return []; }
           },
           unnamedType: {
-            type: Object,
-            value: function() { return {}; }
+            type: Array,
+            value: function() { return []; }
           },
           types: {
             type: Array,
@@ -165,166 +176,240 @@
       _init: function() {
         this.set('data',[]);
         this.set('ids',[]);
-        this.set('groups',{"all":[{"name":"all","ids":[]}]});
+        this.set('fileIds',[]);
+        this.set('groups',[]);
         this.set('types',[]);
       },
 
-      _onFirstData: function(message){
-        if(message === undefined) return; // Check the Existence
+      _onFirstData: function(message) {
+        if(message == undefined) { // Check the Existence
+          this.set("status.time.lastError", new Date());
+          console.warn("received message empty");
+          return;
+        }
         // var time = new Date();
         // this.set("status.time.lastStatus", time); this.set("status.message", "processing first data");
         // this.set("status.time.lastData", time);
 
-        this._setKeys(message.groupingKeys);
-        this._setAllKeys(message.unnamedType);
-        this.types = message.types;
-        this.unnamedType = message.unnamedType;
-        this.exclusiveGroups = message.exclusiveGroups;
-
-        // for Polymer (to notice Array change) special treatment to integrate data
-        for (var i in message.content) {
-          this._setValues(message.content[i],this._getIndex(message.content[i].id));
+        for (var mesId=0; mesId < message.length; mesId++) {
+          // for Polymer (to notice Array change) special treatment to integrate data
+          if (message[mesId].name) {
+            var fileIndex = this._getFileIndex(message[mesId].name);
+          }
+          else {
+            this.set("status.time.lastError", new Date());
+            console.error("data not sent in proper format. --> missing name for the content");
+            return;
+          }
+          this._setKeys(fileIndex, message[mesId].groupingKeys);
+          this._setKeysForUsage(fileIndex, message[mesId].unnamedType);
+          this.push("types", message[mesId].types);
+          this.push("unnamedType", message[mesId].unnamedType);
+          this.push("exclusiveGroups", message[mesId].exclusiveGroups);
+          for (var i in message[mesId].content) {
+            this._setValues(fileIndex, message[mesId].content[i], this._getIndex(fileIndex, message[mesId].content[i].id));
+          }
         }
-        this.set("status.time.lastStatus",new Date()); this.set("status.message", "grouping elements");
+        this.set("status.time.lastStatus", new Date()); this.set("status.message", "grouping elements");
         this._implExclusiveGroups();
         this._implGroups();
         this.fire("dataloaded");
       },
 
-      _onData: function(message){
-        if(message === undefined) return; // Check for Existence
+      _onData: function(message) {
+        if(message == undefined) return; // Check for Existence
         var time = new Date();
-        if (time - this.status.time.lastData >= this.interval){ // TODO: Configure it at server
+        if (time - this.status.time.lastData >= this.interval) { // TODO: Configure it at server
           // this.set("status.time.lastData", time);
-          var oldLen = this.data.length;
-          for (var i in message.content) { // for all messurement-data-alements existing
-            this._setValues(message.content[i],this._getIndex(message.content[i].id));
+          var needToGroup = false;
+          if (Array.isArray(message)){ // if message is an Array
+            for (var mesId=0; mesId < message.length; mesId++) {
+              if (message[mesId].name) { // get the sent fileIndex
+                var fileIndex = this._getFileIndex(message[mesId].name);
+              }
+              else {
+                this.set("status.time.lastError", new Date());
+                console.warn("data not sent in proper format. --> missing name for the content");
+                return;
+              }
+              if (this.data[fileIndex].length < message[mesId].content.length) // re-group if necessary
+                needToGroup = true;
+              for (var i in message[mesId].content) { // for all messurement-data-alements existing
+                this._setValues(fileIndex, message[mesId].content[i], this._getIndex(fileIndex, message[mesId].content[i].id));
+              }
+            }
           }
-          if (oldLen < message.content.length)
+          else { // if message is a single Object
+            if (message.name) { // get the sent fileIndex
+              var fileIndex = this._getFileIndex(message.name);
+            }
+            else {
+              this.set("status.time.lastError", new Date());
+              console.warn("data not sent in proper format. --> missing name for the content");
+              return;
+            }
+            if (this.data[fileIndex].length < message.content.length) // re-group if necessary
+              needToGroup = true;
+            for (var i in message.content) { // for all messurement-data-alements existing
+              this._setValues(fileIndex, message.content[i], this._getIndex(fileIndex, message.content[i].id));
+            }
+          }
+
+          if (needToGroup)
             this._implGroups(); // regrouping if a longer content noticed
         }
       },
 
-      _getIndex: function(id){
-        var check = this.ids.indexOf(id);
+      _getIndex: function(fileIndex, id) {
+        while (fileIndex >= this.ids.length)
+          this.push("ids", []);
+        var check = this.ids[fileIndex].indexOf(id);
         if(check !== -1)
           return check;
         else
-          return this._setId(id);
+          return this._setId(fileIndex, id);
       },
 
-      _setId: function(id){
-        this._initDataPoint(this.ids.length);
-        return (this.push("ids",id) - 1);
+      _setId: function(fileIndex, id) {
+        // add a data point to the the end of the data array
+        this._initDataPoint(fileIndex, this.ids[fileIndex].length);
+        // add an entry ids array
+        return (this.push("ids." + fileIndex, id) - 1);
       },
 
-      _setLanguage: function(language){
+      _getFileIndex: function(fileName) {
+        var check = this.fileIds.indexOf(fileName);
+        if(check !== -1)
+          return check;
+        else // if it doesn't excist then register a new fileName
+          return (this.push("fileIds", fileName) - 1);
+      },
+
+      _setLanguage: function(language) {
         // TODO: create and set languageset
       },
 
-      _setKeys: function(keys){
-        for (var i; i < keys.length; i++){
-          if(this.keys.indexOf(keys[i]) == -1)
-            this.push("keys",keys[i]);
+      _setKeys: function(fileIndex, newKeys) {
+        while (fileIndex >= this.keys.length)
+          this.push("keys", []);
+        for (var i = 0; i < newKeys.length; i++){
+          if(this.keys[fileIndex].indexOf(newKeys[i]) == -1)
+            this.push("keys." + fileIndex, newKeys[i]);
         }
-        if (this.keys.indexOf("all") == -1)
-          this.push("keys","all");
+        if (this.keys[fileIndex].indexOf("all") == -1)
+          this.push("keys." + fileIndex, "all");
       },
 
-      _setAllKeys: function(unnamedType) {
-        var allkeys = _.keys(unnamedType);
-        for (var i=0; i < allkeys.length; i++)
-          if (this.allKeys.indexOf(allkeys[i]) == -1)
-            this.push("allKeys", allkeys[i]);
+      _setKeysForUsage: function(fileIndex, unnamedType) {
+        while (fileIndex >= this.keysForUsage.length)
+          this.push("keysForUsage", []);
+        var keysToHave = _.keys(unnamedType);
+        for (var i=0; i < keysToHave.length; i++)
+          if (this.keysForUsage[fileIndex].indexOf(keysToHave[i]) == -1)
+            this.push("keysForUsage." + fileIndex, keysToHave[i]);
       },
 
-      _setValues: function(messageContent, i){
+      _setValues: function(fileIndex, messageContent, i) {
         if (!this.doAppend)
-          while (this.data[i].values.length > 0)
-            this.pop("data."+i+".values");
+          while (this.data[fileIndex][i].values.length > 0)
+            this.pop("data." + fileIndex + "." + i + ".values");
         if (this.newestDataLast) {
           for (var j=0; j < messageContent.values.length; j++)
-            this.unshift("data."+i+".values",messageContent.values[j]);
+            this.unshift("data." + fileIndex + "." + i + ".values", messageContent.values[j]);
         }
         else {
           for (var j=messageContent.values.length-1; j >=0; j--)
-            this.unshift("data."+i+".values",messageContent.values[j]);
+            this.unshift("data." + fileIndex + "." + i + ".values", messageContent.values[j]);
         }
-        if (this.data[i].values.length > this.maxLines)
-          this.splice("data."+i+".values",this.maxLines,this.data[i].values.length);
+        if (this.data[fileIndex][i].values.length > this.maxLines)
+          this.splice("data." + fileIndex + "." + i + ".values", this.maxLines, this.data[fileIndex][i].values.length);
 
-        this.set("data."+i+".lastExceeds",messageContent.lastExceeds);
+        if (messageContent.lastExceeds)
+          this.set("data." + fileIndex + "." + i + ".lastExceeds", messageContent.lastExceeds);
       },
 
-      _initDataPoint: function(i){
-        while (i >= this.data.length)
-          this.push("data",{});
+      _initDataPoint: function(fileIndex, i) {
+        while (fileIndex >= this.data.length)
+          this.push("data", []);
+        while (i >= this.data[fileIndex].length)
+          this.push("data." + fileIndex, {});
 
-        this.set("data."+i+".values",[]);
-        this.push("data."+i+".values",{"x":"","y":"","exceeds":null});
+        this.set("data." + fileIndex + "." + i+ ".filename", this.fileIds[fileIndex]);
+        this.set("data." + fileIndex + "." + i+ ".values", []);
+        this.push("data." + fileIndex + "." + i + ".values", {"x":"","y":"","exceeds": null});
 
         var key;
         // set configuration types
-        for (var j=0; j < this.allKeys.length; j++) {
-          key = this.allKeys[j];
-          if(key != "values" && !this.data[i][key]){
-            if(this.types[i] && this.types[i][key])
-              this.set("data."+i+"."+key, this.types[i][key]);
+        for (var j=0; j < this.keysForUsage[fileIndex].length; j++) {
+          key = this.keysForUsage[fileIndex][j];
+          if(key != "values" && !this.data[fileIndex][i][key]){
+            if(this.types[fileIndex] && this.types[fileIndex][i] && this.types[fileIndex][i][key])
+              this.set("data." + fileIndex + "." + i + "." + key, this.types[fileIndex][i][key]);
             else
-              this.set("data."+i+"."+key, this.unnamedType[key]);
+              this.set("data." + fileIndex + "." + i + "." + key, this.unnamedType[fileIndex][key]);
           }
         }
       },
 
       _implExclusiveGroups: function() { // create the preset-Groups
-        for (var key in this.exclusiveGroups) {
-          if(!this.groups[key])
-            this.set("groups."+key,[]);
-          for (var i=0; i<this.exclusiveGroups[key].length; i++){
-            this.push("groups."+key,{});
-            this.set("groups."+key+"."+i+".name",this.exclusiveGroups[key][i].name);
-            this.set("groups."+key+"."+i+".ids",[]);
-            for (var j=0; j<this.exclusiveGroups[key][i].ids.length; j++){
-              this.push("groups."+key+"."+i+".ids",this.exclusiveGroups[key][i].ids[j]);
+        for (var fileIndex=0; fileIndex < this.exclusiveGroups.length; fileIndex++) {
+          for (var key in this.exclusiveGroups[fileIndex]) {
+            while (fileIndex >= this.groups.length) // for each db is a group
+              this.push("groups", {});
+            if(!this.groups[fileIndex][key])
+              this.set("groups." + fileIndex + "." + key, []);
+            for (var i=0; i<this.exclusiveGroups[fileIndex][key].length; i++){
+              this.push("groups." + fileIndex + "." + key, {});
+              this.set("groups." + fileIndex + "." + key + "." + i + ".name", this.exclusiveGroups[fileIndex][key][i].name);
+              this.set("groups." + fileIndex + "." + key + "." + i + ".ids", []);
+              for (var j=0; j<this.exclusiveGroups[fileIndex][key][i].ids.length; j++){
+                this.push("groups." + fileIndex + "." + key + "." + i + ".ids", this.exclusiveGroups[fileIndex][key][i].ids[j]);
+              }
             }
           }
         }
       },
-      _implGroups: function(){ // create Groups
+      _implGroups: function() { // create Groups
         var where, key, needToSet;
 
-        for (var i=0; i < this.data.length; i++){
-          for (var j=0; j<this.keys.length; j++){
-            key = this.keys[j];
-            if (!this.groups[key])
-              this.set("groups."+key,[]);
+        while (this.data.length > this.groups.length) // for each db is a group
+          this.push("groups", {});
 
-            needToSet = true;
-            where = -1;
-            for (var k=0; k<this.groups[key].length; k++){
-              if(this.groups[key][k].ids &&
-                this.groups[key][k].ids.indexOf(this.data[i].id) != -1){
-                  needToSet = false;
-                  break;
-              }
-              if(this.groups[key][k].name == this.data[i][key]){
-                where = k;
-              }
-            }
+        for (var fileIndex=0; fileIndex < this.data.length; fileIndex++) {
+          for (var i=0; i < this.data[fileIndex].length; i++) {
+            for (var j=0; j<this.keys[fileIndex].length; j++) {
+              key = this.keys[fileIndex][j];
+              if (!this.groups[fileIndex][key])
+                this.set("groups." + fileIndex + "." + key, []);
 
-            if(needToSet){
-              if (where == -1){
-                this.push("groups."+key,{});
-                where = this.groups[key].length-1;
-                this.set("groups."+key+"."+where+".name",this.data[i][key]);
-                this.set("groups."+key+"."+where+".ids",[]);
+              needToSet = true;
+              where = -1;
+              for (var k=0; k<this.groups[fileIndex][key].length; k++) {
+                if(this.groups[fileIndex][key][k].ids &&
+                  this.groups[fileIndex][key][k].ids.indexOf(this.data[fileIndex][i].id) != -1) {
+                    needToSet = false;
+                    break;
                 }
-              this.push("groups."+key+"."+where+".ids",this.data[i].id);
+                if(this.groups[fileIndex][key][k].name == this.data[fileIndex][i][key]) {
+                  where = k;
+                }
+              }
+
+              if(needToSet) {
+                if (where == -1){
+                  this.push("groups." + fileIndex + "." + key, {});
+                  where = this.groups[fileIndex][key].length-1;
+                  this.set("groups." + fileIndex + "." + key + "." + where + ".name", this.data[fileIndex][i][key]);
+                  this.set("groups." + fileIndex + "." + key + "." + where + ".ids", []);
+                  }
+                this.push("groups." + fileIndex + "." + key + "." + where + ".ids", this.data[fileIndex][i].id);
+              }
             }
           }
+          // TODO : potentieller Fehler wenn all nicht gesetzt?
+          if (!this.groups[fileIndex].all[0].name)
+            this.groups[fileIndex].all[0].name = 'all';
         }
-        if (!this.groups.all[0].name)
-          this.groups.all[0].name = 'all';
       },
 
       _maxTotalLinesChanged: function(newValue, oldValue) {
@@ -332,9 +417,11 @@
         var newValue = parseInt(newValue);
         if (newValue && this.data && newValue>0){
           this.maxLines = newValue;
-          for (var i=0; i < this.data.length; i++) {
-            if (this.data[i].values.length > newValue)
-              this.splice("data."+i+".values",newValue,this.data[i].values.length)
+          for (var fileIndex=0; fileIndex < this.data.length; fileIndex++) {
+            for (var i=0; i < this.data[fileIndex].length; i++) {
+              if (this.data[fileIndex][i].values.length > newValue)
+                this.splice("data." + fileIndex + "." + i + ".values", newValue,this.data[fileIndex][i].values.length)
+            }
           }
         }
         else
