@@ -97,7 +97,7 @@ function connect(config, server, err) {
 
         var message = [
           {
-            label : "f1.txt",
+            label : "HNF-GDS",
             content : data,
             time : new Date(), // current message time
             groupingKeys : config.locals.groupingKeys,
@@ -106,7 +106,16 @@ function connect(config, server, err) {
             unnamedType : dataConf.unnamedType
           },
           {
-            label : "f2.txt",
+            label : "fault-test",
+            content : data,
+            time : new Date(), // current message time
+            groupingKeys : config.locals.groupingKeys,
+            exclusiveGroups : config.locals.exclusiveGroups,
+            types : dataConf.types,
+            unnamedType : dataConf.unnamedType
+          },
+          {
+            label : "test",
             content : data,
             time : new Date(), // current message time
             groupingKeys : config.locals.groupingKeys,
@@ -147,7 +156,7 @@ function connect(config, server, err) {
                              return;
                            }
                            var message = {
-                             label : "f" + Math.floor((Math.random() * 2) + 1) +
+                             label : "f" + Math.floor((Math.random() * 3) + 1) +
                                          ".txt",
                              content : data,
                              time : new Date(), // current message time

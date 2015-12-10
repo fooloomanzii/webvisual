@@ -27,7 +27,11 @@
                             "from": ""
                           },
                           "limit": 0
-                        }};
+                        },
+                        "labels": [
+                          "HNF-GDS",
+                          "test"
+                        ]};
               },
             notify: true
           },
@@ -46,8 +50,7 @@
           labels: {
             type: Array,
             value: function() { return []; },
-            notify: true,
-            readOnly: true
+            notify: true
           },
           groups: {
             type: Array,
@@ -131,6 +134,7 @@
           self.set("status.time.lastStatus",new Date()); self.set("status.message", "configuring connection");
           self.set("config.firstPattern.time.from",new Date()-3600000)
           self.socket.emit('clientConfig', self.config);
+          self.set("labels", self.config.labels);
         });
         // Receiving the FIRST Data
         this.socket.on('first', function(message) {
@@ -201,13 +205,15 @@
             console.error("data not sent in proper format. --> missing name for the content");
             return;
           }
-          this._setKeys(labelIndex, message[mesId].groupingKeys);
-          this._setKeysForUsage(labelIndex, message[mesId].unnamedType);
-          this.push("types", message[mesId].types);
-          this.push("unnamedType", message[mesId].unnamedType);
-          this.push("exclusiveGroups", message[mesId].exclusiveGroups);
-          for (var i in message[mesId].content) {
-            this._setValues(labelIndex, message[mesId].content[i], this._getIndex(labelIndex, message[mesId].content[i].id));
+          if (labelIndex) {
+            this._setKeys(labelIndex, message[mesId].groupingKeys);
+            this._setKeysForUsage(labelIndex, message[mesId].unnamedType);
+            this.push("types", message[mesId].types);
+            this.push("unnamedType", message[mesId].unnamedType);
+            this.push("exclusiveGroups", message[mesId].exclusiveGroups);
+            for (var i in message[mesId].content) {
+              this._setValues(labelIndex, message[mesId].content[i], this._getIndex(labelIndex, message[mesId].content[i].id));
+            }
           }
         }
         this.set("status.time.lastStatus", new Date()); this.set("status.message", "grouping elements");
@@ -232,10 +238,12 @@
                 console.warn("data not sent in proper format. --> missing name for the content");
                 return;
               }
-              if (this.data[labelIndex].length < message[mesId].content.length) // re-group if necessary
-                needToGroup = true;
-              for (var i in message[mesId].content) { // for all messurement-data-alements existing
-                this._setValues(labelIndex, message[mesId].content[i], this._getIndex(labelIndex, message[mesId].content[i].id));
+              if (labelIndex) {
+                if (this.data[labelIndex].length < message[mesId].content.length) // re-group if necessary
+                  needToGroup = true;
+                for (var i in message[mesId].content) { // for all messurement-data-alements existing
+                  this._setValues(labelIndex, message[mesId].content[i], this._getIndex(labelIndex, message[mesId].content[i].id));
+                }
               }
             }
           }
@@ -248,10 +256,12 @@
               console.warn("data not sent in proper format. --> missing name for the content");
               return;
             }
-            if (this.data[labelIndex].length < message.content.length) // re-group if necessary
-              needToGroup = true;
-            for (var i in message.content) { // for all messurement-data-alements existing
-              this._setValues(labelIndex, message.content[i], this._getIndex(labelIndex, message.content[i].id));
+            if (labelIndex) {
+              if (this.data[labelIndex].length < message.content.length) // re-group if necessary
+                needToGroup = true;
+              for (var i in message.content) { // for all messurement-data-alements existing
+                this._setValues(labelIndex, message.content[i], this._getIndex(labelIndex, message.content[i].id));
+              }
             }
           }
 
@@ -281,8 +291,8 @@
         var check = this.labels.indexOf(labelName);
         if(check !== -1)
           return check;
-        else // if it doesn't excist then register a new labelName
-          return (this.push("labels", labelName) - 1);
+        else // if it doesn't excist then return undefined
+          return undefined;
       },
 
       _setLanguage: function(language) {
