@@ -35,8 +35,8 @@
     }
     section#header {
       height: 64px;
-      width: calc(100% - 16px);
-      padding: 0px 8px;
+      width: calc(100% - 48px);
+      padding: 0px 24px;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -62,10 +62,11 @@
       border-right: thin solid #606060;
     }
     section#header ::content paper-icon-button {
-      margin-right: 12px;
+      margin-left: 12px;
     }
     section#header ::content paper-icon-button.menu-icon {
-      margin: 0px 16px;
+      margin-right: 20px;
+      margin-left: 0px;
     }
     section#header ::content paper-icon-button:hover {
       background: #669DB4;
@@ -209,8 +210,8 @@
       <section id="header">
         <content select=".menu-icon"></content>
         <div class="logo-element-placeholder"></div>
-        <div class="flex"></div>
         <content select=".header"></content>
+        <div class="flex"></div>
         <section hidden$="{{!opened}}">
           <paper-icon-button icon="{{_computeExpandIcon(expanded)}}" class="expand-icon" on-click="_expandView"></paper-icon-button>
           <content select=".toggle-icon"></content>

@@ -148,7 +148,7 @@ function connect(config, server, err) {
                            }
                            var message = {
                              label : "f" + Math.floor((Math.random() * 2) + 1) +
-                                        ".txt",
+                                         ".txt",
                              content : data,
                              time : new Date(), // current message time
                            };

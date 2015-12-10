@@ -155,7 +155,7 @@
       --paper-toggle-button-checked-ink-color:	#1d1d1d;
     }
     paper-tabs#labelsTabs {
-      margin-right: 20px;
+      margin-left: 4em;
       height: 62%;
       align-self: flex-end;
     }
@@ -179,8 +179,8 @@
         padding: 0em 2em;
       };
       --paper-tab-content-unselected: {
+        background: rgba(255,255,255,0.1);
         font-family: Thin;
-        background: none;
         border-radius: 12px 12px 0px 0px;
       };
     }
@@ -240,7 +240,7 @@
       height: 44px;
       top: 10px;
       bottom: auto;
-      left: 86px;
+      left: 84px;
       z-index: 10;
       width: 130px;
     }
@@ -415,7 +415,7 @@
         <section main id="mainContent">
 
           <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="labelItem" index-as="labelindex">
-            <template is="dom-if" if="{{isSelectedLabel(labelindex,selectedLabelId)}}" restamp>
+            <template is="dom-if" if="{{isSelectedLabel(labelindex,selectedLabelId)}}">
               <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupItems" sort="sortGroup" delay="300">
                 <post-card class="group" headline="{{groupItems.name}}" without-window="{{withoutWindow}}" dark$="[[dark]]">
 
@@ -531,6 +531,17 @@
           type: Boolean,
           value: false,
           reflectToAttribute: true
+        }
+      },
+
+      _labelsChanged: function(changerecord) {
+        if(changerecord.path == 'labels.length') {
+            if (changerecord.value <= 1) {
+              this.toggleAttribute('hidden',true,this.$.labelsTabs);
+            }
+            else {
+              this.toggleAttribute('hidden',false,this.$.labelsTabs);
+            }
         }
       },
 

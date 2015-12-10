@@ -116,8 +116,6 @@
       },
 
       ready: function(){
-        this.socket = io.connect('https://'+window.location.host+this.socketname, {secure: true});
-        this.set("status.time.lastStatus",new Date()); this.set("status.message", "connecting to "+window.location.host);
         var self = this;
         this.async(function(){
           self.connect(self);
@@ -125,6 +123,8 @@
       },
 
       connect: function() {
+        this.socket = io.connect('https://'+window.location.host+this.socketname, {secure: true});
+        this.set("status.time.lastStatus",new Date()); this.set("status.message", "connecting to "+window.location.host);
         var self = this;
         // Config
         this.socket.on('connect', function() {

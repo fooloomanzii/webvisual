@@ -24,11 +24,18 @@
       }
     },
 
+    observers: [
+      '_labelsChanged(labels.*)'
+    ],
+
     _getLabelIndex: function(labelName) {
       if(this.labels.indexOf(labelName) !== -1)
         return check;
       else
         return undefined;
+    },
+
+    _labelsChanged: function(changerecord) {
     }
   };
 
