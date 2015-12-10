@@ -17,22 +17,15 @@
         type: Array,
         value: function() { return []; }
       },
-      fileIds: {
+      labels: {
         type: Array,
         value: function() { return []; },
         notify: true
       }
     },
 
-    _getFileIndex: function(fileName) {
-      if(this.fileIds.indexOf(fileName) !== -1)
-        return check;
-      else
-        return undefined;
-    },
-
-    _getElement: function(fileName) {
-      if(this.fileIds.indexOf(fileName) !== -1)
+    _getLabelIndex: function(labelName) {
+      if(this.labels.indexOf(labelName) !== -1)
         return check;
       else
         return undefined;

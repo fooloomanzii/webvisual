@@ -97,7 +97,7 @@ function connect(config, server, err) {
 
         var message = [
           {
-            name : "f1.txt",
+            label : "f1.txt",
             content : data,
             time : new Date(), // current message time
             groupingKeys : config.locals.groupingKeys,
@@ -106,7 +106,7 @@ function connect(config, server, err) {
             unnamedType : dataConf.unnamedType
           },
           {
-            name : "f2.txt",
+            label : "f2.txt",
             content : data,
             time : new Date(), // current message time
             groupingKeys : config.locals.groupingKeys,
@@ -147,7 +147,7 @@ function connect(config, server, err) {
                              return;
                            }
                            var message = {
-                             name : "f" + Math.floor((Math.random() * 2) + 1) +
+                             label : "f" + Math.floor((Math.random() * 2) + 1) +
                                         ".txt",
                              content : data,
                              time : new Date(), // current message time

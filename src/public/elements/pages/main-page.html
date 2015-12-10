@@ -154,6 +154,36 @@
       --paper-toggle-button-checked-button-color:	#1d1d1d;
       --paper-toggle-button-checked-ink-color:	#1d1d1d;
     }
+    paper-tabs#labelsTabs {
+      margin-right: 20px;
+      height: 62%;
+      align-self: flex-end;
+    }
+    paper-tab.label:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    paper-tab.label {
+      --paper-tab-ink: rgba(255,255,255,0.30);
+
+      --paper-tab:	{
+        padding: 0px;
+        align-self: flex-end;
+        height: 68%;
+        border-radius: 12px 12px 0px 0px;
+      };
+
+      --paper-tab-content:	{
+        font-family: Light;
+        background: rgba(255,255,255,0.30);
+        border-radius: 8px 8px 0px 0px;
+        padding: 0em 2em;
+      };
+      --paper-tab-content-unselected: {
+        font-family: Thin;
+        background: none;
+        border-radius: 12px 12px 0px 0px;
+      };
+    }
     #kind {
       font-family: Bold;
       font-size: 1em;
@@ -221,9 +251,9 @@
     <logo-element id="logo"></logo-element>
     <main-toolbar id="toolbar" class="paper-header" on-deselect="deselectElement">
       <paper-icon-button icon="menu" class="menu-icon" on-click="togglePanel"></paper-icon-button>
-      <paper-tabs id="files" class="header" selected="{{selectedFileId}}">
-        <template is="dom-repeat" items="{{fileIds}}">
-          <paper-tab>{{item}}</paper-tab>
+      <paper-tabs id="labelsTabs" class="header" selected="{{selectedLabelId}}" no-bar>
+        <template is="dom-repeat" items="{{labels}}">
+          <paper-tab class="label">{{item}}</paper-tab>
         </template>
       </paper-tabs>
 
@@ -236,7 +266,7 @@
         <span id="method">{{selectedElement.method}}</span>
         <span id="room">{{selectedElement.room}}</span>
         <span id="roomNr">{{selectedElement.roomNr}}</span>
-        <span id="roomNr">{{selectedElement.filename}}</span>
+        <span id="roomNr">{{selectedElement.labelname}}</span>
       </section>
 
       <table-element id="selectedElementTable" class="selectedElement noncard" element="{{selectedElement}}"></table-element>
@@ -384,12 +414,12 @@
       <section main id="mainPanel">
         <section main id="mainContent">
 
-          <template id="filetemplate" is="dom-repeat" items="{{data}}" as="fileItem" index-as="fileindex">
-            <template is="dom-if" if="{{isSelectedFile(fileindex,selectedFileId)}}" restamp>
+          <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="labelItem" index-as="labelindex">
+            <template is="dom-if" if="{{isSelectedLabel(labelindex,selectedLabelId)}}" restamp>
               <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupItems" sort="sortGroup" delay="300">
                 <post-card class="group" headline="{{groupItems.name}}" without-window="{{withoutWindow}}" dark$="[[dark]]">
 
-                  <template is="dom-repeat" items="{{fileItem}}" as="element">
+                  <template is="dom-repeat" items="{{labelItem}}" as="element">
                     <template is="dom-if" if="{{groupElements(element,groupItems)}}" restamp>
                       <section class="card" on-click="setSelectedElement" dark$="[[dark]]">
 
@@ -399,7 +429,7 @@
                             <span id="method">{{element.method}}</span>
                             <span id="room">{{element.room}}</span>
                             <span id="roomNr">{{element.roomNr}}</span>
-                            <span id="roomNr">{{element.filename}}</span>
+                            <span id="roomNr">{{element.labelname}}</span>
                           </section>
 
                       </section>
@@ -504,8 +534,8 @@
         }
       },
 
-      isSelectedFile: function(fileid, selectedFileId) {
-        return (fileid == selectedFileId);
+      isSelectedLabel: function(labelid, selectedLabelId) {
+        return (labelid == selectedLabelId);
       },
 
       setSelectedElement: function(e) {
@@ -518,10 +548,10 @@
             this.unlinkPaths('selectedElement');
             this.selectedElement = null;
 
-            var icol  = Polymer.Collection.get(this.data[this.selectedFileId]);
+            var icol  = Polymer.Collection.get(this.data[this.selectedLabelId]);
             var key = icol.getKey(item);
             this.selectedElement = item;
-            this.linkPaths('selectedElement', 'data.#'+ this.selectedFileId + "." + key);
+            this.linkPaths('selectedElement', 'data.#'+ this.selectedLabelId + "." + key);
             this.notifyPath('selectedElement.values', this.selectedElement.values);
             if (!this.$.toolbar.opened){
               this.$.toolbar.toggleAttribute('opened',true);

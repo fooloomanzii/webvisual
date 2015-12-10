@@ -16,7 +16,7 @@
         value: function() { return []; },
         notify: true
       },
-      selectedFileId: {
+      selectedLabelId: {
         type: Number,
         value: 0,
         notify: true
@@ -51,9 +51,9 @@
     setSelectedElement: function(e) {
     },
     setSelectedGroup: function(){
-      if(this.groups && this.groupBy && this.groups[this.selectedFileId] && this.groupBy in this.groups[this.selectedFileId]){
-        this.set("selectedGroup", this.groups[this.selectedFileId][this.groupBy]);
-        this.linkPaths("selectedGroup", "groups." + this.selectedFileId + "." + this.groupBy);
+      if(this.groups && this.groupBy && this.groups[this.selectedLabelId] && this.groupBy in this.groups[this.selectedLabelId]){
+        this.set("selectedGroup", this.groups[this.selectedLabelId][this.groupBy]);
+        this.linkPaths("selectedGroup", "groups." + this.selectedLabelId + "." + this.groupBy);
       }
     },
     sortGroup: function(first,next){
