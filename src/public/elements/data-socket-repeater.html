@@ -70,7 +70,7 @@
             type: Array,
             value: function() { return []; }
           },
-          unnamedType: {
+          unnamedTypes: {
             type: Array,
             value: function() { return []; }
           },
@@ -138,8 +138,8 @@
         });
         // Receiving the FIRST Data
         this.socket.on('first', function(message) {
-          self._onFirstData(message);
           console.info("client has established connection to: "+window.location.host);
+          self._onFirstData(message);
         });
         // Receive FURTHER Data
         this.socket.on('data', function(message) {
@@ -183,6 +183,7 @@
         this.set('labels',[]);
         this.set('groups',[]);
         this.set('types',[]);
+        this.set('unnamedTypes',[]);
       },
 
       _onFirstData: function(message) {
@@ -205,11 +206,11 @@
             console.error("data not sent in proper format. --> missing name for the content");
             return;
           }
-          if (labelIndex) {
+          if (labelIndex != undefined) {
             this._setKeys(labelIndex, message[mesId].groupingKeys);
             this._setKeysForUsage(labelIndex, message[mesId].unnamedType);
             this.push("types", message[mesId].types);
-            this.push("unnamedType", message[mesId].unnamedType);
+            this.push("unnamedTypes", message[mesId].unnamedType);
             this.push("exclusiveGroups", message[mesId].exclusiveGroups);
             for (var i in message[mesId].content) {
               this._setValues(labelIndex, message[mesId].content[i], this._getIndex(labelIndex, message[mesId].content[i].id));
@@ -310,10 +311,10 @@
           this.push("keys." + labelIndex, "all");
       },
 
-      _setKeysForUsage: function(labelIndex, unnamedType) {
+      _setKeysForUsage: function(labelIndex, unnamedTypes) {
         while (labelIndex >= this.keysForUsage.length)
           this.push("keysForUsage", []);
-        var keysToHave = _.keys(unnamedType);
+        var keysToHave = _.keys(unnamedTypes);
         for (var i=0; i < keysToHave.length; i++)
           if (this.keysForUsage[labelIndex].indexOf(keysToHave[i]) == -1)
             this.push("keysForUsage." + labelIndex, keysToHave[i]);
@@ -356,7 +357,7 @@
             if(this.types[labelIndex] && this.types[labelIndex][i] && this.types[labelIndex][i][key])
               this.set("data." + labelIndex + "." + i + "." + key, this.types[labelIndex][i][key]);
             else
-              this.set("data." + labelIndex + "." + i + "." + key, this.unnamedType[labelIndex][key]);
+              this.set("data." + labelIndex + "." + i + "." + key, this.unnamedTypes[labelIndex][key]);
           }
         }
       },

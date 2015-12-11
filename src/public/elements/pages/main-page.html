@@ -159,30 +159,35 @@
       height: 62%;
       align-self: flex-end;
     }
-    paper-tab.label:hover {
-      background: rgba(255,255,255,0.1);
+    paper-tab.paper-tab-0:hover {
+      background: rgba(255,255,255,0.4);
     }
     paper-tab.label {
       --paper-tab-ink: rgba(255,255,255,0.30);
 
       --paper-tab:	{
-        padding: 0px;
         align-self: flex-end;
         height: 68%;
-        border-radius: 12px 12px 0px 0px;
+        padding: 0em 2em;
       };
 
       --paper-tab-content:	{
         font-family: Light;
-        background: rgba(255,255,255,0.30);
-        border-radius: 8px 8px 0px 0px;
-        padding: 0em 2em;
       };
       --paper-tab-content-unselected: {
-        background: rgba(255,255,255,0.1);
         font-family: Thin;
-        border-radius: 12px 12px 0px 0px;
       };
+    }
+    paper-tab.paper-tab-0.iron-selected {
+      background: rgba(255,255,255,0.3);
+      border-radius: 8px 8px 0px 0px;
+    }
+    paper-tab.paper-tab-0:not(.iron-selected) {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px 12px 0px 0px;
+    }
+    paper-tab.paper-tab-0:hover {
+      background: rgba(255,255,255,0.4);
     }
     #kind {
       font-family: Bold;
