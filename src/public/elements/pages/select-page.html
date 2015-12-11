@@ -1,0 +1,151 @@
+<!-- Custom-Style-Element -->
+<link rel="import" href="../../components/iron-selector/iron-selector.html">
+<link rel="import" href="../../components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../../components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../components/paper-item/paper-item.html">
+<link rel="import" href="../../components/paper-input/paper-input.html">
+<link rel="import" href="../../components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../components/paper-button/paper-button.html">
+<link rel="import" href="../../components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../../components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../../components/paper-slider/paper-slider.html">
+<link rel="import" href="../../components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../css/app-theme.html">
+
+<link rel="import" href="../main-toolbar.html"/
+<link rel="import" href="../logo-element.html"/>
+<link rel="import" href="../sign-element.html"/>
+<link rel="import" href="../table-element.html"/>
+<link rel="import" href="../post-card.html"/>
+
+<link rel="import" href="../line-chart.html"/>
+<link rel="import" href="../../components/leaflet-map/leaflet-map.html">
+
+<dom-module id="select-page">
+  <style>
+    :host {
+      height: 100%;
+      width: 100%;
+      position: fixed;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background:#BBBBBB;
+      color: #1f1f1f;
+      font-family: Regular;
+    }
+    paper-dialog#labelSelection {
+      position: relative !important;
+      top: 0;
+      left: 0;
+    }
+    section.dialog-title {
+      font-family: Light;
+      font-size: 2.5em;
+      padding: 0.25em 0.75em;
+    }
+
+    section.dialog-section {
+      font-family: Regular;
+      font-size: 1.25em;
+      padding: 1.25em 2em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    section.list {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+    paper-radio-group{
+    }
+    paper-radio-button  {
+      padding: 0em;
+      padding-top: 1em;
+    }
+    paper-button {
+      font-family: Light;
+      font-size: 1.25em;
+      padding: 0.75em;
+    }
+
+  </style>
+
+  <template>
+
+      <paper-dialog id="labelSelection" entry-animation="scale-up-animation" exit-animation="slide-right-animation" no-cancel-on-outside-click no-cancel-on-esc-key>
+        <section class="dialog-title">Auswahl des Messraums</section>
+        <section class="dialog-section">
+          <section class="list">
+            verfügbar sind:
+            <iron-selector selected-values="{{labels}}" attr-for-selected="label" multi>
+              <template is="dom-repeat" items="{{availableLabels}}">
+                <paper-radio-button label="{{item}}">{{item}}</paper-radio-button>
+              </template>
+            </iron-selector>
+          </section>
+        </section>
+        <div class="buttons">
+          <paper-button dialog-confirm on-click="_onSelected"><iron-icon icon="juelich:logo"></iron-icon>Verbinden</paper-button>
+        </div>
+      </paper-dialog>
+
+  </template>
+
+  <script>
+
+  Polymer({
+      is: 'select-page',
+
+      behaviors: [Polymer.NeonAnimatableBehavior],
+
+      properties: {
+        availableLabels: {
+          type: Array,
+          value: function() { return []; },
+          notify: true
+        },
+        labels: {
+          type: Array,
+          value: function() { [] },
+          notify: true
+        },
+        sharedElements: {
+          value: function() {
+            return {
+            }
+          }
+        },
+        animationConfig: {
+          value: function() {
+            return {
+              'entry': [
+                {animatable: this.$.labelSelection},
+              ],
+              'exit': [
+                {animatable: this.$.labelSelection},
+              ]
+            }
+          }
+        }
+      },
+
+      attached: function(){
+        this.$.labelSelection.open();
+      },
+
+      _onSelected: function() {
+        this.fire("configset");
+      }
+    });
+  </script>
+
+</dom-module>

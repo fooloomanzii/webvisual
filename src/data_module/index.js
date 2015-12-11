@@ -89,12 +89,17 @@ function connect(config, server, err) {
   // Handle connections of new clients
   dataSocket.on('connection', function(socket) {
 
-    socket.on('clientConfig', function(patterns) {
-      var current_client = new Client(socket, patterns);
+    // An Alex: das ist neu und wird anders eingelesen werden
+    var message = {};
+    message.labels = [ "HNF-GDS", "test" ];
+    socket.emit('clientConfig', message);
+    socket.on('clientConfig', function(localClientSettings) {
+      var current_client = new Client(socket, localClientSettings);
       dbcontroller.getData(current_client.firstPattern, function(err, data) {
         if (err)
           console.warn(err.stack);
-
+        // An Alex: das ist anders. Muss angepasst werden an das was der Client
+        // über
         var message = [
           {
             label : "HNF-GDS",
@@ -155,9 +160,11 @@ function connect(config, server, err) {
                              // empty data
                              return;
                            }
+                           // An Alex: das ist anders
                            var message = {
-                             label : "f" + Math.floor((Math.random() * 3) + 1) +
-                                         ".txt",
+                             label : (Math.floor((Math.random() * 2) + 1) == 1)
+                                         ? "HNF-GDS"
+                                         : "test",
                              content : data,
                              time : new Date(), // current message time
                            };

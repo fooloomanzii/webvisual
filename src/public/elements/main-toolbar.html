@@ -6,7 +6,6 @@
       position: relative;
       overflow: hidden !important;
       font-family: Regular;
-      font-weight: normal;
       cursor: pointer;
       -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
       -webkit-touch-callout: none;
@@ -35,8 +34,7 @@
     }
     section#header {
       height: 64px;
-      width: calc(100% - 48px);
-      padding: 0px 24px;
+      width: 100%;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -61,12 +59,12 @@
     section#mainContent[dark] ::content .incard, section#mainContent[dark] ::content .noncard {
       border-right: thin solid #606060;
     }
-    section#header ::content paper-icon-button {
-      margin-left: 12px;
+    section#header ::content paper-icon-button.toggle-icon {
+      margin-right: 20px;
     }
     section#header ::content paper-icon-button.menu-icon {
-      margin-right: 20px;
-      margin-left: 0px;
+      margin-right: 24px;
+      margin-left: 20px;
     }
     section#header ::content paper-icon-button:hover {
       background: #669DB4;
@@ -76,11 +74,21 @@
                   0 1px 5px 0 rgba(0, 0, 0, 0.12),
                   0 3px 1px -2px rgba(0, 0, 0, 0.2);
     }
-
-    /*TODO: richtiges Platzieren ohne Schrinken */
+    paper-icon-button.expand-icon {
+      display: inline-block;
+      margin-right: 12px;
+    }
     section#header div.logo-element-placeholder {
       height: 44px;
-      width: 130px;
+      max-width: 140px;
+      min-width: 95px;
+      flex: 1;
+    }
+    section#control {
+      position: fixed;
+      top: 12px;
+      right: 0;
+      display: flex;
     }
     section#lower ::content leaflet-map {
       min-width: 10em;
@@ -130,6 +138,9 @@
         display: flex;
         flex-direction: column;
       }
+      paper-icon-button.expand-icon {
+        display: none;
+      }
       section#lower ::content .incard {
         flex: 1;
       }
@@ -152,6 +163,9 @@
     @media all and (max-height: 690px) and (max-width: 610px){
       section#lower[expanded] ::content .noncard {
         height: calc(48vh - 64px - 1em);
+      }
+      paper-icon-button.expand-icon {
+        display: none;
       }
       section#lower ::content .noncard {
         height: calc(48vh - 64px - 1em);
@@ -211,8 +225,8 @@
         <content select=".menu-icon"></content>
         <div class="logo-element-placeholder"></div>
         <content select=".header"></content>
-        <div class="flex"></div>
-        <section hidden$="{{!opened}}">
+
+        <section id="control" hidden$="{{!opened}}">
           <paper-icon-button icon="{{_computeExpandIcon(expanded)}}" class="expand-icon" on-click="_expandView"></paper-icon-button>
           <content select=".toggle-icon"></content>
         </section>

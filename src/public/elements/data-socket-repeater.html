@@ -28,26 +28,26 @@
                           },
                           "limit": 0
                         },
-                        "labels": [
-                          "HNF-GDS",
-                          "test"
-                        ]};
+                        "labels": []};
               },
             notify: true
           },
           data: {
             type: Array,
             value: function() { return []; },
-            notify: true,
-            readOnly: true
+            notify: true
           },
           ids: {
             type: Array,
             value: function() { return []; },
-            notify: true,
-            readOnly: true
+            notify: true
           },
           labels: {
+            type: Array,
+            value: function() { return []; },
+            notify: true
+          },
+          availableLabels: {
             type: Array,
             value: function() { return []; },
             notify: true
@@ -119,23 +119,22 @@
       },
 
       ready: function(){
+        this.socket = io.connect('https://'+window.location.host+this.socketname, {secure: true});
+        this.set("status.time.lastStatus",new Date()); this.set("status.message", "connecting to "+window.location.host);
         var self = this;
-        this.async(function(){
-          self.connect(self);
+        this.socket.on('clientConfig', function(message) {
+          self.set("availableLabels", message.labels);
         });
       },
 
       connect: function() {
-        this.socket = io.connect('https://'+window.location.host+this.socketname, {secure: true});
-        this.set("status.time.lastStatus",new Date()); this.set("status.message", "connecting to "+window.location.host);
+        // send Config
+        this.set("status.time.lastStatus",new Date()); this.set("status.message", "configuring connection");
+        this.set("config.firstPattern.time.from",new Date()-3600000)
+        this.set("config.labels",this.labels)
+        this.socket.emit('clientConfig', this.config);
+
         var self = this;
-        // Config
-        this.socket.on('connect', function() {
-          self.set("status.time.lastStatus",new Date()); self.set("status.message", "configuring connection");
-          self.set("config.firstPattern.time.from",new Date()-3600000)
-          self.socket.emit('clientConfig', self.config);
-          self.set("labels", self.config.labels);
-        });
         // Receiving the FIRST Data
         this.socket.on('first', function(message) {
           console.info("client has established connection to: "+window.location.host);
@@ -166,7 +165,13 @@
       },
 
       reconnect: function() {
-        this.disconnect();
+        this.socket.disconnect();
+        this.socket = io.connect('https://'+window.location.host+this.socketname, {secure: true});
+        this.set("status.time.lastStatus",new Date()); this.set("status.message", "connecting to "+window.location.host);
+        var self = this;
+        this.socket.on('clientConfig', function(message) {
+          self.set("availableLabels", message.labels);
+        });
         this.connect();
       },
 
@@ -239,7 +244,7 @@
                 console.warn("data not sent in proper format. --> missing name for the content");
                 return;
               }
-              if (labelIndex) {
+              if (labelIndex != undefined) {
                 if (this.data[labelIndex].length < message[mesId].content.length) // re-group if necessary
                   needToGroup = true;
                 for (var i in message[mesId].content) { // for all messurement-data-alements existing
@@ -257,7 +262,7 @@
               console.warn("data not sent in proper format. --> missing name for the content");
               return;
             }
-            if (labelIndex) {
+            if (labelIndex != undefined) {
               if (this.data[labelIndex].length < message.content.length) // re-group if necessary
                 needToGroup = true;
               for (var i in message.content) { // for all messurement-data-alements existing
