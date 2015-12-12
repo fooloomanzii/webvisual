@@ -132,6 +132,7 @@
       height: 62%;
       align-self: flex-end;
       flex: 2;
+      z-index: 100000;
     }
     paper-tab.paper-tab-0:hover {
       background: rgba(255,255,255,0.4);
@@ -222,6 +223,9 @@
       left: 84px;
       z-index: 10;
       width: 140px;
+    }
+    paper-icon-button#menu {
+      z-index: 30000;
     }
   </style>
 
@@ -333,21 +337,6 @@
               </section>
             </iron-collapse>
 
-          <paper-button collapse-id="pageview" class="sidemenu collapsable" on-tap="toggleCollapse">
-            <iron-icon icon="pageview"></iron-icon>
-            <span class="flex">Ansicht</span>
-            <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="pageview"></iron-icon>
-          </paper-button>
-            <iron-collapse class="sidemenu collapse pageview">
-              <section class="indention collapse-content">
-                <iron-selector selected="0">
-                  <paper-button class="sidemenu"><iron-icon icon="view-module"></iron-icon>Übersicht</paper-button>
-                  <paper-button class="sidemenu"><iron-icon icon="view-list"></iron-icon>Tabelle</paper-button>
-                  <paper-button class="sidemenu"><iron-icon icon="assessment"></iron-icon>Graphen</paper-button>
-                </iron-selector>
-              </section>
-            </iron-collapse>
-
           <paper-button dialog-id="log" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
             <iron-icon icon="history"></iron-icon>
             <span class="flex">Log</span>
@@ -383,10 +372,11 @@
               </section>
             </iron-collapse>
 
-          <!-- <paper-button class="sidemenu" dialog-id="Login" dialog-class="mainmenu" on-tap="openDialog">
-            <iron-icon icon="social:person-outline"></iron-icon>
-            <span class="flex">Login</span>
-          </paper-button> -->
+          <paper-button class="sidemenu" on-tap="backToMainMenu">
+            <iron-icon icon="arrow-back"></iron-icon>
+            <span class="flex">Auswahl</span>
+          </paper-button>
+
       </section>
 
       <!-- MAIN VIEW -->
@@ -468,7 +458,8 @@
         sharedElements: {
           value: function() {
             return {
-              'herologo': this.$.logo
+              'herologo2': this.$.logo,
+              'herobackground2': this.$.toolbar
             }
           }
         },
@@ -478,8 +469,19 @@
               'entry': [
                 {
                   name: 'hero-animation',
-                  id: 'herologo',
+                  id: 'herologo2',
                   toPage: this,
+                },
+                {
+                  name: 'ripple-animation',
+                  id: 'herobackground2',
+                  toPage: this,
+                }
+              ],
+              'exit': [
+                {
+                  name: 'slide-right-animation',
+                  node: this
                 }
               ]
             }
@@ -595,6 +597,11 @@
               iconbutton.setAttribute('icon','arrow-drop-down');
           }
         }
+      },
+
+      backToMainMenu: function() {
+        this.togglePanel();
+        this.fire("restart");
       },
 
       openDialog: function(e){

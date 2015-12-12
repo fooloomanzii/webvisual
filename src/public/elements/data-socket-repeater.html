@@ -214,9 +214,9 @@
           if (labelIndex != undefined) {
             this._setKeys(labelIndex, message[mesId].groupingKeys);
             this._setKeysForUsage(labelIndex, message[mesId].unnamedType);
-            this.push("types", message[mesId].types);
-            this.push("unnamedTypes", message[mesId].unnamedType);
-            this.push("exclusiveGroups", message[mesId].exclusiveGroups);
+            this._setTypes(labelIndex, message[mesId].types);
+            this._setUnnamedTypes(labelIndex, message[mesId].unnamedType);
+            this._setExclusiveGroupsTypes(labelIndex, message[mesId].exclusiveGroups);
             for (var i in message[mesId].content) {
               this._setValues(labelIndex, message[mesId].content[i], this._getIndex(labelIndex, message[mesId].content[i].id));
             }
@@ -323,6 +323,24 @@
         for (var i=0; i < keysToHave.length; i++)
           if (this.keysForUsage[labelIndex].indexOf(keysToHave[i]) == -1)
             this.push("keysForUsage." + labelIndex, keysToHave[i]);
+      },
+
+      _setTypes: function(labelIndex, types) {
+        while (labelIndex >= this.types.length)
+          this.push("types", []);
+        this.set("types."+labelIndex, types);
+      },
+
+      _setUnnamedTypes: function(labelIndex, unnamedTypes) {
+        while (labelIndex >= this.unnamedTypes.length)
+          this.push("unnamedTypes", []);
+        this.set("unnamedTypes."+labelIndex, unnamedTypes);
+      },
+
+      _setExclusiveGroupsTypes: function(labelIndex, exclusiveGroups) {
+        while (labelIndex >= this.exclusiveGroups.length)
+          this.push("exclusiveGroups", {});
+        this.set("exclusiveGroups."+labelIndex, exclusiveGroups);
       },
 
       _setValues: function(labelIndex, messageContent, i) {

@@ -3,17 +3,23 @@
 
 <dom-module id="loading-page">
   <style>
+    :host {
+      color: white;
+    }
+    :host[dark] {
+      color: #A8CCDB;
+    }
     section#mainContent {
       height: 100%;
       width: 100%;
       position: fixed;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      background:#669DB4;
-      color: white;
+      background: #669DB4;
+      z-index: 8;
     }
-    @media all and (min-width: 0px) and (max-width: 950px) , all and (orientation: portrait) {
+    section#mainContent[dark] {
+      background: #345475;
+    }
+    /*@media all and (min-width: 0px) and (max-width: 950px) , all and (orientation: portrait) {
       logo-element {
         height: 20vw !important;
         width: 62vw !important;
@@ -21,15 +27,20 @@
       section#messageBox {
         width: 61vw !important;
       }
-    }
+    }*/
     logo-element {
+      top: calc(50% - 14vh);
+      left: calc(50% - 18vw);
+      position: fixed;
       align-self: center;
       height: 14vw;
       width: 38vw;
-      padding-bottom: 4vh;
+      z-index: 10;
     }
     section#messageBox {
-      align-self: center;
+      top: calc(50% + 14vh);
+      left: calc(50% - 18vw);
+      position: fixed;
       align-items: center;
       display: flex;
       justify-content: space-around;
@@ -38,18 +49,22 @@
       font-family: Thin;
       font-size: 1em;
       padding-left: 10vw;
-      padding-bottom: 4vh;
+      z-index: 9;
     }
     circle-element {
+      top: calc(100% - 25vh);
+      left: calc(50% - 80px);
+      position: fixed;
       padding-left: 10vw;
+      z-index: 9;
     }
   </style>
 
   <template>
+    <logo-element id="logo"></logo-element>
+    <section id="messageBox">{{status.message}}</section>
+    <circle-element id="circle"></circle-element>
     <section id="mainContent">
-      <logo-element id="logo"></logo-element>
-      <section id="messageBox">{{status.message}}</section>
-      <circle-element id="circle"></circle-element>
     </section>
   </template>
 
@@ -75,7 +90,10 @@
         sharedElements: {
           value: function() {
             return {
-              'herologo': this.$.logo
+              'herologo1': this.$.logo,
+              'herologo2': this.$.logo.$.logo,
+              'herobackground':  this.$.mainContent,
+              'herobackground2':  this.$.mainContent
             }
           }
         },
@@ -83,18 +101,28 @@
           value: function() {
             return {
               'entry': [
-                {animatable: this.$.logo,   type: 'loading'},
+                {
+                  name: 'ripple-animation',
+                  id: 'herobackground',
+                  toPage: this
+                },
+                {
+                  name: 'hero-animation',
+                  id: 'herologo1',
+                  toPage: this
+                },
                 {animatable: this.$.circle, type: 'loading'}
               ],
               'exit': [
                 {
                   name: 'hero-animation',
-                  id: 'herologo',
+                  id: 'herologo2',
                   fromPage: this
                 },
                 {
-                  name: 'fade-out-animation',
-                  node: this
+                  name: 'ripple-animation',
+                  id: 'herobackground2',
+                  fromPage: this
                 }
               ]
             }
