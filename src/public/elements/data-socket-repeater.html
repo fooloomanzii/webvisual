@@ -217,8 +217,11 @@
             this._setTypes(labelIndex, message[mesId].types);
             this._setUnnamedTypes(labelIndex, message[mesId].unnamedType);
             this._setExclusiveGroupsTypes(labelIndex, message[mesId].exclusiveGroups);
-            for (var i in message[mesId].content) {
-              this._setValues(labelIndex, message[mesId].content[i], this._getIndex(labelIndex, message[mesId].content[i].id));
+            this._setIds(labelIndex);
+            for (var i = 0; i < message[mesId].content.length; i++) {
+              var id = this._getIndex(labelIndex, message[mesId].content[i].id);
+              this._initDataPoint(labelIndex, id);
+              this._setValues(labelIndex, message[mesId].content[i], id);
             }
           }
         }
@@ -277,20 +280,17 @@
       },
 
       _getIndex: function(labelIndex, id) {
-        while (labelIndex >= this.ids.length)
-          this.push("ids", []);
         var check = this.ids[labelIndex].indexOf(id);
         if(check !== -1)
           return check;
-        else
-          return this._setId(labelIndex, id);
       },
 
-      _setId: function(labelIndex, id) {
-        // add a data point to the the end of the data array
-        this._initDataPoint(labelIndex, this.ids[labelIndex].length);
-        // add an entry ids array
-        return (this.push("ids." + labelIndex, id) - 1);
+      _setIds: function(labelIndex) {
+        while (labelIndex >= this.ids.length)
+          this.push("ids", []);
+        for (var i=0; i<this.types[labelIndex].length; i++) {
+          this.push("ids." + labelIndex, this.types[labelIndex][i].id);
+        }
       },
 
       _getLabelIndex: function(labelName) {

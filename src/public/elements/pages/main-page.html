@@ -221,6 +221,8 @@
     paper-dialog#exceedsDialog {
       margin: 2em;
       position: fixed;
+      z-index: 100 !important;
+      min-width: 18em;
       /*width: calc(100% - 4em);
       height: calc(100% - 4em);*/
       display: flex;
@@ -232,9 +234,9 @@
       color: white;
     }
     paper-dialog#exceedsDialog h2[dark] {
-      background: rgba(175, 7, 21, 0.9);
+      background: rgba(191, 7, 22, 0.9);
       border-bottom: thin solid rgba(80, 80, 80, 0.5);
-      color: rgba(#f1f1f1, 0.9);
+      color: #f1f1f1;
     }
     paper-dialog#exceedsDialog section.scrollable {
       flex-direction: row;
@@ -242,7 +244,7 @@
       flex-wrap: wrap;
       height: 100%;
       margin: 0em;
-      justify-content: flex-start;
+      justify-content: center;
       padding: 1em 0.5em 0em 1em;
       overflow: auto;
     }
@@ -266,7 +268,7 @@
     <logo-element id="logo"></logo-element>
     <main-toolbar id="toolbar" class="paper-header" on-deselect="deselectElement">
       <paper-icon-button icon="menu" class="menu-icon" on-click="togglePanel"></paper-icon-button>
-      <paper-icon-button icon="error-outline" class="error control" on-tap="openExceedsDialog" hidden$="{{!isExceeding}}"></paper-icon-button>
+      <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsDialog" hidden$="{{!isExceeding}}"></paper-icon-button>
       <paper-icon-button icon="remove" class="toggle-icon control" on-click="deselectElement"></paper-icon-button>
       <paper-tabs id="labelsTabs" class="header" selected="{{selectedLabelId}}" no-bar scrollable hide-scroll-buttons>
         <template is="dom-repeat" items="{{labels}}">
@@ -412,7 +414,33 @@
 
       <!-- MAIN VIEW -->
       <section main id="mainPanel">
+
+        <paper-dialog id="exceedsDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" no-cancel-on-outside-click>
+          <h2 class="dialog-title">Alarm</paper-icon-button></h2>
+          <section class="scrollable">
+            <template is="dom-repeat" items="{{exceedingElements}}" as="element">
+              <section class="card" on-click="setSelectedElement" dark$="[[dark]]">
+                <sign-element element="{{element}}" dark$="[[dark]]"></sign-element>
+                <section class="caption" id="{{element.id}}" dark$="[[dark]]">
+                  <span id="kind">{{element.kind}}</span>
+                  <span id="method">{{element.method}}</span>
+                  <span id="room">{{element.room}}</span>
+                  <span id="roomNr">{{element.roomNr}}</span>
+                  <span id="roomNr">{{element.labelname}}</span>
+                </section>
+              </section>
+            </template>
+          </section>
+          <div class="buttons">
+            <!-- <paper-button disabled><iron-icon icon="mail"></iron-icon>Send</paper-button>
+            <paper-button disabled><iron-icon icon="print"></iron-icon>Print</paper-button> -->
+            <paper-button dialog-dismiss><iron-icon icon="close"></iron-icon>schließen</paper-button>
+          </div>
+        </paper-dialog>
         <section main id="mainContent">
+
+
+
 
           <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="labelItem" index-as="labelindex">
             <template is="dom-if" if="{{isSelectedLabel(labelindex,selectedLabelId)}}">
@@ -446,29 +474,6 @@
     </paper-drawer-panel>
 
   <!-- Dialogs -->
-
-    <paper-dialog id="exceedsDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-      <h2 class="dialog-title">Alarm</paper-icon-button></h2>
-      <section class="scrollable">
-        <template is="dom-repeat" items="{{exceedingElements}}" as="element">
-          <section class="card" on-click="setSelectedElement" dark$="[[dark]]">
-            <sign-element element="{{element}}" dark$="[[dark]]"></sign-element>
-            <section class="caption" id="{{element.id}}" dark$="[[dark]]">
-              <span id="kind">{{element.kind}}</span>
-              <span id="method">{{element.method}}</span>
-              <span id="room">{{element.room}}</span>
-              <span id="roomNr">{{element.roomNr}}</span>
-              <span id="roomNr">{{element.labelname}}</span>
-            </section>
-          </section>
-        </template>
-      </section>
-      <div class="buttons">
-        <!-- <paper-button disabled><iron-icon icon="mail"></iron-icon>Send</paper-button>
-        <paper-button disabled><iron-icon icon="print"></iron-icon>Print</paper-button> -->
-        <paper-button dialog-dismiss><iron-icon icon="close"></iron-icon>schließen</paper-button>
-      </div>
-    </paper-dialog>
 
     <!-- Log-in -->
   <!-- <paper-dialog class="mainmenu" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
@@ -679,8 +684,13 @@
       openExceedsDialog: function() {
         if(!this.$.exceedsDialog.opened) {
           this.$.exceedsDialog.fit();
-          Polymer.dom(this.root).querySelector("paper-dialog#exceedsDialog").open();
+          this.$.exceedsDialog.open();
         }
+      },
+
+      toggleExceedsDialog: function() {
+        this.$.exceedsDialog.fit();
+        this.$.exceedsDialog.toggle();
       },
 
       changeTheme: function(){
