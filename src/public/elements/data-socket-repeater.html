@@ -123,12 +123,12 @@
         });
         // Receiving the FIRST Data
         this.socket.on('first', function(message) {
-          self._onFirstData(message);
+          if(message.id==0) self._onFirstData(message);
           console.info("client has established connection to: "+window.location.host);
         });
         // Receive FURTHER Data
         this.socket.on('data', function(message) {
-          self._onData(message);
+          if(message.id==0) self._onData(message);
           // if (message.content[0].values.length !== 1)
             // console.log(message.content[0].values.length);
         });

@@ -20,10 +20,10 @@ var // EXPRESS
     // DATA-MODULE
     dataModule   = require('./data_module'),
     /* Default config */
-    defaults     = { connections    : [],
-                     port           : 3000,
-                     updateIntervall: 1000,
-                     dbName         : "test"},
+    defaults     = { connections     : [],
+                     port            : 3000,
+                     updateIntervall : 1000,
+                     dbName          : "test"},
     // Config Object
     config,
     // Logger
@@ -108,20 +108,10 @@ app.set('views', __dirname + '/views');
 // Configure CLI output on the default logger
 //
 winston.cli();
-
 //
 // Configure CLI on an instance of winston.Logger
-//
-var logger = new winston.Logger({
- transports: [
-   new (winston.transports.Console)()
- ],
- exceptionHandlers: [
-   new winston.transports.File({ filename: __dirname + config.logs.server_log })
- ]
-});
-
-logger.cli();
+// no 'exceptionHandlers', otherwise, compiler exceptions are also getting logged!
+winston.add(winston.transports.File, { filename: __dirname + config.logs.server_log });
 
 // if Error: EADDRINUSE --> log in console
 server.on('error', function (e) {
@@ -194,6 +184,8 @@ dataModule.connect(config,server);
  // TODO: make sure that the server is not closing (or is restarting) with errors
  // and pretty this part
 process.on('uncaughtException', function(err) {
+  winston.log('debug', 'Now my debug messages are written to console!');
+  console.warn(err.stack);
   try {
     server.close();
     dataModule.disconnect();
@@ -202,8 +194,7 @@ process.on('uncaughtException', function(err) {
       throw e;
   }
   
-  console.warn(err.stack);
-//try to reconnect
+  //try to reconnect
   // dataModule.connect(config,server);
 });
 
@@ -231,6 +222,8 @@ process.on('SIGINT', function(err) {
     if(err.message !== 'Not running')
       throw err;
   }
+  
+  console.warn(err.stack);
 });
 
 process.on('exit', function(err) {
@@ -241,4 +234,5 @@ process.on('exit', function(err) {
     if(err.message !== 'Not running')
       throw err;
   }
+  if(err) console.warn(err.stack);
 });

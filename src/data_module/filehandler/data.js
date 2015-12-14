@@ -273,9 +273,6 @@ dataFileHandler = (function() {
         }
       }
     };
-  
-  // private variables
-  var index;
 
   // jshint newcap: false
   // Constructor
@@ -298,15 +295,15 @@ dataFileHandler = (function() {
     this._addListener(config.listener);
     
     // Save current index
-    index = config.index;
+    this.index = (config.index==undefined) ? 0 : config.index;
   }
 
   // Extend with properties; null values are just place holder for instantiated properties
   _(_Class.prototype).extend({
-    _emitter    : null,
-    _connections: {},
-    connection: [],
-    connectionConfig: {}
+    _emitter         : null,
+    _connections     : {},
+    connection       : [],
+    connectionConfig : {}
   });
 
   /////////////////////

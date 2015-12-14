@@ -16,7 +16,7 @@ var // ASYNC <-- one callback for a lot of async operations
     fs           = require('fs'),
 
     /* Database Server + Client */
-    DBcontroller     = require('./database'),
+    dbController     = new require('./database')(),
 
     /* Class variables */
     threshold        = filehandler.threshold,    // extension: of DATAMODULE
@@ -28,10 +28,14 @@ var // ASYNC <-- one callback for a lot of async operations
     /* Current connected clients */
     clients       = {},
     // array of configurations
-    configArray   = [],
-    // array of various database controllers
-    dbControllerArray = [];
+    configArray   = [];
 
+function handleError(error, id_message){
+  if(error === undefined) return;
+  if(id_message === undefined) id_message="";
+  else id_message+=": ";
+  console.warn( error.message+": "+error.stack );
+}
 
 function connect (config, server, err) {
 
@@ -65,7 +69,7 @@ function connect (config, server, err) {
         listener: {
           error: function(type, err, index) {
               dataSocket.emit('mistake', { error: err, time: new Date() });
-              console.warn("dataSocket error:\n"+err.stack);
+              handleError(err, "dataFileHandler");
             },
           data: function(type, data, index) {
               // Process data to certain format
@@ -75,7 +79,7 @@ function connect (config, server, err) {
               dbControllerArray[index].appendData(
                   currentData.content,
                   function (err, appendedData) {
-                    if(err) console.warn(err.stack);
+                    if(err) handleError(err, "appendData "+index);
                   }
               );
             }
@@ -91,30 +95,28 @@ function connect (config, server, err) {
 
     socket.on('clientConfig', function(patterns) {
       var current_client = new Client(socket, patterns);
-      for (var i = 0; i < configArray.length; i++) {
-        dbControllerArray[i].getData(current_client.firstPattern,
-          function (err, data, index) {
-            if(err) console.warn(err.stack);
+      dbController.getData(current_client.dataIndex, current_client.firstPattern,
+        function (err, data, index) {
+          if(err) handleError(err, "getData "+index);
 
-            //TODO: important! if two lines change then send in the same kind of object
+          //TODO: important! if two lines change then send in the same kind of object
 
-            var message = {
-               id: index,
-               content: data,
-               time: new Date(), // current message time
-               groupingKeys: configArray[index].locals.groupingKeys,
-               exclusiveGroups: configArray[index].locals.exclusiveGroups,
-               types: dataConf[index].types,
-               unnamedType: dataConf[index].unnamedType
-            };
-            socket.emit('first', message);
+          var message = {
+             id: index,
+             content: data,
+             time: new Date(), // current message time
+             groupingKeys: configArray[index].locals.groupingKeys,
+             exclusiveGroups: configArray[index].locals.exclusiveGroups,
+             types: dataConf[index].types,
+             unnamedType: dataConf[index].unnamedType
+          };
+          socket.emit('first', message);
 
-            // append the client to array after sending first message
-            current_client.hasFirst=true;
-            clients[socket.id] = current_client;
-          }
-        );
-      }
+          // append the client to array after sending first message
+          current_client.hasFirst=true;
+          clients[socket.id] = current_client;
+        }
+      );
 
       // by disconnect remove socket from list
       socket.on('disconnect',
@@ -130,17 +132,18 @@ function connect (config, server, err) {
     //Send new data on constant time intervals
     setInterval(
       function(){
-        for (var i = 0; i < dbControllerArray.length; i++)
-          dbControllerArray[i].switchTmpDB(function(tmpDB){
+        for (var i = 0; i < configArray.length; i++)
+          dbController.switchTmpDB(i, function(index, tmpDB){
             if(!tmpDB) return;
             async.each(clients,
-                function(client, callback){
-                  dbControllerArray[i].getDataFromModel(tmpDB,
+                function(client, async_callback){
+                  if(client.dataIndex != index) async_callback();
+                  dbController.getDataFromTmpModel(index,
                     client.appendPattern,
-                    function (err, data) {
+                    function (err, data, db_index) {
                       if(err){
-                        console.warn(err.stack);
-                        callback();
+                        handleError(err);
+                        async_callback();
                         return;
                       }
                       if(data.length < 1){
@@ -148,20 +151,20 @@ function connect (config, server, err) {
                         return;
                       }
                       var message = {
-                         id: i,
+                         id: db_index,
                          content: data,
                          time: new Date(), // current message time
                       };
                       client.socket.emit('data', message);
-                      callback();
+                    async_callback();
                     }
                   );
                 },
                 function(err){
-                  if(err) console.warn(err.stack);
+                  if(err) handleError(err);
                   // cleanize current tmp
                   tmpDB.remove({},function(err){
-                    if(err) console.warn(err.stack);
+                    if(err) handleError(err);
                   });
                 }
             );
@@ -169,42 +172,44 @@ function connect (config, server, err) {
       }, updateIntervall
     );
   };
-
+  
   /*
    * Get SERVER.io, mongoose and server running!
    */
-  for (var i = 0; i < configArray.length; i++) {
-    console.log(configArray[i].database.name);
-    dbControllerArray.push(new DBcontroller(i));
+  // define Listeners to catch all events after connection to the mongoDB
+  dbController.on( 'error', function (err) {
+    handleError(err, "dbController");
+  });
 
-    dbControllerArray[i].once('open', function (index) {
-// TODO: das geht so nicht, weil i nicht mehr vorhanden, wenn das aufgerufen wird
-//       man müsste das im device controller erzeugen
-//       da muss die Datenbank, die man nutzen möcht angegeben werden und die Konfiguration geschehen#
-//       mongoose müsste gar nicht außerhalb existieren
+  async.forEachOf(configArray, 
+      function(config_i, i, async_callback){
 
-      // register the properties of devices in the database
-      dbControllerArray[index].setDevices(dataConf[index].types, function(err){
-        if(err) console.warn(err.stack);
-      });
+        dbController.createConnection(config_i.database, i);
 
-      // start the handler for new measuring data
-      dataFile[index].connect();
-
-      // make the Server available for Clients
-      if(index == configArray.length-1){
-        console.log("a");
+        dbController.connect(i, function (index) {
+          // register the properties of devices in the database
+          dbController.setDevices(index, dataConf[index].types, function(err){
+            if(err) handleError(err, "setDevices "+index);
+          });
+    
+          // start the handler for new measuring data related to configArray[i]
+          dataFile[index].connect();
+          
+          // configArray[i].database is connected
+          async_callback();
+        });
+      },
+      // call after all databases are connected
+      function(err){
+        if(err) handleError(err, "async(configArray)");
+        
+        // make the Server available for Clients
         server.listen(config.port);
+//TODO do serve_clients_with_data in dbcontroller
         serve_clients_with_data(config.updateIntervall);
       }
-    });
-  
-    dbControllerArray[i].on('error', function (err) {
-      console.warn(err.stack);
-    });
-  
-    dbControllerArray[i].connect(configArray[i].database);
-  }
+  );
+
   /*
    * Start Mail Server
    */
@@ -221,7 +226,6 @@ function connect (config, server, err) {
   //     }
   //   }
   // });
-
 }
 
 function disconnect() {

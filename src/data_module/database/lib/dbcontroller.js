@@ -1,140 +1,269 @@
-/*
- * Controls all operations over the database within defined Data Model
- * Checks all the pre-conditions of the Data Model functions
+/**  Short description
+ * Controls all operations over the database within defined DB-Models
+ * Can actually check some pre-conditions of the DeviceModel/TmpModel functions.
+ * 
+ * To use it, at first you need to set Listeners for 'open' and 'error',
+ * and then call the 'connect()' function.
  */
 
-/* Node.js Module Dependencies */
-var mongoose     = require('mongoose'),
-    EventEmitter = require('events').EventEmitter;
+/** BE CAREFUL! Incorrect arguments may cause the Server termination, so   *
+**              please write a correct code.                               */
 
-/* Custom Module Dependencies */
+// TODO comment every function!!
+
+  // --- Node.js Module dependencies --- //
+var mongoose     = require('mongoose'),
+    EventEmitter = require('events').EventEmitter,
+    _            = require('underscore');
+
+  // --- Custom Module dependencies --- //
 var DeviceModel = require('./devicemodel.js');
 
-var DBController = function() { 
-  
-  /* Global private variables */
-  var self,
-      dataModel,
-      index;
-  
-  function _Class(currIndex) {
-    // Ensure the constructor was called correctly with 'new'
-    if( !(this instanceof _Class) ) return new _Class(config);
-    
-    self=this;
-    index = currIndex;
-  }
-  
-  _Class.prototype = new EventEmitter;
+  //--- Global Variables --- //
 
-  _Class.prototype.connect = function(database){
-    var db = mongoose.createConnection("mongodb://localhost:27017/" + database.name);
-    
-    // Events forwarding
-    db.on('error', function(err) { self.emit('error', err); });
-    db.once('open', function (callback) {
-      console.log("MongoDB is connected to database '%s'", database.name);
-      
-      var newDeviceModel = new DeviceModel(db);
-      dataModel = newDeviceModel.model;
-      
-      newDeviceModel.init(database, function(err){
-        if(err) { 
-          err.forEach(function(error){
-            self.emit('error', error);
-          })
-        }    
+  //--- Constructor --- //
+var DBController = function() {
+  // Ensure the constructor was called correctly with 'new'
+  if( !(this instanceof DBController) ) return new DBController();
+  
+  // -- Local Variables -- //
+  this.deviceModels = []; // current database connections
+}
+
+// Make it possible to emit Events
+DBController.prototype = new EventEmitter;
+
+  // --- Global Functions --- //
+
+
+  // --- Local Functions --- //
+
+DBController.prototype.checkIndex = function(index){
+  if(this.deviceModels[index] === undefined)
+    throw new Error("DeviceModel with index '"+ options.index +"' doesn't exists!!");
+}
+
+DBController.prototype.createConnection = function(options, index){
+//check the options
+  if(options === undefined){
+    throw new Error("'options' needs to be submitted!!");
+  }  
+  if(options.name === undefined){
+    if(_.isString(options) ) options = {name: options};
+    else throw new Error("database name needs to be defined!!");
+  } 
+  
+  var self=this;
+  
+  // check the index for the new device model
+  if(index !== undefined) options.index = index;
+  else options.index = options.name; // default index is a current db-name
+  
+  // check if model with that index exists
+  if(this.deviceModels[options.index] !== undefined)
+    throw new Error("DeviceModel with index '"+ options.index +"' is already defined!!");
+  
+  // Create new DeviceModel
+  var newDeviceModel = new DeviceModel();
+  
+  // Append the model to the global array, so it can be controlled later
+  this.deviceModels[options.index]=newDeviceModel; 
+  
+  // Initialize database and set the options if needed
+  newDeviceModel.createConnection(options);
+}
+
+DBController.prototype.connect = function(index, callback){
+  this.checkIndex(index);
+  
+  // Events forwarding
+  this.deviceModels[index].on('error', function(err) { self.emit('error', err); });
+  
+  // Establish the connection to the model
+  this.deviceModels[index].connect(callback);
+};
+
+DBController.prototype.connectAll = function(callback){
+  async.map(this.deviceModels, 
+      function(model, async_callback){
+        // Events forwarding
+        model.on('error', function(err) { self.emit('error', err); });
         
-        self.emit('open', index);
-      });
-    });
-  };
-  
-  _Class.prototype.disconnect = function(){
-    mongoose.disconnect();
-  };
-  
-  /*
-   * Creates or updates the device in database
-   */
-  _Class.prototype.setDevice = function (device, callback) {
-    // setDevice - is custom function in the dataModel
-    dataModel.setDevice(device, function(err){
-      if(callback) callback(err, index);
-    });
-  };
+        // Establish the connection to every model
+        model.connect(async_callback);
+      },
+      function(errors, results){
+        callback(errors, results);
+      }
+  );
+};
 
-  // Creates or updates list of devices in database using given array "devices"
-  _Class.prototype.setDevices = function (devices, callback) {
-    // setDevice - is custom function in the dataModel
-    dataModel.setDevices(devices, function(err){
-      if(callback) callback(err, index);
-    });
-  };
+DBController.prototype.disconnect = function(index, callback){
+  this.checkIndex(index);
+  this.deviceModels[index].disconnect(callback);
+};
 
-  /*
-   * Appends data to Database.
-   * Data should look like schema of the dataModel.
-   * Calls the callback with possible error and success response
-   * newData: can be one Object or Array of Objects
-   * callback: function(err, appendedData);
-   */
-  _Class.prototype.appendData = function (newData, callback) {
-    // append - is custom function in the dataModel
-    dataModel.append(newData, function(err, appendedData){
-      if(callback) callback(err, appendedData, index);
-    });
-  };
+DBController.prototype.disconnectAll = function(){
+  var self = this;
+  async.map(this.deviceModels, 
+      function(model, async_callback){
+        
+        // Disconnect from every model
+        model.disconnect(async_callback);
+      },
+      function(errors, results){
+        callback(errors, results);
+      }
+  );
+};
 
-  /*
-   * Search for some query and call the callback with found data
-   * How to use the function read by devicedata.js/query
-   */
-  _Class.prototype.getData = function (request, callback) {
-    //query - is custom function in the dataModel
-    dataModel.query(request, function (err, result) {
-      if(callback) callback(err, result, index);
-    });
-  };
+// Creates or updates list of devices in database using given array "devices"
+DBController.prototype.setDevices = function (index, devices, callback) {
+  this.checkIndex(index);
+  var self=this;
+  // setDevice - is custom function in the dataModel
+  this.deviceModels[index].setDevices(devices, function(model_index, err){
+    if(callback) callback(model_index, err);
+  });
+};
 
-  /*
-   * Search for some query in tmpDB and call the callback with found data
-   * How to use the function read by devicedata.js/query
-   */
-  _Class.prototype.getDataFromModel = function (model, request, callback) {
-    model.query(request, function (err, result) {
-      if(callback) callback(err, result, index);
-    });
-  };
+/*
+ * Appends data to Database.
+ * Data should look like schema of the dataModel.
+ * Calls the callback with possible error and success response
+ * newData: can be one Object or Array of Objects
+ * callback: function(err, appendedData);
+ */
+DBController.prototype.appendData = function (index, newData, callback) {
+  this.checkIndex(index);
+  var self=this;
+  // append - is a custom function in the dataModel
+  this.deviceModels[index].append(newData, function(model_index, err, appendedData){
+    if(callback) callback(model_index, err, appendedData);
+  });
+};
 
-  /*
-   * Switches Temporary Database to the next one 
-   * and passes the current one per callback
-   */
-  _Class.prototype.switchTmpDB = function (callback) {
-    dataModel.switchTmpDB(callback, index);
-  };
+/*
+ * Search for some query and call the callback with found data
+ * How to use the function read by devicedata.js/query
+ */
+DBController.prototype.getData = function (index, request, callback) {
+  this.checkIndex(index);
+  var self=this;
+  //query - is a custom function in the dataModel
+  this.deviceModels[index].query(request, function (model_index, err, result) {
+    if(callback) callback(model_index, err, result);
+  });
+};
 
-  /*
-   * Sets new fixed size in kilobytes to collection of values for given device id
-   */
-  _Class.prototype.resize = function (id, newSize, callback) {
-    dataModel.setStorageSize(id, newSize, function (err, result) {
-      if(callback) callback(err, result, index);
-    });
-  };
+/*
+ * Sets new fixed size in Megabytes to collection of values for given device id in given model
+ */
+DBController.prototype.resize = function (index, id, newSize, callback) {
+  this.checkIndex(index);
+  var self=this;
+  this.deviceModels[index].resizeStorage(id, newSize, function (model_index, err) {
+    if(callback) callback(model_index, err);
+  });
+};
 
-  /*
-   * Sets new fixed size in kilobytes to collection of values for given device id
-   */
-  _Class.prototype.resize = function (id, newSize, callback) {
-    dataModel.setStorageSize(id, newSize, function (err, result) {
-      if(callback) callback(err, result, index);
-    });
-  };
-  
-  return _Class;
-}();
+/*
+ * Sets new fixed size in Megabytes to collections of values for all devices in given model
+ */
+DBController.prototype.resizeAllInModel = function (index, newSize, callback) {
+  this.checkIndex(index);
+  var self=this;
+  this.deviceModels[index].resizeAll(newSize, function (model_index, err) {
+    if(callback) callback(model_index, err);
+  });
+};
 
+/*
+ * Sets new fixed size in Megabytes to collections of values for all devices in given model
+ */
+DBController.prototype.resizeAll = function (newSize, callback) {
+  var self=this;
+  async.forEachOf(this.deviceModels, 
+      function(model, index, async_callback){
+        self.resizeAllInModel(index, newSize, async_callback)
+      },
+      function(errors){
+        if(callback) callback(errors);
+      }
+  );
+};
+
+//----------------- to remove (start) --------------------------------//
+/*
+ * Search for some query in tmpDB and call the callback with found data
+ * How to use the function read by devicedata.js/query
+ */
+//TODO merge with switch
+DBController.prototype.getDataFromTmpModel = function (index, request, callback) {
+  var self=this;
+  this.deviceModels[index].tmpDB.query(request, function (err, result, index) {
+    if(callback) callback(err, result, index);
+  });
+};
+
+/*
+ * Switches Temporary Database to the next one 
+ * and passes the current one per callback
+ */
+DBController.prototype.switchTmpDB = function (index, callback) {
+  this.checkIndex(index);
+  var self=this;
+  this.deviceModels[index].switchTmpDB(function(model_index, tmpDB){
+    self.deviceModels[index].tmpDB=tmpDB;
+    callback
+  });
+};
+
+//----------------- to remove (end) ---------------------------------//
+
+
+//----------------- to adapt ----------------------------------------//
+DBController.prototype.updateWithInterval = function(interval, callback){
+  setInterval(
+      function(){
+        for (var i = 0; i < dbControllerArray.length; i++)
+          dbControllerArray[i].switchTmpDB(function(tmpDB){
+            if(!tmpDB) return;
+            async.each(clients,
+                function(client, callback){
+                  dbControllerArray[i].getDataFromModel(tmpDB,
+                    client.appendPattern,
+                    function (err, data) {
+                      if(err){
+                        console.warn(err.stack);
+                        callback();
+                        return;
+                      }
+                      if(data.length < 1){
+                        //empty data
+                        return;
+                      }
+                      var message = {
+                         id: i,
+                         content: data,
+                         time: new Date(), // current message time
+                      };
+                      client.socket.emit('data', message);
+                      callback();
+                    }
+                  );
+                },
+                function(err){
+                  if(err) console.warn(err.stack);
+                  // cleanize current tmp
+                  tmpDB.remove({},function(err){
+                    if(err) console.warn(err.stack);
+                  });
+                }
+            );
+          });
+      }, updateIntervall
+    );
+};
 
 module.exports = DBController;
