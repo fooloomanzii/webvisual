@@ -1,0 +1,211 @@
+<!-- Custom-Style-Element -->
+<link rel="import" href="../../components/iron-selector/iron-selector.html">
+<link rel="import" href="../../components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../../components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../components/paper-item/paper-item.html">
+<link rel="import" href="../../components/paper-input/paper-input.html">
+<link rel="import" href="../../components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../components/paper-button/paper-button.html">
+<link rel="import" href="../../components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../../components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../../components/paper-slider/paper-slider.html">
+<link rel="import" href="../../components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../css/app-theme.html">
+
+<link rel="import" href="../main-toolbar.html"/
+<link rel="import" href="../logo-element.html"/>
+<link rel="import" href="../sign-element.html"/>
+<link rel="import" href="../table-element.html"/>
+<link rel="import" href="../post-card.html"/>
+
+<!-- Cookies -->
+<link rel="import" href="../cookie-element.html">
+
+<!-- <link rel="import" href="../line-chart.html"/> -->
+<link rel="import" href="../../components/leaflet-map/leaflet-map.html">
+
+<dom-module id="select-page">
+  <style>
+    :host {
+      height: 100%;
+      width: 100%;
+      position: fixed;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background:#BBBBBB;
+      font-family: Regular;
+    }
+    :host[dark] {
+      background: #666666;
+    }
+    paper-dialog#labelWindow {
+      position: relative !important;
+      top: 0;
+      left: 0;
+      z-index: 8;
+    }
+    paper-dialog h2 {
+      background: #669DB4;
+      color: white;
+      font-family: Thin;
+    }
+    paper-dialog h2[dark] {
+      background: #345475;
+      color: #A8CCDB;
+    }
+    section.dialog-section {
+      font-family: Light;
+      font-size: 1em;
+      padding: 1.5em 2em 0.5em 1em;
+      margin-top: 0em !important;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    section.list {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+    paper-radio-button {
+      --paper-radio-button-checked-color: #005B82;
+      --paper-radio-button-checked-ink-color: #005B82;
+      --paper-radio-button-unchecked-color: #1d1d1d;
+      --paper-radio-button-unchecked-ink-color: #1d1d1d;
+    }
+    paper-radio-button  {
+      padding: 0em;
+      padding-top: 1em;
+    }
+    paper-button {
+      font-family: Light;
+      color: #345475;
+      border-radius: 5px;
+      border-top: thin solid rgba(200, 200, 200, 0);
+      border-bottom: thin solid  rgba(200, 200, 200, 0);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.01) 5%,rgba(50,50,50,0.05) 40%);
+    }
+    paper-button:hover {
+      background: linear-gradient(to bottom, rgba(0,0,0,0.02) 5%,rgba(50,50,50,0.10) 40%);
+      border-top: thin solid rgba(220, 220, 220, 0.1);
+      border-bottom: thin solid rgba(200, 200, 200, 0.1);
+    }
+    paper-button iron-icon {
+      margin: 0px 8px;
+      z-index: 10;
+    }
+
+  </style>
+
+  <template>
+      <paper-dialog id="labelWindow" entry-animation="scale-up-animation" exit-animation="slide-right-animation" no-cancel-on-outside-click no-cancel-on-esc-key>
+        <h2 class="dialog-title">Auswahl des Messraums</h2>
+        <section class="dialog-section">
+          <section class="list">
+            <span>verfügbar sind:</span>
+            <iron-selector selected-values="{{labels}}" attr-for-selected="label" selected-attribute="checked" multi>
+              <template is="dom-repeat" items="{{availableLabels}}">
+                <paper-radio-button label="{{item}}">{{item}}</paper-radio-button>
+              </template>
+            </iron-selector>
+          </section>
+        </section>
+        <div class="buttons">
+          <paper-button disabled="{{notSelected}}" raised="{{notSelected}}" dialog-confirm on-click="_onSelected"><iron-icon id="logo" icon="juelich:logo"></iron-icon>Verbinden</paper-button>
+        </div>
+      </paper-dialog>
+
+      <cookie-element id="labelsCookie" name="webvisual-stored-connections" value="{{labels}}"></cookie-element>
+
+  </template>
+
+  <script>
+
+  Polymer({
+      is: 'select-page',
+
+      behaviors: [Polymer.NeonAnimatableBehavior],
+
+      properties: {
+        availableLabels: {
+          type: Array,
+          value: function() { return []; },
+          notify: true
+        },
+        labels: {
+          type: Array,
+          notify: true
+        },
+        notSelected: {
+          type: Boolean,
+          value: true
+        },
+        sharedElements: {
+          type: Object,
+          value: function() {
+            return {
+              'herologo1': this.$.logo,
+              'herobackground':  this.$.labelWindow
+            }
+          }
+        },
+        animationConfig: {
+          value: function() {
+            return {
+              'entry': [
+                {animatable: this.$.labelWindow, type: "entry"}
+              ],
+              'exit': [
+                {
+                  name: 'ripple-animation',
+                  id: 'herobackground',
+                  fromPage: this
+                },
+                {
+                  name: 'hero-animation',
+                  id: 'herologo1',
+                  fromPage: this
+                }
+              ]
+            }
+          }
+        }
+      },
+
+      attached: function(){
+        this.$.labelWindow.open();
+      },
+
+      observers: [
+        '_labelsChanged(labels.*)',
+        '_availableLabelsChanged(availableLabels.*)'
+      ],
+
+      _labelsChanged: function() {
+        this.set("notSelected",(this.labels.length < 1));
+      },
+
+      _availableLabelsChanged: function() {
+        if (this.availableLabels.length == 1){
+          this.set("labels", this.availableLabels);
+          this.fire("configset");
+        }
+      },
+
+      _onSelected: function() {
+        this.$.labelsCookie.save();
+        this.fire("configset");
+      }
+    });
+  </script>
+
+</dom-module>

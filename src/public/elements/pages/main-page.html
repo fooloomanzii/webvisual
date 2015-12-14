@@ -1,30 +1,3 @@
-<!-- Custom-Style-Element -->
-<link rel="import" href="../../components/iron-selector/iron-selector.html">
-<link rel="import" href="../../components/iron-collapse/iron-collapse.html">
-<link rel="import" href="../../components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../components/paper-drawer-panel/paper-drawer-panel.html">
-<link rel="import" href="../../components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../../components/paper-item/paper-item.html">
-<link rel="import" href="../../components/paper-input/paper-input.html">
-<link rel="import" href="../../components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../../components/paper-button/paper-button.html">
-<link rel="import" href="../../components/paper-toggle-button/paper-toggle-button.html">
-<link rel="import" href="../../components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../components/paper-radio-group/paper-radio-group.html">
-<link rel="import" href="../../components/paper-radio-button/paper-radio-button.html">
-<link rel="import" href="../../components/paper-slider/paper-slider.html">
-<link rel="import" href="../../components/paper-dialog-scrollable/paper-dialog-scrollable.html">
-<link rel="import" href="../../css/app-theme.html">
-
-<link rel="import" href="../main-toolbar.html"/
-<link rel="import" href="../logo-element.html"/>
-<link rel="import" href="../sign-element.html"/>
-<link rel="import" href="../table-element.html"/>
-<link rel="import" href="../post-card.html"/>
-
-<link rel="import" href="../line-chart.html"/>
-<link rel="import" href="../../components/leaflet-map/leaflet-map.html">
-
 <dom-module id="main-page">
   <style>
     :host {
@@ -50,7 +23,7 @@
     section#mainContent {
       display: flex;
       flex-wrap: wrap;
-      align-content: space-between;
+      align-content: flex-start;
       flex-direction: row;
       position: relative;
       overflow-y: auto;
@@ -102,7 +75,7 @@
       border-radius: 2px 2px 2px 3px;
       border: thin solid #BBBBBB;
       border-radius: 2px;
-      align-self: stretch;
+      /*align-self: stretch;*/
     }
     section.card[dark] {
       border: thin solid #606060;
@@ -154,6 +127,41 @@
       --paper-toggle-button-checked-button-color:	#1d1d1d;
       --paper-toggle-button-checked-ink-color:	#1d1d1d;
     }
+    paper-tabs#labelsTabs {
+      margin-left: 44px;
+      height: 62%;
+      align-self: flex-end;
+      flex: 2;
+    }
+    paper-tab.paper-tab-0:hover {
+      background: rgba(255,255,255,0.4);
+    }
+    paper-tab.label {
+      --paper-tab-ink: rgba(255,255,255,0.30);
+
+      --paper-tab:	{
+        align-self: flex-end;
+        padding: 0em 2em;
+      };
+
+      --paper-tab-content:	{
+        font-family: Light;
+      };
+      --paper-tab-content-unselected: {
+        font-family: Thin;
+      };
+    }
+    paper-tab.paper-tab-0.iron-selected {
+      background: rgba(255,255,255,0.3);
+      border-radius: 8px 8px 0px 0px;
+    }
+    paper-tab.paper-tab-0:not(.iron-selected) {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px 12px 0px 0px;
+    }
+    paper-tab.paper-tab-0:hover {
+      background: rgba(255,255,255,0.4);
+    }
     #kind {
       font-family: Bold;
       font-size: 1em;
@@ -172,28 +180,24 @@
     }
     /* Dialogs */
     paper-dialog.sidemenu {
-      top: calc(64px);
       right: 0px;
-      margin: 1.5em;
+      margin: 1em;
       position: fixed;
-      width: calc(100vw - 3em);
-    }
-    :host[opened] paper-dialog.sidemenu {
-      top: calc(64px + 11em);
+      width: calc(100vw - 4em);
     }
     @media all and (min-width: 480px) and (max-width: 600px) and (orientation : landscape) {
       paper-dialog.sidemenu {
-        width: calc(100vw - 18em);
+        width: calc(100% - 18em);
       }
     }
     @media all and (min-width: 600px) and (max-width: 840px) and (orientation: portrait) {
       paper-dialog.sidemenu {
-        width: calc(100vw - 18em);
+        width: calc(100% - 18em);
       }
     }
     @media all and (min-width: 600px) and (max-width: 840px) and (orientation : landscape) {
       paper-dialog.sidemenu {
-        width: calc(100vw - 18em);
+        width: calc(100% - 18em);
       }
     }
     @media all and (min-width: 840px) {
@@ -210,9 +214,52 @@
       height: 44px;
       top: 10px;
       bottom: auto;
-      left: 86px;
+      left: 84px;
       z-index: 10;
-      width: 130px;
+      width: 140px;
+    }
+    paper-dialog#exceedsDialog {
+      margin: 2em;
+      position: fixed;
+      z-index: 100 !important;
+      min-width: 18em;
+      /*width: calc(100% - 4em);
+      height: calc(100% - 4em);*/
+      display: flex;
+      flex-direction: column;
+    }
+    paper-dialog#exceedsDialog h2 {
+      background: rgba(246, 71, 86, 0.9);
+      border-bottom: thin solid rgba(140, 140, 140, 0.5);
+      color: white;
+    }
+    paper-dialog#exceedsDialog h2[dark] {
+      background: rgba(191, 7, 22, 0.9);
+      border-bottom: thin solid rgba(80, 80, 80, 0.5);
+      color: #f1f1f1;
+    }
+    paper-dialog#exceedsDialog section.scrollable {
+      flex-direction: row;
+      display: flex;
+      flex-wrap: wrap;
+      height: 100%;
+      margin: 0em;
+      justify-content: center;
+      padding: 1em 0.5em 0em 1em;
+      overflow: auto;
+    }
+
+    paper-icon-button.error {
+      color: currentColor;
+      animation-name: alarm-animation !important;
+      animation-duration: 2s;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+    }
+    @keyframes alarm-animation {
+      0%   {color: currentColor;}
+      33%  {color: rgb(255, 21, 41);}
+      100% {color: currentColor;}
     }
   </style>
 
@@ -221,7 +268,13 @@
     <logo-element id="logo"></logo-element>
     <main-toolbar id="toolbar" class="paper-header" on-deselect="deselectElement">
       <paper-icon-button icon="menu" class="menu-icon" on-click="togglePanel"></paper-icon-button>
-      <paper-icon-button icon="remove" class="toggle-icon" on-click="deselectElement"></paper-icon-button>
+      <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsDialog" hidden$="{{!isExceeding}}"></paper-icon-button>
+      <paper-icon-button icon="remove" class="toggle-icon control" on-click="deselectElement"></paper-icon-button>
+      <paper-tabs id="labelsTabs" class="header" selected="{{selectedLabelId}}" no-bar scrollable hide-scroll-buttons>
+        <template is="dom-repeat" items="{{labels}}">
+          <paper-tab class="label">{{item}}</paper-tab>
+        </template>
+      </paper-tabs>
 
       <sign-element id="selectedElementSign" class="selectedElement sign incard" element="{{selectedElement}}" on-click="deselectElement"></sign-element>
       <section id="selectedElementCaption" class="selectedElement caption incard">
@@ -229,6 +282,7 @@
         <span id="method">{{selectedElement.method}}</span>
         <span id="room">{{selectedElement.room}}</span>
         <span id="roomNr">{{selectedElement.roomNr}}</span>
+        <span id="roomNr">{{selectedElement.labelname}}</span>
       </section>
 
       <table-element id="selectedElementTable" class="selectedElement noncard" element="{{selectedElement}}"></table-element>
@@ -316,21 +370,6 @@
               </section>
             </iron-collapse>
 
-          <paper-button collapse-id="pageview" class="sidemenu collapsable" on-tap="toggleCollapse">
-            <iron-icon icon="pageview"></iron-icon>
-            <span class="flex">Ansicht</span>
-            <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="pageview"></iron-icon>
-          </paper-button>
-            <iron-collapse class="sidemenu collapse pageview">
-              <section class="indention collapse-content">
-                <iron-selector selected="0">
-                  <paper-button class="sidemenu"><iron-icon icon="view-module"></iron-icon>Übersicht</paper-button>
-                  <paper-button class="sidemenu"><iron-icon icon="view-list"></iron-icon>Tabelle</paper-button>
-                  <paper-button class="sidemenu"><iron-icon icon="assessment"></iron-icon>Graphen</paper-button>
-                </iron-selector>
-              </section>
-            </iron-collapse>
-
           <paper-button dialog-id="log" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
             <iron-icon icon="history"></iron-icon>
             <span class="flex">Log</span>
@@ -366,35 +405,69 @@
               </section>
             </iron-collapse>
 
-          <!-- <paper-button class="sidemenu" dialog-id="Login" dialog-class="mainmenu" on-tap="openDialog">
-            <iron-icon icon="social:person-outline"></iron-icon>
-            <span class="flex">Login</span>
-          </paper-button> -->
+          <paper-button class="sidemenu" on-tap="backToMainMenu">
+            <iron-icon icon="arrow-back"></iron-icon>
+            <span class="flex">Auswahl</span>
+          </paper-button>
+
       </section>
 
       <!-- MAIN VIEW -->
       <section main id="mainPanel">
+
+        <paper-dialog id="exceedsDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" no-cancel-on-outside-click>
+          <h2 class="dialog-title">Alarm</paper-icon-button></h2>
+          <section class="scrollable">
+            <template is="dom-repeat" items="{{exceedingElements}}" as="element">
+              <section class="card" on-click="setSelectedElement" dark$="[[dark]]">
+                <sign-element element="{{element}}" dark$="[[dark]]"></sign-element>
+                <section class="caption" id="{{element.id}}" dark$="[[dark]]">
+                  <span id="kind">{{element.kind}}</span>
+                  <span id="method">{{element.method}}</span>
+                  <span id="room">{{element.room}}</span>
+                  <span id="roomNr">{{element.roomNr}}</span>
+                  <span id="roomNr">{{element.labelname}}</span>
+                </section>
+              </section>
+            </template>
+          </section>
+          <div class="buttons">
+            <!-- <paper-button disabled><iron-icon icon="mail"></iron-icon>Send</paper-button>
+            <paper-button disabled><iron-icon icon="print"></iron-icon>Print</paper-button> -->
+            <paper-button dialog-dismiss><iron-icon icon="close"></iron-icon>schließen</paper-button>
+          </div>
+        </paper-dialog>
         <section main id="mainContent">
-          <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupItems" sort="sortGroup" delay="300">
-            <post-card class="group" headline="{{groupItems.name}}" without-window="{{withoutWindow}}" dark$="[[dark]]">
 
-              <template is="dom-repeat" items="{{data}}" as="element">
-                <template is="dom-if" if="{{groupElements(element,groupItems)}}" restamp>
-                  <section class="card" on-click="setSelectedElement" dark$="[[dark]]">
 
-                      <sign-element element="{{element}}" dark$="[[dark]]"></sign-element>
-                      <section class="caption" id="{{element.id}}" dark$="[[dark]]">
-                        <span id="kind">{{element.kind}}</span>
-                        <span id="method">{{element.method}}</span>
-                        <span id="room">{{element.room}}</span>
-                        <span id="roomNr">{{element.roomNr}}</span>
+
+
+          <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="labelItem" index-as="labelindex">
+            <template is="dom-if" if="{{isSelectedLabel(labelindex,selectedLabelId)}}">
+              <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupItems" sort="sortGroup" delay="300">
+                <post-card class="group" headline="{{groupItems.name}}" without-window="{{withoutWindow}}" dark$="[[dark]]">
+
+                  <template is="dom-repeat" items="{{labelItem}}" as="element">
+                    <template is="dom-if" if="{{groupElements(element,groupItems)}}" restamp>
+                      <section class="card" on-click="setSelectedElement" dark$="[[dark]]">
+
+                          <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding="addExceedingElement" on-notexceeding="removeExceedingElement"></sign-element>
+                          <section class="caption" id="{{element.id}}" dark$="[[dark]]">
+                            <span id="kind">{{element.kind}}</span>
+                            <span id="method">{{element.method}}</span>
+                            <span id="room">{{element.room}}</span>
+                            <span id="roomNr">{{element.roomNr}}</span>
+                            <span id="roomNr">{{element.labelname}}</span>
+                          </section>
+
                       </section>
-
-                  </section>
-                </template>
+                    </template>
+                  </template>
+                </post-card>
               </template>
-            </post-card>
+            </template>
           </template>
+
         </section>
         <section id="dropShadow" class="has-shadow"></section>
       </section>
@@ -438,13 +511,13 @@
     Polymer({
       is: 'main-page',
 
-      behaviors: [PageBehavior, DataBehavior, Polymer.NeonSharedElementAnimatableBehavior],
+      behaviors: [PageBehavior, DataBehavior, Polymer.IronResizableBehavior, Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
         sharedElements: {
           value: function() {
             return {
-              'herologo': this.$.logo
+              'herologo2': this.$.logo
             }
           }
         },
@@ -454,8 +527,18 @@
               'entry': [
                 {
                   name: 'hero-animation',
-                  id: 'herologo',
+                  id: 'herologo2',
                   toPage: this,
+                },
+                {
+                  name: 'fade-in-animation',
+                  node: this.$.mainView
+                }
+              ],
+              'exit': [
+                {
+                  name: 'scale-down-animation',
+                  node: this
                 }
               ]
             }
@@ -485,11 +568,53 @@
         opened: {
           type: Boolean,
           value: false,
+          notify: true,
           reflectToAttribute: true
+        },
+        alwaysShowTabs: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          observer: '_labelsChanged'
+        },
+        isExceeding: {
+          type: Boolean,
+          value: false,
+          notify: true,
+          reflectToAttribute: true
+        },
+        exceedingElements: {
+          type: Array,
+          value: function() { return []; },
+          notify: true
         }
       },
+
+      attached: function() {
+        var self = this;
+        var dialogs = Array.prototype.slice.call(Polymer.dom(this.root).querySelectorAll("paper-dialog"));
+        Array.prototype.forEach.call(dialogs, function(dialog) {
+            dialog.fitInto = self.$.mainPanel;
+            dialog.fit();
+        });
+      },
+
+      // Show Tabs if wanted
+      _labelsChanged: function() {
+        if (this.alwaysShowTabs && this.labels.length <= 1) {
+          this.toggleAttribute('hidden',true,this.$.labelsTabs);
+        }
+        else {
+          this.toggleAttribute('hidden',false,this.$.labelsTabs);
+        }
+      },
+
+      isSelectedLabel: function(labelid, selectedLabelId) {
+        return (labelid == selectedLabelId);
+      },
+
       setSelectedElement: function(e) {
-        if (e){
+        if(e) {
           var item = e.model.element;
           if (this.selectedElement == item){
             this.deselectElement();
@@ -497,10 +622,11 @@
           else {
             this.unlinkPaths('selectedElement');
             this.selectedElement = null;
-            var icol = Polymer.Collection.get(this.data);
+
+            var icol  = Polymer.Collection.get(this.data[this.selectedLabelId]);
             var key = icol.getKey(item);
             this.selectedElement = item;
-            this.linkPaths('selectedElement', 'data.' + key);
+            this.linkPaths('selectedElement', 'data.#'+ this.selectedLabelId + "." + key);
             this.notifyPath('selectedElement.values', this.selectedElement.values);
             if (!this.$.toolbar.opened){
               this.$.toolbar.toggleAttribute('opened',true);
@@ -520,6 +646,51 @@
           this.$.toolbar.toggleAttribute('opened',false);
           this.toggleAttribute('opened',false);
         },320);
+      },
+
+      addExceedingElement: function(e){
+        if(e && e.detail) {
+          var item = Polymer.Collection.get(this.data[e.detail.labelindex]).getItem('#'+e.detail.index);
+          if(item && Polymer.Collection.get(this.exceedingElements).getKey(item) === undefined) {
+            key = this.push('exceedingElements', item) - 1;
+            this.linkPaths('exceedingElements.#' + key, 'data.#' + e.detail.labelindex + ".#" + e.detail.index);
+            this.notifyPath('exceedingElements.#' + key + '.values', this.exceedingElements[key].values);
+            if (!this.isExceeding)
+              this.isExceeding = true;
+            this.openExceedsDialog();
+          }
+        }
+      },
+
+      removeExceedingElement: function(e){
+        if(e && e.detail) {
+          var item = Polymer.Collection.get(this.data[e.detail.labelindex]).getItem('#'+e.detail.index);
+          var key = Polymer.Collection.get(this.exceedingElements).getKey(item);
+          if(item && key) {
+            this.arrayDelete('exceedingElements', item);
+            this.unlinkPaths('selected.' + key);
+            if (this.exceedingElements.length == 0)
+              this.isExceeding = false;
+          }
+        }
+      },
+
+      fit: function() {
+        // Array.prototype.forEach.call(this.dialogs, function(dialog) {
+        //     dialog.fit();
+        // });
+      },
+
+      openExceedsDialog: function() {
+        if(!this.$.exceedsDialog.opened) {
+          this.$.exceedsDialog.fit();
+          this.$.exceedsDialog.open();
+        }
+      },
+
+      toggleExceedsDialog: function() {
+        this.$.exceedsDialog.fit();
+        this.$.exceedsDialog.toggle();
       },
 
       changeTheme: function(){
@@ -554,6 +725,11 @@
               iconbutton.setAttribute('icon','arrow-drop-down');
           }
         }
+      },
+
+      backToMainMenu: function() {
+        this.togglePanel();
+        this.fire("restart");
       },
 
       openDialog: function(e){

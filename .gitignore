@@ -1,5 +1,5 @@
 # Packaged Stuff #
-# *.exe
+*.exe
 
 # Config files
 src/config/config.json
@@ -26,7 +26,7 @@ src/**/demo/
 !src/tests/
 
 # Logs #
-# *.log
+*.log
 
 # Other files #
 *desktop.ini

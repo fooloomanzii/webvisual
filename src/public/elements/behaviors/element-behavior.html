@@ -11,16 +11,16 @@
         },
         timeFormat: {
           type: String,
-          value: "HH:mm:ss"
+          value: 'HH:mm:ss'
         },
         lastExceedsStyle: {
           type: Object,
           value: function() {
             return {
-              "true":  "background: rgb(255, 21, 41); color: #f1f1f1;",
-              "false": "background: rgb(255, 20, 110); color: #f1f1f1;",
-              "none":  "background: rgb(0, 202, 53); color: #f1f1f1;",
-              "undef": "background: rgb(236, 249, 97); color: #1f1f1f;"
+              'true':  'background: rgb(255, 21, 41); color: #f1f1f1;',
+              'false': 'background: rgb(255, 20, 110); color: #f1f1f1;',
+              'none':  'background: rgb(0, 202, 53); color: #f1f1f1;',
+              'undef': 'background: rgb(236, 249, 97); color: #1f1f1f;'
             };
           }
         },
@@ -28,22 +28,33 @@
           type: Object,
           value: function() {
             return {
-              "true":  "background: rgb(255, 21, 41); color: #f1f1f1;",
-              "false": "background: rgb(255, 20, 110); color: #f1f1f1;",
-              "none":  "background: rgb(0, 202, 53); color: #f1f1f1;",
-              "undef": "background: rgb(236, 249, 97); color: #1f1f1f;"
+              'true':  'background: rgb(255, 21, 41); color: #f1f1f1;',
+              'false': 'background: rgb(255, 20, 110); color: #f1f1f1;',
+              'none':  'background: rgb(0, 202, 53); color: #f1f1f1;',
+              'undef': 'background: rgb(236, 249, 97); color: #1f1f1f;'
             };
           }
         }
+    },
+
+    observers: [
+      '_handleExceeding(element.isExceeding)'
+    ],
+
+    _handleExceeding: function(isExceeding) {
+      if (isExceeding === true)
+        this.fire("exceeding", {labelindex: this.element.labelindex, index: this.element.index});
+      else if (isExceeding === false)
+        this.fire("notexceeding", {labelindex: this.element.labelindex, index: this.element.index});
     },
 
     computeIcon: function(change, index) {
       if (change.base && change.base.length != 0){
         var exceeds = this.get('exceeds', change.base[index]);
         if(exceeds == true || exceeds == false)
-          return "error-outline";
+          return 'error-outline';
         else
-          return "";
+          return '';
       }
     },
 
@@ -54,7 +65,7 @@
           return $.format.toBrowserTimeZone(date,this.timeFormat);
         }
         else
-          return " ";
+          return ' ';
       }
     },
 
@@ -62,18 +73,18 @@
       if (change.base && change.base.length != 0){
         var value = this.get('y', change.base[index]);
         var exceeds = this.get('exceeds', change.base[index]);
-        if ((value !== undefined) && (value !== "")) {
+        if ((value !== undefined) && (value !== '')) {
           if (this.element.isBoolean){
             if (exceeds==true || exceeds==false)
-              return "✗";
+              return '✗';
             else
-              return "✓";
+              return '✓';
           }
           else
             return value;
         }
         else
-          return " ";
+          return ' ';
       }
     },
     computeStyle: function(change, index){
@@ -105,9 +116,9 @@
         if (value !== undefined) {
           if (this.element.isBoolean){
             if (exceeds==true || exceeds==false)
-              return "✗";
+              return '✗';
             else
-              return "✓";
+              return '✓';
           }
           else
             return value;
