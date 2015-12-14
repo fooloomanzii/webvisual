@@ -211,7 +211,7 @@
             console.error("data not sent in proper format. --> missing name for the content");
             return;
           }
-          if (labelIndex != undefined) {
+          if (labelIndex !== undefined) {
             this._setKeys(labelIndex, message[mesId].groupingKeys);
             this._setKeysForUsage(labelIndex, message[mesId].unnamedType);
             this._setTypes(labelIndex, message[mesId].types);
@@ -219,9 +219,13 @@
             this._setExclusiveGroupsTypes(labelIndex, message[mesId].exclusiveGroups);
             this._setIds(labelIndex);
             for (var i = 0; i < message[mesId].content.length; i++) {
-              var id = this._getIndex(labelIndex, message[mesId].content[i].id);
-              this._initDataPoint(labelIndex, id);
-              this._setValues(labelIndex, message[mesId].content[i], id);
+              if (message[mesId].content[i].id) {
+                var index = this._getIndex(labelIndex, message[mesId].content[i].id);
+                if (index !== undefined) {
+                  this._initDataPoint(labelIndex, index);
+                  this._setValues(labelIndex, message[mesId].content[i], index);
+                }
+              }
             }
           }
         }
@@ -247,11 +251,14 @@
                 console.warn("data not sent in proper format. --> missing name for the content");
                 return;
               }
-              if (labelIndex != undefined) {
+              if (labelIndex !== undefined) {
                 if (this.data[labelIndex].length < message[mesId].content.length) // re-group if necessary
                   needToGroup = true;
                 for (var i in message[mesId].content) { // for all messurement-data-alements existing
-                  this._setValues(labelIndex, message[mesId].content[i], this._getIndex(labelIndex, message[mesId].content[i].id));
+                  if (message.content[i].id) {
+                    var index = this._getIndex(labelIndex, message.content[i].id);
+                    if(index !== undefined) this._setValues(labelIndex, message.content[i], index);
+                  }
                 }
               }
             }
@@ -265,11 +272,14 @@
               console.warn("data not sent in proper format. --> missing name for the content");
               return;
             }
-            if (labelIndex != undefined) {
+            if (labelIndex !== undefined) {
               if (this.data[labelIndex].length < message.content.length) // re-group if necessary
                 needToGroup = true;
               for (var i in message.content) { // for all messurement-data-alements existing
-                this._setValues(labelIndex, message.content[i], this._getIndex(labelIndex, message.content[i].id));
+                if (message.content[i].id) {
+                  var index = this._getIndex(labelIndex, message.content[i].id);
+                  if(index !== undefined) this._setValues(labelIndex, message.content[i], index);
+                }
               }
             }
           }
