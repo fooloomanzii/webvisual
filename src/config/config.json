@@ -95,7 +95,7 @@
       "isBoolean": false
     },
 
-    "groupingKeys" : ["roomNr", "room", "kind", "method"],
+    "groupingKeys" : ["roomNr", "room", "kind", "method", "all"],
 
     "exclusiveGroups": {
       "roomNr": [{"name":"Diverse", "ids":["DI6-1","DI0-2","DI1-2"]},

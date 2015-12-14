@@ -89,26 +89,48 @@ function connect(config, server, err) {
   // Handle connections of new clients
   dataSocket.on('connection', function(socket) {
 
-    // An Alex: message.labels ist neu und wird anders eingelesen werden müssen
     var message = {};
-    message.labels = [ "HNF-GDS" ];
+    // An Alex: message.labels ist die Abfolge der dbName in den Configs
+    message.labels = [ "HNF-GDS", "test" ];
+
     socket.emit('clientConfig', message);
     socket.on('clientConfig', function(localClientSettings) {
       var current_client = new Client(socket, localClientSettings);
       dbcontroller.getData(current_client.firstPattern, function(err, data) {
         if (err)
           console.warn(err.stack);
-        // An Alex: das ist anders. Muss angepasst werden an das was der Client
-        // über
+        // An Alex: Das ist ein Test. Aber das was an der Client gesendet ist
+        // auch anders
         var message = [
           {
             label : "HNF-GDS",
             content : data,
-            time : new Date(), // current message time
-            groupingKeys : config.locals.groupingKeys,
-            exclusiveGroups : config.locals.exclusiveGroups,
             types : dataConf.types,
-            unnamedType : dataConf.unnamedType
+            ids : dataConf.ids,
+            groups : dataConf.groups,
+            keys : dataConf.keys,
+            unnamedType : dataConf.unnamedType,
+            timeFormat : dataConf.timeFormat
+          },
+          {
+            label : "fault-test",
+            content : data,
+            types : dataConf.types,
+            ids : dataConf.ids,
+            groups : dataConf.groups,
+            keys : dataConf.keys,
+            unnamedType : dataConf.unnamedType,
+            timeFormat : dataConf.timeFormat
+          },
+          {
+            label : "test",
+            content : data,
+            types : dataConf.types,
+            ids : dataConf.ids,
+            groups : dataConf.groups,
+            keys : dataConf.keys,
+            unnamedType : dataConf.unnamedType,
+            timeFormat : dataConf.timeFormat
           }
         ];
         socket.emit('first', message);
@@ -142,9 +164,11 @@ function connect(config, server, err) {
                              // empty data
                              return;
                            }
-                           // An Alex: das ist anders
+                           // An Alex: das ist der Test
                            var message = {
-                             label : "HNF-GDS",
+                             label : (Math.floor((Math.random() * 2) + 1) == 1)
+                                         ? "HNF-GDS"
+                                         : "test",
                              content : data,
                              time : new Date(), // current message time
                            };

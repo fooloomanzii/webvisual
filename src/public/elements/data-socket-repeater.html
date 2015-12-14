@@ -57,16 +57,7 @@
             value: function() { return []; },
             notify: true
           },
-          exclusiveGroups: {
-            type: Array,
-            value: function() { return []; },
-            notify: true
-          },
           keys: {
-            type: Array,
-            value: function() { return []; }
-          },
-          keysForUsage: {
             type: Array,
             value: function() { return []; }
           },
@@ -185,8 +176,10 @@
       _init: function() {
         this.set('data',[]);
         this.set('ids',[]);
+        this.set('availableLabels',[]);
         this.set('labels',[]);
         this.set('groups',[]);
+        this.set('keys',[]);
         this.set('types',[]);
         this.set('unnamedTypes',[]);
       },
@@ -212,12 +205,11 @@
             return;
           }
           if (labelIndex !== undefined) {
-            this._setKeys(labelIndex, message[mesId].groupingKeys);
-            this._setKeysForUsage(labelIndex, message[mesId].unnamedType);
+            this._setKeys(labelIndex, message[mesId].keys);
             this._setTypes(labelIndex, message[mesId].types);
             this._setUnnamedTypes(labelIndex, message[mesId].unnamedType);
-            this._setExclusiveGroupsTypes(labelIndex, message[mesId].exclusiveGroups);
-            this._setIds(labelIndex);
+            this._setGroups(labelIndex, message[mesId].groups);
+            this._setIds(labelIndex, message[mesId].ids);
             for (var i = 0; i < message[mesId].content.length; i++) {
               if (message[mesId].content[i].id) {
                 var index = this._getIndex(labelIndex, message[mesId].content[i].id);
@@ -230,8 +222,6 @@
           }
         }
         this.set("status.time.lastStatus", new Date()); this.set("status.message", "grouping elements");
-        this._implExclusiveGroups();
-        this._implGroups();
         this.fire("dataloaded");
       },
 
@@ -293,14 +283,8 @@
         var check = this.ids[labelIndex].indexOf(id);
         if(check !== -1)
           return check;
-      },
-
-      _setIds: function(labelIndex) {
-        while (labelIndex >= this.ids.length)
-          this.push("ids", []);
-        for (var i=0; i<this.types[labelIndex].length; i++) {
-          this.push("ids." + labelIndex, this.types[labelIndex][i].id);
-        }
+        else // if it doesn't excist then return undefined
+          return undefined;
       },
 
       _getLabelIndex: function(labelName) {
@@ -311,28 +295,16 @@
           return undefined;
       },
 
-      _setLanguage: function(language) {
-        // TODO: create and set languageset
+      _setIds: function(labelIndex, ids) {
+        while (labelIndex >= this.ids.length)
+          this.push("ids", []);
+        this.set("ids." + labelIndex, ids);
       },
 
-      _setKeys: function(labelIndex, newKeys) {
+      _setKeys: function(labelIndex, allKeys) {
         while (labelIndex >= this.keys.length)
           this.push("keys", []);
-        for (var i = 0; i < newKeys.length; i++){
-          if(this.keys[labelIndex].indexOf(newKeys[i]) == -1)
-            this.push("keys." + labelIndex, newKeys[i]);
-        }
-        if (this.keys[labelIndex].indexOf("all") == -1)
-          this.push("keys." + labelIndex, "all");
-      },
-
-      _setKeysForUsage: function(labelIndex, unnamedTypes) {
-        while (labelIndex >= this.keysForUsage.length)
-          this.push("keysForUsage", []);
-        var keysToHave = _.keys(unnamedTypes);
-        for (var i=0; i < keysToHave.length; i++)
-          if (this.keysForUsage[labelIndex].indexOf(keysToHave[i]) == -1)
-            this.push("keysForUsage." + labelIndex, keysToHave[i]);
+        this.set("keys." + labelIndex, allKeys);
       },
 
       _setTypes: function(labelIndex, types) {
@@ -347,10 +319,10 @@
         this.set("unnamedTypes."+labelIndex, unnamedTypes);
       },
 
-      _setExclusiveGroupsTypes: function(labelIndex, exclusiveGroups) {
-        while (labelIndex >= this.exclusiveGroups.length)
-          this.push("exclusiveGroups", {});
-        this.set("exclusiveGroups."+labelIndex, exclusiveGroups);
+      _setGroups: function(labelIndex, groups) {
+        while (labelIndex >= this.groups.length)
+          this.push("groups", {});
+        this.set("groups."+labelIndex, groups);
       },
 
       _setValues: function(labelIndex, messageContent, i) {
@@ -396,86 +368,26 @@
         while (i >= this.data[labelIndex].length)
           this.push("data." + labelIndex, {});
 
-        // TODO: eventuell Entfernen wenn test-Phase vorbei
+        // extra attributes
         this.set("data." + labelIndex + "." + i+ ".labelname", this.labels[labelIndex]);
         this.set("data." + labelIndex + "." + i+ ".labelindex", labelIndex);
         this.set("data." + labelIndex + "." + i+ ".index", i);
-
         this.set("data." + labelIndex + "." + i + ".isExceeding", false);
+
+        // value attributes
         this.set("data." + labelIndex + "." + i + ".values", []);
         this.push("data." + labelIndex + "." + i + ".values", {"x":"","y":"","exceeds": null});
 
         var key;
-        // set configuration types
-        for (var j=0; j < this.keysForUsage[labelIndex].length; j++) {
-          key = this.keysForUsage[labelIndex][j];
+        // configuartion
+        for (var j=0; j < this.keys[labelIndex].length; j++) {
+          key = this.keys[labelIndex][j];
           if(key != "values" && !this.data[labelIndex][i][key]){
             if(this.types[labelIndex] && this.types[labelIndex][i] && this.types[labelIndex][i][key])
               this.set("data." + labelIndex + "." + i + "." + key, this.types[labelIndex][i][key]);
             else
               this.set("data." + labelIndex + "." + i + "." + key, this.unnamedTypes[labelIndex][key]);
           }
-        }
-      },
-
-      _implExclusiveGroups: function() { // create the preset-Groups
-        for (var labelIndex=0; labelIndex < this.exclusiveGroups.length; labelIndex++) {
-          for (var key in this.exclusiveGroups[labelIndex]) {
-            while (labelIndex >= this.groups.length) // for each db is a group
-              this.push("groups", {});
-            if(!this.groups[labelIndex][key])
-              this.set("groups." + labelIndex + "." + key, []);
-            for (var i=0; i<this.exclusiveGroups[labelIndex][key].length; i++){
-              this.push("groups." + labelIndex + "." + key, {});
-              this.set("groups." + labelIndex + "." + key + "." + i + ".name", this.exclusiveGroups[labelIndex][key][i].name);
-              this.set("groups." + labelIndex + "." + key + "." + i + ".ids", []);
-              for (var j=0; j<this.exclusiveGroups[labelIndex][key][i].ids.length; j++){
-                this.push("groups." + labelIndex + "." + key + "." + i + ".ids", this.exclusiveGroups[labelIndex][key][i].ids[j]);
-              }
-            }
-          }
-        }
-      },
-      _implGroups: function() { // create Groups
-        var where, key, needToSet;
-
-        while (this.data.length > this.groups.length) // for each db is a group
-          this.push("groups", {});
-
-        for (var labelIndex=0; labelIndex < this.data.length; labelIndex++) {
-          for (var i=0; i < this.data[labelIndex].length; i++) {
-            for (var j=0; j<this.keys[labelIndex].length; j++) {
-              key = this.keys[labelIndex][j];
-              if (!this.groups[labelIndex][key])
-                this.set("groups." + labelIndex + "." + key, []);
-
-              needToSet = true;
-              where = -1;
-              for (var k=0; k<this.groups[labelIndex][key].length; k++) {
-                if(this.groups[labelIndex][key][k].ids &&
-                  this.groups[labelIndex][key][k].ids.indexOf(this.data[labelIndex][i].id) != -1) {
-                    needToSet = false;
-                    break;
-                }
-                if(this.groups[labelIndex][key][k].name == this.data[labelIndex][i][key]) {
-                  where = k;
-                }
-              }
-
-              if(needToSet) {
-                if (where == -1){
-                  this.push("groups." + labelIndex + "." + key, {});
-                  where = this.groups[labelIndex][key].length-1;
-                  this.set("groups." + labelIndex + "." + key + "." + where + ".name", this.data[labelIndex][i][key]);
-                  this.set("groups." + labelIndex + "." + key + "." + where + ".ids", []);
-                  }
-                this.push("groups." + labelIndex + "." + key + "." + where + ".ids", this.data[labelIndex][i].id);
-              }
-            }
-          }
-          // TODO : potentieller Fehler wenn all nicht gesetzt?
-          if (!this.groups[labelIndex].all[0].name)
-            this.groups[labelIndex].all[0].name = 'all';
         }
       },
 
