@@ -59,15 +59,12 @@
     section#mainContent[dark] ::content .incard, section#mainContent[dark] ::content .noncard {
       border-right: thin solid #606060;
     }
-    section#header ::content paper-icon-button.toggle-icon {
-      margin-right: 20px;
-    }
     section#header ::content paper-icon-button.menu-icon {
       margin-right: 24px;
       margin-left: 20px;
       z-index: 10;
     }
-    section#header ::content paper-icon-button:hover {
+    section#header ::content paper-icon-button:hover, section#control ::content paper-icon-button:hover, section#control paper-icon-button:hover {
       background: #669DB4;
       color: #f1f1f1;
       border-radius: 50%;
@@ -75,20 +72,20 @@
                   0 1px 5px 0 rgba(0, 0, 0, 0.12),
                   0 3px 1px -2px rgba(0, 0, 0, 0.2);
     }
-    paper-icon-button.expand-icon {
+    section#control paper-icon-button, section#control ::content paper-icon-button {
       display: inline-block;
-      margin-right: 12px;
+      margin-right: 8px;
     }
     section#header div.logo-element-placeholder {
       height: 44px;
       max-width: 140px;
-      min-width: 95px;
+      min-width: 100px;
       flex: 1;
     }
     section#control {
       position: fixed;
       top: 12px;
-      right: 0;
+      right: 12px;
       display: flex;
     }
     section#lower ::content leaflet-map {
@@ -144,9 +141,6 @@
       }
       section#lower ::content .incard {
         flex: 1;
-      }
-      section#header ::content paper-icon-button {
-        margin-right: 6px;
       }
       section#lower ::content .noncard {
         height: calc(38vh - 64px - 1em);
@@ -226,11 +220,11 @@
         <content select=".menu-icon"></content>
         <div class="logo-element-placeholder"></div>
         <content select=".header"></content>
-
-        <section id="control" hidden$="{{!opened}}">
-          <paper-icon-button icon="{{_computeExpandIcon(expanded)}}" class="expand-icon" on-click="_expandView"></paper-icon-button>
-          <content select=".toggle-icon"></content>
-        </section>
+      </section>
+      <section id="control">
+        <content select=".error"></content>
+        <paper-icon-button icon="{{_computeExpandIcon(expanded)}}" class="expand-icon" on-click="_expandView" hidden$="{{!opened}}"></paper-icon-button>
+        <section hidden$="{{!opened}}"><content select=".toggle-icon"></content></section>
       </section>
       <section id="lower" hidden$="{{!opened}}">
         <section id="selSign" class="">
@@ -254,6 +248,7 @@
     },
 
     behaviors: [
+      Polymer.IronResizableBehavior,
       Polymer.NeonAnimationRunnerBehavior
     ],
 

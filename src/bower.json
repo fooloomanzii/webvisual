@@ -8,7 +8,6 @@
   ],
   "dependencies": {
     "iron-elements": "PolymerElements/iron-elements",
-    "iron-list": "PolymerElements/iron-list",
     "jquery": "*",
     "leaflet-map": "*",
     "neon-animation": "PolymerElements/neon-animation",
@@ -19,5 +18,8 @@
   },
   "ignoredDependencies": [
     "PolymerElements/font-roboto"
-  ]
+  ],
+  "resolutions": {
+    "polymer": "1.2.3"
+  }
 }

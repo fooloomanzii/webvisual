@@ -14,7 +14,7 @@ var MailHelper = (function() {
         from: 'SCADA <webvisual.test@gmail.com>', // sender address
         subject: 'Node.js Mail', // Subject line
       },
-      logDir='../../../logs',
+      logDir='../../../logs/',
       currFileName='currMsg',
       lastFileName='lastMsg',
       fileExt='log';

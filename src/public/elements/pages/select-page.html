@@ -2,6 +2,7 @@
 <link rel="import" href="../../components/iron-selector/iron-selector.html">
 <link rel="import" href="../../components/iron-collapse/iron-collapse.html">
 <link rel="import" href="../../components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../components/paper-item/paper-item.html">
@@ -21,6 +22,9 @@
 <link rel="import" href="../sign-element.html"/>
 <link rel="import" href="../table-element.html"/>
 <link rel="import" href="../post-card.html"/>
+
+<!-- Cookies -->
+<link rel="import" href="../cookie-element.html">
 
 <!-- <link rel="import" href="../line-chart.html"/> -->
 <link rel="import" href="../../components/leaflet-map/leaflet-map.html">
@@ -45,34 +49,21 @@
       position: relative !important;
       top: 0;
       left: 0;
-      line-height: normal;
-      border-radius: 8px;
       z-index: 8;
-      background: white;
-      color: #1f1f1f;
     }
-    paper-dialog#labelWindow[dark] {
-      background: #a8a8a8;
-    }
-    paper-dialog * {
-      margin-top: 0;
-    }
-    section.dialog-title {
-      border-radius: 8px 8px 0px 0px;
+    paper-dialog h2 {
       background: #669DB4;
       color: white;
-      font-family: Thin;
-      font-size: 2em;
-      padding: 0.5em 1em;
     }
-    section.dialog-title[dark] {
+    paper-dialog h2[dark] {
       background: #345475;
       color: #A8CCDB;
     }
     section.dialog-section {
       font-family: Regular;
-      font-size: 1.25em;
-      padding: 1.5em 2em 1.25em 2em;
+      font-size: 1.1em;
+      padding: 1.5em 2em 0.5em 1em;
+      margin-top: 0em !important;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -98,9 +89,6 @@
       font-family: Light;
       color: #345475;
       border-radius: 5px;
-      font-size: 1.25em;
-      padding: 0.5em;
-      margin: 0.5em;
       border-top: thin solid rgba(200, 200, 200, 0);
       border-bottom: thin solid  rgba(200, 200, 200, 0);
       background: linear-gradient(to bottom, rgba(0,0,0,0.01) 5%,rgba(50,50,50,0.05) 40%);
@@ -118,13 +106,12 @@
   </style>
 
   <template>
-
       <paper-dialog id="labelWindow" entry-animation="scale-up-animation" exit-animation="slide-right-animation" no-cancel-on-outside-click no-cancel-on-esc-key>
-        <section class="dialog-title">Auswahl des Messraums</section>
+        <h2 class="dialog-title">Auswahl des Messraums</h2>
         <section class="dialog-section">
           <section class="list">
             <span>verfügbar sind:</span>
-            <iron-selector selected-values="{{labels}}" attr-for-selected="label" multi>
+            <iron-selector selected-values="{{labels}}" attr-for-selected="label" selected-attribute="checked" multi>
               <template is="dom-repeat" items="{{availableLabels}}">
                 <paper-radio-button label="{{item}}">{{item}}</paper-radio-button>
               </template>
@@ -135,6 +122,8 @@
           <paper-button disabled="{{notSelected}}" raised="{{notSelected}}" dialog-confirm on-click="_onSelected"><iron-icon id="logo" icon="juelich:logo"></iron-icon>Verbinden</paper-button>
         </div>
       </paper-dialog>
+
+      <cookie-element id="labelsCookie" name="webvisual-stored-connections" value="{{labels}}"></cookie-element>
 
   </template>
 
@@ -153,7 +142,6 @@
         },
         labels: {
           type: Array,
-          value: function() { return []; },
           notify: true
         },
         notSelected: {
@@ -161,6 +149,7 @@
           value: true
         },
         sharedElements: {
+          type: Object,
           value: function() {
             return {
               'herologo1': this.$.logo,
@@ -197,18 +186,22 @@
 
       observers: [
         '_labelsChanged(labels.*)',
-        '_alllabelsChanged(availableLabels.*)',
+        '_availableLabelsChanged(availableLabels.*)'
       ],
-      _alllabelsChanged: function(changerecord) {
-        console.log(changerecord);
+
+      _labelsChanged: function() {
+        this.set("notSelected",(this.labels.length < 1));
       },
-      _labelsChanged: function(changerecord) {
-        if(changerecord.path == 'labels.length') {
-          this.set("notSelected",(this.labels.length < 1));
+
+      _availableLabelsChanged: function() {
+        if (this.availableLabels.length == 1){
+          this.set("labels", this.availableLabels);
+          this.fire("configset");
         }
       },
 
       _onSelected: function() {
+        this.$.labelsCookie.save();
         this.fire("configset");
       }
     });

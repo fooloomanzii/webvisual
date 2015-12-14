@@ -89,7 +89,7 @@ function connect(config, server, err) {
   // Handle connections of new clients
   dataSocket.on('connection', function(socket) {
 
-    // An Alex: das ist neu und wird anders eingelesen werden
+    // An Alex: message.labels ist neu und wird anders eingelesen werden müssen
     var message = {};
     message.labels = [ "HNF-GDS", "test" ];
     socket.emit('clientConfig', message);

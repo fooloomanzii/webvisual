@@ -75,7 +75,7 @@
       border-radius: 2px 2px 2px 3px;
       border: thin solid #BBBBBB;
       border-radius: 2px;
-      align-self: stretch;
+      /*align-self: stretch;*/
     }
     section.card[dark] {
       border: thin solid #606060;
@@ -128,11 +128,10 @@
       --paper-toggle-button-checked-ink-color:	#1d1d1d;
     }
     paper-tabs#labelsTabs {
-      margin-left: 4em;
+      margin-left: 44px;
       height: 62%;
       align-self: flex-end;
       flex: 2;
-      z-index: 100000;
     }
     paper-tab.paper-tab-0:hover {
       background: rgba(255,255,255,0.4);
@@ -142,7 +141,6 @@
 
       --paper-tab:	{
         align-self: flex-end;
-        height: 68%;
         padding: 0em 2em;
       };
 
@@ -182,28 +180,24 @@
     }
     /* Dialogs */
     paper-dialog.sidemenu {
-      top: calc(64px);
       right: 0px;
-      margin: 1.5em;
+      margin: 1em;
       position: fixed;
-      width: calc(100vw - 3em);
-    }
-    :host[opened] paper-dialog.sidemenu {
-      top: calc(64px + 11em);
+      width: calc(100vw - 4em);
     }
     @media all and (min-width: 480px) and (max-width: 600px) and (orientation : landscape) {
       paper-dialog.sidemenu {
-        width: calc(100vw - 18em);
+        width: calc(100% - 18em);
       }
     }
     @media all and (min-width: 600px) and (max-width: 840px) and (orientation: portrait) {
       paper-dialog.sidemenu {
-        width: calc(100vw - 18em);
+        width: calc(100% - 18em);
       }
     }
     @media all and (min-width: 600px) and (max-width: 840px) and (orientation : landscape) {
       paper-dialog.sidemenu {
-        width: calc(100vw - 18em);
+        width: calc(100% - 18em);
       }
     }
     @media all and (min-width: 840px) {
@@ -224,8 +218,46 @@
       z-index: 10;
       width: 140px;
     }
-    paper-icon-button#menu {
-      z-index: 30000;
+    paper-dialog#exceedsDialog {
+      margin: 2em;
+      position: fixed;
+      /*width: calc(100% - 4em);
+      height: calc(100% - 4em);*/
+      display: flex;
+      flex-direction: column;
+    }
+    paper-dialog#exceedsDialog h2 {
+      background: rgba(246, 71, 86, 0.9);
+      border-bottom: thin solid rgba(140, 140, 140, 0.5);
+      color: white;
+    }
+    paper-dialog#exceedsDialog h2[dark] {
+      background: rgba(175, 7, 21, 0.9);
+      border-bottom: thin solid rgba(80, 80, 80, 0.5);
+      color: rgba(#f1f1f1, 0.9);
+    }
+    paper-dialog#exceedsDialog section.scrollable {
+      flex-direction: row;
+      display: flex;
+      flex-wrap: wrap;
+      height: 100%;
+      margin: 0em;
+      justify-content: flex-start;
+      padding: 1em 0.5em 0em 1em;
+      overflow: auto;
+    }
+
+    paper-icon-button.error {
+      color: currentColor;
+      animation-name: alarm-animation !important;
+      animation-duration: 2s;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+    }
+    @keyframes alarm-animation {
+      0%   {color: currentColor;}
+      33%  {color: rgb(255, 21, 41);}
+      100% {color: currentColor;}
     }
   </style>
 
@@ -234,14 +266,13 @@
     <logo-element id="logo"></logo-element>
     <main-toolbar id="toolbar" class="paper-header" on-deselect="deselectElement">
       <paper-icon-button icon="menu" class="menu-icon" on-click="togglePanel"></paper-icon-button>
+      <paper-icon-button icon="error-outline" class="error control" on-tap="openExceedsDialog" hidden$="{{!isExceeding}}"></paper-icon-button>
+      <paper-icon-button icon="remove" class="toggle-icon control" on-click="deselectElement"></paper-icon-button>
       <paper-tabs id="labelsTabs" class="header" selected="{{selectedLabelId}}" no-bar scrollable hide-scroll-buttons>
         <template is="dom-repeat" items="{{labels}}">
           <paper-tab class="label">{{item}}</paper-tab>
         </template>
       </paper-tabs>
-
-
-      <paper-icon-button icon="remove" class="toggle-icon" on-click="deselectElement"></paper-icon-button>
 
       <sign-element id="selectedElementSign" class="selectedElement sign incard" element="{{selectedElement}}" on-click="deselectElement"></sign-element>
       <section id="selectedElementCaption" class="selectedElement caption incard">
@@ -392,7 +423,7 @@
                     <template is="dom-if" if="{{groupElements(element,groupItems)}}" restamp>
                       <section class="card" on-click="setSelectedElement" dark$="[[dark]]">
 
-                          <sign-element element="{{element}}" dark$="[[dark]]"></sign-element>
+                          <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding="addExceedingElement" on-notexceeding="removeExceedingElement"></sign-element>
                           <section class="caption" id="{{element.id}}" dark$="[[dark]]">
                             <span id="kind">{{element.kind}}</span>
                             <span id="method">{{element.method}}</span>
@@ -415,6 +446,29 @@
     </paper-drawer-panel>
 
   <!-- Dialogs -->
+
+    <paper-dialog id="exceedsDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+      <h2 class="dialog-title">Alarm</paper-icon-button></h2>
+      <section class="scrollable">
+        <template is="dom-repeat" items="{{exceedingElements}}" as="element">
+          <section class="card" on-click="setSelectedElement" dark$="[[dark]]">
+            <sign-element element="{{element}}" dark$="[[dark]]"></sign-element>
+            <section class="caption" id="{{element.id}}" dark$="[[dark]]">
+              <span id="kind">{{element.kind}}</span>
+              <span id="method">{{element.method}}</span>
+              <span id="room">{{element.room}}</span>
+              <span id="roomNr">{{element.roomNr}}</span>
+              <span id="roomNr">{{element.labelname}}</span>
+            </section>
+          </section>
+        </template>
+      </section>
+      <div class="buttons">
+        <!-- <paper-button disabled><iron-icon icon="mail"></iron-icon>Send</paper-button>
+        <paper-button disabled><iron-icon icon="print"></iron-icon>Print</paper-button> -->
+        <paper-button dialog-dismiss><iron-icon icon="close"></iron-icon>schließen</paper-button>
+      </div>
+    </paper-dialog>
 
     <!-- Log-in -->
   <!-- <paper-dialog class="mainmenu" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
@@ -452,14 +506,13 @@
     Polymer({
       is: 'main-page',
 
-      behaviors: [PageBehavior, DataBehavior, Polymer.NeonSharedElementAnimatableBehavior],
+      behaviors: [PageBehavior, DataBehavior, Polymer.IronResizableBehavior, Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
         sharedElements: {
           value: function() {
             return {
-              'herologo2': this.$.logo,
-              'herobackground2': this.$.toolbar
+              'herologo2': this.$.logo
             }
           }
         },
@@ -473,14 +526,13 @@
                   toPage: this,
                 },
                 {
-                  name: 'ripple-animation',
-                  id: 'herobackground2',
-                  toPage: this,
+                  name: 'fade-in-animation',
+                  node: this.$.mainView
                 }
               ],
               'exit': [
                 {
-                  name: 'slide-right-animation',
+                  name: 'scale-down-animation',
                   node: this
                 }
               ]
@@ -511,18 +563,44 @@
         opened: {
           type: Boolean,
           value: false,
+          notify: true,
           reflectToAttribute: true
+        },
+        alwaysShowTabs: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          observer: '_labelsChanged'
+        },
+        isExceeding: {
+          type: Boolean,
+          value: false,
+          notify: true,
+          reflectToAttribute: true
+        },
+        exceedingElements: {
+          type: Array,
+          value: function() { return []; },
+          notify: true
         }
       },
 
-      _labelsChanged: function(changerecord) {
-        if(changerecord.path == 'labels.length') {
-            if (changerecord.value <= 1) {
-              this.toggleAttribute('hidden',true,this.$.labelsTabs);
-            }
-            else {
-              this.toggleAttribute('hidden',false,this.$.labelsTabs);
-            }
+      attached: function() {
+        var self = this;
+        var dialogs = Array.prototype.slice.call(Polymer.dom(this.root).querySelectorAll("paper-dialog"));
+        Array.prototype.forEach.call(dialogs, function(dialog) {
+            dialog.fitInto = self.$.mainPanel;
+            dialog.fit();
+        });
+      },
+
+      // Show Tabs if wanted
+      _labelsChanged: function() {
+        if (this.alwaysShowTabs && this.labels.length <= 1) {
+          this.toggleAttribute('hidden',true,this.$.labelsTabs);
+        }
+        else {
+          this.toggleAttribute('hidden',false,this.$.labelsTabs);
         }
       },
 
@@ -531,7 +609,7 @@
       },
 
       setSelectedElement: function(e) {
-        if (e){
+        if(e) {
           var item = e.model.element;
           if (this.selectedElement == item){
             this.deselectElement();
@@ -563,6 +641,46 @@
           this.$.toolbar.toggleAttribute('opened',false);
           this.toggleAttribute('opened',false);
         },320);
+      },
+
+      addExceedingElement: function(e){
+        if(e && e.detail) {
+          var item = Polymer.Collection.get(this.data[e.detail.labelindex]).getItem('#'+e.detail.index);
+          if(item && Polymer.Collection.get(this.exceedingElements).getKey(item) === undefined) {
+            key = this.push('exceedingElements', item) - 1;
+            this.linkPaths('exceedingElements.#' + key, 'data.#' + e.detail.labelindex + ".#" + e.detail.index);
+            this.notifyPath('exceedingElements.#' + key + '.values', this.exceedingElements[key].values);
+            if (!this.isExceeding)
+              this.isExceeding = true;
+            this.openExceedsDialog();
+          }
+        }
+      },
+
+      removeExceedingElement: function(e){
+        if(e && e.detail) {
+          var item = Polymer.Collection.get(this.data[e.detail.labelindex]).getItem('#'+e.detail.index);
+          var key = Polymer.Collection.get(this.exceedingElements).getKey(item);
+          if(item && key) {
+            this.arrayDelete('exceedingElements', item);
+            this.unlinkPaths('selected.' + key);
+            if (this.exceedingElements.length == 0)
+              this.isExceeding = false;
+          }
+        }
+      },
+
+      fit: function() {
+        // Array.prototype.forEach.call(this.dialogs, function(dialog) {
+        //     dialog.fit();
+        // });
+      },
+
+      openExceedsDialog: function() {
+        if(!this.$.exceedsDialog.opened) {
+          this.$.exceedsDialog.fit();
+          Polymer.dom(this.root).querySelector("paper-dialog#exceedsDialog").open();
+        }
       },
 
       changeTheme: function(){

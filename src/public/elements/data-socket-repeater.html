@@ -348,12 +348,30 @@
           while (this.data[labelIndex][i].values.length > 0)
             this.pop("data." + labelIndex + "." + i + ".values");
         if (this.newestDataLast) {
-          for (var j=0; j < messageContent.values.length; j++)
+          for (var j=0; j < messageContent.values.length; j++) {
             this.unshift("data." + labelIndex + "." + i + ".values", messageContent.values[j]);
+            if (messageContent.values[j].exceeds === null) {
+              if(this.data[labelIndex][i].isExceeding)
+                this.set("data." + labelIndex + "." + i + ".isExceeding", false);
+            }
+            else if (messageContent.values[j].exceeds === true || messageContent.values[j].exceeds === false) {
+              if(!this.data[labelIndex][i].isExceeding)
+                this.set("data." + labelIndex + "." + i + ".isExceeding", true);
+            }
+          }
         }
         else {
-          for (var j=messageContent.values.length-1; j >=0; j--)
+          for (var j=messageContent.values.length-1; j >=0; j--) {
             this.unshift("data." + labelIndex + "." + i + ".values", messageContent.values[j]);
+            if (messageContent.values[j].exceeds === null) {
+              if(this.data[labelIndex][i].isExceeding)
+                this.set("data." + labelIndex + "." + i + ".isExceeding", false);
+            }
+            else if (messageContent.values[j].exceeds === true || messageContent.values[j].exceeds === false) {
+              if(!this.data[labelIndex][i].isExceeding)
+                this.set("data." + labelIndex + "." + i + ".isExceeding", true);
+            }
+          }
         }
         if (this.data[labelIndex][i].values.length > this.maxLines)
           this.splice("data." + labelIndex + "." + i + ".values", this.maxLines, this.data[labelIndex][i].values.length);
@@ -368,8 +386,13 @@
         while (i >= this.data[labelIndex].length)
           this.push("data." + labelIndex, {});
 
+        // TODO: eventuell Entfernen wenn test-Phase vorbei
         this.set("data." + labelIndex + "." + i+ ".labelname", this.labels[labelIndex]);
-        this.set("data." + labelIndex + "." + i+ ".values", []);
+        this.set("data." + labelIndex + "." + i+ ".labelindex", labelIndex);
+        this.set("data." + labelIndex + "." + i+ ".index", i);
+
+        this.set("data." + labelIndex + "." + i + ".isExceeding", false);
+        this.set("data." + labelIndex + "." + i + ".values", []);
         this.push("data." + labelIndex + "." + i + ".values", {"x":"","y":"","exceeds": null});
 
         var key;

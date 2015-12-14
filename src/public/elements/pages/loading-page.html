@@ -29,16 +29,16 @@
       }
     }*/
     logo-element {
-      top: calc(50% - 14vh);
-      left: calc(50% - 18vw);
+      top: calc(50% - 25vh);
+      left: calc(50% - 31vw);
       position: fixed;
       align-self: center;
-      height: 14vw;
-      width: 38vw;
+      height: 28vw;
+      width: 62vw;
       z-index: 10;
     }
     section#messageBox {
-      top: calc(50% + 14vh);
+      bottom: calc(5vh);
       left: calc(50% - 18vw);
       position: fixed;
       align-items: center;
@@ -52,7 +52,7 @@
       z-index: 9;
     }
     circle-element {
-      top: calc(100% - 25vh);
+      bottom: calc(20vh - 16px);
       left: calc(50% - 80px);
       position: fixed;
       padding-left: 10vw;
@@ -62,8 +62,8 @@
 
   <template>
     <logo-element id="logo"></logo-element>
-    <section id="messageBox">{{status.message}}</section>
     <circle-element id="circle"></circle-element>
+    <section id="messageBox">{{status.message}}</section>
     <section id="mainContent">
     </section>
   </template>
@@ -92,8 +92,7 @@
             return {
               'herologo1': this.$.logo,
               'herologo2': this.$.logo.$.logo,
-              'herobackground':  this.$.mainContent,
-              'herobackground2':  this.$.mainContent
+              'herobackground':  this.$.mainContent
             }
           }
         },
@@ -120,9 +119,8 @@
                   fromPage: this
                 },
                 {
-                  name: 'ripple-animation',
-                  id: 'herobackground2',
-                  fromPage: this
+                  name: 'scale-down-animation',
+                  node: this.$.mainContent
                 }
               ]
             }
