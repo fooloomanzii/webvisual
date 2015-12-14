@@ -34,7 +34,7 @@
 
   "locals":{
 
-    "ignore": [8,17,21,22,27,32],
+    "ignore": [0,8,16,17,21,22,27,32],
 
     "types": [
       {"id":"Binary", "roomNr":"test", "room":"test", "kind":"Test", "method":"Binärzahl", "isBoolean": false, "threshold": {"from":0,"to":10000000}, "unit":"₍₂₎"},

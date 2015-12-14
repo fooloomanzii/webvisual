@@ -91,7 +91,7 @@ function connect(config, server, err) {
 
     // An Alex: message.labels ist neu und wird anders eingelesen werden müssen
     var message = {};
-    message.labels = [ "HNF-GDS", "test" ];
+    message.labels = [ "HNF-GDS" ];
     socket.emit('clientConfig', message);
     socket.on('clientConfig', function(localClientSettings) {
       var current_client = new Client(socket, localClientSettings);
@@ -103,24 +103,6 @@ function connect(config, server, err) {
         var message = [
           {
             label : "HNF-GDS",
-            content : data,
-            time : new Date(), // current message time
-            groupingKeys : config.locals.groupingKeys,
-            exclusiveGroups : config.locals.exclusiveGroups,
-            types : dataConf.types,
-            unnamedType : dataConf.unnamedType
-          },
-          {
-            label : "fault-test",
-            content : data,
-            time : new Date(), // current message time
-            groupingKeys : config.locals.groupingKeys,
-            exclusiveGroups : config.locals.exclusiveGroups,
-            types : dataConf.types,
-            unnamedType : dataConf.unnamedType
-          },
-          {
-            label : "test",
             content : data,
             time : new Date(), // current message time
             groupingKeys : config.locals.groupingKeys,
@@ -162,9 +144,7 @@ function connect(config, server, err) {
                            }
                            // An Alex: das ist anders
                            var message = {
-                             label : (Math.floor((Math.random() * 2) + 1) == 1)
-                                         ? "HNF-GDS"
-                                         : "test",
+                             label : "HNF-GDS",
                              content : data,
                              time : new Date(), // current message time
                            };
