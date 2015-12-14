@@ -92,17 +92,19 @@ function connect (config, server, err) {
 
   // Handle connections of new clients
   dataSocket.on('connection', function(socket) {
-
+    var message = {};
+//TODO use labels from config
+    message.labels = [ "HNF-GDS" ];
+    socket.emit('clientConfig', message);
     socket.on('clientConfig', function(patterns) {
       var current_client = new Client(socket, patterns);
       dbController.getData(current_client.dataIndex, current_client.firstPattern,
         function (err, data, index) {
           if(err) handleError(err, "getData "+index);
-
-          //TODO: important! if two lines change then send in the same kind of object
-
+          
+//TODO use labels from config
           var message = {
-             id: index,
+             label : "HNF-GDS",
              content: data,
              time: new Date(), // current message time
              groupingKeys: configArray[index].locals.groupingKeys,
@@ -150,11 +152,12 @@ function connect (config, server, err) {
                         //empty data
                         return;
                       }
+//TODO use labels from config
                       var message = {
-                         id: db_index,
-                         content: data,
-                         time: new Date(), // current message time
-                      };
+                          label : "HNF-GDS",
+                          content : data,
+                          time : new Date(), // current message time
+                        };
                       client.socket.emit('data', message);
                     async_callback();
                     }

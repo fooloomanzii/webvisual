@@ -185,6 +185,7 @@ dataModule.connect(config,server);
  // and pretty this part
 process.on('uncaughtException', function(err) {
   winston.log('debug', 'Now my debug messages are written to console!');
+  console.error('uncaughtException: '+err);
   console.warn(err.stack);
   try {
     server.close();
@@ -193,10 +194,10 @@ process.on('uncaughtException', function(err) {
     if(e.message !== 'Not running')
       throw e;
   }
-  
   //try to reconnect
   // dataModule.connect(config,server);
 });
+
 
 process.on('ECONNRESET', function(err) {
   try {
@@ -208,8 +209,9 @@ process.on('ECONNRESET', function(err) {
   }
   // try to reconnect
   console.error('ECONNRESET: '+err);
-  // dataModule.connect(config,server);
+  dataModule.connect(config,server);
 });
+
 
 /* SIGINT can usually be generated with Ctrl-C */
 process.on('SIGINT', function(err) {

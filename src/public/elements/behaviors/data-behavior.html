@@ -9,14 +9,33 @@
         notify: true
       },
       groups: {
-        type: Object,
-        value: function() { return {}; },
+        type: Array,
+        value: function() { return []; },
         notify: true
       },
       keys: {
         type: Array,
-        value: function() { return ["kind","method","room","roomNr","all"]; }
+        value: function() { return []; }
+      },
+      labels: {
+        type: Array,
+        value: function() { return []; },
+        notify: true
       }
+    },
+
+    observers: [
+      '_labelsChanged(labels.*)'
+    ],
+
+    _getLabelIndex: function(labelName) {
+      if(this.labels.indexOf(labelName) !== -1)
+        return check;
+      else
+        return undefined;
+    },
+
+    _labelsChanged: function(changerecord) {
     }
   };
 

@@ -83,10 +83,37 @@ paper-toggle-button {
   border-top: thin solid white;
   border-bottom: thin solid white;
 }
-
+paper-dialog {
+  font-family: Light !important;
+}
+paper-dialog[dark] {
+  background: #8A8A8A;
+}
 paper-dialog h2 {
-  font-family: Bold !important;
-  padding-left: 2em;
+  font-family: Light !important;
+}
+paper-dialog > *:first-child {
+  margin: 0;
+  padding: 1em 2em;
+  border-radius: 5px 5px 0px 0px;
+}
+paper-dialog paper-button {
+  color: #1f1f1f;
+  padding: 0.5em !important;
+  margin: 0;
+}
+paper-dialog paper-button[disabled] {
+  color: #a8a8a8;
+}
+paper-dialog[dark] > *:first-child {
+  background: #345475;
+  color: #A8CCDB;
+}
+paper-dialog paper-dialog-scrollable {
+  padding-top: 0.5em !important;
+  padding-bottom: 1em !important;
+  margin: 0px !important;
+  font-size: 0.95em;
 }
 /*
  * Fonts

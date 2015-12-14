@@ -14,7 +14,6 @@
 :root {
     font-family: Regular;
     font-size: 1em;
-    font-weight: normal;
     text-align: left;
     line-height: 1.4rem;
     -webkit-font-smoothing: antialiased;
@@ -26,11 +25,6 @@
     --dark-primary-color: #345475; /* Primary Colors */
     --default-primary-color:#005B82;
     --light-primary-color: #669DB4;
-
-    --default-primary-background-color: white; /* Texts and Backgrounds */
-    --default-secondary-background-color: #CCCCCC;
-    --dark-primary-background-color: #a8a8a8;
-    --dark-secondary-background-color: #777777;
 
     --default-primary-text-color: #1d1d1d;
     --default-secondary-text-color: #f1f1f1;
@@ -65,14 +59,9 @@
     /* Components */
     --paper-fab-background: var(--light-primary-color);
     --paper-fab-keyboard-focus-background: var(--light-primary-color);
-    --paper-icon-button-ink-color: var(--ink-color);
+    --paper-icon-button-ink-color: currentColor;
     --paper-tabs-selection-bar-color: var(--selected-color);
-    --paper-tab-ink: var(--secondary-hover-color);
-    --paper-dialog-background-color: var(--default-primary-background-color);
-    --paper-dialog-button-color: var(--default-primary-text-color);
-    --paper-dialog-color: var(--default-primary-text-color);
-    --paper-toolbar-color: var(--default-icon-color);
-    --paper-toolbar-background: var(--default-primary-color);
+    --paper-tab-ink: currentColor;
     --paper-input-container-color: #1d1d1d;
     --paper-input-container-focus-color: #345475;
 
@@ -88,7 +77,6 @@
         font-family: inherit;
         text-align: left;
         text-transform: none;
-        font-weight: normal;
         cursor: pointer;
         -webkit-user-select: none;
         -moz-user-select: none;
@@ -129,30 +117,11 @@
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
-        /*border: thin solid var(--default-primary-color);*/
         transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
       };
 
-    --paper-toolbar: {
-        background-color: var(--default-primary-color);
-        color: var(--default-icon-color);
-        font-family: Regular;
-        padding: 0.5em;
-        min-height: 2.5em;
-        max-height: 50vh;
-        line-height: 2.5em;
-        cursor: pointer;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        -webkit-touch-callout: none;
-        -webkit-tap-highlight-color:rgba(0,0,0,0);
-        transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
-        };
-
     --paper-tabs: {
-        font-family: Regular-Condensed;
+        font-family: Regular;
         margin: 0em;
         padding: 0em;
         background: none;
@@ -173,11 +142,15 @@
 
     --paper-dialog: {
         font-family: Light;
+        background: white;
         border-radius: 5px;
-        color: currentColor;
+        font-size: 1em;
+        font-family: Light;
+        --paper-dialog-background-color: white;
+        --paper-dialog-button-color: currentColor;
+        --paper-dialog-color: currentColor;
         text-rendering: inherit;
-        font-weight: normal;
-        line-height: 1.4em;
+        line-height: normal;
       };
 
     --paper-dialog-title {
@@ -203,12 +176,7 @@
 /* General styles */
 
 body {
-  background-color: var(--default-secondary-background-color);
   transition: all 0.56s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-body[dark] {
-  background-color: var(--dark-secondary-background-color);
 }
 
 /*
@@ -249,10 +217,6 @@ paper-item[dark]:hover {
   background: var(--secondary-hover-color);
 }
 
-paper-ripple {
-  color: var(--ink-color);
-}
-
 paper-icon-button:hover {
   background: var(--primary-hover-color);
   color: #f1f1f1;
@@ -267,7 +231,6 @@ paper-icon-button[dark]:hover {
 }
 
 .iron-selected {
-  font-weight: normal;
   color: var(--dark-primary-color);
   background: var(--selected-color);
 }
@@ -291,34 +254,6 @@ iron-collapse {
 
 .collapse-content[dark] {
   background-color: var(--dark-secondary-drawer-color);
-}
-
-/*
- * Dialogs
- */
-
-paper-dialog paper-dialog-scrollable {
-  margin: 0.5em 0em;
-  padding: 0em;
-  font-size: 0.95em;
-}
-
-paper-dialog * {
-  margin: 0em;
-  padding: 0em 1.5em 1.5em 1.5em;
-}
-
-paper-dialog *:last-child {
-  padding: 0.25em 0.25em 0.55em 0.25em;
-}
-
-paper-dialog[dark] {
-  background: var(--dark-primary-background-color);
-}
-
-paper-dialog[dark] > *:first-child {
-  color: var(--light-primary-color);
-  background: var(--dark-primary-color);
 }
 
 /*
