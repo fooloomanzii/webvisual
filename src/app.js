@@ -79,8 +79,12 @@ checkArguments();
 
 // Configure SSL Encryption
 var sslOptions  = {
-    key: fs.readFileSync(__dirname + '/ssl/ca.key'),
-    cert: fs.readFileSync(__dirname + '/ssl/ca.crt'),
+    key: fs.readFileSync(__dirname + '/ssl/ca.key', 'utf8'),
+    cert: fs.readFileSync(__dirname + '/ssl/ca.crt', 'utf8'),
+	ca: [ // Files for the certification path
+            fs.readFileSync(__dirname + '/ssl/ca_DFN.crt', 'utf8'),
+            fs.readFileSync(__dirname + '/ssl/ca_FZJ.crt', 'utf8')
+         ],
     passphrase: require('./ssl/ca.pw.json').password,
     requestCert: true,
     rejectUnauthorized: false
