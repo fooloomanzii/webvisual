@@ -601,7 +601,7 @@
 
       // Show Tabs if wanted
       _labelsChanged: function() {
-        if (this.alwaysShowTabs && this.labels.length <= 1) {
+        if (!this.alwaysShowTabs && this.labels.length <= 1) {
           this.toggleAttribute('hidden',true,this.$.labelsTabs);
         }
         else {

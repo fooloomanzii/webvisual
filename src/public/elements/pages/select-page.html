@@ -49,7 +49,7 @@
       position: relative !important;
       top: 0;
       left: 0;
-      z-index: 8;
+      z-index: 0;
     }
     paper-dialog h2 {
       background: #669DB4;
@@ -107,7 +107,7 @@
   </style>
 
   <template>
-      <paper-dialog id="labelWindow" entry-animation="scale-up-animation" exit-animation="slide-right-animation" no-cancel-on-outside-click no-cancel-on-esc-key>
+      <paper-dialog id="labelWindow" opened="false" entry-animation="scale-up-animation" exit-animation="slide-right-animation" no-cancel-on-outside-click no-cancel-on-esc-key>
         <h2 class="dialog-title">Auswahl des Messraums</h2>
         <section class="dialog-section">
           <section class="list">
@@ -181,10 +181,6 @@
         }
       },
 
-      attached: function(){
-        this.$.labelWindow.open();
-      },
-
       observers: [
         '_labelsChanged(labels.*)',
         '_availableLabelsChanged(availableLabels.*)'
@@ -203,6 +199,7 @@
 
       _onSelected: function() {
         this.$.labelsCookie.save();
+        this.$.labelWindow.close();
         this.fire("configset");
       }
     });
