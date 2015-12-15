@@ -30,11 +30,18 @@ var // ASYNC <-- one callback for a lot of async operations
     // array of configurations
     configArray   = [];
 
-function handleError(error, id_message){
+// private function to handle the errors
+function handleErrors(errors, id_message){
   if(error === undefined) return;
+  if(_.isArray(errors)){
+    errors.forEach(function(err){ handleErrors(error, id_message) });
+    return;
+  }
   if(id_message === undefined) id_message="";
   else id_message+=": ";
-  console.warn( error.message+": "+error.stack );
+  console.warn( id_message );
+  console.warn( error );
+  console.warn( "Stack: "+JSON.stringify(error.stack) );
 }
 
 function connect (config, server, err) {
@@ -56,36 +63,40 @@ function connect (config, server, err) {
   configArray = config.configurations;
 
   //dataFileHandler - established the data connections
+  var dataLabels = [];
+  var indexOfLabel = {};
   var dataConf = [];
   var dataFile = [];
 
   for (var i = 0; i < configArray.length; i++) {
+    var label = configArray[i].database.name;
+    dataLabels.push( label );
+    indexOfLabel[label] = i;
     dataConf.push(configuration.arrangeTypes( configArray[i].locals ));
     
     dataFile.push(new dataFileHandler( {
-        index: i,
-        // Object used the Configuration
-        connection: configArray[i].connections,
-        listener: {
-          error: function(type, err, index) {
-              dataSocket.emit('mistake', { error: err, time: new Date() });
-              handleError(err, "dataFileHandler");
-            },
-          data: function(type, data, index) {
-              // Process data to certain format
-              var currentData = dataMerge( index, dataConf[index], {exceeds: threshold(data, dataConf[index].types), data: data } );
+      index: i,
+      // Object used the Configuration
+      connection: configArray[i].connections,
+      listener: {
+        error: function(type, err, err_index) {
+            dataSocket.emit('mistake', { error: err, time: new Date() });
+            handleErrors(err, "dataFileHandler");
+          },
+        data: function(type, data, data_index) {
+            // Process data to certain format
+            var currentData = dataMerge( data_index, dataConf[data_index], {exceeds: threshold(data, dataConf[data_index].types), data: data } );
 
-              // Save new Data in Database and send for each client the updated Data
-              dbControllerArray[index].appendData(
-                  currentData.content,
-                  function (err, appendedData) {
-                    if(err) handleError(err, "appendData "+index);
-                  }
-              );
-            }
-          }
-      })
-    );
+            // Save new Data in Database and send for each client the updated Data
+            dbController.appendData(data_index,
+                currentData.content,
+                function (err, appendedData, cb_index) {
+                  if(err) handleErrors(err, "appendData "+cb_index);
+                }
+            );
+        }
+      }
+    }));
   }
   // Data Socket
   var dataSocket = io.of('/data');
@@ -93,31 +104,86 @@ function connect (config, server, err) {
   // Handle connections of new clients
   dataSocket.on('connection', function(socket) {
     var message = {};
-//TODO use labels from config
-    message.labels = [ "HNF-GDS" ];
+    message.labels = dataLabels;
     socket.emit('clientConfig', message);
-    socket.on('clientConfig', function(patterns) {
-      var current_client = new Client(socket, patterns);
-      dbController.getData(current_client.dataIndex, current_client.firstPattern,
-        function (err, data, index) {
-          if(err) handleError(err, "getData "+index);
-          
-//TODO use labels from config
-          var message = {
-             label : "HNF-GDS",
-             content: data,
-             time: new Date(), // current message time
-             groupingKeys: configArray[index].locals.groupingKeys,
-             exclusiveGroups: configArray[index].locals.exclusiveGroups,
-             types: dataConf[index].types,
-             unnamedType: dataConf[index].unnamedType
-          };
-          socket.emit('first', message);
-
-          // append the client to array after sending first message
-          current_client.hasFirst=true;
-          clients[socket.id] = current_client;
+    
+    socket.on('clientConfig', function(options) {
+      // To Hannes: dass soll bei dem client gebastelt sein
+      options.patterns=[ {
+        "label": "HNF-GDS",
+        "firstPattern": {
+          "query": {},
+          "time": {
+            "from": "2015-11-01"
+          },
+          "limit": -1
+        },
+        "appendPattern": {
+          "query": {},
+          "time": {
+            "from": "2015-11-01"
+          },
+          "limit": -1
         }
+      },
+      {
+        "label": "DBTest",
+        "firstPattern": {
+          "query": {},
+          "time": {
+            "from": "2015-11-01"
+          },
+          "limit": -1
+        },
+        "appendPattern": {
+          "query": {},
+          "time": {
+            "from": "2015-11-01"
+          },
+          "limit": -1
+        }
+      }];
+      
+      var current_client = new Client(socket, options);
+
+//TODO create a function in dbcontroller to search for 'current_client.patterns'
+      async.map(current_client.patterns, 
+          function(pattern, async_callback){
+            if(indexOfLabel[pattern.label] === undefined){
+              handleError(new Error("label: "+pattern.label+" is undefined"));
+              return;
+            }
+            dbController.getData(indexOfLabel[pattern.label], pattern.firstPattern,
+                function (err, data, index) {
+                  if(err) handleErrors(err, "getData "+index);
+                  
+                  var message_chunk = {
+                      label : dataLabels[index],
+                      content: data,
+                      time: new Date(), // current message time
+                      groupingKeys: configArray[index].locals.groupingKeys,
+                      exclusiveGroups: configArray[index].locals.exclusiveGroups,
+                      types: dataConf[index].types,
+                      unnamedType: dataConf[index].unnamedType
+                   }
+                  
+                  async_callback(null, message_chunk);
+                }
+              );
+          },
+          // 'message' is an array of all 'message_chunk'
+          function(errors, message){
+            if(errors){
+              handleErrors(errors, "async on client connection");
+              if(message === undefined) return;
+            }
+
+            socket.emit('first', message);
+            
+            // append the client to array after sending first message
+            current_client.hasFirst=true;
+            clients[socket.id] = current_client;
+          }
       );
 
       // by disconnect remove socket from list
@@ -129,49 +195,60 @@ function connect (config, server, err) {
     });
   });
 
-//TODO !!! change db functions to handle multiple dbmodels!!!
+//TODO create a function in dbcontroller to replace the 'serve_clients_with_data'
   var serve_clients_with_data = function(updateIntervall){
     //Send new data on constant time intervals
     setInterval(
       function(){
-        for (var i = 0; i < configArray.length; i++)
-          dbController.switchTmpDB(i, function(index, tmpDB){
-            if(!tmpDB) return;
+        dataLabels.forEach( function(label, i){
+          dbController.switchTmpDB(i, function(tmpDB, tmp_index){
+            if(!tmpDB) return; // tmpDB is undefined
+            
             async.each(clients,
                 function(client, async_callback){
-                  if(client.dataIndex != index) async_callback();
-                  dbController.getDataFromTmpModel(index,
-                    client.appendPattern,
-                    function (err, data, db_index) {
-                      if(err){
-                        handleError(err);
+                  var search_pattern;
+                  client.patterns.forEach(function(pattern){
+                    // look if that client have a pattern with that label
+                    if(pattern.label === dataLabels[tmp_index]) 
+                      search_pattern = pattern.appendPattern;
+                  });
+                  if(search_pattern === undefined) async_callback();
+                  
+                  dbController.getDataFromTmpModel(tmp_index, tmpDB,
+                      search_pattern,
+                      function (err, data, db_index) {
+                        if(err){
+                          handleErrors(err);
+                          async_callback();
+                          return;
+                        }
+                        if(data.length < 1){
+                          //data is empty
+                          return;
+                        }
+                        
+                        // one message per one tmpDB
+                        var message = {
+                            label : dataLabels[db_index],
+                            content : data,
+                            time : new Date(), // current message time
+                          };
+                        client.socket.emit('data', message);
+                        
                         async_callback();
-                        return;
                       }
-                      if(data.length < 1){
-                        //empty data
-                        return;
-                      }
-//TODO use labels from config
-                      var message = {
-                          label : "HNF-GDS",
-                          content : data,
-                          time : new Date(), // current message time
-                        };
-                      client.socket.emit('data', message);
-                    async_callback();
-                    }
                   );
                 },
                 function(err){
-                  if(err) handleError(err);
-                  // cleanize current tmp
+                  if(err) handleErrors(err);
+                  // cleanize current tmpDB
                   tmpDB.remove({},function(err){
-                    if(err) handleError(err);
+                    if(err) handleErrors(err);
                   });
                 }
             );
           });
+        })
       }, updateIntervall
     );
   };
@@ -181,22 +258,24 @@ function connect (config, server, err) {
    */
   // define Listeners to catch all events after connection to the mongoDB
   dbController.on( 'error', function (err) {
-    handleError(err, "dbController");
+    handleErrors(err, "dbController");
   });
 
   async.forEachOf(configArray, 
-      function(config_i, i, async_callback){
+      function(config, index, async_callback){
 
-        dbController.createConnection(config_i.database, i);
+        dbController.createConnection(config.database, index);
 
-        dbController.connect(i, function (index) {
+        dbController.connect(index, function (err, db_index) {
+          if(err) handleErrors(err, "dbController.connect "+db_index);
+          
           // register the properties of devices in the database
-          dbController.setDevices(index, dataConf[index].types, function(err){
-            if(err) handleError(err, "setDevices "+index);
+          dbController.setDevices(db_index, dataConf[db_index].types, function(err){
+            if(err) handleErrors(err, "setDevices "+db_index);
           });
     
           // start the handler for new measuring data related to configArray[i]
-          dataFile[index].connect();
+          dataFile[db_index].connect();
           
           // configArray[i].database is connected
           async_callback();
@@ -204,7 +283,7 @@ function connect (config, server, err) {
       },
       // call after all databases are connected
       function(err){
-        if(err) handleError(err, "async(configArray)");
+        if(err) handleErrors(err, "async(configArray)");
         
         // make the Server available for Clients
         server.listen(config.port);

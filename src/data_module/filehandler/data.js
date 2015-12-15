@@ -349,9 +349,9 @@ dataFileHandler = (function() {
     return function(error, data) {
       // TODO: Array or not array?
       if(error) {
-        self._emitter.emit('error', type, error, index);
+        self._emitter.emit('error', type, error, self.index);
       } else {
-        self._emitter.emit('data', type, data, index);
+        self._emitter.emit('data', type, data, self.index);
       }
     };
   };

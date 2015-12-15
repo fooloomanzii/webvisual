@@ -11,11 +11,16 @@ var Client = (function() {
     this.socket = socket; // User Socket
 
     if(options == null) options = {};
+    // check if optons has '.patterns'
     _.defaults(options, default_client_options);
-
-    this.dataIndex = options.dataIndex;   // index of dataFile to watch
-    this.firstPattern = options.firstPattern; // Pattern of the first data to send
-    this.appendPattern = options.appendPattern; // Pattern of the data to append
+    
+    // check every pattern for existence of important subobjects
+    options.patterns.map(function(pattern){
+      _.defaults(pattern, default_client_options.patterns[0]);
+      return pattern;
+    });
+    
+    this.patterns = options.patterns;
   }
 
   return _Class;

@@ -142,7 +142,7 @@
         });
         // Receive FURTHER Data
         this.socket.on('data', function(message) {
-          if(message.id==0) self._onData(message);
+          self._onData(message);
           // if (message.content[0].values.length !== 1)
             // console.log(message.content[0].values.length);
         });

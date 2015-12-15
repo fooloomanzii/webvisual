@@ -195,7 +195,7 @@ process.on('uncaughtException', function(err) {
       throw e;
   }
   //try to reconnect
-  // dataModule.connect(config,server);
+  //dataModule.connect(config,server);
 });
 
 

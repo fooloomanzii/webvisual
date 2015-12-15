@@ -37,7 +37,7 @@ var ValuesSchema = new Schema(
    // No updates => versioning is useless
    versionKey: false, // gets versioning off
    _id: false, // we don't need indexed array-elements
-   autoIndex: false 
+   autoindex: false 
  }
 );
 
@@ -52,7 +52,7 @@ var TMPSchema = new Schema({
    values    : [ValuesSchema] // Measured Data
  }
  // be sure, mongodb don't creates some indexes automatically! (see a comment above)
- ,{ autoIndex: false } // http://mongoosejs.com/docs/guide.html
+ ,{ autoindex: false } // http://mongoosejs.com/docs/guide.html
 );
 
   // --- Constructor --- //
@@ -91,32 +91,22 @@ var TmpModel = function(deviceModel, index) {
 *             }, callback);
 * or append([{id: "1", values: [..]},{id: "2", values: [..]}], callback);
 */
-TmpModel.prototype.append = function (newData, callback) {
-  if(newData === undefined) { // just remove this Error, if you don't need it
-    if(callback) return callback(new Error("'newData' is undefined!"));
-    return;
-  }
-  var self = this; // allow to pass this model to other functions
+TmpModel.prototype.appendToModel = function (model, newData, callback) {
+  var self = this;
   
-  // preparations, because of time-based switch of temporary collections
-  this.tmpIsInUse = true;
-  var curr_tmpDB = this.tmpDB;
-  
-  // Ensure, that newData is array
-  if(!_.isArray(newData)) newData = [newData];
-  
-  this.model.update(
-      {'_id':result.id }, 
-      { 'id':result.id, $pushAll: 
-      { 'values' : result.values } }, 
+  model.update(
+      {'_id':newData.id }, 
+      { 'id':newData.id, $pushAll: 
+      { 'values' : newData.values } }, 
       { upsert: true },
       function(err){
-        callback(err, result, self.index);
+        callback(err, newData, self.index);
       }
   );
 }
 
 
+// TODO describe argument 'model'
 /*
  * Searches for objects to match the given request
  * Arguments actually work the same way as by devicemodel.
@@ -158,7 +148,7 @@ TmpModel.prototype.append = function (newData, callback) {
  * or just call findData(callback); to get data for all existing devices,
  * last max_query_limit/(number of devices) values each device
  */
-TmpModel.prototype.query = function (request, callback) {
+TmpModel.prototype.queryFromModel = function (model, request, callback) {
   var self = this;
   if(request === undefined) request = {}; // no request means 'request everything'
   if(_.isFunction(request)){  
@@ -184,7 +174,7 @@ TmpModel.prototype.query = function (request, callback) {
           time['$gte'] = new Date(request.time.from);
         } catch (e) {
           return callback(new Error('requested time.from is wrong!\n'+
-                                     JSON.stringify(request.time.from)));
+                          JSON.stringify(request.time.from)), null, self.index);
         }
       }
       if(request.time.to){
@@ -194,7 +184,7 @@ TmpModel.prototype.query = function (request, callback) {
           time['$lt'] = new Date(request.time.to);
         } catch (e) {
           return callback(new Error('requested time.to is wrong!\n'+
-                                     JSON.stringify(request.time.to)));
+                         JSON.stringify(request.time.to)), null, self.index);
         }
       }
     } else { // no 'time.from' and no 'time.to'
@@ -202,7 +192,7 @@ TmpModel.prototype.query = function (request, callback) {
         time = new Date(request.time);
       } catch (e) {
         return callback(new Error('requested time is wrong!\n'+
-                                   JSON.stringify(request.time)));
+                        JSON.stringify(request.time)), null, self.index);
       }
     }
   }
@@ -224,16 +214,16 @@ TmpModel.prototype.query = function (request, callback) {
   // and give back their IDs
   self.currDeviceModel.find(device_query, function(err, devices) {
     if(err){
-      return callback(err);
+      return callback(err, null, self.index);
     }
-    if(devices.length == 0) return callback(null, null);
+    if(devices.length == 0) return callback(null, null, self.index);
     // get array of found IDs, to make a search in tmpDB
     devices = devices.map(function(item){return item.id});
 
     var query;
 
     // do a search for devices by id (now in tmpDB)
-    query = self.model.find({ '_id': { $in: devices }});
+    query = model.find({ '_id': { $in: devices }});
 
     // do a search for values and limit the query
     // '_id':0 means, that we don't need the '_id' of values
@@ -248,7 +238,6 @@ TmpModel.prototype.query = function (request, callback) {
     }
 
     query.exec(function(err, results){
-      if(err) return callback(err);
       return callback(err, results, self.index);
     });
   });
