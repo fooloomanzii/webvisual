@@ -293,14 +293,17 @@ dataFileHandler = (function() {
 
     // Process the given listener
     this._addListener(config.listener);
+    
+    // Save current index
+    this.index = (config.index==undefined) ? 0 : config.index;
   }
 
   // Extend with properties; null values are just place holder for instantiated properties
   _(_Class.prototype).extend({
-    _emitter    : null,
-    _connections: {},
-    connection: [],
-    connectionConfig: {}
+    _emitter         : null,
+    _connections     : {},
+    connection       : [],
+    connectionConfig : {}
   });
 
   /////////////////////
@@ -346,9 +349,9 @@ dataFileHandler = (function() {
     return function(error, data) {
       // TODO: Array or not array?
       if(error) {
-        self._emitter.emit('error', type, error);
+        self._emitter.emit('error', type, error, self.index);
       } else {
-        self._emitter.emit('data', type, data);
+        self._emitter.emit('data', type, data, self.index);
       }
     };
   };

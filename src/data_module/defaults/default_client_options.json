@@ -1,0 +1,20 @@
+{ "patterns" : [
+    {
+      "label": "HNF-GDS",
+      "firstPattern": {
+        "query": {},
+        "time": {
+          "from": "2015-11-01"
+        },
+        "limit": -1
+      },
+      "appendPattern": {
+        "query": {},
+        "time": {
+          "from": "2015-11-01"
+        },
+        "limit": -1
+      }
+    }
+  ]
+}

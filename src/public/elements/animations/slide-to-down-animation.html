@@ -3,35 +3,23 @@
 <link rel="import" href="../../components/neon-animation/web-animations.html">
 
 <script>
-
   Polymer({
-
-    is: 'height-animation',
-
+    is: 'slide-to-down-animation',
     behaviors: [
       Polymer.NeonAnimationBehavior
     ],
-
     configure: function(config) {
       var node = config.node;
-      var fromProperty = node.offsetHeight;
-      var to = config.to;
-
-      if (!config.timing) {
-        config.timing = {
-          duration: 500,
-          easing: "ease",
-          fill: "both"
-        }
+      if (config.transformOrigin) {
+        this.setPrefixedProperty(node, 'transformOrigin', config.transformOrigin);
+      } else {
+        this.setPrefixedProperty(node, 'transformOrigin', '50% 0');
       }
-
       this._effect = new KeyframeEffect(node, [
-        {'height': fromProperty},
-        {'height': to}
+        {'transform': 'translate(0)'},
+        {'transform': 'translateY(100%)'}
       ], this.timingFromConfig(config));
-
       return this._effect;
     }
   });
-
 </script>
