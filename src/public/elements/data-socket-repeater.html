@@ -37,6 +37,11 @@
             value: function() { return []; },
             notify: true
           },
+          exceeding: {
+            type: Array,
+            value: function() { return []; },
+            notify: true
+          },
           ids: {
             type: Array,
             value: function() { return []; },
@@ -106,8 +111,20 @@
             value: true,
             notify: true,
             reflectToAttribute: true
+          },
+          isExceeding: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          opened: {
+            type: Boolean,
+            value: false
           }
       },
+
+      observers:
+        ["_labelsChanged(labels.*)"],
 
       ready: function(){
         this.socket = io.connect('https://'+window.location.host+this.socketname, {secure: true});
@@ -115,6 +132,8 @@
         var self = this;
         this.socket.on('clientConfig', function(message) {
           self.set("availableLabels", message.labels);
+          if (self.opened)
+            self.connect();
         });
       },
 
@@ -170,18 +189,24 @@
         if (this.socket){
           this.socket.disconnect();
           this._init();
+          this.opened = false;
         }
       },
 
       _init: function() {
         this.set('data',[]);
         this.set('ids',[]);
-        this.set('availableLabels',[]);
-        this.set('labels',[]);
         this.set('groups',[]);
         this.set('keys',[]);
         this.set('types',[]);
         this.set('unnamedTypes',[]);
+      },
+
+      _labelsChanged: function(changerecord){
+        if(changerecord.path == "labels.splices") {
+          console.log("init");
+          this._init;
+        }
       },
 
       _onFirstData: function(message) {
@@ -222,7 +247,10 @@
           }
         }
         this.set("status.time.lastStatus", new Date()); this.set("status.message", "grouping elements");
-        this.fire("dataloaded");
+        if (!this.opened ) {
+          this.fire("loaded");
+          this.opened = true;
+        }
       },
 
       _onData: function(message) {
@@ -332,27 +360,13 @@
         if (this.newestDataLast) {
           for (var j=0; j < messageContent.values.length; j++) {
             this.unshift("data." + labelIndex + "." + i + ".values", messageContent.values[j]);
-            if (messageContent.values[j].exceeds === null) {
-              if(this.data[labelIndex][i].isExceeding)
-                this.set("data." + labelIndex + "." + i + ".isExceeding", false);
-            }
-            else if (messageContent.values[j].exceeds === true || messageContent.values[j].exceeds === false) {
-              if(!this.data[labelIndex][i].isExceeding)
-                this.set("data." + labelIndex + "." + i + ".isExceeding", true);
-            }
+            this._checkIfExceedingStateHasToBeSet(messageContent.values[j].exceeds, labelIndex, i);
           }
         }
         else {
           for (var j=messageContent.values.length-1; j >=0; j--) {
             this.unshift("data." + labelIndex + "." + i + ".values", messageContent.values[j]);
-            if (messageContent.values[j].exceeds === null) {
-              if(this.data[labelIndex][i].isExceeding)
-                this.set("data." + labelIndex + "." + i + ".isExceeding", false);
-            }
-            else if (messageContent.values[j].exceeds === true || messageContent.values[j].exceeds === false) {
-              if(!this.data[labelIndex][i].isExceeding)
-                this.set("data." + labelIndex + "." + i + ".isExceeding", true);
-            }
+            this._checkIfExceedingStateHasToBeSet(messageContent.values[j].exceeds, labelIndex, i);
           }
         }
         if (this.data[labelIndex][i].values.length > this.maxLines)
@@ -362,21 +376,24 @@
           this.set("data." + labelIndex + "." + i + ".lastExceeds", messageContent.lastExceeds);
       },
 
+      // init datapoint, but it doesn't overwrite datavalues, if the datapoint existed before and has matching labels
       _initDataPoint: function(labelIndex, i) {
         while (labelIndex >= this.data.length)
           this.push("data", []);
         while (i >= this.data[labelIndex].length)
           this.push("data." + labelIndex, {});
 
+        // value attributes (won't be deleted for the client, if they exist for the same labelname)
+        if (!this.data[labelIndex][i].labelname || this.data[labelIndex][i].labelname !== this.labels[labelIndex]) {
+          this.set("data." + labelIndex + "." + i+ ".labelname", this.labels[labelIndex]);
+          this.set("data." + labelIndex + "." + i + ".values", []);
+          this.push("data." + labelIndex + "." + i + ".values", {"x":"","y":"","exceeds": null});
+        }
+
         // extra attributes
-        this.set("data." + labelIndex + "." + i+ ".labelname", this.labels[labelIndex]);
         this.set("data." + labelIndex + "." + i+ ".labelindex", labelIndex);
         this.set("data." + labelIndex + "." + i+ ".index", i);
         this.set("data." + labelIndex + "." + i + ".isExceeding", false);
-
-        // value attributes
-        this.set("data." + labelIndex + "." + i + ".values", []);
-        this.push("data." + labelIndex + "." + i + ".values", {"x":"","y":"","exceeds": null});
 
         var key;
         // configuartion
@@ -388,6 +405,45 @@
             else
               this.set("data." + labelIndex + "." + i + "." + key, this.unnamedTypes[labelIndex][key]);
           }
+        }
+
+        // deselect exceeding element if in exceeding list
+        this._removeExceedingElement(labelIndex,i);
+      },
+
+      _checkIfExceedingStateHasToBeSet: function(exceeds, labelIndex, i) {
+        if (exceeds === null) {
+          if(this.data[labelIndex][i].isExceeding) {
+            this.set("data." + labelIndex + "." + i + ".isExceeding", false);
+            this._removeExceedingElement(labelIndex, i);
+          }
+        }
+        else if (exceeds === true || exceeds === false) {
+          if(!this.data[labelIndex][i].isExceeding) {
+            this.set("data." + labelIndex + "." + i + ".isExceeding", true);
+            this._addExceedingElement(labelIndex, i);
+          }
+        }
+      },
+
+      _addExceedingElement: function(labelindex,index) {
+        var item = Polymer.Collection.get(this.data[labelindex]).getItem('#'+index);
+        if(item && Polymer.Collection.get(this.exceeding).getKey(item) === undefined) {
+          key = this.push('exceeding', item) - 1;
+          this.linkPaths('exceeding.#' + key, 'data.#' + labelindex + ".#" + index);
+          //this.notifyPath('exceeding.#' + key + '.values', this.exceeding[key].values);
+          this.set("isExceeding",true);
+        }
+      },
+
+      _removeExceedingElement: function(labelindex,index) {
+        var item = Polymer.Collection.get(this.data[labelindex]).getItem('#'+index);
+        var key = Polymer.Collection.get(this.exceeding).getKey(item);
+        if(item && key) {
+          this.arrayDelete('exceeding', item);
+          this.unlinkPaths('exceeding.' + key);
+          if (this.exceeding.length == 0)
+            this.set("isExceeding",false);
         }
       },
 

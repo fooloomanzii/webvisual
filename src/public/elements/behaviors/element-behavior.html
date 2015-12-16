@@ -43,9 +43,9 @@
 
     _handleExceeding: function(isExceeding) {
       if (isExceeding === true)
-        this.fire("exceeding", {labelindex: this.element.labelindex, index: this.element.index});
-      else if (isExceeding === false)
-        this.fire("notexceeding", {labelindex: this.element.labelindex, index: this.element.index});
+        this.fire("exceeding-element", {labelindex: this.element.labelindex, index: this.element.index});
+      // else if (isExceeding === false)
+      //   this.fire("notexceedingelement", {labelindex: this.element.labelindex, index: this.element.index});
     },
 
     computeIcon: function(change, index) {
