@@ -16,6 +16,16 @@
         value: function() { return []; },
         notify: true
       },
+      groupingKeys: {
+        type: Array,
+        value: function() { return []; },
+        notify: true
+      },
+      groups: {
+        type: Array,
+        value: function() { return []; },
+        notify: true
+      },
       selectedLabelId: {
         type: Number,
         value: 0,
@@ -24,13 +34,9 @@
       },
       groupBy: {
         type: String,
-        value: "roomNr",
+        value: "all",
         notify: true,
         observer: "setSelectedGroup"
-      },
-      allSignNodes: {
-        type: Array,
-        value: function() { return []; }
       },
       maxTotalLines: {
         type: Number
@@ -51,7 +57,16 @@
     },
     setSelectedElement: function(e) {
     },
+    setGroupBy: function(labelid,groupBy) {
+      if(groupBy)
+        this.set("groupBy",groupBy);
+      else if (this.groupingKeys && this.groupingKeys[this.selectedLabelId] && this.groupingKeys[this.selectedLabelId].length > 0)
+        this.set("groupBy",this.groupingKeys[this.selectedLabelId][0]);
+      else
+        this.set("groupBy","all");
+    },
     setSelectedGroup: function(){
+      // TODO: Handle lableid change too
       if(this.groups && this.groupBy && this.groups[this.selectedLabelId] && this.groupBy in this.groups[this.selectedLabelId]){
         this.set("selectedGroup", this.groups[this.selectedLabelId][this.groupBy]);
         this.linkPaths("selectedGroup", "groups." + this.selectedLabelId + "." + this.groupBy);

@@ -74,6 +74,7 @@ function arrangeTypes(locals) {
     types : types,
     ids : ids,
     groups : groups,
+    groupingKeys: locals.groupingKeys,
     keys : keys,
     unnamedType : locals.unnamedType,
     timeFormat : locals.timeFormat,

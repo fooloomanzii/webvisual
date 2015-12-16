@@ -22,11 +22,6 @@
     }
     section#mainContent {
       background: #BBBBBB;
-    }
-    section#mainContent[dark] {
-      background: #666666;
-    }
-    section.content {
       display: flex;
       flex-wrap: wrap;
       align-content: flex-start;
@@ -41,6 +36,9 @@
       -webkit-flex-basis: 0.000000001px;
       flex-basis: 0.000000001px;
       padding: 0.5em;
+    }
+    section#mainContent[dark] {
+      background: #666666;
     }
     section#dropShadow {
       position: absolute;
@@ -442,7 +440,7 @@
         <section main id="mainContent">
 
           <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="labelItem" index-as="labelindex">
-            <section class="content" hidden$="{{isNotSelectedLabel(labelindex,selectedLabelId)}}">
+            <template is="dom-if" if="{{isSelectedLabel(labelindex,selectedLabelId)}}">
               <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupItems" sort="sortGroup" delay="300">
                 <post-card class="group" headline="{{groupItems.name}}" without-window="{{withoutWindow}}" dark$="[[dark]]">
 
@@ -464,7 +462,7 @@
                   </template>
                 </post-card>
               </template>
-            </section>
+            </template>
           </template>
 
         </section>
@@ -599,6 +597,7 @@
 
       // if select another label, close toolbar
       _handleSelectedLabelChange: function() {
+        this.setGroupBy(this.selectedLabelId);
         if(this.opened) {
           this.$.toolbar.playAnimation('out');
           this.toggleAttribute('opened',false);
@@ -606,8 +605,8 @@
       },
 
       // show tabs if wanted
-      isNotSelectedLabel: function(labelid, selectedLabelId) {
-        return (labelid !== selectedLabelId);
+      isSelectedLabel: function(labelid, selectedLabelId) {
+        return (labelid == selectedLabelId);
       },
 
       setSelectedElement: function(e) {

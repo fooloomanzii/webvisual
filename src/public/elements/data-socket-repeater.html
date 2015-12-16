@@ -62,9 +62,15 @@
             value: function() { return []; },
             notify: true
           },
+          groupingKeys: {
+            type: Array,
+            value: function() { return []; },
+            notify: true
+          },
           keys: {
             type: Array,
-            value: function() { return []; }
+            value: function() { return []; },
+            notify: true
           },
           unnamedTypes: {
             type: Array,
@@ -197,6 +203,7 @@
         this.set('data',[]);
         this.set('ids',[]);
         this.set('groups',[]);
+        this.set('groupingKeys',[]);
         this.set('keys',[]);
         this.set('types',[]);
         this.set('unnamedTypes',[]);
@@ -233,6 +240,7 @@
             this._setKeys(labelIndex, message[mesId].keys);
             this._setTypes(labelIndex, message[mesId].types);
             this._setUnnamedTypes(labelIndex, message[mesId].unnamedType);
+            this._setGroupingKeys(labelIndex, message[mesId].groupingKeys);
             this._setGroups(labelIndex, message[mesId].groups);
             this._setIds(labelIndex, message[mesId].ids);
             for (var i = 0; i < message[mesId].content.length; i++) {
@@ -345,6 +353,12 @@
         while (labelIndex >= this.unnamedTypes.length)
           this.push("unnamedTypes", []);
         this.set("unnamedTypes."+labelIndex, unnamedTypes);
+      },
+
+      _setGroupingKeys: function(labelIndex, groupingKeys) {
+        while (labelIndex >= this.groupingKeys.length)
+          this.push("groupingKeys", {});
+        this.set("groupingKeys."+labelIndex, groupingKeys);
       },
 
       _setGroups: function(labelIndex, groups) {
