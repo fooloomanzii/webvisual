@@ -240,9 +240,9 @@
           console.warn("received message empty");
           return;
         }
-        // var time = new Date();
-        // this.set("status.time.lastStatus", time); this.set("status.message", "processing first data");
-        // this.set("status.time.lastData", time);
+        var time = new Date();
+        this.set("status.time.lastStatus", time); this.set("status.message", "processing first data");
+        this.set("status.time.lastData", time);
 
         for (var mesId=0; mesId < message.length; mesId++) {
           // for Polymer (to notice Array change) special treatment to integrate data
@@ -286,7 +286,7 @@
         if(message == undefined) return; // Check for Existence
         var time = new Date();
         if (time - this.status.time.lastData >= this.interval) { // TODO: Configure it at server
-          // this.set("status.time.lastData", time);
+          this.set("status.time.lastData", time);
           if (Array.isArray(message)){ // if message is an Array
             for (var mesId=0; mesId < message.length; mesId++) {
               if (message[mesId].label) { // get the sent labelIndex
@@ -405,8 +405,8 @@
         if (this.data[labelIndex][i].values.length > this.maxLines)
           this.splice("data." + labelIndex + "." + i + ".values", this.maxLines, this.data[labelIndex][i].values.length);
 
-        if (messageContent.lastExceeds)
-          this.set("data." + labelIndex + "." + i + ".lastExceeds", messageContent.lastExceeds);
+        // if (messageContent.lastExceeds)
+        //   this.set("data." + labelIndex + "." + i + ".lastExceeds", messageContent.lastExceeds);
       },
 
       // init datapoint, but it doesn't overwrite datavalues, if the datapoint existed before and has matching labels
