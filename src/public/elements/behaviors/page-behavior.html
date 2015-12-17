@@ -16,20 +16,37 @@
         value: function() { return []; },
         notify: true
       },
+      labels: {
+        type: Array,
+        value: function() { return []; },
+        notify: true
+      },
+      groupingKeys: {
+        type: Array,
+        value: function() { return []; },
+        notify: true
+      },
+      groups: {
+        type: Array,
+        value: function() { return []; },
+        notify: true
+      },
+      preferedGroupingKeys: {
+        type: Array,
+        value: function() { return []; },
+        notify: true
+      },
       selectedLabelId: {
         type: Number,
         value: 0,
-        notify: true
+        notify: true,
+        observer: "_handleSelectedLabelChange"
       },
       groupBy: {
         type: String,
-        value: "roomNr",
+        value: "all",
         notify: true,
         observer: "setSelectedGroup"
-      },
-      allSignNodes: {
-        type: Array,
-        value: function() { return []; }
       },
       maxTotalLines: {
         type: Number
@@ -38,7 +55,8 @@
         type: Number
       }
     },
-
+    _handleSelectedLabelChange: function() {
+    },
     groupElements: function(item,group){
       if (group.name == "all")
         return true;
@@ -47,11 +65,21 @@
       else
         return false;
     },
-
     setSelectedElement: function(e) {
     },
+    setGroupBy: function(groupBy) {
+      if(groupBy && this.groupBy in this.groups[this.selectedLabelId]) {
+        this.set("groupBy",groupBy);
+        this.set("preferedGroupingKeys.#"+this.selectedLabelId, groupBy);
+      }
+      else if (this.preferedGroupingKeys && this.preferedGroupingKeys[this.selectedLabelId] && this.preferedGroupingKeys[this.selectedLabelId] in this.groups[this.selectedLabelId])
+        this.set("groupBy",this.preferedGroupingKeys[this.selectedLabelId]);
+      else
+        this.set("groupBy","all");
+    },
     setSelectedGroup: function(){
-      if(this.groups && this.groupBy && this.groups[this.selectedLabelId] && this.groupBy in this.groups[this.selectedLabelId]){
+      // TODO: Handle lableid change too
+      if(this.groups && this.groupBy && this.groups[this.selectedLabelId]){
         this.set("selectedGroup", this.groups[this.selectedLabelId][this.groupBy]);
         this.linkPaths("selectedGroup", "groups." + this.selectedLabelId + "." + this.groupBy);
       }

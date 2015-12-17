@@ -36,9 +36,15 @@ function arrangeTypes(locals) {
   var groups = locals.exclusiveGroups;
   var key, needToSet, where;
 
+  var groupingKeys = locals.groupingKeys;
+  if (groupingKeys.indexOf('all') == -1) {
+    groupingKeys.push('all');
+  }
+  var preferedGroupingKey = locals.preferedGroupingKey || groupingKeys[0];
+
   for (var i = 0; i < types.length; i++) {
-    for (var j = 0; j < locals.groupingKeys.length; j++) {
-      key = locals.groupingKeys[j];
+    for (var j = 0; j < groupingKeys.length; j++) {
+      key = groupingKeys[j];
       if (!groups[key])
         groups[key] = [];
 
@@ -74,6 +80,8 @@ function arrangeTypes(locals) {
     types : types,
     ids : ids,
     groups : groups,
+    groupingKeys: locals.groupingKeys,
+    preferedGroupingKey: preferedGroupingKey,
     keys : keys,
     unnamedType : locals.unnamedType,
     timeFormat : locals.timeFormat,

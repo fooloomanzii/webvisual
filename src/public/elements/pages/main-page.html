@@ -21,6 +21,7 @@
       position: relative;
     }
     section#mainContent {
+      background: #BBBBBB;
       display: flex;
       flex-wrap: wrap;
       align-content: flex-start;
@@ -34,8 +35,10 @@
       flex: 1;
       -webkit-flex-basis: 0.000000001px;
       flex-basis: 0.000000001px;
-      background: #BBBBBB;
-      padding: 0.4em;
+      padding: 0.5em;
+    }
+    section#mainContent[dark] {
+      background: #666666;
     }
     section#dropShadow {
       position: absolute;
@@ -54,7 +57,7 @@
       opacity: 1;
     }
     @media all and (min-width: 0px) and (max-width: 600px) {
-      section#mainContent {
+      section.content {
         display: block;
         padding: 0em;
       }
@@ -62,9 +65,6 @@
         padding: 0em;
         border-radius: 0em;
       }
-    }
-    section#mainContent[dark] {
-      background: #666666;
     }
     paper-button.sidemenu {
       /*margin: 0.25em 0em;*/
@@ -250,23 +250,22 @@
     }
 
     paper-icon-button.error {
-      color: currentColor;
       animation-name: alarm-animation !important;
       animation-duration: 2s;
       animation-timing-function: ease-in-out;
       animation-iteration-count: infinite;
     }
     @keyframes alarm-animation {
-      0%   {color: currentColor;}
-      33%  {color: rgb(255, 21, 41);}
-      100% {color: currentColor;}
+      0%   {color: #f4959d;}
+      33%  {color: rgb(255, 20, 41);}
+      100% {color: #f4959d;}
     }
   </style>
 
   <template>
 
     <logo-element id="logo"></logo-element>
-    <main-toolbar id="toolbar" class="paper-header" on-deselect="deselectElement">
+    <main-toolbar id="toolbar" class="paper-header" on-deselect="deselectElement" opened="{{opened}}">
       <paper-icon-button icon="menu" class="menu-icon" on-click="togglePanel"></paper-icon-button>
       <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsDialog" hidden$="{{!isExceeding}}"></paper-icon-button>
       <paper-icon-button icon="remove" class="toggle-icon control" on-click="deselectElement"></paper-icon-button>
@@ -278,11 +277,9 @@
 
       <sign-element id="selectedElementSign" class="selectedElement sign incard" element="{{selectedElement}}" on-click="deselectElement"></sign-element>
       <section id="selectedElementCaption" class="selectedElement caption incard">
-        <span id="kind">{{selectedElement.kind}}</span>
-        <span id="method">{{selectedElement.method}}</span>
-        <span id="room">{{selectedElement.room}}</span>
-        <span id="roomNr">{{selectedElement.roomNr}}</span>
-        <span id="roomNr">{{selectedElement.labelname}}</span>
+        <template is="dom-repeat" items="{{getGroupingKeys(groupingKeys.*,selectedElement.labelindex)}}" as="key">
+          <span id="{{key}}">{{getElementsKey(selectedElement,key)}}</span>
+        </template>
       </section>
 
       <table-element id="selectedElementTable" class="selectedElement noncard" element="{{selectedElement}}"></table-element>
@@ -313,11 +310,9 @@
 
                   <iron-collapse class="sidemenu collapse grouping">
                     <paper-radio-group selected="{{groupBy}}" class="indention">
-                      <paper-radio-button name="roomNr">Raumnummer</paper-radio-button>
-                      <paper-radio-button name="room">Raumname</paper-radio-button>
-                      <paper-radio-button name="kind">Typ</paper-radio-button>
-                      <paper-radio-button name="method">Methode</paper-radio-button>
-                      <paper-radio-button name="all">Alle</paper-radio-button>
+                      <template is="dom-repeat" items="{{getGroupingKeys(groupingKeys.*,selectedLabelId)}}" as="key">
+                        <paper-radio-button name="{{key}}">{{key}}</paper-radio-button>
+                      </template>
                     </paper-radio-group>
                   </iron-collapse>
 
@@ -418,15 +413,13 @@
         <paper-dialog id="exceedsDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" no-cancel-on-outside-click>
           <h2 class="dialog-title">Alarm</paper-icon-button></h2>
           <section class="scrollable">
-            <template is="dom-repeat" items="{{exceedingElements}}" as="element">
+            <template is="dom-repeat" items="{{exceeding}}" as="element">
               <section class="card" on-click="setSelectedElement" dark$="[[dark]]">
                 <sign-element element="{{element}}" dark$="[[dark]]"></sign-element>
-                <section class="caption" id="{{element.id}}" dark$="[[dark]]">
-                  <span id="kind">{{element.kind}}</span>
-                  <span id="method">{{element.method}}</span>
-                  <span id="room">{{element.room}}</span>
-                  <span id="roomNr">{{element.roomNr}}</span>
-                  <span id="roomNr">{{element.labelname}}</span>
+                <section class="caption" dark$="[[dark]]">
+                  <template is="dom-repeat" items="{{getGroupingKeys(groupingKeys.*,element.labelindex)}}" as="key">
+                    <span id="{{key}}">{{getElementsKey(element,key)}}</span>
+                  </template>
                 </section>
               </section>
             </template>
@@ -437,10 +430,8 @@
             <paper-button dialog-dismiss><iron-icon icon="close"></iron-icon>schließen</paper-button>
           </div>
         </paper-dialog>
+
         <section main id="mainContent">
-
-
-
 
           <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="labelItem" index-as="labelindex">
             <template is="dom-if" if="{{isSelectedLabel(labelindex,selectedLabelId)}}">
@@ -451,13 +442,11 @@
                     <template is="dom-if" if="{{groupElements(element,groupItems)}}" restamp>
                       <section class="card" on-click="setSelectedElement" dark$="[[dark]]">
 
-                          <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding="addExceedingElement" on-notexceeding="removeExceedingElement"></sign-element>
-                          <section class="caption" id="{{element.id}}" dark$="[[dark]]">
-                            <span id="kind">{{element.kind}}</span>
-                            <span id="method">{{element.method}}</span>
-                            <span id="room">{{element.room}}</span>
-                            <span id="roomNr">{{element.roomNr}}</span>
-                            <span id="roomNr">{{element.labelname}}</span>
+                          <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding-element="_checkExceedingDialog"></sign-element>
+                          <section class="caption" dark$="[[dark]]">
+                            <template is="dom-repeat" items="{{getGroupingKeys(groupingKeys.*,selectedLabelId)}}" as="key">
+                              <span id="{{key}}">{{getElementsKey(element,key)}}</span>
+                            </template>
                           </section>
 
                       </section>
@@ -565,6 +554,7 @@
           value: 500,
           notify: true
         },
+        // Attribute for toolbar is opened
         opened: {
           type: Boolean,
           value: false,
@@ -577,20 +567,26 @@
           reflectToAttribute: true,
           observer: '_labelsChanged'
         },
+        // Attribute sent by datasocket-repeater
         isExceeding: {
           type: Boolean,
           value: false,
-          notify: true,
-          reflectToAttribute: true
+          observer: "openExceedsDialog"
         },
-        exceedingElements: {
+        // Array of exceeding items
+        exceeding: {
           type: Array,
           value: function() { return []; },
           notify: true
-        }
+        },
       },
 
+      observers: [
+        '_checkExceedingDialog(exceeding.length)'
+      ],
+
       attached: function() {
+        this.set("selectedLabelId", 0);
         var self = this;
         var dialogs = Array.prototype.slice.call(Polymer.dom(this.root).querySelectorAll("paper-dialog"));
         Array.prototype.forEach.call(dialogs, function(dialog) {
@@ -599,18 +595,32 @@
         });
       },
 
-      // Show Tabs if wanted
-      _labelsChanged: function() {
-        if (!this.alwaysShowTabs && this.labels.length <= 1) {
-          this.toggleAttribute('hidden',true,this.$.labelsTabs);
-        }
-        else {
-          this.toggleAttribute('hidden',false,this.$.labelsTabs);
+      // if select another label, close toolbar
+      _handleSelectedLabelChange: function() {
+        this.setGroupBy(this.preferedGroupingKeys[this.selectedLabelId]);
+        if(this.opened) {
+          this.$.toolbar.playAnimation('out');
+          this.toggleAttribute('opened',false);
         }
       },
 
+      getGroupingKeys: function(change, labelindex) {
+        if (labelindex == undefined)
+          labelindex = this.selectedLabelId;
+        if (Array.isArray(this.groupingKeys[labelindex])) {
+          return this.groupingKeys[labelindex];
+        }
+        else return [];
+      },
+
+      getElementsKey: function(element,key) {
+        if(element && element[key])
+          return element[key];
+      },
+
+      // show tabs, if wanted
       isSelectedLabel: function(labelid, selectedLabelId) {
-        return (labelid == selectedLabelId);
+        return (labelid === selectedLabelId);
       },
 
       setSelectedElement: function(e) {
@@ -628,13 +638,20 @@
             this.selectedElement = item;
             this.linkPaths('selectedElement', 'data.#'+ this.selectedLabelId + "." + key);
             this.notifyPath('selectedElement.values', this.selectedElement.values);
-            if (!this.$.toolbar.opened){
-              this.$.toolbar.toggleAttribute('opened',true);
+            if (!this.opened){
               this.toggleAttribute('opened',true);
               this.$.toolbar.playAnimation('in');
             }
           }
         }
+      },
+
+      toggleToolbar: function() {
+        if (!this.opened)
+          this.$.toolbar.playAnimation('in');
+        else
+          this.$.toolbar.playAnimation('out');
+        this.$.toolbar.toggleAttribute('opened');
       },
 
       deselectElement: function() {
@@ -643,36 +660,8 @@
         this.async(function(){
           this.unlinkPaths('selectedElement');
           this.selectedElement = null;
-          this.$.toolbar.toggleAttribute('opened',false);
           this.toggleAttribute('opened',false);
         },320);
-      },
-
-      addExceedingElement: function(e){
-        if(e && e.detail) {
-          var item = Polymer.Collection.get(this.data[e.detail.labelindex]).getItem('#'+e.detail.index);
-          if(item && Polymer.Collection.get(this.exceedingElements).getKey(item) === undefined) {
-            key = this.push('exceedingElements', item) - 1;
-            this.linkPaths('exceedingElements.#' + key, 'data.#' + e.detail.labelindex + ".#" + e.detail.index);
-            this.notifyPath('exceedingElements.#' + key + '.values', this.exceedingElements[key].values);
-            if (!this.isExceeding)
-              this.isExceeding = true;
-            this.openExceedsDialog();
-          }
-        }
-      },
-
-      removeExceedingElement: function(e){
-        if(e && e.detail) {
-          var item = Polymer.Collection.get(this.data[e.detail.labelindex]).getItem('#'+e.detail.index);
-          var key = Polymer.Collection.get(this.exceedingElements).getKey(item);
-          if(item && key) {
-            this.arrayDelete('exceedingElements', item);
-            this.unlinkPaths('selected.' + key);
-            if (this.exceedingElements.length == 0)
-              this.isExceeding = false;
-          }
-        }
       },
 
       fit: function() {
@@ -682,9 +671,19 @@
       },
 
       openExceedsDialog: function() {
-        if(!this.$.exceedsDialog.opened) {
+        if(this.isExceeding) {
           this.$.exceedsDialog.fit();
+          this.$.exceedsDialog.center();
           this.$.exceedsDialog.open();
+        }
+        else {
+          this.$.exceedsDialog.close();
+        }
+      },
+
+      _checkExceedingDialog: function(length) {
+        if(!this.$.exceedsDialog.opened && length > 0) {
+          this.openExceedsDialog();
         }
       },
 

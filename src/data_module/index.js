@@ -108,6 +108,8 @@ function connect(config, server, err) {
             types : dataConf.types,
             ids : dataConf.ids,
             groups : dataConf.groups,
+            groupingKeys : dataConf.groupingKeys,
+            preferedGroupingKey : dataConf.preferedGroupingKey,
             keys : dataConf.keys,
             unnamedType : dataConf.unnamedType,
             timeFormat : dataConf.timeFormat
@@ -119,6 +121,8 @@ function connect(config, server, err) {
             ids : dataConf.ids,
             groups : dataConf.groups,
             keys : dataConf.keys,
+            groupingKeys : dataConf.groupingKeys,
+            preferedGroupingKey : dataConf.preferedGroupingKey,
             unnamedType : dataConf.unnamedType,
             timeFormat : dataConf.timeFormat
           },
@@ -128,6 +132,8 @@ function connect(config, server, err) {
             types : dataConf.types,
             ids : dataConf.ids,
             groups : dataConf.groups,
+            groupingKeys : dataConf.groupingKeys,
+            preferedGroupingKey : dataConf.preferedGroupingKey,
             keys : dataConf.keys,
             unnamedType : dataConf.unnamedType,
             timeFormat : dataConf.timeFormat
@@ -166,9 +172,7 @@ function connect(config, server, err) {
                            }
                            // An Alex: das ist der Test
                            var message = {
-                             label : (Math.floor((Math.random() * 2) + 1) == 1)
-                                         ? "HNF-GDS"
-                                         : "test",
+                             label : "HNF-GDS",
                              content : data,
                              time : new Date(), // current message time
                            };

@@ -49,7 +49,7 @@
       position: relative !important;
       top: 0;
       left: 0;
-      z-index: 0;
+      z-index: 1;
     }
     paper-dialog h2 {
       background: #669DB4;
@@ -125,7 +125,6 @@
       </paper-dialog>
 
       <cookie-element id="labelsCookie" name="webvisual-stored-connections" value="{{labels}}"></cookie-element>
-
   </template>
 
   <script>
@@ -186,14 +185,30 @@
         '_availableLabelsChanged(availableLabels.*)'
       ],
 
-      _labelsChanged: function() {
+      _labelsChanged: function(changerecord) {
         this.set("notSelected",(this.labels.length < 1));
       },
 
       _availableLabelsChanged: function() {
+        var needToRestart = false;
+        for (var i in this.labels) {
+          var index = this.availableLabels.indexOf(this.labels[i]);
+          if(index == -1) {
+            this.splice('labels', i, 1);
+            needToRestart = true;
+          }
+        }
         if (this.availableLabels.length == 1){
           this.set("labels", this.availableLabels);
           this.fire("configset");
+          this.$.labelsCookie.save();
+        }
+        if (needToRestart) {
+          this.$.labelsCookie.save();
+          if(this.labels.length == 0)
+            this.fire("restart");
+          else
+            this.fire("reconnect");
         }
       },
 

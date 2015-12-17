@@ -37,6 +37,11 @@
             value: function() { return []; },
             notify: true
           },
+          exceeding: {
+            type: Array,
+            value: function() { return []; },
+            notify: true
+          },
           ids: {
             type: Array,
             value: function() { return []; },
@@ -57,9 +62,20 @@
             value: function() { return []; },
             notify: true
           },
+          groupingKeys: {
+            type: Array,
+            value: function() { return []; },
+            notify: true
+          },
+          preferedGroupingKeys: {
+            type: Array,
+            value: function() { return []; },
+            notify: true
+          },
           keys: {
             type: Array,
-            value: function() { return []; }
+            value: function() { return []; },
+            notify: true
           },
           unnamedTypes: {
             type: Array,
@@ -106,8 +122,20 @@
             value: true,
             notify: true,
             reflectToAttribute: true
+          },
+          isExceeding: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          opened: {
+            type: Boolean,
+            value: false
           }
       },
+
+      observers:
+        ["_labelsChanged(labels.*)"],
 
       ready: function(){
         this.socket = io.connect('https://'+window.location.host+this.socketname, {secure: true});
@@ -115,6 +143,8 @@
         var self = this;
         this.socket.on('clientConfig', function(message) {
           self.set("availableLabels", message.labels);
+          if (self.opened)
+            self.connect();
         });
       },
 
@@ -170,18 +200,38 @@
         if (this.socket){
           this.socket.disconnect();
           this._init();
+          this.opened = false;
         }
       },
 
       _init: function() {
+        this._clearExceeding();
         this.set('data',[]);
         this.set('ids',[]);
-        this.set('availableLabels',[]);
-        this.set('labels',[]);
         this.set('groups',[]);
+        this.set('groupingKeys',[]);
+        this.set('preferedGroupingKeys',[]);
         this.set('keys',[]);
         this.set('types',[]);
         this.set('unnamedTypes',[]);
+      },
+
+      _labelsChanged: function(changerecord){
+        if(changerecord.path == "labels.splices") {
+          if(changerecord.value.indexSplices[0].removed.length > 0) {
+            this._clearExceeding();
+            this.splice("data",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            this.splice("ids",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            this.splice("groups",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            this.splice("groupingKeys",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            this.splice("preferedGroupingKeys",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            this.splice("keys",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            this.splice("types",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            this.splice("unnamedTypes",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+          }
+          // console.log("init");
+          // this._init;
+        }
       },
 
       _onFirstData: function(message) {
@@ -190,9 +240,9 @@
           console.warn("received message empty");
           return;
         }
-        // var time = new Date();
-        // this.set("status.time.lastStatus", time); this.set("status.message", "processing first data");
-        // this.set("status.time.lastData", time);
+        var time = new Date();
+        this.set("status.time.lastStatus", time); this.set("status.message", "processing first data");
+        this.set("status.time.lastData", time);
 
         for (var mesId=0; mesId < message.length; mesId++) {
           // for Polymer (to notice Array change) special treatment to integrate data
@@ -205,32 +255,38 @@
             return;
           }
           if (labelIndex !== undefined) {
+            this.set("status.message", "setting labels");
             this._setKeys(labelIndex, message[mesId].keys);
             this._setTypes(labelIndex, message[mesId].types);
             this._setUnnamedTypes(labelIndex, message[mesId].unnamedType);
+            this._setGroupingKeys(labelIndex, message[mesId].groupingKeys);
+            this._setPreferedGroupingKeys(labelIndex, message[mesId].preferedGroupingKey);
             this._setGroups(labelIndex, message[mesId].groups);
             this._setIds(labelIndex, message[mesId].ids);
+            this.set("status.message", "init data");
             for (var i = 0; i < message[mesId].content.length; i++) {
               if (message[mesId].content[i].id) {
                 var index = this._getIndex(labelIndex, message[mesId].content[i].id);
                 if (index !== undefined) {
                   this._initDataPoint(labelIndex, index);
-                  this._setValues(labelIndex, message[mesId].content[i], index);
+                 this._setValues(labelIndex, message[mesId].content[i], index);
                 }
               }
             }
           }
         }
-        this.set("status.time.lastStatus", new Date()); this.set("status.message", "grouping elements");
-        this.fire("dataloaded");
+        this.set("status.time.lastStatus", new Date()); this.set("status.message", "loaded");
+        if (!this.opened ) {
+          this.fire("loaded");
+          this.opened = true;
+        }
       },
 
       _onData: function(message) {
         if(message == undefined) return; // Check for Existence
         var time = new Date();
         if (time - this.status.time.lastData >= this.interval) { // TODO: Configure it at server
-          // this.set("status.time.lastData", time);
-          var needToGroup = false;
+          this.set("status.time.lastData", time);
           if (Array.isArray(message)){ // if message is an Array
             for (var mesId=0; mesId < message.length; mesId++) {
               if (message[mesId].label) { // get the sent labelIndex
@@ -242,8 +298,6 @@
                 return;
               }
               if (labelIndex !== undefined) {
-                if (this.data[labelIndex].length < message[mesId].content.length) // re-group if necessary
-                  needToGroup = true;
                 for (var i in message[mesId].content) { // for all messurement-data-alements existing
                   if (message.content[i].id) {
                     var index = this._getIndex(labelIndex, message.content[i].id);
@@ -263,8 +317,6 @@
               return;
             }
             if (labelIndex !== undefined) {
-              if (this.data[labelIndex].length < message.content.length) // re-group if necessary
-                needToGroup = true;
               for (var i in message.content) { // for all messurement-data-alements existing
                 if (message.content[i].id) {
                   var index = this._getIndex(labelIndex, message.content[i].id);
@@ -273,15 +325,14 @@
               }
             }
           }
-
-          if (needToGroup)
-            this._implGroups(); // regrouping if a longer content noticed
         }
       },
 
       _getIndex: function(labelIndex, id) {
-        var check = this.ids[labelIndex].indexOf(id);
-        if(check !== -1)
+        var check;
+        if(this.ids && this.ids[labelIndex])
+          var check = this.ids[labelIndex].indexOf(id);
+        if(check !== undefined && this.ids[labelIndex].indexOf(id) !== -1)
           return check;
         else // if it doesn't excist then return undefined
           return undefined;
@@ -319,6 +370,18 @@
         this.set("unnamedTypes."+labelIndex, unnamedTypes);
       },
 
+      _setGroupingKeys: function(labelIndex, groupingKeys) {
+        while (labelIndex >= this.groupingKeys.length)
+          this.push("groupingKeys", {});
+        this.set("groupingKeys."+labelIndex, groupingKeys);
+      },
+
+      _setPreferedGroupingKeys: function(labelIndex, preferedGroupingKey) {
+        while (labelIndex >= this.preferedGroupingKeys.length)
+          this.preferedGroupingKeys.push("all");
+        this.preferedGroupingKeys[labelIndex] = preferedGroupingKey;
+      },
+
       _setGroups: function(labelIndex, groups) {
         while (labelIndex >= this.groups.length)
           this.push("groups", {});
@@ -332,51 +395,40 @@
         if (this.newestDataLast) {
           for (var j=0; j < messageContent.values.length; j++) {
             this.unshift("data." + labelIndex + "." + i + ".values", messageContent.values[j]);
-            if (messageContent.values[j].exceeds === null) {
-              if(this.data[labelIndex][i].isExceeding)
-                this.set("data." + labelIndex + "." + i + ".isExceeding", false);
-            }
-            else if (messageContent.values[j].exceeds === true || messageContent.values[j].exceeds === false) {
-              if(!this.data[labelIndex][i].isExceeding)
-                this.set("data." + labelIndex + "." + i + ".isExceeding", true);
-            }
+            this._checkIfExceedingStateHasToBeSet(messageContent.values[j].exceeds, labelIndex, i);
           }
         }
         else {
           for (var j=messageContent.values.length-1; j >=0; j--) {
             this.unshift("data." + labelIndex + "." + i + ".values", messageContent.values[j]);
-            if (messageContent.values[j].exceeds === null) {
-              if(this.data[labelIndex][i].isExceeding)
-                this.set("data." + labelIndex + "." + i + ".isExceeding", false);
-            }
-            else if (messageContent.values[j].exceeds === true || messageContent.values[j].exceeds === false) {
-              if(!this.data[labelIndex][i].isExceeding)
-                this.set("data." + labelIndex + "." + i + ".isExceeding", true);
-            }
+            this._checkIfExceedingStateHasToBeSet(messageContent.values[j].exceeds, labelIndex, i);
           }
         }
         if (this.data[labelIndex][i].values.length > this.maxLines)
           this.splice("data." + labelIndex + "." + i + ".values", this.maxLines, this.data[labelIndex][i].values.length);
 
-        if (messageContent.lastExceeds)
-          this.set("data." + labelIndex + "." + i + ".lastExceeds", messageContent.lastExceeds);
+        // if (messageContent.lastExceeds)
+        //   this.set("data." + labelIndex + "." + i + ".lastExceeds", messageContent.lastExceeds);
       },
 
+      // init datapoint, but it doesn't overwrite datavalues, if the datapoint existed before and has matching labels
       _initDataPoint: function(labelIndex, i) {
         while (labelIndex >= this.data.length)
           this.push("data", []);
         while (i >= this.data[labelIndex].length)
           this.push("data." + labelIndex, {});
 
+        // value attributes (won't be deleted for the client, if they exist for the same labelname)
+        if (!this.data[labelIndex][i].labelname || this.data[labelIndex][i].labelname !== this.labels[labelIndex]) {
+          this.set("data." + labelIndex + "." + i+ ".labelname", this.labels[labelIndex]);
+          this.set("data." + labelIndex + "." + i + ".values", []);
+          this.push("data." + labelIndex + "." + i + ".values", {"x":"","y":"","exceeds": null});
+        }
+
         // extra attributes
-        this.set("data." + labelIndex + "." + i+ ".labelname", this.labels[labelIndex]);
         this.set("data." + labelIndex + "." + i+ ".labelindex", labelIndex);
         this.set("data." + labelIndex + "." + i+ ".index", i);
         this.set("data." + labelIndex + "." + i + ".isExceeding", false);
-
-        // value attributes
-        this.set("data." + labelIndex + "." + i + ".values", []);
-        this.push("data." + labelIndex + "." + i + ".values", {"x":"","y":"","exceeds": null});
 
         var key;
         // configuartion
@@ -389,6 +441,50 @@
               this.set("data." + labelIndex + "." + i + "." + key, this.unnamedTypes[labelIndex][key]);
           }
         }
+      },
+
+      _checkIfExceedingStateHasToBeSet: function(exceeds, labelIndex, i) {
+        if (exceeds === null) {
+          if(this.data[labelIndex][i].isExceeding) {
+            this.set("data." + labelIndex + "." + i + ".isExceeding", false);
+            this._removeExceedingElement(labelIndex, i);
+          }
+        }
+        else if (exceeds === true || exceeds === false) {
+          if(!this.data[labelIndex][i].isExceeding) {
+            this.set("data." + labelIndex + "." + i + ".isExceeding", true);
+            this._addExceedingElement(labelIndex, i);
+          }
+        }
+      },
+
+      _addExceedingElement: function(labelindex,index) {
+        var item = Polymer.Collection.get(this.data[labelindex]).getItem('#'+index);
+        if(item && Polymer.Collection.get(this.exceeding).getKey(item) === undefined) {
+          key = this.push('exceeding', item) - 1;
+          this.linkPaths('exceeding.#' + key, 'data.#' + labelindex + ".#" + index);
+          //this.notifyPath('exceeding.#' + key + '.values', this.exceeding[key].values);
+          this.set("isExceeding",true);
+        }
+      },
+
+      _removeExceedingElement: function(labelindex,index) {
+        if(this.data[labelindex] && this.data[labelindex][index]) {
+          var item = Polymer.Collection.get(this.data[labelindex]).getItem('#'+index);
+          var key = Polymer.Collection.get(this.exceeding).getKey(item);
+          if(item && key) {
+            this.arrayDelete('exceeding', item);
+            this.unlinkPaths('exceeding.' + key);
+            if (this.exceeding.length == 0)
+              this.set("isExceeding",false);
+          }
+        }
+      },
+
+      _clearExceeding: function() {
+        while (this.exceeding.length > 0)
+          this.pop("exceeding");
+
       },
 
       _maxTotalLinesChanged: function(newValue, oldValue) {

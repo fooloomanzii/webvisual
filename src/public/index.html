@@ -33,13 +33,13 @@
   </style>
   <template>
     <data-socket-repeater id="datasocket"
-      data="{{data}}" available-labels="{{availableLabels}}" labels="{{labels}}" max-total-lines="{{maxLines}}" interval="{{interval}}"
-      groups="{{groups}}" on-dataloaded="_onLoaded" status="{{status}}">
+      data="{{data}}" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}" available-labels="{{availableLabels}}" labels="[[labels]]" max-total-lines="{{maxLines}}" interval="{{interval}}"
+      groups="{{groups}}" grouping-keys="{{groupingKeys}}" status="{{status}}" prefered-grouping-keys="{{preferedGroupingKeys}}">
     </data-socket-repeater>
     <neon-animated-pages id="pages" animate-initial-selection>
-      <select-page id="selectPage" available-labels="[[availableLabels]]" labels="{{labels}}" on-configset="_onConfigset"></select-page>
+      <select-page id="selectPage" available-labels="[[availableLabels]]" labels="{{labels}}"></select-page>
       <loading-page id="loadPage" status="{{status}}"></loading-page>
-      <main-page id="mainPage" class="element-page" data="[[data]]" labels="[[labels]]" groups="[[groups]]" max-total-lines="{{maxLines}}" interval="{{interval}}" on-restart="_restart" always-show-tabs></main-page>
+      <main-page id="mainPage" data="[[data]]" exceeding="[[exceeding]]" is-exceeding="[[isExceeding]]" labels="[[labels]]" groups="[[groups]]" grouping-keys="[[groupingKeys]]" max-total-lines="{{maxLines}}" interval="{{interval}}" selected-label-id="{{selectedLabelId}}" prefered-grouping-keys="{{preferedGroupingKeys}}" always-show-tabs></main-page>
     </neon-animated-pages>
   </template>
   <script>
@@ -52,43 +52,97 @@
           // this.$.loadPage.playAnimation('entry');
         },
         _onConfigset: function() {
+          this.$.datasocket.opened = false;
           this.$.datasocket.connect();
           this.start = new Date();
           this.$.pages.set('selected', '1');
         },
-        _onLoaded: function() {
-          this.$.mainPage.setSelectedGroup();
+        _onConfigreset: function() {
+          this.$.datasocket.connect();
+        },
+        _onLoaded: function(e) {
+          this.$.mainPage.setGroupBy();
           var self = this;
           var wait = new Date() - this.start;
           this.set("status.time.lastStatus",new Date()); this.set("status.message", "loading...");
-          wait = (wait < 3500) ? 3500 - wait : 0;
+          wait = (wait < 3000) ? 3000 - wait : 0;
           this.async(function() {
             // this is a bug in webanimations and and animations with intervall
-            self.$.loadPage.cancelAnimation();
-            this.$.pages.set('selected', '2');
+              self.$.loadPage.cancelAnimation();
+              self.$.pages.set('selected', '2');
           },wait);
         },
-        _restart: function() {
+        _onRestart: function() {
           if (this.availableLabels.length != 1) {
             this.$.pages.set('selected', '0');
             this.$.selectPage.$.logo.style.visibility = "visible";
             this.$.selectPage.$.labelWindow.open();
           }
+        },
+
+        listeners: {
+          "restart": "_onRestart",
+          "loaded": "_onLoaded",
+          "configset": "_onConfigset",
+          "reconnect": "_onConfigreset"
         }
       });
     });
   </script>
 </dom-module>
 <style>
-body {
-  height: 100%;
-  width: 100%;
-  background: #BBBBBB;
-}
-body[dark] {
-  background: #666666;
-}
+  body {
+    height: 100%;
+    width: 100%;
+    background: #BBBBBB;
+  }
+  body[dark] {
+    background: #666666;
+  }
+  section.circles {
+    z-index: 0;
+    position: fixed;
+    top: calc(50% - 8px);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+  }
+  section.circles svg {
+    height: 16px;
+    animation-name: background-animation;
+    animation-duration: 1.2s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+  section.circles svg#circle2 { animation-delay: 0.0s }
+  section.circles svg#circle2 { animation-delay: 0.1s }
+  section.circles svg#circle3 { animation-delay: 0.2s }
+  section.circles svg#circle4 { animation-delay: 0.3s }
+  section.circles svg#circle5 { animation-delay: 0.4s }
+  @keyframes background-animation {
+      0%   {transform: scale(0);}
+      100% {transform: scale(1);}
+  }
+
 </style>
 <body>
-    <pages-element></pages-element>
+  <section class="circles">
+    <svg id="circle1" viewBox="0 0 32 18">
+      <circle r="8" cy="9" cx="16" fill="#E41A1A" stroke="#252D36" stroke-width="0.25"/>
+    </svg>
+    <svg id="circle2" viewBox="0 0 32 18">
+      <circle r="8" cy="9" cx="16" fill="#E45D1A" stroke="#252D36" stroke-width="0.25"/>
+    </svg>
+    <svg id="circle3" viewBox="0 0 32 18">
+      <circle r="8" cy="9" cx="16" fill="#E4D61A" stroke="#252D36" stroke-width="0.25"/>
+    </svg>
+    <svg id="circle4" viewBox="0 0 32 18">
+      <circle r="8" cy="9" cx="16" fill="#67E41A" stroke="#252D36" stroke-width="0.25"/>
+    </svg>
+    <svg id="circle5" viewBox="0 0 32 18">
+      <circle r="8" cy="9" cx="16" fill="#1AA9E4" stroke="#252D36" stroke-width="0.25"/>
+    </svg>
+  </section>
+  <pages-element></pages-element>
 </body>
