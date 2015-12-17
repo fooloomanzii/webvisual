@@ -33,7 +33,7 @@
   </style>
   <template>
     <data-socket-repeater id="datasocket"
-      data="{{data}}" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}" available-labels="{{availableLabels}}" labels="{{labels}}" max-total-lines="{{maxLines}}" interval="{{interval}}"
+      data="{{data}}" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}" available-labels="{{availableLabels}}" labels="[[labels]]" max-total-lines="{{maxLines}}" interval="{{interval}}"
       groups="{{groups}}" grouping-keys="{{groupingKeys}}" status="{{status}}" prefered-grouping-keys="{{preferedGroupingKeys}}">
     </data-socket-repeater>
     <neon-animated-pages id="pages" animate-initial-selection>

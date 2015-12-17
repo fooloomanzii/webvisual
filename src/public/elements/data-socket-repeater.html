@@ -329,8 +329,10 @@
       },
 
       _getIndex: function(labelIndex, id) {
-        var check = this.ids[labelIndex].indexOf(id);
-        if(check !== -1)
+        var check;
+        if(this.ids && this.ids[labelIndex])
+          var check = this.ids[labelIndex].indexOf(id);
+        if(check !== undefined && this.ids[labelIndex].indexOf(id) !== -1)
           return check;
         else // if it doesn't excist then return undefined
           return undefined;

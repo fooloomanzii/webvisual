@@ -16,6 +16,11 @@
         value: function() { return []; },
         notify: true
       },
+      labels: {
+        type: Array,
+        value: function() { return []; },
+        notify: true
+      },
       groupingKeys: {
         type: Array,
         value: function() { return []; },
@@ -65,7 +70,7 @@
     setGroupBy: function(groupBy) {
       if(groupBy && this.groupBy in this.groups[this.selectedLabelId]) {
         this.set("groupBy",groupBy);
-        this.set("preferedGroupingKeys."+this.selectedLabelId, groupBy);
+        this.set("preferedGroupingKeys.#"+this.selectedLabelId, groupBy);
       }
       else if (this.preferedGroupingKeys && this.preferedGroupingKeys[this.selectedLabelId] && this.preferedGroupingKeys[this.selectedLabelId] in this.groups[this.selectedLabelId])
         this.set("groupBy",this.preferedGroupingKeys[this.selectedLabelId]);
