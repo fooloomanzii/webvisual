@@ -405,7 +405,7 @@
           }
         }
         if (this.data[labelIndex][i].values.length > this.maxLines)
-          this.splice("data." + labelIndex + "." + i + ".values", this.maxLines, this.data[labelIndex][i].values.length);
+          this.splice("data." + labelIndex + "." + i + ".values", this.maxLines, this.data[labelIndex][i].values.length - this.maxLines);
 
         // if (messageContent.lastExceeds)
         //   this.set("data." + labelIndex + "." + i + ".lastExceeds", messageContent.lastExceeds);
