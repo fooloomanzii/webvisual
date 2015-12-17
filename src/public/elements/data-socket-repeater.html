@@ -67,6 +67,11 @@
             value: function() { return []; },
             notify: true
           },
+          preferedGroupingKeys: {
+            type: Array,
+            value: function() { return []; },
+            notify: true
+          },
           keys: {
             type: Array,
             value: function() { return []; },
@@ -200,10 +205,12 @@
       },
 
       _init: function() {
+        this._clearExceeding();
         this.set('data',[]);
         this.set('ids',[]);
         this.set('groups',[]);
         this.set('groupingKeys',[]);
+        this.set('preferedGroupingKeys',[]);
         this.set('keys',[]);
         this.set('types',[]);
         this.set('unnamedTypes',[]);
@@ -211,8 +218,19 @@
 
       _labelsChanged: function(changerecord){
         if(changerecord.path == "labels.splices") {
-          console.log("init");
-          this._init;
+          if(changerecord.value.indexSplices[0].removed.length > 0) {
+            this._clearExceeding();
+            this.splice("data",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            this.splice("ids",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            this.splice("groups",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            this.splice("groupingKeys",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            this.splice("preferedGroupingKeys",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            this.splice("keys",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            this.splice("types",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            this.splice("unnamedTypes",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+          }
+          // console.log("init");
+          // this._init;
         }
       },
 
@@ -237,24 +255,27 @@
             return;
           }
           if (labelIndex !== undefined) {
+            this.set("status.message", "setting labels");
             this._setKeys(labelIndex, message[mesId].keys);
             this._setTypes(labelIndex, message[mesId].types);
             this._setUnnamedTypes(labelIndex, message[mesId].unnamedType);
             this._setGroupingKeys(labelIndex, message[mesId].groupingKeys);
+            this._setPreferedGroupingKeys(labelIndex, message[mesId].preferedGroupingKey);
             this._setGroups(labelIndex, message[mesId].groups);
             this._setIds(labelIndex, message[mesId].ids);
+            this.set("status.message", "init data");
             for (var i = 0; i < message[mesId].content.length; i++) {
               if (message[mesId].content[i].id) {
                 var index = this._getIndex(labelIndex, message[mesId].content[i].id);
                 if (index !== undefined) {
                   this._initDataPoint(labelIndex, index);
-                  this._setValues(labelIndex, message[mesId].content[i], index);
+                 this._setValues(labelIndex, message[mesId].content[i], index);
                 }
               }
             }
           }
         }
-        this.set("status.time.lastStatus", new Date()); this.set("status.message", "grouping elements");
+        this.set("status.time.lastStatus", new Date()); this.set("status.message", "loaded");
         if (!this.opened ) {
           this.fire("loaded");
           this.opened = true;
@@ -266,7 +287,6 @@
         var time = new Date();
         if (time - this.status.time.lastData >= this.interval) { // TODO: Configure it at server
           // this.set("status.time.lastData", time);
-          var needToGroup = false;
           if (Array.isArray(message)){ // if message is an Array
             for (var mesId=0; mesId < message.length; mesId++) {
               if (message[mesId].label) { // get the sent labelIndex
@@ -278,8 +298,6 @@
                 return;
               }
               if (labelIndex !== undefined) {
-                if (this.data[labelIndex].length < message[mesId].content.length) // re-group if necessary
-                  needToGroup = true;
                 for (var i in message[mesId].content) { // for all messurement-data-alements existing
                   if (message.content[i].id) {
                     var index = this._getIndex(labelIndex, message.content[i].id);
@@ -299,8 +317,6 @@
               return;
             }
             if (labelIndex !== undefined) {
-              if (this.data[labelIndex].length < message.content.length) // re-group if necessary
-                needToGroup = true;
               for (var i in message.content) { // for all messurement-data-alements existing
                 if (message.content[i].id) {
                   var index = this._getIndex(labelIndex, message.content[i].id);
@@ -309,9 +325,6 @@
               }
             }
           }
-
-          if (needToGroup)
-            this._implGroups(); // regrouping if a longer content noticed
         }
       },
 
@@ -359,6 +372,12 @@
         while (labelIndex >= this.groupingKeys.length)
           this.push("groupingKeys", {});
         this.set("groupingKeys."+labelIndex, groupingKeys);
+      },
+
+      _setPreferedGroupingKeys: function(labelIndex, preferedGroupingKey) {
+        while (labelIndex >= this.preferedGroupingKeys.length)
+          this.preferedGroupingKeys.push("all");
+        this.preferedGroupingKeys[labelIndex] = preferedGroupingKey;
       },
 
       _setGroups: function(labelIndex, groups) {
@@ -420,9 +439,6 @@
               this.set("data." + labelIndex + "." + i + "." + key, this.unnamedTypes[labelIndex][key]);
           }
         }
-
-        // deselect exceeding element if in exceeding list
-        this._removeExceedingElement(labelIndex,i);
       },
 
       _checkIfExceedingStateHasToBeSet: function(exceeds, labelIndex, i) {
@@ -451,14 +467,22 @@
       },
 
       _removeExceedingElement: function(labelindex,index) {
-        var item = Polymer.Collection.get(this.data[labelindex]).getItem('#'+index);
-        var key = Polymer.Collection.get(this.exceeding).getKey(item);
-        if(item && key) {
-          this.arrayDelete('exceeding', item);
-          this.unlinkPaths('exceeding.' + key);
-          if (this.exceeding.length == 0)
-            this.set("isExceeding",false);
+        if(this.data[labelindex] && this.data[labelindex][index]) {
+          var item = Polymer.Collection.get(this.data[labelindex]).getItem('#'+index);
+          var key = Polymer.Collection.get(this.exceeding).getKey(item);
+          if(item && key) {
+            this.arrayDelete('exceeding', item);
+            this.unlinkPaths('exceeding.' + key);
+            if (this.exceeding.length == 0)
+              this.set("isExceeding",false);
+          }
         }
+      },
+
+      _clearExceeding: function() {
+        while (this.exceeding.length > 0)
+          this.pop("exceeding");
+
       },
 
       _maxTotalLinesChanged: function(newValue, oldValue) {

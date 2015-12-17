@@ -26,6 +26,11 @@
         value: function() { return []; },
         notify: true
       },
+      preferedGroupingKeys: {
+        type: Array,
+        value: function() { return []; },
+        notify: true
+      },
       selectedLabelId: {
         type: Number,
         value: 0,
@@ -57,17 +62,19 @@
     },
     setSelectedElement: function(e) {
     },
-    setGroupBy: function(labelid,groupBy) {
-      if(groupBy)
+    setGroupBy: function(groupBy) {
+      if(groupBy && this.groupBy in this.groups[this.selectedLabelId]) {
         this.set("groupBy",groupBy);
-      else if (this.groupingKeys && this.groupingKeys[this.selectedLabelId] && this.groupingKeys[this.selectedLabelId].length > 0)
-        this.set("groupBy",this.groupingKeys[this.selectedLabelId][0]);
+        this.set("preferedGroupingKeys."+this.selectedLabelId, groupBy);
+      }
+      else if (this.preferedGroupingKeys && this.preferedGroupingKeys[this.selectedLabelId] && this.preferedGroupingKeys[this.selectedLabelId] in this.groups[this.selectedLabelId])
+        this.set("groupBy",this.preferedGroupingKeys[this.selectedLabelId]);
       else
         this.set("groupBy","all");
     },
     setSelectedGroup: function(){
       // TODO: Handle lableid change too
-      if(this.groups && this.groupBy && this.groups[this.selectedLabelId] && this.groupBy in this.groups[this.selectedLabelId]){
+      if(this.groups && this.groupBy && this.groups[this.selectedLabelId]){
         this.set("selectedGroup", this.groups[this.selectedLabelId][this.groupBy]);
         this.linkPaths("selectedGroup", "groups." + this.selectedLabelId + "." + this.groupBy);
       }

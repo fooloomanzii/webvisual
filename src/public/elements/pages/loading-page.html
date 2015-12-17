@@ -14,7 +14,7 @@
       width: 100%;
       position: fixed;
       background: #669DB4;
-      z-index: 8;
+      z-index: 50;
     }
     section#mainContent[dark] {
       background: #345475;
@@ -28,44 +28,47 @@
         width: 61vw !important;
       }
     }*/
-    logo-element {
-      top: calc(50% - 25vh);
-      left: calc(50% - 31vw);
+    section#logo-container {
       position: fixed;
-      align-self: center;
-      height: 28vw;
-      width: 62vw;
-      z-index: 10;
+      display: flex;
+      justify-content: center;
+      left: 19vw;
+      height: 100%;
+      align-items: center;
+      flex-direction: column;
+      z-index: 100;
     }
-    section#messageBox {
-      bottom: calc(5vh);
-      left: calc(50% - 18vw);
-      position: fixed;
+    logo-element {
+      width: 62vw;
+      align-items: flex-end;
+      height: 62%;
+      z-index: 100;
+      flex: 3;
+    }
+    section.lower {
+      align-self: stretch;
+      flex: 1;
+      justify-content: space-around;
       align-items: center;
       display: flex;
-      justify-content: space-around;
-      width: 38vw;
-      height: 2.5em;
+      flex-direction: column;
       font-family: Thin;
-      font-size: 1em;
-      padding-left: 10vw;
-      z-index: 9;
+      z-index: 100;
     }
-    circle-element {
-      bottom: calc(20vh - 16px);
-      left: calc(50% - 80px);
-      position: fixed;
-      padding-left: 10vw;
-      z-index: 9;
+    circle-element, section#messageBox {
+      z-index: 100;
     }
   </style>
 
   <template>
-    <logo-element id="logo"></logo-element>
-    <circle-element id="circle"></circle-element>
-    <section id="messageBox">{{status.message}}</section>
-    <section id="mainContent">
+    <section id="logo-container">
+      <logo-element id="logo"></logo-element>
+      <section class="lower">
+        <circle-element id="circle"></circle-element>
+        <section id="messageBox">{{status.message}}</section>
+      </section>
     </section>
+    <section id="mainContent"></section>
   </template>
 
   <script>

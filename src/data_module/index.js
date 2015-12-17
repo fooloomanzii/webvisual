@@ -164,6 +164,7 @@ function connect (config, server, err) {
                       ids : dataConf[index].ids,
                       groups : dataConf[index].groups,
                       groupingKeys : dataConf[index].groupingKeys,
+                      preferedGroupingKey : dataConf[index].preferedGroupingKey,
                       keys : dataConf[index].keys,
                       unnamedType : dataConf[index].unnamedType,
                       timeFormat : dataConf[index].timeFormat

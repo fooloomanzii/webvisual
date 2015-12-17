@@ -1,7 +1,7 @@
 /** Short description
  * devicemodel handles the mongoDB-Collection with a list of devices,
  * and Collections with stored values.
- * Also, after storing the fresh incoming data, 
+ * Also, after storing the fresh incoming data,
  *   it passes that to the tmpmodel for further storage.
  * You can access tmpDB only by switching them! (calling the switching function)
  */
@@ -9,7 +9,7 @@
 /** Further Development Note
  * The following DB-Structure was chosen because of low CPU usage.
  *
- * It was also tested to make a collection to look like: 
+ * It was also tested to make a collection to look like:
  *                    { device = { <someProperties>,
  *                                 values = [value1, value2...] }
  *                    },
@@ -18,8 +18,8 @@
  *
  * Current version needs < 1% CPU by writing (per DB), independent of DB size.
  * Read operations are always stressful..
- * It isn't really possible to find better solutions.. 
- *   .. may be only after some mongoDB updates. 
+ * It isn't really possible to find better solutions..
+ *   .. may be only after some mongoDB updates.
  *   (current mongoDB Version: 3.0.7 | Storage Engine: MMAPv1 )
  **/
 
@@ -43,17 +43,20 @@ var tmpDB_prefix = "tmp_"; // prefix of temporary collection
 
   // --- Mongoose Schemas --- //
 // Schema to store the device properties
+
+// TODO: es wäre besser, wenn die Keys fürs DeviceSchema aus der Config bestimmt werden (unnamedTypes)
+
 var DeviceSchema = new Schema(
   {
-  _id       : String, // index = Measuring Device ID
-  roomNr    : String, // Room Number
-  room      : String, // Room Type
-  kind      : String, // What is measured
-  method    : String, // Type of Measure
-  threshold : Schema.Types.Object, // Thresholds: {'from':null,'to':null}
-  isBoolean : Boolean, // true if Measure is boolean
-  unit      : String, // Measuring units
-  storage   : String  // Name of the Collection with Device values
+  _id        : String, // index = Measuring Device ID
+  roomNr     : String, // Room Number
+  room       : String, // Room Type
+  kind       : String, // What is measured
+  method     : String, // Type of Measure
+  threshold  : Schema.Types.Object, // Thresholds: {'from':null,'to':null}
+  isBoolean  : Boolean, // true if Measure is boolean
+  unit       : String, // Measuring units
+  storage    : String  // Name of the Collection with Device values
   },
   // options
   { // significant performance improvement
@@ -66,7 +69,7 @@ var DeviceSchema = new Schema(
 // created through the function because of dynamic storage_size
 // storage size need to be given in Megabytes
 var StorageSchema = function( storage_size ){
-  // it's only for privately use, 
+  // it's only for privately use,
   // so correctness storage_size is a pre-condition
   return new Schema(
     {
@@ -85,7 +88,7 @@ var StorageSchema = function( storage_size ){
     // Versioning (__v) is important for updates.
     // No updates => versioning is useless
     versionKey: false // gets versioning off
-    
+
     //, autoindex: false // significant performance improvement
 //TODO check if index is registered and register it manually and set 'autoindex: false'
     }
@@ -102,23 +105,23 @@ var default_db_options = {
   // --- Constructor --- //
 //TODO describe database_options and what constructor actually do
 var DeviceModel = function(){
-  
+
   // Ensure the constructor was called correctly with 'new'
-  if( !(this instanceof DeviceModel) ) 
+  if( !(this instanceof DeviceModel) )
     return new DeviceModel(database_options, callback);
-  
+
   // --- Local Variables --- //
-  
+
   // maximal limit of values to query (by one request)
   this.max_query_limit = 5000;
   // default size in Megabytes for values collections per device
   this.default_storage_size = 50;
   // true if identical values need to be saved, false if not
   this.save_identical_values = true;
-  
-  
+
+
   this.TmpModel; //local instance of TmpModel
-  
+
   // tmpDB helpful variables
   this.cur_tmp = 0; // index of current temporary collection
 //TODO write a function, that defines if there is need for more tmp collections
@@ -126,14 +129,14 @@ var DeviceModel = function(){
   this.tmpDB; // temporary collection
   this.tmpIsInUse = false; // true if new data is been currently written to tmpDB
   this.tmp_switch_callback; // temporary callback pointer
-  
+
   // local StorageSchema
   this.StorageSchema = StorageSchema(this.default_storage_size);
-  
+
 // TODO test if model properly created without establishing connection!!!
 // TODO set error handling by every early access to the model!
   this.database = mongoose.createConnection(); // connection to the database (not yet established)
-  
+
   // Essential variable: the device model
   this.model = this.database.model(devicelistDB_name, DeviceSchema);
 };
@@ -152,54 +155,54 @@ function extendError(error, model){
 
 // TODO describe the function
 DeviceModel.prototype.createConnection = function(database_options){
-  
+
   // if there are no database_options, we can use default options
   if( database_options == undefined ) database_options = {};
-  
+
   // Fill undefined options with default ones
   _.defaults(database_options, default_db_options);
   if(database_options.index === undefined) // default index is a current db-name
     database_options.index = database_options.name;
-  
+
   //--- Set Local Variables --- //
-  
+
   this.connection_options = {
       ip     : database_options.ip,
       port   : database_options.port,
       name   : database_options.name
   }
-  
+
   this.index = database_options.index; // own index to sign the emitted events
   this.database_name = database_options.name; // name of the database
-  
+
   //set local TmpModel
   this.TmpModel = new TmpModel(this.model, this.index);
-  
+
   //set current temporary collection
   this.tmpDB = this.database.model(tmpDB_prefix+this.cur_tmp, this.TmpModel.schema);
-  
+
   var self=this;
-  
+
   // Check if there are options to set before the start and set it if needed
   // Also connect to the db and call the callback
   this.setDefaults(database_options, function(err, index){
-    if(err) { 
+    if(err) {
       err.forEach(function(error){
         self.emit('error', extendError(error, self));
       })
-    } 
+    }
   });
 };
 
 DeviceModel.prototype.connect = function(callback){
   var self=this;
 //DB Events forwarding
-  self.database.on('error', 
+  self.database.on('error',
       function(err) { self.emit('error', extendError(err, self)); }
   );
   // Establish the connection to DB.
-  self.database.open(self.connection_options.ip, self.connection_options.name, 
-                      self.connection_options.port, 
+  self.database.open(self.connection_options.ip, self.connection_options.name,
+                      self.connection_options.port,
                       function(err){
                         if(callback) callback(err, self.index);
                       }
@@ -214,7 +217,7 @@ DeviceModel.prototype.disconnect = function(callback){
 };
 
 /*
- * Sets new default values to the Model from options-Object 
+ * Sets new default values to the Model from options-Object
  * Possible properties to change:
  *   index : custom index for this model (leave this to your care)
  *   max_query_limit : maximal limit of values to query (by one request)
@@ -241,7 +244,7 @@ DeviceModel.prototype.setDefaults = function(options, callback){
   if(options == undefined) return callback(null, this.index);
 
   var errors = [];
-  
+
   if(options.max_query_limit != undefined){
     if(!_.isNumber(options.max_query_limit)){
       errors.push(new Error("max_query_limit is not a Number!\n" +
@@ -303,11 +306,11 @@ DeviceModel.prototype.switchTmpDB = function(callback){
 
 //Creates or updates list of devices in database using given array "devices"
 DeviceModel.prototype.setDevices = function(devices, callback){
-//TODO do a test with undefined devices 
+//TODO do a test with undefined devices
   if(!_.isArray(devices)) devices = [devices];
-  
+
   devices.filter( function(item){ return item } ); //filter out empty devices
-  
+
   var self = this;
   async.each(devices,
      function(device, async_callback){
@@ -351,14 +354,14 @@ DeviceModel.prototype.append = function (newData, callback) {
     return;
   }
   var self = this; // allow to pass this model to other functions
-  
+
   // preparations, because of time-based switch of temporary collections
   this.tmpIsInUse = true;
   var curr_tmpDB = this.tmpDB;
   if(curr_tmpDB === undefined) console.log(curr_tmpDB);
   // Ensure, that newData is array
   if(!_.isArray(newData)) newData = [newData];
-  
+
   // Append all data from the array to database in parallel
   // and pack all data returned from save() to one array to pass it to callback
   async.map(
@@ -367,7 +370,7 @@ DeviceModel.prototype.append = function (newData, callback) {
      if(data === undefined) return;
 
      save(self, data, function(err, result){
-       if( result == undefined || result.values.length<1 ) 
+       if( result == undefined || result.values.length<1 )
          return async_callback(err);
        // fill the temporary model with data from current update
        self.TmpModel.appendToModel(curr_tmpDB, result, function(err){
@@ -385,12 +388,12 @@ DeviceModel.prototype.append = function (newData, callback) {
        // Prevent double call of tmp_switch_callback
        self.tmp_switch_callback = null;
      }
-     
+
      // Pass appendedData to the callback if it's needed
      if(callback) {
        // Remove all empty elements from appendedData
        appendedData = appendedData.filter(function(n){ return n });
-       
+
        callback(errors, (appendedData.length>0)?appendedData:null, self.index);
      }
    }
@@ -401,14 +404,14 @@ DeviceModel.prototype.append = function (newData, callback) {
 // Saves the data to the given instance of DeviceModel
 // !! precondition: need newData.id to arrange the values !!
 function save(self, newData, callback){
-  
+
   // Private function -> preconditions needs to be filled
   // if(newData.id === undefined) return;
-   
-  
+
+
   // If there're no values, can be that the function was called to check the device
   if(newData.values == undefined) newData.values = {};
-  
+
   // Open collection of values or create a new one
   self.model.findOne({'_id':newData.id},
    function(err, result){
@@ -417,13 +420,15 @@ function save(self, newData, callback){
        if(callback) return callback(extendError(err, self));
        return;
      }
-  
+
      var storage;
      if(result && result.storage){ // the device is in the list and have .storage
        storage = self.database.model(result.storage, self.StorageSchema);
      } else { // write device to the list
        // create new collection of values and save it by device description
        // collection names are always lower case
+
+       // Mögliche Fehlerquelle, falls nicht alle ids gesetzt sind
        var storagename = (deviceDB_prefix + newData.id).toLowerCase();
        self.model.update({'_id':newData.id},
            { $set: { 'storage': storagename }},
@@ -438,7 +443,7 @@ function save(self, newData, callback){
        );
        storage = self.database.model(storagename, self.StorageSchema);
      }
-  
+
      if(_.isEmpty(newData.values)){
        callback(null, null);
      } else {
@@ -451,9 +456,9 @@ function save(self, newData, callback){
            return item;
          }
        );
-  
+
 //TODO stress test (lot of devices and values parallel)
-       
+
        // append_new_values serves to properly writing
        //    of possible values with identical time
        // append_tries = count of writing tries for problem values
@@ -471,15 +476,15 @@ function save(self, newData, callback){
                      console.warn("Error by searching for value: '"+newValue._id+"'!");
                      return done();
                    }
-  
-                   // if values are same, and same values don't need 
+
+                   // if values are same, and same values don't need
                    // to be written to db, then we're done with that value
                    if(!(self.save_identical_values) && result.y === newValue.y)
                      return done();
 
                    // increase _id on 0.001
                    newValue._id = newValue._id+=0.001;
-                   
+
                    // try again
                    append_tries++;
                    return append_new_values(newValue, append_tries, done);
@@ -495,7 +500,7 @@ function save(self, newData, callback){
            }
          );
        }
-  
+
        // append all values to database in parallel
        async.map(
            valuesToAppend,
@@ -504,14 +509,14 @@ function save(self, newData, callback){
              // 0, because it's a first try to append the value
              append_new_values(value, 0, async_callback);
            },
-           // 'appendedValues' is an array of all values, 
+           // 'appendedValues' is an array of all values,
            //    that were passed to async_callback. Same with 'errors'.
            function(errors, appendedValues){
              if(errors){
                if(callback) return callback(err, appendedValues);
                else return;
              }
-  
+
              callback( null,
                { id     : newData.id,
                  values : appendedValues. // values, that were appended
@@ -541,7 +546,7 @@ function save(self, newData, callback){
 *                        to: moment().subtract(1, 'day') }
 *              default: null
 *              ! Note: 'from' means '>=', 'to' means '<'
-*              !       just 'time' means '==' 
+*              !       just 'time' means '=='
 *      limit - maximal number of values per device to be returned,
 *              depending on time:
 *                   (-) for values before time/time.to  (e.g. last N values)
@@ -570,7 +575,7 @@ function save(self, newData, callback){
 DeviceModel.prototype.query = function (search_pattern, callback) {
   var self = this;
   if(search_pattern === undefined) search_pattern = {}; // no request means 'request everything'
-  if(_.isFunction(search_pattern)){  
+  if(_.isFunction(search_pattern)){
     // may be the first argument is a callback
     callback = search_pattern;
     search_pattern = {};
@@ -578,7 +583,7 @@ DeviceModel.prototype.query = function (search_pattern, callback) {
      // query is useless without a callback!
      throw new Error("Database query without a callback!");
   }
-  
+
   if(!_.isArray(search_pattern)){
     return find(self, search_pattern, callback);
   }
@@ -598,7 +603,7 @@ function find(self, request, callback) {
   var time; // check and parse the requested time
   if(request.time !== undefined) {
     if(request.time.from !== undefined || request.time.to !== undefined){
-      if(request.time.from){ 
+      if(request.time.from){
         try {
           time = {};
           // '$gte' is 'Greater Than or Equal'
@@ -627,8 +632,8 @@ function find(self, request, callback) {
       }
     }
   }
-  
-  var device_query; // check and parse the requested devices  
+
+  var device_query; // check and parse the requested devices
   if(request.query === undefined){ // if no query, search for everything
     device_query = {};
   } else {
@@ -639,14 +644,14 @@ function find(self, request, callback) {
       }
     );
   }
-  
+
   // at first search for required devices
   self.model.find(device_query, function(err, devices) {
    if(err){
      return callback(extendError(err, self), null, self.index);
    }
    if(devices.length == 0) return callback(null, null, self.index);
-  
+
    // set temporary max_query_limit to check the requested limit
    var limit = self.max_query_limit/devices.length;
    if(request.limit){
@@ -663,7 +668,7 @@ function find(self, request, callback) {
      limit = -limit;
    }
    limit|=limit; // parse to integer without rounding up
-  
+
    // do a parallel search for values of every requested device
    //   and pack all results in one array
    async.map(
@@ -672,16 +677,16 @@ function find(self, request, callback) {
      function(device, async_callback){
        // query collection with values for current device
        var values_collection = self.database.model(device.storage, self.StorageSchema);
-  
+
        var query;
-  
+
        // do a search
        if(time !== undefined){
          query = values_collection.find({ '_id': time });
        } else {
          query = values_collection.find({});
        }
-  
+
        // limit the query
        // The $natural parameter returns items according to their natural
        //   order within the database. It's the fastest order to sort.
@@ -696,17 +701,17 @@ function find(self, request, callback) {
               .limit(limit);
        }
        query.select('-_id -__v'); // exclude '_id' & '__v'
-       
+
        query.exec(function(err, results){
          if(err) return done(extendError(err, self));
-  
-         if( limit < 0 ) { 
+
+         if( limit < 0 ) {
            // by the limit < 0, values were presorted in descending order
            // so we do the ascending sort manually
            results= _.sortBy(results, function(obj){ return obj.x; });
          }
-  
-         
+
+
          async_callback(null, {'id':device.id, 'values': results});
        });
      },
@@ -738,7 +743,7 @@ DeviceModel.prototype.resizeStorage = function (id, size, callback) {
     if(callback) return callback(new Error("Wrong storage size: "+size), self.index);
     return;
   }
-  
+
   this.model.findOne({'_id':id},
      function(err, result){
        if(err){
@@ -756,7 +761,7 @@ DeviceModel.prototype.resizeStorage = function (id, size, callback) {
            return callback(new Error("There is no storage for device '"+id+"'!"), self.index);
          return;
        }
-  
+
        // call the db command to resize a collection
 // TODO test it!!!
        self.database.command(

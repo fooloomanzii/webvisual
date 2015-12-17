@@ -277,11 +277,9 @@
 
       <sign-element id="selectedElementSign" class="selectedElement sign incard" element="{{selectedElement}}" on-click="deselectElement"></sign-element>
       <section id="selectedElementCaption" class="selectedElement caption incard">
-        <span id="kind">{{selectedElement.kind}}</span>
-        <span id="method">{{selectedElement.method}}</span>
-        <span id="room">{{selectedElement.room}}</span>
-        <span id="roomNr">{{selectedElement.roomNr}}</span>
-        <span id="roomNr">{{selectedElement.labelname}}</span>
+        <template is="dom-repeat" items="{{getGroupingKeys(groupingKeys.*,selectedElement.labelindex)}}" as="key">
+          <span id="{{key}}">{{getElementsKey(selectedElement,key)}}</span>
+        </template>
       </section>
 
       <table-element id="selectedElementTable" class="selectedElement noncard" element="{{selectedElement}}"></table-element>
@@ -312,11 +310,9 @@
 
                   <iron-collapse class="sidemenu collapse grouping">
                     <paper-radio-group selected="{{groupBy}}" class="indention">
-                      <paper-radio-button name="roomNr">Raumnummer</paper-radio-button>
-                      <paper-radio-button name="room">Raumname</paper-radio-button>
-                      <paper-radio-button name="kind">Typ</paper-radio-button>
-                      <paper-radio-button name="method">Methode</paper-radio-button>
-                      <paper-radio-button name="all">Alle</paper-radio-button>
+                      <template is="dom-repeat" items="{{getGroupingKeys(groupingKeys.*,selectedLabelId)}}" as="key">
+                        <paper-radio-button name="{{key}}">{{key}}</paper-radio-button>
+                      </template>
                     </paper-radio-group>
                   </iron-collapse>
 
@@ -420,12 +416,10 @@
             <template is="dom-repeat" items="{{exceeding}}" as="element">
               <section class="card" on-click="setSelectedElement" dark$="[[dark]]">
                 <sign-element element="{{element}}" dark$="[[dark]]"></sign-element>
-                <section class="caption" id="{{element.id}}" dark$="[[dark]]">
-                  <span id="kind">{{element.kind}}</span>
-                  <span id="method">{{element.method}}</span>
-                  <span id="room">{{element.room}}</span>
-                  <span id="roomNr">{{element.roomNr}}</span>
-                  <span id="roomNr">{{element.labelname}}</span>
+                <section class="caption" dark$="[[dark]]">
+                  <template is="dom-repeat" items="{{getGroupingKeys(groupingKeys.*,element.labelindex)}}" as="key">
+                    <span id="{{key}}">{{getElementsKey(element,key)}}</span>
+                  </template>
                 </section>
               </section>
             </template>
@@ -449,12 +443,10 @@
                       <section class="card" on-click="setSelectedElement" dark$="[[dark]]">
 
                           <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding-element="_checkExceedingDialog"></sign-element>
-                          <section class="caption" id="{{element.id}}" dark$="[[dark]]">
-                            <span id="kind">{{element.kind}}</span>
-                            <span id="method">{{element.method}}</span>
-                            <span id="room">{{element.room}}</span>
-                            <span id="roomNr">{{element.roomNr}}</span>
-                            <span id="roomNr">{{element.labelname}}</span>
+                          <section class="caption" dark$="[[dark]]">
+                            <template is="dom-repeat" items="{{getGroupingKeys(groupingKeys.*,selectedLabelId)}}" as="key">
+                              <span id="{{key}}">{{getElementsKey(element,key)}}</span>
+                            </template>
                           </section>
 
                       </section>
@@ -562,6 +554,7 @@
           value: 500,
           notify: true
         },
+        // Attribute for toolbar is opened
         opened: {
           type: Boolean,
           value: false,
@@ -574,11 +567,13 @@
           reflectToAttribute: true,
           observer: '_labelsChanged'
         },
+        // Attribute sent by datasocket-repeater
         isExceeding: {
           type: Boolean,
           value: false,
           observer: "openExceedsDialog"
         },
+        // Array of exceeding items
         exceeding: {
           type: Array,
           value: function() { return []; },
@@ -586,7 +581,12 @@
         },
       },
 
+      observers: [
+        '_checkExceedingDialog(exceeding.length)'
+      ],
+
       attached: function() {
+        this.set("selectedLabelId", 0);
         var self = this;
         var dialogs = Array.prototype.slice.call(Polymer.dom(this.root).querySelectorAll("paper-dialog"));
         Array.prototype.forEach.call(dialogs, function(dialog) {
@@ -604,9 +604,23 @@
         }
       },
 
-      // show tabs if wanted
+      getGroupingKeys: function(change, labelindex) {
+        if (labelindex == undefined)
+          labelindex = this.selectedLabelId;
+        if (Array.isArray(this.groupingKeys[labelindex])) {
+          return this.groupingKeys[labelindex];
+        }
+        else return [];
+      },
+
+      getElementsKey: function(element,key) {
+        if(element && element[key])
+          return element[key];
+      },
+
+      // show tabs, if wanted
       isSelectedLabel: function(labelid, selectedLabelId) {
-        return (labelid == selectedLabelId);
+        return (labelid === selectedLabelId);
       },
 
       setSelectedElement: function(e) {
@@ -659,6 +673,7 @@
       openExceedsDialog: function() {
         if(this.isExceeding) {
           this.$.exceedsDialog.fit();
+          this.$.exceedsDialog.center();
           this.$.exceedsDialog.open();
         }
         else {
@@ -666,9 +681,10 @@
         }
       },
 
-      _checkExceedingDialog: function(e) {
-        if(!this.$.exceedsDialog.opened)
-          this.$.exceedsDialog.open();
+      _checkExceedingDialog: function(length) {
+        if(!this.$.exceedsDialog.opened && length > 0) {
+          this.openExceedsDialog();
+        }
       },
 
       toggleExceedsDialog: function() {
