@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-  <title>webvisual</title>
+  <title>Webvisual</title>
   <meta name="viewport" charset="utf-8" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.8"/>
   <script src="components/webcomponentsjs/webcomponents.min.js"></script>
   <link rel="import" href="components/polymer/polymer.html"/>
@@ -125,8 +125,8 @@
   </style>
   <template>
     <data-socket-repeater id="datasocket"
-      data="{{data}}" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}" available-labels="{{availableLabels}}" labels="{{labels}}" max-total-lines="[[maxLines]]" interval="[[interval]]"
-      groups="{{groups}}" grouping-keys="{{groupingKeys}}" status="[[status]]" prefered-grouping-keys="{{preferedGroupingKeys}}">
+      data="{{data}}" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}" available-labels="{{availableLabels}}" labels="[[labels]]" max-total-lines="[[maxLines]]" interval="[[interval]]"
+      groups="{{groups}}" grouping-keys="{{groupingKeys}}" status="{{status}}" prefered-grouping-keys="{{preferedGroupingKeys}}">
     </data-socket-repeater>
     <neon-animated-pages id="pages" animate-initial-selection>
       <select-page id="selectPage" available-labels="[[availableLabels]]" labels="{{labels}}"></select-page>
