@@ -147,11 +147,13 @@
           ],
 
           "unnamedType" : {
-          "id"    : "id",
-          "propA"  : "",
-          "propB": "",
-          "propC"  : "",
-          "unit"     : ""
+            "id"    : "id",
+            "propA"  : "",
+            "propB": "",
+            "propC"  : "",
+            "unit"     : "",
+            "threshold": {"from":null,"to":null},
+            "isBoolean": false
           },
 
           "groupingKeys" : ["propA", "propB", "propC", "all"],

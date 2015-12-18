@@ -35,6 +35,18 @@
       flex-direction: row;
       align-items: center;
     }
+    section#tr.null {
+      background: none; color: #1f1f1f;
+    }
+    section#tr.true {
+      background: rgb(255, 21, 41); color: #f1f1f1;
+    }
+    section#tr.false {
+      background: rgb(255, 20, 110); color: #f1f1f1;
+    }
+    section#tr.undefined {
+      background: rgb(236, 249, 97); color: #1f1f1f;
+    }
     section#body {
       border-top: thin solid #8c8c8c;
       width: 100%;
@@ -68,7 +80,7 @@
         </section>
         <section id="body">
           <template is="dom-repeat" id="values" items="[[element.values]]" index-as="i">
-            <section id="tr" style$=[[computeStyle(element.values.*,i)]]>
+            <section id="tr">
               <section id="td" class="x">[[computeX(element.values.*,i)]]</section>
               <section id="td" class="y">[[computeY(element.values.*,i)]]</section>
             </section>
@@ -85,19 +97,22 @@
 
       behaviors: [ElementBehavior],
 
-      properties: {
-        exceedsStyle: {
-          type: Object,
-          value: function() {
-            return {
-              "true":  "background: rgb(255, 21, 41); color: #f1f1f1;",
-              "false": "background: rgb(255, 20, 110); color: #f1f1f1;",
-              "none":  "background: none; color: #1f1f1f;",
-              "undef": "background: rgb(236, 249, 97); color: #1f1f1f;"
-            };
-          }
+      observers: [
+        "_handleExceeding(element.isExceeding)"
+      ],
+
+      _handleExceeding: function(value) {
+        if (this.element && this.element.values) {
+          this.isExceeding = value;
+          // this.$.tr.classList.remove('true');
+          // this.$.tr.classList.remove('false');
+          // this.$.tr.classList.remove('null');
+          // this.$.tr.classList.remove('undefined');
+          // this.$.tr.classList.add(this.element.values[0].exceeds);
         }
-      }
+      },
+
+      properties: { }
     });
 
   </script>
