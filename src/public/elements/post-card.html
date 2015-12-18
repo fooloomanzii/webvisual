@@ -97,23 +97,18 @@
   </style>
   <template>
 
-    <section id="outer" name$="{{title}}" nowindow$="{{withoutWindow}}" dark$="[[dark]]">
-
-
-      <paper-button id="head" class="top" on-tap="toggleCollapse" hidden$="{{showTitle(headline,withoutWindow)}}" dark$="[[dark]]">{{title}}</paper-button>
+    <section id="outer" name$="[[title]]" nowindow$="[[withoutWindow]]" dark$="[[dark]]">
+      <paper-button id="head" class="top" on-tap="toggleCollapse" hidden$="[[showTitle(headline,withoutWindow)]]" dark$="[[dark]]">[[title]]</paper-button>
       <section id="cardMain" class="content">
           <iron-collapse id="cardCollapse" opened="true" duration="1">
-
               <div id="cardContent">
                 <content></content>
-
               </div>
           </iron-collapse>
       </section>
     </section>
 
   </template>
-
   <script>
 
   Polymer({
@@ -121,8 +116,7 @@
 
     properties: {
       headline: {
-        type: String,
-        notify: true
+        type: String
       },
       placeholder: {
         type: String,
@@ -135,14 +129,12 @@
       withoutWindow: {
         type: Boolean,
         value: false,
-        reflectToAttribute: true,
-        notify: true
+        reflectToAttribute: true
       },
       dark: {
         type: Boolean,
         value: false,
-        reflectToAttribute: true,
-        notify: true
+        reflectToAttribute: true
       }
     },
 

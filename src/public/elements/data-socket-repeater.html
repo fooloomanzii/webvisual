@@ -8,8 +8,7 @@
       properties: {
           socketname: {
             type: String,
-            value: "/data",
-            notify: true
+            value: "/data"
           },
           config: {
             type: Object,
@@ -29,8 +28,7 @@
                           "limit": 0
                         },
                         "labels": []};
-              },
-            notify: true
+              }
           },
           data: {
             type: Array,
@@ -74,8 +72,7 @@
           },
           keys: {
             type: Array,
-            value: function() { return []; },
-            notify: true
+            value: function() { return []; }
           },
           unnamedTypes: {
             type: Array,
@@ -99,8 +96,7 @@
           maxTotalLines: {
             type: Number,
             observer: '_maxTotalLinesChanged',
-            value: 100,
-            notify: true
+            value: 100
           },
           maxLines: {
             type: Number,
@@ -108,19 +104,16 @@
           },
           interval: {
             type: Number,
-            value: 0,
-            notify: true
+            value: 0
           },
           doAppend: {
             type: Boolean,
             value: true,
-            notify: true,
             reflectToAttribute: true
           },
           newestDataLast: {
             type: Boolean,
             value: true,
-            notify: true,
             reflectToAttribute: true
           },
           isExceeding: {

@@ -3,7 +3,6 @@
   <title>webvisual</title>
   <meta name="viewport" charset="utf-8" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.8"/>
   <script src="components/webcomponentsjs/webcomponents.min.js"></script>
-  <script src="components/underscore/underscore-min.js"></script>
   <link rel="import" href="components/polymer/polymer.html"/>
 </head>
 <style>
@@ -98,10 +97,14 @@
   <pages-element></pages-element>
 </body>
 <dom-module id="pages-element">
+  <script src="components/jquery/dist/jquery.min.js"></script>
+    <script src="components/underscore/underscore-min.js"></script>
   <link rel="import" href="elements/data-socket-repeater.html"/>
   <link rel="import" href="components/neon-animation/neon-animation.html"/>
   <link rel="import" href="elements/juelich-icon.html"/>
-  <link rel="import" href="import-behaviours.html"/>
+  <link rel="import" href="elements/behaviors/page-behavior.html">
+  <link rel="import" href="elements/behaviors/language-behavior.html">
+  <link rel="import" href="elements/behaviors/element-behavior.html">
   <link rel="import" href="elements/pages/select-page.html"/>
   <link rel="import" href="elements/pages/loading-page.html"/>
   <link rel="import" href="elements/pages/main-page.html"/>
@@ -122,13 +125,13 @@
   </style>
   <template>
     <data-socket-repeater id="datasocket"
-      data="{{data}}" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}" available-labels="{{availableLabels}}" labels="[[labels]]" max-total-lines="{{maxLines}}" interval="{{interval}}"
-      groups="{{groups}}" grouping-keys="{{groupingKeys}}" status="{{status}}" prefered-grouping-keys="{{preferedGroupingKeys}}">
+      data="{{data}}" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}" available-labels="{{availableLabels}}" labels="{{labels}}" max-total-lines="[[maxLines]]" interval="[[interval]]"
+      groups="{{groups}}" grouping-keys="{{groupingKeys}}" status="[[status]]" prefered-grouping-keys="{{preferedGroupingKeys}}">
     </data-socket-repeater>
     <neon-animated-pages id="pages" animate-initial-selection>
       <select-page id="selectPage" available-labels="[[availableLabels]]" labels="{{labels}}"></select-page>
-      <loading-page id="loadPage" status="{{status}}"></loading-page>
-      <main-page id="mainPage" data="[[data]]" exceeding="[[exceeding]]" is-exceeding="[[isExceeding]]" labels="[[labels]]" groups="[[groups]]" grouping-keys="[[groupingKeys]]" max-total-lines="{{maxLines}}" interval="{{interval}}" selected-label-id="{{selectedLabelId}}" prefered-grouping-keys="{{preferedGroupingKeys}}" always-show-tabs></main-page>
+      <loading-page id="loadPage" status="[[status]]"></loading-page>
+      <main-page id="mainPage" data="[[data]]" exceeding="{{exceeding}}" is-exceeding="[[isExceeding]]" labels="{{labels}}" groups="[[groups]]" grouping-keys="[[groupingKeys]]" max-total-lines="{{maxLines}}" interval="{{interval}}" prefered-grouping-keys="{{preferedGroupingKeys}}" always-show-tabs></main-page>
     </neon-animated-pages>
   </template>
   <script>
@@ -138,7 +141,6 @@
         attached: function(){
           this.$.pages.set('selected', '0');
           this.$.selectPage.$.labelsCookie.load();
-          // this.$.loadPage.playAnimation('entry');
         },
         _onConfigset: function() {
           this.$.datasocket.opened = false;
@@ -169,7 +171,6 @@
             this.$.selectPage.$.labelWindow.open();
           }
         },
-
         listeners: {
           "restart": "_onRestart",
           "loaded": "_onLoaded",

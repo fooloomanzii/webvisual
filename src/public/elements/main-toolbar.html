@@ -6,7 +6,6 @@
       position: relative;
       overflow: hidden !important;
       font-family: Regular;
-      cursor: pointer;
       -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
       -webkit-touch-callout: none;
       text-overflow: ellipsis;
@@ -223,10 +222,10 @@
       </section>
       <section id="control">
         <content select=".error"></content>
-        <paper-icon-button icon="{{_computeExpandIcon(expanded)}}" class="expand-icon" on-click="_expandView" hidden$="{{!opened}}"></paper-icon-button>
-        <section hidden$="{{!opened}}"><content select=".toggle-icon"></content></section>
+        <paper-icon-button icon="[[_computeExpandIcon(expanded)]]" class="expand-icon" on-tap="_expandView" hidden$="[[!opened]]"></paper-icon-button>
+        <section hidden$="[[!opened]]"><content select=".toggle-icon"></content></section>
       </section>
-      <section id="lower" hidden$="{{!opened}}">
+      <section id="lower" hidden$="[[!opened]]">
         <section id="selSign" class="">
           <content id="sign" select="#selectedElementSign,#selectedElementCaption"></content>
         </section>
@@ -271,8 +270,7 @@
       expanded: {
         type: Boolean,
         value: false,
-        reflectToAttribute: true,
-        notify: true
+        reflectToAttribute: true
       },
       animationConfig: {
         type: Object,

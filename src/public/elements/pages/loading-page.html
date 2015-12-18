@@ -65,7 +65,7 @@
       <logo-element id="logo"></logo-element>
       <section class="lower">
         <circle-element id="circle"></circle-element>
-        <section id="messageBox">{{status.message}}</section>
+        <section id="messageBox">[[status.message]]</section>
       </section>
     </section>
     <section id="mainContent"></section>
@@ -87,8 +87,7 @@
                                         "lastStatus": 0,
                                         "lastMistake": 0,
                                         "lastError": 0
-                                      }}; },
-          notify: true
+                                      }}; }
         },
         sharedElements: {
           value: function() {
@@ -131,7 +130,6 @@
         }
       },
       cancelAnimation: function() {
-        this.$.logo.cancelAnimation();
         this.$.circle.cancelAnimation();
         if (this._player) {
           this._player.cancel();

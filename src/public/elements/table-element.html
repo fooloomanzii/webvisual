@@ -67,10 +67,10 @@
           <section id="td" class="y">Wert</section>
         </section>
         <section id="body">
-          <template is="dom-repeat" id="values" items="{{element.values}}" index-as="i">
-            <section id="tr" style$={{computeStyle(element.values.*,i)}}>
-              <section id="td" class="x">{{computeX(element.values.*,i)}}</section>
-              <section id="td" class="y">{{computeY(element.values.*,i)}}</section>
+          <template is="dom-repeat" id="values" items="[[element.values]]" index-as="i">
+            <section id="tr" style$=[[computeStyle(element.values.*,i)]]>
+              <section id="td" class="x">[[computeX(element.values.*,i)]]</section>
+              <section id="td" class="y">[[computeY(element.values.*,i)]]</section>
             </section>
           </template>
         </section>
