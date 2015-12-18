@@ -32,17 +32,11 @@
               'undef': 'background: rgb(236, 249, 97); color: #1f1f1f;'
             };
           }
+        },
+        isExceeding: {
+          type: Boolean,
+          value: false
         }
-    },
-
-    computeIcon: function(change, index) {
-      if (change.base && change.base.length != 0){
-        var exceeds = this.get('exceeds', change.base[index]);
-        if(exceeds == true || exceeds == false)
-          return 'error-outline';
-        else
-          return '';
-      }
     },
 
     computeX: function(change, index){

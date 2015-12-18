@@ -10,7 +10,6 @@
       outline: none;
       cursor: pointer;
       font-family: 'Light';
-      font-style: normal;
       user-select: none;
       background: transparent;
       font-size: 1em;
@@ -26,6 +25,18 @@
       min-height: 5em;
       width: 100%;
       min-width: 7em;
+    }
+    #mainContent.null {
+      background: rgb(0, 202, 53); color: #f1f1f1;
+    }
+    #mainContent.true {
+      background: rgb(255, 21, 41); color: #f1f1f1;
+    }
+    #mainContent.false {
+      background: rgb(255, 20, 110); color: #f1f1f1;
+    }
+    #mainContent.undefined {
+      background: rgb(236, 249, 97); color: #1f1f1f;
     }
     #mainContent[dark]{
       color: #d3d3d3;
@@ -90,30 +101,22 @@
     }
   </style>
   <template>
-    <section id="mainContent" style$="[[computeStyle(element.values.*,0)]]" dark$="[[dark]]">
+    <section id="mainContent" dark$="[[dark]]">
       <paper-ripple id="ripple"></paper-ripple>
 
       <section class="actualValueSection">
         <template is="dom-if" if="[[!element.isBoolean]]" restamp>
           <span class="valueSection">[[computeY(element.values.*,0)]]</span><span class="unitSection">[[element.unit]]</span>
         </template>
-        <template is="dom-if" if="[[element.isBoolean]]" restamp>
-          <iron-icon icon=[[computeIcon(element.values.*,0)]]></iron-icon>
+        <template is="dom-if" if="{{element.isBoolean}}" restamp>
+          <section hidden$="{{!isExceeding}}">
+            <iron-icon icon="error-outline"></iron-icon>
+          </section>
         </template>
       </section>
 
       <section class="lowerSection">
-        <!-- <template is="dom-if" if="[[showExceeds]]" restamp>
-          <template is="dom-if" if="[[element.lastExceeds]]" restamp>
-            <span class="exceedsDateSection">[[computeLastExceedsX()]]</span><span class="exceedsValueSection">[[computeLastExceedsY()]]<span> </span><span>[[element.unit]]</span></span>
-          </template>
-          <template is="dom-if" if="[[!element.lastExceeds]]" restamp>
-            <span class="dateSection">[[computeX(element.values.*,0)]]</span>
-          </template>
-        </template>
-        <template is="dom-if" if="[[!showExceeds]]" restamp> -->
-          <span class="dateSection">[[computeX(element.values.*,0)]]</span>
-        <!-- </template> -->
+        <span class="dateSection">[[computeX(element.values.*,0)]]</span>
       </section>
     </section>
   </template>
@@ -127,23 +130,43 @@
 
       created: function(){
         this.exceedsStyle = {
-          true:  "background: rgb(255, 21, 41); color: #f1f1f1;",
-          false: "background: rgb(255, 20, 110); color: #f1f1f1;",
-          none:  "background: rgb(0, 202, 53); color: #f1f1f1;",
-          undef: "background: rgb(236, 249, 97); color: #1f1f1f;"
+          true:  "",
+          false: "",
+          none:  "",
+          undef: ""
         };
       },
 
       properties: {
-          showExceeds: {
-            type: Boolean,
-            value: true
-          },
-          dark: {
-            type: Boolean,
-            value: false,
-            reflectToAttribute: true
-          }
+        showExceeds: {
+          type: Boolean,
+          value: true
+        },
+        dark: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        }
+      },
+
+      // attached: function() {
+      //   this.linkPaths("isExceeding", "element.isExceeding");
+      //   this.notifyPath('isExceeding', this.element.isExceeding);
+      // },
+
+      observers: [
+        "_handleExceeding(element.isExceeding)"
+      ],
+
+      _handleExceeding: function(value) {
+        if (this.element && this.element.values) {
+          this.isExceeding = value;
+          this.$.mainContent.classList.remove('true');
+          this.$.mainContent.classList.remove('false');
+          this.$.mainContent.classList.remove('null');
+          this.$.mainContent.classList.remove('undefined');
+          this.$.mainContent.classList.add(this.element.values[0].exceeds);
+        }
       }
 
     });
