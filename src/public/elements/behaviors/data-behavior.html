@@ -1,0 +1,42 @@
+<script>
+
+  DataBehavior = {
+
+    properties: {
+      data: {
+        type: Array,
+        value: function() { return []; },
+        notify: true
+      },
+      groups: {
+        type: Array,
+        value: function() { return []; },
+        notify: true
+      },
+      keys: {
+        type: Array,
+        value: function() { return []; }
+      },
+      labels: {
+        type: Array,
+        value: function() { return []; },
+        notify: true
+      }
+    },
+
+    observers: [
+      '_labelsChanged(labels.*)'
+    ],
+
+    _getLabelIndex: function(labelName) {
+      if(this.labels.indexOf(labelName) !== -1)
+        return check;
+      else
+        return undefined;
+    },
+
+    _labelsChanged: function(changerecord) {
+    }
+  };
+
+</script>

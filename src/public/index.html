@@ -2,7 +2,7 @@
 <head>
   <title>Webvisual</title>
   <meta name="viewport" charset="utf-8" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.8"/>
-  <script src="components/webcomponentsjs/webcomponents.min.js"></script>
+  <script src="components/webcomponentsjs/webcomponents-lite.js"></script>
   <link rel="import" href="components/polymer/polymer.html"/>
 </head>
 <style>
@@ -46,9 +46,9 @@
   section.l4, svg#l4 { animation-delay: 1.5s }
   section.l5, svg#l5 { animation-delay: 2.0s }
   @keyframes inner-animation {
-      0%   {opacity: 0;transform:rotate(0deg) scale(0.5);}
+      0%   {opacity: 0.1;transform:rotate(0deg) scale(0.5);}
       50%  {opacity: 1;transform:rotate(180deg) scale(1);}
-      100% {opacity: 0;transform:rotate(360deg) scale(0.5);}
+      100% {opacity: 0.1;transform:rotate(360deg) scale(0.5);}
   }
   @keyframes outer-animation {
       0%   {transform:rotate(0deg)}
