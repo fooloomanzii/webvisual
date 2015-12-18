@@ -1,3 +1,13 @@
+<link rel="import" href="../../components/iron-selector/iron-selector.html">
+<link rel="import" href="../../components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../../components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../components/paper-item/paper-item.html">
+<link rel="import" href="../../components/paper-input/paper-input.html">
+<link rel="import" href="../../components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../main-toolbar.html"/>
 <dom-module id="main-page">
   <style>
     :host {
@@ -265,25 +275,25 @@
   <template>
 
     <logo-element id="logo"></logo-element>
-    <main-toolbar id="toolbar" class="paper-header" on-deselect="deselectElement" opened="{{opened}}">
-      <paper-icon-button icon="menu" class="menu-icon" on-click="togglePanel"></paper-icon-button>
-      <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsDialog" hidden$="{{!isExceeding}}"></paper-icon-button>
-      <paper-icon-button icon="remove" class="toggle-icon control" on-click="deselectElement"></paper-icon-button>
+    <main-toolbar id="toolbar" class="paper-header" on-deselect="deselectElement" opened="[[opened]]">
+      <paper-icon-button icon="menu" class="menu-icon" on-tap="togglePanel"></paper-icon-button>
+      <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsDialog" hidden$="[[!isExceeding]]"></paper-icon-button>
+      <paper-icon-button icon="remove" class="toggle-icon control" on-tap="deselectElement"></paper-icon-button>
       <paper-tabs id="labelsTabs" class="header" selected="{{selectedLabelId}}" no-bar scrollable hide-scroll-buttons>
-        <template is="dom-repeat" items="{{labels}}">
-          <paper-tab class="label">{{item}}</paper-tab>
+        <template is="dom-repeat" items="[[labels]]">
+          <paper-tab class="label">[[item]]</paper-tab>
         </template>
       </paper-tabs>
 
-      <sign-element id="selectedElementSign" class="selectedElement sign incard" element="{{selectedElement}}" on-click="deselectElement"></sign-element>
+      <sign-element id="selectedElementSign" class="selectedElement sign incard" element="[[selectedElement]]" on-tap="deselectElement"></sign-element>
       <section id="selectedElementCaption" class="selectedElement caption incard">
-        <template is="dom-repeat" items="{{getGroupingKeys(groupingKeys.*,selectedElement.labelindex)}}" as="key">
-          <span id="{{key}}">{{getElementsKey(selectedElement,key)}}</span>
+        <template is="dom-repeat" items="[[getGroupingKeys(groupingKeys.*,selectedElement.labelindex)]]" as="key">
+          <span id="[[key]]">[[getElementsKey(selectedElement,key)]]</span>
         </template>
       </section>
 
-      <table-element id="selectedElementTable" class="selectedElement noncard" element="{{selectedElement}}"></table-element>
-      <!-- <line-chart id="selectedElementChart" data="{{selectedElement}}" fit></line-chart> -->
+      <table-element id="selectedElementTable" class="selectedElement noncard" element="[[selectedElement]]"></table-element>
+      <!-- <line-chart id="selectedElementChart" data="[[selectedElement]]" fit></line-chart> -->
       <leaflet-map id="selectedElementMap" class="noncard" latitude="50.904" longitude="6.41041" zoom="18" max-zoom="22">
         <!-- <leaflet-tilelayer url="http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png" minzoom="2" maxzoom="20">
         </leaflet-tilelayer> // just for test different tile-layers -->
@@ -310,15 +320,15 @@
 
                   <iron-collapse class="sidemenu collapse grouping">
                     <paper-radio-group selected="{{groupBy}}" class="indention">
-                      <template is="dom-repeat" items="{{getGroupingKeys(groupingKeys.*,selectedLabelId)}}" as="key">
-                        <paper-radio-button name="{{key}}">{{key}}</paper-radio-button>
+                      <template is="dom-repeat" items="[[getGroupingKeys(groupingKeys.*,selectedLabelId)]]" as="key">
+                        <paper-radio-button name="[[key]]">[[key]]</paper-radio-button>
                       </template>
                     </paper-radio-group>
                   </iron-collapse>
 
                 <paper-item>
                   <iron-icon icon="editor:border-style"></iron-icon>
-                  <paper-toggle-button id="border-style" checked="{{withoutWindow}}">Fensterstil</paper-toggle-button>
+                  <paper-toggle-button id="border-style" checked="[[withoutWindow]]">Fensterstil</paper-toggle-button>
                 </paper-item>
 
                 <paper-item>
@@ -347,21 +357,6 @@
                     </section>
                   </iron-collapse>
 
-                <!-- <paper-button collapse-id="language" class="sidemenu" on-tap="toggleCollapse">
-                  <iron-icon icon="language"></iron-icon>
-                  <span class="flex">Sprachauswahl</span>
-                  <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="language"></iron-icon>
-                </paper-button>
-                  <iron-collapse class="sidemenu collapse language">
-                    <paper-tabs id="language" selected="1">
-                      <paper-tab>en</paper-tab>
-                      <paper-tab>de</paper-tab>
-                      <paper-tab>fr</paper-tab>
-                      <paper-tab>es</paper-tab>
-                      <paper-tab>ru</paper-tab>
-                    </paper-tabs>
-                  </iron-collapse> -->
-
               </section>
             </iron-collapse>
 
@@ -385,17 +380,17 @@
                 <paper-item class="date">
                   <iron-icon icon="swap-vert"></iron-icon>
                   <span class="flex">letzte Nachricht</span>
-                  <span class="italic">{{computeDate(lastMessage)}}</span>
+                  <span class="italic">[[computeDate(lastMessage)]]</span>
                 </paper-item>
                 <paper-item class="date">
                   <iron-icon icon="remove-circle-outline"></iron-icon>
                   <span class="flex">letzte Fehlverbindung</span>
-                  <span class="italic">{{computeDate(lastError)}}</span>
+                  <span class="italic">[[computeDate(lastError)]]</span>
                 </paper-item>
                 <paper-item class="date">
                   <iron-icon icon="warning"></iron-icon>
                   <span class="flex">letzte fehlerhafte Nachricht</span>
-                  <span class="italic">{{computeDate(lastMistake)}}</span>
+                  <span class="italic">[[computeDate(lastMistake)]]</span>
                 </paper-item>
               </section>
             </iron-collapse>
@@ -413,12 +408,12 @@
         <paper-dialog id="exceedsDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" no-cancel-on-outside-click>
           <h2 class="dialog-title">Alarm</paper-icon-button></h2>
           <section class="scrollable">
-            <template is="dom-repeat" items="{{exceeding}}" as="element">
-              <section class="card" on-click="setSelectedElement" dark$="[[dark]]">
-                <sign-element element="{{element}}" dark$="[[dark]]"></sign-element>
+            <template is="dom-repeat" items="[[exceeding]]" as="element">
+              <section class="card" on-tap="setSelectedElement" dark$="[[dark]]">
+                <sign-element element="[[element]]" dark$="[[dark]]"></sign-element>
                 <section class="caption" dark$="[[dark]]">
-                  <template is="dom-repeat" items="{{getGroupingKeys(groupingKeys.*,element.labelindex)}}" as="key">
-                    <span id="{{key}}">{{getElementsKey(element,key)}}</span>
+                  <template is="dom-repeat" items="[[getGroupingKeys(groupingKeys.*,element.labelindex)]]" as="key">
+                    <span id="[[key]]">[[getElementsKey(element,key)]]</span>
                   </template>
                 </section>
               </section>
@@ -433,19 +428,19 @@
 
         <section main id="mainContent">
 
-          <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="labelItem" index-as="labelindex">
-            <template is="dom-if" if="{{isSelectedLabel(labelindex,selectedLabelId)}}">
-              <template id="groupingtemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupItems" sort="sortGroup" delay="300">
-                <post-card class="group" headline="{{groupItems.name}}" without-window="{{withoutWindow}}" dark$="[[dark]]">
+          <template id="labeltemplate" is="dom-repeat" items="[[data]]" as="labelItem" index-as="labelindex">
+            <template is="dom-if" if="[[isSelectedLabel(labelindex,selectedLabelId)]]">
+              <template id="groupingtemplate" is="dom-repeat" items="[[selectedGroup]]" as="groupItems" sort="sortGroup" delay="300">
+                <post-card class="group" headline="[[groupItems.name]]" without-window="{{withoutWindow}}" dark$="[[dark]]">
 
-                  <template is="dom-repeat" items="{{labelItem}}" as="element">
-                    <template is="dom-if" if="{{groupElements(element,groupItems)}}" restamp>
-                      <section class="card" on-click="setSelectedElement" dark$="[[dark]]">
+                  <template is="dom-repeat" items="[[labelItem]]" as="element">
+                    <template is="dom-if" if="[[groupElements(element,groupItems)]]" restamp>
+                      <section class="card" on-tap="setSelectedElement" dark$="[[dark]]">
 
-                          <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding-element="_checkExceedingDialog"></sign-element>
+                          <sign-element element="[[element]]" dark$="[[dark]]" on-exceeding-element="_checkExceedingDialog"></sign-element>
                           <section class="caption" dark$="[[dark]]">
-                            <template is="dom-repeat" items="{{getGroupingKeys(groupingKeys.*,selectedLabelId)}}" as="key">
-                              <span id="{{key}}">{{getElementsKey(element,key)}}</span>
+                            <template is="dom-repeat" items="[[getGroupingKeys(groupingKeys.*,selectedLabelId)]]" as="key">
+                              <span id="[[key]]">[[getElementsKey(element,key)]]</span>
                             </template>
                           </section>
 
@@ -464,24 +459,9 @@
 
   <!-- Dialogs -->
 
-    <!-- Log-in -->
-  <!-- <paper-dialog class="mainmenu" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-    <h2 class="dialog-title">Login</h2>
-    <section class="dialog-section" vertical layout center>
-      <paper-input label="Benutzername"></paper-input>
-      <paper-input label="Passwort" type="password"></paper-input>
-    </section>
-    <div class="buttons">
-      <paper-button dialog-dismiss><iron-icon icon="close"></iron-icon>abbrechen</paper-button>
-      <paper-button dialog-confirm><iron-icon icon="check"></iron-icon>anmelden</paper-button>
-    </div>
-  </paper-dialog> -->
-
-    <!-- Files -->
-
     <iron-ajax id="ajaxElement" auto url=""
         params=''
-        handle-as="text" last-response="{{ajaxLogResponse}}"></iron-ajax>
+        handle-as="text" last-response="[[ajaxLogResponse]]"></iron-ajax>
 
     <paper-dialog class="sidemenu" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
       <h2 class="dialog-title"></h2>
@@ -500,7 +480,7 @@
     Polymer({
       is: 'main-page',
 
-      behaviors: [PageBehavior, DataBehavior, Polymer.IronResizableBehavior, Polymer.NeonSharedElementAnimatableBehavior],
+      behaviors: [PageBehavior, Polymer.IronResizableBehavior, Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
         sharedElements: {
@@ -535,14 +515,12 @@
         },
         withoutWindow: {
           type: Boolean,
-          value: false,
-          notify: true
+          value: false
         },
         dark: {
           type: Boolean,
           value: false,
-          reflectToAttribute: true,
-          notify: true
+          reflectToAttribute: true
         },
         maxTotalLines: {
           type: Number,
@@ -551,21 +529,19 @@
         },
         interval: {
           type: Number,
-          value: 500,
+          value: 0,
           notify: true
         },
         // Attribute for toolbar is opened
         opened: {
           type: Boolean,
           value: false,
-          notify: true,
           reflectToAttribute: true
         },
         alwaysShowTabs: {
           type: Boolean,
           value: false,
-          reflectToAttribute: true,
-          observer: '_labelsChanged'
+          reflectToAttribute: true
         },
         // Attribute sent by datasocket-repeater
         isExceeding: {
@@ -582,6 +558,7 @@
       },
 
       observers: [
+        '_labelsChanged(labels.length)',
         '_checkExceedingDialog(exceeding.length)'
       ],
 
@@ -593,6 +570,9 @@
             dialog.fitInto = self.$.mainPanel;
             dialog.fit();
         });
+      },
+
+      _labelsChanged: function() {
       },
 
       // if select another label, close toolbar
@@ -662,12 +642,6 @@
           this.selectedElement = null;
           this.toggleAttribute('opened',false);
         },320);
-      },
-
-      fit: function() {
-        // Array.prototype.forEach.call(this.dialogs, function(dialog) {
-        //     dialog.fit();
-        // });
       },
 
       openExceedsDialog: function() {

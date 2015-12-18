@@ -1,13 +1,3 @@
-<!-- Custom-Style-Element -->
-<link rel="import" href="../../components/iron-selector/iron-selector.html">
-<link rel="import" href="../../components/iron-collapse/iron-collapse.html">
-<link rel="import" href="../../components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../components/iron-resizable-behavior/iron-resizable-behavior.html">
-<link rel="import" href="../../components/paper-drawer-panel/paper-drawer-panel.html">
-<link rel="import" href="../../components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../../components/paper-item/paper-item.html">
-<link rel="import" href="../../components/paper-input/paper-input.html">
-<link rel="import" href="../../components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../components/paper-button/paper-button.html">
 <link rel="import" href="../../components/paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../../components/paper-dialog/paper-dialog.html">
@@ -17,7 +7,6 @@
 <link rel="import" href="../../components/paper-dialog-scrollable/paper-dialog-scrollable.html">
 <link rel="import" href="../../css/app-theme.html">
 
-<link rel="import" href="../main-toolbar.html"/
 <link rel="import" href="../logo-element.html"/>
 <link rel="import" href="../sign-element.html"/>
 <link rel="import" href="../table-element.html"/>
@@ -113,14 +102,14 @@
           <section class="list">
             <span>verfügbar sind:</span>
             <iron-selector selected-values="{{labels}}" attr-for-selected="label" selected-attribute="checked" multi>
-              <template is="dom-repeat" items="{{availableLabels}}">
-                <paper-radio-button label="{{item}}">{{item}}</paper-radio-button>
+              <template is="dom-repeat" items="[[availableLabels]]">
+                <paper-radio-button label="[[item]]">[[item]]</paper-radio-button>
               </template>
             </iron-selector>
           </section>
         </section>
         <div class="buttons">
-          <paper-button disabled="{{notSelected}}" raised="{{notSelected}}" on-click="_onSelected"><iron-icon id="logo" icon="juelich:logo"></iron-icon>Verbinden</paper-button>
+          <paper-button disabled="[[notSelected]]" raised="[[notSelected]]" on-tap="_onSelected"><iron-icon id="logo" icon="juelich:logo"></iron-icon>Verbinden</paper-button>
         </div>
       </paper-dialog>
 
@@ -137,8 +126,7 @@
       properties: {
         availableLabels: {
           type: Array,
-          value: function() { return []; },
-          notify: true
+          value: function() { return []; }
         },
         labels: {
           type: Array,
@@ -214,7 +202,6 @@
 
       _onSelected: function() {
         this.$.labelsCookie.save();
-        // this.$.labelWindow.close();
         this.fire("configset");
       }
     });

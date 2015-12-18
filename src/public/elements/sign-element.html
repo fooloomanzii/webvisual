@@ -90,30 +90,30 @@
     }
   </style>
   <template>
-    <section id="mainContent" style$="{{computeStyle(element.values.*,0)}}" dark$="[[dark]]">
-      <paper-ripple id="ripple" recenters opacity-decay-velocity="1.2"></paper-ripple>
+    <section id="mainContent" style$="[[computeStyle(element.values.*,0)]]" dark$="[[dark]]">
+      <paper-ripple id="ripple"></paper-ripple>
 
       <section class="actualValueSection">
-        <template is="dom-if" if="{{!element.isBoolean}}" restamp>
-          <span class="valueSection">{{computeY(element.values.*,0)}}</span><span class="unitSection">{{element.unit}}</span>
+        <template is="dom-if" if="[[!element.isBoolean]]" restamp>
+          <span class="valueSection">[[computeY(element.values.*,0)]]</span><span class="unitSection">[[element.unit]]</span>
         </template>
-        <template is="dom-if" if="{{element.isBoolean}}" restamp>
-          <iron-icon icon={{computeIcon(element.values.*,0)}}></iron-icon>
+        <template is="dom-if" if="[[element.isBoolean]]" restamp>
+          <iron-icon icon=[[computeIcon(element.values.*,0)]]></iron-icon>
         </template>
       </section>
 
       <section class="lowerSection">
-        <template is="dom-if" if="{{showExceeds}}" restamp>
-          <template is="dom-if" if="{{element.lastExceeds}}" restamp>
-            <span class="exceedsDateSection">{{computeLastExceedsX()}}</span><span class="exceedsValueSection">{{computeLastExceedsY()}}<span> </span><span>{{element.unit}}</span></span>
+        <!-- <template is="dom-if" if="[[showExceeds]]" restamp>
+          <template is="dom-if" if="[[element.lastExceeds]]" restamp>
+            <span class="exceedsDateSection">[[computeLastExceedsX()]]</span><span class="exceedsValueSection">[[computeLastExceedsY()]]<span> </span><span>[[element.unit]]</span></span>
           </template>
-          <template is="dom-if" if="{{!element.lastExceeds}}" restamp>
-            <span class="dateSection">{{computeX(element.values.*,0)}}</span>
+          <template is="dom-if" if="[[!element.lastExceeds]]" restamp>
+            <span class="dateSection">[[computeX(element.values.*,0)]]</span>
           </template>
         </template>
-        <template is="dom-if" if="{{!showExceeds}}" restamp>
-          <span class="dateSection">{{computeX(element.values.*,0)}}</span>
-        </template>
+        <template is="dom-if" if="[[!showExceeds]]" restamp> -->
+          <span class="dateSection">[[computeX(element.values.*,0)]]</span>
+        <!-- </template> -->
       </section>
     </section>
   </template>
@@ -137,14 +137,12 @@
       properties: {
           showExceeds: {
             type: Boolean,
-            value: true,
-            notify: true
+            value: true
           },
           dark: {
             type: Boolean,
             value: false,
-            reflectToAttribute: true,
-            notify: true
+            reflectToAttribute: true
           }
       }
 

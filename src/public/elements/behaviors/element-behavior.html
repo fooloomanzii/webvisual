@@ -1,13 +1,11 @@
 <script src="../../js/dateFormat/jquery-dateFormat.min.js"></script>
 <script>
-
   ElementBehavior = {
 
     properties: {
         element: {
           type: Object,
-          value: function() { return {}; },
-          notify: true
+          value: function() { return {}; }
         },
         timeFormat: {
           type: String,
@@ -37,17 +35,6 @@
         }
     },
 
-    // observers: [
-    //   '_handleExceeding(element.isExceeding)'
-    // ],
-    //
-    // _handleExceeding: function(isExceeding) {
-    //   if (isExceeding === true)
-    //     this.fire("exceeding-element", {labelindex: this.element.labelindex, index: this.element.index});
-    //   // else if (isExceeding === false)
-    //   //   this.fire("notexceedingelement", {labelindex: this.element.labelindex, index: this.element.index});
-    // },
-
     computeIcon: function(change, index) {
       if (change.base && change.base.length != 0){
         var exceeds = this.get('exceeds', change.base[index]);
@@ -71,21 +58,23 @@
 
     computeY: function(change, index){
       if (change.base && change.base.length != 0){
-        var value = this.get('y', change.base[index]);
-        var exceeds = this.get('exceeds', change.base[index]);
-        if ((value !== undefined) && (value !== '')) {
-          if (this.element.isBoolean){
-            if (exceeds==true || exceeds==false)
-              return '✗';
-            else
-              return '✓';
-          }
+        if (this.element.isBoolean){
+          var exceeds = this.get('exceeds', change.base[index]);
+          if (exceeds==true || exceeds==false)
+            return '✗';
           else
-            return value;
+            return '✓';
         }
-        else
-          return ' ';
+        else {
+          var value = this.get('y', change.base[index]);
+          if ((value !== undefined) && (value !== ''))
+            return value;
+          else
+            return ' ';
+        }
       }
+      else
+        return ' ';
     },
     computeStyle: function(change, index){
       if (change.base && change.base.length != 0 && this.exceedsStyle){
@@ -99,47 +88,44 @@
         else if(exceeds === undefined)
           return this.exceedsStyle.undef;
       }
-    },
-
-    computeLastExceedsX: function(){
-      if (this.element && this.element.lastExceeds && this.element.lastExceeds.x) {
-        var date = this.element.lastExceeds.x;
-        if(date !== undefined)
-          return $.format.toBrowserTimeZone(date,this.timeFormat);
-      }
-    },
-
-    computeLastExceedsY: function(){
-      if (this.element && this.element.lastExceeds && this.element.lastExceeds.y && this.element.lastExceeds.exceeds) {
-        var value = this.element.lastExceeds.y;
-        var exceeds = this.element.lastExceeds.exceeds;
-        if (value !== undefined) {
-          if (this.element.isBoolean){
-            if (exceeds==true || exceeds==false)
-              return '✗';
-            else
-              return '✓';
-          }
-          else
-            return value;
-        }
-      }
-    },
-
-    computeLastExceedsStyle: function(){
-      if (this.element && this.element.lastExceeds && this.element.lastExceeds.exceeds && this.lastExceedsStyle) {
-        var exceeds = this.element.lastExceeds.exceeds;
-        if(exceeds == true)
-          return this.lastExceedsStyle.true;
-        else if(exceeds == false)
-          return this.lastExceedsStyle.false;
-        else if(exceeds == null)
-          return this.lastExceedsStyle.none;
-      }
-      else
-        return this.lastExceedsStyle.undef;
     }
-
+    // ,computeLastExceedsX: function(){
+    //   if (this.element && this.element.lastExceeds && this.element.lastExceeds.x) {
+    //     var date = this.element.lastExceeds.x;
+    //     if(date !== undefined)
+    //       return $.format.toBrowserTimeZone(date,this.timeFormat);
+    //   }
+    // },
+    //
+    // computeLastExceedsY: function(){
+    //   if (this.element && this.element.lastExceeds && this.element.lastExceeds.y && this.element.lastExceeds.exceeds) {
+    //     var value = this.element.lastExceeds.y;
+    //     var exceeds = this.element.lastExceeds.exceeds;
+    //     if (value !== undefined) {
+    //       if (this.element.isBoolean){
+    //         if (exceeds==true || exceeds==false)
+    //           return '✗';
+    //         else
+    //           return '✓';
+    //       }
+    //       else
+    //         return value;
+    //     }
+    //   }
+    // },
+    //
+    // computeLastExceedsStyle: function(){
+    //   if (this.element && this.element.lastExceeds && this.element.lastExceeds.exceeds && this.lastExceedsStyle) {
+    //     var exceeds = this.element.lastExceeds.exceeds;
+    //     if(exceeds == true)
+    //       return this.lastExceedsStyle.true;
+    //     else if(exceeds == false)
+    //       return this.lastExceedsStyle.false;
+    //     else if(exceeds == null)
+    //       return this.lastExceedsStyle.none;
+    //   }
+    //   else
+    //     return this.lastExceedsStyle.undef;
+    // }
   };
-
 </script>
