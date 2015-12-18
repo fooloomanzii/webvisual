@@ -1,35 +1,33 @@
 <script>
   PageBehavior = {
     properties: {
+      data: {
+        type: Array,
+        value: function() { return []; }
+      },
       selectedElement: {
         type: Object,
-        value: function() { return {}; },
-        notify: true
+        value: function() { return {}; }
       },
       selectedGroup: {
         type: Array,
-        value: function() { return []; },
-        notify: true
+        value: function() { return []; }
       },
       ids: {
         type: Array,
-        value: function() { return []; },
-        notify: true
+        value: function() { return []; }
       },
       labels: {
         type: Array,
-        value: function() { return []; },
-        notify: true
+        value: function() { return []; }
       },
       groupingKeys: {
         type: Array,
-        value: function() { return []; },
-        notify: true
+        value: function() { return []; }
       },
       groups: {
         type: Array,
-        value: function() { return []; },
-        notify: true
+        value: function() { return []; }
       },
       preferedGroupingKeys: {
         type: Array,
@@ -39,13 +37,11 @@
       selectedLabelId: {
         type: Number,
         value: 0,
-        notify: true,
         observer: "_handleSelectedLabelChange"
       },
       groupBy: {
         type: String,
         value: "all",
-        notify: true,
         observer: "setSelectedGroup"
       },
       maxTotalLines: {
@@ -56,6 +52,12 @@
       }
     },
     _handleSelectedLabelChange: function() {
+    },
+    _getLabelIndex: function(labelName) {
+      if(this.labels.indexOf(labelName) !== -1)
+        return check;
+      else
+        return undefined;
     },
     groupElements: function(item,group){
       if (group.name == "all")

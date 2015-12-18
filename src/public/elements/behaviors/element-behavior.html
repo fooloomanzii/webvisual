@@ -71,21 +71,23 @@
 
     computeY: function(change, index){
       if (change.base && change.base.length != 0){
-        var value = this.get('y', change.base[index]);
-        var exceeds = this.get('exceeds', change.base[index]);
-        if ((value !== undefined) && (value !== '')) {
-          if (this.element.isBoolean){
-            if (exceeds==true || exceeds==false)
-              return '✗';
-            else
-              return '✓';
-          }
+        if (this.element.isBoolean){
+          var exceeds = this.get('exceeds', change.base[index]);
+          if (exceeds==true || exceeds==false)
+            return '✗';
           else
-            return value;
+            return '✓';
         }
-        else
-          return ' ';
+        else {
+          var value = this.get('y', change.base[index]);
+          if ((value !== undefined) && (value !== ''))
+            return value;
+          else
+            return ' ';
+        }      
       }
+      else
+        return ' ';
     },
     computeStyle: function(change, index){
       if (change.base && change.base.length != 0 && this.exceedsStyle){
