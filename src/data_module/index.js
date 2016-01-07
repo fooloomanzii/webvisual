@@ -150,7 +150,7 @@ function connect (config, server, err) {
       async.map(current_client.patterns,
           function(pattern, async_callback){
             if(indexOfLabel[pattern.label] === undefined){
-              handleError(new Error("label: "+pattern.label+" is undefined"));
+              handleErrors(new Error("label: "+pattern.label+" is undefined"));
               return;
             }
             dbController.getData(indexOfLabel[pattern.label], pattern.firstPattern,
