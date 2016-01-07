@@ -86,7 +86,7 @@ function connect (config, server, err) {
         data: function(type, data, data_index) {
             // Process data to certain format
             var currentData = dataMerge( dataConf[data_index], {exceeds: threshold(data, dataConf[data_index].types), data: data } );
-
+            
             // Save new Data in Database and send for each client the updated Data
             dbController.appendData(data_index,
                 currentData.content,
@@ -110,7 +110,7 @@ function connect (config, server, err) {
     socket.on('clientConfig', function(options) {
       // To Hannes: dass soll bei dem client gebastelt sein
       options.patterns=[ {
-        "label": "HNF-GDS",
+        "label": "HNF-GDS-Test",
         "firstPattern": {
           "query": {},
           "time": {

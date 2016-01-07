@@ -28,7 +28,7 @@
         },
 
       "database": {
-        "name": "HNF-GDS",
+        "name": "HNF-GDS-Test",
         "max_query_limit": 5000,
         "default_storage_size": 100,
         "save_identical_values": false
