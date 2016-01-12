@@ -110,7 +110,8 @@ function connect (config, server, err) {
     socket.emit('clientConfig', message);
 
     socket.on('clientConfig', function(options) {
-      // To Hannes: dass soll bei dem client gebastelt sein
+      // To Hannes: das soll bei dem client gebastelt sein
+      //------------------------ Temporär --------------------------
       options.patterns=[ {
         "label": "HNF-GDS-Test",
         "firstPattern": {
@@ -145,16 +146,21 @@ function connect (config, server, err) {
           "limit": -1
         }
       }];
+      //-------------------------------------------------------------
+      
 
       var current_client = new Client(socket, options);
 
-//TODO create a function in dbcontroller to search for 'current_client.patterns'
+      // go through all patterns and collect the data, the client needs
       async.map(current_client.patterns,
           function(pattern, async_callback){
             if(indexOfLabel[pattern.label] === undefined){
+              // Client asks for nonexistent label
               handleErrors(new Error("label: "+pattern.label+" is undefined"));
               return;
             }
+            // use firstPattern to look for the data in corresponding database
+            // first argument is the index of database to query
             dbController.getData(indexOfLabel[pattern.label], pattern.firstPattern,
                 function (err, data, index) {
                   if(err) handleErrors(err, "getData "+index);
@@ -176,7 +182,7 @@ function connect (config, server, err) {
                 }
               );
           },
-          // 'message' is an array of all 'message_chunk'
+          // 'message' is an array of all 'message_chunk's
           function(errors, message){
             if(errors){
               handleErrors(errors, "async on client connection");
@@ -184,13 +190,13 @@ function connect (config, server, err) {
             }
             socket.emit('first', message);
 
-            // append the client to array after sending first message
+            // append the client to array after the first message is sent
             current_client.hasFirst=true;
             clients[socket.id] = current_client;
           }
       );
 
-      // by disconnect remove socket from list
+      // if client is disconnected, remove them from list
       socket.on('disconnect',
         function() {
           delete clients[socket.id];
@@ -199,15 +205,21 @@ function connect (config, server, err) {
     });
   });
 
-//TODO create a function in dbcontroller to replace the 'serve_clients_with_data'
+
+  
+  
+// Function to serve the clients with new data each updateIntervall of time
+// updateIntervall is the time interval in milliseconds
   var serve_clients_with_data = function(updateIntervall){
-    //Send new data on constant time intervals
+    // Send new data on constant time intervals
     setInterval(
       function(){
+        // for every label, switch the representing temporary database 
         dataLabels.forEach( function(label, i){
           dbController.switchTmpDB(i, function(tmpDB, tmp_index){
             if(!tmpDB) return; // tmpDB is undefined
 
+            // look if clients need data from the switched temporary database 
             async.each(clients,
                 function(client, async_callback){
                   var search_pattern;
@@ -245,7 +257,7 @@ function connect (config, server, err) {
                 },
                 function(err){
                   if(err) handleErrors(err);
-                  // cleanize current tmpDB
+                  // cleanize the tmpDB with current label
                   tmpDB.remove({},function(err){
                     if(err) handleErrors(err);
                   });
@@ -315,9 +327,7 @@ function connect (config, server, err) {
 }
 
 function disconnect() {
-  /*for (var i = 0; i < dbControllerArray.length; i++) {
-    dbControllerArray[i].disconnect();
-  }*/
+// TODO disconnect mongoose from all connected databases
 }
 
 function initMailer(config) {
