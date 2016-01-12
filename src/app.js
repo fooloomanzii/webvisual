@@ -108,15 +108,6 @@ app.set('views', __dirname + '/views');
  * Defining Errors
  */
 
-//
-// Configure CLI output on the default logger
-//
-winston.cli();
-//
-// Configure CLI on an instance of winston.Logger
-// no 'exceptionHandlers', otherwise, compiler exceptions are also getting logged!
-winston.add(winston.transports.File, { filename: __dirname + config.logs.server_log });
-
 // if Error: EADDRINUSE --> log in console
 server.on('error', function (e) {
     if (e.code == 'EADDRINUSE') {
@@ -185,12 +176,21 @@ dataModule.connect(config,server);
  * Handle various process events
  */
 
+// After Server has started, we start the winston.logger
+var logger = new winston.Logger({
+  transports: [
+   new (winston.transports.Console)()
+  ],
+  exceptionHandlers: [
+   new winston.transports.File({ filename: __dirname + config.logs.server_log })
+  ],
+  exitOnError: false
+});
+
  // TODO: make sure that the server is not closing (or is restarting) with errors
  // and pretty this part
 process.on('uncaughtException', function(err) {
-  winston.log('debug', 'Now my debug messages are written to console!');
-  console.error('uncaughtException: '+err);
-  console.warn(err.stack);
+  logger.log('error', err); // print error to the logger (console + file)
   try {
     server.close();
     dataModule.disconnect();
@@ -202,7 +202,6 @@ process.on('uncaughtException', function(err) {
   //dataModule.connect(config,server);
 });
 
-
 process.on('ECONNRESET', function(err) {
   try {
     // server.close();
@@ -213,7 +212,7 @@ process.on('ECONNRESET', function(err) {
   }
   // try to reconnect
   console.error('ECONNRESET: '+err);
-  dataModule.connect(config,server);
+  //dataModule.connect(config,server);
 });
 
 
