@@ -84,9 +84,11 @@ function connect (config, server, err) {
             handleErrors(err, "dataFileHandler");
           },
         data: function(type, data, data_index) {
+            if(!data || data.length == 0 ) return;  // Don't handle empty data
+          
             // Process data to certain format
             var currentData = dataMerge( dataConf[data_index], {exceeds: threshold(data, dataConf[data_index].types), data: data } );
-            
+              
             // Save new Data in Database and send for each client the updated Data
             dbController.appendData(data_index,
                 currentData.content,
