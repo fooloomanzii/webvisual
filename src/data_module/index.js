@@ -80,7 +80,8 @@ function connect (config, server, err) {
       connection: configArray[i].connections,
       listener: {
         error: function(type, err, err_index) {
-            dataSocket.emit('mistake', { error: err, time: new Date() });
+            console.log("!!!");
+            //dataSocket.emit('mistake', { error: err, time: new Date() });
             handleErrors(err, "dataFileHandler");
           },
         data: function(type, data, data_index) {
@@ -111,7 +112,7 @@ function connect (config, server, err) {
 
     socket.on('clientConfig', function(options) {
       // To Hannes: das soll bei dem client gebastelt sein
-      //------------------------ Temporär --------------------------
+      //-------------- Need to be implemented by Client -----------------
       options.patterns=[ {
         "label": "HNF-GDS-Test",
         "firstPattern": {

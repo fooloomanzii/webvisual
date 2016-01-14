@@ -6,9 +6,6 @@
  * and then call the 'connect()' function.
  */
 
-/** BE CAREFUL! Incorrect arguments may cause the Server termination, so   *
-**              please write a correct code.                               */
-
 // TODO comment every function!!
 
   // --- Node.js Module dependencies --- //
@@ -32,9 +29,6 @@ var DBController = function() {
 
 // Make it possible to emit Events
 DBController.prototype = new EventEmitter;
-
-  // --- Global Functions --- //
-
 
   // --- Local Functions --- //
 
@@ -177,12 +171,11 @@ DBController.prototype.resizeAll = function (newSize, callback) {
   );
 };
 
-//----------------- to change (start) --------------------------------//
+
 /*
  * Search for some query in tmpDB and call the callback with found data
  * How to use the function read by devicedata.js/query
  */
-//TODO merge with switch
 DBController.prototype.getDataFromTmpModel = function (index, tmpDB, request, callback) {
   this.checkIndex(index);
   var self=this;
@@ -203,8 +196,5 @@ DBController.prototype.switchTmpDB = function (index, callback) {
     callback(tmpDB, model_index);
   });
 };
-
-//----------------- to change (end) ---------------------------------//
-
 
 module.exports = DBController;
