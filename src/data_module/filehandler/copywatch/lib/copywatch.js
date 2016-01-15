@@ -57,6 +57,7 @@ var fs        = require('fs'),
     watch_error: _error_handler
   },
   _watchers     = {},
+  _watcher_options = {},
   _watcherCount = 0,
   _extension    = '.log',
   newline       = /\r\n|\n\r|\n/, // Every possible newline character
@@ -347,7 +348,7 @@ function _create_watch_options(mode, options) {
   var nOptions =  {
     mode: mode,
     firstCopy: ((options.firstCopy !== undefined) ? options.firstCopy : _default.firstCopy),
-    watch_error: options.watch_error || _default.watch_error,
+    watch_error: options.content || _default.watch_error,
     work_function: _default.work_function,
     process: options.process || _default.process,
     content: options.content,
@@ -409,13 +410,47 @@ function _handle_change(event, path, currStat, prevStat, options) {
       options.work_function(path, undefined, undefined, options.process, options.content, options.copy_path);
     }
   }
-  //  Delete event - delete the copied version
+  //  Delete event
   else if (event === 'delete') {
-    console.warn('"'+path_util.basename(path)+'"', "was deleted.\n"+
-      "copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
-    // We don't need to delete the copied file if there is no copied file
-    fs.exists(options.copy_path+_extension, function(exists) {
-      if(exists) fs.unlink(options.copy_path+_extension, options.watch_error);
+    var fileDir = path_util.dirname(path);
+    var starttime = new Date();
+    
+    //Check for existence of directory
+    fs.exists(fileDir, function(exists) {
+      if(exists === false) { // If directory doesn't exists -> need to wait until it's restored
+        console.warn('Directory "'+fileDir+'" was deleted.\n'+
+        'After restoring the directory, the file will be watched as earlier.');
+        //wait until directory is restored
+        var wait_until_restored = function(){
+          fs.exists(fileDir, function(exists) {
+            if(exists === false) {
+              // check for directory every 100 ms.
+              setTimeout(wait_until_restored, 100); 
+            } else {
+              // directory was restored -> continue watching 
+              _watchers[path] = watchr.watch(_watcher_options[path]);
+              console.log('Directory "'+fileDir+'" was restored after '+
+                  (new Date() - starttime)/1000.+' seconds.');
+            }
+          });
+        }
+        wait_until_restored();
+      } else {
+        if(new Date() - starttime > 300){
+          //if directory is remote one, may be connection was broken and quickly restored.
+          //but deletion has caused watchr to stop, so we start the watchr again.
+          _watchers[path] = watchr.watch(_watcher_options[path]);
+          console.warn('Connection to "'+path+
+              '" was broken and quickly restored, so it\'s not a problem.');
+        } else {
+          console.warn('"'+path+'" was deleted.\n'+
+          "copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
+        }
+        // We don't need to delete the copied file if there is no copied file
+        fs.exists(options.copy_path+_extension, function(exists) {
+          if(exists) fs.unlink(options.copy_path+_extension, options.watch_error);
+        });
+      }
     });
   }
 }
@@ -434,6 +469,29 @@ function _create_listeners(options) {
     },
     // The error_handler, it is specified in the options object
     error: options.watch_error,
+    watching: function(err,watcherInstance,isWatching){
+      if (err) {
+        // directory deletion errors are handled
+        // UNKNOWN is ECONNRESET is handled by 'econnreset'
+        // ENOENT and EPERM are causing 'delete' event and are handled there as missing directory
+        if(err.code === 'UNKNOWN' || err.code === 'ENOENT' || err.code === 'EPERM') return;
+        // If it's something not yet handled, trigger the error callback.
+        console.log("Watching the path " + watcherInstance.path + " failed with error");
+        options.content(err);
+      } else {
+        if(!isWatching) {
+          console.log("Finished Watching " + watcherInstance.path);
+        } else {
+          if(watcherInstance.children){
+            for(var file in watcherInstance.children)
+              console.log("Started watching " + watcherInstance.children[file].path );
+              
+          } else {
+            console.log("Started watching " + watcherInstance.path);
+          }
+        }
+      }
+    },
     change: function (event, path, currStat, prevStat) {
       // If its an event for a file we don't watch, there is no reason to process it; this should actually never happen it's just an extra ensurance
       if(_watchers[path] === undefined) return;
@@ -458,6 +516,7 @@ function unwatch(path, remove, callback) {
     _watcherCount--;
 
     delete _watchers[path];
+    delete _watcher_options[path];
 
     if (remove) {
       console.log("Stoped watching file '"+path+"'.");
@@ -546,7 +605,7 @@ function getExtension() {
       Arguments are err (an potential array of errors) and data (an array of the (processed) lines).
   next - a callback function, that recieves an error, if one occured
 */
-function watch(mode, file, options, next) {
+function watch(mode, file, options, callback) {
   // Define variables
   var i, listenersObj, nextObj,
   // Other stuff
@@ -554,23 +613,25 @@ function watch(mode, file, options, next) {
 
   // Check if the given mode is a valid one; if not throw an error
   maybeError = _check_mode(mode);
-  if(maybeError) return next(maybeError);
+  if(maybeError) throw maybeError;
 
   // Check if it's a valid file
   maybeError = _check_file(file);
-  if(maybeError) return next(maybeError);
+  if(maybeError) throw maybeError;
 
   if(typeof options === 'function') {
-    next = options;
+    callback = options;
     options = {};
   }
 
   // Process the options; use default values if necessary
   options = _create_watch_options(mode, options || {});
+  
+  if(callback == undefined) callback = options.watch_error;
 
   // Did we recieve an error? If yes, then call the next function with this error
   if(options instanceof Error) {
-    return next(options);
+    return callback(options);
   }
 
   // Create listeners
@@ -581,7 +642,7 @@ function watch(mode, file, options, next) {
     ++_watcherCount;
 
     // Execute the next function
-    if (next) return next(err);
+    if (callback) return callback(err);
   };
 
   // HACK!
@@ -598,24 +659,54 @@ function watch(mode, file, options, next) {
   // The directory of the file ("/c/node/script.js" would result in "/c/node")
   fileDir = path_util.dirname(resFile);
 
-  // Check for existance and make a first copy/parse; if firstCopy == true
-  fs.exists(resFile, function(exists) {
-    if(exists === false) {
-      console.warn('"'+resFile+'"', "was not found.\n"+
-        "copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
-    } else if(options.firstCopy) {
-      // Make a first copy/parse
-      options.work_function(resFile, undefined, undefined, options.process, options.content);
+  // function to start the file watching
+  var watch_the_file = function(){
+    // Check for existence and make a first copy/parse; if firstCopy == true
+    fs.exists(resFile, function(exists) {
+      if(exists === false) {
+        console.warn('"'+resFile+'"', "was not found.\n"+
+          "copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
+      } else if(options.firstCopy) {
+        // Make a first copy/parse
+        options.work_function(resFile, undefined, undefined, options.process, options.content);
+      }
+    });
+
+    
+    // Finally watch the file
+    _watcher_options[resFile] = {
+        path: fileDir, // We need to watch the directory in order to not stop watching on delete
+        ignoreCustomPatterns: new RegExp('^(?!.*'+baseName+'$)'), // The RegExp which ensures that just our file is watched and nothing else
+        listeners: listenersObj,
+        next: nextObj
+      };
+    _watchers[resFile] = watchr.watch(_watcher_options[resFile]);
+    
+    callback();
+  }
+  
+  //Check for existence of directory
+  fs.exists(fileDir, function(exists) {
+    if(exists === false) { // If directory doesn't exists -> no reason to start the watcher
+      console.warn('Directory "'+fileDir+'" was not found. Waiting on creation...');
+      var wait_until_created = function(){
+        fs.exists(fileDir, function(exists) {
+          if(exists === false) {
+            // check for directory every 100 ms.
+            setTimeout(wait_until_created, 100); 
+          } else {
+            // directory was created -> start watching 
+            watch_the_file();
+            console.log('Directory "'+fileDir+'" was created.');
+          }
+        });
+      }
+      wait_until_created();
+    } else {
+      watch_the_file();
     }
   });
 
-  // Finally watch the file
-  _watchers[resFile] = watchr.watch({
-    path: fileDir, // We need to watch the directory in order to not stop watching on delete
-    ignoreCustomPatterns: new RegExp('^(?!.*'+baseName+'$)'), // The RegExp which ensures that just our file is watched and nothing else
-    listeners: listenersObj,
-    next: nextObj
-  });
 }
 
 
