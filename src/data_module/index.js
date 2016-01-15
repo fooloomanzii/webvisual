@@ -41,7 +41,7 @@ function handleErrors(errors, id_message){
   else id_message+=": ";
   console.warn( id_message );
   console.warn( errors );
-  console.warn( errors.stack );
+  if ( errors.stack !== undefined ) console.warn( errors.stack );
 }
 
 function connect (config, server, err) {
@@ -80,7 +80,6 @@ function connect (config, server, err) {
       connection: configArray[i].connections,
       listener: {
         error: function(type, err, err_index) {
-            console.log("!!!");
             //dataSocket.emit('mistake', { error: err, time: new Date() });
             handleErrors(err, "dataFileHandler");
           },
