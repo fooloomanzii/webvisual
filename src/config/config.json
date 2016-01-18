@@ -2,6 +2,11 @@
   "port": 3000,
   "updateIntervall" : 1000,
 
+  "ldap": {
+    "url": "ibn-net.kfa-juelich.de",
+    "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de"
+  },
+
   "logs": {
     "external_log":      "HNF.log",
     "external_log_path": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Log\\",
