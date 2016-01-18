@@ -310,6 +310,7 @@ function connect (config, server, err) {
 
         // make the Server available for Clients
         server.listen(config.port);
+        
 //TODO do serve_clients_with_data in dbcontroller
         serve_clients_with_data(config.updateIntervall);
       }
@@ -334,7 +335,8 @@ function connect (config, server, err) {
 }
 
 function disconnect() {
-// TODO disconnect mongoose from all connected databases
+  dbController.disconnect();
+  dbController.remove();
 }
 
 function initMailer(config) {

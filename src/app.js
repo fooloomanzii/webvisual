@@ -201,13 +201,13 @@ process.on('uncaughtException', function(err) {
   logger.log('error', err); // print error to the logger (console + file)
   try {
     server.close();
-    dataModule.disconnect();
   } catch (e) {
     if(e.message !== 'Not running')
       throw e;
   }
   //try to reconnect
-  //dataModule.connect(config,server);
+  dataModule.disconnect();
+  dataModule.connect(config,server);
 });
 
 process.on('ECONNRESET', function(err) {
