@@ -37,8 +37,10 @@ src/**/demo/
 src/config/mail.json
 
 # SSL (Https Certificate) #
+!src/ssl/
 src/ssl/*
-!src/ssl/**/default/*
+!src/ssl/cert_chain/
+!src/ssl/default/
 !src/ssl/README.md
 
 *.prefs

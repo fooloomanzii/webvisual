@@ -81,14 +81,22 @@ checkArguments();
 var sslOptions  = {
     key: fs.readFileSync(__dirname + '/ssl/ca.key', 'utf8'),
     cert: fs.readFileSync(__dirname + '/ssl/ca.crt', 'utf8'),
-	ca: [ // Files for the certification path
-            fs.readFileSync(__dirname + '/ssl/ca_DFN.crt', 'utf8'),
-            fs.readFileSync(__dirname + '/ssl/ca_FZJ.crt', 'utf8')
-         ],
     passphrase: require('./ssl/ca.pw.json').password,
     requestCert: true,
     rejectUnauthorized: false
   };
+
+try {
+  // Read files for the certification path
+  var cert_chain = [];
+  fs.readdirSync(__dirname + '/ssl/cert_chain').forEach(function(filename) {
+    cert_chain.push(
+        fs.readFileSync(__dirname + '/ssl/cert_chain/' + filename, 'utf-8'));
+  });
+  sslOptions.ca = cert_chain;
+} catch (err) {
+  console.warn("Cannot open '/ssl/cert_chain' to read Certification chain");
+}
 
 // General
 var app    = express(),
