@@ -195,8 +195,9 @@ var logger = new winston.Logger({
   exitOnError: false
 });
 
- // TODO: make sure that the server is not closing (or is restarting) with errors
- // and pretty this part
+/* TODO: make sure that the server is not closing (or is restarting) with errors
+ *      Maybe just count the restarts within given time, 
+ *      so if it's totally crashed, it will not try to restart anymore. */
 process.on('uncaughtException', function(err) {
   logger.log('error', err); // print error to the logger (console + file)
   try {
