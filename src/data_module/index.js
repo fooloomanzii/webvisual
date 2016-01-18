@@ -286,7 +286,7 @@ function connect (config, server, err) {
   async.forEachOf(configArray,
       function(config, index, async_callback){
 
-        config.database.device_properties = config.locals.defaultType;
+        config.database.device_properties = config.locals.unnamedType;
         dbController.createConnection(config.database, index);
 
         dbController.connect(index, function (err, db_index) {
