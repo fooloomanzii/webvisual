@@ -43,27 +43,46 @@ var tmpDB_prefix = "tmp_"; // prefix of temporary collection
 
   // --- Mongoose Schemas --- //
 // Schema to store the device properties
-
-// TODO: es wäre besser, wenn die Keys fürs DeviceSchema aus der Config bestimmt werden (unnamedTypes)
-
-var DeviceSchema = new Schema(
-  {
-  _id        : String, // index = Measuring Device ID
-  roomNr     : String, // Room Number
-  room       : String, // Room Type
-  kind       : String, // What is measured
-  method     : String, // Type of Measure
-  threshold  : Schema.Types.Object, // Thresholds: {'from':null,'to':null}
-  isBoolean  : Boolean, // true if Measure is boolean
-  unit       : String, // Measuring units
-  storage    : String  // Name of the Collection with Device values
-  },
-  // options
-  { // significant performance improvement
-  // autoindex: false // http://mongoosejs.com/docs/guide.html
-//TODO check if index is registered and register it manually and set 'autoindex: false'
+//TODO write decription like http://mongoosejs.com/docs/schematypes.html
+var DeviceSchema = function( device_properties ){
+  var newSchemaDef = {}
+  for(property in device_properties){
+    newSchemaDef[property] = getSchemaTypeFromObject(device_properties[property]);
   }
-);
+  
+  // important values!!
+  newSchemaDef._id = String; // index = Measuring Device ID
+  newSchemaDef.storage = String  // Name of the Collection with Device values
+
+  return new Schema(newSchemaDef);
+};
+
+var getSchemaTypeFromObject = function(obj){
+  var type = Object.prototype.toString.call(obj);
+  
+  switch (type){
+    case '[object Date]':
+      return Date;
+    case '[object String]':
+      return String;
+    case '[object Number]':
+      return Number;
+    case '[object Boolean]':
+      return Boolean;
+    case '[object Array]':
+      var mixed = false;
+      for(var i=1; i<obj.length; i++){
+        if(Object.prototype.toString.call(obj[0]) 
+            !== Object.prototype.toString.call(obj[i])){
+          mixed = true; break;
+        }
+      }
+      if(mixed) return [Schema.Types.Mixed];
+      else return[getSchemaTypeFromObject(obj[0])];
+    default:
+      return Schema.Types.Mixed;
+  }
+};
 
 // Schema to store the values
 // created through the function because of dynamic storage_size
@@ -136,9 +155,6 @@ var DeviceModel = function(){
 // TODO test if model properly created without establishing connection!!!
 // TODO set error handling by every early access to the model!
   this.database = mongoose.createConnection(); // connection to the database (not yet established)
-
-  // Essential variable: the device model
-  this.model = this.database.model(devicelistDB_name, DeviceSchema);
 };
 
 // Make it possible to emit Events
@@ -171,6 +187,9 @@ DeviceModel.prototype.createConnection = function(database_options){
       port   : database_options.port,
       name   : database_options.name
   }
+  
+  //Essential variable: the device model
+  this.model = this.database.model(devicelistDB_name, DeviceSchema(database_options.device_properties));
 
   this.index = database_options.index; // own index to sign the emitted events
   this.database_name = database_options.name; // name of the database
@@ -638,7 +657,7 @@ function find(self, request, callback) {
     device_query = {};
   } else {
     device_query = _.map(request.query,
-        function(item){ // change id to _id for efficiently searching
+        function(item){ // change id to _id for optimal searching
         if(item.id){ item._id=item.id; delete item.id; }
         return item;
       }
@@ -652,7 +671,7 @@ function find(self, request, callback) {
    }
    if(devices.length == 0) return callback(null, null, self.index);
 
-   // set temporary max_query_limit to check the requested limit
+   // set temporary max_query_limit to validate the requested query_limit
    var limit = self.max_query_limit/devices.length;
    if(request.limit){
      if(request.limit < -limit){
