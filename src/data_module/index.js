@@ -70,7 +70,13 @@ function connect (config, server, err) {
 
   for (var i = 0; i < configArray.length; i++) {
     var label = configArray[i].database.name;
+    // labels (database names) are unique
+    if(dataLabels.indexOf(label) != -1) 
+      throw new Error('Multiple occurrences of Label: "'+label+'"\n'+
+          'Database Names needs to be unique!!')
+      
     dataLabels.push( label );
+    
     indexOfLabel[label] = i;
     dataConf.push(configuration.arrangeTypes( configArray[i].locals ));
 
@@ -280,6 +286,7 @@ function connect (config, server, err) {
   async.forEachOf(configArray,
       function(config, index, async_callback){
 
+        config.database.device_properties = config.locals.unnamedType;
         dbController.createConnection(config.database, index);
 
         dbController.connect(index, function (err, db_index) {
