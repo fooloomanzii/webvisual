@@ -6,10 +6,6 @@ var // EXPRESS
     express = require('express'),
     // EXPRESS-ERROR-HANDLER
     errorHandler = require('express-error-handler'),
-    // X-FRAME-OPTIONS <-- prevent Clickjacking
-    xFrameOptions = require('x-frame-options'),
-
-    bodyParser = require('body-parser'),
     // FS <-- File System
     fs = require('fs'),
     // UNDERSCORE <-- js extensions
@@ -19,6 +15,16 @@ var // EXPRESS
     defaultsDeep = require('merge-defaults'),
     // DATA-MODULE
     dataModule = require('./data_module'),
+    // Routing
+    xFrameOptions = require('x-frame-options'),
+    session       = require('express-session'),
+    passport      = require('passport'),
+    LdapStrategy  = require('passport-ldapauth'),
+    bodyParser    = require('body-parser'),
+    cookieParser  = require('cookie-parser'),
+    routes = require('./routes/index'),
+    // users = require('./routes/users'),
+
     /* Default config */
 
     defaults =
@@ -75,10 +81,6 @@ function checkArguments() {
 // check for program arguments
 checkArguments();
 
-/*
- * Configure the APP
- */
-
 // Configure SSL Encryption
 var sslOptions  = {
     key: fs.readFileSync(__dirname + '/ssl/ca.key', 'utf8'),
@@ -92,47 +94,113 @@ var sslOptions  = {
     rejectUnauthorized: false
   };
 
-// General
-var app = express(),
-    server = require('https').createServer(sslOptions, app);
+// *** Routing ***
 
-// Prevent Clickjacking
-app.use(xFrameOptions());
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({
-//   extended: true
-// }));
+var app = express();
 
-// Path to static folder
-// app.use(express.static(__dirname + '/public/'));
 
-// handling ENVIRONMENTS
-// TODO: find better seperation, what to do in differnet production environments
-// Development
-if (app.get('env') == 'development') {
-  // Make the Jade output readable
-  app.locals.pretty = true;
-  // Make the Jade output readable and add the environment specification
-  _.extend(app.locals, {
-    env : 'development',
-    pretty : true,
-  });
+// try to bring user-input in a form which is accepted by the server
+if (config.ldap.url.indexOf('ldap:\\\\') != 0) {
+  config.ldap.url = 'ldap:\\\\' + config.ldap.url;
 }
-// Production
-if (app.get('env') == 'production') {
-  // Set the environment specification for jade
-  app.locals.env = 'production';
-}
+// Authorisation Options for LDAP
+var ldapConfig = {
+      server: {
+        url: config.ldap.url,
+        bindDn: config.ldap.baseDN
+      }
+    };
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(require('express-session')({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Routing
-var routes = require('./routes')(app);
+app.use('/', routes);
+
+// passport config
+passport.use(new LdapStrategy(
+    ldapConfig,
+    function(user, done) {
+        return done(null, user);
+    }
+));
+
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(obj, done) {
+  done(null, obj);
+});
+
+// passport.use(new LdapStrategy(
+//     ldapConfig,
+//     function(user, done) {
+//         return done(null, user);
+//     }
+// ));
+// app.use(cookieParser);
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: false }));
+//
+// // Prevent Clickjacking
+// // app.use(xFrameOptions());
+//
+// // Rendering Engine
+// // app.set('view engine', 'html');
+// // app.set('views', __dirname + '/public' );
+// app.engine('html', require('ejs').renderFile);
+//
+// // required for passport
+// app.use(session({ secret: 'ilovescotchscotchyscotchscotch', saveUninitialized: true, resave: true })); // session secret
+// app.use(passport.initialize());
+// app.use(passport.session()); // persistent login sessions
+//
+// app.use(express.static(__dirname + '/public'));
+//
+// // Session-persisted message middleware
+// // app.use(function(req, res, next){
+// //   if (!/https/.test(req.protocol)){
+// //     res.redirect("https://" + req.headers.host + req.url);
+// //   }
+// //   else {
+// //     var err = req.session.error,
+// //         msg = req.session.notice,
+// //         success = req.session.success;
+// //
+// //     delete req.session.error;
+// //     delete req.session.success;
+// //     delete req.session.notice;
+// //
+// //     if (err) res.locals.error = err;
+// //     if (msg) res.locals.notice = msg;
+// //     if (success) res.locals.success = success;
+// //
+// //     next();
+// //   }
+// // });
+//
+//
+// // app.set('views', __dirname + '/../public' );
+// var routes = require('./routes')(app, passport);
 
 /*
- * Defining Errors
+ * Server
  */
+
+var server = require('https').createServer(sslOptions, app);
 
 // if Error: EADDRINUSE --> log in console
 server
@@ -247,3 +315,5 @@ process.on('exit', function(err) {
   if (err)
     console.warn(err.stack);
 });
+
+module.exports = app;

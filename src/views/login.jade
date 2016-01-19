@@ -1,0 +1,13 @@
+doctype html
+html
+  head
+    title Webvisual Login
+    |   
+    meta(name='viewport', charset='utf-8', content='width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.8')
+  body
+    form(method='post', action='/login')
+      input#username(type='text', name='username')
+      |     
+      input#password(type='password', name='password')
+      |     
+      button(type='submit') Login
