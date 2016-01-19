@@ -105,10 +105,7 @@ if (config.ldap.url.indexOf('ldap:\\\\') != 0) {
 }
 // Authorisation Options for LDAP
 var ldapConfig = {
-      server: {
-        url: config.ldap.url,
-        bindDn: config.ldap.baseDN
-      }
+      server: config.ldap
     };
 
 // view engine setup

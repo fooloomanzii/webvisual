@@ -11,7 +11,7 @@ router.get('/login', function(req, res) {
     res.render('login', { user : req.user });
 });
 
-router.post('/login',
+router.post('/login', pass,
     passport.authenticate('ldapauth',
       {
         successRedirect: '/',
@@ -38,6 +38,17 @@ function loggedIn(req, res, next) {
         res.redirect('/login');
     }
 }
+
+function pass(req, res, next) {
+    if(req.body.username && req.body.password) {
+      console.log(req.body.username + " " + req.body.password);
+    }
+    else {
+      console.log("page error passing parameters")
+    }
+    next();
+}
+
 
 module.exports = router;
 

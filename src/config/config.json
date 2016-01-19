@@ -4,7 +4,9 @@
 
   "ldap": {
     "url": "ibn-net.kfa-juelich.de",
-    "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de"
+    "bindDn": "dc=ibn-net,dc=kfa-juelich,dc=de",
+    "searchBase": "dc=ibn-net,dc=kfa-juelich,dc=de",
+    "searchFilter": "(objectClass=*)"
   },
 
   "logs": {
