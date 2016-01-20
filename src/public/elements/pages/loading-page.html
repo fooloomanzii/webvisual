@@ -13,7 +13,7 @@
       height: 100%;
       width: 100%;
       position: fixed;
-      background: #669DB4;
+      background: #005B82;
       z-index: 50;
     }
     section#mainContent[dark] {
@@ -93,8 +93,7 @@
           value: function() {
             return {
               'herologo1': this.$.logo,
-              'herologo2': this.$.logo.$.logo,
-              'herobackground':  this.$.mainContent
+              'herologo2': this.$.logo.$.logo
             }
           }
         },
@@ -102,11 +101,6 @@
           value: function() {
             return {
               'entry': [
-                {
-                  name: 'ripple-animation',
-                  id: 'herobackground',
-                  toPage: this
-                },
                 {
                   name: 'hero-animation',
                   id: 'herologo1',
