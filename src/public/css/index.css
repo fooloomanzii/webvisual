@@ -116,9 +116,6 @@ paper-dialog paper-dialog-scrollable {
   font-size: 0.95em;
 }
 
-paper-radio-button[checked] #onRadio.paper-radio-button {
-  background: #005B82;
-}
 /*
  * Fonts
  */

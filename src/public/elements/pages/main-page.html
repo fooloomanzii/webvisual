@@ -274,7 +274,7 @@
 
   <template>
 
-    <logo-element id="logo"></logo-element>
+    <logo-element id="logo" on-tap="backToMainMenu"></logo-element>
     <main-toolbar id="toolbar" class="paper-header" on-deselect="deselectElement" opened="[[opened]]">
       <paper-icon-button icon="menu" class="menu-icon" on-tap="togglePanel"></paper-icon-button>
       <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsDialog" hidden$="[[!isExceeding]]"></paper-icon-button>
@@ -701,7 +701,7 @@
       },
 
       backToMainMenu: function() {
-        this.togglePanel();
+        this.$.mainView.closeDrawer();
         this.fire("restart");
       },
 

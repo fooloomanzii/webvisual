@@ -28,32 +28,52 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background:#BBBBBB;
+      color: #f1f1f1;
       font-family: Regular;
     }
     :host[dark] {
-      background: #666666;
-    }
-    paper-dialog#labelWindow {
-      position: relative !important;
-      top: 0;
-      left: 0;
-      z-index: 1;
-    }
-    paper-dialog h2 {
-      background: #669DB4;
-      color: white;
-      font-family: Thin;
-    }
-    paper-dialog h2[dark] {
-      background: #345475;
       color: #A8CCDB;
     }
-    section.dialog-section {
+    div#main{
+      position: absolute;
+      background: radial-gradient(rgba(0, 91, 130,1) 80%,rgba(0, 91, 130,0.8) 100%);
+      height: 100%;
+      width: 100%;
+      z-index: 0;
+    }
+    div#main[dark] {
+      background: radial-gradient(rgba(52, 84, 117,1) 80%,rgba(52, 84, 117,0.8) 100%);
+    }
+    div#mainContent {
+      box-sizing: border-box;
+      min-width: 350px;
+      max-width: 500px;
+      min-height: 440px;
+      max-height: 600px;
+      width: 50vw;
+      height: 50vh;
+      padding: 1.5em 1.5em 1.5em 1.5em;
+      margin-top: auto;
+      margin-bottom: auto;
+      margin-right: auto;
+      margin-left: auto;
+      z-index: 1;
+    }
+    div#mainContent:before {
+      display: table;
+      content : ' ';
+    }
+    h2 {
+      color: currentColor;
+      font-family: Thin;
+      font-size: 2em;
+      text-align: center;
+    }
+    section.select {
       font-family: Light;
       font-size: 1em;
-      padding: 1.5em 2em 0.5em 1em;
-      margin-top: 0em !important;
+      padding: 1.5em;
+      box-sizing: border-box;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -66,27 +86,41 @@
       justify-content: flex-start;
     }
     paper-radio-button {
-      --paper-radio-button-checked-color: #005B82;
-      --paper-radio-button-checked-ink-color: #005B82;
-      --paper-radio-button-unchecked-color: #1d1d1d;
-      --paper-radio-button-unchecked-ink-color: #1d1d1d;
+      --paper-radio-button-checked-color: currentColor;
+      --paper-radio-button-checked-ink-color: currentColor;
+      --paper-radio-button-label-color: currentColor;
+      --paper-radio-button-label-spacing: 1em;
+      --paper-radio-button-unchecked-color: #669DB4;
+      --paper-radio-button-unchecked-ink-color: #669DB4;
     }
+
     paper-radio-button  {
+      font-family: Light;
+      color: currentColor;
       padding: 0em;
       padding-top: 1em;
     }
+
+    paper-button[disabled] {
+      color: #669DB4;
+    }
     paper-button {
+      margin-left: auto;
+      margin-top: 1.5em;
+      padding: 0.75em 1em;
       font-family: Light;
-      color: #345475;
+      color: currentColor;
       border-radius: 5px;
-      border-top: thin solid rgba(200, 200, 200, 0);
-      border-bottom: thin solid  rgba(200, 200, 200, 0);
-      background: linear-gradient(to bottom, rgba(0,0,0,0.01) 5%,rgba(50,50,50,0.05) 40%);
+      border: thin solid currentColor;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.01) 5%,rgba(255,255,255,0.05) 40%);
+    }
+    section#list:after{
+      display: table;
+      content: " ";
     }
     paper-button:hover {
-      background: linear-gradient(to bottom, rgba(0,0,0,0.02) 5%,rgba(50,50,50,0.10) 40%);
-      border-top: thin solid rgba(220, 220, 220, 0.1);
-      border-bottom: thin solid rgba(200, 200, 200, 0.1);
+      background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.10) 40%);
+      /*border: thin solid white;*/
     }
     paper-button iron-icon {
       margin: 0px 8px;
@@ -96,24 +130,23 @@
   </style>
 
   <template>
-      <paper-dialog id="labelWindow" opened="false" entry-animation="scale-up-animation" no-cancel-on-outside-click no-cancel-on-esc-key>
-        <h2 class="dialog-title">Auswahl des Messraums</h2>
-        <section class="dialog-section">
-          <section class="list">
-            <span>verfügbar sind:</span>
-            <iron-selector selected-values="{{labels}}" attr-for-selected="label" selected-attribute="checked" multi>
-              <template is="dom-repeat" items="[[availableLabels]]">
-                <paper-radio-button label="[[item]]">[[item]]</paper-radio-button>
-              </template>
-            </iron-selector>
-          </section>
+    <div id="main"></div>
+    <div id="mainContent">
+      <h2 class="dialog-title">Auswahl des Messraums</h2>
+      <section class="select">
+        <section class="list">
+          <span>verfügbar sind:</span>
+          <iron-selector selected-values="{{labels}}" attr-for-selected="label" selected-attribute="checked" multi>
+            <template is="dom-repeat" items="[[availableLabels]]">
+              <paper-radio-button label="[[item]]">[[item]]</paper-radio-button>
+            </template>
+          </iron-selector>
         </section>
-        <div class="buttons">
-          <paper-button disabled="[[notSelected]]" raised="[[notSelected]]" on-tap="_onSelected"><iron-icon id="logo" icon="juelich:logo"></iron-icon>Verbinden</paper-button>
-        </div>
-      </paper-dialog>
+        <paper-button disabled="[[notSelected]]" raised="[[notSelected]]" on-tap="_onSelected"><iron-icon id="logo" icon="juelich:logo"></iron-icon>Verbinden</paper-button>
+      </section>
+    </div>
 
-      <cookie-element id="labelsCookie" name="webvisual-stored-connections" value="{{labels}}"></cookie-element>
+    <cookie-element id="labelsCookie" name="webvisual-stored-connections" value="{{labels}}"></cookie-element>
   </template>
 
   <script>
@@ -140,8 +173,7 @@
           type: Object,
           value: function() {
             return {
-              'herologo1': this.$.logo,
-              'herobackground':  this.$.labelWindow
+              'herologo1': this.$.logo
             }
           }
         },
@@ -149,14 +181,26 @@
           value: function() {
             return {
               'entry': [
-                {animatable: this.$.labelWindow, type: "entry"}
+                {
+                  name: 'fade-in-animation',
+                  node: this.$.main,
+                  timing: {
+                    duration: 1500,
+                    delay: 0,
+                    easing: 'ease'
+                  }
+                },
+                {
+                  name: 'fade-in-animation',
+                  node: this.$.mainContent,
+                  timing: {
+                    duration: 500,
+                    delay: 0,
+                    easing: 'ease'
+                  }
+                }
               ],
               'exit': [
-                {
-                  name: 'ripple-animation',
-                  id: 'herobackground',
-                  fromPage: this
-                },
                 {
                   name: 'hero-animation',
                   id: 'herologo1',
