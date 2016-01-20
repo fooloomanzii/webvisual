@@ -16,6 +16,7 @@ var // EXPRESS
     // DATA-MODULE
     dataModule = require('./data_module'),
     // Routing
+    ActiveDirectory = require('activedirectory'),
     xFrameOptions = require('x-frame-options'),
     session       = require('express-session'),
     passport      = require('passport'),
@@ -99,48 +100,174 @@ var sslOptions  = {
 var app = express();
 
 
-// try to bring user-input in a form which is accepted by the server
-if (config.ldap.url.indexOf('ldap:\\\\') != 0) {
-  config.ldap.url = 'ldap:\\\\' + config.ldap.url;
-}
-// Authorisation Options for LDAP
-var ldapConfig = {
-      server: config.ldap
-    };
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(require('express-session')({
-    secret: 'keyboard cat',
-    resave: false,
-    saveUninitialized: false
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
 
-// passport config
-passport.use(new LdapStrategy(
-    ldapConfig,
-    function(user, done) {
-        return done(null, user);
+
+// Test
+// var ldap = require('ldapjs');
+//
+// var creds = {
+//   url: "ldap://ibn-net.kfa-juelich.de",
+//   bindDN: "dc=ibn-net,dc=kfa-juelich,dc=de"
+// };
+//
+// var opts = {
+//   filter: "(cn=username)",
+//   scope: "sub"
+// };
+//
+// function authDN(client, dn, password, cb) {
+//   client.bind(dn, password, function (err) {
+//     client.unbind();
+//     cb(err === null, err);
+//   });
+// }
+//
+// function output(res, err) {
+//   if (res) {
+//     console.log('success');
+//   } else {
+//     console.log(['Error',err.code, err.dn, err.message ]);
+//   }
+// }
+//
+// var client = ldap.createClient(creds);
+//
+// authDN(client, '(cn=username)', 'password', output);
+// var ldap = require('ldapjs');
+//   var username = "j.brautzsch";
+//   var password = "(jab123))";
+//
+//   var client = ldap.createClient({
+//     url: 'LDAP://ibn-net.kfa-juelich.de/'
+//   });
+// var ldapres = null;
+//
+// var opts = {
+//     filter: '(username=j.brautzsch)',
+//     scope: 'sub'
+// };
+//
+// client.search('dc=ibn-net,dc=kfa-juelich,dc=de', opts, function (err, result) {
+//     result.on('searchEntry', function (entry) {
+//         ldapres = entry.raw;
+//     });
+//     result.on('end', function (result) {
+//         if (ldapres) {
+//             client.bind(ldapres.dn, password, function (err) {
+//                 if (err) {
+//                     console.log('Wrong password');
+//                 }
+//                 else {
+//                     console.log('You are logged');
+//                 }
+//             });
+//         }
+//         else {
+//             console.log('Invalid username');
+//         }
+//     });
+// });
+const dns = require('dns');
+
+dns.lookup('ldap:\\\\' + config.ldap.url, (err, addresses, family) => {
+  console.log('addresses:', addresses);
+});
+  var cred = { url: 'ldap:\\\\' + config.ldap.url,
+               baseDN: config.ldap.baseDN,
+               username: "j.brautzsch@ibn-net.kfa-juelich.de",
+               password: "(jab123)"
+             };
+var ad = new ActiveDirectory(cred);
+  console.log(JSON.stringify(cred));
+//https://github.com/passport/express-4.x-local-example
+  // check, if user exists on server
+  ad.userExists(cred.username, function(err, exists) {
+    if (err) {
+      console.log("exist err ");
+      console.log(JSON.stringify(err));
+      // return {status: "NotUser"};
     }
-));
+    // check, if user can authenticate
+    if(exists) {
+      ad.authenticate(cred.username, cred.password, function(err, auth) {
+        if (auth) {
+          console.log("auth");
+          // users.push({"username": cred.username, "isEnabled": true})
+          // route("index.html",{"username": req.username});
+          // return {status: "IsEnabled", user: {"username": cred.username, "isEnabled": true}};
+        }
+        else {
+          console.log("auth err");
+          // return {status: "Failed"};
+        }
+      });
+    }
+  });
 
-passport.serializeUser(function(user, done) {
-  done(null, user);
-});
 
-passport.deserializeUser(function(obj, done) {
-  done(null, obj);
-});
+
+
+
+
+
+
+// try to bring user-input in a form which is accepted by the server
+// if (config.ldap.url.indexOf('ldap:\\\\') != 0) {
+//   config.ldap.url = 'ldaps:\\\\' + config.ldap.url;
+// }
+// config.ldap.searchFilter = '(uid={{username}})';
+//
+// // Authorisation Options for LDAP
+// var ldapConfig = {
+//       server: config.ldap
+//     };
+// console.log(config.ldap);
+//
+// // view engine setup
+// app.set('views', path.join(__dirname, 'views'));
+// app.set('view engine', 'jade');
+//
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(cookieParser());
+// app.use(require('express-session')({
+//     secret: 'keyboard cat',
+//     resave: false,
+//     saveUninitialized: false
+// }));
+// app.use(passport.initialize());
+// app.use(passport.session());
+// app.use(express.static(path.join(__dirname, 'public')));
+//
+// app.use('/', routes);
+//
+// // passport config
+// passport.use(new LdapStrategy(
+//     ldapConfig,
+//     function(user, done) {
+//         return done(null, user);
+//     }
+// ));
+//
+// passport.serializeUser(function(user, done) {
+//   done(null, user);
+// });
+//
+// passport.deserializeUser(function(obj, done) {
+//   done(null, obj);
+// });
+
+
+
+
+
+
+
+
+
 
 // passport.use(new LdapStrategy(
 //     ldapConfig,

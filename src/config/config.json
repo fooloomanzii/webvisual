@@ -4,9 +4,10 @@
 
   "ldap": {
     "url": "ibn-net.kfa-juelich.de",
+    "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
     "bindDn": "dc=ibn-net,dc=kfa-juelich,dc=de",
     "searchBase": "dc=ibn-net,dc=kfa-juelich,dc=de",
-    "searchFilter": "(objectClass=*)"
+    "searchFilter": "(sAMAccountName={{username}})"
   },
 
   "logs": {
@@ -21,8 +22,8 @@
       "connections": {
         "file": {
           "mode": "all",
-          "path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
-          "#path_folder": "",
+          "#path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
+          "path_folder": "",
           "path": "HNF_Datafile.txt"
           }
         },
