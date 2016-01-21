@@ -20,7 +20,6 @@ var // EXPRESS
     xFrameOptions = require('x-frame-options'),
     session       = require('express-session'),
     passport      = require('passport'),
-    LdapStrategy  = require('passport-ldapauth'),
     bodyParser    = require('body-parser'),
     cookieParser  = require('cookie-parser'),
 
