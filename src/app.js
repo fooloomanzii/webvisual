@@ -121,13 +121,13 @@ app.use(session({
 // Prevent Clickjacking
 app.use(xFrameOptions());
 
-require('./routes/auth/activedirectory.js')(passport, config); // pass passport for configuration
+require('./routes/passport_strategies/activedirectory.js')(passport, config.auth.ldap); // register custom ldap-passport-stategy
 
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
-require('./routes/index.js')(app, passport); // load our routes and pass in our app and fully configured passport
+require('./routes/index.js')(app, passport, config.auth); // load our routes and pass in our app and fully configured passport
 
 /*
  * Server

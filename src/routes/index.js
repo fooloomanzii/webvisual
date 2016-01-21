@@ -1,9 +1,11 @@
 // Routing
 
-module.exports = function(app, passport) {
+module.exports = function(app, passport, config_auth) {
 
   app.get('/', loggedIn, function (req, res) {
+      res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
       res.render('index', { user : req.user });
+      res.end();
   });
 
   app.get('/login', function(req, res) {
@@ -30,7 +32,7 @@ module.exports = function(app, passport) {
   });
 
   function loggedIn(req, res, next) {
-      if (req.user) {
+      if (!config_auth.required || req.user) {
           next();
       } else {
           res.redirect('/login');

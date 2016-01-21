@@ -7,8 +7,12 @@ var LocalStrategy   = require('passport-local').Strategy,
     ActiveDirectory = require('activedirectory');
 
 // expose this function to our app using module.exports
-module.exports = function(passport, config) {
+module.exports = function(passport, config_ldap) {
 
+    if(config_ldap == undefined || config_ldap.url == undefined || config_ldap.baseDN == undefined) {
+      console.log("LDAP Auth Error: missing server informations in config");
+      return;
+    }
     // =========================================================================
     // passport session setup ==================================================
     // =========================================================================
@@ -36,13 +40,14 @@ module.exports = function(passport, config) {
     function(req, username, password, done) { // callback with username and password from our form
         // creating a request through activedirectory by ldap
         // try to bring user-input in a form which is accepted by the server
-        if (config.ldap.url.indexOf('ldap:\\\\') != 0) {
-          config.ldap.url = 'ldap:\\\\' + config.ldap.url;
-        }
-        var user = username.split("@")[0] + "@" + config.ldap.url.split('ldap:\\\\')[1];
 
-        var cred = { url: config.ldap.url,
-                     baseDN: config.ldap.baseDN,
+        if (config_ldap.url.indexOf('ldap:\\\\') != 0) {
+          config_ldap.url = 'ldap:\\\\' + config_ldap.url;
+        }
+        var user = username.split("@")[0] + "@" + config_ldap.url.split('ldap:\\\\')[1];
+
+        var cred = { url: config_ldap.url,
+                     baseDN: config_ldap.baseDN,
                      username: user,
                      password: password
                    };
