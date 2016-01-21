@@ -19,71 +19,57 @@
 <link rel="import" href="../../components/leaflet-map/leaflet-map.html">
 
 <dom-module id="select-page">
+  <link rel="import" href="../../css/index.css" type="css"/>
   <style>
     :host {
       height: 100%;
       width: 100%;
-      position: fixed;
+      left: 0;
+      top: 0;
+      position: absolute;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       color: #f1f1f1;
       font-family: Regular;
+      line-height: 1.2;
     }
     :host[dark] {
       color: #A8CCDB;
     }
-    div#main{
+    div#background{
       position: absolute;
       background: radial-gradient(rgba(0, 91, 130,1) 80%,rgba(0, 91, 130,0.8) 100%);
       height: 100%;
       width: 100%;
+      left: 0;
+      top: 0;
       z-index: 0;
     }
-    div#main[dark] {
+    div#background[dark] {
       background: radial-gradient(rgba(52, 84, 117,1) 80%,rgba(52, 84, 117,0.8) 100%);
     }
     div#mainContent {
       box-sizing: border-box;
-      min-width: 350px;
-      max-width: 500px;
-      min-height: 440px;
-      max-height: 600px;
-      width: 50vw;
-      height: 50vh;
       padding: 1.5em 1.5em 1.5em 1.5em;
-      margin-top: auto;
-      margin-bottom: auto;
-      margin-right: auto;
-      margin-left: auto;
-      z-index: 1;
+      z-index: 0;
     }
-    div#mainContent:before {
-      display: table;
-      content : ' ';
-    }
-    h2 {
+    h1 {
       color: currentColor;
       font-family: Thin;
       font-size: 2em;
+      margin: 0.67em 0em;
       text-align: center;
     }
     section.select {
       font-family: Light;
       font-size: 1em;
-      padding: 1.5em;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-    }
-    section.list {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: flex-start;
     }
     paper-radio-button {
       --paper-radio-button-checked-color: currentColor;
@@ -93,34 +79,32 @@
       --paper-radio-button-unchecked-color: #669DB4;
       --paper-radio-button-unchecked-ink-color: #669DB4;
     }
-
     paper-radio-button  {
+      font-size: 1em;
       font-family: Light;
       color: currentColor;
       padding: 0em;
       padding-top: 1em;
     }
-
-    paper-button[disabled] {
-      color: #669DB4;
+    span {
+      font-size: 1.2em;
+      padding: 1em 1em 0.75em 1em;
     }
     paper-button {
       margin-left: auto;
-      margin-top: 1.5em;
-      padding: 0.75em 1em;
+      margin-top: 3em;
+      padding: 0.75em 1.5em;
       font-family: Light;
       color: currentColor;
       border-radius: 5px;
       border: thin solid currentColor;
       background: linear-gradient(to bottom, rgba(255,255,255,0.01) 5%,rgba(255,255,255,0.05) 40%);
     }
-    section#list:after{
-      display: table;
-      content: " ";
+    paper-button[disabled] {
+      color: #669DB4;
     }
     paper-button:hover {
       background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.10) 40%);
-      /*border: thin solid white;*/
     }
     paper-button iron-icon {
       margin: 0px 8px;
@@ -130,18 +114,17 @@
   </style>
 
   <template>
-    <div id="main"></div>
+
+    <div id="background"></div>
     <div id="mainContent">
-      <h2 class="dialog-title">Auswahl des Messraums</h2>
+      <h1 class="dialog-title">Auswahl des Messraums</h2>
       <section class="select">
-        <section class="list">
-          <span>verfügbar sind:</span>
-          <iron-selector selected-values="{{labels}}" attr-for-selected="label" selected-attribute="checked" multi>
-            <template is="dom-repeat" items="[[availableLabels]]">
-              <paper-radio-button label="[[item]]">[[item]]</paper-radio-button>
-            </template>
-          </iron-selector>
-        </section>
+        <span>verfügbar sind:</span>
+        <iron-selector selected-values="{{labels}}" attr-for-selected="label" selected-attribute="checked" multi>
+          <template is="dom-repeat" items="[[availableLabels]]">
+            <paper-radio-button label="[[item]]">[[item]]</paper-radio-button>
+          </template>
+        </iron-selector>
         <paper-button disabled="[[notSelected]]" raised="[[notSelected]]" on-tap="_onSelected"><iron-icon id="logo" icon="juelich:logo"></iron-icon>Verbinden</paper-button>
       </section>
     </div>
@@ -154,7 +137,7 @@
   Polymer({
       is: 'select-page',
 
-      behaviors: [Polymer.NeonAnimatableBehavior],
+      behaviors: [Polymer.NeonSharedElementAnimatableBehavior, Polymer.NeonAnimationRunnerBehavior],
 
       properties: {
         availableLabels: {
@@ -183,7 +166,7 @@
               'entry': [
                 {
                   name: 'fade-in-animation',
-                  node: this.$.main,
+                  node: this.$.background,
                   timing: {
                     duration: 1500,
                     delay: 0,

@@ -2,21 +2,25 @@
  * Controls all operations over the database within defined DB-Models
  * Can actually check some pre-conditions of the DeviceModel/TmpModel functions.
  * 
- * To use it, at first you need to set Listeners for 'open' and 'error',
- * and then call the 'connect()' function.
+ * To use it, at first you need to set Listener for 'error'-event.
+ * Then create connections to every database you need.
+ * After that you can call the 'connect(index, callback)' function 
+ * for every database.
+ * 
+ * e.g. dbController.on( 'error', function (err) { console.warn(err) });
+ *  dbController.createConnection(config.database, 1); // 1 as db-index
+ *  dbController.connect(1, function (err, db_index) { } );
+ *  
+ * To know how the functions work, read the corresponding description.
  */
-
-// TODO comment every function!!
 
   // --- Node.js Module dependencies --- //
 var mongoose     = require('mongoose'),
     EventEmitter = require('events').EventEmitter,
     _            = require('underscore');
 
-  // --- Custom Module dependencies --- //
+  // --- Custom dependencies --- //
 var DeviceModel = require('./devicemodel.js');
-
-  //--- Global Variables --- //
 
   //--- Constructor --- //
 var DBController = function() {
@@ -32,13 +36,28 @@ DBController.prototype = new EventEmitter;
 
   // --- Local Functions --- //
 
+// Checks if database with given 'index' is registered trough createConnection()
 DBController.prototype.checkIndex = function(index){
   if(this.deviceModels[index] === undefined)
     throw new Error("DeviceModel with index '"+ index +"' doesn't exists!!");
 }
 
+/* Register new Database for this Controller, 
+ * so you can later connect to it with connect-function. 
+ * Refer about possible options to DeviceModel.prototype.createConnection 
+ * Important option is the name of the database to connect to.
+ *   The function throws Error if there is no 'options'.
+ *   Another Error will be thrown if database name is not given.
+ *    The name can be stored either under 'options.name '
+ *    or 'options' can be a String with the name 
+ *      (In case, you don't need any further options to set).
+ *      
+ * index is an identifier for the database, 
+ *   and is important for callbacks, to know from which database they come.
+ *   It can be Object of any kind you want (Number, String, Boolean, Object,..)
+ * */
 DBController.prototype.createConnection = function(options, index){
-//check the options
+
   if(options === undefined){
     throw new Error("'options' needs to be submitted!!");
   }  
@@ -49,13 +68,14 @@ DBController.prototype.createConnection = function(options, index){
   
   var self=this;
   
-  // check the index for the new device model
+  // check the index
   if(index !== undefined) options.index = index;
   else options.index = options.name; // default index is a current db-name
   
   // check if model with that index exists
   if(this.deviceModels[options.index] !== undefined)
-    throw new Error("DeviceModel with index '"+ options.index +"' is already defined!!");
+    throw new Error("DeviceModel with index '"+ options.index +
+        "' is already defined!!\nBy replacing, remove the old model first!");
   
   // Create new DeviceModel
   var newDeviceModel = new DeviceModel();
@@ -67,6 +87,12 @@ DBController.prototype.createConnection = function(options, index){
   newDeviceModel.createConnection(options);
 }
 
+/*
+ * Connect to database with given 'index'.
+ * callback = function (error, db_index)
+ *     error = possible error caused by establishing of database connection 
+ *     db_index = corresponding database index
+ */
 DBController.prototype.connect = function(index, callback){
   this.checkIndex(index);
   
@@ -77,23 +103,55 @@ DBController.prototype.connect = function(index, callback){
   this.deviceModels[index].connect(callback);
 };
 
+/* Disconnect from any single database or from whole mongoose!!
+ * CAREFUL! If no index is given, whole mongodb will be disconnected!!
+ * 
+ * callback = function (error, db_index)
+ *     error = possible error caused by disconnecting of database 
+ *     db_index = corresponding database index
+ */
 DBController.prototype.disconnect = function(index, callback){
+  if(callback === undefined && (_.isFunction(index) || index === undefined)){
+    mongoose.disconnect(index);
+    return;
+  }
   this.checkIndex(index);
   this.deviceModels[index].disconnect(callback);
 };
 
-DBController.prototype.disconnectAll = function(){
+/* Disconnect from all databases .
+ * ! Makes sense to use, if there are other dbcontrollers, 
+ * !   that don't need to be disconnected.
+ * ! If you just need to fully disconnect from mongoose, use mongoose function instead.
+ * 
+ * callback = function (errors, db_indexes)
+ *     errors = possible errors caused by disconnecting of database 
+ *     db_indexex = indexes of successfully disconnected databases
+ */
+DBController.prototype.close = function(){
   var self = this;
   async.map(this.deviceModels, 
       function(model, async_callback){
         
-        // Disconnect from every model
+        // Disconnect from every database
         model.disconnect(async_callback);
       },
       function(errors, results){
         callback(errors, results);
       }
   );
+};
+
+/*
+ * Remove Model from Controller and make an corresponding 'index' free.
+ * If no 'index' is given, removes all databases from this Controller.
+ * 
+ *  callback = function (db_index)
+ *             db_index = given 'index'
+ */
+DBController.prototype.remove = function(index, callback){
+  if(index !== undefined) delete this.deviceModels[index];
+  else this.deviceModels.length = 0; //clear the list
 };
 
 // Creates or updates list of devices in database using given array "devices"

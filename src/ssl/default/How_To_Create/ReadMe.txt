@@ -9,7 +9,7 @@ There is one Important Thing, equal for both ways:
 
 So, how to use the Scripts exactly?
 If you prefer "bat"-File, Be Careful with variables Declaration!! 
-spaces by equal sign are forbidden!!
+spaces by equal sign are forbidden!! (right: "var=value", wrong: "var= value")
 If you can't run "ps1"-File, try to start PowerShell as Administrator and call "set-executionpolicy remotesigned"
 
 Before you start the preffered Script, please set important variables, like said below (under 1.) 
@@ -31,4 +31,14 @@ You'll become 4 Files (under "./cert" by default)
 "domain_name_csr.pem" is the Signification Request, you should provide to your Certificate Authority
 "ca.crt" is self-signed certificate you can use for some tests till your Request is officially signed
 
-For node.js you'll need only "ca.key", "ca.crt" and "ca.pw.json".
+To run the server you'll need to place "ca.key", "ca.crt" and "ca.pw.json" to the "src/ssl" directory of the server.
+
+
+----- Procedure of Official certification -----
+
+If you want to officially sign your Certificate, you need to provide "domain_name_csr.pem" to your Certificate Authority.
+After Certificate Authority has approved your request, they should provide you with officially-signed certificate,
+that you need to use instead of self-generated "ca.crt".
+IMPORTANT! If you don't follow the next step, your page will be shown as insecure!!
+You'll need to get the latest version of every Certificate in Certification Chain 
+and place it into "src/ssl/cert_chain" directory! 

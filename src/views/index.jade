@@ -14,6 +14,8 @@ html
     body {
       height: 100%;
       width: 100%;
+      padding: 0;
+      margin: 0;
       background: #669DB4;
     }
     body[dark] {
@@ -96,6 +98,10 @@ html
     |   
     script.
       window.addEventListener('WebComponentsReady', function(e) {
-      var el = document.getElementById('spinner');
-      el.remove();
+        try {
+          var el = document.getElementById('spinner');
+          el.parentNode.removeChild(el);
+        }
+        catch(err){
+        }
       });

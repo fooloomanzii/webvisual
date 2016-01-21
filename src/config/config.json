@@ -2,9 +2,12 @@
   "port": 3000,
   "updateIntervall" : 1000,
 
-  "ldap": {
-    "url": "ibn-net.kfa-juelich.de",
-    "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de"
+  "auth": {
+    "required": true,
+    "ldap": {
+      "url": "ibn-net.kfa-juelich.de",
+      "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de"
+    }
   },
 
   "logs": {
@@ -19,8 +22,8 @@
       "connections": {
         "file": {
           "mode": "all",
-          "#path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
-          "path_folder": "",
+          "path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
+          "#path_folder": "",
           "path": "HNF_Datafile.txt"
           }
         },

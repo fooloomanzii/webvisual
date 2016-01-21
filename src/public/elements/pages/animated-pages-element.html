@@ -17,6 +17,9 @@
     :host {
       height: 100%;
       width: 100%;
+      left: 0;
+      top: 0;
+      position: absolute;
       background: #669DB4;
     }
     :host[dark] {
@@ -25,6 +28,9 @@
     #pages {
       height: 100%;
       width: 100%;
+      top: 0;
+      left: 0;
+      position: absolute;
     }
   </style>
   <template>
@@ -32,7 +38,7 @@
       data="{{data}}" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}" available-labels="{{availableLabels}}" labels="[[labels]]" max-total-lines="[[maxLines]]" interval="[[interval]]"
       groups="{{groups}}" grouping-keys="{{groupingKeys}}" status="{{status}}" prefered-grouping-keys="{{preferedGroupingKeys}}">
     </data-socket-repeater>
-    <neon-animated-pages id="pages" animate-initial-selection>
+    <neon-animated-pages id="pages" selected="0">
       <select-page id="selectPage" available-labels="[[availableLabels]]" labels="{{labels}}"></select-page>
       <loading-page id="loadPage" status="[[status]]"></loading-page>
       <main-page id="mainPage" data="[[data]]" exceeding="{{exceeding}}" is-exceeding="[[isExceeding]]" labels="{{labels}}" groups="[[groups]]" grouping-keys="[[groupingKeys]]" max-total-lines="{{maxLines}}" interval="{{interval}}" prefered-grouping-keys="{{preferedGroupingKeys}}" always-show-tabs></main-page>
@@ -42,7 +48,8 @@
       Polymer({
         is: 'animated-pages-element',
         attached: function(){
-          this.$.pages.set('selected', '0');
+          // this.$.pages.set('selected', '0');
+          this.$.selectPage.playAnimation('entry');
           this.$.selectPage.$.labelsCookie.load();
         },
         _onConfigset: function() {
@@ -70,7 +77,7 @@
           if (this.availableLabels.length != 1) {
             this.$.pages.set('selected', '0');
             this.$.selectPage.$.logo.style.visibility = "visible";
-            this.$.selectPage.$.labelWindow.open();
+            this.$.selectPage.playAnimation('entry');
           }
         },
         listeners: {

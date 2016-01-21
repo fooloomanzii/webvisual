@@ -20,11 +20,8 @@ var // EXPRESS
     xFrameOptions = require('x-frame-options'),
     session       = require('express-session'),
     passport      = require('passport'),
-    LdapStrategy  = require('passport-ldapauth'),
     bodyParser    = require('body-parser'),
     cookieParser  = require('cookie-parser'),
-    // routes = require('./routes/index'),
-    // users = require('./routes/users'),
 
     /* Default config */
 
@@ -86,14 +83,22 @@ checkArguments();
 var sslOptions  = {
     key: fs.readFileSync(__dirname + '/ssl/ca.key', 'utf8'),
     cert: fs.readFileSync(__dirname + '/ssl/ca.crt', 'utf8'),
-	  ca: [ // Files for the certification path
-          fs.readFileSync(__dirname + '/ssl/ca_DFN.crt', 'utf8'),
-          fs.readFileSync(__dirname + '/ssl/ca_FZJ.crt', 'utf8')
-        ],
     passphrase: require('./ssl/ca.pw.json').password,
     requestCert: true,
     rejectUnauthorized: false
   };
+
+try {
+  // Read files for the certification path
+  var cert_chain = [];
+  fs.readdirSync(__dirname + '/ssl/cert_chain').forEach(function(filename) {
+    cert_chain.push(
+        fs.readFileSync(__dirname + '/ssl/cert_chain/' + filename, 'utf-8'));
+  });
+  sslOptions.ca = cert_chain;
+} catch (err) {
+  console.warn("Cannot open '/ssl/cert_chain' to read Certification chain");
+}
 
 // *** Routing ***
 
@@ -112,13 +117,16 @@ app.use(session({
     saveUninitialized: false
 }));
 
-require('./routes/auth/activedirectory.js')(passport, config); // pass passport for configuration
+// Prevent Clickjacking
+app.use(xFrameOptions());
+
+require('./routes/passport_strategies/activedirectory.js')(passport, config.auth.ldap); // register custom ldap-passport-stategy
 
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
-require('./routes/index.js')(app, passport); // load our routes and pass in our app and fully configured passport
+require('./routes/index.js')(app, passport, config.auth); // load our routes and pass in our app and fully configured passport
 
 /*
  * Server
@@ -163,19 +171,21 @@ var logger = new winston.Logger({
   exitOnError : false
 });
 
-// TODO: make sure that the server is not closing (or is restarting) with errors
-// and pretty this part
+/* TODO: make sure that the server is not closing (or is restarting) with errors
+ *      Maybe just count the restarts within given time,
+ *      so if it's totally crashed, it will not try to restart anymore. */
+
 process.on('uncaughtException', function(err) {
   logger.log('error', err); // print error to the logger (console + file)
   try {
     server.close();
-    dataModule.disconnect();
   } catch (e) {
     if (e.message !== 'Not running')
       throw e;
   }
-  // try to reconnect
-  // dataModule.connect(config,server);
+  //try to reconnect
+  dataModule.disconnect();
+  dataModule.connect(config,server);
 });
 
 process.on('ECONNRESET', function(err) {
