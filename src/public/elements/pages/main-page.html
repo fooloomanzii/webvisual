@@ -282,8 +282,8 @@
       <paper-icon-button icon="menu" class="menu-icon" on-tap="togglePanel"></paper-icon-button>
       <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsDialog" hidden$="[[!isExceeding]]"></paper-icon-button>
       <paper-icon-button icon="remove" class="toggle-icon control" on-tap="deselectElement"></paper-icon-button>
-      <paper-tabs id="labelsTabs" class="header" selected="{{selectedLabelId}}" no-bar scrollable hide-scroll-buttons>
-        <template is="dom-repeat" items="[[labels]]">
+      <paper-tabs id="labelsTabs" class="header" selected="{{selectedLabel}}" no-bar scrollable hide-scroll-buttons>
+        <template is="dom-repeat" items="[[labels]]" sort="sortLabel">
           <paper-tab class="label">[[item]]</paper-tab>
         </template>
       </paper-tabs>
@@ -557,34 +557,20 @@
           type: Array,
           value: function() { return []; },
           notify: true
-        },
+        }
       },
 
       observers: [
-        '_labelsChanged(labels.length)',
         '_checkExceedingDialog(exceeding.length)'
       ],
 
       attached: function() {
-        this.set("selectedLabelId", 0);
         var self = this;
         var dialogs = Array.prototype.slice.call(Polymer.dom(this.root).querySelectorAll("paper-dialog"));
         Array.prototype.forEach.call(dialogs, function(dialog) {
             dialog.fitInto = self.$.mainPanel;
             dialog.fit();
         });
-      },
-
-      _labelsChanged: function() {
-      },
-
-      // if select another label, close toolbar
-      _handleSelectedLabelChange: function() {
-        this.setGroupBy(this.preferedGroupingKeys[this.selectedLabelId]);
-        if(this.opened) {
-          this.$.toolbar.playAnimation('out');
-          this.toggleAttribute('opened',false);
-        }
       },
 
       getGroupingKeys: function(change, labelindex) {
@@ -599,6 +585,13 @@
       getElementsKey: function(element,key) {
         if(element && element[key])
           return element[key];
+      },
+
+      sortLabel: function(first,next){
+        if (this.labelIndex[first] < this.labelIndex[next])
+          return true;
+        else
+          return false;
       },
 
       // show tabs, if wanted
@@ -644,7 +637,7 @@
           this.unlinkPaths('selectedElement');
           this.selectedElement = null;
           this.toggleAttribute('opened',false);
-        },320);
+        }, 320);
       },
 
       openExceedsDialog: function() {

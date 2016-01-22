@@ -47,7 +47,11 @@
           },
           labels: {
             type: Array,
-            value: function() { return []; },
+            value: function() { return []; }
+          },
+          labelIndex: {
+            type: Object,
+            value: function() { return {}; },
             notify: true
           },
           availableLabels: {
@@ -127,8 +131,31 @@
           }
       },
 
-      observers:
-        ["_labelsChanged(labels.*)"],
+      observers: [
+        "_labelsChanged(labels.*)"
+      ],
+
+      _labelsChanged: function(changerecord){
+        if(changerecord.path == "labels.length" && changerecord.value > 0) {
+
+        // if(changerecord.path == "labels.splices") {
+
+          // if(changerecord.value.indexSplices[0].removed.length > 0) {
+            this._clearExceeding();
+            // this.splice("data",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            // this.splice("ids",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            // this.splice("groups",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            // this.splice("groupingKeys",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            // this.splice("preferedGroupingKeys",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            // this.splice("keys",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            // this.splice("types",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+            // this.splice("unnamedTypes",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
+          // }
+          // console.log("init");
+          // this._init;
+        // }
+        }
+      },
 
       ready: function(){
         this.socket = io.connect('https://'+window.location.host+this.socketname, {secure: true});
@@ -207,24 +234,6 @@
         this.set('keys',[]);
         this.set('types',[]);
         this.set('unnamedTypes',[]);
-      },
-
-      _labelsChanged: function(changerecord){
-        if(changerecord.path == "labels.splices") {
-          if(changerecord.value.indexSplices[0].removed.length > 0) {
-            this._clearExceeding();
-            this.splice("data",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
-            this.splice("ids",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
-            this.splice("groups",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
-            this.splice("groupingKeys",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
-            this.splice("preferedGroupingKeys",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
-            this.splice("keys",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
-            this.splice("types",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
-            this.splice("unnamedTypes",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
-          }
-          // console.log("init");
-          // this._init;
-        }
       },
 
       _onFirstData: function(message) {
@@ -333,8 +342,15 @@
 
       _getLabelIndex: function(labelName) {
         var check = this.labels.indexOf(labelName);
-        if(check !== -1)
-          return check;
+        // if labelName is in labels-Array
+        if(check !== -1) {
+          // if labelName is not registered in labelIndex-Array
+          // then set an increasing index
+          // note: deleted labels won't delete the data behind it here
+          if (this.labelIndex[labelName] == undefined)
+            this.set('labelIndex.'+labelName,Object.keys(this.labelIndex).length);
+          return this.labelIndex[labelName];
+        }
         else // if it doesn't excist then return undefined
           return undefined;
       },

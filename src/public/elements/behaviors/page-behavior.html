@@ -21,6 +21,10 @@
         type: Array,
         value: function() { return []; }
       },
+      labelIndex: {
+        type: Object,
+        value: function() { return {}; }
+      },
       groupingKeys: {
         type: Array,
         value: function() { return []; }
@@ -34,10 +38,18 @@
         value: function() { return []; },
         notify: true
       },
-      selectedLabelId: {
+      // selected Label (Tab index)
+      selectedLabel: {
         type: Number,
         value: 0,
-        observer: "_handleSelectedLabelChange"
+        notify: true
+      },
+      // selected LabelIndex (Array index of date)
+      // important note: there is a difference because of initial selection order
+      selectedLabelId: {
+        type: Number,
+        computed: '_computeSelectedLabelId(selectedLabel)',
+        observer: '_selectedLabelChanged'
       },
       groupBy: {
         type: String,
@@ -51,13 +63,25 @@
         type: Number
       }
     },
-    _handleSelectedLabelChange: function() {
+    observers: [
+      "_labelsChanged(labels.length)"
+    ],
+    _labelsChanged: function(length) {
+      // if(length > 0) {
+      //   this.set("selectedLabel",0);
+      // }
     },
-    _getLabelIndex: function(labelName) {
-      if(this.labels.indexOf(labelName) !== -1)
-        return check;
+    _computeSelectedLabelId: function(selectedLabel) {
+      if (this.labels == undefined || this.labelIndex == undefined)
+        return 0;
       else
-        return undefined;
+        return this.labelIndex[this.labels[selectedLabel]];
+    },
+    _selectedLabelChanged: function() {
+      this.setGroupBy(this.preferedGroupingKeys[this.selectedLabelId]);
+      if(this.opened) {
+        this.deselectElement();
+      }
     },
     groupElements: function(item,group){
       if (group.name == "all")
@@ -68,6 +92,8 @@
         return false;
     },
     setSelectedElement: function(e) {
+    },
+    deselectedElement: function(e) {
     },
     setGroupBy: function(groupBy) {
       if(groupBy && this.groupBy in this.groups[this.selectedLabelId]) {
@@ -91,12 +117,6 @@
         return true;
       else
         return false;
-    },
-    sort: function(next,first){
-      if (first > next)
-      return -1;
-      else return 1;
     }
   };
-
 </script>

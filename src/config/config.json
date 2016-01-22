@@ -19,6 +19,8 @@
 
   "configurations": [
     {
+      "label": "HNF-GDS-Test",
+
       "connections": {
         "file": {
           "mode": "all",
@@ -36,7 +38,6 @@
         },
 
       "database": {
-        "name": "HNF-GDS-Test",
         "max_query_limit": 5000,
         "default_storage_size": 100,
         "save_identical_values": false
@@ -117,6 +118,8 @@
       }
     },
     {
+      "label": "DBTest",
+
       "connections": {
         "file": {
           "mode": "all",
@@ -133,7 +136,6 @@
         },
 
       "database": {
-        "name": "DBTest",
         "max_query_limit": 5000,
         "default_storage_size": 100,
         "save_identical_values": false
