@@ -12,15 +12,27 @@ module.exports = function(app, passport, config_auth) {
       res.render('login', { user : req.user });
   });
 
-  app.post('/login',
-      passport.authenticate('activedirectory-login',
-        {
-          successRedirect: '/',
-          failureRedirect: '/login' }),
-      function(req,res) {
-            // console.log("auth login");
-      }
-  );
+  if (config_auth.required) {
+    app.post('/login',
+        passport.authenticate('activedirectory-login',
+          {
+            successRedirect: '/',
+            failureRedirect: '/login' }),
+        function(req,res) {
+              // console.log("auth login");
+        }
+    );
+  }
+  else {
+    app.post('/login',
+        passport.authenticate('dummy',
+          {
+            successRedirect: '/',
+            failureRedirect: '/login' }),
+        function(req,res) {
+        }
+    );
+  }
 
   app.get('/404', function (req, res) {
       res.render('404');

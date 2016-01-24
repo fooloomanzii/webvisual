@@ -121,6 +121,7 @@ app.use(session({
 app.use(xFrameOptions());
 
 require('./routes/passport_strategies/activedirectory.js')(passport, config.auth.ldap); // register custom ldap-passport-stategy
+require('./routes/passport_strategies/dummy.js')(passport); // register dummy-stategy
 
 app.use(passport.initialize());
 app.use(passport.session());

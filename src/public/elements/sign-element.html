@@ -105,8 +105,8 @@
       <paper-ripple id="ripple"></paper-ripple>
 
       <section class="actualValueSection">
-        <template is="dom-if" if="[[!element.isBoolean]]" restamp>
-          <span class="valueSection">[[computeY(element.values.*,0)]]</span><span class="unitSection">[[element.unit]]</span>
+        <template is="dom-if" if="{{!element.isBoolean}}" restamp>
+          <span class="valueSection">{{computeY(element.values.*,0)}}</span><span class="unitSection">[[element.unit]]</span>
         </template>
         <template is="dom-if" if="{{element.isBoolean}}" restamp>
           <section hidden$="{{!isExceeding}}">
@@ -116,7 +116,7 @@
       </section>
 
       <section class="lowerSection">
-        <span class="dateSection">[[computeX(element.values.*,0)]]</span>
+        <span class="dateSection">{{computeX(element.values.*,0)}}</span>
       </section>
     </section>
   </template>

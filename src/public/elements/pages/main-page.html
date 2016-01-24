@@ -34,7 +34,7 @@
       position: relative;
     }
     section#mainContent {
-      background: #BBBBBB;
+      background: #b5bbb5;
       display: flex;
       flex-wrap: wrap;
       align-content: flex-start;
@@ -51,7 +51,7 @@
       padding: 0.5em;
     }
     section#mainContent[dark] {
-      background: #666666;
+      background: #656665;
     }
     section#dropShadow {
       position: absolute;
@@ -77,6 +77,7 @@
       post-card {
         padding: 0em;
         border-radius: 0em;
+        width: 100%;
       }
     }
     paper-button.sidemenu {
@@ -236,8 +237,6 @@
       position: fixed;
       z-index: 100 !important;
       min-width: 18em;
-      /*width: calc(100% - 4em);
-      height: calc(100% - 4em);*/
       display: flex;
       flex-direction: column;
     }
@@ -270,7 +269,7 @@
     }
     @keyframes alarm-animation {
       0%   {color: #f4959d;}
-      33%  {color: rgb(255, 20, 41);}
+      33%  {color: #f64756;}
       100% {color: #f4959d;}
     }
   </style>
@@ -283,7 +282,7 @@
       <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsDialog" hidden$="[[!isExceeding]]"></paper-icon-button>
       <paper-icon-button icon="remove" class="toggle-icon control" on-tap="deselectElement"></paper-icon-button>
       <paper-tabs id="labelsTabs" class="header" selected="{{selectedLabel}}" no-bar scrollable hide-scroll-buttons>
-        <template is="dom-repeat" items="[[labels]]" sort="sortLabel">
+        <template is="dom-repeat" items="[[labels]]">
           <paper-tab class="label">[[item]]</paper-tab>
         </template>
       </paper-tabs>
@@ -323,7 +322,7 @@
 
                   <iron-collapse class="sidemenu collapse grouping">
                     <paper-radio-group selected="{{groupBy}}" class="indention">
-                      <template is="dom-repeat" items="[[getGroupingKeys(groupingKeys.*,selectedLabelId)]]" as="key">
+                      <template is="dom-repeat" items="[[getGroupingKeys(groupingKeys.*,selectedLabel)]]" as="key">
                         <paper-radio-button name="[[key]]">[[key]]</paper-radio-button>
                       </template>
                     </paper-radio-group>
@@ -331,7 +330,7 @@
 
                 <paper-item>
                   <iron-icon icon="editor:border-style"></iron-icon>
-                  <paper-toggle-button id="border-style" checked="[[withoutWindow]]">Fensterstil</paper-toggle-button>
+                  <paper-toggle-button id="border-style" checked="{{withoutWindow}}">Fensterstil</paper-toggle-button>
                 </paper-item>
 
                 <paper-item>
@@ -409,11 +408,11 @@
       <section main id="mainPanel">
 
         <paper-dialog id="exceedsDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" no-cancel-on-outside-click>
-          <h2 class="dialog-title">Alarm</paper-icon-button></h2>
+          <h2 class="dialog-title">Alarm<div class="flex"></div><paper-icon-button dialog-dismiss icon="close"></paper-icon-button></h2>
           <section class="scrollable">
-            <template is="dom-repeat" items="[[exceeding]]" as="element">
+            <template is="dom-repeat" items="{{exceeding}}" as="element">
               <section class="card" on-tap="setSelectedElement" dark$="[[dark]]">
-                <sign-element element="[[element]]" dark$="[[dark]]"></sign-element>
+                <sign-element element="{{element}}" dark$="[[dark]]"></sign-element>
                 <section class="caption" dark$="[[dark]]">
                   <template is="dom-repeat" items="[[getGroupingKeys(groupingKeys.*,element.labelindex)]]" as="key">
                     <span id="[[key]]">[[getElementsKey(element,key)]]</span>
@@ -423,26 +422,25 @@
             </template>
           </section>
           <div class="buttons">
-            <!-- <paper-button disabled><iron-icon icon="mail"></iron-icon>Send</paper-button>
-            <paper-button disabled><iron-icon icon="print"></iron-icon>Print</paper-button> -->
+            <paper-button dialog-confirm on-tap="_removeAllExceedingElements"><iron-icon icon="highlight-off"></iron-icon>Liste leeren</paper-button>
             <paper-button dialog-dismiss><iron-icon icon="close"></iron-icon>schließen</paper-button>
           </div>
         </paper-dialog>
 
         <section main id="mainContent">
 
-          <template id="labeltemplate" is="dom-repeat" items="[[data]]" as="labelItem" index-as="labelindex">
-            <template is="dom-if" if="[[isSelectedLabel(labelindex,selectedLabelId)]]">
-              <template id="groupingtemplate" is="dom-repeat" items="[[selectedGroup]]" as="groupItems" sort="sortGroup" delay="300">
-                <post-card class="group" headline="[[groupItems.name]]" without-window="{{withoutWindow}}" dark$="[[dark]]">
+          <template id="maintemplate" is="dom-repeat" items="[[data]]" as="labelItem" index-as="labelindex" filter="filterSelectedLabel">
+            <template class="labeltemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupItems" sort="sortGroup">
 
-                  <template is="dom-repeat" items="[[labelItem]]" as="element">
-                    <template is="dom-if" if="[[groupElements(element,groupItems)]]" restamp>
+                <post-card class="group" selected-ids="{{groupItems.ids}}" headline="{{groupItems.name}}" without-window="[[withoutWindow]]" dark$="[[dark]]">
+
+                  <template is="dom-repeat" items="{{labelItem}}" as="element">
+                    <template is="dom-if" if="{{groupElements(element,groupItems)}}" restamp>
                       <section class="card" on-tap="setSelectedElement" dark$="[[dark]]">
 
-                          <sign-element element="[[element]]" dark$="[[dark]]" on-exceeding-element="_checkExceedingDialog"></sign-element>
+                          <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding-element="_checkExceedingDialog"></sign-element>
                           <section class="caption" dark$="[[dark]]">
-                            <template is="dom-repeat" items="[[getGroupingKeys(groupingKeys.*,selectedLabelId)]]" as="key">
+                            <template is="dom-repeat" items="[[getGroupingKeys(groupingKeys.*,selectedLabel)]]" as="key">
                               <span id="[[key]]">[[getElementsKey(element,key)]]</span>
                             </template>
                           </section>
@@ -451,7 +449,7 @@
                     </template>
                   </template>
                 </post-card>
-              </template>
+
             </template>
           </template>
 
@@ -549,7 +547,7 @@
         // Attribute sent by datasocket-repeater
         isExceeding: {
           type: Boolean,
-          value: false,
+          notify: true,
           observer: "openExceedsDialog"
         },
         // Array of exceeding items
@@ -575,9 +573,10 @@
 
       getGroupingKeys: function(change, labelindex) {
         if (labelindex == undefined)
-          labelindex = this.selectedLabelId;
-        if (Array.isArray(this.groupingKeys[labelindex])) {
-          return this.groupingKeys[labelindex];
+          labelindex = this.selectedLabel;
+        var selectedLabelId = this._computeSelectedLabelId(labelindex);
+        if (Array.isArray(this.groupingKeys[selectedLabelId])) {
+          return this.groupingKeys[selectedLabelId];
         }
         else return [];
       },
@@ -585,18 +584,6 @@
       getElementsKey: function(element,key) {
         if(element && element[key])
           return element[key];
-      },
-
-      sortLabel: function(first,next){
-        if (this.labelIndex[first] < this.labelIndex[next])
-          return true;
-        else
-          return false;
-      },
-
-      // show tabs, if wanted
-      isSelectedLabel: function(labelid, selectedLabelId) {
-        return (labelid === selectedLabelId);
       },
 
       setSelectedElement: function(e) {
@@ -608,11 +595,11 @@
           else {
             this.unlinkPaths('selectedElement');
             this.selectedElement = null;
-
-            var icol  = Polymer.Collection.get(this.data[this.selectedLabelId]);
+            var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
+            var icol  = Polymer.Collection.get(this.data[selectedLabelId]);
             var key = icol.getKey(item);
             this.selectedElement = item;
-            this.linkPaths('selectedElement', 'data.#'+ this.selectedLabelId + "." + key);
+            this.linkPaths('selectedElement', 'data.#'+ selectedLabelId + "." + key);
             this.notifyPath('selectedElement.values', this.selectedElement.values);
             if (!this.opened){
               this.toggleAttribute('opened',true);

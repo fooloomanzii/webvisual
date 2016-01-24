@@ -31,13 +31,13 @@
   </style>
   <template>
     <data-socket-repeater id="datasocket"
-      data="{{data}}" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}" available-labels="{{availableLabels}}" labels="[[labels]]" label-index="{{labelIndex}}" max-total-lines="[[maxLines]]" interval="[[interval]]"
+      data="{{data}}" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}" available-labels="{{availableLabels}}" labels="{{labels}}" label-index="{{labelIndex}}" max-total-lines="[[maxLines]]" interval="[[interval]]"
       groups="{{groups}}" grouping-keys="{{groupingKeys}}" status="{{status}}" prefered-grouping-keys="{{preferedGroupingKeys}}" >
     </data-socket-repeater>
     <neon-animated-pages id="pages" selected="0">
       <select-page id="selectPage" available-labels="[[availableLabels]]" labels="{{labels}}"></select-page>
       <loading-page id="loadPage" status="[[status]]"></loading-page>
-      <main-page id="mainPage" data="[[data]]" exceeding="{{exceeding}}" is-exceeding="[[isExceeding]]" labels="[[labels]]" label-index="[[labelIndex]]" groups="[[groups]]" grouping-keys="[[groupingKeys]]" max-total-lines="{{maxLines}}" interval="{{interval}}" prefered-grouping-keys="{{preferedGroupingKeys}}" always-show-tabs></main-page>
+      <main-page id="mainPage" data="[[data]]" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}" available-labels="{{availableLabels}}" labels="{{labels}}" groups="[[groups]]" grouping-keys="[[groupingKeys]]" max-total-lines="{{maxLines}}" interval="{{interval}}" prefered-grouping-keys="{{preferedGroupingKeys}}" always-show-tabs></main-page>
     </neon-animated-pages>
   </template>
   <script>
@@ -69,8 +69,6 @@
               self.$.loadPage.cancelAnimation();
               self.$.pages.set('selected', 2);
               self.$.mainPage.set('selectedLabel', 0);
-              // self.$.mainPage._selectedLabelChanged();
-              self.$.mainPage.$.labeltemplate.fire('dom-change');
           },wait);
         },
         _onRestart: function() {

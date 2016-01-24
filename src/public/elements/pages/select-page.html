@@ -197,41 +197,41 @@
       },
 
       observers: [
-        '_labelsChanged(labels.*)',
+        '_labelsChanged(labels.length)',
         '_availableLabelsChanged(availableLabels.*)'
       ],
 
-      _labelsChanged: function(changerecord) {
-        this.set("notSelected",(this.labels.length < 1));
+      _labelsChanged: function(length) {
+        this.set("notSelected",(length < 1));
       },
 
       _availableLabelsChanged: function() {
         if (this.labels && this.availableLabels.length > 0) {
           var self = this;
-        // var needToRestart = false;
+          // var needToRestart = false;
 
-        // check if the loaded labels (from cookie) match the availableLabels (send by data-socket)
-        for(var i=0; i < this.labels.length; i++) {
-          if (this.availableLabels.indexOf(this.labels[i]) == -1) {
-            this.splice("labels",i, 1);
-            i--;
+          // check if the loaded labels (from cookie) match the availableLabels (send by data-socket)
+          for(var i=0; i < this.labels.length; i++) {
+            if (this.availableLabels.indexOf(this.labels[i]) == -1) {
+              this.splice("labels",i, 1);
+              i--;
+            }
           }
-        }
 
-        // if (this.availableLabels.length == 1){
-        //   this.labelsCookie.set("value", this.availableLabels);
-          this.$.labelsCookie.save();
-        //   this.set("labels", this.availableLabels);
-        //   this.fire("configset");
-        // }
-        // if (needToRestart) {
-        //   this.$.labelsCookie.save();
-        //   if(this.labels.length == 0)
-        //     this.fire("restart");
-        //   else
-        //     this.fire("reconnect");
-        // }
-      }
+          // if (this.availableLabels.length == 1){
+          //   this.labelsCookie.set("value", this.availableLabels);
+            this.$.labelsCookie.save();
+          //   this.set("labels", this.availableLabels);
+          //   this.fire("configset");
+          // }
+          // if (needToRestart) {
+          //   this.$.labelsCookie.save();
+          //   if(this.labels.length == 0)
+          //     this.fire("restart");
+          //   else
+          //     this.fire("reconnect");
+          // }
+        }
       },
 
       _onSelected: function() {

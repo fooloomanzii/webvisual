@@ -100,15 +100,8 @@
                   id: 'herologo1',
                   toPage: this
                 },
-                {
-                  name: 'scale-up-animation',
-                  node: this.$.logo.$.script
-                },
-                {
-                  name: 'fade-in-animation',
-                  node: this.$.logo.$.script
-                },
-                {animatable: this.$.circle, type: 'loading'}
+                {animatable: this.$.circle, type: 'loading'},
+                {animatable: this.$.logo, type: 'loading'}
               ],
               'exit': [
                 {
