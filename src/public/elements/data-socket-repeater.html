@@ -13,21 +13,17 @@
           config: {
             type: Object,
             value: function() {
-              return {  "firstPattern": {
+              return {  "label": "",
+                        "firstPattern": {
                           "query": {},
-                          "time": {
-                            "from": ""
-                          },
+                          "time": { "from": ""},
                           "limit": -10
                         },
                         "appendPattern": {
                           "query": {},
-                          "time": {
-                            "from": ""
-                          },
-                          "limit": 0
-                        },
-                        "labels": []};
+                          "time": { "from": "" },
+                          "limit": -1
+                        }};
               }
           },
           data: {
@@ -127,30 +123,6 @@
           }
       },
 
-      observers: [
-        "_labelsChanged(labels.*)"
-      ],
-
-      _labelsChanged: function(changerecord){
-        if(changerecord.path == "labels.length" && changerecord.value > 0) {
-        // if(changerecord.path == "labels.splices") {
-          // if(changerecord.value.indexSplices[0].removed.length > 0) {
-            // this._clearExceeding();
-            // this.splice("data",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
-            // this.splice("ids",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
-            // this.splice("groups",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
-            // this.splice("groupingKeys",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
-            // this.splice("preferedGroupingKeys",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
-            // this.splice("keys",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
-            // this.splice("types",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
-            // this.splice("unnamedTypes",changerecord.value.indexSplices[0].index,changerecord.value.indexSplices[0].removed.length);
-          // }
-          // console.log("init");
-          // this._init;
-        // }
-        }
-      },
-
       ready: function(){
         this.socket = io.connect('https://'+window.location.host+this.socketname, {secure: true});
         this.set("status.time.lastStatus",new Date()); this.set("status.message", "connecting to "+window.location.host);
@@ -166,9 +138,18 @@
       connect: function() {
         // send Config
         this.set("status.time.lastStatus",new Date()); this.set("status.message", "configuring connection");
-        this.set("config.firstPattern.time.from",new Date()-3600000)
-        this.set("config.labels",this.labels);
-        this.socket.emit('clientConfig', this.config);
+
+        // Setting Configuration Request Pattern Array
+        var options = { patterns: [] };
+        this.set("config.firstPattern.time.from",new Date()-72000000);
+        for (var i=0; i<this.labels.length; i++) {
+          options.patterns.push({label: this.labels[i],
+                        firstPattern: this.config.firstPattern,
+                        appendPattern: this.config.appendPattern});
+        }
+        // TODO(Hannes): Abfragen funktioniert an Server nicht
+        // console.log(JSON.stringify(options));
+        this.socket.emit('clientConfig', options);
 
         var self = this;
         // Receiving the FIRST Data

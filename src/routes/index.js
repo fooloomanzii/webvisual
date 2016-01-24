@@ -2,6 +2,9 @@
 
 module.exports = function(app, passport, config_auth) {
 
+  require('./passport_strategies/activedirectory.js')(passport, config_auth.ldap); // register custom ldap-passport-stategy
+  require('./passport_strategies/dummy.js')(passport); // register dummy-stategy
+
   app.get('/', loggedIn, function (req, res) {
       res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
       res.render('index', { user : req.user });

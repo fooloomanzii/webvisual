@@ -116,52 +116,17 @@ function connect (config, server, err) {
     socket.emit('clientConfig', message);
 
     socket.on('clientConfig', function(options) {
-      // To Hannes: das soll bei dem client gebastelt sein
-      //-------------- Need to be implemented by Client -----------------
-      options.patterns=[ {
-        "label": "HNF-GDS-Test",
-        "firstPattern": {
-          "query": {},
-          "time": {
-            "from": "2015-11-01"
-          },
-          "limit": -1
-        },
-        "appendPattern": {
-          "query": {},
-          "time": {
-            "from": "2015-11-01"
-          },
-          "limit": -1
-        }
-      },
-      {
-        "label": "DBTest",
-        "firstPattern": {
-          "query": {},
-          "time": {
-            "from": "2015-11-01"
-          },
-          "limit": -1
-        },
-        "appendPattern": {
-          "query": {},
-          "time": {
-            "from": "2015-11-01"
-          },
-          "limit": -1
-        }
-      }];
-      //-------------------------------------------------------------
 
-
+      // TODO(Hannes): firtPattern Abfragen funktionieren nicht (eventuell auch die AppendPattern nicht)
+      //               weder über die limit-Werte oder über time.from
       var current_client = new Client(socket, options);
-
+      
       // go through all patterns and collect the data, the client needs
       async.map(current_client.patterns,
           function(pattern, async_callback){
             if(indexOfLabel[pattern.label] === undefined){
               // Client asks for nonexistent label
+              console.log(JSON.stringify(pattern));
               handleErrors(new Error("label: "+pattern.label+" is undefined"));
               return;
             }
@@ -212,8 +177,6 @@ function connect (config, server, err) {
   });
 
 
-
-
 // Function to serve the clients with new data each updateIntervall of time
 // updateIntervall is the time interval in milliseconds
   var serve_clients_with_data = function(updateIntervall){
@@ -226,6 +189,8 @@ function connect (config, server, err) {
             if(!tmpDB) return; // tmpDB is undefined
 
             // look if clients need data from the switched temporary database
+            // TODO(Hannes): Clients sollten nicht existieren, wenn keiner verbunden ist
+            //               aber es sollte die Datenbank trotzdem gefüllt werden
             async.each(clients,
                 function(client, async_callback){
                   var search_pattern;

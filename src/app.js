@@ -16,7 +16,6 @@ var // EXPRESS
     // DATA-MODULE
     dataModule = require('./data_module'),
     // Routing
-    ActiveDirectory = require('activedirectory'),
     xFrameOptions = require('x-frame-options'),
     session       = require('express-session'),
     passport      = require('passport'),
@@ -119,9 +118,6 @@ app.use(session({
 
 // Prevent Clickjacking
 app.use(xFrameOptions());
-
-require('./routes/passport_strategies/activedirectory.js')(passport, config.auth.ldap); // register custom ldap-passport-stategy
-require('./routes/passport_strategies/dummy.js')(passport); // register dummy-stategy
 
 app.use(passport.initialize());
 app.use(passport.session());
