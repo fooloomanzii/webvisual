@@ -69,14 +69,14 @@ function connect (config, server, err) {
   var dataFile = [];
 
   for (var i = 0; i < configArray.length; i++) {
-    var label = configArray[i].database.name;
+    var label = configArray[i].label;
     // labels (database names) are unique
-    if(dataLabels.indexOf(label) != -1) 
+    if(dataLabels.indexOf(label) != -1)
       throw new Error('Multiple occurrences of Label: "'+label+'"\n'+
           'Database Names needs to be unique!!')
-      
+
     dataLabels.push( label );
-    
+
     indexOfLabel[label] = i;
     dataConf.push(configuration.arrangeTypes( configArray[i].locals ));
 
@@ -91,10 +91,10 @@ function connect (config, server, err) {
           },
         data: function(type, data, data_index) {
             if(!data || data.length == 0 ) return;  // Don't handle empty data
-          
+
             // Process data to certain format
             var currentData = dataMerge( dataConf[data_index], {exceeds: threshold(data, dataConf[data_index].types), data: data } );
-              
+
             // Save new Data in Database and send for each client the updated Data
             dbController.appendData(data_index,
                 currentData.content,
@@ -116,52 +116,17 @@ function connect (config, server, err) {
     socket.emit('clientConfig', message);
 
     socket.on('clientConfig', function(options) {
-      // To Hannes: das soll bei dem client gebastelt sein
-      //-------------- Need to be implemented by Client -----------------
-      options.patterns=[ {
-        "label": "HNF-GDS-Test",
-        "firstPattern": {
-          "query": {},
-          "time": {
-            "from": "2015-11-01"
-          },
-          "limit": -1
-        },
-        "appendPattern": {
-          "query": {},
-          "time": {
-            "from": "2015-11-01"
-          },
-          "limit": -1
-        }
-      },
-      {
-        "label": "DBTest",
-        "firstPattern": {
-          "query": {},
-          "time": {
-            "from": "2015-11-01"
-          },
-          "limit": -1
-        },
-        "appendPattern": {
-          "query": {},
-          "time": {
-            "from": "2015-11-01"
-          },
-          "limit": -1
-        }
-      }];
-      //-------------------------------------------------------------
-      
 
+      // TODO(Hannes): firtPattern Abfragen funktionieren nicht (eventuell auch die AppendPattern nicht)
+      //               weder über die limit-Werte oder über time.from
       var current_client = new Client(socket, options);
-
+      
       // go through all patterns and collect the data, the client needs
       async.map(current_client.patterns,
           function(pattern, async_callback){
             if(indexOfLabel[pattern.label] === undefined){
               // Client asks for nonexistent label
+              console.log(JSON.stringify(pattern));
               handleErrors(new Error("label: "+pattern.label+" is undefined"));
               return;
             }
@@ -212,20 +177,20 @@ function connect (config, server, err) {
   });
 
 
-  
-  
 // Function to serve the clients with new data each updateIntervall of time
 // updateIntervall is the time interval in milliseconds
   var serve_clients_with_data = function(updateIntervall){
     // Send new data on constant time intervals
     setInterval(
       function(){
-        // for every label, switch the representing temporary database 
+        // for every label, switch the representing temporary database
         dataLabels.forEach( function(label, i){
           dbController.switchTmpDB(i, function(tmpDB, tmp_index){
             if(!tmpDB) return; // tmpDB is undefined
 
-            // look if clients need data from the switched temporary database 
+            // look if clients need data from the switched temporary database
+            // TODO(Hannes): Clients sollten nicht existieren, wenn keiner verbunden ist
+            //               aber es sollte die Datenbank trotzdem gefüllt werden
             async.each(clients,
                 function(client, async_callback){
                   var search_pattern;
@@ -285,7 +250,7 @@ function connect (config, server, err) {
 
   async.forEachOf(configArray,
       function(config, index, async_callback){
-
+        config.database.name = config.label;
         config.database.device_properties = config.locals.unnamedType;
         dbController.createConnection(config.database, index);
 
@@ -310,7 +275,7 @@ function connect (config, server, err) {
 
         // make the Server available for Clients
         server.listen(config.port);
-        
+
 //TODO do serve_clients_with_data in dbcontroller
         serve_clients_with_data(config.updateIntervall);
       }

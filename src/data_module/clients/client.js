@@ -13,13 +13,13 @@ var Client = (function() {
     if(options == null) options = {};
     // check if optons has '.patterns'
     _.defaults(options, default_client_options);
-    
+
     // check every pattern for existence of important subobjects
     options.patterns.map(function(pattern){
       _.defaults(pattern, default_client_options.patterns[0]);
       return pattern;
     });
-    
+
     this.patterns = options.patterns;
   }
 

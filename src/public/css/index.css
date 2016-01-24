@@ -9,26 +9,27 @@ body, html {
 }
 paper-button iron-icon {
   margin-left: 0.5em;
-  margin-right: 1em;
+  margin-right: 0.75em;
   min-width: 1.5em;
 }
 paper-item iron-icon {
-  margin-left: 0.25em;
-  margin-right: 1em;
+  margin-left: 0.5em;
+  margin-right: 0.75em;
   min-width: 1.5em;
 }
 paper-button: {
-  transition: none;
+  border-top: thin solid rgba(200, 200, 200, 0);
+  border-bottom: thin solid  rgba(200, 200, 200, 0);
+}
+paper-button:hover {
+  border-top: thin solid rgba(200, 200, 200, 0.3);
+  border-bottom: thin solid  rgba(200, 200, 200, 0.3);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.02) 5%,rgba(50,50,50,0.10) 40%);
 }
 paper-button.sidemenu {
   padding: 1.3em 0.8em;
   border-top: thin solid rgba(200, 200, 200, 0);
   border-bottom: thin solid  rgba(200, 200, 200, 0);
-}
-paper-button.sidemenu:hover {
-  background: linear-gradient(to bottom, rgba(0,0,0,0.02) 5%,rgba(50,50,50,0.10) 40%);
-  border-top: thin solid rgba(200, 200, 200, 0.3);
-  border-bottom: thin solid  rgba(200, 200, 200, 0.3);
 }
 paper-button iron-icon.right-icon{
   margin: 0em 0.65em;
@@ -45,6 +46,18 @@ paper-button .content{
   align-items: center;
   flex-direction: row;
 }
+paper-icon-button {
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+paper-icon-button:hover {
+  background: rgba(255,255,255, 0.15);
+  color: currentColor;
+  border-radius: 50%;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+              0 1px 5px 0 rgba(0, 0, 0, 0.12),
+              0 3px 1px -2px rgba(0, 0, 0, 0.2);
+}
+
 paper-item.sidemenu {
   font-size: 0.85em;
 }
@@ -56,11 +69,11 @@ paper-item.date {
 }
 paper-radio-button  {
   display: block;
+  font-family: Light;
   padding: 0.5em 1em;
   font-size: 0.85em;
 }
 paper-toggle-button {
-  display: block;
   font-size: 0.85em;
 }
 .collapse-content paper-button {
@@ -85,6 +98,7 @@ paper-toggle-button {
 }
 paper-dialog {
   font-family: Light !important;
+  color: #1f1f1f;
 }
 paper-dialog[dark] {
   background: #8A8A8A;
@@ -92,7 +106,9 @@ paper-dialog[dark] {
 paper-dialog h2 {
   font-family: Light !important;
   margin: 0em;
-  padding: 1em 2em;
+  display: flex;
+  align-items: center;
+  padding: 0.5em 0.75em 0.5em 1.25em;
   border-radius: 5px 5px 0px 0px;
 }
 paper-dialog > *:first-child {
@@ -101,6 +117,8 @@ paper-dialog > *:first-child {
 paper-dialog paper-button {
   color: #1f1f1f;
   padding: 0.5em !important;
+  border-top: thin solid rgba(200, 200, 200, 0);
+  border-bottom: thin solid  rgba(200, 200, 200, 0);
   margin: 0;
 }
 paper-dialog paper-button[disabled] {
@@ -115,6 +133,9 @@ paper-dialog paper-dialog-scrollable {
   padding-bottom: 1em !important;
   margin: 0px !important;
   font-size: 0.95em;
+}
+.flex {
+  flex: 1;
 }
 
 /*
@@ -144,6 +165,13 @@ paper-dialog paper-dialog-scrollable {
 @font-face {
  font-family: Bold;
  src: url('fonts/FiraSans-SemiBold.otf') format('truetype');
+ font-weight: normal;
+ font-style: normal;
+}
+/* Polymer Elements Issue */
+@font-face {
+ font-family: Roboto;
+ src: url('fonts/FiraSans-ExtraLight.otf') format('truetype');
  font-weight: normal;
  font-style: normal;
 }

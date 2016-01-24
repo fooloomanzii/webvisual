@@ -2,9 +2,7 @@ doctype html
 html
   head
     title Webvisual Login
-    |   
     meta(name='viewport', content='width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes')
-    |   
     link(href='css/index.css', type='text/css', rel='stylesheet')
   style.
     body {
@@ -58,7 +56,7 @@ html
       border: 1px solid #555;
       border-radius: 0.5em;
       outline: 0;
-      text-align: start; 
+      text-align: start;
     }
     input:focus {
       border-color: #666;
@@ -74,7 +72,7 @@ html
     section#dnbase {
       font-size: 1em;
       padding-left: 0.5em;
-      flex: 1;
+      //- flex: 1;
     }
     button {
       margin-top: 3em;
@@ -103,12 +101,9 @@ html
       h1 Webvisual Login
       form#formPost(method='post', action='/login/')
         label(for='username') Username
-        section#username   
+        section#username
           input#username(name='username', type='text')
-          section#dnbase @ibn-net.kfa-juelich.de         
+          section#dnbase @ibn-net.kfa-juelich.de
         label(for='password') Password
-        input#password(name='password', type='password')  
-        button(type='submit')
-          | Login
-    |   
-    script.
+        input#password(name='password', type='password')
+        button(type='submit') Login
