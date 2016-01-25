@@ -39,9 +39,11 @@ function handleErrors(errors, id_message){
   }
   if(id_message === undefined) id_message="";
   else id_message+=": ";
-  var output = id_message + "\n" + errors + "\n";
-  if ( errors.stack !== undefined ) output+= errors.stack+"\n";
-  console.warn( output);
+  var output = id_message
+                +require('util').inspect(errors) //similar to JSON.stringify(), but shows more information
+                +"\n";
+  if ( errors.stack !== undefined ) output+= errors.stack + "\n";
+  console.warn( output );
 }
 
 function connect (config, server, err) {
