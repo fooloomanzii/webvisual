@@ -6,6 +6,7 @@
 <link rel="import" href="../../components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../components/paper-item/paper-item.html">
 <link rel="import" href="../../components/paper-input/paper-input.html">
+<link rel="import" href="../../components/iron-list/iron-list.html">
 <link rel="import" href="../../components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../main-toolbar.html"/>
 <dom-module id="main-page">
@@ -272,6 +273,21 @@
       33%  {color: #f64756;}
       100% {color: #f4959d;}
     }
+
+    iron-list {
+        padding-top: 1px;
+        padding-bottom: 16px;
+        -webkit-flex: 1 1;
+        flex: 1 1;
+        --iron-list-items-container: {
+          max-width: 800px;
+          margin: auto;
+          margin-top: 60px;
+          margin-bottom: 60px;
+          border-bottom: 1px solid #ddd;
+        };
+      }
+
   </style>
 
   <template>
@@ -429,7 +445,34 @@
 
         <section main id="mainContent">
 
-          <template id="maintemplate" is="dom-repeat" items="[[data]]" as="labelItem" index-as="labelindex" filter="filterSelectedLabel">
+
+          <!-- TODO(Hannes): Datenstruktur ändern, sodass es eher aussieht wie    data : { label1: [{id: ...},..], label2: [{id: ...},..] } -->
+              <!-- <iron-list items="[[data]]" as="sets">
+                <template>
+                  <div>
+                    <h2>Set</h2>
+                    <template is="dom-repeat" items="[[sets]]" as="sign">
+                      <div>
+                        <h1>{{sign.id}}</h1>
+                        <template is="dom-repeat" items="[[getAllKeys(data.*,sign)]]" as="key">
+                          <span id="[[key]]">[[getElementsKey(sign,key)]]</span>
+                        </template>
+                        <iron-list items="[[sign.values]]" as="values">
+                          <template>
+                            <div>
+                              {{values.x}}
+                            </div>
+                          </template>
+                        </iron-list>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+              </iron-list> -->
+
+
+          <template id="maintemplate" is="dom-repeat" items="{{data}}" as="labelItem" index-as="labelindex" filter="filterSelectedLabel">
+
             <template class="labeltemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupItems" sort="sortGroup">
 
                 <post-card class="group" selected-ids="{{groupItems.ids}}" headline="{{groupItems.name}}" without-window="[[withoutWindow]]" dark$="[[dark]]">
@@ -577,6 +620,13 @@
         var selectedLabelId = this._computeSelectedLabelId(labelindex);
         if (Array.isArray(this.groupingKeys[selectedLabelId])) {
           return this.groupingKeys[selectedLabelId];
+        }
+        else return [];
+      },
+
+      getAllKeys: function(change, element) {
+        if (element) {
+            return Object.keys(element);
         }
         else return [];
       },

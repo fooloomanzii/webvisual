@@ -141,7 +141,7 @@
 
         // Setting Configuration Request Pattern Array
         var options = { patterns: [] };
-        this.set("config.firstPattern.time.from",new Date()-72000000);
+        // this.set("config.firstPattern.time.from",new Date()-72000000);
         for (var i=0; i<this.labels.length; i++) {
           options.patterns.push({label: this.labels[i],
                         firstPattern: this.config.firstPattern,

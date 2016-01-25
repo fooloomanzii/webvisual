@@ -122,6 +122,9 @@
     filterSelectedLabel: function(dataItem) {
       return (this._computeSelectedLabelId(this.selectedLabel) === this.data.indexOf(dataItem));
     },
+    filterLabel: function(dataItem,selectedlabel) {
+      return (this._computeSelectedLabelId(selectedLabel) === this.data.indexOf(dataItem));
+    },
     _removeAllExceedingElements: function(all) {
       if (all != false)
         all = true;
