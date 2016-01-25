@@ -97,6 +97,7 @@ DBController.prototype.connect = function(index, callback){
   this.checkIndex(index);
   
   // Events forwarding
+  var self = this;
   this.deviceModels[index].on('error', function(err) { self.emit('error', err); });
   
   // Establish the connection to the model

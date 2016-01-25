@@ -491,9 +491,8 @@ function save(self, newData, callback){
                  // make sure it's a duplicate
                  storage.findById(newValue._id, function (err, result) {
                    if(err){
-//TODO better handle the error!!
                      console.warn("Error by searching for value: '"+newValue._id+"'!");
-                     return done();
+                     return done(err);
                    }
 
                    // if values are same, and same values don't need
