@@ -1,0 +1,91 @@
+<script src="../../components/jquery/dist/jquery.min.js"></script>
+<script src="../../components/underscore/underscore-min.js"></script>
+<link rel="import" href="../data-socket-repeater.html"/>
+<link rel="import" href="../../components/neon-animation/neon-animation.html"/>
+<link rel="import" href="../juelich-icon.html"/>
+<link rel="import" href="../behaviors/page-behavior.html">
+<link rel="import" href="../behaviors/language-behavior.html">
+<link rel="import" href="../behaviors/element-behavior.html">
+<link rel="import" href="select-page.html"/>
+<link rel="import" href="loading-page.html"/>
+<link rel="import" href="main-page.html"/>
+
+<dom-module id="animated-pages-element">
+
+  <link href="../../css/index.css" type="text/css" rel="stylesheet"/>
+  <style>
+    :host {
+      height: 100%;
+      width: 100%;
+      left: 0;
+      top: 0;
+      position: absolute;
+      background: #669DB4;
+    }
+    :host[dark] {
+      background: #005B82;
+    }
+    #pages {
+      height: 100%;
+      width: 100%;
+      top: 0;
+      left: 0;
+      position: absolute;
+    }
+  </style>
+  <template>
+    <data-socket-repeater id="datasocket"
+      data="{{data}}" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}" available-labels="{{availableLabels}}" labels="[[labels]]" max-total-lines="[[maxLines]]" interval="[[interval]]"
+      groups="{{groups}}" grouping-keys="{{groupingKeys}}" status="{{status}}" prefered-grouping-keys="{{preferedGroupingKeys}}">
+    </data-socket-repeater>
+    <neon-animated-pages id="pages" selected="0">
+      <select-page id="selectPage" available-labels="[[availableLabels]]" labels="{{labels}}"></select-page>
+      <loading-page id="loadPage" status="[[status]]"></loading-page>
+      <main-page id="mainPage" data="[[data]]" exceeding="{{exceeding}}" is-exceeding="[[isExceeding]]" labels="{{labels}}" groups="[[groups]]" grouping-keys="[[groupingKeys]]" max-total-lines="{{maxLines}}" interval="{{interval}}" prefered-grouping-keys="{{preferedGroupingKeys}}" always-show-tabs></main-page>
+    </neon-animated-pages>
+  </template>
+  <script>
+      Polymer({
+        is: 'animated-pages-element',
+        attached: function(){
+          // this.$.pages.set('selected', '0');
+          this.$.selectPage.playAnimation('entry');
+          this.$.selectPage.$.labelsCookie.load();
+        },
+        _onConfigset: function() {
+          this.$.datasocket.opened = false;
+          this.$.datasocket.connect();
+          this.start = new Date();
+          this.$.pages.set('selected', '1');
+        },
+        _onConfigreset: function() {
+          this.$.datasocket.connect();
+        },
+        _onLoaded: function(e) {
+          this.$.mainPage.setGroupBy();
+          var self = this;
+          var wait = new Date() - this.start;
+          this.set("status.time.lastStatus",new Date()); this.set("status.message", "loading...");
+          wait = (wait < 3000) ? 3000 - wait : 0;
+          this.async(function() {
+            // this is a bug in webanimations and and animations with intervall
+              self.$.loadPage.cancelAnimation();
+              self.$.pages.set('selected', '2');
+          },wait);
+        },
+        _onRestart: function() {
+          if (this.availableLabels.length != 1) {
+            this.$.pages.set('selected', '0');
+            this.$.selectPage.$.logo.style.visibility = "visible";
+            this.$.selectPage.playAnimation('entry');
+          }
+        },
+        listeners: {
+          "restart": "_onRestart",
+          "loaded": "_onLoaded",
+          "configset": "_onConfigset",
+          "reconnect": "_onConfigreset"
+        }
+      });
+  </script>
+</dom-module>

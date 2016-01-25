@@ -91,11 +91,12 @@ paper-dialog[dark] {
 }
 paper-dialog h2 {
   font-family: Light !important;
-}
-paper-dialog > *:first-child {
-  margin: 0;
+  margin: 0em;
   padding: 1em 2em;
   border-radius: 5px 5px 0px 0px;
+}
+paper-dialog > *:first-child {
+    margin-top: 0px !important;
 }
 paper-dialog paper-button {
   color: #1f1f1f;
@@ -116,9 +117,6 @@ paper-dialog paper-dialog-scrollable {
   font-size: 0.95em;
 }
 
-paper-radio-button[checked] #onRadio.paper-radio-button {
-  background: #005B82;
-}
 /*
  * Fonts
  */

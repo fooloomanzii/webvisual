@@ -4,71 +4,65 @@
 <dom-module id="loading-page">
   <style>
     :host {
-      color: white;
+      height: 100%;
+      width: 100%;
+      left: 0;
+      top: 0;
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #f1f1f1;
+      font-family: Regular;
+      line-height: 1.2;
     }
     :host[dark] {
       color: #A8CCDB;
     }
-    section#mainContent {
+    section#background {
+      position: absolute;
+      background: radial-gradient(rgba(0, 91, 130,1) 80%,rgba(0, 91, 130,0.8) 100%);
       height: 100%;
       width: 100%;
-      position: fixed;
-      background: #669DB4;
-      z-index: 50;
+      left: 0;
+      top: 0;
+      z-index: 0;
     }
-    section#mainContent[dark] {
-      background: #345475;
+    section#background[dark] {
+      background: radial-gradient(rgba(52, 84, 117,1) 80%,rgba(52, 84, 117,0.8) 100%);
     }
-    /*@media all and (min-width: 0px) and (max-width: 950px) , all and (orientation: portrait) {
-      logo-element {
-        height: 20vw !important;
-        width: 62vw !important;
-      }
-      section#messageBox {
-        width: 61vw !important;
-      }
-    }*/
-    section#logo-container {
-      position: fixed;
+    section#mainContent {
       display: flex;
-      justify-content: center;
-      left: 19vw;
-      height: 100%;
-      align-items: center;
       flex-direction: column;
-      z-index: 100;
+      align-items: center;
+      vertical-align: middle;
+      box-sizing: border-box;
+      padding: 1.5em 1.5em 1.5em 1.5em;
+      z-index: 0;
+      height: 50vh;
+      max-width: 68vw;
     }
     logo-element {
-      width: 62vw;
       align-items: flex-end;
-      height: 62%;
-      z-index: 100;
-      flex: 3;
-    }
-    section.lower {
-      align-self: stretch;
-      flex: 1;
-      justify-content: space-around;
-      align-items: center;
-      display: flex;
-      flex-direction: column;
-      font-family: Thin;
-      z-index: 100;
+      z-index: inherit;
+      height: 100%;
+      max-width: 100%;
     }
     circle-element, section#messageBox {
-      z-index: 100;
+      z-index: inherit;
+      margin-top: 3em;
+      font-family: Light;
     }
   </style>
 
   <template>
-    <section id="logo-container">
+    <section id="background"></section>
+    <section id="mainContent">
       <logo-element id="logo"></logo-element>
-      <section class="lower">
-        <circle-element id="circle"></circle-element>
-        <section id="messageBox">[[status.message]]</section>
-      </section>
+      <circle-element id="circle"></circle-element>
+      <section id="messageBox">[[status.message]]</section>
     </section>
-    <section id="mainContent"></section>
   </template>
 
   <script>
@@ -92,9 +86,8 @@
         sharedElements: {
           value: function() {
             return {
-              'herologo1': this.$.logo,
-              'herologo2': this.$.logo.$.logo,
-              'herobackground':  this.$.mainContent
+              'herologo1': this.$.logo.$.logo,
+              'herologo2': this.$.logo
             }
           }
         },
@@ -103,14 +96,17 @@
             return {
               'entry': [
                 {
-                  name: 'ripple-animation',
-                  id: 'herobackground',
-                  toPage: this
-                },
-                {
                   name: 'hero-animation',
                   id: 'herologo1',
                   toPage: this
+                },
+                {
+                  name: 'scale-up-animation',
+                  node: this.$.logo.$.script
+                },
+                {
+                  name: 'fade-in-animation',
+                  node: this.$.logo.$.script
                 },
                 {animatable: this.$.circle, type: 'loading'}
               ],
@@ -122,7 +118,7 @@
                 },
                 {
                   name: 'scale-down-animation',
-                  node: this.$.mainContent
+                  node: this.$.background
                 }
               ]
             }

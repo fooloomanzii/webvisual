@@ -9,6 +9,7 @@
 <link rel="import" href="../../components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../main-toolbar.html"/>
 <dom-module id="main-page">
+  <link rel="import" href="../../css/index.css" type="css"/>
   <style>
     :host {
       font-family: Regular;
@@ -16,9 +17,11 @@
       font-size: 1em;
       display: flex;
       flex-direction: column;
-      position: relative;
-      width: 100%;
       height: 100%;
+      width: 100%;
+      left: 0;
+      top: 0;
+      position: absolute;
     }
     paper-drawer-panel {
       position: relative;
@@ -274,7 +277,7 @@
 
   <template>
 
-    <logo-element id="logo"></logo-element>
+    <logo-element id="logo" on-tap="backToMainMenu"></logo-element>
     <main-toolbar id="toolbar" class="paper-header" on-deselect="deselectElement" opened="[[opened]]">
       <paper-icon-button icon="menu" class="menu-icon" on-tap="togglePanel"></paper-icon-button>
       <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsDialog" hidden$="[[!isExceeding]]"></paper-icon-button>
@@ -701,7 +704,7 @@
       },
 
       backToMainMenu: function() {
-        this.togglePanel();
+        this.$.mainView.closeDrawer();
         this.fire("restart");
       },
 
