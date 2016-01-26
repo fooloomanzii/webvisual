@@ -97,7 +97,7 @@ function connect (config, server, err) {
             // Process data to certain format
             var currentData = dataMerge( dataConf[data_index], {exceeds: threshold(data, dataConf[data_index].types), data: data } );
 
-            // Save new Data in Database and send for each client the updated Data
+            // Save new Data in Database 
             dbController.appendData(data_index,
                 currentData.content,
                 function (err, appendedData, cb_index) {
@@ -119,8 +119,6 @@ function connect (config, server, err) {
 
     socket.on('clientConfig', function(options) {
 
-      // TODO(Hannes): firtPattern Abfragen funktionieren nicht (eventuell auch die AppendPattern nicht)
-      //               weder über die limit-Werte oder über time.from
       var current_client = new Client(socket, options);
       
       // go through all patterns and collect the data, the client needs
@@ -191,8 +189,6 @@ function connect (config, server, err) {
             if(!tmpDB) return; // tmpDB is undefined
 
             // look if clients need data from the switched temporary database
-            // TODO(Hannes): Clients sollten nicht existieren, wenn keiner verbunden ist
-            //               aber es sollte die Datenbank trotzdem gefüllt werden
             async.each(clients,
                 function(client, async_callback){
                   var search_pattern;
@@ -278,7 +274,6 @@ function connect (config, server, err) {
         // make the Server available for Clients
         server.listen(config.port);
 
-//TODO do serve_clients_with_data in dbcontroller
         serve_clients_with_data(config.updateIntervall);
       }
   );

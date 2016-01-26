@@ -147,7 +147,7 @@ var DeviceModel = function(){
   this.num_of_tmps = 3; // number of temporary collections
   this.tmpDB; // temporary collection
   this.tmpIsInUse = false; // true if new data is been currently written to tmpDB
-  this.tmp_switch_callback; // temporary callback pointer
+  this.tmp_switch_callback = []; // queue for temporary callback pointer
 
   // local StorageSchema
   this.StorageSchema = StorageSchema(this.default_storage_size);
@@ -303,26 +303,6 @@ DeviceModel.prototype.setDefaults = function(options, callback){
 };
 
   //--- DeviceSchema Functions --- //
-/*
-* Switches temporary Database to the next one
-* and passes the current one per callback
-*/
-DeviceModel.prototype.switchTmpDB = function(callback){
-  var last_tmpDB = this.tmpDB;
-  // Current state: "this.tmpDB == last_tmpDB" is true
-  this.cur_tmp = (this.cur_tmp + 1) % this.num_of_tmps;
-  // switch the temporary Database
-  this.tmpDB = this.database.model('tmp_'+this.cur_tmp, this.TmpModel.schema);
-  // Current state: "this.tmpDB == last_tmpDB" is false
-  if(callback){
-   // if there are any write operations on tmpDB,
-   //    the callback needs to be called after the end of that operations!
-   if(this.tmpIsInUse) this.tmp_switch_callback = callback;
-   // but if tmpDB isn't currently in use, the callback can be called now
-   else callback(last_tmpDB, this.index);
-  }
-};
-
 //Creates or updates list of devices in database using given array "devices"
 DeviceModel.prototype.setDevices = function(devices, callback){
 //TODO do a test with undefined devices
@@ -348,6 +328,28 @@ DeviceModel.prototype.setDevices = function(devices, callback){
        if(callback) callback(errors, self.index);
      }
   )
+};
+
+/*
+* Switches temporary Database to the next one
+* and passes the current one per callback
+*/
+DeviceModel.prototype.switchTmpDB = function(callback){
+  var last_tmpDB = this.tmpDB;
+  // Current state: "this.tmpDB == last_tmpDB" is true
+  this.cur_tmp = (this.cur_tmp + 1) % this.num_of_tmps;
+  // switch the temporary Database
+  this.tmpDB = this.database.model('tmp_'+this.cur_tmp, this.TmpModel.schema);
+  // Current state: "this.tmpDB == last_tmpDB" is false
+  if(callback){
+   // if there are any write operations on tmpDB,
+   //    the callback needs to be called after the end of that operations!
+   // Also, if any callbacks are waiting in queue, put current one to the end of the queue
+   if(this.tmpIsInUse || this.tmp_switch_callback.length > 0 ) 
+     this.tmp_switch_callback.push(callback);
+   // but if tmpDB isn't currently in use, the callback can be called now
+   else callback(last_tmpDB, this.index);
+  }
 };
 
 /*
@@ -401,11 +403,9 @@ DeviceModel.prototype.append = function (newData, callback) {
    function(errors, appendedData){
      // curr_tmpDB is no longer in use
      self.tmpIsInUse = false;
-     if(self.tmp_switch_callback && curr_tmpDB != self.tmpDB){
-       // "curr_tmpDB != self.tmpDB" checks if self.tmpDB was switched
-       self.tmp_switch_callback(curr_tmpDB, self.index);
-       // Prevent double call of tmp_switch_callback
-       self.tmp_switch_callback = null;
+     if(self.tmp_switch_callback.length > 0){
+       // if there any callbacks in the queue, dequeue and call one
+       self.tmp_switch_callback.shift()(curr_tmpDB, self.index);
      }
 
      // Pass appendedData to the callback if it's needed
