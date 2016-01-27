@@ -66,6 +66,7 @@ function arrangeTypes(locals) {
           group = {};
           group.name = types[i][key];
           group.ids = [ types[i].id ];
+          group.elements = []; // experimental
           groups[key].push(group);
         } else
           groups[key][where].ids.push(types[i].id);

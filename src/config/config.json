@@ -170,9 +170,9 @@
           "preferedGroupingKey": "propA",
 
           "exclusiveGroups": {
-          "propA": [{"name":"Werte", "ids":["id1","id2"]},
-                    {"name":"Alarme", "ids":["id3","id4","id5","id6", "id7","id8"]}
-                   ]
+            "propA": [{"name":"Werte", "ids":["id1","id2"], "elements":[]},
+                      {"name":"Alarme", "ids":["id3","id4","id5","id6", "id7","id8"], "elements":[]}
+                     ]
           }
 
       }

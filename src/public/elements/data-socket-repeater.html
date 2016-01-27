@@ -416,6 +416,29 @@
               this.set("data." + labelindex + '.elements.' + i + "." + key, this.unnamedTypes[labelindex][key]);
           }
         }
+
+        // set indexes and init values-Array
+        for (var k=0; this.groups[labelindex][this.preferedGroupingKeys[labelindex]].length; k++) {
+          if(this.groups[labelindex][this.preferedGroupingKeys[labelindex]][k].ids.indexOf(this.types[labelindex][i].id) !== -1)
+            break;
+        }
+
+        while (i >= this.groups[labelindex][this.preferedGroupingKeys[labelindex]][k].elements.length) {
+          this.push('groups.' + labelindex + '.' + this.preferedGroupingKeys[labelindex] + '.' + k +'.elements', { label: this._getLabelName(labelindex), labelIndex: labelindex, idIndex: i, isExceeding: false, values: [] });
+          this.push('groups.' + labelindex + '.' + this.preferedGroupingKeys[labelindex] + '.' + k +'.elements.' +(this.data[labelindex].elements.length - 1)+'.values', {x: '', y: '', exceeds: null});
+        }
+        // set attributes
+        var key;
+        for (var j=0; j < this.keys[labelindex].length; j++) {
+          key = this.keys[labelindex][j];
+          // only if not set
+          if(key != "values" && !this.groups[labelindex][this.preferedGroupingKeys[labelindex]][k].elements[i][key]){
+            if(this.types[labelindex] && this.types[labelindex][i] && this.types[labelindex][i][key])
+              this.set('groups.' + labelindex + '.' + this.preferedGroupingKeys[labelindex] + '.' + k + '.elements.' + i + "." + key, this.types[labelindex][i][key]);
+            else
+              this.set('groups.' + labelindex + '.' + this.preferedGroupingKeys[labelindex] + '.' + k + '.elements.' + i + "." + key, this.unnamedTypes[labelindex][key]);
+          }
+        }
       },
 
       _checkIfExceedingStateHasToBeSet: function(exceeds, labelindex, i) {
