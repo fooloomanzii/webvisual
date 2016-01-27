@@ -13,6 +13,10 @@
         type: Array,
         value: function() { return []; }
       },
+      filtered: {
+        type: Array,
+        value: function() { return []; }
+      },
       ids: {
         type: Array,
         value: function() { return []; }
@@ -82,7 +86,47 @@
         this.deselectElement();
       }
     },
-    groupElements: function(item,group){
+    _getGroupedElements: function(items, group) {
+      // self = this;
+      var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
+      var icol = Polymer.Collection.get(this.data[selectedLabelId]);
+      for (item in item) {
+        var key = icol.getKey(item);
+        // for (var )
+        if (!this)
+        if (group.name == "all" || group.ids.indexOf(item.id) != -1) {
+          if (this.isSelected(item)) {
+            if (this.toggle) {
+              this.deselect(item);
+            }
+          } else {
+            this.push('selected', item);
+            var skey = this._selectedColl.getKey(item);
+            this.linkPaths('selected.' + skey, 'items.' + key);
+          }
+        } else {
+          if (this.toggle && item == this.selected) {
+            this.deselect();
+          } else {
+            this.selected = item;
+            this.selectedItem = item;
+            this.linkPaths('selected', 'items.' + key);
+            this.linkPaths('selectedItem', 'items.' + key);
+          }
+        }
+      }
+
+      this.push('filtered',items.filter(
+        function(item) {
+          if (group.name == "all" || group.ids.indexOf(item.id) != -1)
+            return true;
+          else
+            return false;
+        }));
+      this.notifyPath('filtered',this.filtered);
+      return this.filtered;
+    },
+    _isInGroup: function(item,group){
       if (group.name == "all")
         return true;
       else if (group.ids && group.ids.indexOf(item.id) != -1)
@@ -120,11 +164,11 @@
     },
     // filter data to selected ids
     filterSelectedLabel: function(dataItem) {
-      return (this._computeSelectedLabelId(this.selectedLabel) === this.data.indexOf(dataItem));
+      return (this.labels[this.selectedLabel] === dataItem.label);
     },
-    filterLabel: function(dataItem,selectedlabel) {
-      return (this._computeSelectedLabelId(selectedLabel) === this.data.indexOf(dataItem));
-    },
+    // filterLabel: function(dataItem,selectedlabel) {
+    //   return (this._computeSelectedLabelId(selectedLabel) === this.data.indexOf(dataItem));
+    // },
     _removeAllExceedingElements: function(all) {
       if (all != false)
         all = true;

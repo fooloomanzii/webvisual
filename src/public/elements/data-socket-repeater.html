@@ -22,7 +22,7 @@
                         "appendPattern": {
                           "query": {},
                           "time": { "from": "" },
-                          "limit": -1
+                          "limit": 0
                         }};
               }
           },
@@ -210,7 +210,7 @@
         this.set('types',[]);
         this.set('unnamedTypes',[]);
         for (var i=0; i<this.availableLabels.length; i++){
-          this.push('data',[]);
+          this.push('data',{label: this.availableLabels[i], elements:[]});
           this.push('ids',[]);
           this.push('groups',[]);
           this.push('groupingKeys',[]);
@@ -234,7 +234,7 @@
         for (var mesId=0; mesId < message.length; mesId++) {
           // for Polymer (to notice Array change) special treatment to integrate data
           if (message[mesId].label) {
-            var labelindex = this._getlabelIndex(message[mesId].label);
+            var labelindex = this._getLabelIndex(message[mesId].label);
           }
           else {
             this.set("status.time.lastError", new Date());
@@ -276,14 +276,10 @@
           this.set("status.time.lastData", time);
           if (Array.isArray(message)){ // if message is an Array
             for (var mesId=0; mesId < message.length; mesId++) {
-              if (message[mesId].label) { // get the sent labelindex
-                var labelindex = this._getlabelIndex(message[mesId].label);
-              }
-              else {
-                this.set("status.time.lastError", new Date());
-                console.warn("data not sent in proper format. --> missing name for the content");
-                return;
-              }
+              // get the sent labelindex
+              // important: set label serverside for each sent object
+              //            alse not checked if labels are not selected for effiency
+              var labelindex = this._getLabelIndex(message[mesId].label);
               if (labelindex !== undefined) {
                 for (var i in message[mesId].content) { // for all messurement-data-alements existing
                   if (message.content[i].id) {
@@ -296,7 +292,7 @@
           }
           else { // if message is a single Object
             if (message.label) { // get the sent labelindex
-              var labelindex = this._getlabelIndex(message.label);
+              var labelindex = this._getLabelIndex(message.label);
             }
             else {
               this.set("status.time.lastError", new Date());
@@ -325,14 +321,14 @@
           return undefined;
       },
 
-      _getlabelIndex: function(labelName) {
+      _getLabelIndex: function(labelName) {
         if (this.labels.indexOf(labelName) != -1 && this.availableLabels.indexOf(labelName) != -1)
           return this.availableLabels.indexOf(labelName);
         else // if it isn't selected then return undefined
           return undefined;
       },
 
-      _getlabelName: function(labelindex) {
+      _getLabelName: function(labelindex) {
         return this.availableLabels[labelindex];
       },
 
@@ -380,22 +376,22 @@
 
       _setValues: function(labelindex, messageContent, i) {
         if (!this.doAppend)
-          while (this.data[labelindex][i].values.length > 0)
-            this.pop("data." + labelindex + "." + i + ".values");
+          while (this.data[labelindex].elements[i].values.length > 0)
+            this.pop("data." + labelindex + '.elements.' + i + ".values");
         if (this.newestDataLast) {
           for (var j=0; j < messageContent.values.length; j++) {
-            this.unshift("data." + labelindex + "." + i + ".values", messageContent.values[j]);
+            this.unshift("data." + labelindex + '.elements.' + i + ".values", messageContent.values[j]);
             this._checkIfExceedingStateHasToBeSet(messageContent.values[j].exceeds, labelindex, i);
           }
         }
         else {
           for (var j=messageContent.values.length-1; j >=0; j--) {
-            this.unshift("data." + labelindex + "." + i + ".values", messageContent.values[j]);
+            this.unshift("data." + labelindex + '.elements.' + i + ".values", messageContent.values[j]);
             this._checkIfExceedingStateHasToBeSet(messageContent.values[j].exceeds, labelindex, i);
           }
         }
-        if (this.data[labelindex][i].values.length > this.maxLines)
-          this.splice("data." + labelindex + "." + i + ".values", this.maxLines, this.data[labelindex][i].values.length - this.maxLines);
+        if (this.data[labelindex].elements[i].values.length > this.maxLines)
+          this.splice("data." + labelindex + '.elements.' + i + ".values", this.maxLines, this.data[labelindex][i].values.length - this.maxLines);
 
         // if (messageContent.lastExceeds)
         //   this.set("data." + labelindex + "." + i + ".lastExceeds", messageContent.lastExceeds);
@@ -403,69 +399,58 @@
 
       // init datapoint, but it doesn't overwrite datavalues, if the datapoint existed before and has matching labels
       _initDataPoint: function(labelindex, i) {
-        while (labelindex >= this.data.length)
-          this.push("data", []);
-        while (i >= this.data[labelindex].length)
-          this.push("data." + labelindex, {});
-
-        // value attributes (won't be deleted for the client, if they exist for the same labelname)
-        if (!this.data[labelindex][i].labelname || this.data[labelindex][i].labelname !== this._getlabelName(labelindex)) {
-          this.set("data." + labelindex + "." + i+ ".labelname", this._getlabelName(labelindex));
-          this.set("data." + labelindex + "." + i + ".values", []);
-          this.push("data." + labelindex + "." + i + ".values", {"x":"","y":"","exceeds": null});
+        // set indexes and init values-Array
+        while (i >= this.data[labelindex].elements.length) {
+          this.push('data.' + labelindex + '.elements', { label: this._getLabelName(labelindex), labelindex: labelindex, idindex: i, isExceeding: false, values: [] });
+          this.push('data.' + labelindex + '.elements.' +(this.data[labelindex].elements.length - 1)+'.values', {x: '', y: '', exceeds: null});
         }
-
-        // extra attributes
-        this.set("data." + labelindex + "." + i+ ".labelindex", labelindex);
-        this.set("data." + labelindex + "." + i+ ".index", i);
-        this.set("data." + labelindex + "." + i + ".isExceeding", false);
-
+        // set attributes
         var key;
-        // configuartion
         for (var j=0; j < this.keys[labelindex].length; j++) {
           key = this.keys[labelindex][j];
-          if(key != "values" && !this.data[labelindex][i][key]){
+          // only if not set
+          if(key != "values" && !this.data[labelindex].elements[i][key]){
             if(this.types[labelindex] && this.types[labelindex][i] && this.types[labelindex][i][key])
-              this.set("data." + labelindex + "." + i + "." + key, this.types[labelindex][i][key]);
+              this.set("data." + labelindex + '.elements.' + i + "." + key, this.types[labelindex][i][key]);
             else
-              this.set("data." + labelindex + "." + i + "." + key, this.unnamedTypes[labelindex][key]);
+              this.set("data." + labelindex + '.elements.' + i + "." + key, this.unnamedTypes[labelindex][key]);
           }
         }
       },
 
       _checkIfExceedingStateHasToBeSet: function(exceeds, labelindex, i) {
         if (exceeds === null) {
-          if(this.data[labelindex][i].isExceeding) {
+          if(this.data[labelindex].elements[i].isExceeding) {
             this.set("data." + labelindex + "." + i + ".isExceeding", false);
             this._removeExceedingElement(labelindex, i);
           }
         }
         else if (exceeds === true || exceeds === false) {
-          var item = Polymer.Collection.get(this.data[labelindex]).getItem('#'+i);
+          var item = Polymer.Collection.get(this.data[labelindex].elements).getItem('#'+i);
           if(item && Polymer.Collection.get(this.exceeding).getKey(item) === undefined) {
             this.push('exceeding', item);
             var key = Polymer.Collection.get(this.exceeding).getKey(item);
-            this.linkPaths('exceeding.' + key, 'data.#' + labelindex + ".#" + i);
-            this.set("isExceeding",true);
-            this.set("data." + labelindex + "." + i + ".isExceeding", true);
+            this.linkPaths('exceeding.' + key, 'data.#' + labelindex + ".elements.#" + i);
+            this.set("isExceeding", true);
+            this.set("data." + labelindex + ".elements." + i + ".isExceeding", true);
           }
         }
       },
 
       _addExceedingElement: function(labelindex,index) {
-        var item = Polymer.Collection.get(this.data[labelindex]).getItem('#'+index);
+        var item = Polymer.Collection.get(this.data[labelindex].elements).getItem('#'+index);
         if(item && Polymer.Collection.get(this.exceeding).getKey(item) === undefined) {
           this.push('exceeding', item);
           var key = Polymer.Collection.get(this.exceeding).getKey(item);
-          this.linkPaths('exceeding.' + key, 'data.#' + labelindex + ".#" + index);
+          this.linkPaths('exceeding.' + key, 'data.#' + labelindex + ".elements.#" + index);
           //this.notifyPath('exceeding.#' + key + '.values', this.exceeding[key].values);
           this.set("isExceeding",true);
         }
       },
 
       _removeExceedingElement: function(labelindex,index) {
-        if(this.data[labelindex] && this.data[labelindex][index]) {
-          var item = Polymer.Collection.get(this.data[labelindex]).getItem('#'+index);
+        if(this.data[labelindex].elements && this.data[labelindex].elements[index]) {
+          var item = Polymer.Collection.get(this.data[labelindex].elements).getItem('#'+index);
           var key = Polymer.Collection.get(this.exceeding).getKey(item);
           if(item && key) {
             this.arrayDelete('exceeding', item);

@@ -477,8 +477,8 @@
 
                 <post-card class="group" selected-ids="{{groupItems.ids}}" headline="{{groupItems.name}}" without-window="[[withoutWindow]]" dark$="[[dark]]">
 
-                  <template is="dom-repeat" items="{{labelItem}}" as="element">
-                    <template is="dom-if" if="{{groupElements(element,groupItems)}}" restamp>
+                  <template is="dom-repeat" items="{{labelItem.elements}}" as="element">
+                    <template is="dom-if" if="{{_isInGroup(element,groupItems)}}" restamp>
                       <section class="card" on-tap="setSelectedElement" dark$="[[dark]]">
 
                           <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding-element="_checkExceedingDialog"></sign-element>
