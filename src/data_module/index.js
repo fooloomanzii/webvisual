@@ -100,9 +100,7 @@ function connect (config, server, err) {
             // Save new Data in Database 
             dbController.appendData(data_index,
                 currentData.content,
-                function (err, appendedData, cb_index) {
-                  if(err) handleErrors(err, "appendData "+cb_index);
-                }
+                function (appendedData, cb_index) { }
             );
         }
       }
@@ -133,8 +131,7 @@ function connect (config, server, err) {
             // use firstPattern to look for the data in corresponding database
             // first argument is the index of database to query
             dbController.getData(indexOfLabel[pattern.label], pattern.firstPattern,
-                function (err, data, index) {
-                  if(err) handleErrors(err, "getData "+index);
+                function (data, index) {
 
                   var message_chunk = {
                       label : dataLabels[index],
@@ -201,13 +198,9 @@ function connect (config, server, err) {
 
                   dbController.getDataFromTmpModel(tmp_index, tmpDB,
                       search_pattern,
-                      function (err, data, db_index) {
-                        if(err){
-                          handleErrors(err);
-                          async_callback();
-                          return;
-                        }
-                        if(data.length < 1){
+                      function (data, db_index) {
+
+                        if(!data || data.length < 1){
                           //data is empty
                           return;
                         }
@@ -227,6 +220,8 @@ function connect (config, server, err) {
                 function(err){
                   if(err) handleErrors(err);
                   // cleanize the tmpDB with current label
+                  // IMPORTANT! tmpDB need to be cleanized each time
+                  // otherwise you'll get endless number of useless data
                   tmpDB.remove({},function(err){
                     if(err) handleErrors(err);
                   });
@@ -250,21 +245,17 @@ function connect (config, server, err) {
       function(config, index, async_callback){
         config.database.name = config.label;
         config.database.device_properties = config.locals.unnamedType;
-        dbController.createConnection(config.database, index);
+        dbController.createConnection(config.database, index, function(db_index_tmp){
+          dbController.connect(db_index_tmp, function (db_index) {
+            // register the properties of devices in the database
+            dbController.setDevices(db_index, dataConf[db_index].types, function(){} );
 
-        dbController.connect(index, function (err, db_index) {
-          if(err) handleErrors(err, "dbController.connect "+db_index);
+            // start the handler for new measuring data related to configArray[i]
+            dataFile[db_index].connect();
 
-          // register the properties of devices in the database
-          dbController.setDevices(db_index, dataConf[db_index].types, function(err){
-            if(err) handleErrors(err, "setDevices "+db_index);
+            // configArray[i].database is connected
+            async_callback();
           });
-
-          // start the handler for new measuring data related to configArray[i]
-          dataFile[db_index].connect();
-
-          // configArray[i].database is connected
-          async_callback();
         });
       },
       // call after all databases are connected
