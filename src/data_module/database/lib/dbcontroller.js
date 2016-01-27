@@ -290,7 +290,7 @@ DBController.prototype.resizeAll = function (newSize, callback) {
 DBController.prototype.getDataFromTmpModel = function (index, tmpDB, search_pattern, callback) {
   this.checkIndex(index);
   var self=this;
-  this.deviceModels[index].TmpModel.queryFromModel(tmpDB, request, function (err, result, model_index) {
+  this.deviceModels[index].TmpModel.queryFromModel(tmpDB, search_pattern, function (err, result, model_index) {
     if(callback) callback(err, result, model_index);
   });
 };
