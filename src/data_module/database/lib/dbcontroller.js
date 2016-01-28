@@ -1,10 +1,18 @@
 /**  TODO's and description
  * // TODO make a more understandable error handling!
  * 
- * Short description
+ * * Note from Alexander Diener (original author):
+ * I agree, that there is still much to do, and code can be much cleaner and understandable,
+ * but I haven't enough time for that and if you'll do that, 
+ * you'll get more understanding about what the code is doing.
+ * Thanks for your understanding :)
+ * 
+ * 
+ * * Short description
  * Controls all operations over the database within defined DB-Models
  * Can actually check some pre-conditions of the DeviceModel/TmpModel functions.
  * 
+ * * Usage
  * To use it, at first you need to set Listener for 'error'-event.
  * Then create connections to every database you need.
  * After that you can call the 'connect(index, callback)' function 
@@ -13,16 +21,34 @@
  * Example:
  *   dbController.on( 'error', function (err) { console.warn(err) });
  *   dbController.createConnection(config.database, 1, function(db_index){
- *     dbController.connect(db_index, function (err, db_index2) { } );
+ *     dbController.connect(db_index, function (db_index2) { } );
  *   });
  *  
- * To know how every function works, please read the corresponding description.
+ * * List of functions (descriptions can be found in code)
+ * DBController()
+ * DBController.checkIndex(index)
+ * DBController.createConnection(options, index, callback)
+ * DBController.connect(index, callback)
+ * DBController.disconnect(index, callback)
+ * DBController.close(callback)
+ * DBController.remove(index, callback)
+ * DBController.setDevices(index, devices, callback)
+ * DBController.appendData(index, newData, callback)
+ * DBController.getData(index, search_pattern, callback)
+ * DBController.resize(index, id, new_size, callback)
+ * DBController.resizeAllInModel(index, newSize, callback)
+ * DBController.resizeAll(newSize, callback)
+ * DBController.getDataFromTmpModel(index, tmp_db, tmpDB, callback)
+ * DBController.switchTmpDB(index, callback)
+ * DBController.removeTMPs(index, callback)
+ * DBController.removeAllTMPs(callback)
  */
 
   // --- Node.js Module dependencies --- //
 var mongoose     = require('mongoose'),
     EventEmitter = require('events').EventEmitter,
-    _            = require('underscore');
+    _            = require('underscore'),
+    async    = require('async');
 
   // --- Custom dependencies --- //
 var DeviceModel = require('./devicemodel.js');
@@ -134,7 +160,7 @@ DBController.prototype.disconnect = function(index, callback){
  * callback = function (model_indexes)
  *     model_indexes = indexes of successfully disconnected databases
  */
-DBController.prototype.close = function(){
+DBController.prototype.close = function(callback){
   var self = this;
   async.map(this.deviceModels, 
       function(model, async_callback){
@@ -146,7 +172,7 @@ DBController.prototype.close = function(){
       },
       function(err, results){
         if(err) self.emit('error', err);
-        callback(results);
+        if(callback) callback(results);
       }
   );
 };
@@ -264,13 +290,13 @@ DBController.prototype.resizeAllInModel = function (index, newSize, callback) {
  */
 DBController.prototype.resizeAll = function (newSize, callback) {
   var self=this;
-  async.forEachOf(this.deviceModels, 
-      function(model, index, async_callback){
+  async.forEach(Object.keys(this.deviceModels), 
+      function(index, async_callback){
         self.resizeAllInModel(index, newSize, async_callback)
       },
       function(err){
         if(err)  self.emit('error', err);
-        callback();
+        if(callback) callback();
       }
   );
 };
@@ -310,9 +336,42 @@ DBController.prototype.switchTmpDB = function (index, callback) {
   if(!this.checkIndex(index)) return;
   var self=this;
   this.deviceModels[index].switchTmpDB(function(tmpDB, model_index){
-    callback(tmpDB, model_index);
+    if(callback) callback(tmpDB, model_index);
   });
 };
+
+/* Remove all temporary collections in given database and repair the database
+ * Repairing is important in order to remove all remain indexes
+ * 
+ * !! WARNING! Repair operation needs enough free disk space (in size of database)   !!!
+ * !!! Also it needs much time, so use this function ONLY, WHEN THE DB IS NOT IN USE !!!
+ */
+DBController.prototype.removeTMPs = function(index, callback) {
+  if(!this.checkIndex(index)) return;
+  var self=this;
+  this.deviceModels[index].removeTMPs(function(model_index){
+    if(callback) callback(model_index);
+  });
+}
+
+/* Remove all temporary collections in all databases and repair the databases
+ * Repairing is important in order to remove all remain indexes
+ * 
+ * !! WARNING! Repair operation needs enough free disk space (in size of database)   !!!
+ * !!! Also it needs much time, so use this function ONLY, WHEN THE SERVER IS NOT IN USE !!!
+ */
+DBController.prototype.removeAllTMPs = function(callback) {
+  var self=this;
+  async.forEach(Object.keys(this.deviceModels), 
+      function(index, async_callback){
+        self.removeTMPs(index, async_callback)
+      },
+      function(err){
+        if(err)  self.emit('error', err);
+        if(callback) callback();
+      }
+  );
+}
 
 // --- Exports --- //
 module.exports = DBController;

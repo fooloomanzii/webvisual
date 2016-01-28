@@ -245,13 +245,19 @@ function connect (config, server, err) {
       function(config, index, async_callback){
         config.database.name = config.label;
         config.database.device_properties = config.locals.unnamedType;
-        dbController.createConnection(config.database, index, function(db_index_tmp){
-          dbController.connect(db_index_tmp, function (db_index) {
+        dbController.createConnection(config.database, index, function(db_index_cb1){
+          // cb1 = "callback 1"
+          dbController.connect(db_index_cb1, function (db_index_cb2) {
             // register the properties of devices in the database
-            dbController.setDevices(db_index, dataConf[db_index].types, function(){} );
+            dbController.setDevices(db_index_cb2, dataConf[db_index_cb2].types, function(){} );
 
             // start the handler for new measuring data related to configArray[i]
-            dataFile[db_index].connect();
+            dataFile[db_index_cb2].connect();
+            
+            /* use next line only to remove all the TMPs
+             * make sure, there is no connection to the filehandler 
+             * and clients will not be served at the time of removement */
+            //dbController.removeTMPs(db_index_cb2);
 
             // configArray[i].database is connected
             async_callback();

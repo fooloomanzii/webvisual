@@ -1,7 +1,7 @@
 /** TODO's and description
  * // TODO make a more understandable error handling!
  * 
- * Short description:
+ * * Short description:
  * devicemodel handles the mongoDB-Collection that includes a list of devices
  * and Collections with stored values.
  * After storing the fresh incoming data, devicemodel also stores it
@@ -10,13 +10,33 @@
  * 
  * It's NOT RECOMMENDED to use the functions directly!!
  * DBController handles the whole access over the model.
+ *
+ * * Usage:
+ * To use it, at first you need to call the constructor with options.
+ * After that you need to set Listener for 'error'-event
+ * and call the 'connect(callback)' function.
  * 
- * To know how every function works, please read the corresponding description.
+ * Example:
+ *   var deviceModel = new DeviceModel(database_options, function(db_index){
+ *     deviceModel.on( 'error', function (err) { console.warn(err) });
+ *     deviceModel.connect( function(db_index_cb) { } );
+ *   });
  *
- * Usage:
- *   
- *
- * Development Note:
+ * * List of functions (descriptions can be found in code)
+ * DeviceModel(database_options, callback)
+ * DeviceModel.connect(callback)
+ * DeviceModel.disconnect(callback)
+ * DeviceModel.setDefaults(options, callback)
+ * DeviceModel.setDevices(devices, callback)
+ * DeviceModel.switchTmpDB(callback)
+ * DeviceModel.append(newData, callback)
+ * DeviceModel.query(search_pattern, callback)
+ * DeviceModel.resizeStorage(id, size, callback)
+ * DeviceModel.resizeAll(size, callback)
+ * DeviceModel.removeTMPs(callback)
+ * 
+ * 
+ * * Development Note: (to understand it, you really need to know the code)
  * The current DB-Structure (one collection for the list of devices 
  *    plus collection for every device for the values) 
  *    was chosen because of low CPU usage.
@@ -52,6 +72,14 @@ var TmpModel = require('./tmpmodel.js');
 var devicelistDB_name = "devices"; // list of devices
 var deviceDB_prefix = "device_"; // prefix of device id
 var tmpDB_prefix = "tmp_"; // prefix of temporary collection
+
+
+//default parameters for database connection
+var default_db_options = {
+ ip     : "localhost",  // Default IP-Address of MongoDB Database
+ port   : 27017,        // Default Port of MongoDB Database
+ name   : "test"        // Name of default MongoDB Database
+};
 
   // --- Mongoose Schemas --- //
 /* * Schema to store the device properties
@@ -138,13 +166,6 @@ var StorageSchema = function( storage_size ){
       versionKey: false // gets versioning off
     }
   );
-};
-
-// default parameters for database connection
-var default_db_options = {
-    ip     : "localhost",  // Default IP-Address of MongoDB Database
-    port   : 27017,        // Default Port of MongoDB Database
-    name   : "test"        // Name of default MongoDB Database
 };
 
   // --- Constructor --- //
@@ -271,35 +292,61 @@ DeviceModel.prototype.connect = function(callback){
  * callback: function(model_index)
  */
 DeviceModel.prototype.disconnect = function(callback){
-// TODO test it
   var self = this;
   if(this.database.readyState != 0){
-    
-    var i = 0;
-    async.whilst( // asynchronous while loop
-        function () { return i < this.num_of_tmps; },
-        function (callback) {
-            // remove/drop every temporary database
-            mongoose.connection.collections['tmp_'+i].drop( function(err) {
-              if(err) self.emit('error', extendError(err, self));
-              callback(null, count);
-            });
-            i++;
-        },
-        function (err, n) {
-          if(err) self.emit('error', extendError(err, self));
-          // disconnect from MongoDB
-          this.database.close(function(err){
-            if(err) self.emit('error', extendError(err, self));
-            if(callback) callback(self.index);
-          });
-        }
-    );
+    // disconnect from MongoDB
+    this.database.close(function(err){
+      if(err) self.emit('error', extendError(err, self));
+      if(callback) callback(self.index);
+    });
   } else { // already disconnected
     if(callback) callback(self.index);
   }
   
 };
+
+/* Remove all temporary collections and repair the database
+ * Repairing is important in order to remove all remain indexes
+ * 
+ * !! WARNING! Repair operation needs enough free disk space (in size of database)   !!!
+ * !!! Also it needs much time, so use this function ONLY, WHEN THE DB IS NOT IN USE !!!
+ */
+DeviceModel.prototype.removeTMPs = function(callback){
+//TODO test it
+  var self = this;
+  var i = 0;
+  async.whilst( // asynchronous while loop
+      function () { return i < self.num_of_tmps; },
+      function (callback) {
+          // remove/drop every temporary database
+          self.database.db.collection(tmpDB_prefix+i, function(err, collection){
+            if(err) self.emit('error', extendError(err, self));
+            collection.drop( function(err) {
+              if(err){
+                if(err.message === 'ns not found'){
+                  //the collection isn't exists
+                } else {
+                  self.emit('error', extendError(err, self));
+                }
+              }
+              callback();
+            });
+          });
+          i++;
+      },
+      function (err) {
+        if(err) self.emit('error', extendError(err, self));
+        // repair database
+        console.log("Repairing database '"+self.database_name+"'. It can take a lot of time!!");
+        self.database.db.command({repairDatabase:1}, function(err, result) {
+          console.log("Database '"+self.database_name+"' is repaired!")
+          if(err) self.emit('error', extendError(err, self));
+          if(callback) callback(self.index);
+        });
+        if(callback) callback(self.index);
+      }
+  );
+}
 
 /*
  * Sets new default values to the Model from options-Object
@@ -418,7 +465,7 @@ DeviceModel.prototype.switchTmpDB = function(callback){
   }
   
   //Current state: "this.tmpDB == last_tmpDB" is true
-  this.tmpDB = this.database.model('tmp_'+this.cur_tmp, this.TmpModel.schema);
+  this.tmpDB = this.database.model(tmpDB_prefix+this.cur_tmp, this.TmpModel.schema);
   // Current state: "this.tmpDB == last_tmpDB" is false
   if(callback){
    
