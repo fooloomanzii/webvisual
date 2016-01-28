@@ -471,14 +471,14 @@
               </iron-list> -->
 
 
-          <template id="maintemplate" is="dom-repeat" items="{{data}}" as="labelItem" index-as="labelindex" filter="filterSelectedLabel">
+          <!-- <template id="maintemplate" is="dom-repeat" items="{{data}}" as="labelItem" index-as="labelindex" filter="filterSelectedLabel"> -->
 
             <template class="labeltemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupItems" sort="sortGroup">
 
                 <post-card class="group" selected-ids="{{groupItems.ids}}" headline="{{groupItems.name}}" without-window="[[withoutWindow]]" dark$="[[dark]]">
 
-                  <template is="dom-repeat" items="{{labelItem.elements}}" as="element">
-                    <template is="dom-if" if="{{_isInGroup(element,groupItems)}}" restamp>
+                  <template is="dom-repeat" items="{{groupItems.elements}}" as="element">
+                    <!-- <template is="dom-if" if="{{_isInGroup(element,groupItems)}}" restamp> -->
                       <section class="card" on-tap="setSelectedElement" dark$="[[dark]]">
 
                           <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding-element="_checkExceedingDialog"></sign-element>
@@ -490,11 +490,11 @@
 
                       </section>
                     </template>
-                  </template>
+                  <!-- </template> -->
                 </post-card>
 
             </template>
-          </template>
+          <!-- </template> -->
 
         </section>
         <section id="dropShadow" class="has-shadow"></section>

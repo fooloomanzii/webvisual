@@ -256,7 +256,7 @@
                 var index = this._getIndex(labelindex, message[mesId].content[i].id);
                 if (index !== undefined) {
                   this._initDataPoint(labelindex, index);
-                 this._setValues(labelindex, message[mesId].content[i], index);
+                  // this._setValues(labelindex, message[mesId].content[i], index);
                 }
               }
             }
@@ -375,23 +375,35 @@
       },
 
       _setValues: function(labelindex, messageContent, i) {
-        if (!this.doAppend)
-          while (this.data[labelindex].elements[i].values.length > 0)
-            this.pop("data." + labelindex + '.elements.' + i + ".values");
-        if (this.newestDataLast) {
+
+        var id = this.types[labelindex][i].id;
+        var prefkey = this.preferedGroupingKeys[labelindex];
+        var inGrId;
+        for (var grId=0; this.groups[labelindex][prefkey].length; grId++) {
+          inGrId = this.groups[labelindex][prefkey][grId].ids.indexOf(id);
+          if(inGrId !== -1)
+            break;
+        }
+
+        //
+        // if (!this.doAppend)
+        //   while (this.data[labelindex].elements[i].values.length > 0)
+        //     this.pop("data." + labelindex + '.elements.' + i + ".values");
+        // if (this.newestDataLast) {
           for (var j=0; j < messageContent.values.length; j++) {
-            this.unshift("data." + labelindex + '.elements.' + i + ".values", messageContent.values[j]);
-            this._checkIfExceedingStateHasToBeSet(messageContent.values[j].exceeds, labelindex, i);
+            // this.unshift("data." + labelindex + '.elements.' + i + ".values", messageContent.values[j]);
+            this.unshift('groups.' + labelindex + '.' + prefkey + '.' + grId + '.elements.' + inGrId + '.values', messageContent.values[j]);
+        //     this._checkIfExceedingStateHasToBeSet(messageContent.values[j].exceeds, labelindex, i);
           }
-        }
-        else {
-          for (var j=messageContent.values.length-1; j >=0; j--) {
-            this.unshift("data." + labelindex + '.elements.' + i + ".values", messageContent.values[j]);
-            this._checkIfExceedingStateHasToBeSet(messageContent.values[j].exceeds, labelindex, i);
-          }
-        }
-        if (this.data[labelindex].elements[i].values.length > this.maxLines)
-          this.splice("data." + labelindex + '.elements.' + i + ".values", this.maxLines, this.data[labelindex][i].values.length - this.maxLines);
+        // }
+        // else {
+        //   for (var j=messageContent.values.length-1; j >=0; j--) {
+        //     this.unshift("data." + labelindex + '.elements.' + i + ".values", messageContent.values[j]);
+        //     this._checkIfExceedingStateHasToBeSet(messageContent.values[j].exceeds, labelindex, i);
+        //   }
+        // }
+        // if (this.data[labelindex].elements[i].values.length > this.maxLines)
+        //   this.splice("data." + labelindex + '.elements.' + i + ".values", this.maxLines, this.data[labelindex][i].values.length - this.maxLines);
 
         // if (messageContent.lastExceeds)
         //   this.set("data." + labelindex + "." + i + ".lastExceeds", messageContent.lastExceeds);
@@ -400,43 +412,55 @@
       // init datapoint, but it doesn't overwrite datavalues, if the datapoint existed before and has matching labels
       _initDataPoint: function(labelindex, i) {
         // set indexes and init values-Array
-        while (i >= this.data[labelindex].elements.length) {
-          this.push('data.' + labelindex + '.elements', { label: this._getLabelName(labelindex), labelindex: labelindex, idindex: i, isExceeding: false, values: [] });
-          this.push('data.' + labelindex + '.elements.' +(this.data[labelindex].elements.length - 1)+'.values', {x: '', y: '', exceeds: null});
-        }
-        // set attributes
-        var key;
-        for (var j=0; j < this.keys[labelindex].length; j++) {
-          key = this.keys[labelindex][j];
-          // only if not set
-          if(key != "values" && !this.data[labelindex].elements[i][key]){
-            if(this.types[labelindex] && this.types[labelindex][i] && this.types[labelindex][i][key])
-              this.set("data." + labelindex + '.elements.' + i + "." + key, this.types[labelindex][i][key]);
-            else
-              this.set("data." + labelindex + '.elements.' + i + "." + key, this.unnamedTypes[labelindex][key]);
-          }
-        }
-
-        // set indexes and init values-Array
-        // for (var k=0; this.groups[labelindex][this.preferedGroupingKeys[labelindex]].length; k++) {
-        //   if(this.groups[labelindex][this.preferedGroupingKeys[labelindex]][k].ids.indexOf(this.types[labelindex][i].id) !== -1)
-        //     break;
+        // while (i >= this.data[labelindex].elements.length) {
+        //   this.push('data.' + labelindex + '.elements', { label: this._getLabelName(labelindex), labelindex: labelindex, idindex: i, isExceeding: false, values: [] });
+        //   this.push('data.' + labelindex + '.elements.' +(this.data[labelindex].elements.length - 1)+'.values', {x: '', y: '', exceeds: null});
         // }
-        //
-        // while (i >= this.groups[labelindex][this.preferedGroupingKeys[labelindex]][k].elements.length) {
-        //   this.push('groups.' + labelindex + '.' + this.preferedGroupingKeys[labelindex] + '.' + k +'.elements', { label: this._getLabelName(labelindex), labelIndex: labelindex, idIndex: i, isExceeding: false, values: [] });
-        //   this.push('groups.' + labelindex + '.' + this.preferedGroupingKeys[labelindex] + '.' + k +'.elements.' +(this.data[labelindex].elements.length - 1)+'.values', {x: '', y: '', exceeds: null});
-        // }
-        // set attributes
+        // // set attributes
         // var key;
         // for (var j=0; j < this.keys[labelindex].length; j++) {
         //   key = this.keys[labelindex][j];
         //   // only if not set
-        //   if(key != "values" && !this.groups[labelindex][this.preferedGroupingKeys[labelindex]][k].elements[i][key]){
+        //   if(key != "values" && !this.data[labelindex].elements[i][key]){
         //     if(this.types[labelindex] && this.types[labelindex][i] && this.types[labelindex][i][key])
-        //       this.set('groups.' + labelindex + '.' + this.preferedGroupingKeys[labelindex] + '.' + k + '.elements.' + i + "." + key, this.types[labelindex][i][key]);
+        //       this.set("data." + labelindex + '.elements.' + i + "." + key, this.types[labelindex][i][key]);
         //     else
-        //       this.set('groups.' + labelindex + '.' + this.preferedGroupingKeys[labelindex] + '.' + k + '.elements.' + i + "." + key, this.unnamedTypes[labelindex][key]);
+        //       this.set("data." + labelindex + '.elements.' + i + "." + key, this.unnamedTypes[labelindex][key]);
+        //   }
+        // }
+
+        // set indexes and init values-Array
+
+        var id = this.types[labelindex][i].id;
+        var a, b, c;
+        for (a=0; this.groups[labelindex].length; a++) {
+          if(this.groups[labelindex][a].key == this.preferedGroupingKeys[labelindex])
+            break;
+        }
+        for (b=0; this.groups[labelindex][a].group.length; b++) {
+          c = this.groups[labelindex][a].group[b].ids.indexOf(id);
+          if(c !== -1)
+            break;
+        }
+
+        this.splice('groups.' + labelindex + '.' + a + '.group.' + b + '.elements.' + c + '.values', 1, this.groups[labelindex][a].group[b].elements[c].values.length - 1);
+
+        //
+        //
+        // while (inGrId >= this.groups[labelindex][prefkey][k].elements.length) {
+        //   this.push('groups.' + labelindex + '.' + prefkey + '.' + k +'.elements', { label: this._getLabelName(labelindex), labelIndex: labelindex, isExceeding: false, values: [] });
+        //   this.push('groups.' + labelindex + '.' + prefkey + '.' + k +'.elements.' +(this.data[labelindex].elements.length - 1)+'.values', {x: '', y: '', exceeds: null});
+        // }
+        // // set attributes
+        // var key;
+        // for (var j=0; j < this.keys[labelindex].length; j++) {
+        //   key = this.keys[labelindex][j];
+        //   // only if not set
+        //   if(key != "values" && !this.groups[labelindex][prefkey][grId].elements[inGrId][key]){
+        //     if(this.types[labelindex] && this.types[labelindex][i] && this.types[labelindex][i][key])
+        //       this.set('groups.' + labelindex + '.' + prefkey + '.' + grId + '.elements.' + inGrId + "." + key, this.types[labelindex][i][key]);
+        //     else
+        //       this.set('groups.' + labelindex + '.' + prefkey + '.' + grId + '.elements.' + inGrId + "." + key, this.unnamedTypes[labelindex][key]);
         //   }
         // }
       },

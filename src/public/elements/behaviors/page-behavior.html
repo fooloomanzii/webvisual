@@ -62,8 +62,12 @@
       }
     },
     observers: [
-      "_labelsChanged(labels.length)"
+      "_labelsChanged(labels.length)",
+      "_groupsChanged(groups.*)"
     ],
+    _groupsChanged: function(change) {
+      // console.log(change);
+    },
     _labelsChanged: function(length) {
       if(length > 0) {
         this.set("selectedLabel",0);
@@ -81,50 +85,10 @@
       var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
       this.setGroupBy(this.preferedGroupingKeys[selectedLabelId]);
       this.setSelectedGroup();
-      this.$.maintemplate.render();
+      // this.$.maintemplate.render();
       if(this.opened) {
         this.deselectElement();
       }
-    },
-    _getGroupedElements: function(items, group) {
-      // self = this;
-      var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
-      var icol = Polymer.Collection.get(this.data[selectedLabelId]);
-      for (item in item) {
-        var key = icol.getKey(item);
-        // for (var )
-        if (!this)
-        if (group.name == "all" || group.ids.indexOf(item.id) != -1) {
-          if (this.isSelected(item)) {
-            if (this.toggle) {
-              this.deselect(item);
-            }
-          } else {
-            this.push('selected', item);
-            var skey = this._selectedColl.getKey(item);
-            this.linkPaths('selected.' + skey, 'items.' + key);
-          }
-        } else {
-          if (this.toggle && item == this.selected) {
-            this.deselect();
-          } else {
-            this.selected = item;
-            this.selectedItem = item;
-            this.linkPaths('selected', 'items.' + key);
-            this.linkPaths('selectedItem', 'items.' + key);
-          }
-        }
-      }
-
-      this.push('filtered',items.filter(
-        function(item) {
-          if (group.name == "all" || group.ids.indexOf(item.id) != -1)
-            return true;
-          else
-            return false;
-        }));
-      this.notifyPath('filtered',this.filtered);
-      return this.filtered;
     },
     _isInGroup: function(item,group){
       if (group.name == "all")
@@ -153,7 +117,13 @@
       var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
       if(this.groups && this.groupBy && this.groups[selectedLabelId]){
         this.set("selectedGroup", this.groups[selectedLabelId][this.groupBy]);
-        this.linkPaths("selectedGroup", "groups." + selectedLabelId + "." + this.groupBy);
+        // this.linkPaths("selectedGroup", "groups.#" + selectedLabelId + "." + this.groupBy);
+        for(var i = 0; i<this.groups[selectedLabelId][this.groupBy].length; i++) {
+          // this.linkPaths("selectedGroup."+i+'.elements', 'groups.' + selectedLabelId + '.' + this.groupBy + '.' + i + '.elements');
+          // for(var j = 0; i<this.groups[selectedLabelId][this.groupBy][i].elements.length; i++) {
+            this.linkPaths("selectedGroup.#"+i, 'groups.#' + selectedLabelId + '.' + this.groupBy + '.#' + i);
+          // }
+        }
       }
     },
     sortGroup: function(first,next){
