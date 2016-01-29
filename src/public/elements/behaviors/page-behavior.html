@@ -9,18 +9,6 @@
         type: Object,
         value: function() { return {}; }
       },
-      selectedGroup: {
-        type: Array,
-        value: function() { return []; }
-      },
-      filtered: {
-        type: Array,
-        value: function() { return []; }
-      },
-      ids: {
-        type: Array,
-        value: function() { return []; }
-      },
       labels: {
         type: Array,
         value: function() { return []; }
@@ -45,14 +33,13 @@
       // important note: there is a difference with selected LabelIndex because of initial selection order
       selectedLabel: {
         type: Number,
-        value: 0,
         notify: true,
         observer: "_selectedLabelChanged"
       },
       groupBy: {
         type: String,
         value: "all",
-        observer: "setSelectedGroup"
+        observer: "_setPreferedGroupingKey"
       },
       maxTotalLines: {
         type: Number
@@ -62,17 +49,13 @@
       }
     },
     observers: [
-      "_labelsChanged(labels.length)",
-      "_groupsChanged(groups.*)"
+      "_labelsChanged(labels.length)"
     ],
-    _groupsChanged: function(change) {
-      // console.log(change);
-    },
     _labelsChanged: function(length) {
       if(length > 0) {
-        this.set("selectedLabel",0);
-        this._selectedLabelChanged();
-        this._removeAllExceedingElements(false);
+        // this.set("selectedLabel",0);
+        // this._selectedLabelChanged();
+        // this._removeAllExceedingElements(false);
       }
     },
     _computeSelectedLabelId: function(selectedLabel) {
@@ -81,50 +64,28 @@
       else
         return this.availableLabels.indexOf(this.labels[selectedLabel]);
     },
-    _selectedLabelChanged: function() {
+    _selectedLabelChanged: function(newv, old) {
       var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
-      this.setGroupBy(this.preferedGroupingKeys[selectedLabelId]);
-      this.setSelectedGroup();
-      // this.$.maintemplate.render();
+      // this._setPreferedGroupingKey(this.preferedGroupingKeys[selectedLabelId]);
+      // this.setSelectedGroup();
+      this.$.labeltemplate.render();
+      // var templ = this.$$('template#'+this.labels[this.selectedLabel]+'.grouptemplate');
+      // if (templ)
+      //   templ.render();
       if(this.opened) {
         this.deselectElement();
       }
     },
-    _isInGroup: function(item,group){
-      if (group.name == "all")
-        return true;
-      else if (group.ids && group.ids.indexOf(item.id) != -1)
-        return true;
-      else
-        return false;
-    },
-    setSelectedElement: function(e) {
-    },
-    deselectedElement: function(e) {
-    },
-    setGroupBy: function(groupBy) {
-      var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
-      if(groupBy && this.groupBy in this.groups[selectedLabelId]) {
-        this.set("groupBy",groupBy);
-        this.set("preferedGroupingKeys.#"+selectedLabelId, groupBy);
-      }
-      else if (this.preferedGroupingKeys && this.preferedGroupingKeys[selectedLabelId] && this.preferedGroupingKeys[selectedLabelId] in this.groups[selectedLabelId])
-        this.set("groupBy",this.preferedGroupingKeys[selectedLabelId]);
-      else
-        this.set("groupBy","all");
-    },
-    setSelectedGroup: function(){
-      var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
-      if(this.groups && this.groupBy && this.groups[selectedLabelId]){
-        this.set("selectedGroup", this.groups[selectedLabelId][this.groupBy]);
-        // this.linkPaths("selectedGroup", "groups.#" + selectedLabelId + "." + this.groupBy);
-        for(var i = 0; i<this.groups[selectedLabelId][this.groupBy].length; i++) {
-          // this.linkPaths("selectedGroup."+i+'.elements', 'groups.' + selectedLabelId + '.' + this.groupBy + '.' + i + '.elements');
-          // for(var j = 0; i<this.groups[selectedLabelId][this.groupBy][i].elements.length; i++) {
-            this.linkPaths("selectedGroup.#"+i, 'groups.#' + selectedLabelId + '.' + this.groupBy + '.#' + i);
-          // }
-        }
-      }
+    _setPreferedGroupingKey: function(groupBy) {
+      // var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
+      // if(groupBy && this.groupBy in this.groups[selectedLabelId]) {
+      //   this.set("groupBy",groupBy);
+      //   this.set("preferedGroupingKeys.#"+selectedLabelId, groupBy);
+      // }
+      // else if (this.preferedGroupingKeys && this.preferedGroupingKeys[selectedLabelId] && this.preferedGroupingKeys[selectedLabelId] in this.groups[selectedLabelId])
+      //   this.set("groupBy",this.preferedGroupingKeys[selectedLabelId]);
+      // else
+      //   this.set("groupBy","all");
     },
     sortGroup: function(first,next){
       if (first.ids.length > next.ids.length)
@@ -136,9 +97,10 @@
     filterSelectedLabel: function(dataItem) {
       return (this.labels[this.selectedLabel] === dataItem.label);
     },
-    // filterLabel: function(dataItem,selectedlabel) {
-    //   return (this._computeSelectedLabelId(selectedLabel) === this.data.indexOf(dataItem));
-    // },
+    filterPreferedGroup: function(groupItem) {
+      var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
+      return (this.preferedGroupingKeys[selectedLabelId] === groupItem.key);
+    },
     _removeAllExceedingElements: function(all) {
       if (all != false)
         all = true;

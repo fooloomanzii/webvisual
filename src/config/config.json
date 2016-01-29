@@ -24,8 +24,8 @@
       "connections": {
         "file": {
           "mode": "all",
-          "path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
-          "#path_folder": "",
+          "#path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
+          "path_folder": "",
           "path": "HNF_Datafile.txt"
           }
         },
@@ -112,10 +112,10 @@
 
         "exclusiveGroups": [
           { "key": "roomNr",
-            "group": [{"name":"Diverse", "ids":["DI6-1","DI0-2","DI1-2"]},
-                      {"name":"kombinierter Alarm", "ids":["DI2-2","DI3-2","DI4-2","DI5-2"]},
-                      {"name":"4006", "ids":["DI3-5","DI4-5","DI5-5","DI6-5"]}
-                     ]
+            "subgroup": [{"name":"Diverse", "ids":["DI6-1","DI0-2","DI1-2"]},
+                         {"name":"kombinierter Alarm", "ids":["DI2-2","DI3-2","DI4-2","DI5-2"]},
+                         {"name":"4006", "ids":["DI3-5","DI4-5","DI5-5","DI6-5"]}
+                        ]
           }
         ]
       }
@@ -175,9 +175,9 @@
 
           "exclusiveGroups": [
             { "key": "propA",
-              "group": [ {"name":"Werte", "ids":["id1","id2"]},
-                         {"name":"Alarme", "ids":["id3","id4","id5","id6", "id7","id8"]}
-                       ]
+              "subgroup": [ {"name":"Werte", "ids":["id1","id2"]},
+                            {"name":"Alarme", "ids":["id3","id4","id5","id6", "id7","id8"]}
+                          ]
             }
           ]
       }

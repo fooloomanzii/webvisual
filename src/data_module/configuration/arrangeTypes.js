@@ -58,20 +58,20 @@ function arrangeTypes(locals) {
           break;
         }
       if (needToSetGroup) {
-        groups.push({key: key, group: []});
+        groups.push({key: key, subgroup: []});
       }
-      for (var k = 0; k < groups[l].group.length; k++) {
-        if (groups[l].group[k].ids && groups[l].group[k].ids.indexOf(types[i].id) != -1) {
+      for (var k = 0; k < groups[l].subgroup.length; k++) {
+        if (groups[l].subgroup[k].ids && groups[l].subgroup[k].ids.indexOf(types[i].id) != -1) {
           needToSetElement = false;
-          if (!groups[l].group[k].elements || !Array.isArray(groups[l].group[k].elements)) {
-            groups[l].group[k].elements = [];
+          if (!groups[l].subgroup[k].elements || !Array.isArray(groups[l].subgroup[k].elements)) {
+            groups[l].subgroup[k].elements = [];
           }
-          if (groups[l].group[k].elements.indexOf(types[i]) == -1) {
-            groups[l].group[k].elements.push(types[i]);
+          if (groups[l].subgroup[k].elements.indexOf(types[i]) == -1) {
+            groups[l].subgroup[k].elements.push(types[i]);
           }
           break;
         }
-        if (groups[l].group[k].name == types[i][key]) {
+        if (groups[l].subgroup[k].name == types[i][key]) {
           where = k;
         }
       }
@@ -79,15 +79,15 @@ function arrangeTypes(locals) {
       //   console.log(where);
       if (needToSetElement) {
         if (where == -1) {
-          groups[l].group.push(
+          groups[l].subgroup.push(
                   { name : types[i][key],
                     ids  : [ types[i].id ],
                     elements : [ types[i] ] } );
         } else {
-          groups[l].group[where].ids.push(types[i].id);
-          if (!groups[l].group[where].elements)
-            groups[l].group[where].elements = [];
-          groups[l].group[where].elements.push(types[i]);
+          groups[l].subgroup[where].ids.push(types[i].id);
+          if (!groups[l].subgroup[where].elements)
+            groups[l].subgroup[where].elements = [];
+          groups[l].subgroup[where].elements.push(types[i]);
         }
       }
     }
@@ -99,7 +99,7 @@ function arrangeTypes(locals) {
   return {
     types : types,
     ids : ids,
-    groups : groups,
+    dataStructure : groups,
     groupingKeys: locals.groupingKeys,
     preferedGroupingKey: preferedGroupingKey,
     keys : keys,
