@@ -31,13 +31,19 @@
   </style>
   <template>
     <data-socket-repeater id="datasocket"
-      data="{{data}}" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}" available-labels="{{availableLabels}}" labels="{{labels}}" label-index="{{labelIndex}}" max-total-lines="[[maxLines]]" interval="[[interval]]"
-      groups="{{groups}}" grouping-keys="{{groupingKeys}}" status="{{status}}" prefered-grouping-keys="{{preferedGroupingKeys}}" >
+      data="{{data}}" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}"
+      available-labels="{{availableLabels}}" labels="{{labels}}" max-total-lines="[[maxLines]]"
+      interval="[[interval]]" grouping-keys="{{groupingKeys}}" status="{{status}}"
+      prefered-grouping-keys="{{preferedGroupingKeys}}" label-index="{{labelIndex}}">
     </data-socket-repeater>
     <neon-animated-pages id="pages" selected="0">
       <select-page id="selectPage" available-labels="[[availableLabels]]" labels="{{labels}}"></select-page>
       <loading-page id="loadPage" status="[[status]]"></loading-page>
-      <main-page id="mainPage" data="[[data]]" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}" available-labels="{{availableLabels}}" labels="{{labels}}" groups="[[groups]]" grouping-keys="[[groupingKeys]]" max-total-lines="{{maxLines}}" interval="{{interval}}" prefered-grouping-keys="{{preferedGroupingKeys}}" always-show-tabs></main-page>
+      <main-page id="mainPage"
+        data="[[data]]" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}"
+        labels="{{labels}}" label-index="{{labelIndex}}" grouping-keys="[[groupingKeys]]"
+        max-total-lines="{{maxLines}}" interval="{{interval}}"
+        prefered-grouping-keys="{{preferedGroupingKeys}}" always-show-tabs></main-page>
     </neon-animated-pages>
   </template>
   <script>
@@ -59,7 +65,6 @@
           this.$.datasocket.connect();
         },
         _onLoaded: function(e) {
-          this.$.mainPage.setGroupBy();
           var self = this;
           var wait = new Date() - this.start;
           this.set("status.time.lastStatus",new Date()); this.set("status.message", "loading...");

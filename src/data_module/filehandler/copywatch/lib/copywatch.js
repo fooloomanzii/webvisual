@@ -58,6 +58,7 @@ var fs        = require('fs'),
   },
   _watchers     = {},
   _watcher_options = {},
+  _wait_to_restore = [], // Files/directories currently waiting for restoration
   _watcherCount = 0,
   _extension    = '.log',
   newline       = /\r\n|\n\r|\n/, // Every possible newline character
@@ -418,6 +419,10 @@ function _handle_change(event, path, currStat, prevStat, options) {
     //Check for existence of directory
     fs.exists(fileDir, function(exists) {
       if(exists === false) { // If directory doesn't exists -> need to wait until it's restored
+        // Check if already waiting
+        if(_wait_to_restore.indexOf(fileDir) >= 0 ) return;
+        _wait_to_restore.push(fileDir);
+        
         console.warn('Directory "'+fileDir+'" was deleted.\n'+
         'After restoring the directory, the file will be watched as earlier.');
         //wait until directory is restored
@@ -428,7 +433,10 @@ function _handle_change(event, path, currStat, prevStat, options) {
               setTimeout(wait_until_restored, 100); 
             } else {
               // directory was restored -> continue watching 
-              _watchers[path] = watchr.watch(_watcher_options[path]);
+              if(_watcher_options[path] !== undefined) 
+                _watchers[path] = watchr.watch(_watcher_options[path]);
+              // Remove directory from _wait_to_restore list
+              _wait_to_restore.splice(_wait_to_restore.indexOf(fileDir), 1);
               console.log('Directory "'+fileDir+'" was restored after '+
                   (new Date() - starttime)/1000.+' seconds.');
             }
@@ -472,10 +480,19 @@ function _create_listeners(options) {
     watching: function(err,watcherInstance,isWatching){
       if (err) {
         // directory deletion errors are handled
-        // UNKNOWN is ECONNRESET is handled by 'econnreset'
-        // ENOENT and EPERM are causing 'delete' event and are handled there as missing directory
-        if(err.code === 'UNKNOWN' || err.code === 'ENOENT' || err.code === 'EPERM') return;
-        // If it's something not yet handled, trigger the error callback.
+        // UNKNOWN can be thrown by file-side ECONNRESET (disconnection)
+        // ECONNRESET is thrown by server-side disconnection
+        // ENOENT and EPERM are thrown by renamed/removed/moved directory
+        // All these errors can cause 'delete' event but not every time (lies on watchr)
+        // Lets call 'delete' event, so it will try to reconnect to missing file/directory
+        if(err.code === 'UNKNOWN' || err.code === 'ECONNRESET' || err.code === 'ENOENT' || err.code === 'EPERM' ) {
+          if(watcherInstance.children){
+            for(var file in watcherInstance.children)
+              _handle_change('delete', watcherInstance.children[file].path, null, null, options);
+          }
+          return;
+        }
+        // If it's some unknown error, trigger the error callback.
         console.log("Watching the path " + watcherInstance.path + " failed with error");
         options.content(err);
       } else {

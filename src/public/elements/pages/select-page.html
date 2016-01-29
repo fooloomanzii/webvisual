@@ -104,6 +104,7 @@
       color: #669DB4;
     }
     paper-button:hover {
+      border: thin solid currentColor;
       background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.10) 40%);
     }
     paper-button iron-icon {
@@ -218,19 +219,7 @@
             }
           }
 
-          // if (this.availableLabels.length == 1){
-          //   this.labelsCookie.set("value", this.availableLabels);
-            this.$.labelsCookie.save();
-          //   this.set("labels", this.availableLabels);
-          //   this.fire("configset");
-          // }
-          // if (needToRestart) {
-          //   this.$.labelsCookie.save();
-          //   if(this.labels.length == 0)
-          //     this.fire("restart");
-          //   else
-          //     this.fire("reconnect");
-          // }
+          this.$.labelsCookie.save();
         }
       },
 
