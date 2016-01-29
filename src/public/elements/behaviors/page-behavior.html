@@ -13,21 +13,17 @@
         type: Array,
         value: function() { return []; }
       },
-      availableLabels: {
-        type: Array,
-        value: function() { return []; }
+      labelIndex: {
+        type: Object,
+        value: function() { return {}; }
       },
       groupingKeys: {
-        type: Array,
-        value: function() { return []; }
-      },
-      groups: {
-        type: Array,
-        value: function() { return []; }
+        type: Object,
+        value: function() { return {}; }
       },
       preferedGroupingKeys: {
-        type: Array,
-        value: function() { return []; }
+        type: Object,
+        value: function() { return {}; },
       },
       // selected Label (Tab index)
       // important note: there is a difference with selected LabelIndex because of initial selection order
@@ -58,15 +54,15 @@
         // this._removeAllExceedingElements(false);
       }
     },
-    _computeSelectedLabelId: function(selectedLabel) {
-      if (selectedLabel == undefined || this.labels == undefined || this.availableLabels == undefined)
+    _computeSelectedLabelId: function(index) {
+      if (index == undefined || this.labels == undefined)
         return 0;
       else
-        return this.availableLabels.indexOf(this.labels[selectedLabel]);
+        return this.labelIndex[this.labels[index]];
     },
     _selectedLabelChanged: function(newv, old) {
       var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
-      // this._setPreferedGroupingKey(this.preferedGroupingKeys[selectedLabelId]);
+      this.set('groupBy', this.preferedGroupingKeys[selectedLabelId]);
       // this.setSelectedGroup();
       this.$.labeltemplate.render();
       // var templ = this.$$('template#'+this.labels[this.selectedLabel]+'.grouptemplate');
@@ -76,7 +72,7 @@
         this.deselectElement();
       }
     },
-    _setPreferedGroupingKey: function(groupBy) {
+    _setPreferedGroupingKey: function(groupBy, oldValue) {
       // var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
       // if(groupBy && this.groupBy in this.groups[selectedLabelId]) {
       //   this.set("groupBy",groupBy);
@@ -86,6 +82,14 @@
       //   this.set("groupBy",this.preferedGroupingKeys[selectedLabelId]);
       // else
       //   this.set("groupBy","all");
+    },
+    // TODO: move Captions into Sign-Element etc.
+    getGroupingKeys: function(change, index) {
+      return this.groupingKeys[this.labels[index]];
+    },
+    getElementsKey: function(element,key) {
+      if(element && element[key])
+        return element[key];
     },
     sortGroup: function(first,next){
       if (first.ids.length > next.ids.length)
@@ -98,8 +102,7 @@
       return (this.labels[this.selectedLabel] === dataItem.label);
     },
     filterPreferedGroup: function(groupItem) {
-      var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
-      return (this.preferedGroupingKeys[selectedLabelId] === groupItem.key);
+      return (this.preferedGroupingKeys[this.labels[this.selectedLabel]] === groupItem.key);
     },
     _removeAllExceedingElements: function(all) {
       if (all != false)

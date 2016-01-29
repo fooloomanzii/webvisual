@@ -448,7 +448,7 @@
           <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="items" observe="label groups" filter="filterSelectedLabel">
             <template is="dom-repeat" items="{{items.groups}}" as="groups" filter="filterPreferedGroup">
               <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroups">
-                <post-card class="group" headline="{{subgroups.name}}" without-window="[[withoutWindow]]" dark$="[[dark]]">
+                <post-card headline="{{subgroups.name}}" without-window$="[[withoutWindow]]" dark$="[[dark]]">
                   <template is="dom-repeat" items="{{subgroups.elements}}" as="element">
                       <section class="card" on-tap="setSelectedElement" dark$="[[dark]]">
 
@@ -583,18 +583,6 @@
             dialog.fit();
         });
       },
-      // TODO: move Captions into Sign-Element etc.
-      getGroupingKeys: function(change, labelindex) {
-        var selectedLabelId = this._computeSelectedLabelId(labelindex);
-        if (Array.isArray(this.groupingKeys[selectedLabelId])) {
-          return this.groupingKeys[selectedLabelId];
-        }
-        else return [];
-      },
-      getElementsKey: function(element,key) {
-        if(element && element[key])
-          return element[key];
-      },
 
       setSelectedElement: function(e) {
         if(e) {
@@ -605,6 +593,7 @@
           else {
             this.unlinkPaths('selectedElement');
             this.selectedElement = null;
+            
             var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
             var icol  = Polymer.Collection.get(this.data[selectedLabelId]);
             var key = icol.getKey(item);

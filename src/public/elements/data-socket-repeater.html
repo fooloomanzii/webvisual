@@ -46,6 +46,11 @@
             value: function() { return []; },
             notify: true
           },
+          labelIndex: {
+            type: Object,
+            value: function() { return {}; },
+            notify: true
+          },
           groupingKeys: {
             type: Array,
             value: function() { return []; },
@@ -203,16 +208,15 @@
 
         for (var mesId=0; mesId < message.length; mesId++) {
           // for Polymer (to notice Array change) special treatment to integrate data
-          var labelindex = this._getLabelIndex(message[mesId].label);
-          this.set("status.message", "setting labels");
-          this._setGroupingKeys(labelindex, message[mesId].groupingKeys);
-          this._setPreferedGroupingKeys(labelindex, message[mesId].preferedGroupingKey);
-          this._setDataStructure(labelindex, message[mesId].dataStructure);
           this.set("status.message", "init data");
+          this._setLabelIndex(message[mesId].label);
+          this._setGroupingKeys(message[mesId].label, message[mesId].groupingKeys);
+          this._setPreferedGroupingKeys(message[mesId].label, message[mesId].preferedGroupingKey);
+          this._setDataStructure(message[mesId].label, message[mesId].dataStructure);
           for (var i = 0; i < message[mesId].content.length; i++) {
             if(message[mesId].content[i].id) {
-              this._initDataPoint(labelindex, message[mesId].content[i].id);
-              this._setValues(labelindex, message[mesId].content[i]);
+              this._initDataPoint(message[mesId].label, message[mesId].content[i].id);
+              this._setValues(message[mesId].label, message[mesId].content[i]);
             }
           }
         }
@@ -230,21 +234,19 @@
           this.set("status.time.lastData", time);
           if (Array.isArray(message)){ // if message is an Array
             for (var mesId=0; mesId < message.length; mesId++) {
-              var labelindex = this._getLabelIndex(message[mesId].label);
               // important: set label serverside for each sent object
               //            alse not checked if labels are not selected for effiency
               for (var i in message[mesId].content) { // for all messurement-data-alements existing
                 if(message[mesId].content[i].id) {
-                  this._setValues(labelindex, message[mesId].content[i]);
+                  this._setValues(message[mesId].label, message[mesId].content[i]);
                 }
               }
             }
           }
           else { // if message is a single Object
-            var labelindex = this._getLabelIndex(message.label);
             for (var i in message.content) { // for all messurement-data-alements existing
               if(message.content[i].id) {
-                this._setValues(labelindex, message.content[i]);
+                this._setValues(message[mesId].label, message.content[i]);
               }
             }
           }
@@ -261,42 +263,39 @@
           return undefined;
       },
 
-      _getLabelIndex: function(labelName) {
-        if (this.labels.indexOf(labelName) != -1 && this.availableLabels.indexOf(labelName) != -1)
-          return this.availableLabels.indexOf(labelName);
-        else // if it isn't selected then return undefined
-          return undefined;
+      _setLabelIndex: function(labelname) {
+        var labelindex = this.availableLabels.indexOf(labelname);
+        if(labelindex == -1) labelindex = undefined;
+        this.set('labelIndex.' + labelname, labelindex);
       },
 
-      _getLabelName: function(labelindex) {
-        return this.availableLabels[labelindex];
+      _getLabelIndex: function(labelname) {
+        return this.labelIndex[labelname];
       },
 
-      _setGroupingKeys: function(labelindex, groupingKeys) {
-        while (labelindex >= this.groupingKeys.length)
-          this.push("groupingKeys", {});
-        this.set("groupingKeys."+labelindex, groupingKeys);
+      _setGroupingKeys: function(labelname, groupingKeys) {
+        this.set("groupingKeys." + labelname, groupingKeys);
       },
 
-      _setPreferedGroupingKeys: function(labelindex, preferedGroupingKey) {
-        while (labelindex >= this.preferedGroupingKeys.length)
-          this.preferedGroupingKeys.push("all");
-        this.preferedGroupingKeys[labelindex] = preferedGroupingKey;
+      _setPreferedGroupingKeys: function(labelname, preferedGroupingKey) {
+        preferedGroupingKey = preferedGroupingKey || 'all';
+        this.set('preferedGroupingKeys.' + labelname, preferedGroupingKey);
       },
 
-      _setDataStructure: function(labelindex, groups) {
-        while (labelindex >= this.data.length)
+      _setDataStructure: function(labelname, groups) {
+        for (var i = this.data.length; i < this.availableLabels.length; i++)
           this.push("data", {});
-        this.set("data."+labelindex, {label: this.availableLabels[labelindex], groups: groups});
+        this.set("data." + this.labelIndex[labelname], {label: labelname, groups: groups});
       },
 
-      _setValues: function(labelindex, messageContent) {
+      _setValues: function(labelname, messageContent) {
         // getting positions for the ids in groups
         // TODO: optimize
+        var labelindex = this.labelIndex[labelname];
         var id = messageContent.id;
         var a, b, c;
         for (a = 0; a < this.data[labelindex].groups.length; a++) {
-          if(this.data[labelindex].groups[a].key == this.preferedGroupingKeys[labelindex])
+          if(this.data[labelindex].groups[a].key == this.preferedGroupingKeys[labelname])
             break;
         }
         for (b = 0; b < this.data[labelindex].groups[a].subgroup.length; b++) {
@@ -327,11 +326,12 @@
       },
 
       // init datapoint, but it doesn't overwrite datavalues, if the datapoint existed before and has matching labels
-      _initDataPoint: function(labelindex, id) {
+      _initDataPoint: function(labelname, id) {
         // TODO: optimize
+        var labelindex = this.labelIndex[labelname];
         var a, b, c;
         for (a = 0; a < this.data[labelindex].groups.length; a++) {
-          if(this.data[labelindex].groups[a].key == this.preferedGroupingKeys[labelindex])
+          if(this.data[labelindex].groups[a].key == this.preferedGroupingKeys[labelname])
             break;
         }
         for (b = 0; b < this.data[labelindex].groups[a].subgroup.length; b++) {
@@ -339,6 +339,7 @@
           if(c !== -1)
             break;
         }
+        this.set('data.' + labelindex + '.groups.' + a + '.subgroup.' + b + '.elements.' + c + '.labelindex', labelindex);
         this.splice('data.' + labelindex + '.groups.' + a + '.subgroup.' + b + '.elements.' + c + '.values', 1, this.data[labelindex].groups[a].subgroup[b].elements[c].values.length - 1);
       },
 
@@ -354,9 +355,9 @@
         else if (exceeds === true || exceeds === false) {
           // TODO: check if this could be optimized
           var item = Polymer.Collection.get(this.data[labelindex].groups[a].subgroup[b].elements).getItem('#'+c);
-          var key = Polymer.Collection.get(this.exceeding).getKey(item);
-          if(item && key) {
+          if(item && Polymer.Collection.get(this.exceeding).getKey(item) === undefined) {
             this.push('exceeding', item);
+            var key = Polymer.Collection.get(this.exceeding).getKey(item);
             this.linkPaths('exceeding.' + key, 'data.#' + labelindex + '.groups.#' + a + '.subgroup.#' + b + '.elements.#' + c);
             this.set("isExceeding", true);
             this.set('data.' + labelindex + '.groups.' + a + '.subgroup.' + b + '.elements.' + c + ".isExceeding", true);
