@@ -445,11 +445,11 @@
 
         <section main id="mainContent">
 
-          <template id="labeltemplate" is="dom-repeat" items="{{groups}}" as="groupItems" observe="label groups" filter="filterSelectedLabel">
-            <template is="dom-repeat" items="{{groupItems.groups}}" as="groupItem" filter="filterPreferedGroup">
-              <template is="dom-repeat" items="{{groupItem.subgroup}}" as="subgroupItem">
-                <post-card class="group" headline="{{subgroupItem.name}}" without-window="[[withoutWindow]]" dark$="[[dark]]">
-                  <template is="dom-repeat" items="{{subgroupItem.elements}}" as="element">
+          <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="items" observe="label groups" filter="filterSelectedLabel">
+            <template is="dom-repeat" items="{{items.groups}}" as="groups" filter="filterPreferedGroup">
+              <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroups">
+                <post-card class="group" headline="{{subgroups.name}}" without-window="[[withoutWindow]]" dark$="[[dark]]">
+                  <template is="dom-repeat" items="{{subgroups.elements}}" as="element">
                       <section class="card" on-tap="setSelectedElement" dark$="[[dark]]">
 
                           <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding-element="_checkExceedingDialog"></sign-element>

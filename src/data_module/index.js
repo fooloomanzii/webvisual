@@ -97,7 +97,7 @@ function connect (config, server, err) {
             // Process data to certain format
             var currentData = dataMerge( dataConf[data_index], {exceeds: threshold(data, dataConf[data_index].types), data: data } );
 
-            // Save new Data in Database 
+            // Save new Data in Database
             dbController.appendData(data_index,
                 currentData.content,
                 function (appendedData, cb_index) { }
@@ -118,7 +118,7 @@ function connect (config, server, err) {
     socket.on('clientConfig', function(options) {
 
       var current_client = new Client(socket, options);
-      
+
       // go through all patterns and collect the data, the client needs
       async.map(current_client.patterns,
           function(pattern, async_callback){
@@ -136,13 +136,9 @@ function connect (config, server, err) {
                   var message_chunk = {
                       label : dataLabels[index],
                       content : data,
-                      types : dataConf[index].types,
-                      ids : dataConf[index].ids,
-                      groups : dataConf[index].groups,
+                      dataStructure : dataConf[index].dataStructure,
                       groupingKeys : dataConf[index].groupingKeys,
                       preferedGroupingKey : dataConf[index].preferedGroupingKey,
-                      keys : dataConf[index].keys,
-                      unnamedType : dataConf[index].unnamedType,
                       timeFormat : dataConf[index].timeFormat
                    }
 
@@ -253,9 +249,9 @@ function connect (config, server, err) {
 
             // start the handler for new measuring data related to configArray[i]
             dataFile[db_index_cb2].connect();
-            
+
             /* use next line only to remove all the TMPs
-             * make sure, there is no connection to the filehandler 
+             * make sure, there is no connection to the filehandler
              * and clients will not be served at the time of removement */
             //dbController.removeTMPs(db_index_cb2);
 
