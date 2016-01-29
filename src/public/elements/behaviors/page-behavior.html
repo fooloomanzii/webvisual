@@ -44,16 +44,16 @@
         type: Number
       }
     },
-    observers: [
-      "_labelsChanged(labels.length)"
-    ],
-    _labelsChanged: function(length) {
-      if(length > 0) {
-        // this.set("selectedLabel",0);
-        // this._selectedLabelChanged();
-        // this._removeAllExceedingElements(false);
-      }
-    },
+    // observers: [
+    //   "_labelsChanged(labels.length)"
+    // ],
+    // _labelsChanged: function(length) {
+    //   // if(length > 0) {
+    //     // this.set("selectedLabel",0);
+    //     // this._selectedLabelChanged();
+    //     // this._removeAllExceedingElements(false);
+    //   // }
+    // },
     _computeSelectedLabelId: function(index) {
       if (index == undefined || this.labels == undefined)
         return 0;
@@ -105,16 +105,18 @@
       return (this.preferedGroupingKeys[this.labels[this.selectedLabel]] === groupItem.key);
     },
     _removeAllExceedingElements: function(all) {
+      // @all - if false, only elements will be removed,
+      //        if there are not of the selected Labels from select-page
       if (all != false)
         all = true;
 
       var items = Polymer.Collection.get(this.exceeding).getItems();
-      for (item of items) {
-        if (all || this.labels.indexOf(item.labelname) == -1) {
-          var key = Polymer.Collection.get(this.exceeding).getKey(item);
+      for (var i=0; i < items.length; i++) {
+        if (all || this.labels.indexOf(items[i].labelname) == -1) {
+          var key = Polymer.Collection.get(this.exceeding).getKey(items[i]);
           if(key) {
-            this.arrayDelete('exceeding', item);
             this.unlinkPaths('exceeding.' + key);
+            this.arrayDelete('exceeding', items[i]);
           }
         }
         if (this.exceeding.length == 0)

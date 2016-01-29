@@ -450,9 +450,9 @@
               <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroups">
                 <post-card headline="{{subgroups.name}}" without-window$="[[withoutWindow]]" dark$="[[dark]]">
                   <template is="dom-repeat" items="{{subgroups.elements}}" as="element">
-                      <section class="card" on-tap="setSelectedElement" dark$="[[dark]]">
+                      <section class="card" dark$="[[dark]]">
 
-                          <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding-element="_checkExceedingDialog"></sign-element>
+                          <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding-element="_checkExceedingDialog" on-tap="setSelectedElement" ></sign-element>
                           <section class="caption" dark$="[[dark]]">
                             <template is="dom-repeat" items="{{getGroupingKeys(groupingKeys.*,selectedLabel)}}" as="key">
                               <span id="{{key}}">{{getElementsKey(element,key)}}</span>
@@ -593,12 +593,24 @@
           else {
             this.unlinkPaths('selectedElement');
             this.selectedElement = null;
-            
-            var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
-            var icol  = Polymer.Collection.get(this.data[selectedLabelId]);
-            var key = icol.getKey(item);
+
+            var labelname = item.labelname;
+            var labelindex = item.labelindex;
+            var id = item.id;
+            var a, b, c;
+            for (a = 0; a < this.data[labelindex].groups.length; a++) {
+              if(this.data[labelindex].groups[a].key == this.preferedGroupingKeys[labelname])
+                break;
+            }
+            for (b = 0; b < this.data[labelindex].groups[a].subgroup.length; b++) {
+              c = this.data[labelindex].groups[a].subgroup[b].ids.indexOf(id);
+              if(c !== -1)
+                break;
+            }
+            // var icol  = Polymer.Collection.get(this.data[labelindex].groups[a].subgroup[b].elements[c]);
+            // var key = icol.getKey(item);
             this.selectedElement = item;
-            this.linkPaths('selectedElement', 'data.#'+ selectedLabelId + "." + key);
+            this.linkPaths('selectedElement', 'data.#' + labelindex + '.groups.#' + a + '.subgroup.#' + b + '.elements.#' + c);
             this.notifyPath('selectedElement.values', this.selectedElement.values);
             if (!this.opened){
               this.toggleAttribute('opened',true);

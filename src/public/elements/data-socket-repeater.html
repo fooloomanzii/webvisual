@@ -79,7 +79,7 @@
           },
           maxLines: {
             type: Number,
-            value: this.maxTotalLines
+            value: function() { return this.maxTotalLines; }
           },
           interval: {
             type: Number,
@@ -184,16 +184,7 @@
       },
 
       _init: function() {
-        // this.set('data',[]);
-        // this.set('groups',[]);
-        // this.set('groupingKeys',[]);
-        // this.set('preferedGroupingKeys',[]);
-        // for (var i=0; i<this.availableLabels.length; i++){
-        //   this.push('data',{label: this.availableLabels[i], elements:[]});
-        //   this.push('groups',[]);
-        //   this.push('groupingKeys',[]);
-        //   this.push('preferedGroupingKeys',"all");
-        // }
+        // this._removeAllExceedingElements();
       },
 
       _onFirstData: function(message) {
@@ -246,7 +237,7 @@
           else { // if message is a single Object
             for (var i in message.content) { // for all messurement-data-alements existing
               if(message.content[i].id) {
-                this._setValues(message[mesId].label, message.content[i]);
+                this._setValues(message.label, message.content[i]);
               }
             }
           }
@@ -340,6 +331,7 @@
             break;
         }
         this.set('data.' + labelindex + '.groups.' + a + '.subgroup.' + b + '.elements.' + c + '.labelindex', labelindex);
+        this.set('data.' + labelindex + '.groups.' + a + '.subgroup.' + b + '.elements.' + c + '.labelname', labelname);
         this.splice('data.' + labelindex + '.groups.' + a + '.subgroup.' + b + '.elements.' + c + '.values', 1, this.data[labelindex].groups[a].subgroup[b].elements[c].values.length - 1);
       },
 
@@ -369,8 +361,28 @@
         var item = Polymer.Collection.get(this.data[labelindex].groups[a].subgroup[b].elements).getItem('#'+c);
         var key = Polymer.Collection.get(this.exceeding).getKey(item);
         if(item && key) {
-          this.arrayDelete('exceeding', item);
           this.unlinkPaths('exceeding.' + key);
+          this.arrayDelete('exceeding', item);
+          if (this.exceeding.length == 0)
+            this.set("isExceeding",false);
+        }
+      },
+
+      _removeAllExceedingElements: function(all) {
+        // @all - if false, only elements will be removed,
+        //        if there are not of the selected Labels from select-page
+        if (all != false)
+          all = true;
+
+        var items = Polymer.Collection.get(this.exceeding).getItems();
+        for (var i=0; i < items.length; i++) {
+          if (all || this.labels.indexOf(items[i].labelname) == -1) {
+            var key = Polymer.Collection.get(this.exceeding).getKey(items[i]);
+            if(key) {
+              this.unlinkPaths('exceeding.' + key);
+              this.arrayDelete('exceeding', items[i]);
+            }
+          }
           if (this.exceeding.length == 0)
             this.set("isExceeding",false);
         }
@@ -384,7 +396,7 @@
           for (var labelindex=0; labelindex < this.availableLabels.length; labelindex++) {
             for (var i=0; i < this.availableLabels[labelindex].length; i++) {
               if (this.groups[labelindex].groups[a].subgroup[b].elements[c].values.length > newValue)
-                this.splice('groups.' + labelindex + '.groups.' + a + '.subgroup.' + b + '.elements.' + c + ".values", newValue,this.data[labelindex][i].values.length)
+                this.splice('groups.' + labelindex + '.groups.' + a + '.subgroup.' + b + '.elements.' + c + ".values", newValue,this.data[labelindex][i].values.length);
             }
           }
         }
