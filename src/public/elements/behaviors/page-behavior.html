@@ -61,9 +61,8 @@
         return this.labelIndex[this.labels[index]];
     },
     _selectedLabelChanged: function(newv, old) {
-      var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
-      this.set('groupBy', this.preferedGroupingKeys[selectedLabelId]);
-      // this.setSelectedGroup();
+      // var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
+      this.set('groupBy', this.preferedGroupingKeys[this.labels[this.selectedLabel]]);
       this.$.labeltemplate.render();
       // var templ = this.$$('template#'+this.labels[this.selectedLabel]+'.grouptemplate');
       // if (templ)
@@ -72,7 +71,10 @@
         this.deselectElement();
       }
     },
-    _setPreferedGroupingKey: function(groupBy, oldValue) {
+    _setPreferedGroupingKey: function(newValue, oldValue) {
+      if (oldValue)
+        this._moveData(newValue, oldValue);
+      this.set('preferedGroupingKeys.' + this.labels[this.selectedLabel], newValue);
       // var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
       // if(groupBy && this.groupBy in this.groups[selectedLabelId]) {
       //   this.set("groupBy",groupBy);
@@ -82,6 +84,23 @@
       //   this.set("groupBy",this.preferedGroupingKeys[selectedLabelId]);
       // else
       //   this.set("groupBy","all");
+    },
+    _moveData: function(toGroupBy, fromGroupBy) {
+      // self = this;
+      // this.async( function() {
+      //   var labelname = self.labels[self.selectedLabel];
+      //   var labelindex = self.labelIndex[labelname];
+      //   var a, b;
+      //   for (a = 0; a < this.data[labelindex].groups.length; a++) {
+      //     if(this.data[labelindex].groups[a].key == this.preferedGroupingKeys[labelname])
+      //       break;
+      //   }
+      //   for (b = 0; b < this.data[labelindex].groups[a].subgroup.length; b++) {
+      //     c = this.data[labelindex].groups[a].subgroup[b].ids.indexOf(id);
+      //     if(c !== -1)
+      //       break;
+      //   }
+      // });
     },
     // TODO: move Captions into Sign-Element etc.
     getGroupingKeys: function(change, index) {

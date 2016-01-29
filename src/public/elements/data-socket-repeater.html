@@ -52,13 +52,13 @@
             notify: true
           },
           groupingKeys: {
-            type: Array,
-            value: function() { return []; },
+            type: Object,
+            value: function() { return {}; },
             notify: true
           },
           preferedGroupingKeys: {
-            type: Array,
-            value: function() { return []; },
+            type: Object,
+            value: function() { return {}; },
             notify: true
           },
           status: {
@@ -138,11 +138,15 @@
         // Receiving the FIRST Data
         this.socket.on('first', function(message) {
           console.info("client has established connection to: "+window.location.host);
-          self._onFirstData(message);
+          self.async(function() {
+            self._onFirstData(message);
+          });
         });
         // Receive FURTHER Data
         this.socket.on('data', function(message) {
-          self._onData(message);
+          self.async(function() {
+            self._onData(message);
+          });
           // if (message.content[0].values.length !== 1)
             // console.log(message.content[0].values.length);
         });
