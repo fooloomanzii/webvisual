@@ -116,8 +116,8 @@
         var self = this;
         this.socket.on('clientConfig', function(config) {
           self._init();
+          self.set("availableLabels", config.labels);
           if (!self.opened) {
-            self.set("availableLabels", config.labels);
             self.set("indexOfLabel", config.indexOfLabel);
             self.set('paths', config.paths);
             self.set('data', config.dataStructure);
@@ -268,35 +268,33 @@
       },
 
       _checkIfExceedingStateHasToBeSet: function(path, exceeds) {
-        // if(this.data[labelindex].groups[a].subgroup[b].elements[c].isExceeding == undefined)
-        //   this.data[labelindex].groups[a].subgroup[b].elements[c].isExceeding = null;
-        // if (exceeds === null) {
-        //   if(this.data[labelindex].groups[a].subgroup[b].elements[c].isExceeding === true) {
-        //     this.set('data.' + labelindex + '.groups.' + a + '.subgroup.' + b + '.elements.' + c + ".isExceeding", false);
-        //     this._removeExceedingElement(labelindex, a, b, c);
-        //   }
-        // }
-        // else if (exceeds === true || exceeds === false) {
-        //   // TODO: check if this could be optimized
-        //   var item = Polymer.Collection.get(this.data[labelindex].groups[a].subgroup[b].elements).getItem('#'+c);
-        //   if(item && Polymer.Collection.get(this.exceeding).getKey(item) === undefined) {
-        //     this.push('exceeding', item);
-        //     var key = Polymer.Collection.get(this.exceeding).getKey(item);
-        //     this.linkPaths('exceeding.' + key, 'data.#' + labelindex + '.groups.#' + a + '.subgroup.#' + b + '.elements.#' + c);
-        //     this.set("isExceeding", true);
-        //     this.set('data.' + labelindex + '.groups.' + a + '.subgroup.' + b + '.elements.' + c + ".isExceeding", true);
-        //   }
-        // }
+        path = path.slice(0,-7);
+        var item = this.get(path);
+        if (exceeds === null) {
+          if(item.isExceeding === true) {
+            this.set(path + ".isExceeding", false);
+            this._removeExceedingElement(path);
+          }
+        }
+        else if (exceeds === true || exceeds === false) {
+          if(Polymer.Collection.get(this.exceeding).getKey(item) === undefined) {
+            this.push('exceeding', item);
+            var key = Polymer.Collection.get(this.exceeding).getKey(item);
+            this.linkPaths('exceeding.' + key, path.replace('data.','data.#').replace('groups.','groups.#').replace('subgroup.','subgroup.#').replace('elements.','elements.#'));
+            this.set("isExceeding", true);
+            this.set(path + ".isExceeding", true);
+          }
+        }
       },
 
-      _removeExceedingElement: function(labelindex, a, b, c) {
-        var item = Polymer.Collection.get(this.data[labelindex].groups[a].subgroup[b].elements).getItem('#'+c);
+      _removeExceedingElement: function(path) {
+        var item = this.get(path);
         var key = Polymer.Collection.get(this.exceeding).getKey(item);
         if(item && key) {
           this.unlinkPaths('exceeding.' + key);
           this.arrayDelete('exceeding', item);
           if (this.exceeding.length == 0)
-            this.set("isExceeding",false);
+            this.set("isExceeding", false);
         }
       },
 

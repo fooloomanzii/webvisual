@@ -80,40 +80,7 @@
           }
         });
       }
-
-      // if (this.$$('template#grouptemplate'))
-      //   this.$$('template#grouptemplate').render();
-
-      // var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
-      // if(groupBy && this.groupBy in this.groups[selectedLabelId]) {
-      //   this.set("groupBy",groupBy);
-      //   this.set("preferedGroupingKeys.#"+selectedLabelId, groupBy);
-      // }
-      // else if (this.preferedGroupingKeys && this.preferedGroupingKeys[selectedLabelId] && this.preferedGroupingKeys[selectedLabelId] in this.groups[selectedLabelId])
-      //   this.set("groupBy",this.preferedGroupingKeys[selectedLabelId]);
-      // else
-      //   this.set("groupBy","all");
     },
-    _moveData: function(toGroupBy, fromGroupBy) {
-
-
-      // self = this;
-      // this.async( function() {
-      //   var label = self.labels[self.selectedLabel];
-      //   var labelindex = self.indexOfLabel[label];
-      //   var a, b;
-      //   for (a = 0; a < this.data[labelindex].groups.length; a++) {
-      //     if(this.data[labelindex].groups[a].key == this.preferedGroupingKeys[label])
-      //       break;
-      //   }
-      //   for (b = 0; b < this.data[labelindex].groups[a].subgroup.length; b++) {
-      //     c = this.data[labelindex].groups[a].subgroup[b].ids.indexOf(id);
-      //     if(c !== -1)
-      //       break;
-      //   }
-      // });
-    },
-    // TODO: move Captions into Sign-Element etc.
     getGroupingKeys: function(label) {
       if (this.groupingKeys)
         return this.groupingKeys[label];

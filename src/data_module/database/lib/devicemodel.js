@@ -830,7 +830,6 @@ function find(self, request, callback) {
      // searching function
      function(device, async_callback){
        // query collection with values for current device
-       console.log(JSON.stringify(self.database));
        var values_collection = self.database.model(device.storage, self.StorageSchema);
 
        var query;

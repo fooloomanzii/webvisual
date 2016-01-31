@@ -579,26 +579,11 @@
           }
           else {
             this.unlinkPaths('selectedElement');
-            this.selectedElement = null;
-
-            var label = item.label;
-            var labelindex = item.labelindex;
-            var id = item.id;
-            var a, b, c;
-            for (a = 0; a < this.data[labelindex].groups.length; a++) {
-              if(this.data[labelindex].groups[a].key == this.preferedGroupingKeys[label])
-                break;
-            }
-            for (b = 0; b < this.data[labelindex].groups[a].subgroup.length; b++) {
-              c = this.data[labelindex].groups[a].subgroup[b].ids.indexOf(id);
-              if(c !== -1)
-                break;
-            }
-            // var icol  = Polymer.Collection.get(this.data[labelindex].groups[a].subgroup[b].elements[c]);
-            // var key = icol.getKey(item);
             this.selectedElement = item;
-            this.linkPaths('selectedElement', 'data.#' + labelindex + '.groups.#' + a + '.subgroup.#' + b + '.elements.#' + c);
-            this.notifyPath('selectedElement.values', this.selectedElement.values);
+
+            var path = this.paths[item.label][this.groupBy][item.id].slice(0,-7) .replace('data.','data.#').replace('groups.','groups.#').replace('subgroup.','subgroup.#').replace('elements.','elements.#');
+
+            this.linkPaths('selectedElement',path);
             if (!this.opened){
               this.toggleAttribute('opened',true);
               this.$.toolbar.playAnimation('in');
