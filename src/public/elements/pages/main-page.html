@@ -273,21 +273,6 @@
       33%  {color: #f64756;}
       100% {color: #f4959d;}
     }
-
-    iron-list {
-        padding-top: 1px;
-        padding-bottom: 16px;
-        -webkit-flex: 1 1;
-        flex: 1 1;
-        --iron-list-items-container: {
-          max-width: 800px;
-          margin: auto;
-          margin-top: 60px;
-          margin-bottom: 60px;
-          border-bottom: 1px solid #ddd;
-        };
-      }
-
   </style>
 
   <template>
@@ -297,15 +282,15 @@
       <paper-icon-button icon="menu" class="menu-icon" on-tap="togglePanel"></paper-icon-button>
       <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsDialog" hidden$="[[!isExceeding]]"></paper-icon-button>
       <paper-icon-button icon="remove" class="toggle-icon control" on-tap="deselectElement"></paper-icon-button>
-      <paper-tabs id="labelsTabs" class="header" selected="{{selectedLabel}}" no-bar scrollable hide-scroll-buttons>
+      <paper-tabs id="labelsTabs" class="header" attr-for-selected="label" selected="{{selectedLabel}}" no-bar scrollable hide-scroll-buttons>
         <template is="dom-repeat" items="[[labels]]">
-          <paper-tab class="label">[[item]]</paper-tab>
+          <paper-tab class="label" label="[[item]]">[[item]]</paper-tab>
         </template>
       </paper-tabs>
 
       <sign-element id="selectedElementSign" class="selectedElement sign incard" element="[[selectedElement]]" on-tap="deselectElement"></sign-element>
       <section id="selectedElementCaption" class="selectedElement caption incard">
-        <template is="dom-repeat" items="[[getGroupingKeys(groupingKeys.*,selectedElement.labelindex)]]" as="key">
+        <template is="dom-repeat" items="[[getGroupingKeys(selectedElement.label)]]" as="key">
           <span id="[[key]]">[[getElementsKey(selectedElement,key)]]</span>
         </template>
       </section>
@@ -338,7 +323,7 @@
 
                   <iron-collapse class="sidemenu collapse grouping">
                     <paper-radio-group selected="{{groupBy}}" class="indention">
-                      <template is="dom-repeat" items="[[getGroupingKeys(groupingKeys.*,selectedLabel)]]" as="key">
+                      <template is="dom-repeat" items="[[getGroupingKeys(selectedLabel)]]" as="key">
                         <paper-radio-button name="[[key]]">[[key]]</paper-radio-button>
                       </template>
                     </paper-radio-group>
@@ -430,7 +415,7 @@
               <section class="card" on-tap="setSelectedElement" dark$="[[dark]]">
                 <sign-element element="{{element}}" dark$="[[dark]]"></sign-element>
                 <section class="caption" dark$="[[dark]]">
-                  <template is="dom-repeat" items="[[getGroupingKeys(groupingKeys.*,element.labelindex)]]" as="key">
+                  <template is="dom-repeat" items="[[getGroupingKeys(element.label)]]" as="key">
                     <span id="[[key]]">[[getElementsKey(element,key)]]</span>
                   </template>
                 </section>
@@ -448,7 +433,7 @@
 
           <!-- Elements -->
           <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="items" observe="label groups" filter="filterSelectedLabel" delay="250">
-            <template is="dom-repeat" items="{{items.groups}}" as="groups" observe="key subgroup" filter="filterPreferedGroup" delay="250">
+            <template id="grouptemplate" is="dom-repeat" items="{{items.groups}}" as="groups" observe="key subgroup" filter="filterPreferedGroup" delay="250">
               <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroups">
                 <post-card headline="{{subgroups.name}}" without-window$="[[withoutWindow]]" dark$="[[dark]]">
                   <template is="dom-repeat" items="{{subgroups.elements}}" as="element">
@@ -456,7 +441,7 @@
 
                           <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding-element="_checkExceedingDialog" on-tap="setSelectedElement" ></sign-element>
                           <section class="caption" dark$="[[dark]]">
-                            <template is="dom-repeat" items="{{getGroupingKeys(groupingKeys.*,selectedLabel)}}" as="key">
+                            <template is="dom-repeat" items="{{getGroupingKeys(selectedLabel)}}" as="key">
                               <span id="{{key}}">{{getElementsKey(element,key)}}</span>
                             </template>
                           </section>
@@ -596,12 +581,12 @@
             this.unlinkPaths('selectedElement');
             this.selectedElement = null;
 
-            var labelname = item.labelname;
+            var label = item.label;
             var labelindex = item.labelindex;
             var id = item.id;
             var a, b, c;
             for (a = 0; a < this.data[labelindex].groups.length; a++) {
-              if(this.data[labelindex].groups[a].key == this.preferedGroupingKeys[labelname])
+              if(this.data[labelindex].groups[a].key == this.preferedGroupingKeys[label])
                 break;
             }
             for (b = 0; b < this.data[labelindex].groups[a].subgroup.length; b++) {

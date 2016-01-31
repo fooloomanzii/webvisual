@@ -1,13 +1,13 @@
 /** TODO's and description
  * // TODO make a more understandable error handling!
- * 
+ *
  * * Short description:
  * devicemodel handles the mongoDB-Collection that includes a list of devices
  * and Collections with stored values.
  * After storing the fresh incoming data, devicemodel also stores it
  *   by current tmpmodel for further usage through dbcontroller.js.
  * You can access tmpDB only by switching them! (calling the switching function)
- * 
+ *
  * It's NOT RECOMMENDED to use the functions directly!!
  * DBController handles the whole access over the model.
  *
@@ -15,7 +15,7 @@
  * To use it, at first you need to call the constructor with options.
  * After that you need to set Listener for 'error'-event
  * and call the 'connect(callback)' function.
- * 
+ *
  * Example:
  *   var deviceModel = new DeviceModel(database_options, function(db_index){
  *     deviceModel.on( 'error', function (err) { console.warn(err) });
@@ -34,11 +34,11 @@
  * DeviceModel.resizeStorage(id, size, callback)
  * DeviceModel.resizeAll(size, callback)
  * DeviceModel.removeTMPs(callback)
- * 
- * 
+ *
+ *
  * * Development Note: (to understand it, you really need to know the code)
- * The current DB-Structure (one collection for the list of devices 
- *    plus collection for every device for the values) 
+ * The current DB-Structure (one collection for the list of devices
+ *    plus collection for every device for the values)
  *    was chosen because of low CPU usage.
  *
  * It was also tested to make everything in a single collection, like:
@@ -88,18 +88,18 @@ var default_db_options = {
  * E.g. {'id':"sample", 'room':"1", 'isBoolean':false}
  *    types of properties will be recognized and used for possible storage
  *    in the database.
- *    
+ *
  * device_properties are important for ability to search for devices by additional parameters
- * 
+ *
  * This function is currently used by 'createConnection' function
- */ 
+ */
 var DeviceSchema = function( device_properties ){
   var newSchemaDef = {}
   for(property in device_properties){
     // recognize every property
     newSchemaDef[property] = getSchemaTypeFromObject(device_properties[property]);
   }
-  
+
   // important values!!
   newSchemaDef._id = String; // index = Measuring Device ID
   newSchemaDef.storage = String  // Name of the Collection with Device values
@@ -112,7 +112,7 @@ var DeviceSchema = function( device_properties ){
 var getSchemaTypeFromObject = function(obj){
   // like 'typeof', but also recognizing Date and Array
   var type = Object.prototype.toString.call(obj);
-  
+
   switch (type){
     case '[object Date]':
       return Date;
@@ -145,7 +145,7 @@ var getSchemaTypeFromObject = function(obj){
  *      !!  need to be given in Megabytes !!  */
 var StorageSchema = function( storage_size ){
   if(storage_size <= 0) throw new Error('Wrong storage size defined!!');
-  
+
 //TODO get rid of solid variables by changing the Schema to changeable one
   return new Schema(
     {
@@ -170,16 +170,16 @@ var StorageSchema = function( storage_size ){
 
   // --- Constructor --- //
 /* Define local variables and create connection to the database (not yet established)
- * To establish the created connection, you need to use function connect() 
- * 
+ * To establish the created connection, you need to use function connect()
+ *
  * database_options: bunch of optional parameters, you can set up from outside
  *      // important things
- *      .index: label for current model, to use in callbacks. 
+ *      .index: label for current model, to use in callbacks.
  *             Default: value of .name
  *      .name,
- *      .ip, 
+ *      .ip,
  *      .port: name, IP & port of MongoDB Database.
- *             Default values set by default_db_options.ip/port 
+ *             Default values set by default_db_options.ip/port
  *      .device_properties: possible properties of every device in database
  *             Better description is at function 'DeviceSchema'
  *             Important for ability to search for devices by additional parameters
@@ -188,7 +188,7 @@ var StorageSchema = function( storage_size ){
  *      .max_query_limit,
  *      .default_storage_size,
  *      .save_identical_values: Description can be found at function 'setDefaults'
- *      
+ *
  * callback: function(model_index)
  *      model_index: index of current model
  * */
@@ -213,11 +213,11 @@ var DeviceModel = function(database_options, callback){
   this.tmpDB; // temporary collection
   this.tmpIsInUse = false; // true if new data is been currently written to tmpDB
   this.tmp_switch_callback = []; // queue for temporary callback pointer
-  
+
   // -- Create connection to the database -- //
-  
+
   this.database = mongoose.createConnection(); // connection to the database (not yet established)
-  
+
   // if there are no database_options, we can use default options
   if( database_options == undefined ) database_options = {};
 
@@ -233,7 +233,7 @@ var DeviceModel = function(database_options, callback){
       port   : database_options.port,
       name   : database_options.name
   }
-  
+
   //Essential variable: the device model
   this.model = this.database.model(devicelistDB_name, DeviceSchema(database_options.device_properties));
 
@@ -302,12 +302,12 @@ DeviceModel.prototype.disconnect = function(callback){
   } else { // already disconnected
     if(callback) callback(self.index);
   }
-  
+
 };
 
 /* Remove all temporary collections and repair the database
  * Repairing is important in order to remove all remain indexes
- * 
+ *
  * !! WARNING! Repair operation needs enough free disk space (in size of database)   !!!
  * !!! Also it needs much time, so use this function ONLY, WHEN THE DB IS NOT IN USE !!!
  */
@@ -444,7 +444,7 @@ DeviceModel.prototype.setDevices = function(devices, callback){
 /*
 * Switches temporary Database to the next one by round robin
 * If there is not enough tmp databases, it multiplies the number of databases by 2
-* 
+*
 * !!!                        IMPORTANT                           !!!
 * !!! if there will be to many temporary databases,              !!!
 * !!! increase the switching interval!! (update_interval)        !!!
@@ -456,19 +456,19 @@ DeviceModel.prototype.switchTmpDB = function(callback){
   if(this.tmp_switch_callback.length > this.num_of_tmps){
     // if there are not enough tmp databases, make more
     this.cur_tmp = this.num_of_tmps;
-    this.num_of_tmps*=2; 
+    this.num_of_tmps*=2;
     // *2, because we don't know, which database is currently in use,
     // and we need to be sure, that the first one will get empty, before the next round of usage
   } else {
     // calculate the next index on round robin
     this.cur_tmp = (this.cur_tmp + 1) % this.num_of_tmps;
   }
-  
+
   //Current state: "this.tmpDB == last_tmpDB" is true
   this.tmpDB = this.database.model(tmpDB_prefix+this.cur_tmp, this.TmpModel.schema);
   // Current state: "this.tmpDB == last_tmpDB" is false
   if(callback){
-   
+
    if(this.tmpIsInUse || this.tmp_switch_callback.length > 0 ) {
      // if there are any write operations on last_tmpDB,
      //    the callback needs to be called after the end of that operations!
@@ -477,7 +477,7 @@ DeviceModel.prototype.switchTmpDB = function(callback){
    }
    // but if tmpDB is not currently in use, the callback can be called now
    else callback(last_tmpDB, this.index);
-   
+
   }
 };
 
@@ -830,6 +830,7 @@ function find(self, request, callback) {
      // searching function
      function(device, async_callback){
        // query collection with values for current device
+       console.log(JSON.stringify(self.database));
        var values_collection = self.database.model(device.storage, self.StorageSchema);
 
        var query;
@@ -957,8 +958,8 @@ DeviceModel.prototype.resizeAll = function (size, callback) {
         devices,
         // searching function
         function(device, async_callback){
-          self.resizeStorage(device._id, size, function(model_index){ 
-            async_callback(null, model_index); 
+          self.resizeStorage(device._id, size, function(model_index){
+            async_callback(null, model_index);
           });
         },
         function(err, own_indexes) {

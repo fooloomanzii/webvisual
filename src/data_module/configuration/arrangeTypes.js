@@ -3,9 +3,15 @@
 // Module exports
 module.exports = arrangeTypes;
 
-var defaults = { values: [{x: new Date(), y: 0, exceeds: null}]};
+var defaults = {
+  values: [{
+    x: new Date(),
+    y: 0,
+    exceeds: null
+  }]
+};
 
-function arrangeTypes(locals) {
+function arrangeTypes(label, labelindex, locals) {
 
   if (!locals || !locals.types)
     return; // Check the Existence
@@ -23,6 +29,10 @@ function arrangeTypes(locals) {
       for (var j = 0; j < keys.length; j++) {
         type[keys[j]] = type[keys[j]] || locals.unnamedType[keys[j]];
       }
+      // label
+      type.label = label;
+      // isExceeding
+      type.isExceeding = false;
       // if types of values is not an Array or doesn't exist then use the default
       if (!type.values || !Array.isArray(type.values))
         type.values = defaults.values;
@@ -34,7 +44,15 @@ function arrangeTypes(locals) {
     }
   }
 
-  // grouping
+  // GROUPING
+  // note:      this speeds up client handling of grouping, and could save transmitted
+  //            data initially
+  // structure: groups: [{ key: '---',
+  //                       subgroups: [ { name: '---'
+  //                                      elements: [ {id = '---', ...}, ...]
+  //                                      ids: [ '---', ....]
+  //                                    },...]
+  //                     },...]
   // initialy set the preferedGroups
   var groups = locals.exclusiveGroups;
   var key, where, needToSetElement, needToSetGroup;
@@ -58,7 +76,10 @@ function arrangeTypes(locals) {
           break;
         }
       if (needToSetGroup) {
-        groups.push({key: key, subgroup: []});
+        groups.push({
+          key: key,
+          subgroup: []
+        });
       }
       for (var k = 0; k < groups[l].subgroup.length; k++) {
         if (groups[l].subgroup[k].ids && groups[l].subgroup[k].ids.indexOf(types[i].id) != -1) {
@@ -79,10 +100,11 @@ function arrangeTypes(locals) {
       //   console.log(where);
       if (needToSetElement) {
         if (where == -1) {
-          groups[l].subgroup.push(
-                  { name : types[i][key],
-                    ids  : [ types[i].id ],
-                    elements : [ types[i] ] } );
+          groups[l].subgroup.push({
+            name: types[i][key],
+            ids: [types[i].id],
+            elements: [types[i]]
+          });
         } else {
           groups[l].subgroup[where].ids.push(types[i].id);
           if (!groups[l].subgroup[where].elements)
@@ -93,18 +115,32 @@ function arrangeTypes(locals) {
     }
   }
 
-  // if (!groups.all[0].name)
-  //   groups.all[0].name = 'all';
+  // PATHSTRUCTURE
+  // for faster finding elements for client
+  // made for Polymer 1.2 Array structure
+
+  var paths = {};
+  for (var i = 0; i < groups.length; i++) {
+    paths[groups[i].key] = {};
+    for (var j = 0; j < groups[i].subgroup.length; j++) {
+      // paths[groups[i].key][groups[i].subgroup[j].name] = {};
+      for (var k = 0; k < groups[i].subgroup[j].ids.length; k++) {
+        paths[groups[i].key][groups[i].subgroup[j].ids[k]] = 'data.' +
+          labelindex + '.groups.' + i + '.subgroup.' + j + '.elements.' + k + '.values';
+      }
+    }
+  }
 
   return {
-    types : types,
-    ids : ids,
-    dataStructure : groups,
+    types: types,
+    ids: ids,
+    groups: groups,
+    paths: paths,
     groupingKeys: locals.groupingKeys,
     preferedGroupingKey: preferedGroupingKey,
-    keys : keys,
-    unnamedType : locals.unnamedType,
-    timeFormat : locals.timeFormat,
-    ignore : locals.ignore
+    keys: keys,
+    unnamedType: locals.unnamedType,
+    timeFormat: locals.timeFormat,
+    ignore: locals.ignore
   };
 }

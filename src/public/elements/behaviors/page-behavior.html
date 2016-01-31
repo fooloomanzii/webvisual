@@ -3,9 +3,14 @@
     properties: {
       data: {
         type: Array,
-        value: function() { return []; }
+        value: function() { return []; },
+        notify: true
       },
       selectedElement: {
+        type: Object,
+        value: function() { return {}; }
+      },
+      paths: {
         type: Object,
         value: function() { return {}; }
       },
@@ -13,7 +18,7 @@
         type: Array,
         value: function() { return []; }
       },
-      labelIndex: {
+      indexOfLabel: {
         type: Object,
         value: function() { return {}; }
       },
@@ -24,17 +29,15 @@
       preferedGroupingKeys: {
         type: Object,
         value: function() { return {}; },
+        notify: true
       },
-      // selected Label (Tab index)
-      // important note: there is a difference with selected LabelIndex because of initial selection order
+      // selected Label
       selectedLabel: {
-        type: Number,
-        notify: true,
+        type: String,
         observer: "_selectedLabelChanged"
       },
       groupBy: {
         type: String,
-        value: "all",
         observer: "_setPreferedGroupingKey"
       },
       maxTotalLines: {
@@ -44,37 +47,43 @@
         type: Number
       }
     },
-    // observers: [
-    //   "_labelsChanged(labels.length)"
-    // ],
-    // _labelsChanged: function(length) {
-    //   // if(length > 0) {
-    //     // this.set("selectedLabel",0);
-    //     // this._selectedLabelChanged();
-    //     // this._removeAllExceedingElements(false);
-    //   // }
-    // },
-    _computeSelectedLabelId: function(index) {
-      if (index == undefined || this.labels == undefined)
-        return 0;
+    _computeSelectedLabelId: function(label) {
+      if (label == undefined)
+        return this.indexOfLabel[this.labels[0]];
       else
-        return this.labelIndex[this.labels[index]];
+        return this.indexOfLabel[label];
     },
-    _selectedLabelChanged: function(newv, old) {
-      // var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
-      this.set('groupBy', this.preferedGroupingKeys[this.labels[this.selectedLabel]]);
+    _selectedLabelChanged: function(newValue, oldValue) {
+      this.set('groupBy', this.preferedGroupingKeys[this.selectedLabel]);
       this.$.labeltemplate.render();
-      // var templ = this.$$('template#'+this.labels[this.selectedLabel]+'.grouptemplate');
-      // if (templ)
-      //   templ.render();
+
       if(this.opened) {
         this.deselectElement();
       }
     },
     _setPreferedGroupingKey: function(newValue, oldValue) {
-      if (oldValue)
-        this._moveData(newValue, oldValue);
-      this.set('preferedGroupingKeys.' + this.labels[this.selectedLabel], newValue);
+      var label = this.selectedLabel;
+      this.set('preferedGroupingKeys.' + label, newValue);
+      if (oldValue) {
+        self = this;
+        this.async(function(){
+          // Swaping Elements Data to the new groupBy
+          var newItem, oldItem, newPath, oldPath, tmp;
+          for (var id in self.paths[label][oldValue]) {
+            newPath = self.paths[label][newValue][id];
+            oldPath = self.paths[label][oldValue][id];
+            newItem = self.get(newPath);
+            oldItem = self.get(oldPath);
+            tmp = self.splice(newPath,0,newItem.length - 1);
+            self.set(newPath, self.splice(oldPath,0,oldItem.length - 1));
+            self.set(oldPath, tmp);
+          }
+        });
+      }
+
+      // if (this.$$('template#grouptemplate'))
+      //   this.$$('template#grouptemplate').render();
+
       // var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
       // if(groupBy && this.groupBy in this.groups[selectedLabelId]) {
       //   this.set("groupBy",groupBy);
@@ -86,13 +95,15 @@
       //   this.set("groupBy","all");
     },
     _moveData: function(toGroupBy, fromGroupBy) {
+
+
       // self = this;
       // this.async( function() {
-      //   var labelname = self.labels[self.selectedLabel];
-      //   var labelindex = self.labelIndex[labelname];
+      //   var label = self.labels[self.selectedLabel];
+      //   var labelindex = self.indexOfLabel[label];
       //   var a, b;
       //   for (a = 0; a < this.data[labelindex].groups.length; a++) {
-      //     if(this.data[labelindex].groups[a].key == this.preferedGroupingKeys[labelname])
+      //     if(this.data[labelindex].groups[a].key == this.preferedGroupingKeys[label])
       //       break;
       //   }
       //   for (b = 0; b < this.data[labelindex].groups[a].subgroup.length; b++) {
@@ -103,8 +114,9 @@
       // });
     },
     // TODO: move Captions into Sign-Element etc.
-    getGroupingKeys: function(change, index) {
-      return this.groupingKeys[this.labels[index]];
+    getGroupingKeys: function(label) {
+      if (this.groupingKeys)
+        return this.groupingKeys[label];
     },
     getElementsKey: function(element,key) {
       if(element && element[key])
@@ -118,10 +130,10 @@
     },
     // filter data to selected ids
     filterSelectedLabel: function(dataItem) {
-      return (this.labels[this.selectedLabel] === dataItem.label);
+      return (this.selectedLabel === dataItem.label);
     },
     filterPreferedGroup: function(groupItem) {
-      return (this.preferedGroupingKeys[this.labels[this.selectedLabel]] === groupItem.key);
+      return (this.preferedGroupingKeys[this.selectedLabel] === groupItem.key);
     },
     _removeAllExceedingElements: function(all) {
       // @all - if false, only elements will be removed,
@@ -131,7 +143,7 @@
 
       var items = Polymer.Collection.get(this.exceeding).getItems();
       for (var i=0; i < items.length; i++) {
-        if (all || this.labels.indexOf(items[i].labelname) == -1) {
+        if (all || this.labels.indexOf(items[i].label) == -1) {
           var key = Polymer.Collection.get(this.exceeding).getKey(items[i]);
           if(key) {
             this.unlinkPaths('exceeding.' + key);
