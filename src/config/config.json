@@ -19,7 +19,7 @@
 
   "configurations": [
     {
-      "label": "HNF-GDS-Test",
+      "label": "HNF-GDS",
 
       "connections": {
         "file": {
@@ -103,18 +103,21 @@
           "method"   : "",
           "unit"     : "",
           "threshold": {"from":null,"to":null},
-          "isBoolean": false
+          "isBoolean": false,
+          "values" : [{"x": 0, "y": 0, "exceeds": null}]
         },
 
         "groupingKeys" : ["kind", "method", "room", "roomNr", "all"],
         "preferedGroupingKey": "roomNr",
 
-        "exclusiveGroups": {
-          "roomNr": [{"name":"Diverse", "ids":["DI6-1","DI0-2","DI1-2"]},
-                     {"name":"kombinierter Alarm", "ids":["DI2-2","DI3-2","DI4-2","DI5-2"]},
-                     {"name":"4006", "ids":["DI3-5","DI4-5","DI5-5","DI6-5"]}
-                    ]
-        }
+        "exclusiveGroups": [
+          { "key": "roomNr",
+            "subgroup": [{"name":"Diverse", "ids":["DI6-1","DI0-2","DI1-2"]},
+                         {"name":"kombinierter Alarm", "ids":["DI2-2","DI3-2","DI4-2","DI5-2"]},
+                         {"name":"4006", "ids":["DI3-5","DI4-5","DI5-5","DI6-5"]}
+                        ]
+          }
+        ]
       }
     },
     {
@@ -163,18 +166,20 @@
             "propC"  : "",
             "unit"     : "",
             "threshold": {"from":null,"to":null},
-            "isBoolean": false
+            "isBoolean": false,
+            "values" : [{"x": 0, "y": 0, "exceeds": null}]
           },
 
           "groupingKeys" : ["propA", "propB", "propC", "all"],
           "preferedGroupingKey": "propA",
 
-          "exclusiveGroups": {
-          "propA": [{"name":"Werte", "ids":["id1","id2"]},
-                    {"name":"Alarme", "ids":["id3","id4","id5","id6", "id7","id8"]}
-                   ]
-          }
-
+          "exclusiveGroups": [
+            { "key": "propA",
+              "subgroup": [ {"name":"Werte", "ids":["id1","id2"]},
+                            {"name":"Alarme", "ids":["id3","id4","id5","id6", "id7","id8"]}
+                          ]
+            }
+          ]
       }
     }
   ]

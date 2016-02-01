@@ -3,55 +3,51 @@
 // Module exports
 module.exports = processData;
 
-  // Process incoming Data
+// Process incoming Data
 
-  //  Parameters:
-  //    settings: configuration (dataConfig)
-  //    currentData: data (copywatch & exceeds)
-  //      currentData.data <-- Array of Strings
-  //      currentData.exceeds <-- Object of Boolean-Arrays
-  //  Return:
-  //    JSON-Object-Structure:
-  //      content: Object of:
-  //       "0": { "id":"..", lastExceeds: {"x":"..", "y":"..", "exceeds":".."},
-  //                "values": [ {"x":"..", "y":"..", "exceeds":".."}, {..} , .. ] },
-  //       "1":
+//  Parameters:
+//    settings: configuration (dataConfig)
+//    currentData: data (copywatch & exceeds)
+//      currentData.data <-- Array of Strings
+//      currentData.exceeds <-- Object of Boolean-Arrays
+//  Return:
+//    JSON-Object-Structure:
+//      content: Object of:
+//       "0": { "id":"..", lastExceeds: {"x":"..", "y":"..", "exceeds":".."},
+//                "values": [ {"x":"..", "y":"..", "exceeds":".."}, {..} , .. ] },
+//       "1":
 
-  // Session Variables
-  // (don't change, if server is not restartet)
-var dateFormat   = require('dateFormat'),
-    _            = require('underscore'),
-    lastExceedsArray = [];
+// Session Variables
+// (don't change, if server is not restartet)
+var _ = require('underscore');
 
 function processData(settings, currentData) {
 
-  if(settings === undefined ||
-     currentData === undefined)
+  if (settings === undefined ||
+    currentData === undefined)
     return; // Check the Existence
 
   // each Function Call new Variables
-  var valuesArray   = [],
-      exceedsArray  = [],
-      dateArray     = [],
-      processedData = [],
-      returnObject  = {};
+  var valuesArray = [],
+    exceedsArray = [],
+    dateArray = [],
+    processedData = [],
+    returnObject = {};
 
   arrangeData(currentData.data, currentData.exceeds);
 
-  function arrangeData(data, exceeds){
-    if(!data || data.length == 0 ) return;  // Check for Existence
+  function arrangeData(data, exceeds) {
+    if (!data || data.length == 0) return; // Check for Existence
 
     // Set the Arrays of Exceeds 'exceedsArray'
     var exceedsArray = exceeds;
 
     // Set the Array of Values 'valuesArray' and Array of Timestamps 'dateArray'
-    for (var i=0; i<data.length; i++) {
+    for (var i = 0; i < data.length; i++) {
       // If that Data exists, it will be overwritten
-      if(valuesArray[i] && dateArray[i]) {
-        for (var l=0; l<data[i].values.length; l++) {
+      if (valuesArray[i] && dateArray[i]) {
+        for (var l = 0; l < data[i].values.length; l++) {
           valuesArray[i][l] = data[i].values[l];
-          if(!lastExceedsArray)
-            lastExceedsArray.push(null);
         }
         dateArray[i] = data[i].date;
       }
@@ -63,41 +59,39 @@ function processData(settings, currentData) {
     }
     // Join Data to the Object, which is used by the website
     var element;
-    for (var i=0; i<dateArray.length; i++) {
+    for (var i = 0; i < dateArray.length; i++) {
       var k = 0;
-      for (var j=0; j<valuesArray[i].length; j++) {
-      // head-data of measuring-points
-        if(settings.ignore.indexOf(j) == -1){ // ignored are not in returnObject and so ALSO NOT in DataBase
+      for (var j = 0; j < valuesArray[i].length, j < settings.types.length; j++) {
+        // head-data of measuring-points
+        if (settings.ignore.indexOf(j) == -1) { // ignored are not in returnObject and so ALSO NOT in DataBase
           // if it didn't exist before in process for return
-          if(!processedData[k]) {
+          if (!processedData[k]) {
             element = {};
-            if(settings.types[k] && settings.types[k].id)
+            if (settings.types[k] && settings.types[k].id)
               element.id = settings.types[k].id;
             else
               element.id = settings.unnamedType.id + k;
 
             element.values = [];
-            element.lastExceeds = lastExceedsArray[j];
             processedData[k] = element;
           }
           // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored
-          processedData[k].values.push({"x":    dateArray[i],
-                                        "y":   valuesArray[i][j],
-                                        "exceeds": exceedsArray[i][j]
-                                      })
-          // store last Exceeding Data (lastExceedsArray is created each server-session)
-          if(exceedsArray[i][j] != null)
-            lastExceedsArray[j] = processedData[k].lastExceeds = {"x": dateArray[i],
-                                                                  "y": valuesArray[i][j],
-                                                                  "exceeds": exceedsArray[i][j]};
+          processedData[k].values.push({
+            "x": dateArray[i],
+            "y": valuesArray[i][j],
+            "exceeds": exceedsArray[i][j]
+          })
           k++;
         }
       }
     }
 
-      // Creation of an Return Object
-      // TODO: socket for each messurement-device possible?
-    returnObject = {time: currentData.time, content: processedData};
+    // Creation of an Return Object
+    // TODO: socket for each messurement-device possible?
+    returnObject = {
+      time: currentData.time,
+      content: processedData
+    };
   }
   return returnObject;
 }

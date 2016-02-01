@@ -6,13 +6,14 @@
 <link rel="import" href="../../components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../../components/paper-item/paper-item.html">
 <link rel="import" href="../../components/paper-input/paper-input.html">
+<link rel="import" href="../../components/iron-list/iron-list.html">
 <link rel="import" href="../../components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../main-toolbar.html"/>
 <dom-module id="main-page">
   <link rel="import" href="../../css/index.css" type="css"/>
   <style>
     :host {
-      font-family: Regular;
+      font-family: Light;
       font-style: normal;
       font-size: 1em;
       display: flex;
@@ -159,7 +160,8 @@
       };
 
       --paper-tab-content:	{
-        font-family: Light;
+        font-family: Thin;
+        font-weight: bold;
       };
       --paper-tab-content-unselected: {
         font-family: Thin;
@@ -177,7 +179,8 @@
       background: rgba(255,255,255,0.4);
     }
     #kind {
-      font-family: Bold;
+      font-family: Light;
+      font-weight: bold;
       font-size: 1em;
     }
     #method {
@@ -228,7 +231,7 @@
       height: 44px;
       top: 10px;
       bottom: auto;
-      left: 84px;
+      left: 80px;
       z-index: 10;
       width: 140px;
     }
@@ -281,15 +284,15 @@
       <paper-icon-button icon="menu" class="menu-icon" on-tap="togglePanel"></paper-icon-button>
       <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsDialog" hidden$="[[!isExceeding]]"></paper-icon-button>
       <paper-icon-button icon="remove" class="toggle-icon control" on-tap="deselectElement"></paper-icon-button>
-      <paper-tabs id="labelsTabs" class="header" selected="{{selectedLabel}}" no-bar scrollable hide-scroll-buttons>
+      <paper-tabs id="labelsTabs" class="header" attr-for-selected="label" selected="{{selectedLabel}}" no-bar scrollable hide-scroll-buttons>
         <template is="dom-repeat" items="[[labels]]">
-          <paper-tab class="label">[[item]]</paper-tab>
+          <paper-tab class="label" label="[[item]]">[[item]]</paper-tab>
         </template>
       </paper-tabs>
 
       <sign-element id="selectedElementSign" class="selectedElement sign incard" element="[[selectedElement]]" on-tap="deselectElement"></sign-element>
       <section id="selectedElementCaption" class="selectedElement caption incard">
-        <template is="dom-repeat" items="[[getGroupingKeys(groupingKeys.*,selectedElement.labelindex)]]" as="key">
+        <template is="dom-repeat" items="[[getGroupingKeys(selectedElement.label)]]" as="key">
           <span id="[[key]]">[[getElementsKey(selectedElement,key)]]</span>
         </template>
       </section>
@@ -322,7 +325,7 @@
 
                   <iron-collapse class="sidemenu collapse grouping">
                     <paper-radio-group selected="{{groupBy}}" class="indention">
-                      <template is="dom-repeat" items="[[getGroupingKeys(groupingKeys.*,selectedLabel)]]" as="key">
+                      <template is="dom-repeat" items="[[getGroupingKeys(selectedLabel)]]" as="key">
                         <paper-radio-button name="[[key]]">[[key]]</paper-radio-button>
                       </template>
                     </paper-radio-group>
@@ -414,7 +417,7 @@
               <section class="card" on-tap="setSelectedElement" dark$="[[dark]]">
                 <sign-element element="{{element}}" dark$="[[dark]]"></sign-element>
                 <section class="caption" dark$="[[dark]]">
-                  <template is="dom-repeat" items="[[getGroupingKeys(groupingKeys.*,element.labelindex)]]" as="key">
+                  <template is="dom-repeat" items="[[getGroupingKeys(element.label)]]" as="key">
                     <span id="[[key]]">[[getElementsKey(element,key)]]</span>
                   </template>
                 </section>
@@ -427,29 +430,28 @@
           </div>
         </paper-dialog>
 
+        <!-- MainView -->
         <section main id="mainContent">
 
-          <template id="maintemplate" is="dom-repeat" items="[[data]]" as="labelItem" index-as="labelindex" filter="filterSelectedLabel">
-            <template class="labeltemplate" is="dom-repeat" items="{{selectedGroup}}" as="groupItems" sort="sortGroup">
+          <!-- Elements -->
+          <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="items" observe="label groups" filter="filterSelectedLabel" delay="250">
+            <template id="grouptemplate" is="dom-repeat" items="{{items.groups}}" as="groups" observe="key subgroup" filter="filterPreferedGroup" delay="250">
+              <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroups">
+                <post-card headline="{{subgroups.name}}" without-window$="[[withoutWindow]]" dark$="[[dark]]">
+                  <template is="dom-repeat" items="{{subgroups.elements}}" as="element">
+                      <section class="card" dark$="[[dark]]">
 
-                <post-card class="group" selected-ids="{{groupItems.ids}}" headline="{{groupItems.name}}" without-window="[[withoutWindow]]" dark$="[[dark]]">
-
-                  <template is="dom-repeat" items="{{labelItem}}" as="element">
-                    <template is="dom-if" if="{{groupElements(element,groupItems)}}" restamp>
-                      <section class="card" on-tap="setSelectedElement" dark$="[[dark]]">
-
-                          <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding-element="_checkExceedingDialog"></sign-element>
+                          <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding-element="_checkExceedingDialog" on-tap="setSelectedElement" ></sign-element>
                           <section class="caption" dark$="[[dark]]">
-                            <template is="dom-repeat" items="[[getGroupingKeys(groupingKeys.*,selectedLabel)]]" as="key">
-                              <span id="[[key]]">[[getElementsKey(element,key)]]</span>
+                            <template is="dom-repeat" items="{{getGroupingKeys(selectedLabel)}}" as="key">
+                              <span id="{{key}}">{{getElementsKey(element,key)}}</span>
                             </template>
                           </section>
 
                       </section>
-                    </template>
                   </template>
                 </post-card>
-
+              </template>
             </template>
           </template>
 
@@ -571,21 +573,6 @@
         });
       },
 
-      getGroupingKeys: function(change, labelindex) {
-        if (labelindex == undefined)
-          labelindex = this.selectedLabel;
-        var selectedLabelId = this._computeSelectedLabelId(labelindex);
-        if (Array.isArray(this.groupingKeys[selectedLabelId])) {
-          return this.groupingKeys[selectedLabelId];
-        }
-        else return [];
-      },
-
-      getElementsKey: function(element,key) {
-        if(element && element[key])
-          return element[key];
-      },
-
       setSelectedElement: function(e) {
         if(e) {
           var item = e.model.element;
@@ -594,13 +581,11 @@
           }
           else {
             this.unlinkPaths('selectedElement');
-            this.selectedElement = null;
-            var selectedLabelId = this._computeSelectedLabelId(this.selectedLabel);
-            var icol  = Polymer.Collection.get(this.data[selectedLabelId]);
-            var key = icol.getKey(item);
             this.selectedElement = item;
-            this.linkPaths('selectedElement', 'data.#'+ selectedLabelId + "." + key);
-            this.notifyPath('selectedElement.values', this.selectedElement.values);
+
+            var path = this.paths[item.label][this.groupBy][item.id].slice(0,-7) .replace('data.','data.#').replace('groups.','groups.#').replace('subgroup.','subgroup.#').replace('elements.','elements.#');
+
+            this.linkPaths('selectedElement',path);
             if (!this.opened){
               this.toggleAttribute('opened',true);
               this.$.toolbar.playAnimation('in');
@@ -608,15 +593,6 @@
           }
         }
       },
-
-      toggleToolbar: function() {
-        if (!this.opened)
-          this.$.toolbar.playAnimation('in');
-        else
-          this.$.toolbar.playAnimation('out');
-        this.$.toolbar.toggleAttribute('opened');
-      },
-
       deselectElement: function() {
         this.$.toolbar.playAnimation('out');
         this.$.mainView.closeDrawer();
@@ -625,6 +601,14 @@
           this.selectedElement = null;
           this.toggleAttribute('opened',false);
         }, 320);
+      },
+
+      toggleToolbar: function() {
+        if (!this.opened)
+          this.$.toolbar.playAnimation('in');
+        else
+          this.$.toolbar.playAnimation('out');
+        this.$.toolbar.toggleAttribute('opened');
       },
 
       openExceedsDialog: function() {

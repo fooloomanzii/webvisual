@@ -1,0 +1,8 @@
+{
+  "name": "dbcontroller",
+  "version": "0.4.0",
+  "private": "true",
+  "dependencies": {
+    "mongoose": "4.3.7"
+  }
+}

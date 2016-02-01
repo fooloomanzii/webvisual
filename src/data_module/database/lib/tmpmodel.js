@@ -1,4 +1,7 @@
-/** Short description
+/** TODO's and description
+ * // TODO make a more understandable error handling!
+ *
+ * * Short description
  * tmpDB was implemented to store the fresh incoming data temporarily, 
  * so the clients can choose the data, they want to get.
  */

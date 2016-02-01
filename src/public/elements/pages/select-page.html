@@ -32,8 +32,11 @@
       justify-content: center;
       align-items: center;
       color: #f1f1f1;
-      font-family: Regular;
+      font-family: Light;
       line-height: 1.2;
+      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color:rgba(0,0,0,0);
     }
     :host[dark] {
       color: #A8CCDB;
@@ -82,6 +85,7 @@
     paper-radio-button  {
       font-size: 1em;
       font-family: Light;
+      font-weight: bold;
       color: currentColor;
       padding: 0em;
       padding-top: 1em;
@@ -94,7 +98,8 @@
       margin-left: auto;
       margin-top: 3em;
       padding: 0.75em 1.5em;
-      font-family: Light;
+      font-family: Thin;
+      font-weight: bold;
       color: currentColor;
       border-radius: 5px;
       border: thin solid currentColor;
@@ -104,6 +109,7 @@
       color: #669DB4;
     }
     paper-button:hover {
+      border: thin solid currentColor;
       background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.10) 40%);
     }
     paper-button iron-icon {
@@ -218,19 +224,7 @@
             }
           }
 
-          // if (this.availableLabels.length == 1){
-          //   this.labelsCookie.set("value", this.availableLabels);
-            this.$.labelsCookie.save();
-          //   this.set("labels", this.availableLabels);
-          //   this.fire("configset");
-          // }
-          // if (needToRestart) {
-          //   this.$.labelsCookie.save();
-          //   if(this.labels.length == 0)
-          //     this.fire("restart");
-          //   else
-          //     this.fire("reconnect");
-          // }
+          this.$.labelsCookie.save();
         }
       },
 

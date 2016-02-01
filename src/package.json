@@ -21,7 +21,6 @@
     "jade": "*",
     "merge-defaults": "*",
     "moment": "*",
-    "mongoose": "*",
     "morgan": "*",
     "net": "*",
     "passport": "*",
