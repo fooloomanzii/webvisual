@@ -61,7 +61,7 @@ function processData(settings, currentData) {
     var element;
     for (var i = 0; i < dateArray.length; i++) {
       var k = 0;
-      for (var j = 0; j < valuesArray[i].length, j < settings.types.length; j++) {
+      for (var j = 0; j < valuesArray[i].length; j++) {
         // head-data of measuring-points
         if (settings.ignore.indexOf(j) == -1) { // ignored are not in returnObject and so ALSO NOT in DataBase
           // if it didn't exist before in process for return
