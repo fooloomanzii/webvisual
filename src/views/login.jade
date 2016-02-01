@@ -6,13 +6,17 @@ html
     link(href='css/index.css', type='text/css', rel='stylesheet')
   style.
     body {
-      font-family: Light;
+      font-family: Thin;
+      font-weight: bold;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       color: #f1f1f1;
       background: radial-gradient(rgba(102, 157, 180,1) 80%,rgba(102, 157, 180,0.8) 100%);
+      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color:rgba(0,0,0,0);
     }
     h1 {
       font-family: Thin;
@@ -35,7 +39,7 @@ html
     label {
       color: #555;
       box-sizing: border-box;
-      font-family: Regular;
+      font-family: Light;
       display: block;
       height: auto;
       padding: 1em 1em 0.75em 1em;
@@ -44,7 +48,8 @@ html
     }
     input {
       box-sizing: border-box;
-      font-family: Regular;
+      font-family: Light;
+      font-weight: normal;
       transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
       display: block;
       width: 100%;
@@ -78,7 +83,8 @@ html
       margin-top: 3em;
       margin-left: auto;
       box-sizing: border-box;
-      font-family: Light;
+      font-family: Thin;
+      font-weight: bold;
       display: block;
       padding: 0.75em 1.5em;;
       font-size: 1em;
