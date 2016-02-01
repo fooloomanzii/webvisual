@@ -87,17 +87,17 @@
     }
     @media all and (min-width: 750px) and (max-width: 1280px) and (orientation: portrait) {
       #outer:not([name='all']) {
-        max-width: 23.55em;
+        max-width: 31.5em;
       }
     }
     @media all and (min-width: 600px) and (max-width: 1280px) and (orientation: landscape) {
       #outer:not([name='all']) {
-        max-width: 23.55em;
+        max-width: 31.5em;
       }
     }
     @media all and (min-width: 1280px) {
       #outer:not([name='all']) {
-        max-width: 32em;
+        max-width: 39.5em;
       }
     }
     ::content .card {
@@ -109,7 +109,7 @@
 
     <section id="outer" name$="[[title]]" nowindow$="{{withoutWindow}}" dark$="[[dark]]">
       <section id="header">
-        <paper-button on-tap="toggleCollapse" hidden$="[[showTitle(headline,withoutWindow)]]" dark$="[[dark]]">[[title]]</paper-button>
+        <paper-button on-tap="toggleCollapse" hidden$="[[hideTitle(headline,withoutWindow)]]" dark$="[[dark]]">[[title]]</paper-button>
       </section>
       <section id="cardMain" class="content">
           <iron-collapse id="cardCollapse" opened="true" duration="1">
@@ -161,8 +161,8 @@
         return placeholder;
     },
 
-    showTitle: function(headline,withoutWindow) {
-      if(headline=='all' || withoutWindow)
+    hideTitle: function(headline,withoutWindow) {
+      if(headline == 'all' || withoutWindow)
         return true;
       else
         return false;

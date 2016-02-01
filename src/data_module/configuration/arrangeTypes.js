@@ -70,6 +70,9 @@ function arrangeTypes(label, labelindex, locals) {
       needToSetGroup = true;
       where = -1;
 
+      // if (key == 'all' && types[i][key] == undefined)
+      //   types[i][key] = 'all';
+
       for (var l = 0; l < groups.length; l++)
         if (groups[l].key == key) {
           needToSetGroup = false;
@@ -94,6 +97,8 @@ function arrangeTypes(label, labelindex, locals) {
         }
         if (groups[l].subgroup[k].name == types[i][key]) {
           where = k;
+        } else if (key == 'all') {
+          where = k;
         }
       }
       // if (key=='roomNr')
@@ -101,7 +106,7 @@ function arrangeTypes(label, labelindex, locals) {
       if (needToSetElement) {
         if (where == -1) {
           groups[l].subgroup.push({
-            name: types[i][key],
+            name: types[i][key] || ((key == 'all') ? 'all' : ''),
             ids: [types[i].id],
             elements: [types[i]]
           });
@@ -114,6 +119,8 @@ function arrangeTypes(label, labelindex, locals) {
       }
     }
   }
+
+
 
   // PATHSTRUCTURE
   // for faster finding elements for client

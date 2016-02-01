@@ -3,6 +3,9 @@ html
   head
     title Webvisual Login
     meta(name='viewport', content='width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes')
+    script(src='components/webcomponentsjs/webcomponents-lite.js')
+    link(rel='import', href='components/polymer/polymer.html')
+    link(rel='import', href='components/paper-ripple/paper-ripple.html')
     link(href='css/index.css', type='text/css', rel='stylesheet')
   style.
     body {
@@ -21,7 +24,7 @@ html
     h1 {
       font-family: Thin;
       font-size: 2em;
-      margin: 0.67em 0em;
+      margin: 0.5em 0em;
       text-align: center;
     }
     form {
@@ -80,8 +83,6 @@ html
       //- flex: 1;
     }
     button {
-      margin-top: 3em;
-      margin-left: auto;
       box-sizing: border-box;
       font-family: Thin;
       font-weight: bold;
@@ -95,6 +96,12 @@ html
       transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
       border-radius: 5px;
       outline: 0;
+    }
+    section.button-container {
+      margin-top: 2em;
+      float: right;
+      position: relative;
+      display: inline-block;
     }
     button:hover {
       background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.10) 40%);
@@ -112,4 +119,6 @@ html
           section#dnbase @ibn-net.kfa-juelich.de
         label(for='password') Password
         input#password(name='password', type='password')
-        button(type='submit') Login
+        section.button-container
+          button(type='submit') Login
+          paper-ripple
