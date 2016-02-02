@@ -130,13 +130,29 @@
     section#lower[expanded] ::content .noncard {
       min-height: 11em;
     }
-    @media all and (max-width: 610px) {
+    @media all and (max-width: 480px) {
+      section#header ::content paper-icon-button.menu-icon {
+        margin-right: 12px;
+        margin-left: 12px;
+      }
+      section#header div.logo-element-placeholder {
+        min-width: 44px !important;
+        flex: 0;
+      }
+    }
+    @media all and (min-width: 480px) and (max-width: 600px){
+      section#header ::content paper-icon-button.menu-icon {
+        margin-right: 16px;
+        margin-left: 16px;
+      }
+    }
+    @media all and (max-width: 600px) {
       section#lower section#selSign {
         display: flex;
         flex-direction: column;
       }
       paper-icon-button.expand-icon {
-        display: none;
+        display: none !important;
       }
       section#lower ::content .incard {
         flex: 1;
@@ -154,7 +170,7 @@
         border-top: thin solid #BBBBBB;
       }
     }
-    @media all and (max-height: 690px) and (max-width: 610px){
+    @media all and (max-height: 690px) and (max-width: 600px){
       section#lower[expanded] ::content .noncard {
         height: calc(48vh - 64px - 1em);
       }
@@ -165,7 +181,7 @@
         height: calc(48vh - 64px - 1em);
       }
     }
-    @media all and (min-width: 611px) {
+    @media all and (min-width: 601px) {
       section#lower section#selSign {
         display: flex;
         flex-direction: row;
@@ -211,6 +227,22 @@
       -webkit-flex: 1;
       flex: 1;
     }
+    section#dropShadow {
+      position: absolute;
+      top: calc(100% - 6px);
+      left: 0;
+      right: 0;
+      bottom: -6px;
+      height: 6px;
+      pointer-events: none;
+      background: linear-gradient(to bottom, rgba(40,40,40,0.1) 5%,rgba(40,40,40,0.75) 50%,rgba(40,40,40,0.1) 5%);
+      transition: opacity 0.5s;
+      opacity: 0;
+    }
+    section#dropShadow:hover {
+      -webkit-transition: opacity 0.5s;
+      opacity: 1;
+    }
   </style>
   <template>
 
@@ -229,6 +261,7 @@
         <section id="selSign" class="">
           <content id="sign" select="#selectedElementSign,#selectedElementCaption"></content>
         </section>
+        <section id="dropShadow"></section>
         <content id="table" select="#selectedElementTable"></content>
         <content id="graph" select="#selectedElementGraph"></content>
         <content id="map" select="#selectedElementMap"></content>

@@ -202,9 +202,24 @@
       position: fixed;
       width: calc(100vw - 4em);
     }
-    @media all and (min-width: 480px) and (max-width: 600px) and (orientation : landscape) {
+    @media all and (max-width: 480px) {
+      logo-element#logo {
+        width: 44px !important;
+        left: 64px !important;
+      }
+      paper-tabs#labelsTabs {
+        margin-left: 18px !important;
+      }
+    }
+    @media all and (min-width: 480px) and (max-width: 600px) {
       paper-dialog.sidemenu {
         width: calc(100% - 18em);
+      }
+      logo-element#logo {
+        left: 72px !important;
+      }
+      paper-tabs#labelsTabs {
+        margin-left: 24px !important;
       }
     }
     @media all and (min-width: 600px) and (max-width: 840px) and (orientation: portrait) {
@@ -266,7 +281,6 @@
       padding: 1em 0.5em 0em 1em;
       overflow: auto;
     }
-
     paper-icon-button.error {
       animation-name: alarm-animation !important;
       animation-duration: 2s;

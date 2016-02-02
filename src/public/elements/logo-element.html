@@ -7,6 +7,10 @@
     flex-direction: row;
     display: flex;
     align-items: center;
+    /*transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);*/
+  }
+  svg {
+    transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
   }
   #logo {
     height: calc(100% / 8 * 7);
@@ -15,6 +19,14 @@
   }
   #script {
     height: calc(100% / 32 * 29);
+  }
+  @media all and (max-width: 480px) {
+    #script {
+      display: none;
+    }
+    #logo {
+      margin-right: 0;
+    }
   }
 </style>
 <template>

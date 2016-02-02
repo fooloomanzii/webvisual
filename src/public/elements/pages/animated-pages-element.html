@@ -68,7 +68,7 @@
           var self = this;
           var wait = new Date() - this.start;
           this.set("status.time.lastStatus",new Date()); this.set("status.message", "loading...");
-          wait = (wait < 2000) ? 2000 - wait : 0;
+          wait = (wait < 2000) ? 12000 - wait : 0;
           this.async(function() {
             // this is a bug in webanimations and and animations with intervall
               self.$.loadPage.cancelAnimation();
