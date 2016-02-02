@@ -64,16 +64,14 @@
       z-index: 10;
     }
     section#header ::content paper-icon-button:hover, section#control ::content paper-icon-button:hover, section#control paper-icon-button:hover {
-      background: #669DB4;
+      background: rgba(102, 157, 180, 0.75);
       color: #f1f1f1;
       border-radius: 50%;
-      box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-                  0 1px 5px 0 rgba(0, 0, 0, 0.12),
-                  0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      box-shadow: none;
     }
     section#control paper-icon-button, section#control ::content paper-icon-button {
       display: inline-block;
-      margin-right: 8px;
+      margin-right: 6px;
     }
     section#header div.logo-element-placeholder {
       height: 44px;
@@ -84,7 +82,7 @@
     section#control {
       position: fixed;
       top: 12px;
-      right: 12px;
+      right: 6px;
       display: flex;
     }
     section#lower ::content leaflet-map {
@@ -138,6 +136,12 @@
       section#header div.logo-element-placeholder {
         min-width: 44px !important;
         flex: 0;
+      }
+      section#control {
+        right: 6px;
+      }
+      section#control paper-icon-button, section#control ::content paper-icon-button {
+        margin-right: 2px;
       }
     }
     @media all and (min-width: 480px) and (max-width: 600px){
