@@ -286,6 +286,7 @@
       animation-duration: 4s;
       animation-timing-function: ease-in-out;
       animation-iteration-count: infinite;
+      --paper-icon-button-ink-color: currentColor;
     }
     @keyframes alarm-animation {
       0%   {color: #f4959d;}
@@ -428,7 +429,7 @@
       <section main id="mainPanel">
 
         <paper-dialog id="exceedsDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" no-cancel-on-outside-click>
-          <h2 class="dialog-title">Alarm<div class="flex"></div><paper-icon-button dialog-dismiss icon="close"></paper-icon-button></h2>
+          <h2 class="dialog-title">Alarm<div class="flex"></div><paper-icon-button icon="close" on-tap="closeDialog"></paper-icon-button></h2>
           <section class="scrollable">
             <template is="dom-repeat" items="{{exceeding}}" as="element">
               <section class="card" on-tap="setSelectedElement" dark$="[[dark]]">
@@ -443,7 +444,7 @@
           </section>
           <div class="buttons">
             <paper-button dialog-confirm on-tap="_removeAllExceedingElements"><iron-icon icon="highlight-off"></iron-icon>Liste leeren</paper-button>
-            <paper-button dialog-dismiss><iron-icon icon="close"></iron-icon>schließen</paper-button>
+            <paper-button dialog-confirm><iron-icon icon="close"></iron-icon>schließen</paper-button>
           </div>
         </paper-dialog>
 
@@ -600,7 +601,7 @@
             this.unlinkPaths('selectedElement');
             this.selectedElement = item;
 
-            var path = this.paths[item.label][this.groupBy][item.id].slice(0,-7) .replace('data.','data.#').replace('groups.','groups.#').replace('subgroup.','subgroup.#').replace('elements.','elements.#');
+            var path = this.paths[item.label][this.preferedGroupingKeys[item.label]][item.id].slice(0,-7) .replace('data.','data.#').replace('groups.','groups.#').replace('subgroup.','subgroup.#').replace('elements.','elements.#');
 
             this.linkPaths('selectedElement',path);
             if (!this.opened){
@@ -706,7 +707,19 @@
         if (dialog) {
           dialog.open();
         }
+      },
+      closeDialog: function(e) {
+        var obj = e.currentTarget;
+        while (obj != window) {
+          if (obj.nodeName && (obj.nodeName.toLowerCase() === 'paper-dialog')) {
+            obj.close();
+            break;
+          } else {
+            obj = obj.parentNode;
+          }
+        }
       }
+
     });
 
   </script>

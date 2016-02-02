@@ -50,14 +50,10 @@ paper-icon-button {
   transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 paper-icon-button:hover {
-  background: rgba(255,255,255, 0.15);
+  background: rgba(255,255,255, 0.25);
   color: currentColor;
   border-radius: 50%;
-  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-              0 1px 5px 0 rgba(0, 0, 0, 0.12),
-              0 3px 1px -2px rgba(0, 0, 0, 0.2);
 }
-
 paper-item.sidemenu {
   font-size: 0.85em;
 }
