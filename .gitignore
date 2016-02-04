@@ -32,6 +32,7 @@ src/**/demo/
 *desktop.ini
 *thumbs.db
 .bower.json
+.codelite/
 
 # Mail login #
 src/config/mail.json
@@ -44,3 +45,7 @@ src/ssl/*
 !src/ssl/README.md
 
 *.prefs
+
+*.workspace
+.tern-project
+*.tern-port

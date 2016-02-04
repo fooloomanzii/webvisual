@@ -40,7 +40,7 @@
     }
     section#lower {
       overflow: hidden !important;
-      padding: 0em 0.5em 0.5em 0.5em;
+      padding: 0px 6px 0px 6px;
       display: flex;
       flex-direction: row;
       align-items: stretch;
@@ -130,9 +130,6 @@
       section#control {
         right: 6px;
       }
-      section#control paper-icon-button, section#control ::content paper-icon-button {
-        margin-right: 2px;
-      }
     }
     @media all and (min-width: 480px) and (max-width: 600px){
       section#header ::content paper-icon-button.menu-icon {
@@ -221,21 +218,14 @@
       -webkit-flex: 1;
       flex: 1;
     }
-    section#dropShadow {
-      position: absolute;
-      top: calc(100% - 6px);
-      left: 0;
-      right: 0;
-      bottom: -6px;
-      height: 6px;
-      pointer-events: none;
-      background: linear-gradient(to bottom, rgba(40,40,40,0.1) 5%,rgba(40,40,40,0.75) 50%,rgba(40,40,40,0.1) 5%);
-      transition: opacity 0.5s;
-      opacity: 0;
+    section#expandline {
+      height: 4px;
+      background: rgba(255,255,255,0);
+      cursor: row-resize;
     }
-    section#dropShadow:hover {
-      -webkit-transition: opacity 0.5s;
-      opacity: 1;
+    section#expandline:hover {
+      height: 6px;
+      background: linear-gradient(rgba(255,255,255,0), currentColor, rgba(255,255,255,0));
     }
   </style>
   <template>
@@ -255,10 +245,11 @@
         <section id="selSign" class="">
           <content id="sign" select="#selectedElementSign,#selectedElementCaption"></content>
         </section>
-        <section id="dropShadow"></section>
         <content id="table" select="#selectedElementTable"></content>
         <content id="graph" select="#selectedElementGraph"></content>
         <content id="map" select="#selectedElementMap"></content>
+      </section>
+      <section id="expandline" hidden$="[[!opened]]">
       </section>
     </section>
 

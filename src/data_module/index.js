@@ -137,11 +137,17 @@ function connect(config, server, err) {
   // Handle connections of new clients
   dataSocket.on('connection', function(socket) {
 
-    socket.emit('clientConfig', configuration);
+    socket.emit('clientConfig', configuration, socket.id);
 
     socket.on('clientConfig', function(options) {
 
       var current_client = new Client(socket, options);
+
+      console.log(socket.id);
+      // io.clients(function(error, clients) {
+      //   if (error) throw error;
+      //   console.log(clients); // => [6em3d4TJP8Et9EMNAAAA, G5p55dHhGgUnLUctAAAB]
+      // });
 
       // go through all patterns and collect the data, the client needs
       async.map(current_client.patterns,
@@ -186,6 +192,11 @@ function connect(config, server, err) {
         }
       );
     });
+  });
+
+  io.of('/data').clients(function(error, clients) {
+    if (error) throw error;
+    console.log(clients); // => [PZDoMHjiu8PYfRiKAAAF, Anw2LatarvGVVXEIAAAD]
   });
 
 
