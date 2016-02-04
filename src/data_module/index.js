@@ -143,7 +143,7 @@ function connect(config, server, err) {
 
       var current_client = new Client(socket, options);
 
-      console.log(socket.id);
+      // console.log(socket.id);
       // io.clients(function(error, clients) {
       //   if (error) throw error;
       //   console.log(clients); // => [6em3d4TJP8Et9EMNAAAA, G5p55dHhGgUnLUctAAAB]
@@ -177,10 +177,10 @@ function connect(config, server, err) {
             handleErrors(errors, "async on client connection");
             if (message === undefined) return;
           }
-          socket.emit('first', message);
+          socket.emit('data', message);
 
           // append the client to array after the first message is sent
-          current_client.hasFirst = true;
+          // current_client.hasFirst = true;
           clients[socket.id] = current_client;
         }
       );
@@ -188,7 +188,7 @@ function connect(config, server, err) {
       // if client is disconnected, remove them from list
       socket.on('disconnect',
         function() {
-          delete clients[socket.id];
+          // delete clients[socket.id];
         }
       );
     });
