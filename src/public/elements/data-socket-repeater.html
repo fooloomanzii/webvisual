@@ -5,9 +5,12 @@
       is: 'data-socket-repeater',
 
       properties: {
-          socketname: {
+          socketName: {
             type: String,
             value: "/data"
+          },
+          socketId: {
+            type: String
           },
           config: {
             type: Object,
@@ -111,10 +114,12 @@
       },
 
       ready: function(){
-        this.socket = io.connect('https://'+window.location.host+this.socketname, {secure: true});
+        this.socket = io.connect('https://'+window.location.host+this.socketName, {secure: true});
         this.set("status.time.lastStatus",new Date()); this.set("status.message", "connecting to "+window.location.host);
         var self = this;
-        this.socket.on('clientConfig', function(config) {
+        this.socket.on('clientConfig', function(config, socketId) {
+          self.set('socketId', socketId);
+          console.log(socketId);
           self._init();
           self.set("availableLabels", config.labels);
           if (!self.opened) {
@@ -183,7 +188,7 @@
 
       reconnect: function() {
         this.socket.disconnect();
-        this.socket = io.connect('https://'+window.location.host+this.socketname, {secure: true});
+        this.socket = io.connect('https://'+window.location.host+this.socketName, {secure: true});
         this.set("status.time.lastStatus",new Date()); this.set("status.message", "connecting to "+window.location.host);
         var self = this;
         this.socket.on('clientConfig', function(message) {
@@ -241,7 +246,7 @@
               }
             }
             if (values.length > this.maxLines)
-              this.splice(path, this.maxLines, values.values.length - this.maxLines);
+              this.splice(path, this.maxLines, values.length - this.maxLines);
           }
         }
         // if (messageContent.lastExceeds)

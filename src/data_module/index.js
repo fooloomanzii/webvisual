@@ -137,11 +137,17 @@ function connect(config, server, err) {
   // Handle connections of new clients
   dataSocket.on('connection', function(socket) {
 
-    socket.emit('clientConfig', configuration);
+    socket.emit('clientConfig', configuration, socket.id);
 
     socket.on('clientConfig', function(options) {
 
       var current_client = new Client(socket, options);
+
+      // console.log(socket.id);
+      // io.clients(function(error, clients) {
+      //   if (error) throw error;
+      //   console.log(clients); // => [6em3d4TJP8Et9EMNAAAA, G5p55dHhGgUnLUctAAAB]
+      // });
 
       // go through all patterns and collect the data, the client needs
       async.map(current_client.patterns,
@@ -171,10 +177,10 @@ function connect(config, server, err) {
             handleErrors(errors, "async on client connection");
             if (message === undefined) return;
           }
-          socket.emit('first', message);
+          socket.emit('data', message);
 
           // append the client to array after the first message is sent
-          current_client.hasFirst = true;
+          // current_client.hasFirst = true;
           clients[socket.id] = current_client;
         }
       );
@@ -182,10 +188,15 @@ function connect(config, server, err) {
       // if client is disconnected, remove them from list
       socket.on('disconnect',
         function() {
-          delete clients[socket.id];
+          // delete clients[socket.id];
         }
       );
     });
+  });
+
+  io.of('/data').clients(function(error, clients) {
+    if (error) throw error;
+    console.log(clients); // => [PZDoMHjiu8PYfRiKAAAF, Anw2LatarvGVVXEIAAAD]
   });
 
 

@@ -40,16 +40,12 @@
     }
     section#lower {
       overflow: hidden !important;
-      padding: 0em 0.5em 0.5em 0.5em;
+      padding: 0px 6px 0px 6px;
       display: flex;
       flex-direction: row;
       align-items: stretch;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
       transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    section#mainContent ::content paper-icon-button {
-      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-      flex-shrink: 0;
     }
     section#mainContent ::content .incard, section#mainContent ::content .noncard {
       border-top: none;
@@ -63,17 +59,9 @@
       margin-left: 20px;
       z-index: 10;
     }
-    section#header ::content paper-icon-button:hover, section#control ::content paper-icon-button:hover, section#control paper-icon-button:hover {
-      background: #669DB4;
-      color: #f1f1f1;
-      border-radius: 50%;
-      box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-                  0 1px 5px 0 rgba(0, 0, 0, 0.12),
-                  0 3px 1px -2px rgba(0, 0, 0, 0.2);
-    }
     section#control paper-icon-button, section#control ::content paper-icon-button {
       display: inline-block;
-      margin-right: 8px;
+      margin-right: 6px;
     }
     section#header div.logo-element-placeholder {
       height: 44px;
@@ -84,7 +72,7 @@
     section#control {
       position: fixed;
       top: 12px;
-      right: 12px;
+      right: 6px;
       display: flex;
     }
     section#lower ::content leaflet-map {
@@ -130,13 +118,32 @@
     section#lower[expanded] ::content .noncard {
       min-height: 11em;
     }
-    @media all and (max-width: 610px) {
+    @media all and (max-width: 480px) {
+      section#header ::content paper-icon-button.menu-icon {
+        margin-right: 12px;
+        margin-left: 12px;
+      }
+      section#header div.logo-element-placeholder {
+        min-width: 44px !important;
+        flex: 0;
+      }
+      section#control {
+        right: 6px;
+      }
+    }
+    @media all and (min-width: 480px) and (max-width: 600px){
+      section#header ::content paper-icon-button.menu-icon {
+        margin-right: 16px;
+        margin-left: 16px;
+      }
+    }
+    @media all and (max-width: 600px) {
       section#lower section#selSign {
         display: flex;
         flex-direction: column;
       }
       paper-icon-button.expand-icon {
-        display: none;
+        display: none !important;
       }
       section#lower ::content .incard {
         flex: 1;
@@ -154,7 +161,7 @@
         border-top: thin solid #BBBBBB;
       }
     }
-    @media all and (max-height: 690px) and (max-width: 610px){
+    @media all and (max-height: 690px) and (max-width: 600px){
       section#lower[expanded] ::content .noncard {
         height: calc(48vh - 64px - 1em);
       }
@@ -165,7 +172,7 @@
         height: calc(48vh - 64px - 1em);
       }
     }
-    @media all and (min-width: 611px) {
+    @media all and (min-width: 601px) {
       section#lower section#selSign {
         display: flex;
         flex-direction: row;
@@ -211,6 +218,15 @@
       -webkit-flex: 1;
       flex: 1;
     }
+    section#expandline {
+      height: 4px;
+      background: rgba(255,255,255,0);
+      cursor: row-resize;
+    }
+    section#expandline:hover {
+      height: 6px;
+      background: linear-gradient(rgba(255,255,255,0), currentColor, rgba(255,255,255,0));
+    }
   </style>
   <template>
 
@@ -232,6 +248,8 @@
         <content id="table" select="#selectedElementTable"></content>
         <content id="graph" select="#selectedElementGraph"></content>
         <content id="map" select="#selectedElementMap"></content>
+      </section>
+      <section id="expandline" hidden$="[[!opened]]">
       </section>
     </section>
 
