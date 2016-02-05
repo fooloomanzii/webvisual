@@ -95,21 +95,6 @@
     section.card[dark] {
       border: thin solid #606060;
     }
-    section.caption {
-      background: white;
-      border-top: thin solid #BBBBBB;
-      color: #1f1f1f;
-      flex-direction: column;
-      line-height: 1.4;
-      min-height: 4.5em;
-      display: flex;
-      padding: 0.35em 0.65em 0.4em 0.6em;
-    }
-    section.caption[dark] {
-      background: #a8a8a8;
-      border-top: thin solid #606060;
-      color: #1d1d1d;
-    }
     paper-radio-button {
       --paper-radio-button-checked-color: #B71C1C;
       --paper-radio-button-checked-ink-color: #B71C1C;
@@ -177,20 +162,6 @@
     }
     paper-tab.paper-tab-0:hover {
       background: rgba(255,255,255,0.4);
-    }
-    #kind {
-      font-family: Light;
-      font-weight: bold;
-      font-size: 1em;
-    }
-    #method {
-      font-size: 0.75em;
-    }
-    #room {
-      font-size: 0.9em;
-    }
-    #roomNr {
-      font-size: 0.6em;
     }
     post-card.group #cardContent{
       padding: 0.5em 0em 0em 0.5em;
@@ -308,12 +279,7 @@
         </template>
       </paper-tabs>
 
-      <sign-element id="selectedElementSign" class="selectedElement sign incard" element="[[selectedElement]]" on-tap="deselectElement"></sign-element>
-      <section id="selectedElementCaption" class="selectedElement caption incard">
-        <template is="dom-repeat" items="[[getGroupingKeys(selectedElement.label)]]" as="key">
-          <span id="[[key]]">[[getElementsKey(selectedElement,key)]]</span>
-        </template>
-      </section>
+      <sign-element id="selectedElementSign" class="selectedElement sign incard" element="[[selectedElement]]" on-tap="deselectElement" keys="[[getGroupingKeys(selectedElement.label)]]"></sign-element>
 
       <table-element id="selectedElementTable" class="selectedElement noncard" element="[[selectedElement]]"></table-element>
       <!-- <line-chart id="selectedElementChart" data="[[selectedElement]]" fit></line-chart> -->
@@ -433,12 +399,7 @@
           <section class="scrollable">
             <template is="dom-repeat" items="{{exceeding}}" as="element">
               <section class="card" on-tap="setSelectedElement" dark$="[[dark]]">
-                <sign-element element="{{element}}" dark$="[[dark]]"></sign-element>
-                <section class="caption" dark$="[[dark]]">
-                  <template is="dom-repeat" items="[[getGroupingKeys(element.label)]]" as="key">
-                    <span id="[[key]]">[[getElementsKey(element,key)]]</span>
-                  </template>
-                </section>
+                <sign-element element="{{element}}" dark$="[[dark]]" keys="[[getGroupingKeys(element.label)]]"></sign-element>
               </section>
             </template>
           </section>
@@ -458,14 +419,7 @@
                 <post-card headline="{{subgroups.name}}" without-window$="[[withoutWindow]]" dark$="[[dark]]">
                   <template is="dom-repeat" items="{{subgroups.elements}}" as="element">
                       <section class="card" dark$="[[dark]]">
-
-                          <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding-element="_checkExceedingDialog" on-tap="setSelectedElement" ></sign-element>
-                          <section class="caption" dark$="[[dark]]">
-                            <template is="dom-repeat" items="{{getGroupingKeys(selectedLabel)}}" as="key">
-                              <span id="{{key}}">{{getElementsKey(element,key)}}</span>
-                            </template>
-                          </section>
-
+                          <sign-element element="{{element}}" dark$="[[dark]]" keys="{{getGroupingKeys(selectedLabel)}}" on-tap="setSelectedElement"></sign-element>
                       </section>
                   </template>
                 </post-card>

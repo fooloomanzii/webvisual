@@ -33,6 +33,10 @@ function arrangeTypes(label, labelindex, locals) {
       type.label = label;
       // isExceeding
       type.isExceeding = false;
+      // lastExceeds
+      type.lastExceeds = [];
+      // lastExceeds
+      type.firstExceeds = [];
       // if types of values is not an Array or doesn't exist then use the default
       if (!type.values || !Array.isArray(type.values))
         type.values = defaults.values;

@@ -226,6 +226,8 @@
       },
 
       _setValues: function(message) {
+        if(!message.content)
+          return;
         var path, values;
         for (var i=0; i < message.content.length; i++) {
           if(message.content[i].id) {
@@ -278,10 +280,13 @@
         if (exceeds === null) {
           if(item.isExceeding === true) {
             this.set(path + ".isExceeding", false);
-            this._removeExceedingElement(path);
+            this.push(path + ".lastExceeds", item.values[1]);
           }
         }
         else if (exceeds === true || exceeds === false) {
+          if(item.isExceeding === false) {
+            this.push(path + ".firstExceeds", item.values[0]);
+          }
           if(Polymer.Collection.get(this.exceeding).getKey(item) === undefined) {
             this.push('exceeding', item);
             var key = Polymer.Collection.get(this.exceeding).getKey(item);

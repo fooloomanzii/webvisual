@@ -9,10 +9,16 @@
     align-items: center;
     /*transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);*/
   }
+  svg {
+    transition: fill 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  }
   #logo {
     height: calc(100% / 8 * 7);
     margin-right: calc(100% / 47 * 3);
     cursor: pointer;
+  }
+  #logo:hover {
+    fill: #F5C4BE;
   }
   #script {
     height: calc(100% / 32 * 29);
