@@ -1,5 +1,4 @@
-<link rel="import" href="../components/paper-ripple/paper-ripple.html">
-<dom-module id="sign-element">
+<dom-module id="list-element">
   <style>
     :host {
       position: relative;
@@ -15,7 +14,7 @@
       line-height: 1;
       box-shadow: inherit;
     }
-    #mainContent {
+    section#sign {
       cursor: pointer;
       box-shadow: inherit;
       position: relative;
@@ -26,22 +25,22 @@
       width: 100%;
       min-width: 7em;
     }
-    #mainContent.null {
+    section#sign.null {
       background: rgb(0, 202, 53); color: #f1f1f1;
     }
-    #mainContent.true {
+    section#sign.true {
       background: rgb(255, 21, 41); color: #f1f1f1;
     }
-    #mainContent.false {
+    section#sign.false {
       background: rgb(255, 20, 110); color: #f1f1f1;
     }
-    #mainContent.undefined {
+    section#sign.undefined {
       background: rgb(236, 249, 97); color: #1f1f1f;
     }
-    #mainContent[dark]{
+    section#sign[dark]{
       color: #d3d3d3;
     }
-    .actualValueSection {
+    section.actualValueSection {
       display: flex;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
       padding: 1em 1em 0.25em 1em;
@@ -52,21 +51,21 @@
       flex-direction: row;
       justify-content: center;
     }
-    .valueSection {
+    section.valueSection {
       font-size: 1.75em;
       font-style: normal;
       font-weight: 300;
     }
-    .unitSection {
+    section.unitSection {
       padding-left: 0.3em;
       font-size: 0.8em;
     }
-    .dateSection {
+    section.dateSection {
       font-family: Light;
       font-size: 0.6em;
       color: #5a5a5a;
     }
-    .lowerSection {
+    section.lowerSection {
       display: flex;
       flex-direction: row;
       justify-content: center;
@@ -74,15 +73,22 @@
       padding: 0.25em 0.75em 0.5em 0.75em;
       line-height: 1em;
     }
-    .exceedsDateSection {
-      font-family: Light;
-      font-size: 0.75em;
+    section.caption {
+      background: white;
+      border-top: thin solid #BBBBBB;
+      color: #1f1f1f;
+      flex-direction: column;
+      line-height: 1.4;
+      min-height: 4.5em;
+      display: flex;
+      padding: 0.35em 0.65em 0.4em 0.6em;
     }
-    .exceedsValueSection {
-      padding-left: 0.75em;
-      font-size: 0.8em;
+    section.caption[dark] {
+      background: #a8a8a8;
+      border-top: thin solid #606060;
+      color: #1d1d1d;
     }
-    iron-icon{
+    iron-icon {
       --iron-icon-height: 1.75em;
       --iron-icon-width: 1.75em;
       color: currentColor;
@@ -101,31 +107,44 @@
     }
   </style>
   <template>
-    <section id="mainContent" dark$="[[dark]]">
-      <paper-ripple id="ripple"></paper-ripple>
+    <section id="mainContent">
 
-      <section class="actualValueSection">
-        <template is="dom-if" if="{{!element.isBoolean}}" restamp>
-          <span class="valueSection">{{computeY(element.values.*,0)}}</span><span class="unitSection">[[element.unit]]</span>
-        </template>
-        <template is="dom-if" if="{{element.isBoolean}}" restamp>
-          <section hidden$="{{!isExceeding}}">
-            <iron-icon icon="error-outline"></iron-icon>
+      <section id="sign" dark$="[[dark]]">
+        <paper-ripple id="ripple"></paper-ripple>
+
+        <section class="actualValueSection">
+          <template is="dom-if" if="{{!element.isBoolean}}" restamp>
+            <section class="valueSection">{{computeY(element.values.*,0)}}</section><section class="unitSection">[[element.unit]]</section>
+          </template>
+          <template is="dom-if" if="{{element.isBoolean}}" restamp>
+            <section hidden$="{{!isExceeding}}">
+              <iron-icon icon="error-outline"></iron-icon>
+            </section>
+          </template>
+        </section>
+
+        <template is="dom-if" if="{{showDate}}" restamp>
+          <section class="lowerSection">
+            <section class="dateSection">{{computeX(element.values.*,0)}}</section>
           </section>
         </template>
       </section>
-      <template is="dom-if" if="{{showDate}}" restamp>
-        <section class="lowerSection">
-          <span class="dateSection">{{computeX(element.values.*,0)}}</span>
+
+      <template is="dom-if" if="{{showCaption}}" restamp>
+        <section class="caption" dark$="[[dark]]">
+          <template id="captiontemplate" is="dom-repeat" items="{{keys}}" as="key">
+            <span id="[[key]]" style$="[[computeCaptionStyle(index)]]">{{getKey(keys.*, key)}}</span>
+          </template>
         </section>
       </template>
+
     </section>
   </template>
 
   <script>
 
-    SignElement = Polymer({
-      is: 'sign-element',
+    ListElement = Polymer({
+      is: 'list-element',
 
       behaviors: [ElementBehavior],
 
@@ -140,6 +159,11 @@
 
       properties: {
         showDate: {
+          type: Boolean,
+          value: true,
+          reflectToAttribute: true
+        },
+        showCaption: {
           type: Boolean,
           value: true,
           reflectToAttribute: true
@@ -163,11 +187,11 @@
       _handleExceeding: function(value) {
         if (this.element && this.element.values) {
           this.isExceeding = value;
-          this.$.mainContent.classList.remove('true');
-          this.$.mainContent.classList.remove('false');
-          this.$.mainContent.classList.remove('null');
-          this.$.mainContent.classList.remove('undefined');
-          this.$.mainContent.classList.add(this.element.values[0].exceeds);
+          this.$.sign.classList.remove('true');
+          this.$.sign.classList.remove('false');
+          this.$.sign.classList.remove('null');
+          this.$.sign.classList.remove('undefined');
+          this.$.sign.classList.add(this.element.values[0].exceeds);
         }
       }
 
