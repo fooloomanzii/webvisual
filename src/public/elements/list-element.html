@@ -3,8 +3,7 @@
     :host {
       position: relative;
       color: #f1f1f1;;
-      border-radius: 2px 2px 0px 0px;
-      overlay: hidden;
+      overflow: hidden;
       display: flex;
       outline: none;
       font-family: Light;
@@ -12,18 +11,14 @@
       background: transparent;
       font-size: 1em;
       line-height: 1;
-      box-shadow: inherit;
+    }
+    section#mainContent {
+      display: inline-flex;
     }
     section#sign {
       cursor: pointer;
-      box-shadow: inherit;
       position: relative;
-      display: flex;
-      flex-direction: column;
-      border-radius: inherit;
-      min-height: 5em;
-      width: 100%;
-      min-width: 7em;
+      display: inline-flex;
     }
     section#sign.null {
       background: rgb(0, 202, 53); color: #f1f1f1;
@@ -45,16 +40,13 @@
       background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
       padding: 1em 1em 0.25em 1em;
       align-items: center;
-      -ms-flex: 1;
-      -webkit-flex: 1;
       flex: 1;
       flex-direction: row;
       justify-content: center;
     }
     section.valueSection {
-      font-size: 1.75em;
+      font-size: 1.25em;
       font-style: normal;
-      font-weight: 300;
     }
     section.unitSection {
       padding-left: 0.3em;
@@ -70,7 +62,7 @@
       flex-direction: row;
       justify-content: center;
       align-items: bottom;
-      padding: 0.25em 0.75em 0.5em 0.75em;
+      padding: 0.25em 0.75em 0.25em 0.75em;
       line-height: 1em;
     }
     section.caption {
@@ -133,7 +125,7 @@
       <template is="dom-if" if="{{showCaption}}" restamp>
         <section class="caption" dark$="[[dark]]">
           <template id="captiontemplate" is="dom-repeat" items="{{keys}}" as="key">
-            <span id="[[key]]" style$="[[computeCaptionStyle(index)]]">{{getKey(keys.*, key)}}</span>
+            <span id="[[key]]" style$="[[computeCaptionStyle(index)]]">{{getKey(key)}}</span>
           </template>
         </section>
       </template>
@@ -143,7 +135,7 @@
 
   <script>
 
-    ListElement = Polymer({
+    SignElement = Polymer({
       is: 'list-element',
 
       behaviors: [ElementBehavior],

@@ -90,10 +90,6 @@
       if (this.groupingKeys)
         return this.groupingKeys[label];
     },
-    getElementsKey: function(element,key) {
-      if(element && element[key])
-        return element[key];
-    },
     sortGroup: function(first,next){
       if (first.ids.length > next.ids.length)
         return true;

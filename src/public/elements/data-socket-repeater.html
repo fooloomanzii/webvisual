@@ -118,8 +118,8 @@
         this.set("status.time.lastStatus",new Date()); this.set("status.message", "connecting to "+window.location.host);
         var self = this;
         this.socket.on('clientConfig', function(config, socketId) {
-          self.set('socketId', socketId);
-          console.log(socketId);
+          // self.set('socketId', socketId);
+          // console.log(socketId);
           self._init();
           self.set("availableLabels", config.labels);
           if (!self.opened) {
@@ -232,23 +232,25 @@
         for (var i=0; i < message.content.length; i++) {
           if(message.content[i].id) {
             path = this.paths[message.label][this.preferedGroupingKeys[message.label]][message.content[i].id];
-            values = this.get(path);
-            if (!this.doAppend)
-              this.splice(path, 0, values.length);
-            if (this.newestDataLast) {
-              for (var j = 0; j < message.content[i].values.length; j++) {
-                this.unshift(path, message.content[i].values[j]);
-                this._checkIfExceedingStateHasToBeSet(path,  message.content[i].values[j].exceeds);
+            if (path) {
+              values = this.get(path);
+              if (!this.doAppend)
+                this.splice(path, 0, values.length);
+              if (this.newestDataLast) {
+                for (var j = 0; j < message.content[i].values.length; j++) {
+                  this.unshift(path, message.content[i].values[j]);
+                  this._checkIfExceedingStateHasToBeSet(path,  message.content[i].values[j].exceeds);
+                }
               }
-            }
-            else {
-              for (var j = message.content[i].values.length-1; j >=0; j--) {
-                this.unshift(path, message.content[i].values[j]);
-                this._checkIfExceedingStateHasToBeSet(path, message.content[i].values[j].exceeds);
+              else {
+                for (var j = message.content[i].values.length-1; j >=0; j--) {
+                  this.unshift(path, message.content[i].values[j]);
+                  this._checkIfExceedingStateHasToBeSet(path, message.content[i].values[j].exceeds);
+                }
               }
+              if (values.length > this.maxLines)
+                this.splice(path, this.maxLines, values.length - this.maxLines);
             }
-            if (values.length > this.maxLines)
-              this.splice(path, this.maxLines, values.length - this.maxLines);
           }
         }
         // if (messageContent.lastExceeds)

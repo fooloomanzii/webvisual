@@ -86,15 +86,6 @@
       width: 100%;
       display: flex;
     }
-    section.card {
-      border-radius: 2px 2px 2px 3px;
-      border: thin solid #BBBBBB;
-      border-radius: 2px;
-      /*align-self: stretch;*/
-    }
-    section.card[dark] {
-      border: thin solid #606060;
-    }
     paper-radio-button {
       --paper-radio-button-checked-color: #B71C1C;
       --paper-radio-button-checked-ink-color: #B71C1C;
@@ -138,12 +129,10 @@
     }
     paper-tab.label {
       --paper-tab-ink: rgba(255,255,255,0.30);
-
       --paper-tab:	{
         align-self: flex-end;
         padding: 0em 2em;
       };
-
       --paper-tab-content:	{
         font-family: Thin;
         font-weight: bold;
@@ -162,9 +151,6 @@
     }
     paper-tab.paper-tab-0:hover {
       background: rgba(255,255,255,0.4);
-    }
-    post-card.group #cardContent{
-      padding: 0.5em 0em 0em 0.5em;
     }
     /* Dialogs */
     paper-dialog.sidemenu {
@@ -398,9 +384,7 @@
           <h2 class="dialog-title">Alarm<div class="flex"></div><paper-icon-button icon="close" on-tap="closeDialog"></paper-icon-button></h2>
           <section class="scrollable">
             <template is="dom-repeat" items="{{exceeding}}" as="element">
-              <section class="card" on-tap="setSelectedElement" dark$="[[dark]]">
-                <sign-element element="{{element}}" dark$="[[dark]]" keys="[[getGroupingKeys(element.label)]]"></sign-element>
-              </section>
+                <list-element element="{{element}}" dark$="[[dark]]" keys="[[getGroupingKeys(element.label)]]"></sign-element>
             </template>
           </section>
           <div class="buttons">
@@ -418,9 +402,7 @@
               <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroups">
                 <post-card headline="{{subgroups.name}}" without-window$="[[withoutWindow]]" dark$="[[dark]]">
                   <template is="dom-repeat" items="{{subgroups.elements}}" as="element">
-                      <section class="card" dark$="[[dark]]">
-                          <sign-element element="{{element}}" dark$="[[dark]]" keys="{{getGroupingKeys(selectedLabel)}}" on-tap="setSelectedElement"></sign-element>
-                      </section>
+                      <sign-element class="content" element="{{element}}" dark$="[[dark]]" keys="{{getGroupingKeys(element.label)}}" on-tap="setSelectedElement"></sign-element>
                   </template>
                 </post-card>
               </template>

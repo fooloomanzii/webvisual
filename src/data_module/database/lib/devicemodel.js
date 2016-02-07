@@ -66,7 +66,7 @@ var deviceDB_prefix = "device_"; // prefix of device id
 
 // default parameters for database connection
 var default_db_options = {
-  ip: "localhost", // Default IP-Address of MongoDB Database
+  ip: "127.0.0.1", // Default IP-Address of MongoDB Database
   port: 27017, // Default Port of MongoDB Database
   name: "test" // Name of default MongoDB Database
 };

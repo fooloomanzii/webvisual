@@ -111,8 +111,7 @@ function connect(config, server, err) {
             labelIndex, currentData.content,
             function(appendedData, cb_index) {
               for (var socketId in clients) {
-                console.log(socketId + ' ' +
-                  (new Date()).toLocaleTimeString());
+                // console.log(socketId + ' ' + (new Date()).toLocaleTimeString());
                 clients[socketId].socket.emit('data', {
                   label: dataLabels[labelIndex],
                   content: appendedData,
