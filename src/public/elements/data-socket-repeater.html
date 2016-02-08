@@ -277,16 +277,19 @@
       },
 
       _checkIfExceedingStateHasToBeSet: function(path, exceeds) {
-        path = path.slice(0,-7);
-        var item = this.get(path);
         if (exceeds === null) {
+          path = path.slice(0,-7);
+          var item = this.get(path);
           if(item.isExceeding === true) {
             this.set(path + ".isExceeding", false);
             this.push(path + ".lastExceeds", item.values[1]);
           }
         }
         else if (exceeds === true || exceeds === false) {
+          path = path.slice(0,-7);
+          var item = this.get(path);
           if(item.isExceeding === false) {
+            this.set(path + ".isExceeding", true);
             this.push(path + ".firstExceeds", item.values[0]);
           }
           if(Polymer.Collection.get(this.exceeding).getKey(item) === undefined) {

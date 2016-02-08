@@ -17,6 +17,9 @@ paper-item iron-icon {
   margin-right: 0.75em;
   min-width: 1.5em;
 }
+iron-icon {
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
 paper-button: {
   border-top: thin solid rgba(200, 200, 200, 0);
   border-bottom: thin solid  rgba(200, 200, 200, 0);
