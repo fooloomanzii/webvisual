@@ -1,9 +1,11 @@
 <link rel="import" href="../../components/iron-selector/iron-selector.html">
 <link rel="import" href="../../components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../components/iron-swipeable-container/iron-swipeable-container.html">
 <link rel="import" href="../../components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../components/iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../../components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../components/paper-toast/paper-toast.html">
 <link rel="import" href="../../components/paper-item/paper-item.html">
 <link rel="import" href="../../components/paper-input/paper-input.html">
 <link rel="import" href="../../components/iron-list/iron-list.html">
@@ -210,33 +212,42 @@
     logo-element#logo[dark] {
       fill: #A8CCDB;
     }
-    paper-dialog#exceedsDialog {
-      margin: 2em;
-      position: fixed;
-      z-index: 100 !important;
-      min-width: 18em;
-      display: flex;
-      flex-direction: column;
-    }
-    paper-dialog#exceedsDialog h2 {
-      background: rgba(246, 71, 86, 0.9);
-      border-bottom: thin solid rgba(140, 140, 140, 0.5);
-      color: white;
-    }
-    paper-dialog#exceedsDialog h2[dark] {
-      background: rgba(191, 7, 22, 0.9);
-      border-bottom: thin solid rgba(80, 80, 80, 0.5);
+    paper-toast {
+      background: #F64756;
       color: #f1f1f1;
+      font-family: Light;
+      right: 0;
+      left: auto;
+      margin: auto 2em 0.5em auto;
+      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+      -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
+      cursor: default;
+      padding: 0.75em 1.25em;
     }
-    paper-dialog#exceedsDialog section.scrollable {
-      flex-direction: row;
+    paper-toast[dark] {
+      background: #BF0716;
+    }
+    paper-toast section#title {
+      font-family: Thin;
+      font-size: 1.5em;
       display: flex;
-      flex-wrap: wrap;
-      height: 100%;
-      margin: 0em;
-      justify-content: center;
-      padding: 1em 0.5em 0em 1em;
+      align-items: center;
+      margin-bottom: 0.5em;
+    }
+    paper-toast section#title iron-icon {
+      margin-left: 0.5em;
+      padding: 4px;
+    }
+    paper-toast section#title iron-icon:hover{
+      background: rgba(255,255,255,0.25);
+      border-radius: 50%
+    }
+    paper-toast iron-swipeable-container#exceedingElements {
+      max-height: 68vh;
       overflow: auto;
+    }
+    paper-toast iron-swipeable-container#exceedingElements list-element {
+      margin: 0.5em 0em;
     }
     paper-icon-button.error {
       animation-name: alarm-animation !important;
@@ -249,6 +260,9 @@
       0%   {color: #f4959d;}
       33%  {color: #f64756;}
       100% {color: #f4959d;}
+    }
+    .flex {
+      flex: 1;
     }
   </style>
 
@@ -380,19 +394,6 @@
       <!-- MAIN VIEW -->
       <section main id="mainPanel">
 
-        <paper-dialog id="exceedsDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" no-cancel-on-outside-click>
-          <h2 class="dialog-title">Alarm<div class="flex"></div><paper-icon-button icon="close" on-tap="closeDialog"></paper-icon-button></h2>
-          <section class="scrollable">
-            <template is="dom-repeat" items="{{exceeding}}" as="element">
-                <list-element element="{{element}}" keys="[[getGroupingKeys(element.label)]]"></list-element>
-            </template>
-          </section>
-          <div class="buttons">
-            <paper-button dialog-confirm on-tap="_removeAllExceedingElements"><iron-icon icon="highlight-off"></iron-icon>Liste leeren</paper-button>
-            <paper-button dialog-confirm><iron-icon icon="close"></iron-icon>schließen</paper-button>
-          </div>
-        </paper-dialog>
-
         <!-- MainView -->
         <section main id="mainContent">
 
@@ -408,6 +409,21 @@
               </template>
             </template>
           </template>
+
+          <paper-toast id="exceedsDialog" duration="0">
+            <section id="title">Alarm
+              <section class="flex"></section>
+              <iron-icon icon="highlight-off" on-tap="_removeAllExceedingElements"></iron-icon>
+              <iron-icon icon="close" on-tap="closeToast"></iron-icon>
+            </section>
+            <!-- <a href="#" on-tap="_removeAllExceedingElements">Leeren</a>
+            <a href="#" on-tap="closeToast">Schließen</a> -->
+            <iron-swipeable-container id="exceedingElements">
+              <template is="dom-repeat" items="{{exceeding}}" as="element">
+                  <list-element element="{{element}}" keys="[[getGroupingKeys(element.label)]]"></list-element>
+              </template>
+            </iron-swipeable-container>
+          </paper-toast>
 
         </section>
         <section id="dropShadow" class="has-shadow"></section>
@@ -652,6 +668,17 @@
         var obj = e.currentTarget;
         while (obj != window) {
           if (obj.nodeName && (obj.nodeName.toLowerCase() === 'paper-dialog')) {
+            obj.close();
+            break;
+          } else {
+            obj = obj.parentNode;
+          }
+        }
+      },
+      closeToast: function(e) {
+        var obj = e.currentTarget;
+        while (obj != window) {
+          if (obj.nodeName && (obj.nodeName.toLowerCase() === 'paper-toast')) {
             obj.close();
             break;
           } else {

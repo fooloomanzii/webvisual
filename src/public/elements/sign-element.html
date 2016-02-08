@@ -23,6 +23,9 @@
       display: flex;
       flex-direction: column;
     }
+    section#mainContent[dark] {
+      border-color: #5a5a5a;
+    }
     section#mainContent[horizontal] {
       flex-direction: row;
     }
@@ -79,10 +82,10 @@
       font-family: Light;
       font-size: 0.6em;
       color: #5a5a5a;
+      margin: 4px auto;
     }
-    section.lowerSection {
-      margin: 0em auto;
-      line-height: 1.4em;
+    section.iconSection {
+      margin: auto auto 0em auto;
     }
     section.caption {
       border-radius: 0px 0px 2px 3px;
@@ -136,16 +139,14 @@
             <section class="valueSection">{{computeY(element.values.*,0)}}</section><section class="unitSection">[[element.unit]]</section>
           </template>
           <template is="dom-if" if="{{element.isBoolean}}" restamp>
-            <section hidden$="{{!isExceeding}}">
+            <section class="iconSection" hidden$="{{!isExceeding}}">
               <iron-icon icon="error-outline"></iron-icon>
             </section>
           </template>
         </section>
 
         <template is="dom-if" if="{{showDate}}" restamp>
-          <section class="lowerSection">
-            <section class="dateSection">{{computeX(element.values.*,0)}}</section>
-          </section>
+          <section class="dateSection">{{computeX(element.values.*,0)}}</section>
         </template>
       </section>
 
@@ -166,15 +167,6 @@
       is: 'sign-element',
 
       behaviors: [ElementBehavior],
-
-      created: function(){
-        this.exceedsStyle = {
-          true:  "",
-          false: "",
-          none:  "",
-          undef: ""
-        };
-      },
 
       properties: {
         showDate: {
