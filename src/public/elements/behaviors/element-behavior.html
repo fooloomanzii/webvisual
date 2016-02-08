@@ -6,17 +6,6 @@
           type: Object,
           value: function() { return {}; }
         },
-        lastExceedsStyle: {
-          type: Object,
-          value: function() {
-            return {
-              'true':  'background: rgb(255, 21, 41); color: #f1f1f1;',
-              'false': 'background: rgb(255, 20, 110); color: #f1f1f1;',
-              'none':  'background: rgb(0, 202, 53); color: #f1f1f1;',
-              'undef': 'background: rgb(236, 249, 97); color: #1f1f1f;'
-            };
-          }
-        },
         exceedsStyle: {
           type: Object,
           value: function() {
@@ -31,9 +20,33 @@
         isExceeding: {
           type: Boolean,
           value: false
+        },
+        keys: {
+          type: Array,
+          value: function() { return []; }
+        },
+        captionStyle: {
+          type: Array,
+          value: function() {
+            return [
+              'font-weight: bold; font-size: 1em;',
+              'font-weight: normal; font-size: 0.75em;',
+              'font-weight: normal; font-size: 0.9em;',
+              'font-weight: normal; font-size: 0.6em;'
+            ];
+          }
         }
     },
-
+    getKey: function(key) {
+      if(this.element && this.element[key])
+        return this.element[key];
+    },
+    computeCaptionStyle: function(index) {
+      if (this.captionStyle[index])
+        return this.captionStyle[index];
+      else
+        return this.captionStyle[this.captionStyle.length - 1];
+    },
     computeX: function(change, index){
       if (change.base && change.base.length != 0){
         var date = this.get('x', change.base[index]);
@@ -44,7 +57,6 @@
           return ' ';
       }
     },
-
     computeY: function(change, index){
       if (change.base && change.base.length != 0){
         if (this.element.isBoolean){
@@ -77,44 +89,45 @@
         else if(exceeds === undefined)
           return this.exceedsStyle.undef;
       }
+    },
+    // TODO: eventuell durch vorhandene obere Funktionen zu lösen
+    // selector: name of the predicted element's values
+    // e.g.: 'lastExceeds', 'firstExceeds'
+    computeSpecificX: function(selector){
+      if (this.element && this.element[selector] && this.element[selector].x) {
+        var date = this.element[selector].x;
+        if(date !== undefined)
+          return new Date(date).toLocaleTimeString();
+      }
+    },
+    computeSpecificY: function(selector){
+      if (this.element && this.element[selector] && this.element[selector].y && this.element[selector].exceeds) {
+        var value = this.element[selector].y;
+        var exceeds = this.element[selector].exceeds;
+        if (value !== undefined) {
+          if (this.element.isBoolean){
+            if (exceeds==true || exceeds==false)
+              return '✗';
+            else
+              return '✓';
+          }
+          else
+            return value;
+        }
+      }
+    },
+    computeSpecificStyle: function(selector){
+      if (this.element && this.element[selector] && this.element[selector].exceeds && this.exceedsStyle) {
+        var exceeds = this.element[selector].exceeds;
+        if(exceeds == true)
+          return this.exceedsStyle.true;
+        else if(exceeds == false)
+          return this.exceedsStyle.false;
+        else if(exceeds == null)
+          return this.exceedsStyle.none;
+      }
+      else
+        return this.exceedsStyle.undef;
     }
-    // ,computeLastExceedsX: function(){
-    //   if (this.element && this.element.lastExceeds && this.element.lastExceeds.x) {
-    //     var date = this.element.lastExceeds.x;
-    //     if(date !== undefined)
-    //       return $.format.toBrowserTimeZone(date,this.timeFormat);
-    //   }
-    // },
-    //
-    // computeLastExceedsY: function(){
-    //   if (this.element && this.element.lastExceeds && this.element.lastExceeds.y && this.element.lastExceeds.exceeds) {
-    //     var value = this.element.lastExceeds.y;
-    //     var exceeds = this.element.lastExceeds.exceeds;
-    //     if (value !== undefined) {
-    //       if (this.element.isBoolean){
-    //         if (exceeds==true || exceeds==false)
-    //           return '✗';
-    //         else
-    //           return '✓';
-    //       }
-    //       else
-    //         return value;
-    //     }
-    //   }
-    // },
-    //
-    // computeLastExceedsStyle: function(){
-    //   if (this.element && this.element.lastExceeds && this.element.lastExceeds.exceeds && this.lastExceedsStyle) {
-    //     var exceeds = this.element.lastExceeds.exceeds;
-    //     if(exceeds == true)
-    //       return this.lastExceedsStyle.true;
-    //     else if(exceeds == false)
-    //       return this.lastExceedsStyle.false;
-    //     else if(exceeds == null)
-    //       return this.lastExceedsStyle.none;
-    //   }
-    //   else
-    //     return this.lastExceedsStyle.undef;
-    // }
   };
 </script>

@@ -86,30 +86,6 @@
       width: 100%;
       display: flex;
     }
-    section.card {
-      border-radius: 2px 2px 2px 3px;
-      border: thin solid #BBBBBB;
-      border-radius: 2px;
-      /*align-self: stretch;*/
-    }
-    section.card[dark] {
-      border: thin solid #606060;
-    }
-    section.caption {
-      background: white;
-      border-top: thin solid #BBBBBB;
-      color: #1f1f1f;
-      flex-direction: column;
-      line-height: 1.4;
-      min-height: 4.5em;
-      display: flex;
-      padding: 0.35em 0.65em 0.4em 0.6em;
-    }
-    section.caption[dark] {
-      background: #a8a8a8;
-      border-top: thin solid #606060;
-      color: #1d1d1d;
-    }
     paper-radio-button {
       --paper-radio-button-checked-color: #B71C1C;
       --paper-radio-button-checked-ink-color: #B71C1C;
@@ -153,12 +129,10 @@
     }
     paper-tab.label {
       --paper-tab-ink: rgba(255,255,255,0.30);
-
       --paper-tab:	{
         align-self: flex-end;
         padding: 0em 2em;
       };
-
       --paper-tab-content:	{
         font-family: Thin;
         font-weight: bold;
@@ -177,23 +151,6 @@
     }
     paper-tab.paper-tab-0:hover {
       background: rgba(255,255,255,0.4);
-    }
-    #kind {
-      font-family: Light;
-      font-weight: bold;
-      font-size: 1em;
-    }
-    #method {
-      font-size: 0.75em;
-    }
-    #room {
-      font-size: 0.9em;
-    }
-    #roomNr {
-      font-size: 0.6em;
-    }
-    post-card.group #cardContent{
-      padding: 0.5em 0em 0em 0.5em;
     }
     /* Dialogs */
     paper-dialog.sidemenu {
@@ -308,12 +265,7 @@
         </template>
       </paper-tabs>
 
-      <sign-element id="selectedElementSign" class="selectedElement sign incard" element="[[selectedElement]]" on-tap="deselectElement"></sign-element>
-      <section id="selectedElementCaption" class="selectedElement caption incard">
-        <template is="dom-repeat" items="[[getGroupingKeys(selectedElement.label)]]" as="key">
-          <span id="[[key]]">[[getElementsKey(selectedElement,key)]]</span>
-        </template>
-      </section>
+      <sign-element id="selectedElementSign" class="selectedElement sign incard" element="[[selectedElement]]" on-tap="deselectElement" keys="[[getGroupingKeys(selectedElement.label)]]"></sign-element>
 
       <table-element id="selectedElementTable" class="selectedElement noncard" element="[[selectedElement]]"></table-element>
       <!-- <line-chart id="selectedElementChart" data="[[selectedElement]]" fit></line-chart> -->
@@ -432,14 +384,7 @@
           <h2 class="dialog-title">Alarm<div class="flex"></div><paper-icon-button icon="close" on-tap="closeDialog"></paper-icon-button></h2>
           <section class="scrollable">
             <template is="dom-repeat" items="{{exceeding}}" as="element">
-              <section class="card" on-tap="setSelectedElement" dark$="[[dark]]">
-                <sign-element element="{{element}}" dark$="[[dark]]"></sign-element>
-                <section class="caption" dark$="[[dark]]">
-                  <template is="dom-repeat" items="[[getGroupingKeys(element.label)]]" as="key">
-                    <span id="[[key]]">[[getElementsKey(element,key)]]</span>
-                  </template>
-                </section>
-              </section>
+                <list-element element="{{element}}" keys="[[getGroupingKeys(element.label)]]"></list-element>
             </template>
           </section>
           <div class="buttons">
@@ -455,18 +400,9 @@
           <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="items" observe="label groups" filter="filterSelectedLabel" delay="250">
             <template id="grouptemplate" is="dom-repeat" items="{{items.groups}}" as="groups" observe="key subgroup" filter="filterPreferedGroup" delay="250">
               <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroups">
-                <post-card headline="{{subgroups.name}}" without-window$="[[withoutWindow]]" dark$="[[dark]]">
+                <post-card headline="{{subgroups.name}}" without-window$="[[withoutWindow]]">
                   <template is="dom-repeat" items="{{subgroups.elements}}" as="element">
-                      <section class="card" dark$="[[dark]]">
-
-                          <sign-element element="{{element}}" dark$="[[dark]]" on-exceeding-element="_checkExceedingDialog" on-tap="setSelectedElement" ></sign-element>
-                          <section class="caption" dark$="[[dark]]">
-                            <template is="dom-repeat" items="{{getGroupingKeys(selectedLabel)}}" as="key">
-                              <span id="{{key}}">{{getElementsKey(element,key)}}</span>
-                            </template>
-                          </section>
-
-                      </section>
+                      <sign-element class="content" element="{{element}}" keys="{{getGroupingKeys(element.label)}}" on-tap="setSelectedElement"></sign-element>
                   </template>
                 </post-card>
               </template>
@@ -540,8 +476,7 @@
         },
         dark: {
           type: Boolean,
-          value: false,
-          reflectToAttribute: true
+          value: false
         },
         maxTotalLines: {
           type: Number,
@@ -652,12 +587,17 @@
       },
 
       changeTheme: function(){
+        var elems = document.querySelectorAll('*');
         if(this.dark) {
-          $('*').removeAttr("dark");
+          for (i = 0; i < elems.length; ++i) {
+            elems[i].removeAttribute("dark");
+          }
           this.dark = false;
         }
         else {
-          $('*').attr("dark",true);
+          for (i = 0; i < elems.length; ++i) {
+            elems[i].setAttribute("dark", true);
+          }
           this.dark = true;
         }
       },

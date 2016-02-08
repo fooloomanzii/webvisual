@@ -85,6 +85,9 @@
       align-items: flex-start;
       padding: 0.5em 0em 0em 0.5em;
     }
+    #cardContent ::content .content {
+      margin: 0em 0.55em 0.55em 0em;
+    }
     @media all and (min-width: 750px) and (max-width: 1280px) and (orientation: portrait) {
       #outer:not([name='all']) {
         max-width: 31.5em;
@@ -100,16 +103,13 @@
         max-width: 39.5em;
       }
     }
-    ::content .card {
-      margin: 0em 0.55em 0.55em 0em;
-    }
 
   </style>
   <template>
 
-    <section id="outer" name$="[[title]]" nowindow$="{{withoutWindow}}" dark$="[[dark]]">
+    <section id="outer" name$="[[title]]" nowindow$="{{withoutWindow}}">
       <section id="header">
-        <paper-button on-tap="toggleCollapse" hidden$="[[hideTitle(headline,withoutWindow)]]" dark$="[[dark]]">[[title]]</paper-button>
+        <paper-button on-tap="toggleCollapse" hidden$="[[hideTitle(headline,withoutWindow)]]">[[title]]</paper-button>
       </section>
       <section id="cardMain" class="content">
           <iron-collapse id="cardCollapse" opened="true" duration="1">
@@ -139,11 +139,6 @@
         computed: "getTitle(headline,placeholder)"
       },
       withoutWindow: {
-        type: Boolean,
-        value: false,
-        reflectToAttribute: true
-      },
-      dark: {
         type: Boolean,
         value: false,
         reflectToAttribute: true

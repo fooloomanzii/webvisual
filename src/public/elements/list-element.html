@@ -1,5 +1,5 @@
 <link rel="import" href="../components/paper-ripple/paper-ripple.html">
-<dom-module id="sign-element">
+<dom-module id="list-element">
   <style>
     :host {
       position: relative;
@@ -163,7 +163,7 @@
   <script>
 
     SignElement = Polymer({
-      is: 'sign-element',
+      is: 'list-element',
 
       behaviors: [ElementBehavior],
 
@@ -184,7 +184,7 @@
         },
         horizontal: {
           type: Boolean,
-          value: false,
+          value: true,
           reflectToAttribute: true
         },
         showCaption: {

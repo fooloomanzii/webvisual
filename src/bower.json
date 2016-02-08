@@ -8,13 +8,11 @@
   ],
   "dependencies": {
     "iron-elements": "PolymerElements/iron-elements",
-    "jquery": "*",
     "leaflet-map": "*",
     "neon-animation": "PolymerElements/neon-animation",
     "paper-elements": "PolymerElements/paper-elements",
     "poly-nvd3": "*",
-    "polymer": "Polymer/polymer",
-    "underscore": "*"
+    "polymer": "Polymer/polymer"
   },
   "ignoredDependencies": [
     "PolymerElements/font-roboto"
