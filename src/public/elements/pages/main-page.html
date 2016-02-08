@@ -384,7 +384,7 @@
           <h2 class="dialog-title">Alarm<div class="flex"></div><paper-icon-button icon="close" on-tap="closeDialog"></paper-icon-button></h2>
           <section class="scrollable">
             <template is="dom-repeat" items="{{exceeding}}" as="element">
-                <list-element element="{{element}}" dark$="[[dark]]" keys="[[getGroupingKeys(element.label)]]"></sign-element>
+                <list-element element="{{element}}" keys="[[getGroupingKeys(element.label)]]"></list-element>
             </template>
           </section>
           <div class="buttons">
@@ -400,9 +400,9 @@
           <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="items" observe="label groups" filter="filterSelectedLabel" delay="250">
             <template id="grouptemplate" is="dom-repeat" items="{{items.groups}}" as="groups" observe="key subgroup" filter="filterPreferedGroup" delay="250">
               <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroups">
-                <post-card headline="{{subgroups.name}}" without-window$="[[withoutWindow]]" dark$="[[dark]]">
+                <post-card headline="{{subgroups.name}}" without-window$="[[withoutWindow]]">
                   <template is="dom-repeat" items="{{subgroups.elements}}" as="element">
-                      <sign-element class="content" element="{{element}}" dark$="[[dark]]" keys="{{getGroupingKeys(element.label)}}" on-tap="setSelectedElement"></sign-element>
+                      <sign-element class="content" element="{{element}}" keys="{{getGroupingKeys(element.label)}}" on-tap="setSelectedElement"></sign-element>
                   </template>
                 </post-card>
               </template>
@@ -476,8 +476,7 @@
         },
         dark: {
           type: Boolean,
-          value: false,
-          reflectToAttribute: true
+          value: false
         },
         maxTotalLines: {
           type: Number,
@@ -588,12 +587,17 @@
       },
 
       changeTheme: function(){
+        var elems = document.querySelectorAll('*');
         if(this.dark) {
-          $('*').removeAttr("dark");
+          for (i = 0; i < elems.length; ++i) {
+            elems[i].removeAttribute("dark");
+          }
           this.dark = false;
         }
         else {
-          $('*').attr("dark",true);
+          for (i = 0; i < elems.length; ++i) {
+            elems[i].setAttribute("dark", true);
+          }
           this.dark = true;
         }
       },

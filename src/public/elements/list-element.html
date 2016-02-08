@@ -1,24 +1,48 @@
+<link rel="import" href="../components/paper-ripple/paper-ripple.html">
 <dom-module id="list-element">
   <style>
     :host {
       position: relative;
+      box-sizing: border-box;
       color: #f1f1f1;;
       overflow: hidden;
       display: flex;
       outline: none;
       font-family: Light;
-      user-select: none;
+      font-weight: normal;
+      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+      -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
       background: transparent;
       font-size: 1em;
       line-height: 1;
+      align-self: stretch;
     }
     section#mainContent {
-      display: inline-flex;
+      border-radius: 2px 2px 2px 3px;
+      border: thin solid #BBBBBB;
+      display: flex;
+      flex-direction: column;
+    }
+    section#mainContent[horizontal] {
+      flex-direction: row;
     }
     section#sign {
+      border-radius: 2px 2px 0px 0px;
       cursor: pointer;
+      box-shadow: inherit;
       position: relative;
-      display: inline-flex;
+      display: flex;
+      flex-direction: column;
+      min-height: 4em;
+      min-width: 5em;
+    }
+    section#sign[horizontal] {
+      border-radius: 2px 0px 0px 3px;
+    }
+    @media all and (max-width: 480px) {
+      section#sign {
+        min-width: 4em;
+      }
     }
     section#sign.null {
       background: rgb(0, 202, 53); color: #f1f1f1;
@@ -37,19 +61,18 @@
     }
     section.actualValueSection {
       display: flex;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
-      padding: 1em 1em 0.25em 1em;
-      align-items: center;
       flex: 1;
-      flex-direction: row;
-      justify-content: center;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
+      padding: 0.25em;
+      line-height: 1.5em;
     }
     section.valueSection {
-      font-size: 1.25em;
-      font-style: normal;
+      margin: auto 0em 0em auto;
+      font-size: 1.5em;
     }
     section.unitSection {
-      padding-left: 0.3em;
+      margin: auto auto 0em 0.25em;
+      font-family: Thin;
       font-size: 0.8em;
     }
     section.dateSection {
@@ -58,31 +81,31 @@
       color: #5a5a5a;
     }
     section.lowerSection {
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: bottom;
-      padding: 0.25em 0.75em 0.25em 0.75em;
-      line-height: 1em;
+      margin: 0em auto;
+      line-height: 1.4em;
     }
     section.caption {
+      border-radius: 0px 0px 2px 3px;
       background: white;
-      border-top: thin solid #BBBBBB;
       color: #1f1f1f;
-      flex-direction: column;
       line-height: 1.4;
-      min-height: 4.5em;
-      display: flex;
-      padding: 0.35em 0.65em 0.4em 0.6em;
+      padding: 0.3em 1em 0.5em 0.5em;
+      flex: 1;
+      border-top: thin solid #BBBBBB;
+    }
+    section.caption[horizontal]{
+      border-top: none;
+      border-left: thin solid #BBBBBB;
+      border-radius: 0px 2px 2px 0px;
     }
     section.caption[dark] {
       background: #a8a8a8;
-      border-top: thin solid #606060;
+      border-color: #606060;
       color: #1d1d1d;
     }
     iron-icon {
-      --iron-icon-height: 1.75em;
-      --iron-icon-width: 1.75em;
+      --iron-icon-height: 1.5em;
+      --iron-icon-width: 1.5em;
       color: currentColor;
       animation-name: exceed-animation;
       animation-duration: 2s;
@@ -97,11 +120,15 @@
     #ripple {
       color: #1d1d1d;
     }
+    span.captions {
+      float: left;
+      clear: both;
+    }
   </style>
   <template>
-    <section id="mainContent">
+    <section id="mainContent" horizontal$="{{horizontal}}">
 
-      <section id="sign" dark$="[[dark]]">
+      <section id="sign" horizontal$="{{horizontal}}">
         <paper-ripple id="ripple"></paper-ripple>
 
         <section class="actualValueSection">
@@ -123,9 +150,9 @@
       </section>
 
       <template is="dom-if" if="{{showCaption}}" restamp>
-        <section class="caption" dark$="[[dark]]">
+        <section class="caption" horizontal$="{{horizontal}}">
           <template id="captiontemplate" is="dom-repeat" items="{{keys}}" as="key">
-            <span id="[[key]]" style$="[[computeCaptionStyle(index)]]">{{getKey(key)}}</span>
+            <span id="[[key]]" class="captions" style$="[[computeCaptionStyle(index)]]">{{getKey(key)}}</span>
           </template>
         </section>
       </template>
@@ -155,14 +182,14 @@
           value: true,
           reflectToAttribute: true
         },
-        showCaption: {
+        horizontal: {
           type: Boolean,
           value: true,
           reflectToAttribute: true
         },
-        dark: {
+        showCaption: {
           type: Boolean,
-          value: false,
+          value: true,
           reflectToAttribute: true
         }
       },

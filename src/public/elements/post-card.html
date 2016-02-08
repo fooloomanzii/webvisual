@@ -107,9 +107,9 @@
   </style>
   <template>
 
-    <section id="outer" name$="[[title]]" nowindow$="{{withoutWindow}}" dark$="[[dark]]">
+    <section id="outer" name$="[[title]]" nowindow$="{{withoutWindow}}">
       <section id="header">
-        <paper-button on-tap="toggleCollapse" hidden$="[[hideTitle(headline,withoutWindow)]]" dark$="[[dark]]">[[title]]</paper-button>
+        <paper-button on-tap="toggleCollapse" hidden$="[[hideTitle(headline,withoutWindow)]]">[[title]]</paper-button>
       </section>
       <section id="cardMain" class="content">
           <iron-collapse id="cardCollapse" opened="true" duration="1">
@@ -139,11 +139,6 @@
         computed: "getTitle(headline,placeholder)"
       },
       withoutWindow: {
-        type: Boolean,
-        value: false,
-        reflectToAttribute: true
-      },
-      dark: {
         type: Boolean,
         value: false,
         reflectToAttribute: true

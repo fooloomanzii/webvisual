@@ -512,10 +512,10 @@
           "from": 0,
           "to": 5
         },
-        "unit": "²"
+        "unit": "cm²"
       }, {
         "id": "id2",
-        "propA": "Aa",
+        "propA": "id2",
         "propB": "Bd",
         "propC": "C2",
         "isBoolean": false,
