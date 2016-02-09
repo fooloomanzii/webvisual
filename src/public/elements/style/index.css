@@ -63,12 +63,12 @@ paper-item.sidemenu {
 paper-slider {
 }
 paper-item.date {
-  font-family: Light;
+  font-family: Fira Sans Light;
   font-size: 0.75em;
 }
 paper-radio-button  {
   display: block;
-  font-family: Light;
+  font-family: Fira Sans Light;
   padding: 0.5em 1em;
   font-size: 0.85em;
 }
@@ -96,14 +96,14 @@ paper-toggle-button {
   border-bottom: thin solid white;
 }
 paper-dialog {
-  font-family: Light !important;
+  font-family: Fira Sans Light !important;
   color: #1f1f1f;
 }
 paper-dialog[dark] {
   background: #8A8A8A;
 }
 paper-dialog h2 {
-  font-family: Thin !important;
+  font-family: Fira Sans Light !important;
   font-weight: bold;
   margin: 0em;
   display: flex;
@@ -115,7 +115,7 @@ paper-dialog > *:first-child {
     margin-top: 0px !important;
 }
 paper-dialog paper-button {
-  font-family: Thin;
+  font-family: Fira Sans Light;
   font-weight: bold;
   color: #1f1f1f;
   padding: 0.5em !important;
@@ -145,21 +145,16 @@ paper-dialog paper-dialog-scrollable {
  */
 
 @font-face {
- font-family: Light;
- src: url('fonts/FiraSans-Book.otf') format('truetype');
+ font-family: Fira Sans Light;
+ src: url('fonts/FiraSans-Light.otf') format('truetype');
  font-weight: normal;
  font-style: normal;
 }
-@font-face {
- font-family: Thin;
- src: url('fonts/FiraSans-Hair.otf') format('truetype');
- font-weight: normal;
- font-style: normal;
-}
+
 /* Polymer Elements Issue */
 @font-face {
  font-family: Roboto;
- src: url('fonts/FiraSans-Book.otf') format('truetype');
+ src: url('fonts/FiraSans-Light.otf') format('truetype');
  font-weight: normal;
  font-style: normal;
 }
