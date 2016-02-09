@@ -201,9 +201,11 @@ function connect(config, server, err) {
         });
 
       // if client is disconnected, remove them from list
-      socket.on('disconnect', function() {
-        delete clients[socket.id];
-      });
+      socket.on('disconnect',
+        function() {
+          delete clients[socket.id];
+        }
+      );
     });
   });
 
