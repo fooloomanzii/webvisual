@@ -1,16 +1,9 @@
-<link rel="import" href="../data-socket-repeater.html"/>
-<link rel="import" href="../../components/neon-animation/neon-animation.html"/>
-<link rel="import" href="../juelich-icon.html"/>
-<link rel="import" href="../behaviors/page-behavior.html">
-<link rel="import" href="../behaviors/language-behavior.html">
-<link rel="import" href="../behaviors/element-behavior.html">
-<link rel="import" href="select-page.html"/>
-<link rel="import" href="loading-page.html"/>
-<link rel="import" href="main-page.html"/>
+<link rel="import" href="imports.html"/>
+<link rel="import" href="style/app-theme.html">
 
-<dom-module id="animated-pages-element">
+<dom-module id="index-element">
 
-  <link href="../../css/index.css" type="text/css" rel="stylesheet"/>
+  <link href="style/index.css" type="text/css" rel="stylesheet"/>
   <style>
     :host {
       height: 100%;
@@ -46,7 +39,7 @@
   </template>
   <script>
       Polymer({
-        is: 'animated-pages-element',
+        is: 'index-element',
 
         attached: function(){
           // this.$.pages.set('selected', '0');

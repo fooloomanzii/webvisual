@@ -1,4 +1,4 @@
-<script src="../socket.io/socket.io.js"></script>
+<script src="../../socket.io/socket.io.js"></script>
 <dom-module id="data-socket-repeater">
   <script>
     Polymer({
@@ -277,17 +277,18 @@
       },
 
       _checkIfExceedingStateHasToBeSet: function(path, exceeds) {
+        path = path.slice(0,-7);
+        var item = this.get(path);
+        if (item.isExceeding == undefined)
+          this.set(path + ".isExceeding", false);
+
         if (exceeds === null) {
-          path = path.slice(0,-7);
-          var item = this.get(path);
           if(item.isExceeding === true) {
             this.set(path + ".isExceeding", false);
             this.push(path + ".lastExceeds", item.values[1]);
           }
         }
         else if (exceeds === true || exceeds === false) {
-          path = path.slice(0,-7);
-          var item = this.get(path);
           if(item.isExceeding === false) {
             this.set(path + ".isExceeding", true);
             this.push(path + ".firstExceeds", item.values[0]);
