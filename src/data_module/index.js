@@ -156,7 +156,7 @@ function connect(config, server, err) {
 
       var current_client = new Client(socket, options);
 
-      // console.log(socket.id);
+      console.log(socket.id);
       // io.clients(function(error, clients) {
       //   if (error) throw error;
       //   console.log(clients); // => [6em3d4TJP8Et9EMNAAAA,
@@ -193,10 +193,10 @@ function connect(config, server, err) {
             if (message === undefined)
               return;
           }
-          socket.emit('data', message);
+          socket.emit('first', message);
 
           // append the client to array after the first message is sent
-          // current_client.hasFirst = true;
+          current_client.hasFirst = true;
           clients[socket.id] = current_client;
         });
 
