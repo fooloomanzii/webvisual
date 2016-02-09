@@ -208,9 +208,10 @@ function connect(config, server, err) {
   });
 
   io.of('/data').clients(function(error, clients) {
-    if (error)
+    if (error) {
       throw error;
-    // console.log(clients); // => [PZDoMHjiu8PYfRiKAAAF, Anw2LatarvGVVXEIAAAD]
+      console.log(clients); // => [PZDoMHjiu8PYfRiKAAAF, Anw2LatarvGVVXEIAAAD]
+    }
   });
 
   // Function to serve the clients with new data each updateIntervall of time

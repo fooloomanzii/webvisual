@@ -238,6 +238,7 @@
       margin: 0.75em 0em;
     }
     paper-icon-button.error {
+      color: #f4959d;
       animation-name: alarm-animation !important;
       animation-duration: 4s;
       animation-timing-function: ease-in-out;
@@ -245,9 +246,9 @@
       --paper-icon-button-ink-color: currentColor;
     }
     @keyframes alarm-animation {
-      0%   {color: #f4959d;}
-      33%  {color: #f64756;}
-      100% {color: #f4959d;}
+      0%   {transform: scale(1);}
+      33%  {transform: scale(1.10);}
+      100% {transform: scale(1);}
     }
     .flex {
       flex: 1;
@@ -284,10 +285,10 @@
           <paper-button collapse-id="settings" class="sidemenu collapsable" on-tap="toggleCollapse">
             <iron-icon icon="settings"></iron-icon>
             <span class="flex">Einstellungen</span>
-            <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="settings"></iron-icon>
+            <iron-icon icon="arrow-drop-up" class="collapse-arrow right-icon" id="settings"></iron-icon>
           </paper-button>
 
-            <iron-collapse class="sidemenu collapse settings">
+            <iron-collapse class="sidemenu collapse settings" opened>
               <section class="indention collapse-content">
                 <paper-button collapse-id="grouping" class="sidemenu" on-tap="toggleCollapse">
                   <iron-icon icon="reorder"></iron-icon>
@@ -302,6 +303,11 @@
                       </template>
                     </paper-radio-group>
                   </iron-collapse>
+
+                <paper-item>
+                  <iron-icon icon="date-range"></iron-icon>
+                  <paper-toggle-button id="colorschema" checked="{{showDate}}">Zeit anzeigen</paper-toggle-button>
+                </paper-item>
 
                 <paper-item>
                   <iron-icon icon="editor:border-style"></iron-icon>
@@ -337,7 +343,7 @@
               </section>
             </iron-collapse>
 
-          <paper-button dialog-id="log" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
+          <!-- <paper-button dialog-id="log" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
             <iron-icon icon="history"></iron-icon>
             <span class="flex">Log</span>
           </paper-button>
@@ -370,7 +376,7 @@
                   <span class="italic">[[computeDate(lastMistake)]]</span>
                 </paper-item>
               </section>
-            </iron-collapse>
+            </iron-collapse> -->
 
           <paper-button class="sidemenu" on-tap="backToMainMenu">
             <iron-icon icon="arrow-back"></iron-icon>
@@ -391,7 +397,7 @@
               <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroups">
                 <post-card headline="{{subgroups.name}}" without-window$="[[withoutWindow]]">
                   <template is="dom-repeat" items="{{subgroups.elements}}" as="element">
-                      <sign-element class="content" element="{{element}}" keys="{{getGroupingKeys(element.label)}}" on-tap="setSelectedElement"></sign-element>
+                      <sign-element class="content" element="{{element}}" keys="{{getGroupingKeys(element.label)}}" on-tap="setSelectedElement" show-date="{{showDate}}"></sign-element>
                   </template>
                 </post-card>
               </template>
@@ -420,7 +426,7 @@
 
   <!-- Dialogs -->
 
-    <iron-ajax id="ajaxElement" auto url=""
+    <!-- <iron-ajax id="ajaxElement" auto url=""
         params=''
         handle-as="text" last-response="[[ajaxLogResponse]]"></iron-ajax>
 
@@ -433,7 +439,7 @@
         <paper-button onclick="document.querySelector('iron-ajax').generateRequest()"><iron-icon icon="refresh"></iron-icon>Reload</paper-button>
         <paper-button dialog-confirm><iron-icon icon="check"></iron-icon>OK</paper-button>
       </div>
-    </paper-dialog>
+    </paper-dialog> -->
 
   </template>
   <script>
@@ -498,22 +504,17 @@
           value: false,
           reflectToAttribute: true
         },
-        alwaysShowTabs: {
+        showDate: {
           type: Boolean,
           value: false,
-          reflectToAttribute: true
+          reflectToAttribute: true,
+          notify: true
         },
         // Attribute sent by datasocket-repeater
         isExceeding: {
           type: Boolean,
           notify: true,
           observer: "openExceedsDialog"
-        },
-        // Array of exceeding items
-        exceeding: {
-          type: Array,
-          value: function() { return []; },
-          notify: true
         }
       },
 

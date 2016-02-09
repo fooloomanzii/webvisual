@@ -44,11 +44,10 @@
         type: String,
         observer: "_setPreferedGroupingKey"
       },
-      maxTotalLines: {
-        type: Number
-      },
-      interval: {
-        type: Number
+      exceeding: {
+        type: Array,
+        value: function() { return []; },
+        notify: true
       }
     },
     _computeSelectedLabelId: function(label) {
