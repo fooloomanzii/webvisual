@@ -110,14 +110,14 @@ function connect(config, server, err) {
           dbController.appendData(
             labelIndex, currentData.content,
             function(appendedData, cb_index) {
-              for (var socketId in clients) {
-                // console.log(socketId + ' ' + (new Date()).toLocaleTimeString());
-                clients[socketId].socket.emit('data', {
-                  label: dataLabels[labelIndex],
-                  content: appendedData,
-                  time: new Date(), // current message time
-                });
-              }
+              // for (var socketId in clients) {
+              //   // console.log(socketId + ' ' + (new Date()).toLocaleTimeString());
+              //   clients[socketId].socket.emit('data', {
+              //     label: dataLabels[labelIndex],
+              //     content: appendedData,
+              //     time: new Date(), // current message time
+              //   });
+              // }
             });
         }
       }
@@ -218,63 +218,63 @@ function connect(config, server, err) {
 
   // Function to serve the clients with new data each updateIntervall of time
   // updateIntervall is the time interval in milliseconds
-  // var serve_clients_with_data = function(updateIntervall) {
-  //   // Send new data on constant time intervals
-  //   setInterval(function() {
-  //     // for every label, switch the representing temporary database
-  //     dataLabels.forEach(function(label, i) {
-  //       dbController.switchTmpDB(i, function(tmpDB, tmp_index) {
-  //         if (!tmpDB)
-  //           return; // tmpDB is undefined
-  //
-  //         // look if clients need data from the switched temporary database
-  //         async.each(clients,
-  //           function(client, async_callback) {
-  //             var search_pattern;
-  //             client.patterns.forEach(function(pattern) {
-  //               // look if that client have a pattern with that label
-  //               if (pattern.label === dataLabels[tmp_index])
-  //                 search_pattern = pattern.appendPattern;
-  //             });
-  //             if (search_pattern === undefined)
-  //               async_callback();
-  //
-  //             dbController.getDataFromTmpModel(
-  //               tmp_index, tmpDB, search_pattern,
-  //               function(data, labelIndex) {
-  //
-  //                 if (!data || data.length < 1) {
-  //                   // data is empty
-  //                   return;
-  //                 }
-  //
-  //                 // one message per one tmpDB
-  //                 var message = {
-  //                   label: dataLabels[labelIndex],
-  //                   content: data,
-  //                   time: new Date(), // current message time
-  //                 };
-  //                 client.socket.emit('data', message);
-  //
-  //                 async_callback();
-  //               });
-  //           },
-  //           function(err) {
-  //             if (err)
-  //               handleErrors(err);
-  //             // cleanize the tmpDB with current label
-  //             // IMPORTANT! tmpDB need to be cleanized each time
-  //             // otherwise you'll get endless number of useless data
-  //             tmpDB.remove({},
-  //               function(err) {
-  //                 if (err)
-  //                   handleErrors(err);
-  //               });
-  //           });
-  //       });
-  //     })
-  //   }, updateIntervall);
-  // };
+  var serve_clients_with_data = function(updateIntervall) {
+    // Send new data on constant time intervals
+    setInterval(function() {
+      // for every label, switch the representing temporary database
+      dataLabels.forEach(function(label, i) {
+        dbController.switchTmpDB(i, function(tmpDB, tmp_index) {
+          if (!tmpDB)
+            return; // tmpDB is undefined
+
+          // look if clients need data from the switched temporary database
+          async.each(clients,
+            function(client, async_callback) {
+              var search_pattern;
+              client.patterns.forEach(function(pattern) {
+                // look if that client have a pattern with that label
+                if (pattern.label === dataLabels[tmp_index])
+                  search_pattern = pattern.appendPattern;
+              });
+              if (search_pattern === undefined)
+                async_callback();
+
+              dbController.getDataFromTmpModel(
+                tmp_index, tmpDB, search_pattern,
+                function(data, labelIndex) {
+
+                  if (!data || data.length < 1) {
+                    // data is empty
+                    return;
+                  }
+
+                  // one message per one tmpDB
+                  var message = {
+                    label: dataLabels[labelIndex],
+                    content: data,
+                    time: new Date(), // current message time
+                  };
+                  client.socket.emit('data', message);
+
+                  async_callback();
+                });
+            },
+            function(err) {
+              if (err)
+                handleErrors(err);
+              // cleanize the tmpDB with current label
+              // IMPORTANT! tmpDB need to be cleanized each time
+              // otherwise you'll get endless number of useless data
+              tmpDB.remove({},
+                function(err) {
+                  if (err)
+                    handleErrors(err);
+                });
+            });
+        });
+      })
+    }, updateIntervall);
+  };
 
   /*
    * Get SERVER.io, mongoose and server running!
@@ -322,7 +322,7 @@ function connect(config, server, err) {
       // make the Server available for Clients
       server.listen(config.port);
 
-      // serve_clients_with_data(config.updateIntervall);
+      serve_clients_with_data(config.updateIntervall);
     });
 
   /*

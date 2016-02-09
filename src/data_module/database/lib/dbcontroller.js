@@ -10,6 +10,7 @@
  *
  * * Short description
  * Controls all operations over the database within defined DB-Models
+ * Can actually check some pre-conditions of the DeviceModel/TmpModel functions.
  *
  * * Usage
  * To use it, at first you need to set Listener for 'error'-event.
@@ -37,6 +38,10 @@
  * DBController.resize(index, id, new_size, callback)
  * DBController.resizeAllInModel(index, newSize, callback)
  * DBController.resizeAll(newSize, callback)
+ * DBController.getDataFromTmpModel(index, tmp_db, tmpDB, callback)
+ * DBController.switchTmpDB(index, callback)
+ * DBController.removeTMPs(index, callback)
+ * DBController.removeAllTMPs(callback)
  */
 
 // --- Node.js Module dependencies --- //
@@ -299,6 +304,78 @@ DBController.prototype.resizeAll = function(newSize, callback) {
     }
   );
 };
+
+
+/*
+ * Search for some query in temporary database and call the callback with found data
+ *   temporary database is the database, that includes only the data, since last tmpDB switch
+ * index: index of the model corresponding to the temporary database
+ *        The index need to be set by createConnection()
+ * tmpDB: reference to the temporary database, that needs to be queried
+ *        you can become the reference from DBController.prototype.switchTmpDB()
+ * search_pattern: the search-object. Please read the exact description by tmpmodel.js/TmpModel.prototype.queryFromModel()
+ * callback: function(result, model_index)
+ *           result: data, found using the search_pattern
+ *           model_index: index of database, the data was queried
+ */
+DBController.prototype.getDataFromTmpModel = function(index, tmpDB, search_pattern, callback) {
+  if (!this.checkIndex(index)) return;
+  var self = this;
+  this.deviceModels[index].TmpModel.queryFromModel(tmpDB, search_pattern, function(err, result, model_index) {
+    if (err) self.emit('error', extendError(err, self));
+    if (callback) callback(result, model_index);
+  });
+};
+
+/*
+ * Switches Temporary Database to the next one and passes the current one per callback
+ * index: index of the model corresponding to the temporary database
+ *        The index need to be set by createConnection()
+ * callback: function(tmpDB, model_index)
+ *           tmpDB: reference to the temporary database
+ *                  needs to be used by DBController.prototype.getDataFromTmpModel
+ *           model_index: index of database, the data was queried
+ */
+DBController.prototype.switchTmpDB = function(index, callback) {
+  if (!this.checkIndex(index)) return;
+  var self = this;
+  this.deviceModels[index].switchTmpDB(function(tmpDB, model_index) {
+    if (callback) callback(tmpDB, model_index);
+  });
+};
+
+/* Remove all temporary collections in given database and repair the database
+ * Repairing is important in order to remove all remain indexes
+ *
+ * !! WARNING! Repair operation needs enough free disk space (in size of database)   !!!
+ * !!! Also it needs much time, so use this function ONLY, WHEN THE DB IS NOT IN USE !!!
+ */
+DBController.prototype.removeTMPs = function(index, callback) {
+  if (!this.checkIndex(index)) return;
+  var self = this;
+  this.deviceModels[index].removeTMPs(function(model_index) {
+    if (callback) callback(model_index);
+  });
+}
+
+/* Remove all temporary collections in all databases and repair the databases
+ * Repairing is important in order to remove all remain indexes
+ *
+ * !! WARNING! Repair operation needs enough free disk space (in size of database)   !!!
+ * !!! Also it needs much time, so use this function ONLY, WHEN THE SERVER IS NOT IN USE !!!
+ */
+DBController.prototype.removeAllTMPs = function(callback) {
+  var self = this;
+  async.forEach(Object.keys(this.deviceModels),
+    function(index, async_callback) {
+      self.removeTMPs(index, async_callback)
+    },
+    function(err) {
+      if (err) self.emit('error', err);
+      if (callback) callback();
+    }
+  );
+}
 
 // --- Exports --- //
 module.exports = DBController;
