@@ -232,16 +232,16 @@
       background: rgba(255,255,255,0.25);
       border-radius: 50%
     }
-    paper-toast iron-swipeable-container#exceedingElements {
+    notification-element iron-swipeable-container#exceedingElements {
       max-height: 68vh;
       overflow-y: auto;
       overflow-x: hidden;
     }
-    paper-toast iron-swipeable-container#exceedingElements list-element {
-      margin: 0.75em 0em;
+    notification-element iron-swipeable-container#exceedingElements list-element {
+      margin: 0.25em 0em;
     }
     paper-icon-button.error {
-      color: #f4959d;
+      color: #FF9D9D;
       animation-name: alarm-animation !important;
       animation-duration: 4s;
       animation-timing-function: ease-in-out;
@@ -407,20 +407,13 @@
             </template>
           </template>
 
-          <paper-toast id="exceedsDialog" duration="0">
-            <section id="title">Alarm
-              <section class="flex"></section>
-              <iron-icon icon="highlight-off" on-tap="_removeAllExceedingElements"></iron-icon>
-              <iron-icon icon="close" on-tap="closeToast"></iron-icon>
-            </section>
-            <!-- <a href="#" on-tap="_removeAllExceedingElements">Leeren</a>
-            <a href="#" on-tap="closeToast">Schließen</a> -->
+          <notification-element id="exceedsDialog" text="Alarme" image="/img/404fry.png">
             <iron-swipeable-container id="exceedingElements">
               <template is="dom-repeat" items="{{exceeding}}" as="element">
                   <list-element element="{{element}}" keys="[[getGroupingKeys(element.label)]]"></list-element>
               </template>
             </iron-swipeable-container>
-          </paper-toast>
+          </notification-element>
 
         </section>
         <section id="dropShadow" class="has-shadow"></section>
@@ -574,8 +567,8 @@
 
       openExceedsDialog: function() {
         if(this.isExceeding) {
-          this.$.exceedsDialog.fit();
-          this.$.exceedsDialog.center();
+          // this.$.exceedsDialog.fit();
+          // this.$.exceedsDialog.center();
           this.$.exceedsDialog.open();
         }
         else {
@@ -590,7 +583,7 @@
       },
 
       toggleExceedsDialog: function() {
-        this.$.exceedsDialog.fit();
+        // this.$.exceedsDialog.fit();
         this.$.exceedsDialog.toggle();
       },
 
