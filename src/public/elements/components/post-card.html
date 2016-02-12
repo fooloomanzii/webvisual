@@ -52,7 +52,7 @@
       }
       section.header .text.over-image {
         position: absolute;
-        background: none;
+        background: none !important;;
         bottom: 0px;
       }
       section#title[dark] {
@@ -87,7 +87,7 @@
       }
 
       div#map {
-        max-height: 200px;
+        max-height: 30vh;
         width: auto;
       }
 
@@ -190,10 +190,11 @@
           view: new ol.View({
             projection: projection,
             center: ol.extent.getCenter(extent),
-            zoom: 2,
+            zoom: 0,
             maxZoom: 8
           })
         });
+        // map.getView().fit(extent, map.getSize());
         // var map = new ol.Map({
         //   layers: [
         //     new ol.layer.Tile({
