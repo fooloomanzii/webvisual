@@ -3,6 +3,8 @@
     :host {
       position: relative;
       box-sizing: border-box;
+      border-radius: 2px 2px 2px 3px;
+      border: thin solid #BBBBBB;
       color: #f1f1f1;;
       overflow: hidden;
       display: flex;
@@ -16,14 +18,12 @@
       line-height: 1;
       align-self: stretch;
     }
+    :host[dark] {
+      border-color: #5a5a5a;
+    }
     section#mainContent {
-      border-radius: 2px 2px 2px 3px;
-      border: thin solid #BBBBBB;
       display: flex;
       flex-direction: column;
-    }
-    section#mainContent[dark] {
-      border-color: #5a5a5a;
     }
     section#mainContent[horizontal] {
       flex-direction: row;
@@ -47,16 +47,16 @@
       }
     }
     section#sign.null {
-      background: #00C253; color: #f1f1f1;
+      background: #1BD939; color: #f1f1f1;
     }
     section#sign.true {
-      background: #C20000; color: #f1f1f1;
+      background: #D91B1B; color: #f1f1f1;
     }
     section#sign.false {
-      background: #3200C2; color: #f1f1f1;
+      background: #301BD9; color: #f1f1f1;
     }
     section#sign.undefined {
-      background: #BEC200; color: #1f1f1f;
+      background: #D9CB1B; color: #1f1f1f;
     }
     section#sign[dark]{
       color: #d3d3d3;

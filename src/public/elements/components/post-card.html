@@ -1,169 +1,238 @@
 <dom-module id="post-card">
-  <style>
-    :host {
-      border-radius: 4px 5px 4px 5px;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      -webkit-touch-callout: none;
-      padding: 0.4em;
-      font-family: Fira Sans Light;
-      font-weight: normal;
-    }
-
-    section#header {
-      border-top-left-radius: inherit;
-      border-top-right-radius: inherit;
-      border-bottom-left-radius: 0px;
-      border-bottom-right-radius: 0px;
-      background: #669DB4;
-    }
-    section#header[dark] {
-      background: #345475;
-    }
-
-    section#title {
-      width: auto;
-      font-size: 1.1em;
-      margin: 0em;
-      padding: 0em;
-      color: white;
-      border-top-left-radius: inherit;
-      border-top-right-radius: inherit;
-      border-bottom-left-radius: 0px;
-      border-bottom-right-radius: 0px;
-      padding: 8px 12px;
-      border: thin solid transparent;
-      border-bottom: thin solid rgba(140, 140, 140, 0.5);
-      background: linear-gradient(to bottom, rgba(255,255,255,0.01) 5%,rgba(255,255,255,0.05) 40%);
-      text-align: left;
-      text-transform: none;
-    }
-
-    section#title:hover {
-      border: thin solid rgba(140, 140, 140, 0.5);
-      border-bottom: thin solid rgba(100, 100, 100, 0.5);
-      background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.10) 40%);
-    }
-
-    section#title[dark] {
-      color: #A8CCDB;
-      border-bottom: thin solid rgba(80, 80, 80, 0.5);
-    }
-
-    section#title[dark]:hover {
-      border: thin solid rgba(80, 80, 80, 0.5);
-      border-bottom: thin solid rgba(40, 40, 40, 0.5);
-    }
-
-    #outer {
-      background: #f1f1f1;
-      border-radius: inherit;
-      transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
-                  0 1px 10px 0 rgba(0, 0, 0, 0.12),
-                  0 2px 4px -1px rgba(0, 0, 0, 0.4);
-    }
-    #outer:hover {
-      box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.14),
-                  0 1px 18px 0 rgba(0, 0, 0, 0.12),
-                  0 3px 5px -1px rgba(0, 0, 0, 0.4);
-    }
-    #outer[dark] {
-      background: #8A8A8A;
-    }
-    #outer[name='all'], #outer[nowindow] {
-      background: transparent;
-      border-radius: inherit;
-      box-shadow: none;
-    }
-    #cardContent {
-      flex-direction: row;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 0.5em 0em 0em 0.5em;
-    }
-    #cardContent ::content .content {
-      margin: 0em 0.55em 0.55em 0em;
-    }
-    @media all and (min-width: 750px) and (max-width: 1280px) and (orientation: portrait) {
-      #outer:not([name='all']) {
-        max-width: 31.5em;
+    <style>
+      :host {
+        border-radius: 4px 5px 4px 5px;
+        -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+        -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
+        /*padding: 0.4em;*/
+        font-family: Fira Sans Light;
+        font-weight: normal;
+        padding: 0.4em;
       }
-    }
-    @media all and (min-width: 600px) and (max-width: 1280px) and (orientation: landscape) {
-      #outer:not([name='all']) {
-        max-width: 31.5em;
+      section#main {
+        background: #f1f1f1;
+        border-radius: inherit;
+        transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                    0 1px 10px 0 rgba(0, 0, 0, 0.12),
+                    0 2px 4px -1px rgba(0, 0, 0, 0.4);
       }
-    }
-    @media all and (min-width: 1280px) {
-      #outer:not([name='all']) {
-        max-width: 39.5em;
+      section#main[dark] {
+        background: #8A8A8A;
       }
-    }
+      section#main[name='all'], section#main[nowindow] {
+        background: transparent;
+        border-radius: inherit;
+        box-shadow: none;
+      }
+      section.header {
+        position: relative;
+        border-top-left-radius: inherit;
+        border-top-right-radius: inherit;
+        overflow: hidden;
+        border-bottom-left-radius: 0px;
+        border-bottom-right-radius: 0px;
+        background: #669DB4;
+      }
+      section.header[dark] {
+        background: #345475;
+      }
+      section#title {
+        width: auto;
+        font-size: 1.1em;
+        padding: 0.6em 1em;
+        margin: 0em;
+        color: white;
+        border-top-left-radius: inherit;
+        border-top-right-radius: inherit;
+        border-bottom-left-radius: 0px;
+        border-bottom-right-radius: 0px;
+        background: linear-gradient(to bottom, rgba(255,255,255,0.01) 5%,rgba(255,255,255,0.05) 40%);
+        text-transform: none;
+      }
+      section.header .text.over-image {
+        position: absolute;
+        background: none;
+        bottom: 0px;
+      }
+      section#title[dark] {
+        color: #A8CCDB;
+      }
+      section#mainContent {
+        flex-direction: row;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: flex-start;
+        border-top: thin solid #AAA;
+        padding: 0.5em 0em 0em 0.5em;
+      }
+      section#mainContent[dark] {
+        border-color: #444;
+      }
+      @media all and (min-width: 750px) and (max-width: 1280px) and (orientation: portrait) {
+        section#main:not([name='all']) {
+          max-width: 31.5em;
+        }
+      }
+      @media all and (min-width: 600px) and (max-width: 1280px) and (orientation: landscape) {
+        section#main:not([name='all']) {
+          max-width: 31.5em;
+        }
+      }
+      @media all and (min-width: 1280px) {
+        section#main:not([name='all']) {
+          max-width: 39.5em;
+        }
+      }
 
-  </style>
+      div#map {
+        max-height: 200px;
+        width: auto;
+      }
+
+    </style>
+    <!-- <link rel="import" href="../style/ol.css" type="css"/> -->
   <template>
-
-    <section id="outer" name$="[[title]]" nowindow$="{{withoutWindow}}">
-      <section id="header">
-        <section id="title" on-tap="toggleCollapse" hidden$="[[hideTitle(headline,withoutWindow)]]">[[title]]</section>
+    <section id="main" name$="[[title]]" nowindow$="{{withoutWindow}}">
+      <section class="header">
+        <iron-collapse id="imageCollapse" opened="{{opened}}" duration="1">
+          <div id="map" class="map"></div>
+          <!-- <iron-image hidden$="[[!image]]" src="[[image]]" preload$="[[preloadImage]]" fade$="[[fadeImage]]"></iron-image> -->
+        </iron-collapse>
+        <section id="title" hidden$="[[_hideTitle(title,withoutWindow)]]" class$="[[_computeHeadingClass(image, opened)]]" on-tap="toggleCollapse">[[title]]</section>
       </section>
-      <section id="cardMain" class="content">
-          <iron-collapse id="cardCollapse" opened="true" duration="1">
-              <div id="cardContent">
-                <content></content>
-              </div>
-          </iron-collapse>
+      <section id="mainContent">
+        <content></content>
       </section>
     </section>
 
   </template>
   <script>
+    Polymer({
+      is: 'post-card',
 
-  Polymer({
-    is: 'post-card',
+      properties: {
+        placeholder: {
+          type: String,
+          value: "Diverse"
+        },
+        title: {
+          type: String,
+          value: '',
+          observer: '_titleChanged'
+        },
+        withoutWindow: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        opened: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * The url of the text image of the card.
+         */
+        image: {
+          type: String,
+          value: ''
+        },
 
-    properties: {
-      headline: {
-        type: String
+        /**
+         * When `true`, any change to the image url property will cause the
+         * `placeholder` image to be shown until the image is fully rendered.
+         */
+        preloadImage: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * When `preloadImage` is true, setting `fadeImage` to true will cause the
+         * image to fade into place.
+         */
+        fadeImage: {
+          type: Boolean,
+          value: false
+        },
       },
-      placeholder: {
-        type: String,
-        value: "Diverse"
+
+      attached: function() {
+          var extent = [0, 0, 1200, 800];
+          var projection = new ol.proj.Projection({
+            code: 'xkcd-image',
+            units: 'pixels',
+            extent: extent
+          });
+
+          var map = new ol.Map({
+          controls: ol.control.defaults({
+            attribution:  false,
+            zoom: false,
+            rotate: false
+            }),
+          layers: [
+            new ol.layer.Image({
+              source: new ol.source.ImageStatic({
+                attributions: [
+                  new ol.Attribution({
+                    html: 'E0 Gaskabinet'
+                  })
+                ],
+                url: '/img/HNF-GDS/E0_gaskabinet.svg',
+                projection: projection,
+                imageExtent: extent
+              })
+            })
+          ],
+          target: this.$.map,
+          view: new ol.View({
+            projection: projection,
+            center: ol.extent.getCenter(extent),
+            zoom: 2,
+            maxZoom: 8
+          })
+        });
+        // var map = new ol.Map({
+        //   layers: [
+        //     new ol.layer.Tile({
+        //       source: new ol.source.Stamen({
+        //         layer: 'watercolor'
+        //       })
+        //     })
+        //   ],
+        //   target: this.$.map,
+        //   view: new ol.View({
+        //     center: ol.proj.transform(
+        //         [6.41041, 50.904], 'EPSG:4326', 'EPSG:3857'),
+        //     zoom: 15
+        //   })
+        // });
       },
-      title: {
-        type: String,
-        computed: "getTitle(headline,placeholder)"
+
+      toggleCollapse: function() {
+        this.$.imageCollapse.toggle();
       },
-      withoutWindow: {
-        type: Boolean,
-        value: false,
-        reflectToAttribute: true
+
+      _titleChanged: function(text) {
+        var label = this.getAttribute('aria-label');
+        this.setAttribute('aria-label', text);
+      },
+
+      _computeHeadingClass: function(image, showMap) {
+        var cls = 'text';
+        if (image || showMap)
+          cls += ' over-image';
+        return cls;
+      },
+
+      _hideTitle: function(title,withoutWindow) {
+        if(title == 'all' || title == '' || withoutWindow)
+          return true;
+        else
+          return false;
       }
-    },
-
-    toggleCollapse: function() {
-      this.$.cardCollapse.toggle();
-    },
-
-    getTitle: function(headline,placeholder){
-      if (headline)
-        return headline;
-      else
-        return placeholder;
-    },
-
-    hideTitle: function(headline,withoutWindow) {
-      if(headline == 'all' || withoutWindow)
-        return true;
-      else
-        return false;
-    }
-
-  });
+    });
   </script>
 </dom-module>

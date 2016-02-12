@@ -74,6 +74,7 @@ Custom property | Description | Default
         justify-content: center;
         -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
         -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
+        border: thin solid var(--notification-element-border-color, #AAA);
 
       }
 
@@ -84,15 +85,8 @@ Custom property | Description | Default
         transform: translateY(0px);
       }
 
-      section.mainContent {
-        background-color: var(--notification-element-background-color,#CFCFCF);
-        color: var(--notification-element-color,#1f1f1f);
-        padding: 1em 1em 1.5em 1em;
-        font-size: 1em;
-      }
-
-      section.mainContent[dark] {
-        background-color: var(--notification-element-dark-background-color,#747474)
+      :host[dark] {
+        border-color: var(--notification-element-dark-border-color, #444);
       }
 
       section.header {
@@ -105,18 +99,21 @@ Custom property | Description | Default
       }
 
       section.header .text.over-image {
+        background: none;
         position: absolute;
         bottom: 0px;
       }
 
       section.text {
+        background: linear-gradient(to bottom, rgba(255,255,255,0.01) 5%,rgba(255,255,255,0.05) 40%);
+        width: auto;
         padding: 1em;
         font-size: 1.25em;
       }
 
       section.header iron-image {
         display: block;
-        max-height: 30vh;
+        max-width: 100%
         --iron-image-height: 100%;
         --iron-image-width: 100%;
         pointer-events: none;
@@ -129,6 +126,21 @@ Custom property | Description | Default
 
       leaflet-map .leaflet-bottom {
         display: none;
+      }
+
+      section.mainContent {
+        display: flex;
+        flex-direction: column;
+        background-color: var(--notification-element-background-color,#CFCFCF);
+        color: var(--notification-element-color,#1f1f1f);
+        border-top: thin solid var(--notification-element-border-color, #AAA);
+        padding: 1em;
+        font-size: 1em;
+      }
+
+      section.mainContent[dark] {
+        background-color: var(--notification-element-dark-background-color,#747474);
+        border-color: var(--notification-element-dark-border-color, #444);
       }
     </style>
 
@@ -170,11 +182,11 @@ Custom property | Description | Default
           /**
            * The text of the card.
            */
-          // text: {
-          //   type: String,
-          //   value: '',
-          //   observer: '_textChanged'
-          // },
+          text: {
+            type: String,
+            value: '',
+            observer: '_textChanged'
+          },
 
           /**
            * The url of the text image of the card.

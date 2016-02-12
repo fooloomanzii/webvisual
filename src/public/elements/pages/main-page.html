@@ -201,12 +201,20 @@
     logo-element#logo[dark] {
       fill: #A8CCDB;
     }
+    post-card sign-element {
+      margin: 0 0.5em 0.5em 0;
+    }
+    sign-element#selectedElementSign {
+      border: none;
+    }
     notification-element {
       --notification-element-background-color: #f1f1f1;
       --notification-element-color: #1f1f1f;
-      --notification-element-title-background-color: #C20000;
+      --notification-element-title-background-color: #D91B1B;
       --notification-element-title-color: #f1f1f1;
       --notification-element-dark-background-color: #B46666;
+      --notification-element-dark-border-color: #444;
+      --notification-element-border-color: #AAA;
     }
     notification-element iron-swipeable-container#exceedingElements {
       max-height: 68vh;
@@ -237,7 +245,7 @@
   <template>
 
     <logo-element id="logo" on-tap="backToMainMenu"></logo-element>
-    <main-toolbar id="toolbar" class="paper-header" on-deselect="deselectElement" opened="[[opened]]">
+    <main-toolbar id="toolbar" class="paper-header" on-deselect="deselectElement" opened="[[opened]]" expanded="{{expanded}}">
       <paper-icon-button icon="menu" class="menu-icon" on-tap="togglePanel"></paper-icon-button>
       <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsDialog" hidden$="[[!isExceeding]]"></paper-icon-button>
       <paper-icon-button icon="remove" class="toggle-icon control" on-tap="deselectElement"></paper-icon-button>
@@ -247,7 +255,7 @@
         </template>
       </paper-tabs>
 
-      <sign-element id="selectedElementSign" class="selectedElement sign incard" element="[[selectedElement]]" on-tap="deselectElement" keys="[[getGroupingKeys(selectedElement.label)]]"></sign-element>
+      <sign-element id="selectedElementSign" class="selectedElement sign incard" horizontal="{{!expanded}}" element="[[selectedElement]]" on-tap="deselectElement" keys="[[getGroupingKeys(selectedElement.label)]]"></sign-element>
 
       <table-element id="selectedElementTable" class="selectedElement noncard" element="[[selectedElement]]"></table-element>
       <!-- <line-chart id="selectedElementChart" data="[[selectedElement]]" fit></line-chart> -->
@@ -374,7 +382,7 @@
           <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="items" observe="label groups" filter="filterSelectedLabel" delay="250">
             <template id="grouptemplate" is="dom-repeat" items="{{items.groups}}" as="groups" observe="key subgroup" filter="filterPreferedGroup" delay="250">
               <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroups">
-                <post-card headline="{{subgroups.name}}" without-window$="[[withoutWindow]]">
+                <post-card title="{{subgroups.name}}" without-window$="[[withoutWindow]]" image="">
                   <template is="dom-repeat" items="{{subgroups.elements}}" as="element">
                       <sign-element class="content" element="{{element}}" keys="{{getGroupingKeys(element.label)}}" on-tap="setSelectedElement" show-date="{{showDate}}"></sign-element>
                   </template>
@@ -383,12 +391,13 @@
             </template>
           </template>
 
-          <notification-element id="exceedsDialog" text="Alarme">
-            <iron-swipeable-container id="exceedingElements">
+          <notification-element id="exceedsDialog" text="Alarme" image="">
+            <iron-swipeable-container id="exceedingElements" on-iron-swipe="_removeSingleExceedingElement">
               <template is="dom-repeat" items="{{exceeding}}" as="element">
                   <list-element element="{{element}}" keys="[[getGroupingKeys(element.label)]]"></list-element>
               </template>
             </iron-swipeable-container>
+            <span style="padding-top: 0.5em; align-self: flex-end;"><a href="#" on-click="_removeAllExceedingElements">Liste leeren</a></span>
           </notification-element>
 
         </section>

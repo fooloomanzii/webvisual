@@ -69,6 +69,9 @@
       min-width: 100px;
       flex: 1;
     }
+    section#header div.placeholder {
+      flex: 1;
+    }
     section#control {
       position: fixed;
       top: 12px;
@@ -288,7 +291,8 @@
       expanded: {
         type: Boolean,
         value: false,
-        reflectToAttribute: true
+        reflectToAttribute: true,
+        notify: true
       },
       animationConfig: {
         type: Object,
