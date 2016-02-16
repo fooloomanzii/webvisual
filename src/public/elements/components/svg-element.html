@@ -1,0 +1,118 @@
+<dom-module id="svg-element">
+
+<style>
+  :host {
+    font-family: Fira Sans Light;
+    font-weight: normal;
+    -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+    -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
+
+    display: block;
+    min-height: 1px;
+  	position: relative;
+
+  	overflow: hidden;
+  }
+  svg#svgcontainer {
+    display: inline-block;
+  }
+</style>
+<template>
+  <svg id="svgcontainer">
+  </svg>
+</template>
+
+<script>
+  SVGElement = Polymer({
+    is: 'svg-element',
+
+    // behaviors: [Polymer.IronResizableBehavior],
+
+    properties: {
+      src: {
+        type: String,
+        value: ''
+      },
+      selected: {
+        type: String,
+        value: ''
+      },
+      zoomable: {
+        type: Boolean,
+        value: true,
+        reflectToAttribute: true
+      }
+    },
+
+    listeners: {
+      'zoom': 'zoomed',
+      'iron-resize': 'prepare'
+    },
+
+    attached: function() {
+        this.show();
+    },
+
+    prepare: function() {
+      // var bounds = this.getBoundingClientRect();
+      var elem = this.$.svgcontainer;
+      var svg = d3.select(elem)
+                  .attr("preserveAspectRatio", "xMinYMin meet")
+                  .attr("viewBox", "0 0 1200 800");
+    },
+
+    show: function() {
+      self = this;
+      var elem = this.$.svgcontainer;
+      var svg = d3.select(elem)
+                  .attr("preserveAspectRatio", "xMinYMin meet")
+                  .attr("viewBox", "0 0 1200 800");
+
+      d3.xml("/img/HNF-GDS/E0_gaskabinet.svg", "image/svg+xml",
+        function(error, xml) {
+          if (error) throw error;
+          var importedNode = document.importNode(xml.documentElement, true);
+
+          svg.append("g")
+             .each(function(){
+               var plane = this.appendChild(importedNode.cloneNode(true));
+               d3.select("g#g4294")
+                 .attr("style", "fill:#11BB08");
+               d3.selectAll("text")
+                 .attr("style", "font-family:Fira Sans Light;font-variant:normal;font-weight:normal;font-size:12px;");
+             })
+
+
+          // xml.documentElement.id = 'svgcontainer';
+          // self.replaceChild(xml.documentElement, elem);
+          // // var elem = this.$$('#svgcontainer');
+          // var svg = d3.select(elem)
+          //             .attr("preserveAspectRatio", "xMinYMin meet")
+          //             .attr("viewBox", "0 0 1200 800");
+          // elem.appendChild(xml.documentElement);
+        });
+
+
+
+      d3.select("path#g4294")
+        .attr('fill','#0000EE');
+
+      // this.prepare();
+    },
+
+
+
+    zoomed: function(e) {
+      if (e && this.zoomable) {
+      }
+    },
+
+    resized: function(e) {
+      this.prepare();
+      if (e) {
+      }
+    }
+  });
+</script>
+
+<dom-module>

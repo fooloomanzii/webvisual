@@ -11,6 +11,7 @@
       }
       section#main {
         background: #f1f1f1;
+        border: thin solid #AAA;
         border-radius: inherit;
         transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
@@ -19,6 +20,7 @@
       }
       section#main[dark] {
         background: #8A8A8A;
+        border-color: #444;
       }
       section#main[name='all'], section#main[nowindow] {
         background: transparent;
@@ -50,10 +52,12 @@
         background: linear-gradient(to bottom, rgba(255,255,255,0.01) 5%,rgba(255,255,255,0.05) 40%);
         text-transform: none;
       }
-      section.header .text.over-image {
+      section.header section#title.text.over-image {
         position: absolute;
         background: none !important;;
         bottom: 0px;
+        color: #1f1f1f;
+        text-shadow: 0px 0px 5px #f1f1f1;
       }
       section#title[dark] {
         color: #A8CCDB;
@@ -97,7 +101,8 @@
     <section id="main" name$="[[title]]" nowindow$="{{withoutWindow}}">
       <section class="header">
         <iron-collapse id="imageCollapse" opened="{{opened}}" duration="1">
-          <div id="map" class="map"></div>
+          <svg-element src="/img/HNF-GDS/E0_gaskabinet.svg" zoomable></svg-element>
+          <!-- <div id="map" class="map"></div> -->
           <!-- <iron-image hidden$="[[!image]]" src="[[image]]" preload$="[[preloadImage]]" fade$="[[fadeImage]]"></iron-image> -->
         </iron-collapse>
         <section id="title" hidden$="[[_hideTitle(title,withoutWindow)]]" class$="[[_computeHeadingClass(image, opened)]]" on-tap="toggleCollapse">[[title]]</section>
@@ -159,41 +164,34 @@
       },
 
       attached: function() {
-          var extent = [0, 0, 1200, 800];
-          var projection = new ol.proj.Projection({
-            code: 'xkcd-image',
-            units: 'pixels',
-            extent: extent
-          });
-
-          var map = new ol.Map({
-          controls: ol.control.defaults({
-            attribution:  false,
-            zoom: false,
-            rotate: false
-            }),
-          layers: [
-            new ol.layer.Image({
-              source: new ol.source.ImageStatic({
-                attributions: [
-                  new ol.Attribution({
-                    html: 'E0 Gaskabinet'
-                  })
-                ],
-                url: '/img/HNF-GDS/E0_gaskabinet.svg',
-                projection: projection,
-                imageExtent: extent
-              })
-            })
-          ],
-          target: this.$.map,
-          view: new ol.View({
-            projection: projection,
-            center: ol.extent.getCenter(extent),
-            zoom: 0,
-            maxZoom: 8
-          })
-        });
+        //   var extent = [0, 0, 1200, 800];
+        //   var projection = new ol.proj.Projection({
+        //     code: 'EPSG:3857',
+        //   });
+        //
+        //   var map = new ol.Map({
+        //   controls: ol.control.defaults({
+        //     attribution:  false,
+        //     zoom: false,
+        //     rotate: false
+        //     }),
+        //   layers: [
+        //     new ol.layer.Tile({
+        //       source: new ol.source.XYZ({
+        //         url: 'https://localhost/img/maps/{z}/{x}/{y}.png',
+        //         projection: projection
+        //       })
+        //     })
+        //   ],
+        //   target: this.$.map,
+        //   view: new ol.View({
+        //     center: ol.proj.transform(
+        //       [6.41041, 50.904], 'EPSG:3857', 'EPSG:3857'),
+        //     zoom: 13,
+        //     minZoom: 10,
+        //     maxZoom: 19
+        //   })
+        // });
         // map.getView().fit(extent, map.getSize());
         // var map = new ol.Map({
         //   layers: [
