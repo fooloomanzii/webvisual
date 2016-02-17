@@ -515,8 +515,6 @@
           }
         }, {
           "id": "DI7-5",
-          "roomNr": "4006",
-          "room": "Reinraum",
           "kind": "O₂",
           "system": "O₂-Gasüberwachung",
           "alarmlevel": "Störung",
