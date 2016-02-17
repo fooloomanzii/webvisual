@@ -11,7 +11,8 @@
       }
       section#main {
         background: #f1f1f1;
-        border: thin solid #AAA;
+        border: none;
+        border-color: #AAA;
         border-radius: inherit;
         transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
@@ -26,6 +27,7 @@
         background: transparent;
         border-radius: inherit;
         box-shadow: none;
+        border-color: transparent;
       }
       section.header {
         position: relative;
@@ -68,11 +70,14 @@
         flex-wrap: wrap;
         justify-content: center;
         align-items: flex-start;
-        border-top: thin solid #AAA;
+        border-width: thin;
+        border-style: solid;
+        border-color: inherit;
+        border-top-left-radius: 0px;
+        border-top-right-radius: 0px;
+        border-bottom-left-radius: inherit;
+        border-bottom-right-radius: inherit;
         padding: 0.5em 0em 0em 0.5em;
-      }
-      section#mainContent[dark] {
-        border-color: #444;
       }
       @media all and (min-width: 750px) and (max-width: 1280px) and (orientation: portrait) {
         section#main:not([name='all']) {
@@ -215,8 +220,10 @@
       },
 
       _titleChanged: function(text) {
-        var label = this.getAttribute('aria-label');
-        this.setAttribute('aria-label', text);
+        if (!text)
+          this.set('title', this.placeholder);
+        // var label = this.getAttribute('aria-label');
+        this.setAttribute('aria-label', this.title);
       },
 
       _computeHeadingClass: function(image, showMap) {
@@ -227,7 +234,7 @@
       },
 
       _hideTitle: function(title,withoutWindow) {
-        if(title == 'all' || title == '' || withoutWindow)
+        if(title == 'all' || withoutWindow)
           return true;
         else
           return false;

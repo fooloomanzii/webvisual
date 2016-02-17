@@ -14,7 +14,7 @@
 
   	overflow: hidden;
   }
-  #svgcontainer {
+  div#svgcontainer {
     border-radius: inherit;
     display: block;
   }
@@ -72,8 +72,9 @@
           if (error) throw error;
           var svgNode = document.importNode(xml.documentElement, true);
 
-          svgcontainer.node().appendChild(svgNode)
-
+          svgcontainer.node().appendChild(svgNode);
+          d3.select(svgNode).attr("style", "display: block;")
+                            .attr("preserveAspectRatio", "xMinYMin meet");
           // xml.documentElement.id = 'svgcontainer';
           // self.replaceChild(xml.documentElement, elem);
           // // var elem = this.$$('#svgcontainer');

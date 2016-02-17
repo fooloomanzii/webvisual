@@ -144,7 +144,7 @@ Custom property | Description | Default
       }
     </style>
 
-    <section class="header" on-track="_handleTrack">
+    <section class="header" on-track="_handleTrack" on-tap="hide">
       <iron-image hidden$="[[!image]]" src="[[image]]" preload$="[[preloadImage]]" fade$="[[fadeImage]]"></iron-image>
       <!-- TODO: preperation -->
       <leaflet-map hidden$="[[!showMap]]" latitude="{{latitude}}" longitude="{{longitude}}" zoom="{{zoom}}" min-zoom="10" max-zoom="19"></leaflet-map>
