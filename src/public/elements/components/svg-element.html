@@ -2,6 +2,7 @@
 
 <style>
   :host {
+    border-radius: inherit;
     font-family: Fira Sans Light;
     font-weight: normal;
     -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
@@ -13,13 +14,14 @@
 
   	overflow: hidden;
   }
-  svg#svgcontainer {
-    display: inline-block;
+  #svgcontainer {
+    border-radius: inherit;
+    display: block;
   }
 </style>
 <template>
-  <svg id="svgcontainer">
-  </svg>
+  <div id="svgcontainer">
+  </div>
 </template>
 
 <script>
@@ -55,33 +57,22 @@
 
     prepare: function() {
       // var bounds = this.getBoundingClientRect();
-      var elem = this.$.svgcontainer;
-      var svg = d3.select(elem)
-                  .attr("preserveAspectRatio", "xMinYMin meet")
-                  .attr("viewBox", "0 0 1200 800");
+      // var svgcontainer = d3.select(this.$.svgcontainer)
+      //             .attr("preserveAspectRatio", "xMinYMin meet")
+      //             .attr("viewBox", "0 0 1200 800");
     },
 
     show: function() {
       self = this;
-      var elem = this.$.svgcontainer;
-      var svg = d3.select(elem)
-                  .attr("preserveAspectRatio", "xMinYMin meet")
-                  .attr("viewBox", "0 0 1200 800");
+      var svgcontainer = d3.select(this.$.svgcontainer)
+                           .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom));
 
       d3.xml("/img/HNF-GDS/E0_gaskabinet.svg", "image/svg+xml",
         function(error, xml) {
           if (error) throw error;
-          var importedNode = document.importNode(xml.documentElement, true);
+          var svgNode = document.importNode(xml.documentElement, true);
 
-          svg.append("g")
-             .each(function(){
-               var plane = this.appendChild(importedNode.cloneNode(true));
-               d3.select("g#g4294")
-                 .attr("style", "fill:#11BB08");
-               d3.selectAll("text")
-                 .attr("style", "font-family:Fira Sans Light;font-variant:normal;font-weight:normal;font-size:12px;");
-             })
-
+          svgcontainer.node().appendChild(svgNode)
 
           // xml.documentElement.id = 'svgcontainer';
           // self.replaceChild(xml.documentElement, elem);
@@ -92,7 +83,10 @@
           // elem.appendChild(xml.documentElement);
         });
 
-
+      function zoom() {
+        var innerG = svgcontainer.select("g");
+        innerG.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+      }
 
       d3.select("path#g4294")
         .attr('fill','#0000EE');
@@ -108,7 +102,7 @@
     },
 
     resized: function(e) {
-      this.prepare();
+      // this.prepare();
       if (e) {
       }
     }

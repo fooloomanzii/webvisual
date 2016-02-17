@@ -44,14 +44,16 @@
 
     "locals": {
 
-      "ignore": [0, 8, 16, 17, 21, 22, 27, 32],
+      "ignore": [0, 8, 16, 17, 21, 22],
 
       "types": [{
           "id": "Binary",
           "roomNr": "test",
           "room": "test",
           "kind": "Test",
-          "method": "Binärzahl",
+          "property": "Binärzahl",
+          "system": "intern",
+          "alarmlevel": "",
           "isBoolean": false,
           "threshold": {
             "from": 0,
@@ -63,7 +65,9 @@
           "roomNr": "2032",
           "room": "Gaslager",
           "kind": "H₂",
-          "method": "brennbar",
+          "property": "brennbar",
+          "system": "H₂-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -74,7 +78,9 @@
           "roomNr": "2032",
           "room": "Gaslager",
           "kind": "H₂",
-          "method": "brennbar",
+          "property": "brennbar",
+          "system": "H₂-Gasüberwachung",
+          "alarmlevel": "Alarm 2",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -85,6 +91,8 @@
           "roomNr": "3005",
           "room": "Bypack",
           "kind": "H₂",
+          "system": "H₂-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -95,6 +103,8 @@
           "roomNr": "3005",
           "room": "Bypack",
           "kind": "H₂",
+          "system": "H₂-Gasüberwachung",
+          "alarmlevel": "Alarm 2",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -105,6 +115,8 @@
           "roomNr": "4006",
           "room": "Reinraum",
           "kind": "H₂",
+          "system": "H₂-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -115,6 +127,8 @@
           "roomNr": "4006",
           "room": "Reinraum",
           "kind": "H₂",
+          "system": "H₂-Gasüberwachung",
+          "alarmlevel": "Alarm 2",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -122,10 +136,9 @@
           }
         }, {
           "id": "DI6-1",
-          "roomNr": "2032 3005 4006",
-          "room": "",
           "kind": "H₂",
-          "method": "Störung",
+          "system": "H₂-Gasüberwachung",
+          "alarmlevel": "Störung",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -133,13 +146,17 @@
           }
         }, {
           "id": "DI7-1",
-          "method": "Reserve",
+          "property": "Reserve",
+          "system": "intern",
+          "alarmlevel": "",
           "isBoolean": true
         },
 
         {
           "id": "DI0-2",
-          "method": "Gerätefehler",
+          "kind": "Verschiedene",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Störung",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -147,7 +164,9 @@
           }
         }, {
           "id": "DI1-2",
-          "method": "Wartung",
+          "kind": "Verschiedene",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Wartung",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -157,8 +176,10 @@
           "id": "DI2-2",
           "roomNr": "2030",
           "room": "Gaslager",
-          "kind": "Alarm2",
-          "method": "korrosiv",
+          "kind": "",
+          "property": "korrosiv",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 2",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -168,8 +189,10 @@
           "id": "DI3-2",
           "roomNr": "2032",
           "room": "Gaslager",
-          "kind": "Alarm2",
-          "method": "brennbar",
+          "kind": "",
+          "property": "brennbar",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 2",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -179,7 +202,9 @@
           "id": "DI4-2",
           "roomNr": "3005",
           "room": "Bypack",
-          "kind": "Alarm2",
+          "kind": "",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 2",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -189,7 +214,9 @@
           "id": "DI5-2",
           "roomNr": "4006",
           "room": "Reinraum",
-          "kind": "Alarm2",
+          "kind": "",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 2",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -200,6 +227,8 @@
           "roomNr": "4006",
           "room": "Reinraum",
           "kind": "HBr",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -207,19 +236,25 @@
           }
         }, {
           "id": "DI7-2",
-          "method": "Reserve",
+          "property": "Reserve",
+          "system": "intern",
+          "alarmlevel": "",
           "isBoolean": true
         },
 
         {
           "id": "DI0-3",
-          "method": "Reserve",
+          "property": "Reserve",
+          "system": "intern",
+          "alarmlevel": "",
           "isBoolean": true
         }, {
           "id": "DI1-3",
           "roomNr": "4006",
           "room": "Reinraum",
           "kind": "Cl₂",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -230,7 +265,9 @@
           "roomNr": "2030",
           "room": "Gaslager",
           "kind": "Cl₂",
-          "method": "korrosiv",
+          "property": "korrosiv",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -241,7 +278,9 @@
           "roomNr": "2030",
           "room": "Gaslager",
           "kind": "HBr",
-          "method": "korrosiv",
+          "property": "korrosiv",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -249,17 +288,23 @@
           }
         }, {
           "id": "DI4-3",
-          "method": "Reserve",
+          "property": "Reserve",
+          "system": "intern",
+          "alarmlevel": "",
           "isBoolean": true
         }, {
           "id": "DI5-3",
-          "method": "Reserve",
+          "property": "Reserve",
+          "system": "intern",
+          "alarmlevel": "",
           "isBoolean": true
         }, {
           "id": "DI6-3",
           "roomNr": "4006",
           "room": "Reinraum",
           "kind": "NH₃",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -270,6 +315,8 @@
           "roomNr": "3005",
           "room": "Bypack",
           "kind": "NH₃",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -282,7 +329,9 @@
           "roomNr": "2032",
           "room": "Gaslager",
           "kind": "NH₃",
-          "method": "brennbar",
+          "property": "brennbar",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -293,6 +342,8 @@
           "roomNr": "4006",
           "room": "Reinraum",
           "kind": "BCl₃",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -300,13 +351,23 @@
           }
         }, {
           "id": "DI2-4",
-          "method": "Reserve",
-          "isBoolean": true
+          "roomNr": "4006",
+          "room": "Reinraum",
+          "kind": "BCl₃",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
+          "isBoolean": true,
+          "threshold": {
+            "from": 0,
+            "to": 0
+          }
         }, {
           "id": "DI3-4",
           "roomNr": "3005",
           "room": "Bypack",
           "kind": "BCl₃",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -317,6 +378,8 @@
           "roomNr": "4006",
           "room": "Reinraum",
           "kind": "SiH₄",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -327,6 +390,8 @@
           "roomNr": "3005",
           "room": "Bypack",
           "kind": "SiH₄",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -337,7 +402,9 @@
           "roomNr": "2032",
           "room": "Gaslager",
           "kind": "SiH₄",
-          "method": "brennbar",
+          "property": "brennbar",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -345,8 +412,16 @@
           }
         }, {
           "id": "DI7-4",
-          "method": "Reserve",
-          "isBoolean": true
+          "roomNr": "4006",
+          "room": "Reinraum",
+          "kind": "Cl₂",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
+          "isBoolean": true,
+          "threshold": {
+            "from": 0,
+            "to": 0
+          }
         },
 
         {
@@ -354,6 +429,8 @@
           "roomNr": "4006",
           "room": "Reinraum",
           "kind": "Cl₂",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -364,6 +441,8 @@
           "roomNr": "3005",
           "room": "Bypack",
           "kind": "HBr",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -374,7 +453,9 @@
           "roomNr": "2030",
           "room": "Gaslager",
           "kind": "BCl₃",
-          "method": "korrosiv",
+          "property": "korrosiv",
+          "system": "TOX-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -385,7 +466,9 @@
           "roomNr": "4006-21",
           "room": "Reinraum",
           "kind": "O₂",
-          "method": "Mangel 19%",
+          "property": "Mangel 19%",
+          "system": "O₂-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -396,7 +479,9 @@
           "roomNr": "4006-21",
           "room": "Reinraum",
           "kind": "O₂",
-          "method": "Mangel 17%",
+          "property": "Mangel 17%",
+          "system": "O₂-Gasüberwachung",
+          "alarmlevel": "Alarm 2",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -407,7 +492,9 @@
           "roomNr": "4006-23",
           "room": "Reinraum",
           "kind": "O₂",
-          "method": "Mangel 19%",
+          "property": "Mangel 19%",
+          "system": "O₂-Gasüberwachung",
+          "alarmlevel": "Alarm 1",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -418,7 +505,9 @@
           "roomNr": "4006-23",
           "room": "Reinraum",
           "kind": "O₂",
-          "method": "Mangel 17%",
+          "property": "Mangel 17%",
+          "system": "O₂-Gasüberwachung",
+          "alarmlevel": "Alarm 2",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -428,8 +517,9 @@
           "id": "DI7-5",
           "roomNr": "4006",
           "room": "Reinraum",
-          "kind": "Midas System",
-          "method": "Störung",
+          "kind": "O₂",
+          "system": "O₂-Gasüberwachung",
+          "alarmlevel": "Störung",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -443,8 +533,10 @@
         "room": "",
         "roomNr": "",
         "kind": "",
-        "method": "",
+        "property": "",
         "unit": "",
+        "system": "intern",
+        "alarmlevel": "",
         "threshold": {
           "from": null,
           "to": null
@@ -457,20 +549,26 @@
         }]
       },
 
-      "groupingKeys": ["kind", "method", "room", "roomNr", "all"],
+      "groupingKeys": ["kind", "room", "property", "roomNr", "system", "alarmlevel", "all"],
       "preferedGroupingKey": "roomNr",
 
       "exclusiveGroups": [{
         "key": "roomNr",
         "subgroup": [{
-          "name": "Diverse",
-          "ids": ["DI6-1", "DI0-2", "DI1-2"]
+          "name": "Wartung und Störungen",
+          "ids": ["DI0-2", "DI1-2", "DI6-1", "DI7-5"]
         }, {
-          "name": "kombinierter Alarm",
+          "name": "kombinierte Alarme",
           "ids": ["DI2-2", "DI3-2", "DI4-2", "DI5-2"]
         }, {
           "name": "4006",
           "ids": ["DI3-5", "DI4-5", "DI5-5", "DI6-5"]
+        }]
+      }, {
+        "key": "alarmlevel",
+        "subgroup": [{
+          "name": "Wartung und Störungen",
+          "ids": ["DI6-1", "DI0-2", "DI1-2", "DI7-5"]
         }]
       }]
     }

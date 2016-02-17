@@ -32,7 +32,7 @@
   },
   "devDependencies": {},
   "engines": {
-    "node": ">= 1.0",
+    "node": ">= 5.0",
     "npm": "*"
   }
 }
