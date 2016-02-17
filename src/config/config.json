@@ -556,7 +556,7 @@
         "key": "roomNr",
         "subgroup": [{
           "name": "Wartung und Störungen",
-          "ids": ["DI0-2", "DI1-2", "DI6-1", "DI7-5"]
+          "ids": ["DI0-2", "DI7-5", "DI1-2", "DI6-1"]
         }, {
           "name": "kombinierte Alarme",
           "ids": ["DI2-2", "DI3-2", "DI4-2", "DI5-2"]
