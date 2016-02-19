@@ -106,7 +106,7 @@
     <section id="main" name$="[[title]]" nowindow$="{{withoutWindow}}">
       <section class="header">
         <iron-collapse id="imageCollapse" opened="{{opened}}" duration="1">
-          <svg-element src="/img/HNF-GDS/E0_gaskabinet.svg" zoomable></svg-element>
+          <svg-element hidden$="{{!svg}}" src="{{svg}}" zoomable></svg-element>
           <!-- <div id="map" class="map"></div> -->
           <!-- <iron-image hidden$="[[!image]]" src="[[image]]" preload$="[[preloadImage]]" fade$="[[fadeImage]]"></iron-image> -->
         </iron-collapse>
@@ -142,9 +142,16 @@
           value: false
         },
         /**
-         * The url of the text image of the card.
+         * The url of the image of the card.
          */
         image: {
+          type: String,
+          value: ''
+        },
+        /**
+         * The url of the svg of the card.
+         */
+        svg: {
           type: String,
           value: ''
         },

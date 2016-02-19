@@ -1,3 +1,27 @@
+<!-- <script src='../../../components/d3/d3.min.js'></script> -->
+<!--
+`svg-element` provides rendering a svg in a container.
+
+the svg has to have following specifications:
+- all tranistions of the included paths must be relative
+- there doesn't have to be a ''matrix'' transformation on the top element (very important), else zoom transitions won't work correctly
+- 'view-box'-attribute has to be set
+- the to top element of the svg has to be a plain g-element (look up grouping in svg) with no transformations on it
+
+how to achive this in Inkscape:
+> 1. Double click the group in Inkscape, to enter it.
+> 2. Select all the contents of the group by pressing Ctrl+A, and copy them with Ctrl+C.
+> 3. Double click outside the group to leave the group.
+> 4. Edit > Paste In Place (Ctrl+Alt+V) – at this point, group transformations are applied to the obects you paste.
+> 5. Group the objects again (Ctrl+G)
+> 6. Move the new group to the same depth as the original, and delete the original group. (This is probably easier with the XML editor, Ctrl+Shift+X.)
+<http://stackoverflow.com/a/22629215/5077914>
+
+Use `zoomable` to make it zoomable.
+
+@element svg-element
+-->
+
 <dom-module id="svg-element">
 
 <style>
@@ -14,98 +38,186 @@
 
   	overflow: hidden;
   }
-  div#svgcontainer {
+  div#svgContainer {
     border-radius: inherit;
     display: block;
   }
 </style>
 <template>
-  <div id="svgcontainer">
+  <div id="svgContainer">
   </div>
 </template>
 
 <script>
+  var svgContainer, innerG, Zoom, Width, Height;
+  var active = d3.select(null);
+  var MinZoom = 1;
+  var MaxZoom = 5;
+  var ZoomPartition = 3;
+
   SVGElement = Polymer({
     is: 'svg-element',
-
-    // behaviors: [Polymer.IronResizableBehavior],
 
     properties: {
       src: {
         type: String,
-        value: ''
+        value: '',
+        observer: "_sourceChanged"
       },
       selected: {
         type: String,
         value: ''
       },
+      active: {
+        type: Object,
+        value: function() { return {};}
+      },
       zoomable: {
         type: Boolean,
         value: true,
-        reflectToAttribute: true
+        reflectToAttribute: true,
+        observer: "_zoomableChanged"
+      },
+      minZoom: {
+        type: Number,
+        value: 1,
+        observer: "_setMinZoom"
+      },
+      maxZoom: {
+        type: Number,
+        value: 10,
+        observer: "_setMaxZoom"
+      },
+      zoomPartition: {
+        type: Number,
+        value: 6,
+        observer: "_setZoomPartition"
       }
-    },
-
-    listeners: {
-      'zoom': 'zoomed',
-      'iron-resize': 'prepare'
     },
 
     attached: function() {
-        this.show();
     },
 
-    prepare: function() {
-      // var bounds = this.getBoundingClientRect();
-      // var svgcontainer = d3.select(this.$.svgcontainer)
-      //             .attr("preserveAspectRatio", "xMinYMin meet")
-      //             .attr("viewBox", "0 0 1200 800");
-    },
+    _sourceChanged: function(source) {
+      if (source) {
+        if (!this.$.svgContainer) {
+          var div = document.createElement('div');
+          div.setAttribute("id", "svgContainer");
+          Polymer.dom(this.root).appendChild(div);
+          Polymer.dom.flush();
+        }
+        if (this.$.svgContainer.firstChild) {
+          while (this.$.svgContainer.firstChild) {
+            this.$.svgContainer.removeChild(this.$.svgContainer.firstChild);
+          }
+          Polymer.dom.flush();
+        }
 
-    show: function() {
-      self = this;
-      var svgcontainer = d3.select(this.$.svgcontainer)
-                           .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom));
+        svgContainer = d3.select(this.$$('div#svgContainer'));
 
-      d3.xml("/img/HNF-GDS/E0_gaskabinet.svg", "image/svg+xml",
-        function(error, xml) {
-          if (error) throw error;
-          var svgNode = document.importNode(xml.documentElement, true);
+        var self = this;
+        d3.xml(source, "image/svg+xml",
+          function(error, xml) {
+            if (error) throw error;
+            var svgNode = document.importNode(xml.documentElement, true);
 
-          svgcontainer.node().appendChild(svgNode);
-          d3.select(svgNode).attr("style", "display: block;")
-                            .attr("preserveAspectRatio", "xMinYMin meet");
-          // xml.documentElement.id = 'svgcontainer';
-          // self.replaceChild(xml.documentElement, elem);
-          // // var elem = this.$$('#svgcontainer');
-          // var svg = d3.select(elem)
-          //             .attr("preserveAspectRatio", "xMinYMin meet")
-          //             .attr("viewBox", "0 0 1200 800");
-          // elem.appendChild(xml.documentElement);
-        });
+            Zoom = d3.behavior.zoom()
+                     .scaleExtent([MinZoom, MaxZoom])
+                     .on("zoom", self._zoom);
+            svgContainer.node().appendChild(svgNode);
+            d3.select(svgNode).attr("style", "display: block;")
+                              .attr("preserveAspectRatio", "xMinYMin meet")
+                              .attr("width", "100%")
+                              .attr("height", null)
+                              .call(Zoom);
+            innerG = svgContainer.select("g");
+            innerG.selectAll("path,rect,circle,ellipse,polyline,polygon,line")
+                  .on("click", self._zoomTo);
 
-      function zoom() {
-        var innerG = svgcontainer.select("g");
-        innerG.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+            var viewBox = svgContainer.select("svg")
+                                      .attr("viewBox")
+                                      .split(' ');
+            Width  = viewBox[2] - viewBox[0];
+            Height = viewBox[3] - viewBox[1];
+          });
+
+
       }
-
-      d3.select("path#g4294")
-        .attr('fill','#0000EE');
-
-      // this.prepare();
     },
 
-
-
-    zoomed: function(e) {
-      if (e && this.zoomable) {
-      }
+    _zoom: function () {
+      innerG.transition()
+            .duration(50)
+            .ease("linear")
+            .attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
     },
 
-    resized: function(e) {
-      // this.prepare();
-      if (e) {
-      }
+    _zoomTo: function() {
+      // if (active.node() === this) return this.reset();
+      // active.classed("active", false);
+      // active = d3.select(this).classed("active", true);
+
+      var bbox = this.getBBox();
+      var scale = Math.min(Width/(ZoomPartition*bbox.width), Height/(ZoomPartition*bbox.height));
+
+      if (scale < MinZoom)
+        scale = MinZoom;
+      if (scale > MaxZoom)
+        scale = MaxZoom;
+
+      while (bbox.x < 0)
+        bbox.x += Width;
+      while (bbox.y < 0)
+        bbox.y += Height;
+
+      var x = -scale*(bbox.x - Math.floor(ZoomPartition/2) * bbox.width);
+      var y = -scale*(bbox.y - Math.floor(ZoomPartition/2) * bbox.height);
+      var translate = [x, y];
+
+      innerG.transition()
+          .duration(750)
+          .attr("transform", "translate(" + translate + ") scale(" + scale + ")");
+    },
+
+    reset: function() {
+      active.classed("active", false);
+      active = d3.select(null);
+
+      innerG.transition()
+          .duration(750)
+          .call(zoom.translate([0, 0]).scale(1).event);
+    },
+
+    _zoomableChanged: function() {
+      // if (!svgContainer)
+      //   return;
+      // if (!innerG || innerG.empty())
+      //   innerG = svgContainer.select("g");
+      // if (!innerG.empty()) {
+        if (!this.zoomable) {
+          Zoom.scale(1).translate([0,0]).event(innerG);
+          Zoom.on("zoom", null);
+        }
+        else {
+          Zoom = d3.behavior.zoom()
+                   .scaleExtent([MinZoom, MaxZoom])
+                   .on("zoom", this._zoom);
+          svgContainer.select("svg")
+                      .call(Zoom);
+        }
+      // }
+    },
+
+    _setMinZoom: function(min) {
+      MinZoom = min;
+      this._zoomableChanged()
+    },
+    _setMaxZoom: function(max) {
+      MaxZoom = max;
+      this._zoomableChanged()
+    },
+    _setZoomPartition: function(zoomPartition) {
+      ZoomPartition = zoomPartition;
     }
   });
 </script>
