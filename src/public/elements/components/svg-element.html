@@ -49,6 +49,7 @@ Use `zoomable` to make it zoomable.
 </template>
 
 <script>
+(function(){
   var svgContainer, innerG, Zoom, Width, Height;
   var active = d3.select(null);
   var MinZoom = 1;
@@ -170,8 +171,8 @@ Use `zoomable` to make it zoomable.
       while (bbox.y < 0)
         bbox.y += Height;
 
-      var x = -scale*(bbox.x - Math.floor(ZoomPartition/2) * bbox.width);
-      var y = -scale*(bbox.y - Math.floor(ZoomPartition/2) * bbox.height);
+      var x = -scale*(bbox.x - (ZoomPartition-1)/2 * bbox.width);
+      var y = -scale*(bbox.y - (ZoomPartition-1)/2 * bbox.height);
       var translate = [x, y];
 
       innerG.transition()
@@ -220,6 +221,7 @@ Use `zoomable` to make it zoomable.
       ZoomPartition = zoomPartition;
     }
   });
+});
 </script>
 
 <dom-module>
