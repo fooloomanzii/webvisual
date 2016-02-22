@@ -105,7 +105,7 @@
   <template>
     <section id="main" name$="[[title]]" nowindow$="{{withoutWindow}}">
       <section class="header">
-        <iron-collapse id="imageCollapse" opened duration="1">
+        <iron-collapse id="imageCollapse" opened="{{opened}}" duration="1">
           <svg-element hidden$="{{!svg}}" src="{{svg}}" zoomable></svg-element>
           <!-- <div id="map" class="map"></div> -->
           <!-- <iron-image hidden$="[[!image]]" src="[[image]]" preload$="[[preloadImage]]" fade$="[[fadeImage]]"></iron-image> -->

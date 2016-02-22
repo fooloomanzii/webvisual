@@ -19,7 +19,7 @@
 #about absolut positioning
 <http://stackoverflow.com/a/26053262>
 
-Use `zoomable` to make it zoomable.
+Use `isZoomable` to make it isZoomable.
 
 #reference and inspiration
 <http://bl.ocks.org/mbostock/9656675>
@@ -82,7 +82,8 @@ Use `zoomable` to make it zoomable.
       },
       selectable: {
         type: String,
-        value: ''
+        value: 'path,rect,circle,ellipse,polyline,polygon,line',
+        observer: "_selectableChanged"
       },
       selected: {
         type: String,
@@ -96,21 +97,20 @@ Use `zoomable` to make it zoomable.
         type: Boolean,
         value: false
       },
-      zoomable: {
+      isZoomable: {
         type: Boolean,
         value: true,
-        reflectToAttribute: true,
-        observer: "_zoomableChanged"
+        observer: "_isZoomableChanged"
       },
       minZoom: {
         type: Number,
         value: 1,
-        observer: "_zoomableChanged"
+        observer: "_isZoomableChanged"
       },
       maxZoom: {
         type: Number,
         value: 10,
-        observer: "_zoomableChanged"
+        observer: "_isZoomableChanged"
       },
       zoomPartition: {
         type: Number,
@@ -176,17 +176,10 @@ Use `zoomable` to make it zoomable.
                               .attr("height", null)
                               .call(self._d3Zoom);
 
-            // add click-event-handler to each inner element for focusing on-click
             self.mainG = self.svgContainer.select("g");
-            self.mainG.attr("id","mainG")
-                      .selectAll("path,rect,circle,ellipse,polyline,polygon,line")
-                      .classed("selectable", true)  // for styling selectable
-                      .classed("svg-element", true) // for style-scoping in polymer
-                      .on("click", self._zoomTo);
-
             self.mainG.selectAll("text")
                       .classed("text", true)  // for styling text
-                      .classed("svg-element", true);
+                      .classed("svg-element", true); // style-scoping in polymer
 
             // get dimensions
             var viewBox = d3.select(svgNode)
@@ -195,7 +188,8 @@ Use `zoomable` to make it zoomable.
             self.width  = viewBox[2] - viewBox[0];
             self.height = viewBox[3] - viewBox[1];
 
-            self.selected = "path#path4798";
+            // set selectable elements
+            self._selectableChanged();
           });
       }
     },
@@ -260,6 +254,22 @@ Use `zoomable` to make it zoomable.
       }
     },
 
+    _selectableChanged: function() {
+      if (this.mainG) { // if svg is loaded
+        // previous selectable elements: remove 'selectable' class and click listener
+        this.mainG.selectAll(".selectable")
+                  .classed("selectable", false)
+                  .on("click", null);
+
+        // add 'selectable' class and click listener
+        this.mainG.attr("id","mainG")
+                  .selectAll(this.selectable)
+                  .classed("selectable", true)  // for styling selectable
+                  .classed("svg-element", true) // for style-scoping in polymer
+                  .on("click", this._zoomTo);
+      }
+    },
+
     _resetZoom: function() {
       // deselect selectedItem
       if (this.selectedItem) {
@@ -272,9 +282,9 @@ Use `zoomable` to make it zoomable.
                        .call(this._d3Zoom.translate([0, 0]).scale(1).event);
     },
 
-    _zoomableChanged: function() {
+    _isZoomableChanged: function() {
       if (this.svgContainer) {
-        if (!this.zoomable) {
+        if (!this.isZoomable) {
           this._resetZoom()
           this._d3Zoom.on("zoom", null);
         }

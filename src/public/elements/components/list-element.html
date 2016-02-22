@@ -101,8 +101,8 @@
     <section id="mainContent">
 
         <section class="caption">
-          <template id="captiontemplate" is="dom-repeat" items="{{keys}}" as="key">
-            <span id="[[key]]" class="captions" style$="[[computeCaptionStyle(index)]]">{{getKey(key)}}</span>
+          <template id="captiontemplate" is="dom-repeat" items="{{captionKeys}}" as="captionKey">
+            <span id="[[key]]" class="captions" style$="[[computeCaptionStyle(index)]]">{{getKey(captionKey, element.keys.*)}}</span>
           </template>
         </section>
 

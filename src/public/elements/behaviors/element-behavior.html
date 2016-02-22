@@ -21,7 +21,7 @@
           type: Boolean,
           value: false
         },
-        keys: {
+        captionKeys: {
           type: Array,
           value: function() { return []; }
         },
@@ -38,8 +38,8 @@
         }
     },
     getKey: function(key) {
-      if(this.element && this.element[key])
-        return this.element[key];
+      // if(this.element && this.element[key])
+        return this.element.keys[key];
     },
     computeCaptionStyle: function(index) {
       if (this.captionStyle[index])

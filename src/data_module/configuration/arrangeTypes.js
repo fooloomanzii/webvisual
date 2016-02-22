@@ -19,15 +19,23 @@ function arrangeTypes(label, labelindex, locals) {
   var types = [];
   var ids = [];
   var type;
-  var keys = Object.keys(locals.unnamedType);
+  var keys = Object.keys(locals.unnamedType.keys);
 
   // all defined types are processed
   for (var i = 0; i < locals.types.length; i++) {
     // ignored if set in locals.ignore
     if (locals.ignore && locals.ignore.indexOf(i) == -1) {
       type = locals.types[i] || {};
+
+      // if types of values is not an Array or doesn't exist then use the default
+      if (!type.values || !Array.isArray(type.values))
+        type.values = defaults.values;
+
+      // if keys don't exist in locals
+      if (!type.keys)
+        type.keys = {};
       for (var j = 0; j < keys.length; j++) {
-        type[keys[j]] = type[keys[j]] || locals.unnamedType[keys[j]];
+        type.keys[keys[j]] = type.keys[keys[j]] || locals.unnamedType.keys[keys[j]];
       }
       // label
       type.label = label;
@@ -37,9 +45,6 @@ function arrangeTypes(label, labelindex, locals) {
       type.lastExceeds = [];
       // lastExceeds
       type.firstExceeds = [];
-      // if types of values is not an Array or doesn't exist then use the default
-      if (!type.values || !Array.isArray(type.values))
-        type.values = defaults.values;
       // id has to be different from unnamedType
       if (type.id == locals.unnamedType.id)
         type.id += i;
@@ -99,7 +104,7 @@ function arrangeTypes(label, labelindex, locals) {
           }
           break;
         }
-        if (groups[l].subgroup[k].name == types[i][key]) {
+        if (groups[l].subgroup[k].name == types[i].keys[key]) {
           where = k;
         } else if (key == 'all') {
           where = k;
@@ -110,7 +115,7 @@ function arrangeTypes(label, labelindex, locals) {
       if (needToSetElement) {
         if (where == -1) {
           groups[l].subgroup.push({
-            name: types[i][key] || ((key == 'all') ? 'all' : ''),
+            name: types[i].keys[key] || ((key == 'all') ? 'all' : ''),
             ids: [types[i].id],
             elements: [types[i]]
           });
@@ -123,8 +128,6 @@ function arrangeTypes(label, labelindex, locals) {
       }
     }
   }
-
-
 
   // PATHSTRUCTURE
   // for faster finding elements for client

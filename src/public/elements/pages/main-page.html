@@ -256,7 +256,7 @@
         </template>
       </paper-tabs>
 
-      <sign-element id="selectedElementSign" class="selectedElement sign incard" horizontal="{{!expanded}}" element="[[selectedElement]]" on-tap="deselectElement" keys="[[getGroupingKeys(selectedElement.label)]]"></sign-element>
+      <sign-element id="selectedElementSign" class="selectedElement sign incard" horizontal="{{!expanded}}" element="[[selectedElement]]" on-tap="deselectElement" caption-keys="[[getGroupingKeys(selectedElement.label)]]"></sign-element>
 
       <table-element id="selectedElementTable" class="selectedElement noncard" element="[[selectedElement]]"></table-element>
       <!-- <line-chart id="selectedElementChart" data="[[selectedElement]]" fit></line-chart> -->
@@ -385,7 +385,7 @@
               <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroups">
                 <post-card title="{{subgroups.name}}" without-window$="[[withoutWindow]]" svg="/img/HNF-GDS/E0_gaskabinet.svg">
                   <template is="dom-repeat" items="{{subgroups.elements}}" as="element">
-                      <sign-element class="content" element="{{element}}" keys="{{getGroupingKeys(element.label)}}" on-tap="setSelectedElement" show-date="{{showDate}}"></sign-element>
+                      <sign-element class="content" element="{{element}}" caption-keys="{{getGroupingKeys(element.label)}}" on-tap="setSelectedElement" show-date="{{showDate}}"></sign-element>
                   </template>
                 </post-card>
               </template>
@@ -395,7 +395,7 @@
           <notification-element id="exceedsDialog" text="Alarme" image="">
             <iron-swipeable-container id="exceedingElements" on-iron-swipe="_removeSingleExceedingElement">
               <template is="dom-repeat" items="{{exceeding}}" as="element">
-                  <list-element element="{{element}}" keys="[[getGroupingKeys(element.label)]]"></list-element>
+                  <list-element element="{{element}}" caption-keys="[[getGroupingKeys(element.label)]]"></list-element>
               </template>
             </iron-swipeable-container>
             <span style="padding-top: 0.5em; align-self: flex-end;"><a href="#" on-click="_removeAllExceedingElements">Liste leeren</a></span>
