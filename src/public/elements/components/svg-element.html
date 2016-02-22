@@ -1,4 +1,3 @@
-<!-- <script src='../../../components/d3/d3.min.js'></script> -->
 <!--
 `svg-element` provides rendering a svg in a container.
 
@@ -22,8 +21,13 @@
 
 Use `zoomable` to make it zoomable.
 
+#reference and inspiration
+<http://bl.ocks.org/mbostock/9656675>
+
 @element svg-element
 -->
+
+<!-- <script src='../../../components/d3/d3.min.js'></script> -->
 
 <dom-module id="svg-element">
 
@@ -34,16 +38,31 @@ Use `zoomable` to make it zoomable.
     font-weight: normal;
     -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
     -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
+    color: rgb(255, 237, 168);
 
     display: block;
     min-height: 1px;
   	position: relative;
-
   	overflow: hidden;
   }
   div#svgContainer {
     border-radius: inherit;
     display: block;
+  }
+  .text {
+    fill: currentColor !important;
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    letter-spacing: normal !important;
+  }
+  .selectable {
+    fill: rgb(203, 67, 107) !important;
+    stroke: white !important;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .selected {
+    fill: orange !important;
   }
 </style>
 <template>
@@ -52,8 +71,6 @@ Use `zoomable` to make it zoomable.
 </template>
 
 <script>
-  var active = d3.select(null);
-
   SVGElement = Polymer({
     is: 'svg-element',
 
@@ -63,14 +80,21 @@ Use `zoomable` to make it zoomable.
         value: '',
         observer: "_sourceChanged"
       },
+      selectable: {
+        type: String,
+        value: ''
+      },
       selected: {
         type: String,
-        value: 'schlange',
         observer: "_focusSelected"
       },
-      active: {
-        type: Object,
-        value: function() { return {};}
+      selectedItems: {
+        type: Array,
+        value: function() { return []; }
+      },
+      multi: {
+        type: Boolean,
+        value: false
       },
       zoomable: {
         type: Boolean,
@@ -90,7 +114,7 @@ Use `zoomable` to make it zoomable.
       },
       zoomPartition: {
         type: Number,
-        value: 3
+        value: 4
       },
       height: {
         type: Number
@@ -104,7 +128,7 @@ Use `zoomable` to make it zoomable.
       svgContainer: {
         type: Object
       },
-      d3Zoom: {
+      _d3Zoom: {
         type: Function
       }
     },
@@ -138,9 +162,9 @@ Use `zoomable` to make it zoomable.
             var svgNode = document.importNode(xml.documentElement, true);
 
             // register zoom function
-            self.d3Zoom = d3.behavior.zoom()
-                            .scaleExtent([self.minZoom, self.maxZoom])
-                            .on("zoom", self._zoom);
+            self._d3Zoom = d3.behavior.zoom()
+                             .scaleExtent([self.minZoom, self.maxZoom])
+                             .on("zoom", self._zoom);
 
             // append imported svg to this element
             self.svgContainer.node().appendChild(svgNode);
@@ -150,13 +174,19 @@ Use `zoomable` to make it zoomable.
                               .attr("preserveAspectRatio", "xMinYMin meet")
                               .attr("width", "100%")
                               .attr("height", null)
-                              .call(self.d3Zoom);
+                              .call(self._d3Zoom);
 
             // add click-event-handler to each inner element for focusing on-click
             self.mainG = self.svgContainer.select("g");
             self.mainG.attr("id","mainG")
                       .selectAll("path,rect,circle,ellipse,polyline,polygon,line")
+                      .classed("selectable", true)  // for styling selectable
+                      .classed("svg-element", true) // for style-scoping in polymer
                       .on("click", self._zoomTo);
+
+            self.mainG.selectAll("text")
+                      .classed("text", true)  // for styling text
+                      .classed("svg-element", true);
 
             // get dimensions
             var viewBox = d3.select(svgNode)
@@ -164,23 +194,19 @@ Use `zoomable` to make it zoomable.
                             .split(' ');
             self.width  = viewBox[2] - viewBox[0];
             self.height = viewBox[3] - viewBox[1];
+
+            self.selected = "path#path4798";
           });
-
-
       }
     },
     _zoom: function () {
       d3.select(this).select("g#mainG")
                      .transition()
-                     .duration(150)
+                     .duration(100)
                      .ease("linear")
                      .attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
     },
-    _zoomTo: function() {
-      // if (active.node() === this) return this.reset();
-      // active.classed("active", false);
-      // active = d3.select(this).classed("active", true);
-
+    _zoomTo: function(e, f) {
       // get the svg-element
       var elem = this;
       while (true) {
@@ -191,59 +217,73 @@ Use `zoomable` to make it zoomable.
         else
           elem = elem.parentNode;
       }
+      // set selectedItem element (toggle selected)
+      elem._select(this, true);
 
       // calculate scale based on partioned view and dimensions of the element
       var bbox = this.getBBox();
+
+      if (!(bbox.width && bbox.height))
+        return; // if element is not rendered, return
       var scale = Math.min(elem.width/(elem.zoomPartition*bbox.width), elem.height/(elem.zoomPartition*bbox.height));
 
-      if (scale < elem.minZoom)
-        scale = elem.minZoom;
-      if (scale > elem.maxZoom)
-        scale = elem.maxZoom;
-
       // center view
-      while (bbox.x < 0)
-        bbox.x += elem.width;
-      while (bbox.y < 0)
-        bbox.y += elem.height;
-
       var x = -scale*(bbox.x) + (elem.width - scale*bbox.width)/2;
       var y = -scale*(bbox.y) + (elem.height - scale*bbox.height)/2;
       var translate = [x, y];
 
-      console.log((elem.width - scale*bbox.width)/2 + " " + (elem.height - scale*bbox.height)/2);
-
-      // transform view
-      elem.mainG.transition()
-                .duration(750)
-                .attr("transform", "translate(" + translate + ") scale(" + scale + ")");
+      // call zoom to translate and scale
+      elem.svgContainer.transition()
+                       .duration(750)
+                       .call(elem._d3Zoom.translate(translate).scale(scale).event);
     },
 
     _focusSelected: function(selector) {
-
+      this._zoomTo.apply(this.svgContainer.select(selector).node(), ["selected"]);
     },
 
-    reset: function() {
-      active.classed("active", false);
-      active = d3.select(null);
+    _select: function(elem, toggle) {
+      var pos = this.selectedItems.indexOf(elem);
+      if (this.multi) {
+        if ( pos == -1 )
+          this.push("selectedItems", d3.select(elem).classed("selected", true).node());
+        else if (toggle){
+          d3.select(this.selectedItems[pos]).classed("selected", false);
+          this.arrayDelete('selectedItems', elem);
+        }
+      } else {
+        for (var i in this.selectedItems) {
+          d3.select(this.selectedItems[i]).classed("selected", false);
+          this.arrayDelete('selectedItems', this.selectedItems[i]);
+        }
+        this.push("selectedItems", d3.select(elem).classed("selected", true).node());
+      }
+    },
 
-      innerG.transition()
-          .duration(750)
-          .call(zoom.translate([0, 0]).scale(1).event);
+    _resetZoom: function() {
+      // deselect selectedItem
+      if (this.selectedItem) {
+        this.selectedItem.classed("selectedItem", false);
+        this.selectedItem = d3.select(null);
+      }
+      // transition to (0,0) scale 1
+      this.svgContainer.transition()
+                       .duration(750)
+                       .call(this._d3Zoom.translate([0, 0]).scale(1).event);
     },
 
     _zoomableChanged: function() {
       if (this.svgContainer) {
         if (!this.zoomable) {
-          this.d3Zoom.scale(1).translate([0,0]).event(this.mainG);
-          this.d3Zoom.on("zoom", null);
+          this._resetZoom()
+          this._d3Zoom.on("zoom", null);
         }
         else {
-          this.d3Zoom = d3.behavior.zoom()
-                          .scaleExtent([this.minZoom, this.maxZoom])
-                          .on("zoom", this._zoom);
+          this._d3Zoom = d3.behavior.zoom()
+                                    .scaleExtent([this.minZoom, this.maxZoom])
+                                    .on("zoom", this._zoom);
           this.svgContainer.select("svg")
-                           .call(this.d3Zoom);
+                           .call(this._d3Zoom);
         }
       }
     }
