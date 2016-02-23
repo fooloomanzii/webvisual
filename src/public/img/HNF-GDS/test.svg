@@ -5,19 +5,44 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
    id="svg2"
    viewBox="0 0 1000 1000"
    height="1000"
-   width="100%">
+   width="100%"
+   inkscape:version="0.91 r"
+   sodipodi:docname="test.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1018"
+     id="namedview4167"
+     showgrid="false"
+     inkscape:zoom="0.774"
+     inkscape:cx="500"
+     inkscape:cy="500"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g8037" />
   <defs
      id="defs4" />
   <g
      id="g8037">
     <g
-       id="g3371">
+       id="g3371"
+       transform="matrix(-0.42261826,-0.90630779,0.90630779,-0.42261826,34.614059,371.05159)">
       <g
-         transform="translate(60,-30)"
+         transform="matrix(0.25881905,0.96592583,-0.96592583,0.25881905,423.491,118.644)"
          id="g3368">
         <rect
            transform="translate(-70,150)"
@@ -161,12 +186,13 @@
        d="M 609.72979,619.48067 313.10449,761.80089"
        id="path4177" />
     <rect
-       y="149.61636"
-       x="108.69566"
+       y="202.612"
+       x="-6.4392533"
        height="42.19949"
        width="42.19949"
        id="rect3375"
-       style="fill:#00ffff" />
+       style="fill:#00ffff"
+       transform="matrix(0.90630779,-0.42261826,0.42261826,0.90630779,0,0)" />
   </g>
   <metadata
      id="metadata8052">
