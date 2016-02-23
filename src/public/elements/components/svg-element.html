@@ -214,16 +214,40 @@ Use `isZoomable` to make it isZoomable.
       // set selectedItem element (toggle selected)
       elem._select(this, true);
 
+
+
       // calculate scale based on partioned view and dimensions of the element
+      var bboxG = elem.mainG.node().getBBox();
       var bbox = this.getBBox();
+
+      var oldscale = d3.transform(elem.mainG.attr("transform")).scale;
+      var offsetG = elem.mainG.node().getBoundingClientRect();
+      var offsetE = this.getBoundingClientRect();
+
+      var tx = (offsetE.left - offsetG.left)/oldscale[0];
+      var ty = (offsetE.top - offsetG.top)/oldscale[1];
+
+      // var matrix = this.getScreenCTM();
+      //
+      // var tx = (matrix.a * bbox.x) + (matrix.c * bbox.y) + matrix.e  - offset.left,
+      //   ty = (matrix.b * bbox.x) + (matrix.d * bbox.y) + matrix.f - offset.top;
+      //
+      console.log(tx + " " + ty);
+      //
+      // var matrix = this.parentNode.getScreenCTM();
+      //
+      // var ttx = (matrix.a * tx) + (matrix.c * ty) + matrix.e,
+      //   tty = (matrix.b * tx) + (matrix.d * ty) + matrix.f;
+      //
+      // console.log(ttx + " " + tty);
 
       if (!(bbox.width && bbox.height))
         return; // if element is not rendered, return
       var scale = Math.min(elem.width/(elem.zoomPartition*bbox.width), elem.height/(elem.zoomPartition*bbox.height));
 
       // center view
-      var x = -scale*(bbox.x) + (elem.width - scale*bbox.width)/2;
-      var y = -scale*(bbox.y) + (elem.height - scale*bbox.height)/2;
+      var x = -scale*(tx) + (elem.width - scale*bbox.width)/2;
+      var y = -scale*(ty) + (elem.height - scale*bbox.height)/2;
       var translate = [x, y];
 
       // call zoom to translate and scale
