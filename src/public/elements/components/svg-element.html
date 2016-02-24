@@ -63,11 +63,15 @@ Use `isZoomable` to make it isZoomable.
   }
   .clicked {
     fill: orange !important;
+    stroke: white !important;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
   .selected {
     /*fill: #E72626 !important;*/
-    z-index: 10;
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    stroke: white !important;
+    stroke-linecap: round;
+    stroke-linejoin: round;
     animation-name: selected-animation;
     animation-duration: 4s;
     animation-timing-function: ease-in-out;
@@ -86,7 +90,7 @@ Use `isZoomable` to make it isZoomable.
 </template>
 
 <script>
-  SVGElement = Polymer({
+  Polymer({
     is: 'svg-element',
 
     properties: {
@@ -108,7 +112,7 @@ Use `isZoomable` to make it isZoomable.
         type: Array,
         value: function() { return []; }
       },
-      classAttr: {
+      selectedClass: {
         type: String,
         value: "selected"
       },
@@ -128,12 +132,12 @@ Use `isZoomable` to make it isZoomable.
       },
       maxZoom: {
         type: Number,
-        value: 6,
+        value: 5,
         observer: "_isZoomableChanged"
       },
       zoomPartition: {
         type: Number,
-        value: 2
+        value: 3
       },
       height: {
         type: Number
@@ -150,9 +154,6 @@ Use `isZoomable` to make it isZoomable.
       _d3Zoom: {
         type: Function
       }
-    },
-
-    attached: function() {
     },
 
     _sourceChanged: function(source) {
@@ -210,29 +211,24 @@ Use `isZoomable` to make it isZoomable.
 
             // set selectable elements
             self._selectableChanged();
-
-            self.selected = "ellipse";
           });
       }
     },
     _zoom: function () {
-      d3.select(this).select("g#mainG")
+      d3.select(this).select("g")
                      .transition()
                      .duration(100)
                      .ease("linear")
                      .attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
     },
 
-    _zoomToElement: function(elem, classAttr) {
+    _zoomToElement: function(elem, selectedClass) {
       if (!elem) return;
-
       // calc centered zoom coordinates
       var transform = this._calcCenterZoom(elem);
-
       // call zoom to translate and scale
-      this.svgContainer.select("svg")
-                       .transition()
-                       .duration(500)
+      this.svgContainer.transition()
+                       .duration(300)
                        .call(this._d3Zoom.translate(transform.translate).scale(transform.scale).event);
     },
 
@@ -242,17 +238,16 @@ Use `isZoomable` to make it isZoomable.
     _calcCenterZoom: function(elem) {
       if (!elem) return;
       // calculate scale based on partioned view and dimensions of the element
-      var bboxG = this.mainG.node().getBBox();
-      var boundG = this.mainG.node().getBoundingClientRect();
-
       var boundE;
       if (elem.nodeType)
         boundE = elem.getBoundingClientRect();
       else
         boundE = elem;
+      var bboxG = this.mainG.node().getBBox();
+      var boundG = this.mainG.node().getBoundingClientRect();
 
       // absolute position (for angled or transioned element)
-      var os = bboxG.width/boundG.width;
+      var os = bboxG.width/boundG.width || 1;
       var x = (boundE.left - boundG.left)*os + bboxG.x;
       var y = (boundE.top - boundG.top)*os + bboxG.y;
 
@@ -274,70 +269,94 @@ Use `isZoomable` to make it isZoomable.
         return {translate: [x,y], scale: scale};
     },
 
-    _selectedChanged: function(selector) {
+    _selectedChanged: function(selector, oldselector) {
+      if (!selector) return;
+      // previous selected elements: remove class for selected elements
+      for (var i = this.selectedItems.length-1; i>=0; i--) {
+        if (this.selectedItems[i].classList.contains(this.selectedClass)) {
+          this.selectedItems[i].classList.remove(this.selectedClass);
+          this.arrayDelete('selectedItems', this.selectedItems[i]);
+        }
+      }
 
       var boundE, bounds = [];
       self = this;
-      this.svgContainer.selectAll(selector)
-                       .each(
-                         function() {
-                           boundE = this.getBoundingClientRect();
-                           bounds[0] = (bounds[0] > boundE.left ? boundE.left : bounds[0]) || boundE.left;
-                           bounds[1] = (bounds[1] > boundE.top ? boundE.top : bounds[1]) || boundE.top;
-                           bounds[2] = (bounds[2] < boundE.right ? boundE.right : bounds[2]) || boundE.right;
-                           bounds[3] = (bounds[3] < boundE.bottom ? boundE.bottom : bounds[3]) || boundE.bottom;
-                           self._select(this, self.classAttr, self.multi)
-                         });
+      this.mainG.selectAll(selector)
+                 .each(
+                   function() {
+                     boundE = this.getBoundingClientRect();
+                     bounds[0] = (bounds[0] > boundE.left ? boundE.left : bounds[0]) || boundE.left;
+                     bounds[1] = (bounds[1] > boundE.top ? boundE.top : bounds[1]) || boundE.top;
+                     bounds[2] = (bounds[2] < boundE.right ? boundE.right : bounds[2]) || boundE.right;
+                     bounds[3] = (bounds[3] < boundE.bottom ? boundE.bottom : bounds[3]) || boundE.bottom;
+
+                     self._select(this, self.selectedClass, self.multi)
+                   });
 
       boundE = { left: bounds[0],
                  top: bounds[1],
                  height: bounds[3] - bounds[1],
                  width: bounds[2] - bounds[0] };
 
-      this._zoomToElement(boundE, self.classAttr);
+      this._zoomToElement(boundE, self.selectedClass);
     },
 
-    _select: function(elem, classAttr, multi, toggle) {
+    _select: function(elem, selectedClass, multi, toggle) {
       var pos = this.selectedItems.indexOf(elem);
       if (multi) {
-        if ( pos == -1 )
-          this.push("selectedItems", d3.select(elem).classed(classAttr, true).node());
-        else if (toggle){
-          d3.select(this.selectedItems[pos]).classed(classAttr, false);
+        if ( pos == -1 ) {
+          elem.classList.add(selectedClass);
+          this.push("selectedItems", elem);
+        }
+        else if (toggle) {
+          this.selectedItems[pos].classList.remove(selectedClass);
           this.arrayDelete('selectedItems', elem);
+        }
+        else if (!this.selectedItems[pos].classList.contains(selectedClass)) {
+          this.selectedItems[pos].classList.add(selectedClass);
         }
       } else {
         for (var i in this.selectedItems) {
-          if (this.selectedItems[i].classList.contains(classAttr)) {
-            d3.select(this.selectedItems[i]).classed(classAttr, false);
+          for (var i = this.selectedItems.length-1; i>=0; i--) {
+            this.selectedItems[i].classList.remove(selectedClass);
             this.arrayDelete('selectedItems', this.selectedItems[i]);
           }
         }
         if (pos == -1 || !toggle) {
-          this.push("selectedItems", d3.select(elem).classed(classAttr, true).node());
+          this.push("selectedItems", d3.select(elem).classed(selectedClass, true).node());
         }
       }
     },
 
     _selectableChanged: function() {
-      if (this.mainG) { // if svg is loaded
-        // previous selectable elements: remove 'selectable' class and click listener
-        this.mainG.selectAll(".selectable")
-                  .classed("selectable", false)
-                  .on("click", null);
+      if (!this.mainG) // if svg is loaded
+        return;
+      // previous selectable elements: remove 'selectable' class and click listener
+      this.mainG.selectAll(".selectable")
+                .classed("selectable", false)
+                .on("click", null);
 
-        // add 'selectable' class and click listener
-        self = this;
-        this.mainG.attr("id","mainG")
-                  .selectAll(this.selectable)
-                  .classed("selectable", true)  // for styling selectable
-                  .classed("svg-element", true) // for style-scoping in polymer
-                  .on("click",
-                    function() {
-                      self._zoomToElement(this);
-                      self._select(this, "clicked", false, true);
-                    });
-      }
+      // add 'selectable' class and click listener
+      self = this;
+      this.mainG.selectAll(this.selectable)
+                .classed("selectable", true)  // for styling selectable
+                .classed("svg-element", true) // for style-scoping in polymer
+                .on("click",
+                  function() {
+                    // get polymer-parent-node of the selectable node
+                    // else d3 uses the last instance of svg-element-Object
+                    var node = this;
+                    while (true) {
+                      if (node.nodeName && (node.nodeName.toLowerCase() === 'svg-element'))
+                        break;
+                      else if (node == window)
+                        return;
+                      else
+                        node = node.parentNode;
+                    }
+                    node._zoomToElement(this);
+                    node._select(this, "clicked", false, true);
+                  });
     },
 
     _resetZoom: function() {

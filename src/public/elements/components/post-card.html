@@ -105,8 +105,8 @@
   <template>
     <section id="main" name$="[[title]]" nowindow$="{{withoutWindow}}">
       <section class="header">
-        <iron-collapse id="imageCollapse" opened duration="1">
-          <svg-element hidden$="{{!svg}}" src="{{svg}}" zoomable></svg-element>
+        <iron-collapse id="imageCollapse" opened="{{opened}}" duration="1">
+          <svg-element hidden$="{{!svg}}" src="{{svg}}" selected="{{selected}}" zoomable></svg-element>
           <!-- <div id="map" class="map"></div> -->
           <!-- <iron-image hidden$="[[!image]]" src="[[image]]" preload$="[[preloadImage]]" fade$="[[fadeImage]]"></iron-image> -->
         </iron-collapse>
@@ -155,7 +155,11 @@
           type: String,
           value: ''
         },
-
+        
+        selected: {
+          type: String,
+          value: ''
+        },
         /**
          * When `true`, any change to the image url property will cause the
          * `placeholder` image to be shown until the image is fully rendered.
