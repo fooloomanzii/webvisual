@@ -56,16 +56,16 @@ Use `isZoomable` to make it isZoomable.
     letter-spacing: normal !important;
   }
   .selectable {
-    fill: rgb(203, 67, 107) !important;
+    /*fill: rgb(203, 67, 107) !important;
     stroke: white !important;
     stroke-linecap: round;
-    stroke-linejoin: round;
+    stroke-linejoin: round;*/
   }
   .clicked {
     fill: orange !important;
   }
   .selected {
-    fill: #E72626 !important;
+    /*fill: #E72626 !important;*/
     z-index: 10;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
     animation-name: selected-animation;
@@ -128,12 +128,12 @@ Use `isZoomable` to make it isZoomable.
       },
       maxZoom: {
         type: Number,
-        value: 4,
+        value: 6,
         observer: "_isZoomableChanged"
       },
       zoomPartition: {
         type: Number,
-        value: 8
+        value: 2
       },
       height: {
         type: Number
@@ -195,7 +195,8 @@ Use `isZoomable` to make it isZoomable.
                               .attr("height", null)
                               .call(self._d3Zoom);
 
-            self.mainG = self.svgContainer.select("g");
+            self.mainG = self.svgContainer.select("g")
+                                          .attr("id", "mainG");
             self.mainG.selectAll("text")
                       .classed("text", true)  // for styling text
                       .classed("svg-element", true); // style-scoping in polymer
@@ -210,7 +211,7 @@ Use `isZoomable` to make it isZoomable.
             // set selectable elements
             self._selectableChanged();
 
-            self.selected = "rect";
+            self.selected = "ellipse";
           });
       }
     },
@@ -243,7 +244,12 @@ Use `isZoomable` to make it isZoomable.
       // calculate scale based on partioned view and dimensions of the element
       var bboxG = this.mainG.node().getBBox();
       var boundG = this.mainG.node().getBoundingClientRect();
-      var boundE = elem.getBoundingClientRect();
+
+      var boundE;
+      if (elem.nodeType)
+        boundE = elem.getBoundingClientRect();
+      else
+        boundE = elem;
 
       // absolute position (for angled or transioned element)
       var os = bboxG.width/boundG.width;
@@ -259,57 +265,36 @@ Use `isZoomable` to make it isZoomable.
         scale = this.maxZoom;
 
       // center view
-      translate[0] = -scale*(x) + (this.width - scale*boundE.width*os)/2;
-      translate[1] = -scale*(y) + (this.height - scale*boundE.height*os)/2;
+      x = -scale*(x) + (this.width - scale*boundE.width*os)/2;
+      y = -scale*(y) + (this.height - scale*boundE.height*os)/2;
 
-      if (isNaN(translate[0]) || isNaN(translate[1]) || isNaN(scale))
+      if (isNaN(x) || isNaN(y) || isNaN(scale))
         return {translate: [0,0], scale: 1};
       else
-        return {translate: translate, scale: scale};
-    },
-
-    _getAbsolutePosition: function(elem) {
-      if (!elem) return;
-      // calculate scale based on partioned view and dimensions of the element
-      var bboxG = this.mainG.node().getBBox();
-      var boundG = this.mainG.node().getBoundingClientRect();
-      var boundE = elem.getBoundingClientRect();
-
-      // absolute position (for angled or transioned element)
-      var os = bboxG.width/boundG.width;
-      var x = (boundE.left - boundG.left)*os + bboxG.x;
-      var y = (boundE.top - boundG.top)*os + bboxG.y;
-
-      if (isNaN(x) || isNaN(y))
-        return [0,0];
-      else
-        return [x,y];
+        return {translate: [x,y], scale: scale};
     },
 
     _selectedChanged: function(selector) {
-      var transforms = [], center = [0,0,0,0];
 
-      var bboxG = this.mainG.node().getBBox();
-      var boundG = this.mainG.node().getBoundingClientRect();
-      var os = bboxG.width/boundG.width || 1;
-
+      var boundE, bounds = [];
       self = this;
       this.svgContainer.selectAll(selector)
                        .each(
                          function() {
-                           var boundE = this.getBoundingClientRect();
-                           transforms.push([boundE.left,boundE.top,boundE.right,boundE.bottom]);
+                           boundE = this.getBoundingClientRect();
+                           bounds[0] = (bounds[0] > boundE.left ? boundE.left : bounds[0]) || boundE.left;
+                           bounds[1] = (bounds[1] > boundE.top ? boundE.top : bounds[1]) || boundE.top;
+                           bounds[2] = (bounds[2] < boundE.right ? boundE.right : bounds[2]) || boundE.right;
+                           bounds[3] = (bounds[3] < boundE.bottom ? boundE.bottom : bounds[3]) || boundE.bottom;
                            self._select(this, self.classAttr, self.multi)
                          });
-      for (var j=0; j < transforms.length; j++) {
-        for (var i=0; i<center.length; i++) {
-          center[i] += transforms[j][i];
-        }
-      }
 
-      center[0] /= transforms.length || 1;
-      center[1] /= transforms.length || 1;
+      boundE = { left: bounds[0],
+                 top: bounds[1],
+                 height: bounds[3] - bounds[1],
+                 width: bounds[2] - bounds[0] };
 
+      this._zoomToElement(boundE, self.classAttr);
     },
 
     _select: function(elem, classAttr, multi, toggle) {
