@@ -54,7 +54,7 @@
         background: linear-gradient(to bottom, rgba(255,255,255,0.01) 5%,rgba(255,255,255,0.05) 40%);
         text-transform: none;
       }
-      section.header section#title.text.over-image {
+      section.header section#title.over-image {
         position: absolute;
         background: none !important;;
         bottom: 0px;
@@ -105,12 +105,10 @@
   <template>
     <section id="main" name$="[[title]]" nowindow$="{{withoutWindow}}">
       <section class="header">
-        <iron-collapse id="imageCollapse" opened="{{opened}}" duration="1">
-          <svg-element hidden$="{{!svg}}" src="{{svg}}" selected="{{selected}}" zoomable></svg-element>
+        <svg-element id="svg" hidden$="{{!src}}" src="{{src}}" selected="{{selected}}" initial-selected="g#Rooms rect#R2032" selectable="g#Rooms rect,g#Sensors path,g#Cabinets path"></svg-element>
           <!-- <div id="map" class="map"></div> -->
           <!-- <iron-image hidden$="[[!image]]" src="[[image]]" preload$="[[preloadImage]]" fade$="[[fadeImage]]"></iron-image> -->
-        </iron-collapse>
-        <section id="title" hidden$="[[_hideTitle(title,withoutWindow)]]" class$="[[_computeHeadingClass(image, opened)]]" on-tap="toggleCollapse">[[title]]</section>
+        <section id="title" hidden$="[[_hideTitle(title,withoutWindow)]]"  on-tap="toggle">[[title]]</section>
       </section>
       <section id="mainContent">
         <content></content>
@@ -144,39 +142,39 @@
         /**
          * The url of the image of the card.
          */
-        image: {
-          type: String,
-          value: ''
-        },
+        // image: {
+        //   type: String,
+        //   value: ''
+        // },
         /**
          * The url of the svg of the card.
          */
-        svg: {
+        src: {
           type: String,
           value: ''
         },
-        
+
         selected: {
-          type: String,
-          value: ''
-        },
+          type: Array,
+          value: function() { return [] }
+        }
         /**
          * When `true`, any change to the image url property will cause the
          * `placeholder` image to be shown until the image is fully rendered.
          */
-        preloadImage: {
-          type: Boolean,
-          value: false
-        },
-
-        /**
-         * When `preloadImage` is true, setting `fadeImage` to true will cause the
-         * image to fade into place.
-         */
-        fadeImage: {
-          type: Boolean,
-          value: false
-        },
+        // preloadImage: {
+        //   type: Boolean,
+        //   value: false
+        // },
+        //
+        // /**
+        //  * When `preloadImage` is true, setting `fadeImage` to true will cause the
+        //  * image to fade into place.
+        //  */
+        // fadeImage: {
+        //   type: Boolean,
+        //   value: false
+        // },
       },
 
       attached: function() {
@@ -226,8 +224,15 @@
         // });
       },
 
-      toggleCollapse: function() {
-        this.$.imageCollapse.toggle();
+      toggle: function() {
+        this.opened = !this.opened;
+
+        if (this.src && this.opened)
+          this.$.title.classList.add('over-image');
+        else
+          this.$.title.classList.remove('over-image');
+
+        this.$.svg.opened = this.opened;
       },
 
       _titleChanged: function(text) {
@@ -237,10 +242,8 @@
         this.setAttribute('aria-label', this.title);
       },
 
-      _computeHeadingClass: function(image, showMap) {
-        var cls = 'text';
-        if (image || showMap)
-          cls += ' over-image';
+      _computeHeadingClass: function(src, opened) {
+
         return cls;
       },
 

@@ -38,13 +38,20 @@ Use `isZoomable` to make it isZoomable.
     font-weight: normal;
     -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
     -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
-    color: rgb(255, 237, 168);
+    color: #1f1f1f;
 
     display: block;
-    min-height: 1px;
+    min-height: 0;
+    max-height: 500px;
   	position: relative;
   	overflow: hidden;
+    transition: max-height 500ms ease;
   }
+
+  :host(:not(.opened)) {
+    max-height: 0;
+  }
+
   div#svgContainer {
     border-radius: inherit;
     display: block;
@@ -55,15 +62,16 @@ Use `isZoomable` to make it isZoomable.
     font-weight: inherit !important;
     letter-spacing: normal !important;
   }
-  .selectable {
+  .svg-element-selectable {
     /*fill: rgb(203, 67, 107) !important;
     stroke: white !important;
     stroke-linecap: round;
     stroke-linejoin: round;*/
   }
   .clicked {
-    fill: orange !important;
-    stroke: white !important;
+    fill: #E4D09B !important;
+    stroke: black !important;
+    stroke-width: 1.5px;
     stroke-linecap: round;
     stroke-linejoin: round;
   }
@@ -101,12 +109,16 @@ Use `isZoomable` to make it isZoomable.
       },
       selectable: {
         type: String,
-        value: 'path,rect,circle,ellipse,polyline,polygon,line',
+        value: '.sel ellipse,g rect',
         observer: "_selectableChanged"
       },
       selected: {
+        type: Array,
+        value: function() { return [] }
+      },
+      initialSelected: {
         type: String,
-        observer: "_selectedChanged"
+        value: ""
       },
       selectedItems: {
         type: Array,
@@ -125,6 +137,11 @@ Use `isZoomable` to make it isZoomable.
         value: true,
         observer: "_isZoomableChanged"
       },
+      opened: {
+        type: Boolean,
+        value: false,
+        observer: "_openedChanged"
+      },
       minZoom: {
         type: Number,
         value: 1,
@@ -132,12 +149,12 @@ Use `isZoomable` to make it isZoomable.
       },
       maxZoom: {
         type: Number,
-        value: 5,
+        value: 3,
         observer: "_isZoomableChanged"
       },
       zoomPartition: {
         type: Number,
-        value: 3
+        value: 1.25
       },
       height: {
         type: Number
@@ -156,14 +173,12 @@ Use `isZoomable` to make it isZoomable.
       }
     },
 
+    observers: [
+      "_selectedChanged(selected.*)"
+    ],
+
     _sourceChanged: function(source) {
       if (source) {
-        if (!this.$.svgContainer) {
-          var div = document.createElement('div');
-          div.setAttribute("id", "svgContainer");
-          Polymer.dom(this.root).appendChild(div);
-          Polymer.dom.flush();
-        }
         if (this.$.svgContainer.firstChild) {
           while (this.$.svgContainer.firstChild) {
             this.$.svgContainer.removeChild(this.$.svgContainer.firstChild);
@@ -211,9 +226,11 @@ Use `isZoomable` to make it isZoomable.
 
             // set selectable elements
             self._selectableChanged();
+            self.select(self.selected, self.selectedClass, self.multi);
           });
       }
     },
+
     _zoom: function () {
       d3.select(this).select("g")
                      .transition()
@@ -222,7 +239,63 @@ Use `isZoomable` to make it isZoomable.
                      .attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
     },
 
-    _zoomToElement: function(elem, selectedClass) {
+    _selectedChanged: function(change) {
+      if(!change || !this.selected) return;
+      this.select(this.selected, this.selectedClass, this.multi);
+    },
+
+    _openedChanged: function(opened) {
+      this.toggleClass('opened', opened);
+      if (opened)
+        this._selectedChanged(opened);
+    },
+
+    select: function(selected, selectedClass, multi) {
+      if (!this.mainG)
+        return;
+      // previous selected elements: remove class for selected elements
+      if (!this.selectedItems)
+        this.set("selectedItems", []);
+
+      for (var i = this.selectedItems.length-1; i>=0; i--) {
+        if (this.selectedItems[i].classList.contains(selectedClass)) {
+          this.selectedItems[i].classList.remove(selectedClass);
+          this.arrayDelete('selectedItems', this.selectedItems[i]);
+        }
+      }
+
+      var elems;
+      if (selected.length == 0 ||
+          (elems = this.mainG.selectAll(selected.toString())
+                             .filter('.svg-element-selectable')).empty()) {
+        if (this.opened)
+          this._resetZoom();
+        return;
+      }
+
+      var boundE, bounds = [];
+      self = this;
+      elems.each(
+             function() {
+               boundE = this.getBoundingClientRect();
+               bounds[0] = (bounds[0] > boundE.left ? boundE.left : bounds[0]) || boundE.left;
+               bounds[1] = (bounds[1] > boundE.top ? boundE.top : bounds[1]) || boundE.top;
+               bounds[2] = (bounds[2] < boundE.right ? boundE.right : bounds[2]) || boundE.right;
+               bounds[3] = (bounds[3] < boundE.bottom ? boundE.bottom : bounds[3]) || boundE.bottom;
+
+               self._setClass(this, selectedClass, multi)
+             });
+
+      boundE = { left: bounds[0],
+                 top: bounds[1],
+                 height: bounds[3] - bounds[1],
+                 width: bounds[2] - bounds[0] };
+
+      if (this.opened)
+        this._zoomToElement(boundE);
+    },
+
+    _zoomToElement: function(elem) {
       if (!elem) return;
       // calc centered zoom coordinates
       var transform = this._calcCenterZoom(elem);
@@ -232,22 +305,19 @@ Use `isZoomable` to make it isZoomable.
                        .call(this._d3Zoom.translate(transform.translate).scale(transform.scale).event);
     },
 
-    _zoomToPosition: function(e, f) {
-    },
-
     _calcCenterZoom: function(elem) {
       if (!elem) return;
       // calculate scale based on partioned view and dimensions of the element
       var boundE;
       if (elem.nodeType)
         boundE = elem.getBoundingClientRect();
-      else
-        boundE = elem;
+      else boundE = elem;
+
       var bboxG = this.mainG.node().getBBox();
       var boundG = this.mainG.node().getBoundingClientRect();
 
       // absolute position (for angled or transioned element)
-      var os = bboxG.width/boundG.width || 1;
+      var os = bboxG.width/boundG.width || 1; // original scale
       var x = (boundE.left - boundG.left)*os + bboxG.x;
       var y = (boundE.top - boundG.top)*os + bboxG.y;
 
@@ -269,39 +339,7 @@ Use `isZoomable` to make it isZoomable.
         return {translate: [x,y], scale: scale};
     },
 
-    _selectedChanged: function(selector, oldselector) {
-      if (!selector) return;
-      // previous selected elements: remove class for selected elements
-      for (var i = this.selectedItems.length-1; i>=0; i--) {
-        if (this.selectedItems[i].classList.contains(this.selectedClass)) {
-          this.selectedItems[i].classList.remove(this.selectedClass);
-          this.arrayDelete('selectedItems', this.selectedItems[i]);
-        }
-      }
-
-      var boundE, bounds = [];
-      self = this;
-      this.mainG.selectAll(selector)
-                 .each(
-                   function() {
-                     boundE = this.getBoundingClientRect();
-                     bounds[0] = (bounds[0] > boundE.left ? boundE.left : bounds[0]) || boundE.left;
-                     bounds[1] = (bounds[1] > boundE.top ? boundE.top : bounds[1]) || boundE.top;
-                     bounds[2] = (bounds[2] < boundE.right ? boundE.right : bounds[2]) || boundE.right;
-                     bounds[3] = (bounds[3] < boundE.bottom ? boundE.bottom : bounds[3]) || boundE.bottom;
-
-                     self._select(this, self.selectedClass, self.multi)
-                   });
-
-      boundE = { left: bounds[0],
-                 top: bounds[1],
-                 height: bounds[3] - bounds[1],
-                 width: bounds[2] - bounds[0] };
-
-      this._zoomToElement(boundE, self.selectedClass);
-    },
-
-    _select: function(elem, selectedClass, multi, toggle) {
+    _setClass: function(elem, selectedClass, multi, toggle) {
       var pos = this.selectedItems.indexOf(elem);
       if (multi) {
         if ( pos == -1 ) {
@@ -331,18 +369,34 @@ Use `isZoomable` to make it isZoomable.
     _selectableChanged: function() {
       if (!this.mainG) // if svg is loaded
         return;
-      // previous selectable elements: remove 'selectable' class and click listener
-      this.mainG.selectAll(".selectable")
-                .classed("selectable", false)
+      this.mainG.on('contextmenu',
+        function () {
+          d3.event.preventDefault();
+          var node = this;
+          while (true) {
+            if (node.nodeName && (node.nodeName.toLowerCase() === 'svg-element'))
+              break;
+            else if (node == window)
+              return;
+            else
+              node = node.parentNode;
+          }
+          node._resetZoom();
+        })
+
+      // previous selectable elements: remove 'svg-element-selectable' class and click listener
+      this.mainG.selectAll(".svg-element-selectable")
+                .classed("svg-element-selectable", false)
                 .on("click", null);
 
-      // add 'selectable' class and click listener
+      // add 'svg-element-selectable' class and click listener
       self = this;
       this.mainG.selectAll(this.selectable)
-                .classed("selectable", true)  // for styling selectable
+                .classed("svg-element-selectable", true)  // for styling selectable
                 .classed("svg-element", true) // for style-scoping in polymer
                 .on("click",
                   function() {
+                    // if (d3.event.defaultPrevented) return;
                     // get polymer-parent-node of the selectable node
                     // else d3 uses the last instance of svg-element-Object
                     var node = this;
@@ -355,19 +409,22 @@ Use `isZoomable` to make it isZoomable.
                         node = node.parentNode;
                     }
                     node._zoomToElement(this);
-                    node._select(this, "clicked", false, true);
+                    node._setClass(this, "clicked", false, true);
                   });
     },
 
     _resetZoom: function() {
-      // deselect selectedItem
-      if (this.selectedItem) {
-        this.selectedItem.classed("selectedItem", false);
-        this.selectedItem = d3.select(null);
+      if (this.initialSelected) {
+        var initial;
+        if (!(initial = this.mainG.selectAll(this.initialSelected)
+                                  .filter(".svg-element-selectable")).empty()) {
+          this.select(this.initialSelected, "initial");
+          return;
+        }
       }
-      // transition to (0,0) scale 1
+      // transition to [0,0] scale 1
       this.svgContainer.transition()
-                       .duration(750)
+                       .duration(500)
                        .call(this._d3Zoom.translate([0, 0]).scale(1).event);
     },
 

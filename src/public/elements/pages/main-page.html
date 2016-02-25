@@ -65,7 +65,7 @@
         display: block;
         padding: 0em;
       }
-      post-card {
+      group-card {
         padding: 0em;
         border-radius: 0em;
         width: 100%;
@@ -202,7 +202,7 @@
     logo-element#logo[dark] {
       fill: #A8CCDB;
     }
-    post-card sign-element {
+    group-card sign-element {
       margin: 0 0.5em 0.5em 0;
     }
     sign-element#selectedElementSign {
@@ -383,11 +383,11 @@
           <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="items" observe="label groups" filter="filterSelectedLabel" delay="250">
             <template id="grouptemplate" is="dom-repeat" items="{{items.groups}}" as="groups" observe="key subgroup" filter="filterPreferedGroup" delay="250">
               <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroups">
-                <post-card title="{{subgroups.name}}" without-window$="[[withoutWindow]]" svg="/img/HNF-GDS/E0_gaskabinet.svg">
+                <group-card title="{{subgroups.name}}" without-window$="[[withoutWindow]]" svg="/img/HNF-GDS/E0_gaskabinet.svg">
                   <template is="dom-repeat" items="{{subgroups.elements}}" as="element">
                       <sign-element class="content" element="{{element}}" caption-keys="{{getGroupingKeys(element.label)}}" on-tap="setSelectedElement" show-date="{{showDate}}"></sign-element>
                   </template>
-                </post-card>
+                </group-card>
               </template>
             </template>
           </template>
