@@ -79,9 +79,6 @@ function arrangeTypes(label, labelindex, locals) {
       needToSetGroup = true;
       where = -1;
 
-      // if (key == 'all' && types[i][key] == undefined)
-      //   types[i][key] = 'all';
-
       for (var l = 0; l < groups.length; l++)
         if (groups[l].key == key) {
           needToSetGroup = false;
@@ -120,9 +117,20 @@ function arrangeTypes(label, labelindex, locals) {
             elements: [types[i]]
           });
         } else {
-          groups[l].subgroup[where].ids.push(types[i].id);
           if (!groups[l].subgroup[where].elements)
             groups[l].subgroup[where].elements = [];
+          if (!groups[l].subgroup[where].ids)
+            groups[l].subgroup[where].ids = [];
+          if (groups[l].subgroup[where].svg && groups[l].subgroup[where].svg.src && types[i].svgPath) {
+            if (groups[l].subgroup[where].svg.initial && groups[l].subgroup[where].svg.selectable.lastIndexOf(groups[l]
+                .subgroup[where].svg.initial) == -1)
+              groups[l].subgroup[where].svg.selectable += "," + groups[l].subgroup[where].svg.initial;
+            groups[l].subgroup[where].svg.selectable = (groups[l].subgroup[where].svg.selectable ? groups[l].subgroup[
+              where].svg.selectable + "," : "");
+            groups[l].subgroup[where].svg.selectable += types[i].svgPath;
+          }
+
+          groups[l].subgroup[where].ids.push(types[i].id);
           groups[l].subgroup[where].elements.push(types[i]);
         }
       }

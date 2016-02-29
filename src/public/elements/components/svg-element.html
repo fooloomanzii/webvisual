@@ -41,23 +41,32 @@ Use `isZoomable` to make it isZoomable.
     color: #1f1f1f;
 
     display: block;
-    min-height: 0;
+    min-height: 0px;
     max-height: 500px;
   	position: relative;
   	overflow: hidden;
-    transition: max-height 500ms ease;
+    transition: max-height 200ms ease;
   }
 
   :host(:not(.opened)) {
-    max-height: 0;
+    max-height: 0px;
   }
-
   div#svgContainer {
     border-radius: inherit;
     display: block;
   }
+  iron-icon#zoombackcontrol {
+    position: absolute;
+    bottom: 0.8em;
+    right: 0.6em;
+    color: rgba(90, 90, 90, 0.5);
+  }
+  iron-icon#zoombackcontrol:hover {
+    color: rgba(80, 80, 80, 0.9);
+  }
   .text {
     fill: currentColor !important;
+    pointer-events: none;
     font-family: inherit !important;
     font-weight: inherit !important;
     letter-spacing: normal !important;
@@ -69,9 +78,9 @@ Use `isZoomable` to make it isZoomable.
     stroke-linejoin: round;*/
   }
   .clicked {
-    fill: #E4D09B !important;
+    fill: #F6EBCD !important;
     stroke: black !important;
-    stroke-width: 1.5px;
+    stroke-width: 6px;
     stroke-linecap: round;
     stroke-linejoin: round;
   }
@@ -95,9 +104,11 @@ Use `isZoomable` to make it isZoomable.
 <template>
   <div id="svgContainer">
   </div>
+  <iron-icon id="zoombackcontrol" icon="maps:zoom-out-map" on-tap="_resetZoom"></iron-icon>
 </template>
 
 <script>
+  var PrevScale;
   Polymer({
     is: 'svg-element',
 
@@ -118,7 +129,8 @@ Use `isZoomable` to make it isZoomable.
       },
       initialSelected: {
         type: String,
-        value: ""
+        value: "",
+        observer: "_initialSelectedChanged"
       },
       selectedItems: {
         type: Array,
@@ -149,12 +161,12 @@ Use `isZoomable` to make it isZoomable.
       },
       maxZoom: {
         type: Number,
-        value: 3,
+        value: 4,
         observer: "_isZoomableChanged"
       },
       zoomPartition: {
         type: Number,
-        value: 1.25
+        value: 1.1
       },
       height: {
         type: Number
@@ -232,16 +244,26 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _zoom: function () {
-      d3.select(this).select("g")
-                     .transition()
-                     .duration(100)
-                     .ease("linear")
-                     .attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+      if (PrevScale != d3.event.scale) {
+        d3.select(this).select("g#mainG")
+                       .transition()
+                       .attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+      }
+      else {
+        d3.select(this).select("g#mainG")
+                       .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+      }
+      PrevScale = d3.event.scale;
     },
 
     _selectedChanged: function(change) {
       if(!change || !this.selected) return;
       this.select(this.selected, this.selectedClass, this.multi);
+    },
+
+    _initialSelectedChanged: function(change) {
+      if(change && this.svgContainer && this.mainG )
+        this._resetZoom();
     },
 
     _openedChanged: function(opened) {
@@ -301,7 +323,6 @@ Use `isZoomable` to make it isZoomable.
       var transform = this._calcCenterZoom(elem);
       // call zoom to translate and scale
       this.svgContainer.transition()
-                       .duration(300)
                        .call(this._d3Zoom.translate(transform.translate).scale(transform.scale).event);
     },
 
@@ -332,6 +353,10 @@ Use `isZoomable` to make it isZoomable.
       // center view
       x = -scale*(x) + (this.width - scale*boundE.width*os)/2;
       y = -scale*(y) + (this.height - scale*boundE.height*os)/2;
+
+      x = Math.min(0, Math.max(x, this.width - this.width * scale));
+      y = Math.min(0, Math.max(y, this.height - this.height * scale));
+
 
       if (isNaN(x) || isNaN(y) || isNaN(scale))
         return {translate: [0,0], scale: 1};

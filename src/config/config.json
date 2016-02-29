@@ -24,7 +24,7 @@
       "file": {
         "mode": "all",
         "path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
-        "#path_folder": "",
+        "path#path_folder": "",
         "path": "HNF_Datafile.txt"
       }
     },
@@ -72,6 +72,7 @@
             "system": "H₂-Gasüberwachung",
             "alarmlevel": "Alarm 1"
           },
+          "svgPath": "path#path4514,path#path4512",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -87,6 +88,7 @@
             "system": "H₂-Gasüberwachung",
             "alarmlevel": "Alarm 2"
           },
+          "svgPath": "path#path4514,path#path4512",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -204,6 +206,7 @@
             "system": "TOX-Gasüberwachung",
             "alarmlevel": "Alarm 2"
           },
+          "svgPath": "path#path4478,path#path4476,path#path4470,path#path4472,path#path4474",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -219,6 +222,7 @@
             "system": "TOX-Gasüberwachung",
             "alarmlevel": "Alarm 2"
           },
+          "svgPath": "path#path4504,path#path4506,path#path4508,path#path4510",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -306,6 +310,7 @@
             "system": "TOX-Gasüberwachung",
             "alarmlevel": "Alarm 1"
           },
+          "svgPath": "path#path4476,path#path4478",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -321,6 +326,7 @@
             "system": "TOX-Gasüberwachung",
             "alarmlevel": "Alarm 1"
           },
+          "svgPath": "path#path4472,path#path4470",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -382,6 +388,7 @@
             "system": "TOX-Gasüberwachung",
             "alarmlevel": "Alarm 1"
           },
+          "svgPath": "path#path4508,path#path4510",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -467,6 +474,7 @@
             "system": "TOX-Gasüberwachung",
             "alarmlevel": "Alarm 1"
           },
+          "svgPath": "path#path4504,path#path4506",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -521,11 +529,12 @@
           "keys": {
             "roomNr": "2030",
             "room": "Gaslager",
-            "kind": "BCl₃",
+            "kind": "HCl",
             "property": "korrosiv",
             "system": "TOX-Gasüberwachung",
             "alarmlevel": "Alarm 1"
           },
+          "svgPath": "path#path4474,path#path4470",
           "isBoolean": true,
           "threshold": {
             "from": 0,
@@ -621,6 +630,7 @@
           "from": null,
           "to": null
         },
+        "svgPath": "",
         "isBoolean": false,
         "values": [{
           "x": 0,
@@ -636,19 +646,55 @@
         "key": "roomNr",
         "subgroup": [{
           "name": "Wartung und Störungen",
-          "ids": ["DI0-2", "DI7-5", "DI1-2", "DI6-1"]
+          "ids": ["DI0-2", "DI7-5", "DI1-2", "DI6-1"],
+          "svg": {
+            "src": "",
+            "initial": "",
+            "selectable": ""
+          }
         }, {
           "name": "kombinierte Alarme",
-          "ids": ["DI2-2", "DI3-2", "DI4-2", "DI5-2"]
+          "ids": ["DI2-2", "DI3-2", "DI4-2", "DI5-2"],
+          "svg": {
+            "src": "",
+            "initial": "",
+            "selectable": ""
+          }
         }, {
           "name": "4006",
-          "ids": ["DI3-5", "DI4-5", "DI5-5", "DI6-5"]
+          "ids": ["DI3-5", "DI4-5", "DI5-5", "DI6-5"],
+          "svg": {
+            "src": "",
+            "initial": "",
+            "selectable": ""
+          }
+        }, {
+          "name": "2030",
+          "ids": [],
+          "svg": {
+            "src": "/img/HNF-GDS/E0_gaskabinet.svg",
+            "initial": "rect#R2030",
+            "selectable": "g#Cabinets path"
+          }
+        }, {
+          "name": "2032",
+          "ids": [],
+          "svg": {
+            "src": "/img/HNF-GDS/E0_gaskabinet.svg",
+            "initial": "rect#R2032",
+            "selectable": "g#Cabinets path"
+          }
         }]
       }, {
         "key": "alarmlevel",
         "subgroup": [{
           "name": "Wartung und Störungen",
-          "ids": ["DI6-1", "DI0-2", "DI1-2", "DI7-5"]
+          "ids": ["DI6-1", "DI0-2", "DI1-2", "DI7-5"],
+          "svg": {
+            "src": "",
+            "initial": "",
+            "selectable": ""
+          }
         }]
       }]
     }

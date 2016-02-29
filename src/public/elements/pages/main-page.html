@@ -202,9 +202,6 @@
     logo-element#logo[dark] {
       fill: #A8CCDB;
     }
-    group-card sign-element {
-      margin: 0 0.5em 0.5em 0;
-    }
     sign-element#selectedElementSign {
       border: none;
     }
@@ -331,41 +328,6 @@
               </section>
             </iron-collapse>
 
-          <!-- <paper-button dialog-id="log" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
-            <iron-icon icon="history"></iron-icon>
-            <span class="flex">Log</span>
-          </paper-button>
-
-          <paper-button collapse-id="information" class="sidemenu collapsable" on-tap="toggleCollapse">
-            <iron-icon icon="description"></iron-icon>
-            <span class="flex">Informationen</span>
-            <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="information"></iron-icon>
-          </paper-button>
-
-            <iron-collapse class="sidemenu collapse information">
-              <section class="indention collapse-content">
-                <paper-button dialog-id="data" dialog-class="sidemenu" ajax class="sidemenu" on-tap="openDialog">
-                  <iron-icon icon="receipt"></iron-icon>
-                  <span class="flex">Daten</span>
-                </paper-button>
-                <paper-item class="date">
-                  <iron-icon icon="swap-vert"></iron-icon>
-                  <span class="flex">letzte Nachricht</span>
-                  <span class="italic">[[computeDate(lastMessage)]]</span>
-                </paper-item>
-                <paper-item class="date">
-                  <iron-icon icon="remove-circle-outline"></iron-icon>
-                  <span class="flex">letzte Fehlverbindung</span>
-                  <span class="italic">[[computeDate(lastError)]]</span>
-                </paper-item>
-                <paper-item class="date">
-                  <iron-icon icon="warning"></iron-icon>
-                  <span class="flex">letzte fehlerhafte Nachricht</span>
-                  <span class="italic">[[computeDate(lastMistake)]]</span>
-                </paper-item>
-              </section>
-            </iron-collapse> -->
-
           <paper-button class="sidemenu" on-tap="backToMainMenu">
             <iron-icon icon="arrow-back"></iron-icon>
             <span class="flex">Auswahl</span>
@@ -382,11 +344,8 @@
           <!-- Elements -->
           <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="items" observe="label groups" filter="filterSelectedLabel" delay="250">
             <template id="grouptemplate" is="dom-repeat" items="{{items.groups}}" as="groups" observe="key subgroup" filter="filterPreferedGroup" delay="250">
-              <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroups">
-                <group-card title="{{subgroups.name}}" without-window$="[[withoutWindow]]" svg="/img/HNF-GDS/E0_gaskabinet.svg">
-                  <template is="dom-repeat" items="{{subgroups.elements}}" as="element">
-                      <sign-element class="content" element="{{element}}" caption-keys="{{getGroupingKeys(element.label)}}" on-tap="setSelectedElement" show-date="{{showDate}}"></sign-element>
-                  </template>
+              <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroup">
+                <group-card title="{{subgroup.name}}" elements="{{subgroup.elements}}" caption-keys="{{getGroupingKeys(selectedLabel)}}" without-window$="[[withoutWindow]]" svg="{{subgroup.svg}}" show-date="{{showDate}}">
                 </group-card>
               </template>
             </template>
@@ -405,23 +364,6 @@
         <section id="dropShadow" class="has-shadow"></section>
       </section>
     </paper-drawer-panel>
-
-  <!-- Dialogs -->
-
-    <!-- <iron-ajax id="ajaxElement" auto url=""
-        params=''
-        handle-as="text" last-response="[[ajaxLogResponse]]"></iron-ajax>
-
-    <paper-dialog class="sidemenu" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-      <h2 class="dialog-title"></h2>
-      <paper-dialog-scrollable>[[ajaxLogResponse]]</paper-dialog-scrollable>
-      <div class="buttons">
-        <paper-button disabled><iron-icon icon="mail"></iron-icon>Send</paper-button>
-        <paper-button disabled><iron-icon icon="print"></iron-icon>Print</paper-button>
-        <paper-button onclick="document.querySelector('iron-ajax').generateRequest()"><iron-icon icon="refresh"></iron-icon>Reload</paper-button>
-        <paper-button dialog-confirm><iron-icon icon="check"></iron-icon>OK</paper-button>
-      </div>
-    </paper-dialog> -->
 
   </template>
   <script>
@@ -489,7 +431,6 @@
         showDate: {
           type: Boolean,
           value: false,
-          reflectToAttribute: true,
           notify: true
         },
         // Attribute sent by datasocket-repeater
@@ -503,6 +444,10 @@
       observers: [
         '_checkExceedingDialog(exceeding.length)'
       ],
+
+      listeners: {
+        "element-select": "setSelectedElement"
+      },
 
       attached: function() {
         var self = this;

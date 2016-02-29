@@ -1,4 +1,4 @@
-<dom-module id="post-card">
+<dom-module id="group-card">
     <style>
       :host {
         border-radius: 4px 5px 4px 5px;
@@ -94,41 +94,51 @@
           max-width: 39.5em;
         }
       }
-
-      div#map {
-        max-height: 30vh;
-        width: auto;
+      sign-element {
+        margin: 0 0.5em 0.5em 0;
       }
 
     </style>
     <!-- <link rel="import" href="../style/ol.css" type="css"/> -->
   <template>
     <section id="main" name$="[[title]]" nowindow$="{{withoutWindow}}">
+
       <section class="header">
-        <svg-element id="svg" hidden$="{{!src}}" src="{{src}}" selected="{{selected}}" initial-selected="g#Rooms rect#R2032" selectable="g#Rooms rect,g#Sensors path,g#Cabinets path"></svg-element>
-          <!-- <div id="map" class="map"></div> -->
-          <!-- <iron-image hidden$="[[!image]]" src="[[image]]" preload$="[[preloadImage]]" fade$="[[fadeImage]]"></iron-image> -->
+        <svg-element id="svg" hidden$="{{!svg.src}}" src="{{svg.src}}" selected="{{selected}}" initial-selected="{{svg.initial}}" selectable="{{svg.selectable}}"></svg-element>
         <section id="title" hidden$="[[_hideTitle(title,withoutWindow)]]"  on-tap="toggle">[[title]]</section>
       </section>
+
       <section id="mainContent">
-        <content></content>
+        <template is="dom-repeat" items="{{elements}}" as="element">
+          <sign-element element="{{element}}" caption-keys="{{captionKeys}}" on-tap="setSelectedElement" show-date="{{showDate}}"></sign-element>
+        </template>
       </section>
+
     </section>
 
   </template>
   <script>
     Polymer({
-      is: 'post-card',
+      is: 'group-card',
 
       properties: {
-        placeholder: {
-          type: String,
-          value: "Diverse"
+        elements: {
+          type: Array,
+          value: function() { return []; },
+          notify: true
+        },
+        captionKeys: {
+          type: Array,
+          value: function() { return []; }
         },
         title: {
           type: String,
           value: '',
           observer: '_titleChanged'
+        },
+        placeholder: {
+          type: String,
+          value: "Diverse"
         },
         withoutWindow: {
           type: Boolean,
@@ -139,100 +149,30 @@
           type: Boolean,
           value: false
         },
-        /**
-         * The url of the image of the card.
-         */
-        // image: {
-        //   type: String,
-        //   value: ''
-        // },
+        showDate: {
+          type: Boolean,
+          value: false
+        },
         /**
          * The url of the svg of the card.
          */
-        src: {
-          type: String,
-          value: ''
+        svg: {
+          type: Object,
+          value: function() { return {src: "", selectable: "", initial: ""}; }
         },
-
         selected: {
           type: Array,
           value: function() { return [] }
         }
-        /**
-         * When `true`, any change to the image url property will cause the
-         * `placeholder` image to be shown until the image is fully rendered.
-         */
-        // preloadImage: {
-        //   type: Boolean,
-        //   value: false
-        // },
-        //
-        // /**
-        //  * When `preloadImage` is true, setting `fadeImage` to true will cause the
-        //  * image to fade into place.
-        //  */
-        // fadeImage: {
-        //   type: Boolean,
-        //   value: false
-        // },
-      },
-
-      attached: function() {
-        //   var extent = [0, 0, 1200, 800];
-        //   var projection = new ol.proj.Projection({
-        //     code: 'EPSG:3857',
-        //   });
-        //
-        //   var map = new ol.Map({
-        //   controls: ol.control.defaults({
-        //     attribution:  false,
-        //     zoom: false,
-        //     rotate: false
-        //     }),
-        //   layers: [
-        //     new ol.layer.Tile({
-        //       source: new ol.source.XYZ({
-        //         url: 'https://localhost/img/maps/{z}/{x}/{y}.png',
-        //         projection: projection
-        //       })
-        //     })
-        //   ],
-        //   target: this.$.map,
-        //   view: new ol.View({
-        //     center: ol.proj.transform(
-        //       [6.41041, 50.904], 'EPSG:3857', 'EPSG:3857'),
-        //     zoom: 13,
-        //     minZoom: 10,
-        //     maxZoom: 19
-        //   })
-        // });
-        // map.getView().fit(extent, map.getSize());
-        // var map = new ol.Map({
-        //   layers: [
-        //     new ol.layer.Tile({
-        //       source: new ol.source.Stamen({
-        //         layer: 'watercolor'
-        //       })
-        //     })
-        //   ],
-        //   target: this.$.map,
-        //   view: new ol.View({
-        //     center: ol.proj.transform(
-        //         [6.41041, 50.904], 'EPSG:4326', 'EPSG:3857'),
-        //     zoom: 15
-        //   })
-        // });
       },
 
       toggle: function() {
         this.opened = !this.opened;
-
-        if (this.src && this.opened)
+        this.$.svg.opened = this.opened;
+        if (this.svg.src && this.opened)
           this.$.title.classList.add('over-image');
         else
           this.$.title.classList.remove('over-image');
-
-        this.$.svg.opened = this.opened;
       },
 
       _titleChanged: function(text) {
@@ -242,7 +182,7 @@
         this.setAttribute('aria-label', this.title);
       },
 
-      _computeHeadingClass: function(src, opened) {
+      _computeHeadingClass: function(svg, opened) {
 
         return cls;
       },
@@ -252,6 +192,10 @@
           return true;
         else
           return false;
+      },
+
+      setSelectedElement: function() {
+
       }
     });
   </script>
