@@ -345,7 +345,9 @@
           <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="items" observe="label groups" filter="filterSelectedLabel" delay="250">
             <template id="grouptemplate" is="dom-repeat" items="{{items.groups}}" as="groups" observe="key subgroup" filter="filterPreferedGroup" delay="250">
               <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroup">
-                <group-card title="{{subgroup.name}}" elements="{{subgroup.elements}}" caption-keys="{{getGroupingKeys(selectedLabel)}}" without-window$="[[withoutWindow]]" svg="{{subgroup.svg}}" show-date="{{showDate}}">
+                <group-card title="{{subgroup.name}}" elements="{{subgroup.elements}}"
+                            caption-keys="{{getGroupingKeys(selectedLabel)}}" without-window$="[[withoutWindow]]"
+                            svg="{{subgroup.svg}}" show-date="{{showDate}}">
                 </group-card>
               </template>
             </template>
@@ -460,17 +462,19 @@
 
       setSelectedElement: function(e) {
         if(e) {
-          var item = e.model.element;
+          var item = e.detail.element;
           if (this.selectedElement == item){
             this.deselectElement();
           }
           else {
             this.unlinkPaths('selectedElement');
-            this.selectedElement = item;
-
-            var path = this.paths[item.label][this.preferedGroupingKeys[item.label]][item.id].slice(0,-7) .replace('data.','data.#').replace('groups.','groups.#').replace('subgroup.','subgroup.#').replace('elements.','elements.#');
-
-            this.linkPaths('selectedElement',path);
+            var path = this.paths[item.label][this.preferedGroupingKeys[item.label]][item.id].slice(0,-7)
+                                                                                             .replace('data.','data.#')
+                                                                                             .replace('groups.','groups.#')
+                                                                                             .replace('subgroup.','subgroup.#')
+                                                                                             .replace('elements.','elements.#');
+            this.set("selectedElement", item);
+            this.linkPaths('selectedElement', path);
             if (!this.opened){
               this.toggleAttribute('opened',true);
               this.$.toolbar.playAnimation('in');
@@ -483,9 +487,9 @@
         this.$.mainView.closeDrawer();
         this.async(function(){
           this.unlinkPaths('selectedElement');
-          this.selectedElement = null;
+          this.set("selectedElement", null);
           this.toggleAttribute('opened',false);
-        }, 320);
+        }, 500);
       },
 
       toggleToolbar: function() {

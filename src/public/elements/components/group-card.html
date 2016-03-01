@@ -104,13 +104,17 @@
     <section id="main" name$="[[title]]" nowindow$="{{withoutWindow}}">
 
       <section class="header">
-        <svg-element id="svg" hidden$="{{!svg.src}}" src="{{svg.src}}" selected="{{selected}}" initial-selected="{{svg.initial}}" selectable="{{svg.selectable}}"></svg-element>
-        <section id="title" hidden$="[[_hideTitle(title,withoutWindow)]]"  on-tap="toggle">[[title]]</section>
+        <svg-element id="svg" hidden$="{{!svg.src}}" src="{{svg.src}}" selected="{{pathToExceedingElements}}" initial-selected="{{svg.initial}}" selectable="{{svg.selectable}}"></svg-element>
+        <section id="title" hidden$="[[_hideTitle(title,withoutWindow)]]" on-tap="toggle">[[title]]</section>
       </section>
 
       <section id="mainContent">
         <template is="dom-repeat" items="{{elements}}" as="element">
-          <sign-element element="{{element}}" caption-keys="{{captionKeys}}" on-tap="setSelectedElement" show-date="{{showDate}}"></sign-element>
+          <sign-element element="{{element}}" caption-keys="{{captionKeys}}"
+                        on-tap="_setSelectedElement" show-date="{{showDate}}"
+                        on-element-is-exceeding="_setExceedingElement"
+                        on-element-is-not-exceeding="_unsetExceedingElement">
+          </sign-element>
         </template>
       </section>
 
@@ -160,7 +164,7 @@
           type: Object,
           value: function() { return {src: "", selectable: "", initial: ""}; }
         },
-        selected: {
+        pathToExceedingElements: {
           type: Array,
           value: function() { return [] }
         }
@@ -182,11 +186,6 @@
         this.setAttribute('aria-label', this.title);
       },
 
-      _computeHeadingClass: function(svg, opened) {
-
-        return cls;
-      },
-
       _hideTitle: function(title,withoutWindow) {
         if(title == 'all' || withoutWindow)
           return true;
@@ -194,8 +193,22 @@
           return false;
       },
 
-      setSelectedElement: function() {
+      _setSelectedElement: function(e) {
+        this.fire("element-select", {element: e.model.element});
+      },
 
+      _setExceedingElement: function(e) {
+        if(e.detail.element.svgPath &&
+            this.pathToExceedingElements.indexOf(e.detail.element.svgPath) == -1) {
+          this.push("pathToExceedingElements", e.detail.element.svgPath);
+          if (!this.opened) {
+            this.toggle();
+          }
+        }
+      },
+      _unsetExceedingElement: function(e) {
+        if(e.detail.element.svgPath)
+          this.arrayDelete("pathToExceedingElements", e.detail.element.svgPath);
       }
     });
   </script>

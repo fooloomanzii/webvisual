@@ -37,6 +37,23 @@
           }
         }
     },
+
+    observers:
+      ["exceedStateChanged(element.isExceeding)"],
+
+    exceedStateChanged: function(change) {
+      // delegating state-change-event upwards
+
+      switch (change) {
+        case true:
+          this.fire("element-is-exceeding", {element: this.element});
+          break;
+        case false:
+          this.fire("element-is-not-exceeding", {element: this.element});
+          break;
+      }
+    },
+
     getKey: function(key) {
       // if(this.element && this.element[key])
         return this.element.keys[key];

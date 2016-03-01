@@ -257,25 +257,6 @@
         //   this.set('groups.' + labelindex + '.groups.' + a + '.subgroup.' + b + '.elements.' + c + '.values', messageContent.lastExceeds);
       },
 
-      // init datapoint, but it doesn't overwrite datavalues, if the datapoint existed before and has matching labels
-      _initDataPoint: function(label, id) {
-        // TODO: optimize
-        var labelindex = this.indexOfLabel[label];
-        var a, b, c;
-        for (a = 0; a < this.data[labelindex].groups.length; a++) {
-          if(this.data[labelindex].groups[a].key == this.preferedGroupingKeys[label])
-            break;
-        }
-        for (b = 0; b < this.data[labelindex].groups[a].subgroup.length; b++) {
-          c = this.data[labelindex].groups[a].subgroup[b].ids.indexOf(id);
-          if(c !== -1)
-            break;
-        }
-        this.set('data.' + labelindex + '.groups.' + a + '.subgroup.' + b + '.elements.' + c + '.labelindex', labelindex);
-        this.set('data.' + labelindex + '.groups.' + a + '.subgroup.' + b + '.elements.' + c + '.label', label);
-        this.splice('data.' + labelindex + '.groups.' + a + '.subgroup.' + b + '.elements.' + c + '.values', 1, this.data[labelindex].groups[a].subgroup[b].elements[c].values.length - 1);
-      },
-
       _checkIfExceedingStateHasToBeSet: function(path, exceeds) {
         path = path.slice(0,-7);
         var item = this.get(path);

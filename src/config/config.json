@@ -24,7 +24,7 @@
       "file": {
         "mode": "all",
         "path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
-        "path#path_folder": "",
+        "#path_folder": "",
         "path": "HNF_Datafile.txt"
       }
     },
@@ -201,7 +201,7 @@
           "keys": {
             "roomNr": "2030",
             "room": "Gaslager",
-            "kind": "",
+            "kind": "Verschiedene",
             "property": "korrosiv",
             "system": "TOX-Gasüberwachung",
             "alarmlevel": "Alarm 2"
@@ -217,7 +217,7 @@
           "keys": {
             "roomNr": "2032",
             "room": "Gaslager",
-            "kind": "",
+            "kind": "Verschiedene",
             "property": "brennbar",
             "system": "TOX-Gasüberwachung",
             "alarmlevel": "Alarm 2"
@@ -233,7 +233,7 @@
           "keys": {
             "roomNr": "3005",
             "room": "Bypack",
-            "kind": "",
+            "kind": "Verschiedene",
             "system": "TOX-Gasüberwachung",
             "alarmlevel": "Alarm 2"
           },
@@ -247,7 +247,7 @@
           "keys": {
             "roomNr": "4006",
             "room": "Reinraum",
-            "kind": "",
+            "kind": "Verschiedene",
             "system": "TOX-Gasüberwachung",
             "alarmlevel": "Alarm 2"
           },

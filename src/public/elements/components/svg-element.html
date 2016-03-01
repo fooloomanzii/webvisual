@@ -76,29 +76,33 @@ Use `isZoomable` to make it isZoomable.
     stroke: white !important;
     stroke-linecap: round;
     stroke-linejoin: round;*/
+    transform-origin: center center;
   }
   .clicked {
-    fill: #F6EBCD !important;
-    stroke: black !important;
-    stroke-width: 6px;
+    /*fill: #F6EBCD !important;*/
+    stroke: #1f1f1f !important;
+    stroke-width: 1.5px !important;
     stroke-linecap: round;
     stroke-linejoin: round;
   }
   .selected {
-    /*fill: #E72626 !important;*/
-    stroke: white !important;
+    fill: #D91B1B !important;
+    stroke: black !important;
+    stroke-width: 1.5px !important;
     stroke-linecap: round;
     stroke-linejoin: round;
     animation-name: selected-animation;
-    animation-duration: 4s;
-    animation-timing-function: ease-in-out;
+    animation-duration: 2s;
+    animation-timing-function: ease;
     animation-iteration-count: infinite;
-    transform-origin: center;
   }
   @keyframes selected-animation {
-    0%   {transform: scale(1);}
-    33%  {transform: scale(0.5);}
-    100% {transform: scale(1);}
+    0% {
+      transform: scale(1.0);
+    }
+    50% {
+      transform: scale(0.5);
+    }
   }
 </style>
 <template>
@@ -166,7 +170,7 @@ Use `isZoomable` to make it isZoomable.
       },
       zoomPartition: {
         type: Number,
-        value: 1.1
+        value: 3
       },
       height: {
         type: Number
@@ -247,7 +251,8 @@ Use `isZoomable` to make it isZoomable.
       if (PrevScale != d3.event.scale) {
         d3.select(this).select("g#mainG")
                        .transition()
-                       .attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+                       .duration(150)
+                       .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
       }
       else {
         d3.select(this).select("g#mainG")
@@ -304,7 +309,6 @@ Use `isZoomable` to make it isZoomable.
                bounds[1] = (bounds[1] > boundE.top ? boundE.top : bounds[1]) || boundE.top;
                bounds[2] = (bounds[2] < boundE.right ? boundE.right : bounds[2]) || boundE.right;
                bounds[3] = (bounds[3] < boundE.bottom ? boundE.bottom : bounds[3]) || boundE.bottom;
-
                self._setClass(this, selectedClass, multi)
              });
 
@@ -322,8 +326,10 @@ Use `isZoomable` to make it isZoomable.
       // calc centered zoom coordinates
       var transform = this._calcCenterZoom(elem);
       // call zoom to translate and scale
-      this.svgContainer.transition()
-                       .call(this._d3Zoom.translate(transform.translate).scale(transform.scale).event);
+      this.svgContainer
+                     .transition()
+                     .duration(50)
+                     .call(this._d3Zoom.translate(transform.translate).scale(transform.scale).event);
     },
 
     _calcCenterZoom: function(elem) {
@@ -354,6 +360,7 @@ Use `isZoomable` to make it isZoomable.
       x = -scale*(x) + (this.width - scale*boundE.width*os)/2;
       y = -scale*(y) + (this.height - scale*boundE.height*os)/2;
 
+      // crop view to the size of the bounding container
       x = Math.min(0, Math.max(x, this.width - this.width * scale));
       y = Math.min(0, Math.max(y, this.height - this.height * scale));
 
@@ -412,14 +419,14 @@ Use `isZoomable` to make it isZoomable.
       // previous selectable elements: remove 'svg-element-selectable' class and click listener
       this.mainG.selectAll(".svg-element-selectable")
                 .classed("svg-element-selectable", false)
-                .on("click", null);
+                .on("tap", null);
 
       // add 'svg-element-selectable' class and click listener
       self = this;
       this.mainG.selectAll(this.selectable)
                 .classed("svg-element-selectable", true)  // for styling selectable
                 .classed("svg-element", true) // for style-scoping in polymer
-                .on("click",
+                .on("tap",
                   function() {
                     // if (d3.event.defaultPrevented) return;
                     // get polymer-parent-node of the selectable node
