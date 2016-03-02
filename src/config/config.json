@@ -3,7 +3,7 @@
   "updateIntervall": 1000,
 
   "auth": {
-    "required": true,
+    "required": false,
     "ldap": {
       "url": "ibn-net.kfa-juelich.de",
       "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de"

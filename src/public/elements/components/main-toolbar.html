@@ -15,30 +15,26 @@
       padding: 0em;
       height: 64px;
       max-height: 52vh;
+      background: #005B82;
+      color: #f1f1f1;
     }
     :host[opened]{
       height: auto;
     }
-    section#mainContent {
-      display: flex;
-      flex-direction: column;
-      margin: 0em;
-      padding: 0em;
-      background: #005B82;
-      color: #f1f1f1;
-    }
+
+
     section#mainContent[dark] {
       background: #345475;
       color: #A8CCDB;
     }
-    section#header {
+    section#toolbarHeader {
       height: 64px;
       width: 100%;
       display: flex;
       flex-direction: row;
       align-items: center;
     }
-    section#lower {
+    section#toolbarFooter {
       overflow: hidden !important;
       padding: 0px 6px 0px 6px;
       display: flex;
@@ -54,7 +50,7 @@
     section#mainContent[dark] ::content .incard, section#mainContent[dark] ::content .noncard {
       border-right: thin solid #606060;
     }
-    section#header ::content paper-icon-button.menu-icon {
+    section#toolbarHeader ::content paper-icon-button.menu-icon {
       margin-right: 20px;
       margin-left: 20px;
       z-index: 10;
@@ -63,13 +59,13 @@
       display: inline-block;
       margin-right: 6px;
     }
-    section#header div.logo-element-placeholder {
+    section#toolbarHeader div.logo-element-placeholder {
       height: 44px;
       max-width: 140px;
       min-width: 100px;
       flex: 1;
     }
-    section#header div.placeholder {
+    section#toolbarHeader div.placeholder {
       flex: 1;
     }
     section#control {
@@ -78,55 +74,47 @@
       right: 6px;
       display: flex;
     }
-    section#lower ::content leaflet-map {
+    section#toolbarFooter ::content leaflet-map {
       min-width: 10em;
       flex: 1;
       border-radius: 0px 2px 2px 0px;
     }
-    section#lower ::content .caption {
+    section#toolbarFooter ::content .caption {
       padding: 0.7em;
       border-radius: 0px;
     }
-    section#lower[expanded] ::content .caption {
+    section#toolbarFooter[expanded] ::content .caption {
       border-radius: 0px 0px 0px 2px;
     }
-    section#lower ::content .sign {
+    section#toolbarFooter ::content .sign {
       border-radius: 2px 0px 0px 2px;
     }
-    section#lower[expanded] ::content .sign {
+    section#toolbarFooter[expanded] ::content .sign {
       border-radius: 2px 0px 0px 0px;
     }
-    section#lower ::content .incard {
+    section#toolbarFooter ::content .incard {
       height: auto;
       min-height: 3em;
       margin: 0em;
     }
-    section#lower[expanded] section#selSign {
-      display: flex;
-      flex-direction: column;
-    }
-    section#lower[expanded] ::content .incard {
+    section#toolbarFooter[expanded] ::content .incard {
       flex: 1;
     }
-    section#lower[expanded][dark] ::content .caption {
+    section#toolbarFooter[expanded][dark] ::content .caption {
       border-top: thin solid #606060;
     }
-    section#lower[expanded] ::content .caption {
+    section#toolbarFooter[expanded] ::content .caption {
       border-top: thin solid #BBBBBB;
     }
-    section#lower section#selSign {
-      display: flex;
-      flex-direction: row;
-    }
-    section#lower[expanded] ::content .noncard {
+    section#toolbarFooter[expanded] ::content .noncard {
       min-height: 11em;
     }
     @media all and (max-width: 480px) {
-      section#header ::content paper-icon-button.menu-icon {
+      section#toolbarHeader ::content paper-icon-button.menu-icon {
         margin-right: 12px;
         margin-left: 12px;
       }
-      section#header div.logo-element-placeholder {
+      section#toolbarHeader div.logo-element-placeholder {
         min-width: 44px !important;
         flex: 0;
       }
@@ -135,101 +123,80 @@
       }
     }
     @media all and (min-width: 480px) and (max-width: 600px){
-      section#header ::content paper-icon-button.menu-icon {
+      section#toolbarHeader ::content paper-icon-button.menu-icon {
         margin-right: 16px;
         margin-left: 16px;
       }
     }
     @media all and (max-width: 600px) {
-      section#lower section#selSign {
-        display: flex;
-        flex-direction: column;
-      }
       paper-icon-button.expand-icon {
         display: none !important;
       }
-      section#lower ::content .incard {
+      section#toolbarFooter ::content .incard {
         flex: 1;
       }
-      section#lower ::content .noncard {
+      section#toolbarFooter ::content .noncard {
         height: calc(38vh - 64px - 1em);
       }
-      section#lower {
+      section#toolbarFooter {
         font-size: 0.9em;
       }
-      section#lower[dark] ::content .caption {
+      section#toolbarFooter[dark] ::content .caption {
         border-top: thin solid #606060;
       }
-      section#lower ::content .caption {
+      section#toolbarFooter ::content .caption {
         border-top: thin solid #BBBBBB;
       }
     }
     @media all and (max-height: 690px) and (max-width: 600px){
-      section#lower[expanded] ::content .noncard {
+      section#toolbarFooter[expanded] ::content .noncard {
         height: calc(48vh - 64px - 1em);
       }
       paper-icon-button.expand-icon {
         display: none;
       }
-      section#lower ::content .noncard {
+      section#toolbarFooter ::content .noncard {
         height: calc(48vh - 64px - 1em);
       }
     }
     @media all and (min-width: 601px) {
-      section#lower section#selSign {
-        display: flex;
-        flex-direction: row;
-      }
-      section#lower[dark] ::content .caption {
+      section#toolbarFooter[dark] ::content .caption {
         border-top: none;
       }
-      section#lower ::content .caption {
+      section#toolbarFooter ::content .caption {
         border-top: none;
       }
-      section#lower ::content .noncard {
+      section#toolbarFooter ::content .noncard {
         height: 8em;
       }
-      section#lower {
+      section#toolbarFooter {
         font-size: 1em;
       }
-      section#lower[expanded] ::content .noncard {
+      section#toolbarFooter[expanded] ::content .noncard {
         height: calc(38vh - 64px - 1em);
       }
     }
     @media all and (min-width: 1000px) and (orientation: portrait) {
-      section#lower[expanded] ::content .noncard {
+      section#toolbarFooter[expanded] ::content .noncard {
         height: calc(32vh - 64px - 1em);
       }
     }
     @media all and (min-width: 600px) and (max-width: 1000px) {
-      section#lower {
+      section#toolbarFooter {
         font-size: 1.1em;
       }
     }
     @media all and (min-width: 1001px) and (max-width: 1400px) {
-      section#lower {
+      section#toolbarFooter {
         font-size: 1.15em;
       }
     }
     @media all and (min-width: 1401px) {
-      section#lower {
+      section#toolbarFooter {
         font-size: 1.2em;
       }
     }
-    .flex {
-      -ms-flex: 1;
-      -webkit-flex: 1;
-      flex: 1;
-    }
-    section#expandline {
-      height: 4px;
-      background: rgba(255,255,255,0);
-      cursor: row-resize;
-    }
-    section#expandline:hover {
-      height: 6px;
-      background: linear-gradient(rgba(255,255,255,0), currentColor, rgba(255,255,255,0));
-    }
+
   </style>
   <template>
 
@@ -251,8 +218,6 @@
         <content id="table" select="#selectedElementTable"></content>
         <content id="graph" select="#selectedElementGraph"></content>
         <content id="map" select="#selectedElementMap"></content>
-      </section>
-      <section id="expandline" hidden$="[[!opened]]">
       </section>
     </section>
 
@@ -302,14 +267,14 @@
               {
                 name: 'cascaded-animation',
                 animation: 'scale-up-animation',
-                nodeDelay: 1
+                nodeDelay: 20
               }
             ],
             'out': [
               {
                 name: 'cascaded-animation',
                 animation: 'fade-out-animation',
-                nodeDelay: 1
+                nodeDelay: 20
               }
             ]
           };

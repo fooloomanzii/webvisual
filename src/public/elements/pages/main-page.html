@@ -238,31 +238,208 @@
     .flex {
       flex: 1;
     }
+    section#toolbar {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden !important;
+      font-family: Fira Sans Light;
+      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+      -webkit-touch-callout: none;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      -webkit-tap-highlight-color:rgba(0,0,0,0);
+      margin: 0em;
+      padding: 0em;
+      min-height: 64px;
+      max-height: 52vh;
+      background: #005B82;
+      color: #f1f1f1;
+    }
+    section#toolbar[dark] {
+      background: #345475;
+      color: #A8CCDB;
+    }
+    section#toolbarHeader {
+      height: 64px;
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+    section#toolbarFooter {
+      min-height: 0px;
+      max-height: 0px;
+      display: flex;
+      box-sizing: border-box;
+      overflow: hidden !important;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    section#toolbarFooter[opened] {
+      min-height: 200px;
+      max-height: 32vh;
+    }
+    section#toolbarFooter[expanded] {
+      max-height: 50vh;
+    }
+    section#toolbarFooter[opened] .selectedElement {
+      min-height: 200px;
+      max-height: 32vh;
+    }
+    section#toolbarFooter[expanded] .selectedElement {
+      max-height: 50vh;
+    }
+    section#toolbarFooter section#toolbarSelectedElement {
+      padding: 2px 6px 4px 6px;
+      display: flex;
+      flex-direction: row;
+    }
+    section#toolbarHeader paper-icon-button.menu-icon {
+      margin-right: 20px;
+      margin-left: 20px;
+      z-index: 10;
+    }
+    section#control paper-icon-button, section#control paper-icon-button {
+      display: inline-block;
+      margin-right: 6px;
+    }
+    section#toolbarHeader div.logo-element-placeholder {
+      height: 44px;
+      max-width: 140px;
+      min-width: 100px;
+      flex: 1;
+    }
+    /*section#toolbarFooter .sign {
+      border-radius: 2px 0px 0px 2px;
+    }*/
+    section#toolbarFooter .incard {
+      flex: 1;
+      /*height: auto;
+      min-height: 3em;
+      margin: 0em;*/
+    }
+    @media all and (max-width: 480px) {
+      section#toolbarHeader paper-icon-button.menu-icon {
+        margin-right: 12px;
+        margin-left: 12px;
+      }
+      section#toolbarHeader div.logo-element-placeholder {
+        min-width: 44px !important;
+        flex: 0;
+      }
+    }
+    @media all and (min-width: 480px) and (max-width: 600px){
+      section#toolbarHeader paper-icon-button.menu-icon {
+        margin-right: 16px;
+        margin-left: 16px;
+      }
+    }
+    @media all and (max-width: 600px) {
+      paper-icon-button.expand-icon {
+        display: none !important;
+      }
+      /*section#toolbarFooter .incard {
+        flex: 1;
+      }*/
+      /*section#toolbarFooter .noncard {
+        height: calc(38vh - 64px - 1em);
+      }*/
+      section#toolbarFooter {
+        font-size: 0.9em;
+      }
+    }
+    @media all and (max-height: 690px) and (max-width: 600px){
+      /*section#toolbarFooter[expanded] .noncard {
+        height: calc(48vh - 64px - 1em);
+      }*/
+      paper-icon-button.expand-icon {
+        display: none;
+      }
+      /*section#toolbarFooter .noncard {
+        height: calc(48vh - 64px - 1em);
+      }*/
+    }
+    @media all and (min-width: 601px) {
+      section#toolbarFooter[dark] .caption {
+        border-top: none;
+      }
+      section#toolbarFooter .caption {
+        border-top: none;
+      }
+      /*section#toolbarFooter .noncard {
+        height: 8em;
+      }*/
+      section#toolbarFooter {
+        font-size: 1em;
+      }
+      /*section#toolbarFooter[expanded] .noncard {
+        height: calc(38vh - 64px - 1em);
+      }*/
+    }
+    @media all and (min-width: 1000px) and (orientation: portrait) {
+      /*section#toolbarFooter[expanded] .noncard {
+        height: calc(32vh - 64px - 1em);
+      }*/
+    }
+    @media all and (min-width: 600px) and (max-width: 1000px) {
+      section#toolbarFooter {
+        font-size: 1.1em;
+      }
+    }
+    @media all and (min-width: 1001px) and (max-width: 1400px) {
+      section#toolbarFooter {
+        font-size: 1.15em;
+      }
+    }
+    @media all and (min-width: 1401px) {
+      section#toolbarFooter {
+        font-size: 1.2em;
+      }
+    }
+
   </style>
 
   <template>
 
     <logo-element id="logo" on-tap="backToMainMenu"></logo-element>
-    <main-toolbar id="toolbar" class="paper-header" on-deselect="deselectElement" opened="[[opened]]" expanded="{{expanded}}">
-      <paper-icon-button icon="menu" class="menu-icon" on-tap="togglePanel"></paper-icon-button>
-      <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsDialog" hidden$="[[!isExceeding]]"></paper-icon-button>
-      <paper-icon-button icon="remove" class="toggle-icon control" on-tap="deselectElement"></paper-icon-button>
-      <paper-tabs id="labelsTabs" class="header" attr-for-selected="label" selected="{{selectedLabel}}" no-bar scrollable hide-scroll-buttons>
-        <template is="dom-repeat" items="[[labels]]">
-          <paper-tab class="label" label="[[item]]">[[item]]</paper-tab>
-        </template>
-      </paper-tabs>
 
-      <sign-element id="selectedElementSign" class="selectedElement sign incard" horizontal="{{!expanded}}" element="[[selectedElement]]" on-tap="deselectElement" caption-keys="[[getGroupingKeys(selectedElement.label)]]"></sign-element>
+    <section id="toolbar">
+      <section id="toolbarHeader">
+        <paper-icon-button icon="menu" class="menu-icon" on-tap="togglePanel"></paper-icon-button>
 
-      <table-element id="selectedElementTable" class="selectedElement noncard" element="[[selectedElement]]"></table-element>
-      <!-- <line-chart id="selectedElementChart" data="[[selectedElement]]" fit></line-chart> -->
-      <leaflet-map id="selectedElementMap" class="noncard" latitude="50.904" longitude="6.41041" zoom="18" max-zoom="22">
-        <!-- <leaflet-tilelayer url="http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png" minzoom="2" maxzoom="20">
-        </leaflet-tilelayer> // just for test different tile-layers -->
-      </leaflet-map>
+        <div class="logo-element-placeholder"></div>
 
-    </main-toolbar>
+        <paper-tabs id="labelsTabs" attr-for-selected="label" selected="{{selectedLabel}}" no-bar scrollable hide-scroll-buttons>
+          <template is="dom-repeat" items="[[labels]]">
+            <paper-tab class="label" label="[[item]]">[[item]]</paper-tab>
+          </template>
+        </paper-tabs>
+
+        <section id="control" hidden$="[[!opened]]">
+          <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsDialog" hidden$="[[!isExceeding]]"></paper-icon-button>
+          <section hidden$="[[!opened]]">
+            <paper-icon-button icon="[[_computeExpandIcon(expanded)]]" class="expand-icon" on-tap="_toolbarExpand"></paper-icon-button>
+            <paper-icon-button icon="remove" class="toggle-icon control" on-tap="deselectElement"></paper-icon-button>
+          </section>
+        </section>
+      </section>
+      <section id="toolbarFooter" opened expanded$="{{expanded}}">
+        <section id="toolbarSelectedElement" class="selectedElement" opened$="[[opened]]" expanded$="{{expanded}}">
+          <sign-element id="selectedElementSign" class="selectedElement sign incard" horizontal="{{!expanded}}"
+                        element="[[selectedElement]]" on-tap="deselectElement" caption-keys="[[getGroupingKeys(selectedElement.label)]]">
+          </sign-element>
+          <section>
+            <table-element id="selectedElementTable" class="selectedElement noncard" element="[[selectedElement]]">
+            </table-element>
+          </section>
+          <svg-element id="selectedElementSVG" class="selectedElement" hidden$="{{!selectedElement.svg.src}}"
+                       src="{{selectedElement.svg.src}}" selected="{{pathToExceedingElements}}"
+                       initial-selected="{{selectedElement.svg.initial}}" selectable="{{selectedElement.svg.selectable}}">
+          </svg-element>
+        </section>
+      </section>
+    </section>
 
     <paper-drawer-panel id="mainView" force-narrow="true">
       <!-- SIDEMENU -->
@@ -317,11 +494,11 @@
                         <section>Anzahl der Messwerte</section>
                       </paper-item>
                       <paper-slider max="500" min="1" step="1" value="{{maxTotalLines}}" editable id="maxlines"></paper-slider>
-                      <paper-item class="sidemenu">
+                      <!-- <paper-item class="sidemenu">
                         <iron-icon icon="image:timelapse"></iron-icon>
                         <div>Aktualisierung in ms</div>
                       </paper-item>
-                      <paper-slider max="20000" min="0" step="100" value="{{interval}}" editable id="freq"></paper-slider>
+                      <paper-slider max="20000" min="0" step="100" value="{{interval}}" editable id="freq"></paper-slider> -->
                     </section>
                   </iron-collapse>
 
@@ -373,7 +550,7 @@
     Polymer({
       is: 'main-page',
 
-      behaviors: [PageBehavior, Polymer.IronResizableBehavior, Polymer.NeonSharedElementAnimatableBehavior],
+      behaviors: [PageBehavior, Polymer.NeonAnimationRunnerBehavior, Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
         sharedElements: {
@@ -402,6 +579,28 @@
                   name: 'scale-down-animation',
                   node: this
                 }
+              ],
+              'toolbar-in': [
+                {
+                  name: 'cascaded-animation',
+                  animation: 'scale-up-animation',
+                  timing: {delay: 160},
+                  nodeDelay: 160,
+                  nodes: function() {
+                    return [this.$.selectedElementSign, this.$.selectedElementTable, this.$.selectedElementSVG]
+                  }
+                }
+              ],
+              'toolbar-out': [
+                {
+                  name: 'cascaded-animation',
+                  animation: 'scale-down-animation',
+                  timing: {delay: 160},
+                  nodeDelay: 160,
+                  nodes: function() {
+                    return [this.$.selectedElementSign, this.$.selectedElementTable, this.$.selectedElementSVG]
+                  }
+                }
               ]
             }
           }
@@ -427,8 +626,11 @@
         // Attribute for toolbar is opened
         opened: {
           type: Boolean,
-          value: false,
-          reflectToAttribute: true
+          value: false
+        },
+        expanded: {
+          type: Boolean,
+          value: false
         },
         showDate: {
           type: Boolean,
@@ -474,16 +676,17 @@
                                                                                              .replace('subgroup.','subgroup.#')
                                                                                              .replace('elements.','elements.#');
             this.set("selectedElement", item);
+            this.set("selectedElement.svg", e.detail.svg);
             this.linkPaths('selectedElement', path);
             if (!this.opened){
               this.toggleAttribute('opened',true);
-              this.$.toolbar.playAnimation('in');
+              this.playAnimation('toolbar-in');
             }
           }
         }
       },
       deselectElement: function() {
-        this.$.toolbar.playAnimation('out');
+        this.playAnimation('toolbar-out');
         this.$.mainView.closeDrawer();
         this.async(function(){
           this.unlinkPaths('selectedElement');
@@ -491,13 +694,18 @@
           this.toggleAttribute('opened',false);
         }, 500);
       },
-
-      toggleToolbar: function() {
-        if (!this.opened)
-          this.$.toolbar.playAnimation('in');
+      _toolbarExpand: function() {
+        if (this.opened) {
+          this.set('expanded',!this.expanded);
+          this.toggleAttribute('expanded',this.expanded,this.$.toolbarFooter);
+          this.fire('resize');
+        }
+      },
+      _computeExpandIcon: function() {
+        if (this.expanded)
+          return 'expand-less';
         else
-          this.$.toolbar.playAnimation('out');
-        this.$.toolbar.toggleAttribute('opened');
+          return 'expand-more';
       },
 
       openExceedsDialog: function() {
@@ -566,35 +774,6 @@
         this.fire("restart");
       },
 
-      openDialog: function(e){
-        var button = e.currentTarget;
-        if (!button.hasAttribute('dialog-id') || !button.hasAttribute('dialog-class')) {
-          return;
-        }
-        if (this.$.toolbar.expanded)
-          this.$.toolbar._expandView();
-        var id = button.getAttribute('dialog-id');
-        var className = button.getAttribute('dialog-class');
-        var aj = button.getAttribute('ajax');
-        var dialog = document.querySelector('paper-dialog.'+className);
-        $('paper-dialog.'+className+' .dialog-title').text(id);
-        if (typeof aj === 'string')
-          $('iron-ajax').attr('url','/'+id);
-        if (dialog) {
-          dialog.open();
-        }
-      },
-      closeDialog: function(e) {
-        var obj = e.currentTarget;
-        while (obj != window) {
-          if (obj.nodeName && (obj.nodeName.toLowerCase() === 'paper-dialog')) {
-            obj.close();
-            break;
-          } else {
-            obj = obj.parentNode;
-          }
-        }
-      },
       closeToast: function(e) {
         var obj = e.currentTarget;
         while (obj != window) {

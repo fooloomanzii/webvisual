@@ -173,7 +173,7 @@
       toggle: function() {
         this.opened = !this.opened;
         this.$.svg.opened = this.opened;
-        if (this.svg.src && this.opened)
+        if (this.svg && this.svg.src && this.opened)
           this.$.title.classList.add('over-image');
         else
           this.$.title.classList.remove('over-image');
@@ -194,7 +194,7 @@
       },
 
       _setSelectedElement: function(e) {
-        this.fire("element-select", {element: e.model.element});
+        this.fire("element-select", {element: e.model.element, svg: this.svg || {}});
       },
 
       _setExceedingElement: function(e) {
