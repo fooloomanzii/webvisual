@@ -4,20 +4,18 @@
       /*height needs to be set by outer element*/
       font-family: Fira Sans Light;
       font-weight: normal;
-    }
-    section#mainContent {
       display: flex;
       flex-direction: column;
-      height: 100%;
+      height: inherit;
       background: white;
       color: #1f1f1f;
       min-width: 10em;
-      border-collapse: collapse;
       text-align: center;
       font-size: 0.7em;
       overflow: hidden;
+      border-top-color: #408B45;
     }
-    section#mainContent[dark] {
+    :host[dark] {
       background: #a8a8a8;
       color: #1d1d1d;
     }
@@ -26,32 +24,45 @@
       line-height: 2.5em;
       display: flex;
       flex-direction: row;
+      flex-shrink: 0;
       align-items: center;
     }
     section#tr {
-      line-height: 1.8em;
+      height: 1.6em;
+      line-height: 1.6em;
       display: flex;
       flex-direction: row;
       align-items: center;
+      border: thin solid transparent;
+    }
+    section#tr.null:hover {
+      background-color: rgba(137, 137, 137, 0.25) !important;
+      color: #1f1f1f !important;
     }
     section#tr.null {
       background: none; color: #1f1f1f;
     }
     section#tr.true {
-      background: rgb(255, 21, 41); color: #f1f1f1;
+      background: #D91B1B; color: #f1f1f1;
     }
     section#tr.false {
-      background: rgb(255, 20, 110); color: #f1f1f1;
+      background: #301BD9; color: #f1f1f1;
     }
     section#tr.undefined {
-      background: rgb(236, 249, 97); color: #1f1f1f;
+      background: #D9CB1B; color: #1f1f1f;
+    }
+    section#tr:hover {
+      border: thin solid #BBBBBB;
     }
     section#body {
-      border-top: thin solid #8c8c8c;
+      border-top: thin solid #BBBBBB;
       width: 100%;
-      height: calc(100% - 2.5em);
+      flex: 1;
       overflow-x: auto;
       overflow-y: scroll;
+    }
+    section#body[dark] {
+      border-color: #808080;
     }
     section#td {
       font-size: 1em;
@@ -59,32 +70,17 @@
     section#td.x {
       min-width: 3.5em;
     }
-    section#tr:hover {
-      background-color: rgba(137, 137, 137, 0.25) !important;
-      color: #1f1f1f !important;
-    }
     section#th, section#td{
       padding: 0em 1em;
-      display: flex;
       white-space: nowrap;
     }
   </style>
   <template>
-    <section id="mainContent">
-      <!-- <section id="content"> -->
-        <section id="head">
-          <section id="td" class="x">Datum</section>
-          <section id="td" class="y">Wert</section>
-        </section>
-        <section id="body">
-          <template is="dom-repeat" id="values" items="[[element.values]]" index-as="i">
-            <section id="tr">
-              <section id="td" class="x">[[computeX(element.values.*,i)]]</section>
-              <section id="td" class="y">[[computeY(element.values.*,i)]]</section>
-            </section>
-          </template>
-        </section>
-      <!-- </section> -->
+    <section id="head">
+      <section id="td" class="x">Datum</section>
+      <section id="td" class="y">Wert</section>
+    </section>
+    <section id="body">
     </section>
   </template>
 
@@ -93,24 +89,79 @@
     Polymer({
       is: 'table-element',
 
-      behaviors: [ElementBehavior],
-
-      observers: [
-        "_handleExceeding(element.isExceeding)"
-      ],
-
-      _handleExceeding: function(value) {
-        if (this.element && this.element.values) {
-          this.isExceeding = value;
-          // this.$.tr.classList.remove('true');
-          // this.$.tr.classList.remove('false');
-          // this.$.tr.classList.remove('null');
-          // this.$.tr.classList.remove('undefined');
-          // this.$.tr.classList.add(this.element.values[0].exceeds);
+      properties: {
+        element: {
+          type: Object,
+          value: function() { return {}; }
         }
       },
 
-      properties: { }
+      observers: [
+        "update(element.values.*)",
+        "buildup(element.id)"
+      ],
+
+      update: function(change) {
+        if (change.value && change.value.indexSplices) {
+          var body = Polymer.dom(this.$.body);
+          var row, tdX, tdY, isExceeding, index, tdI;
+          for (var i = 0; i < change.value.indexSplices.length; i++) {
+            if (change.value.indexSplices[i].removed)
+              for (var j = 0; j < change.value.indexSplices[i].removed.length; j++) {
+                body.removeChild(body.lastElementChild);
+              }
+            index = change.value.indexSplices[i].index;
+            for (var j = change.value.indexSplices[i].addedCount-1; j >=0 ; j--) {
+              row = document.createElement('section');
+              row.id = "tr";
+
+              tdX = document.createElement('section');
+              tdX.id = "td"; tdX.className = "x";
+              tdX.textContent = new Date(change.value.indexSplices[i].object[index + j].x).toLocaleTimeString();
+              tdY = document.createElement('section');
+              tdY.id = "td"; tdY.className = "y";
+              isExceeding = (change.value.indexSplices[i].object[index + j].exceeds == null) ? false : true;
+              tdY.textContent = (this.element.isBoolean ? (isExceeding ? '✗' : '✓') : change.value.indexSplices[i].object[index + j].y);
+
+              row.className = change.value.indexSplices[i].object[index + j].exceeds;
+              row.appendChild(tdX); row.appendChild(tdY);
+
+              body.insertBefore(row, body.childNodes[0]);
+            }
+          }
+          Polymer.dom.flush()
+        }
+      },
+
+      buildup: function() {
+        var body = Polymer.dom(this.$.body);
+        while (body.lastChild) {
+          body.removeChild(body.lastChild);
+        }
+
+        if (this.element && this.element.values) {
+          var row, tdX, tdY, isExceeding, tdI;
+
+          for (var j = this.element.values.length-1; j >=0 ; j--) {
+            row = document.createElement('section');
+            row.id = "tr";
+
+            tdX = document.createElement('section');
+            tdX.id = "td"; tdX.className = "x";
+            tdX.textContent = new Date(this.element.values[j].x).toLocaleTimeString();
+            tdY = document.createElement('section');
+            tdY.id = "td"; tdY.className = "y";
+            isExceeding = (this.element.values[j].exceeds == null) ? false : true;
+            tdY.textContent = (this.element.isBoolean ? (isExceeding ? '✗' : '✓') : this.element.values[j].y);
+
+            row.className = this.element.values[j].exceeds;
+            row.appendChild(tdX); row.appendChild(tdY);
+            // body.appendChild(row);
+            body.insertBefore(row, body.childNodes[0]);
+          }
+          Polymer.dom.flush()
+        }
+      }
     });
 
   </script>

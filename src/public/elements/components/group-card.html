@@ -104,7 +104,7 @@
     <section id="main" name$="[[title]]" nowindow$="{{withoutWindow}}">
 
       <section class="header">
-        <svg-element id="svg" hidden$="{{!svg.src}}" src="{{svg.src}}" selected="{{pathToExceedingElements}}" initial-selected="{{svg.initial}}" selectable="{{svg.selectable}}"></svg-element>
+        <svg-element id="svg" hidden$="{{!svg.src}}" opened="{{opened}}" src="{{svg.src}}" selected="{{pathToExceedingElements}}" initial-selected="{{svg.initial}}" selectable="{{svg.selectable}}"></svg-element>
         <section id="title" hidden$="[[_hideTitle(title,withoutWindow)]]" on-tap="toggle">[[title]]</section>
       </section>
 
@@ -172,7 +172,6 @@
 
       toggle: function() {
         this.opened = !this.opened;
-        this.$.svg.opened = this.opened;
         if (this.svg && this.svg.src && this.opened)
           this.$.title.classList.add('over-image');
         else

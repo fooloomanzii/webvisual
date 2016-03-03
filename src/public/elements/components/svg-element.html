@@ -41,6 +41,7 @@ Use `isZoomable` to make it isZoomable.
     color: #1f1f1f;
 
     display: block;
+    width: 100%;
     min-height: 0px;
     max-height: 500px;
   	position: relative;
@@ -362,9 +363,8 @@ Use `isZoomable` to make it isZoomable.
       y = -scale*(y) + (this.height - scale*boundE.height*os)/2;
 
       // crop view to the size of the bounding container
-      // x = Math.min(0, Math.max(x, this.width - this.width * scale));
-      // y = Math.min(0, Math.max(y, this.height - this.height * scale));
-
+      x = Math.min(0, Math.max(x, this.width - this.width * scale));
+      y = Math.min(0, Math.max(y, this.height - this.height * scale));
 
       if (isNaN(x) || isNaN(y) || isNaN(scale))
         return {translate: [0,0], scale: 1};
@@ -420,14 +420,14 @@ Use `isZoomable` to make it isZoomable.
       // previous selectable elements: remove 'svg-element-selectable' class and click listener
       this.mainG.selectAll(".svg-element-selectable")
                 .classed("svg-element-selectable", false)
-                .on("tap", null);
+                .on("click", null);
 
       // add 'svg-element-selectable' class and click listener
       self = this;
       this.mainG.selectAll(this.selectable)
                 .classed("svg-element-selectable", true)  // for styling selectable
                 .classed("svg-element", true) // for style-scoping in polymer
-                .on("tap",
+                .on("click",
                   function() {
                     // if (d3.event.defaultPrevented) return;
                     // get polymer-parent-node of the selectable node
