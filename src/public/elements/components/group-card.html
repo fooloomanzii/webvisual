@@ -41,6 +41,10 @@
       section.header[dark] {
         background: #345475;
       }
+      section.header[opened] {
+        display: flex;
+        min-height: 150px;
+      }
       section#title {
         width: auto;
         font-size: 1.1em;
@@ -58,6 +62,7 @@
         position: absolute;
         background: none !important;;
         bottom: 0px;
+        left: 0px;
         color: white;
         text-shadow: 0px 0px 5px #1f1f1f;
       }
@@ -103,7 +108,7 @@
   <template>
     <section id="main" name$="[[title]]" nowindow$="{{withoutWindow}}">
 
-      <section class="header">
+      <section class="header" opened$="{{opened}}">
         <svg-element id="svg" hidden$="{{!svg.src}}" opened="{{opened}}" src="{{svg.src}}" selected="{{pathToExceedingElements}}" initial-selected="{{svg.initial}}" selectable="{{svg.selectable}}"></svg-element>
         <section id="title" hidden$="[[_hideTitle(title,withoutWindow)]]" on-tap="toggle">[[title]]</section>
       </section>

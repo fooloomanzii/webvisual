@@ -241,6 +241,10 @@
     }
     section#toolbarFooter sign-element {
       border-radius: 2px 0px 0px 3px;
+      flex-shrink: 0;
+    }
+    section#toolbarFooter table-element {
+      flex-shrink: 0;
     }
     section#toolbarFooter svg-element {
       background: rgba(255, 255, 255, 0.7);
@@ -302,6 +306,9 @@
       section#toolbarHeader paper-icon-button.expand-icon {
         display: none !important;
       }
+      section#toolbarFooter[opened] {
+        max-height: 32vh;
+      }
       :host {
         font-size: 0.9em;
       }
@@ -309,6 +316,9 @@
     @media all and (max-height: 690px) {
       section#toolbarHeader paper-icon-button.expand-icon {
         display: none !important;
+      }
+      section#toolbarFooter[opened] {
+        max-height: 32vh;
       }
     }
     @media all and (min-width: 601px) {
@@ -341,7 +351,7 @@
 
   <template>
     <logo-element id="logo" on-tap="backToMainMenu"></logo-element>
-
+    <!-- TOOLBAR -->
     <section id="toolbar">
       <section id="toolbarHeader">
         <paper-icon-button icon="menu" class="menu-icon" on-tap="togglePanel"></paper-icon-button>
@@ -367,16 +377,16 @@
           <sign-element id="selectedElementSign" class="selectedElement" horizontal="{{!expanded}}"
                         element="[[selectedElement]]" on-tap="deselectElement" caption-keys="[[getGroupingKeys(selectedElement.label)]]">
           </sign-element>
-          <section style="display: flex;">
+          <section style="display: flex; ">
             <table-element id="selectedElementTable" class="selectedElement" element="[[selectedElement]]">
             </table-element>
           </section>
-          <section style="display: flex; flex: 1">
+          <!-- <section style="display: flex; flex-grow: 1; flex-shrink: 1;"> -->
             <svg-element id="selectedElementSVG" class="selectedElement" hidden$="{{!selectedElement.svg.src}}"
                          src="{{selectedElement.svg.src}}" selected="{{pathToExceedingElements}}" opened="{{opened}}"
                          initial-selected="{{selectedElement.svg.initial}}" selectable="{{selectedElement.svg.selectable}}">
             </svg-element>
-          </section>
+          <!-- </section> -->
         </section>
       </section>
     </section>
@@ -490,7 +500,7 @@
     Polymer({
       is: 'main-page',
 
-      behaviors: [PageBehavior, Polymer.NeonAnimationRunnerBehavior, Polymer.NeonSharedElementAnimatableBehavior],
+      behaviors: [PageBehavior, Polymer.NeonAnimationRunnerBehavior, Polymer.NeonSharedElementAnimatableBehavior, Polymer.IronResizableBehavior],
 
       properties: {
         sharedElements: {

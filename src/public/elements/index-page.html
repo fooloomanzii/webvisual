@@ -1,4 +1,3 @@
-<link rel="import" href="imports.html"/>
 <link rel="import" href="style/app-theme.html">
 
 <dom-module id="index-page">
@@ -42,6 +41,7 @@
         is: 'index-page',
 
         attached: function(){
+          this.fire("WebComponentsReady", true)
           // this.$.pages.set('selected', '0');
           this.$.selectPage.playAnimation('entry');
           this.$.selectPage.$.labelsCookie.load();
