@@ -277,11 +277,11 @@ Use `isZoomable` to make it isZoomable.
             self.svg.attr("preserveAspectRatio", "xMinYMin meet")
                     .attr("width", "100%")
                     .attr("height", null)
-                    .style("display", "block")
-                    .call(self._d3Zoom);
+                    .style("display", "block");
 
             self.mainG = self.svg.select("g")
-                                 .attr("id", "mainG");
+                                 .attr("id", "mainG")
+                                 .call(self._d3Zoom);
 
             self.mainG.selectAll("text")
                       .classed("text", true)  // for styling text
@@ -300,15 +300,16 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _zoom: function () {
-      if (PrevScale != d3.event.scale) {
-        d3.select("g#mainG").transition()
-                            .duration(150)
-                            .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-      }
-      else {
-        d3.select("g#mainG").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-      }
-      PrevScale = d3.event.scale;
+      // if (PrevScale != d3.event.scale) {
+      //   d3.select(this).transition()
+      //                       .duration(150)
+      //                       .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+      // }
+      // else {
+        d3.select(this).attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+      // }
+      // PrevScale = d3.event.scale;
+      // console.log(this);
     },
 
     _selectedChanged: function(change) {
@@ -376,9 +377,9 @@ Use `isZoomable` to make it isZoomable.
       // calc centered zoom coordinates
       var transform = this._calcCenterZoom(elem);
       // call zoom to translate and scale
-      this.svg.transition()
-              .duration(750)
-              .call(this._d3Zoom.translate(transform.translate).scale(transform.scale).event);
+      this.mainG.transition()
+                .duration(750)
+                .call(this._d3Zoom.translate(transform.translate).scale(transform.scale).event);
     },
 
     _calcCenterZoom: function(elem) {
@@ -509,13 +510,13 @@ Use `isZoomable` to make it isZoomable.
         }
       }
       // transition to [0,0] scale 1
-      this.svg.transition()
-              .duration(500)
-              .call(this._d3Zoom.translate([0, 0]).scale(1).event);
+      this.mainG.transition()
+                .duration(500)
+                .call(this._d3Zoom.translate([0, 0]).scale(1).event);
     },
 
     _isZoomableChanged: function() {
-      if (this.svg && !this.svg.empty()) {
+      if (this.mainG && !this.mainG.empty()) {
         if (!this.isZoomable) {
           this._resetZoom()
           this._d3Zoom.on("zoom", null);
@@ -524,8 +525,8 @@ Use `isZoomable` to make it isZoomable.
           this._d3Zoom = d3.behavior.zoom()
                                     .scaleExtent([this.minZoom, this.maxZoom])
                                     .on("zoom", this._zoom);
-          this.svg.call(this._d3Zoom)
-                  .call(this._d3Zoom.event);
+          this.mainG.call(this._d3Zoom)
+                    .call(this._d3Zoom.event);
         }
       }
     }
