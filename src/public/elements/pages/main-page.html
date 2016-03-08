@@ -14,15 +14,92 @@
       top: 0;
       position: absolute;
     }
-    paper-drawer-panel {
+    section#mainView {
       position: relative;
       flex: 1;
+    }
+    section#drawerPanel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      overflow-y: auto;
+      color: #1f1f1f;
+      border: 0;
+      background-color: rgba(255, 255, 255, 0.75);
+      align-items: center;
+      -moz-box-sizing: border-box; box-sizing: border-box;
+      will-change: transform;
+      transition: transform ease-in-out 0.3s, visibility 0.3s;
+      box-shadow: 4px 3px 6px rgba(0, 0, 0, 0.2);
+    }
+    section#drawerPanel:not(.drawer-opened) {
+      -webkit-transform: translateX(-100%);
+      transform: translateX(-100%);
+      /*visibility: hidden;*/
+    }
+    section#exceedsPanel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+      overflow-y: auto;
+      color: #1f1f1f;
+      border: 0;
+      /*visibility: visible;*/
+      background-color: rgba(255, 255, 255, 0.75);
+      align-items: center;
+      -moz-box-sizing: border-box; box-sizing: border-box;
+      will-change: transform;
+      transition: transform ease-in-out 0.3s, visibility 0.3s;
+      box-shadow: -4px 3px 6px rgba(0, 0, 0, 0.2);
+    }
+    section#exceedsHeader {
+      position: relative;
+      border-top-left-radius: inherit;
+      border-top-right-radius: inherit;
+      overflow: hidden;
+      padding: 1em;
+      width: auto;
+      background-color: #D91B1B;
+      color: #f1f1f1;
+    }
+    section#exceedsHeader .title {
+      background: linear-gradient(180deg,rgba(255,255,255,0),rgba(230,230,230,0.1),rgba(255,255,255,0));
+      width: auto;
+      font-size: 1.25em;
+    }
+    section#exceedsPanel:not(.exceeds-panel-opened) {
+      -webkit-transform: translateX(100%);
+      transform: translateX(100%);
+    }
+    section#exceedsPanel iron-swipeable-container#exceedingElements list-element {
+      margin: 0.5em;
+    }
+    section#backdrop {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity ease-in-out 0.38s, visibility ease-in-out 0.38s;
+      background-color: rgba(18, 12, 11, 0.25);
+    }
+    section#backdrop.backdrop-opened {
+      visibility: visible;
+      opacity: 1;
     }
     section#mainPanel {
       display: flex;
       flex-direction: column;
       flex: 1;
-      position: relative;
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
     }
     section#mainContent {
       background: #b5bbb5;
@@ -143,26 +220,6 @@
     logo-element#logo[dark] {
       fill: #A8CCDB;
     }
-    sign-element#selectedElementSign {
-      border: none;
-    }
-    notification-element {
-      --notification-element-background-color: #f1f1f1;
-      --notification-element-color: #1f1f1f;
-      --notification-element-title-background-color: #D91B1B;
-      --notification-element-title-color: #f1f1f1;
-      --notification-element-dark-background-color: #B46666;
-      --notification-element-dark-border-color: #444;
-      --notification-element-border-color: #AAA;
-    }
-    notification-element iron-swipeable-container#exceedingElements {
-      max-height: 68vh;
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
-    notification-element iron-swipeable-container#exceedingElements list-element {
-      margin: 0.25em 0em;
-    }
     section#toolbar {
       display: flex;
       flex-direction: column;
@@ -224,7 +281,7 @@
       margin-right: 6px;
     }
     section#toolbarFooter {
-      min-height: 0px;
+      /*min-height: 0px;*/
       max-height: 0px;
       display: flex;
       box-sizing: border-box;
@@ -233,7 +290,7 @@
       transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
     }
     section#toolbarFooter[opened] {
-      min-height: 150px;
+      /*min-height: 150px;*/
       max-height: 20vh;
     }
     section#toolbarFooter[opened][expanded] {
@@ -241,6 +298,7 @@
     }
     section#toolbarFooter sign-element {
       border-radius: 2px 0px 0px 3px;
+      border: none;
       flex-shrink: 0;
     }
     section#toolbarFooter table-element {
@@ -354,7 +412,7 @@
     <!-- TOOLBAR -->
     <section id="toolbar">
       <section id="toolbarHeader">
-        <paper-icon-button icon="menu" class="menu-icon" on-tap="togglePanel"></paper-icon-button>
+        <paper-icon-button icon="menu" class="menu-icon" on-tap="toggleDrawer"></paper-icon-button>
 
         <div class="logo-element-placeholder"></div>
 
@@ -364,8 +422,8 @@
           </template>
         </paper-tabs>
 
-        <section id="control" hidden$="[[!opened]]">
-          <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsDialog" hidden$="[[!isExceeding]]"></paper-icon-button>
+        <section id="control">
+          <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsPanel" hidden$="[[!isExceeding]]"></paper-icon-button>
           <section hidden$="[[!opened]]" style="display: flex;">
             <paper-icon-button icon="[[_computeExpandIcon(expanded)]]" class="expand-icon" on-tap="_toolbarExpand"></paper-icon-button>
             <paper-icon-button icon="remove" class="toggle-icon control" on-tap="deselectElement"></paper-icon-button>
@@ -391,82 +449,12 @@
       </section>
     </section>
 
-    <paper-drawer-panel id="mainView" force-narrow="true">
-      <!-- SIDEMENU -->
-      <section drawer id="drawerPanel">
-          <paper-button collapse-id="settings" class="sidemenu collapsable" on-tap="toggleCollapse">
-            <iron-icon icon="settings"></iron-icon>
-            <span class="flex">Einstellungen</span>
-            <iron-icon icon="arrow-drop-up" class="collapse-arrow right-icon" id="settings"></iron-icon>
-          </paper-button>
-
-            <iron-collapse class="sidemenu collapse settings" opened>
-              <section class="indention collapse-content">
-                <paper-button collapse-id="grouping" class="sidemenu" on-tap="toggleCollapse">
-                  <iron-icon icon="reorder"></iron-icon>
-                  <span class="flex">Gruppierung</span>
-                  <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="grouping"></iron-icon>
-                </paper-button>
-
-                  <iron-collapse class="sidemenu collapse grouping">
-                    <paper-radio-group selected="{{groupBy}}" class="indention">
-                      <template is="dom-repeat" items="[[getGroupingKeys(selectedLabel)]]" as="key">
-                        <paper-radio-button name="[[key]]">[[key]]</paper-radio-button>
-                      </template>
-                    </paper-radio-group>
-                  </iron-collapse>
-
-                <paper-item>
-                  <iron-icon icon="date-range"></iron-icon>
-                  <paper-toggle-button id="colorschema" checked="{{showDate}}">Zeit anzeigen</paper-toggle-button>
-                </paper-item>
-
-                <paper-item>
-                  <iron-icon icon="editor:border-style"></iron-icon>
-                  <paper-toggle-button id="border-style" checked="{{withoutWindow}}">Fensterstil</paper-toggle-button>
-                </paper-item>
-
-                <paper-item>
-                  <iron-icon icon="settings-brightness"></iron-icon>
-                  <paper-toggle-button id="colorschema" on-change="changeTheme">Farbschema</paper-toggle-button>
-                </paper-item>
-
-                <paper-button collapse-id="measurement" class="sidemenu" on-tap="toggleCollapse">
-                  <iron-icon icon="filter-list"></iron-icon>
-                  <span class="flex">Messwerte</span>
-                  <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="measurement"></iron-icon>
-                </paper-button>
-
-                  <iron-collapse class="sidemenu collapse measurement">
-                    <section class="indention collapse-content">
-                      <paper-item class="sidemenu">
-                        <iron-icon icon="editor:format-line-spacing"></iron-icon>
-                        <section>Anzahl der Messwerte</section>
-                      </paper-item>
-                      <paper-slider max="300" min="1" step="1" value="{{maxTotalLines}}" editable id="maxlines"></paper-slider>
-                      <!-- <paper-item class="sidemenu">
-                        <iron-icon icon="image:timelapse"></iron-icon>
-                        <div>Aktualisierung in ms</div>
-                      </paper-item>
-                      <paper-slider max="20000" min="0" step="100" value="{{interval}}" editable id="freq"></paper-slider> -->
-                    </section>
-                  </iron-collapse>
-
-              </section>
-            </iron-collapse>
-
-          <paper-button class="sidemenu" on-tap="backToMainMenu">
-            <iron-icon icon="arrow-back"></iron-icon>
-            <span class="flex">Auswahl</span>
-          </paper-button>
-
-      </section>
-
+    <section id="mainView">
       <!-- MAIN VIEW -->
-      <section main id="mainPanel">
+      <section id="mainPanel">
 
-        <!-- MainView -->
-        <section main id="mainContent">
+        <!-- Content -->
+        <section id="mainContent">
 
           <!-- Elements -->
           <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="items" observe="label groups" filter="filterSelectedLabel" delay="250">
@@ -480,19 +468,92 @@
             </template>
           </template>
 
-          <notification-element id="exceedsDialog" text="Alarme" image="">
-            <iron-swipeable-container id="exceedingElements" on-iron-swipe="_removeSingleExceedingElement">
-              <template is="dom-repeat" items="{{exceeding}}" as="element">
-                  <list-element element="{{element}}" caption-keys="[[getGroupingKeys(element.label)]]"></list-element>
-              </template>
-            </iron-swipeable-container>
-            <span style="padding-top: 0.5em; align-self: flex-end;"><a href="#" on-click="_removeAllExceedingElements">Liste leeren</a></span>
-          </notification-element>
-
         </section>
+        <section id="backdrop" on-tap="tapBackdrop"></section>
         <section id="dropShadow" class="has-shadow"></section>
       </section>
-    </paper-drawer-panel>
+
+      <!-- EXCEEDING -->
+      <section id="exceedsPanel" >
+        <section id="exceedsHeader"><section class="title">Alarme</section></section>
+        <iron-swipeable-container id="exceedingElements" on-iron-swipe="_removeSingleExceedingElement">
+          <template is="dom-repeat" items="{{exceeding}}" as="element">
+              <list-element element="{{element}}" caption-keys="[[getGroupingKeys(element.label)]]"></list-element>
+          </template>
+        </iron-swipeable-container>
+        <span style="padding: 0.5em; float: right;"><a href="#" on-click="_removeAllExceedingElements">Liste leeren</a></span>
+      </section>
+
+      <!-- SIDEMENU -->
+      <section id="drawerPanel">
+        <paper-button collapse-id="settings" class="sidemenu collapsable" on-tap="toggleCollapse">
+          <iron-icon icon="settings"></iron-icon>
+          <span class="flex">Einstellungen</span>
+          <iron-icon icon="arrow-drop-up" class="collapse-arrow right-icon" id="settings"></iron-icon>
+        </paper-button>
+
+          <iron-collapse class="sidemenu collapse settings" opened>
+            <section class="indention collapse-content">
+              <paper-button collapse-id="grouping" class="sidemenu" on-tap="toggleCollapse">
+                <iron-icon icon="reorder"></iron-icon>
+                <span class="flex">Gruppierung</span>
+                <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="grouping"></iron-icon>
+              </paper-button>
+
+                <iron-collapse class="sidemenu collapse grouping">
+                  <paper-radio-group selected="{{groupBy}}" class="indention">
+                    <template is="dom-repeat" items="[[getGroupingKeys(selectedLabel)]]" as="key">
+                      <paper-radio-button name="[[key]]">[[key]]</paper-radio-button>
+                    </template>
+                  </paper-radio-group>
+                </iron-collapse>
+
+              <paper-item>
+                <iron-icon icon="date-range"></iron-icon>
+                <paper-toggle-button id="colorschema" checked="{{showDate}}">Zeit anzeigen</paper-toggle-button>
+              </paper-item>
+
+              <paper-item>
+                <iron-icon icon="editor:border-style"></iron-icon>
+                <paper-toggle-button id="border-style" checked="{{withoutWindow}}">Fensterstil</paper-toggle-button>
+              </paper-item>
+
+              <paper-item>
+                <iron-icon icon="settings-brightness"></iron-icon>
+                <paper-toggle-button id="colorschema" on-change="changeTheme">Farbschema</paper-toggle-button>
+              </paper-item>
+
+              <paper-button collapse-id="measurement" class="sidemenu" on-tap="toggleCollapse">
+                <iron-icon icon="filter-list"></iron-icon>
+                <span class="flex">Messwerte</span>
+                <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="measurement"></iron-icon>
+              </paper-button>
+
+                <iron-collapse class="sidemenu collapse measurement">
+                  <section class="indention collapse-content">
+                    <paper-item class="sidemenu">
+                      <iron-icon icon="editor:format-line-spacing"></iron-icon>
+                      <section>Anzahl der Messwerte</section>
+                    </paper-item>
+                    <paper-slider max="300" min="1" step="1" value="{{maxTotalLines}}" editable id="maxlines"></paper-slider>
+                    <!-- <paper-item class="sidemenu">
+                      <iron-icon icon="image:timelapse"></iron-icon>
+                      <div>Aktualisierung in ms</div>
+                    </paper-item>
+                    <paper-slider max="20000" min="0" step="100" value="{{interval}}" editable id="freq"></paper-slider> -->
+                  </section>
+                </iron-collapse>
+
+            </section>
+          </iron-collapse>
+
+        <paper-button class="sidemenu" on-tap="backToMainMenu">
+          <iron-icon icon="arrow-back"></iron-icon>
+          <span class="flex">Auswahl</span>
+        </paper-button>
+
+      </section>
+    </section>
 
   </template>
   <script>
@@ -500,7 +561,7 @@
     Polymer({
       is: 'main-page',
 
-      behaviors: [PageBehavior, Polymer.NeonAnimationRunnerBehavior, Polymer.NeonSharedElementAnimatableBehavior, Polymer.IronResizableBehavior],
+      behaviors: [PageBehavior, Polymer.NeonAnimationRunnerBehavior, Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
         sharedElements: {
@@ -587,25 +648,16 @@
         isExceeding: {
           type: Boolean,
           notify: true,
-          observer: "openExceedsDialog"
+          observer: "openExceedsPanel"
         }
       },
 
       observers: [
-        '_checkExceedingDialog(exceeding.length)'
+        '_checkExceedsPanel(exceeding.length)'
       ],
 
       listeners: {
         "element-select": "setSelectedElement"
-      },
-
-      attached: function() {
-        var self = this;
-        var dialogs = Array.prototype.slice.call(Polymer.dom(this.root).querySelectorAll("paper-dialog"));
-        Array.prototype.forEach.call(dialogs, function(dialog) {
-            dialog.fitInto = self.$.mainPanel;
-            dialog.fit();
-        });
       },
 
       setSelectedElement: function(e) {
@@ -635,7 +687,7 @@
       },
       deselectElement: function() {
         this.playAnimation('select-out');
-        this.$.mainView.closeDrawer();
+        this.closeDrawer();
         this.toggleAttribute('opened',false);
         this.debounce('deselect-request', function() {
           this.unlinkPaths('selectedElement');
@@ -646,7 +698,6 @@
         if (this.opened) {
           this.set('expanded',!this.expanded);
           this.toggleAttribute('expanded',this.expanded,this.$.toolbarFooter);
-          this.fire('resize');
         }
       },
       _computeExpandIcon: function() {
@@ -656,26 +707,36 @@
           return 'expand-more';
       },
 
-      openExceedsDialog: function() {
-        if(this.isExceeding) {
-          // this.$.exceedsDialog.fit();
-          // this.$.exceedsDialog.center();
-          this.$.exceedsDialog.open();
-        }
-        else {
-          this.$.exceedsDialog.close();
+      openExceedsPanel: function() {
+        this.$.exceedsPanel.classList.toggle("exceeds-panel-opened");
+        this.$.backdrop.classList.add("backdrop-opened");
+      },
+
+      _checkExceedsPanel: function(length) {
+        if(!(this.$.exceedsPanel.classList.contains("exceeds-panel-opened")) && length > 0) {
+          this.openExceedsPanel();
         }
       },
 
-      _checkExceedingDialog: function(length) {
-        if(!this.$.exceedsDialog.opened && length > 0) {
-          this.openExceedsDialog();
-        }
+      toggleExceedsPanel: function() {
+        this.$.exceedsPanel.classList.toggle("exceeds-panel-opened");
+        this.$.backdrop.classList.toggle("backdrop-opened");
       },
 
-      toggleExceedsDialog: function() {
-        // this.$.exceedsDialog.fit();
-        this.$.exceedsDialog.toggle();
+      toggleDrawer: function(){
+        this.$.drawerPanel.classList.toggle("drawer-opened");
+        this.$.backdrop.classList.toggle("backdrop-opened");
+      },
+
+      closeDrawer: function(){
+        this.$.drawerPanel.classList.remove("drawer-opened");
+        this.$.backdrop.classList.remove("backdrop-opened");
+      },
+
+      tapBackdrop: function(){
+        this.$.exceedsPanel.classList.remove("exceeds-panel-opened");
+        this.$.drawerPanel.classList.remove("drawer-opened");
+        this.$.backdrop.classList.remove("backdrop-opened");
       },
 
       changeTheme: function(){
@@ -692,10 +753,6 @@
           }
           this.dark = true;
         }
-      },
-
-      togglePanel: function(){
-        this.$.mainView.togglePanel();
       },
 
       toggleCollapse: function(e){
@@ -718,7 +775,7 @@
       },
 
       backToMainMenu: function() {
-        this.$.mainView.closeDrawer();
+        this.closeDrawer();
         this.fire("restart");
       },
 
