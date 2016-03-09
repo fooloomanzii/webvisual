@@ -30,6 +30,7 @@
         border-color: transparent;
       }
       section.header {
+        display: flex;
         position: relative;
         border-top-left-radius: inherit;
         border-top-right-radius: inherit;
@@ -37,19 +38,34 @@
         border-bottom-left-radius: 0px;
         border-bottom-right-radius: 0px;
         background: #669DB4;
+        font-size: 1.1em;
       }
       section.header[dark] {
         background: #345475;
       }
       section.header[opened] {
-        display: flex;
-        min-height: 150px;
+      }
+      svg-element {
+        flex: 1;
+        visibility: visible;
+        opacity: 1;
+        height: 25vh;
+        max-height: 1000px;
+        transition: transform ease-in-out 0.3s, max-height ease-in-out 0.3s, visibility ease-in-out 0.6s, opacity ease-in-out 0.6s;
+      }
+      svg-element:not([opened]) {
+        visibility: hidden;
+        opacity: 0;
+        max-height: 43px;
       }
       section#title {
-        width: auto;
-        font-size: 1.1em;
+        position: relative;
+        bottom: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
         padding: 0.6em 0.8em;
-        margin: 0em;
+        box-sizing: border-box;
         color: white;
         border-top-left-radius: inherit;
         border-top-right-radius: inherit;
@@ -60,10 +76,11 @@
       }
       section.header section#title.over-image {
         position: absolute;
+        height: auto;
+        width: auto;
+        bottom: 0;
+        left: 0;
         background: none !important;;
-        bottom: 0px;
-        left: 0px;
-        color: white;
         text-shadow: 0px 0px 5px #1f1f1f;
       }
       section#title[dark] {
@@ -108,8 +125,10 @@
   <template>
     <section id="main" name$="[[title]]" nowindow$="{{withoutWindow}}">
 
-      <section class="header" opened$="{{opened}}">
-        <svg-element id="svg" hidden$="{{!svg.src}}" opened="{{opened}}" src="{{svg.src}}" selected="{{pathToExceedingElements}}" initial-selected="{{svg.initial}}" selectable="{{svg.selectable}}"></svg-element>
+      <section class="header">
+        <!-- <section class="svgcontainer" opened$="{{opened}}"> -->
+          <svg-element id="svg" hidden$="{{!svg.src}}" opened$="{{opened}}" src="{{svg.src}}" selected="{{pathToExceedingElements}}" initial-selected="{{svg.initial}}" selectable="{{svg.selectable}}"></svg-element>
+        <!-- </section> -->
         <section id="title" hidden$="[[_hideTitle(title,withoutWindow)]]" on-tap="toggle">[[title]]</section>
       </section>
 
