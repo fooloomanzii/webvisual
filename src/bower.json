@@ -9,15 +9,12 @@
   "dependencies": {
     "iron-elements": "PolymerElements/iron-elements",
     "leaflet-map": "*",
-    "neon-animation": "PolymerElements/neon-animation",
     "paper-elements": "PolymerElements/paper-elements",
     "poly-nvd3": "*",
-    "polymer": "Polymer/polymer"
+    "polymer": "Polymer/polymer",
+    "neon-animation": "PolymerElements/neon-animation"
   },
   "ignoredDependencies": [
     "PolymerElements/font-roboto"
-  ],
-  "resolutions": {
-    "polymer": "1.2.3"
-  }
+  ]
 }
