@@ -57,9 +57,12 @@
       -moz-box-sizing: border-box; box-sizing: border-box;
       will-change: transform;
       transition: transform ease-in-out 0.3s, visibility 0.3s;
-      box-shadow: -4px 3px 6px rgba(0, 0, 0, 0.2);
+      box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.2);
       -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
       -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
+    }
+    section#exceedsPanel[dark] {
+      background-color: rgba(106, 106, 106, 0.75);
     }
     section#exceedsPanel:not(.exceeds-panel-opened) {
       left: auto;
@@ -73,8 +76,15 @@
       border-top-right-radius: inherit;
       overflow: hidden;
       width: auto;
-      background-color: #C8382F;
+      background-color: #669DB4;
       color: #f1f1f1;
+      border-bottom: thin solid #AAA;
+      border-top: thin solid #005B82;
+    }
+    section#exceedsHeader[dark] {
+      background: #345475;
+      color: #A8CCDB;
+      border-color: #444;
     }
     section#exceedsHeader .title {
       background: linear-gradient(180deg,rgba(255,255,255,0),rgba(230,230,230,0.1),rgba(255,255,255,0));
@@ -314,10 +324,10 @@
       flex-shrink: 0;
     }
     section#toolbarFooter svg-element {
-      background: rgba(255, 255, 255, 0.7);
+      background: #eee;
     }
     section#toolbarFooter svg-element[dark] {
-      background: rgba(255, 255, 255, 0.25);
+      background: #ccc;
     }
     section#toolbarFooter .selectedElement {
       border-right: thin solid #BBBBBB;
@@ -331,7 +341,7 @@
       flex-direction: row;
       width: 100%;
     }
-    @media all and (max-width: 480px) {
+    @media all and (max-width: 520px) {
       section#mainContent {
         display: block;
         padding: 0em;
@@ -357,7 +367,7 @@
         margin-left: 18px !important;
       }
     }
-    @media all and (min-width: 480px) and (max-width: 600px){
+    @media all and (min-width: 521px) and (max-width: 600px){
       section#toolbarHeader paper-icon-button.menu-icon {
         margin-right: 16px;
         margin-left: 16px;
@@ -366,7 +376,7 @@
         left: 72px !important;
       }
       section#toolbarHeader paper-tabs#labelsTabs {
-        margin-left: 24px !important;
+        margin-left: 28px !important;
       }
     }
     @media all and (max-width: 600px) {
@@ -409,9 +419,14 @@
         font-size: 1.15em;
       }
     }
-    @media all and (min-width: 1401px) {
+    @media all and (min-width: 1401px)  and (max-width: 1800px){
       :host {
         font-size: 1.2em;
+      }
+    }
+    @media all and (min-width: 1801px) {
+      :host {
+        font-size: 1.25em;
       }
     }
   </style>
@@ -484,7 +499,7 @@
 
       <!-- EXCEEDING -->
       <section id="exceedsPanel" >
-        <section id="exceedsHeader"><section class="title">Alarme</section></section>
+        <section id="exceedsHeader" on-tap="toggleExceedsPanel"><section class="title">Alarme</section></section>
         <iron-swipeable-container id="exceedingElements" on-iron-swipe="_removeSingleExceedingElement">
           <template is="dom-repeat" items="{{exceeding}}" as="element">
               <list-element element="{{element}}" caption-keys="[[getGroupingKeys(element.label)]]"></list-element>

@@ -34,10 +34,6 @@
       background: radial-gradient(rgba(52, 84, 117,1) 80%,rgba(52, 84, 117,0.8) 100%);
     }
     section#mainContent {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      vertical-align: middle;
       box-sizing: border-box;
       padding: 1.5em 1.5em 1.5em 1.5em;
       z-index: 0;
@@ -45,14 +41,13 @@
       max-width: 68vw;
     }
     logo-element {
-      align-items: flex-end;
       z-index: inherit;
       height: 100%;
       max-width: 100%;
     }
     circle-element, section#messageBox {
       z-index: inherit;
-      margin-top: 3em;
+      margin-top: 5vh;
     }
   </style>
 
@@ -60,6 +55,8 @@
     <section id="background"></section>
     <section id="mainContent">
       <logo-element id="logo"></logo-element>
+    </section>
+    <section style="position: relative; display: flex; flex-direction: column; align-items: center;">
       <circle-element id="circle"></circle-element>
       <section id="messageBox">[[status.message]]</section>
     </section>

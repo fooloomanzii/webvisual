@@ -26,7 +26,7 @@
       interval="[[interval]]" grouping-keys="{{groupingKeys}}" status="{{status}}"
       prefered-grouping-keys="{{preferedGroupingKeys}}" index-of-label="{{indexOfLabel}}">
     </data-socket-repeater>
-    <neon-animated-pages id="pages" selected="0">
+    <neon-animated-pages id="pages" selected="0" animate-initial-selected>
       <select-page id="selectPage" available-labels="[[availableLabels]]" labels="{{labels}}"></select-page>
       <loading-page id="loadPage" status="[[status]]"></loading-page>
       <main-page id="mainPage"

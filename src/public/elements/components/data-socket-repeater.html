@@ -1,5 +1,8 @@
 <dom-module id="data-socket-repeater">
   <script>
+    if (!svgSource)
+      var svgSource = {};
+
     Polymer({
       is: 'data-socket-repeater',
 
@@ -127,6 +130,8 @@
             self.set('data', config.dataStructure);
             self.set('groupingKeys', config.groupingKeys);
             self.set('preferedGroupingKeys', config.preferedGroupingKeys);
+            if (config.svgSources)
+              self._loadSvgSources(config.svgSources);
           } else {
             self.connect();
           }
@@ -206,6 +211,23 @@
 
       _init: function() {
         // this._removeAllExceedingElements();
+      },
+
+      _loadSvgSources: function(sources) {
+        var xhttp = [];
+        for (var i = 0; i < sources.length; i++) {
+          // import svg
+          // prevents multible reloading after creation time
+          var req = new XMLHttpRequest();
+          req.onreadystatechange = function(source) {
+              if (this.readyState == 4 && this.status == 200) {
+                svgSource[source] = this.responseXML.documentElement;
+              }
+          }.bind(req, sources[i]);
+          req.open("GET", sources[i], true);
+          req.send();
+          xhttp.push(req);
+        }
       },
 
       _onData: function(message) {

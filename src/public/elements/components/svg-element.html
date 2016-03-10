@@ -120,7 +120,8 @@ Use `isZoomable` to make it isZoomable.
 </template>
 
 <script>
-  var SVGSource = {};
+  if (!svgSource)
+    var svgSource = {};
 
   Polymer({
     is: 'svg-element',
@@ -130,6 +131,10 @@ Use `isZoomable` to make it isZoomable.
         type: String,
         value: '',
         observer: "_sourceChanged"
+      },
+      recentSrc: {
+        type: String,
+        value: ''
       },
       selectable: {
         type: String,
@@ -202,9 +207,11 @@ Use `isZoomable` to make it isZoomable.
       "_selectedChanged(selected.*)"
     ],
     _sourceChanged: function(source) {
-      if (source) {
-        if (!SVGSource[source])
-          SVGSource[source] = null;
+      if (source && this.recentSrc != source) {
+        if (!svgSource[source])
+          svgSource[source] = null;
+
+        this.recentSrc = source;
 
         this.svg = d3.select(this.$.svgContainer).select('svg#main');
         if (this.svg && !this.svg.empty()) {
@@ -213,20 +220,20 @@ Use `isZoomable` to make it isZoomable.
         // import svg
         // prevents multible reloading after creation time
         // synchronous loading can cause loading problems
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function(e) {
-            if (xhttp.readyState == 4 && xhttp.status == 200) {
-              SVGSource[source] = xhttp.responseXML.documentElement;
-              this._registerXML(SVGSource[source]);
-            }
-        }.bind(this);
+        if (svgSource[source] == null) {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function(e) {
+              if (xhttp.readyState == 4 && xhttp.status == 200) {
+                svgSource[source] = xhttp.responseXML.documentElement;
+                this._registerXML(svgSource[source]);
+              }
+          }.bind(this);
 
-        if (SVGSource[source] == null) {
           xhttp.open("GET", source, false);
           xhttp.send();
         }
         else {
-          this._registerXML(SVGSource[source]);
+          this._registerXML(svgSource[source]);
         }
       }
     },
@@ -264,8 +271,11 @@ Use `isZoomable` to make it isZoomable.
       this.height = viewBox[3] - viewBox[1];
 
       // set selectable elements
-      this._selectableChanged();
-      this.select(this.selected, this.selectedClass, this.multi);
+
+      this.async( function() {
+        this._selectableChanged();
+        this.select(this.selected, this.selectedClass, this.multi);
+      }, 150);
     },
 
     _zoom: function () {
@@ -286,7 +296,9 @@ Use `isZoomable` to make it isZoomable.
     _openedChanged: function(opened) {
       this.toggleClass('opened', opened);
       if (opened) {
-        this._selectedChanged(opened);
+        this.async( function() {
+          this._selectedChanged(opened);
+        }, 300);
       }
     },
 
@@ -368,17 +380,19 @@ Use `isZoomable` to make it isZoomable.
       // scaling and centering
       // view height/width in comparison tho viewboxheight/-width is important because of resizing by the browser
       // diffence in calculation by firefox in comparison to chromium based browsers
-      if (view.width/view.height > this.width/this.height) {
+      if (view.width/view.height > 1)
         var scale = Math.min(this.width/(this.zoomPartition*vs*boundE.width), this.height/(this.zoomPartition*vs*boundE.height));
-        if (scale < this.minZoom) scale = this.minZoom;
-        if (scale > this.maxZoom) scale = this.maxZoom;
+      else
+        var scale = Math.max(this.width/(this.zoomPartition*vs*boundE.width), this.height/(this.zoomPartition*vs*boundE.height));
+
+      if (scale < this.minZoom) scale = this.minZoom;
+      if (scale > this.maxZoom) scale = this.maxZoom;
+
+      if (view.width/view.height > this.width/this.height) {
         x = -scale*x + (this.height*view.width/view.height - scale*boundE.width*vs)/2;
         y = -scale*y + (this.height - scale*boundE.height*vs)/2;
       }
       else {
-        var scale = Math.max(this.width/(this.zoomPartition*vs*boundE.width), this.height/(this.zoomPartition*vs*boundE.height));
-        if (scale < this.minZoom) scale = this.minZoom;
-        if (scale > this.maxZoom) scale = this.maxZoom;
         x = -scale*x + (this.width - scale*boundE.width*vs)/2;
         y = -scale*y + (this.width*view.height/view.width - scale*boundE.height*vs)/2;
       }

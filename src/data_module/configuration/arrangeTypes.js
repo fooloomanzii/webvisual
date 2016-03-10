@@ -65,6 +65,7 @@ function arrangeTypes(label, labelindex, locals) {
   // initialy set the preferedGroups
   var groups = locals.exclusiveGroups;
   var key, where, needToSetElement, needToSetGroup;
+  var svgSources = [];
 
   var groupingKeys = locals.groupingKeys;
   if (groupingKeys.indexOf('all') == -1) {
@@ -128,15 +129,17 @@ function arrangeTypes(label, labelindex, locals) {
             groups[l].subgroup[where].svg.selectable = (groups[l].subgroup[where].svg.selectable ? groups[l].subgroup[
               where].svg.selectable + "," : "");
             groups[l].subgroup[where].svg.selectable += types[i].svgPath;
-          }
 
-          groups[l].subgroup[where].ids.push(types[i].id);
-          groups[l].subgroup[where].elements.push(types[i]);
+            if (svgSources.lastIndexOf(groups[l].subgroup[where].svg.src) == -1)
+              svgSources.push(groups[l].subgroup[where].svg.src);
+
+            groups[l].subgroup[where].ids.push(types[i].id);
+            groups[l].subgroup[where].elements.push(types[i]);
+          }
         }
       }
     }
   }
-
   // PATHSTRUCTURE
   // for faster finding elements for client
   // made for Polymer 1.2 Array structure
@@ -163,6 +166,7 @@ function arrangeTypes(label, labelindex, locals) {
     keys: keys,
     unnamedType: locals.unnamedType,
     timeFormat: locals.timeFormat,
-    ignore: locals.ignore
+    ignore: locals.ignore,
+    svgSources: svgSources
   };
 }

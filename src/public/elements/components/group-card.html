@@ -42,10 +42,11 @@
       }
       section.header[dark] {
         background: #345475;
+        color: #A8CCDB;
       }
       section.header[opened] {
       }
-      svg-element {
+      svg-element[opened] {
         flex: 1;
         visibility: visible;
         opacity: 1;
@@ -54,9 +55,11 @@
         transition: transform ease-in-out 0.3s, max-height ease-in-out 0.3s, visibility ease-in-out 0.6s, opacity ease-in-out 0.6s;
       }
       svg-element:not([opened]) {
+        flex: 1;
         visibility: hidden;
         opacity: 0;
         max-height: 43px;
+        transition: transform ease-in-out 0.3s, max-height ease-in-out 0.3s, visibility ease-in-out 0.6s, opacity ease-in-out 0.6s;
       }
       section#title {
         position: relative;
@@ -81,7 +84,7 @@
         bottom: 0;
         left: 0;
         background: none !important;;
-        text-shadow: 0px 0px 5px #1f1f1f;
+        text-shadow: -1px 0px 1px #1f1f1f;
       }
       section#title[dark] {
         color: #A8CCDB;
@@ -195,10 +198,11 @@
       },
 
       toggle: function() {
-        this.opened = !this.opened;
-        if (this.svg && this.svg.src && this.opened)
+        if (this.svg && this.svg.src) {
+          this.opened = !this.opened;
           this.$.title.classList.add('over-image');
-        else
+        }
+        if (!this.opened)
           this.$.title.classList.remove('over-image');
       },
 

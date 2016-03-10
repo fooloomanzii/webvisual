@@ -68,18 +68,17 @@
       var label = this.selectedLabel;
       this.set('preferedGroupingKeys.' + label, newValue);
       if (oldValue) {
-        self = this;
         this.async(function(){
           // Swaping Elements Data to the new groupBy
           var newItem, oldItem, newPath, oldPath, tmp;
-          for (var id in self.paths[label][oldValue]) {
-            newPath = self.paths[label][newValue][id];
-            oldPath = self.paths[label][oldValue][id];
-            newItem = self.get(newPath);
-            oldItem = self.get(oldPath);
-            tmp = self.splice(newPath,0,newItem.length - 1);
-            self.set(newPath, self.splice(oldPath,0,oldItem.length - 1));
-            self.set(oldPath, tmp);
+          for (var id in this.paths[label][oldValue]) {
+            newPath = this.paths[label][newValue][id];
+            oldPath = this.paths[label][oldValue][id];
+            newItem = this.get(newPath);
+            oldItem = this.get(oldPath);
+            tmp = this.splice(newPath,0,newItem.length - 1);
+            this.set(newPath, this.splice(oldPath, 0, oldItem.length - 1));
+            this.set(oldPath, tmp);
           }
           // this.$$('template#labeltemplate').render();
         });

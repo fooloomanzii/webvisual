@@ -131,7 +131,8 @@ function connect(config, server, err) {
     paths: {},
     preferedGroupingKeys: {},
     labels: dataLabels,
-    indexOfLabel: indexOfLabel
+    indexOfLabel: indexOfLabel,
+    svgSources: []
   };
   for (var i = 0; i < dataConf.length; i++) {
     var label = dataLabels[i];
@@ -142,6 +143,10 @@ function connect(config, server, err) {
       label: label,
       groups: dataConf[i].groups
     });
+    for (var j = 0; j < dataConf[i].svgSources.length; j++) {
+      if (configuration.svgSources.lastIndexOf(dataConf[i].svgSources[j]) == -1)
+        configuration.svgSources.push(dataConf[i].svgSources[j]);
+    }
   }
 
   // Data Socket
