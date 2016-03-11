@@ -32,6 +32,7 @@ async = require('async'),
 
 // private function to handle the errors
 function handleErrors(errors, id_message) {
+  console.log("error");
   if (errors === undefined)
     return;
   if (_.isArray(errors)) {
@@ -57,9 +58,7 @@ function connect(config, server, err) {
     //    err.msg = "No valid configuration file"
     return; // Check the Existence
   }
-
   // initMailer(config.mail);
-
   /*
    * Configure SOCKET.IO (watch the data file)
    */
@@ -87,41 +86,41 @@ function connect(config, server, err) {
     indexOfLabel[label] = i;
     dataConf.push(configHandler.arrangeTypes(label, i, configArray[i].locals));
 
+    var listeners = {
+      error: function(type, err, err_index) {
+        // dataSocket.emit('mistake', { error: err, time: new Date() });
+        handleErrors(err, "dataFileHandler");
+      },
+      data: function(type, data, labelIndex) {
+        if (!data || data.length == 0)
+          return; // Don't handle empty data
+
+        // Process data to certain format
+        var currentData = dataMerge(dataConf[labelIndex], {
+          exceeds: threshold(data, dataConf[labelIndex].types),
+          data: data
+        });
+
+        console.log(JSON.stringify(clients));
+
+        // Save new Data in Database
+        for (var socketId in clients) {
+          // console.log(socketId + ' ' + (new Date()).toLocaleTimeString());
+          clients[socketId].socket.emit('data', {
+            label: dataLabels[labelIndex],
+            content: currentData.content,
+            time: new Date(), // current message time
+          });
+        }
+      }
+    }
     dataFile.push(new dataFileHandler({
       index: i,
       // Object used the Configuration
       connection: configArray[i].connections,
-      listener: {
-        error: function(type, err, err_index) {
-          // dataSocket.emit('mistake', { error: err, time: new Date() });
-          handleErrors(err, "dataFileHandler");
-        },
-        data: function(type, data, labelIndex) {
-          if (!data || data.length == 0)
-            return; // Don't handle empty data
-
-          // Process data to certain format
-          var currentData = dataMerge(dataConf[labelIndex], {
-            exceeds: threshold(data, dataConf[labelIndex].types),
-            data: data
-          });
-
-          // Save new Data in Database
-          dbController.appendData(
-            labelIndex, currentData.content,
-            function(appendedData, cb_index) {
-              // for (var socketId in clients) {
-              //   // console.log(socketId + ' ' + (new Date()).toLocaleTimeString());
-              //   clients[socketId].socket.emit('data', {
-              //     label: dataLabels[labelIndex],
-              //     content: appendedData,
-              //     time: new Date(), // current message time
-              //   });
-              // }
-            });
-        }
-      }
+      listener: listeners
     }));
+    dataFile[i].connect();
   }
 
   // configuration ordering
@@ -158,59 +157,19 @@ function connect(config, server, err) {
     socket.emit('clientConfig', configuration, socket.id);
 
     socket.on('clientConfig', function(options) {
-
       var current_client = new Client(socket, options);
-
       console.log(socket.id);
-      // io.clients(function(error, clients) {
-      //   if (error) throw error;
-      //   console.log(clients); // => [6em3d4TJP8Et9EMNAAAA,
-      //   G5p55dHhGgUnLUctAAAB]
-      // });
 
-      // go through all patterns and collect the data, the client needs
-      async.map(current_client.patterns,
-        function(pattern, async_callback) {
-          if (indexOfLabel[pattern.label] === undefined) {
-            // Client asks for nonexistent label
-            console.log(JSON.stringify(pattern));
-            handleErrors(
-              new Error("label: " + pattern.label + " is undefined"));
-            return;
-          }
-          // use firstPattern to look for the data in corresponding
-          // database
-          // first argument is the index of database to query
-          dbController.getData(indexOfLabel[pattern.label],
-            pattern.firstPattern,
-            function(data, index) {
-              var message_chunk = {
-                label: dataLabels[index],
-                content: data
-              }
-              async_callback(null, message_chunk);
-            });
-        },
-        // 'message' is an array of all 'message_chunk's
-        function(errors, message) {
-          if (errors) {
-            handleErrors(errors, "async on client connection");
-            if (message === undefined)
-              return;
-          }
-          socket.emit('first', message);
+      socket.emit('data', []);
 
-          // append the client to array after the first message is sent
-          current_client.hasFirst = true;
-          clients[socket.id] = current_client;
-        });
+      // append the client to array after the first message is sent
+      current_client.hasFirst = true;
+      clients[socket.id] = current_client;
 
-      // if client is disconnected, remove them from list
-      socket.on('disconnect',
-        function() {
-          delete clients[socket.id];
-        }
-      );
+      socket.on('disconnect', function() {
+        // if client is disconnected, remove them from list
+        delete clients[socket.id];
+      });
     });
   });
 
@@ -221,136 +180,10 @@ function connect(config, server, err) {
     }
   });
 
-  // Function to serve the clients with new data each updateIntervall of time
-  // updateIntervall is the time interval in milliseconds
-  var serve_clients_with_data = function(updateIntervall) {
-    // Send new data on constant time intervals
-    setInterval(function() {
-      // for every label, switch the representing temporary database
-      dataLabels.forEach(function(label, i) {
-        dbController.switchTmpDB(i, function(tmpDB, tmp_index) {
-          if (!tmpDB)
-            return; // tmpDB is undefined
-
-          // look if clients need data from the switched temporary database
-          async.each(clients,
-            function(client, async_callback) {
-              var search_pattern;
-              client.patterns.forEach(function(pattern) {
-                // look if that client have a pattern with that label
-                if (pattern.label === dataLabels[tmp_index])
-                  search_pattern = pattern.appendPattern;
-              });
-              if (search_pattern === undefined)
-                async_callback();
-
-              dbController.getDataFromTmpModel(
-                tmp_index, tmpDB, search_pattern,
-                function(data, labelIndex) {
-
-                  if (!data || data.length < 1) {
-                    // data is empty
-                    return;
-                  }
-
-                  // one message per one tmpDB
-                  var message = {
-                    label: dataLabels[labelIndex],
-                    content: data,
-                    time: new Date(), // current message time
-                  };
-                  client.socket.emit('data', message);
-
-                  async_callback();
-                });
-            },
-            function(err) {
-              if (err)
-                handleErrors(err);
-              // cleanize the tmpDB with current label
-              // IMPORTANT! tmpDB need to be cleanized each time
-              // otherwise you'll get endless number of useless data
-              tmpDB.remove({},
-                function(err) {
-                  if (err)
-                    handleErrors(err);
-                });
-            });
-        });
-      })
-    }, updateIntervall);
-  };
-
-  /*
-   * Get SERVER.io, mongoose and server running!
-   */
-  // define Listeners to catch all events after connection to the mongoDB
-  dbController.on('error',
-    function(err) {
-      handleErrors(err, "dbController");
-    });
-
-  async.forEachOf(
-    configArray,
-    function(config, index, async_callback) {
-      config.database.name = config.label;
-      config.database.device_properties = config.locals.unnamedType;
-      dbController.createConnection(
-        config.database, index,
-        function(labelIndex_cb1) {
-          // cb1 = "callback 1"
-          dbController.connect(labelIndex_cb1, function(labelIndex_cb2) {
-            // register the properties of devices in the database
-            dbController.setDevices(labelIndex_cb2,
-              dataConf[labelIndex_cb2].types,
-              function() {});
-
-            // start the handler for new measuring data related to
-            // configArray[i]
-            dataFile[labelIndex_cb2].connect();
-
-            /* use next line only to remove all the TMPs
-             * make sure, there is no connection to the filehandler
-             * and clients will not be served at the time of removement */
-            // dbController.removeTMPs(labelIndex_cb2);
-
-            // configArray[i].database is connected
-            async_callback();
-          });
-        });
-    },
-    // call after all databases are connected
-    function(err) {
-      if (err)
-        handleErrors(err, "async(configArray)");
-
-      // make the Server available for Clients
-      server.listen(config.port);
-
-      serve_clients_with_data(config.updateIntervall);
-    });
-
-  /*
-   * Start Mail Server
-   */
-
-  // mailer.startDelayed(function(error,info){
-  //   if(error){
-  //     console.log('Mailing error: ' + error);
-  //   }
-  //   else{
-  //     if (info.response) console.log('E-Mail sent: ' + info.response);
-  //     else{
-  //       for( var i in info.pending[0].recipients[0]) console.log(i);
-  //       console.log('E-Mail sent: ' + info.pending[0].recipients[0]);
-  //     }
-  //   }
-  // });
+  server.listen(config.port);
 }
 
 function disconnect() {
-  dbController.disconnect();
-  dbController.remove();
 }
 
 function initMailer(config) {
