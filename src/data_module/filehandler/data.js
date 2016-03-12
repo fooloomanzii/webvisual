@@ -288,7 +288,7 @@ dataFileHandler = (function() {
 
     // Process the given listener
     this._addListener(config.listener);
-    
+
     // Save current index
     this.index = (config.index==undefined) ? 0 : config.index;
   }

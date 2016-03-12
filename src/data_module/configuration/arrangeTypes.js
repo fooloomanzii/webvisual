@@ -64,7 +64,7 @@ function arrangeTypes(label, labelindex, locals) {
   //                     },...]
   // initialy set the preferedGroups
   var groups = locals.exclusiveGroups;
-  var key, where, needToSetElement, needToSetGroup;
+  var key, where, pos, needToSetElement, needToSetGroup;
   var svgSources = [];
 
   var groupingKeys = locals.groupingKeys;
@@ -79,6 +79,7 @@ function arrangeTypes(label, labelindex, locals) {
       needToSetElement = true;
       needToSetGroup = true;
       where = -1;
+      pos = 0;
 
       for (var l = 0; l < groups.length; l++)
         if (groups[l].key == key) {
@@ -92,13 +93,15 @@ function arrangeTypes(label, labelindex, locals) {
         });
       }
       for (var k = 0; k < groups[l].subgroup.length; k++) {
-        if (groups[l].subgroup[k].ids && groups[l].subgroup[k].ids.indexOf(types[i].id) != -1) {
+        if (groups[l].subgroup[k].ids && (pos = groups[l].subgroup[k].ids.indexOf(types[i].id)) != -1) {
           needToSetElement = false;
           if (!groups[l].subgroup[k].elements || !Array.isArray(groups[l].subgroup[k].elements)) {
             groups[l].subgroup[k].elements = [];
           }
           if (groups[l].subgroup[k].elements.indexOf(types[i]) == -1) {
-            groups[l].subgroup[k].elements.push(types[i]);
+            while (groups[l].subgroup[k].elements.length < pos)
+              groups[l].subgroup[k].elements.push({});
+            groups[l].subgroup[k].elements[pos] = types[i];
           }
           break;
         }
@@ -167,6 +170,7 @@ function arrangeTypes(label, labelindex, locals) {
     unnamedType: locals.unnamedType,
     timeFormat: locals.timeFormat,
     ignore: locals.ignore,
-    svgSources: svgSources
+    svgSources: svgSources,
+    label: label
   };
 }
