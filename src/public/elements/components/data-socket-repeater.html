@@ -159,8 +159,6 @@
           self.async(function() {
             self._onData(message);
           });
-          // if (message.content[0].values.length !== 1)
-            // console.log(message.content[0].values.length);
         });
         // Disconnect
         this.socket.on('disconnect', function() {
@@ -233,33 +231,31 @@
       _setValues: function(message) {
         if(!message.content)
           return;
-        this.debounce('set-values', function() {
-          var path, values;
-          for (var i=0; i < message.content.length; i++) {
-            if(message.content[i].id) {
-              path = this.paths[message.label][this.preferedGroupingKeys[message.label]][message.content[i].id];
-              if (path) {
-                values = this.get(path);
-                if (!this.doAppend)
-                  this.splice(path, 0, values.length);
-                if (this.newestDataLast) {
-                  for (var j = 0; j < message.content[i].values.length; j++) {
-                    this.unshift(path, message.content[i].values[j]);
-                    this._checkIfExceedingStateHasToBeSet(path,  message.content[i].values[j].exceeds);
-                  }
+        var path, values;
+        for (var i=0; i < message.content.length; i++) {
+          if(message.content[i].id) {
+            path = this.paths[message.label][this.preferedGroupingKeys[message.label]][message.content[i].id];
+            if (path) {
+              values = this.get(path);
+              if (!this.doAppend)
+                this.splice(path, 0, values.length);
+              if (this.newestDataLast) {
+                for (var j = 0; j < message.content[i].values.length; j++) {
+                  this.unshift(path, message.content[i].values[j]);
+                  this._checkIfExceedingStateHasToBeSet(path,  message.content[i].values[j].exceeds);
                 }
-                else {
-                  for (var j = message.content[i].values.length-1; j >=0; j--) {
-                    this.unshift(path, message.content[i].values[j]);
-                    this._checkIfExceedingStateHasToBeSet(path, message.content[i].values[j].exceeds);
-                  }
-                }
-                if (values.length > this.maxLines)
-                  this.splice(path, this.maxLines, values.length - this.maxLines);
               }
+              else {
+                for (var j = message.content[i].values.length-1; j >=0; j--) {
+                  this.unshift(path, message.content[i].values[j]);
+                  this._checkIfExceedingStateHasToBeSet(path, message.content[i].values[j].exceeds);
+                }
+              }
+              if (values.length > this.maxLines)
+                this.splice(path, this.maxLines, values.length - this.maxLines);
             }
           }
-        }, 100);
+        }
         // if (messageContent.lastExceeds)
         //   this.set('groups.' + labelindex + '.groups.' + a + '.subgroup.' + b + '.elements.' + c + '.values', messageContent.lastExceeds);
       },

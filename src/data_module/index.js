@@ -25,6 +25,8 @@ async = require('async'),
   configHandler = require('./configuration'), // extension: of DATAMODULE
   Client = require('./clients'), // extension: of DATAMODULE
 
+  // currentData temporary saved for the first sending (unnecessary with db requests)
+  currentData = [],
   /* Current connected clients */
   clients = {},
   // array of configurations
@@ -95,28 +97,23 @@ function connect(config, server, err) {
         if (!data || data.length == 0)
           return; // Don't handle empty data
 
-        // Process data to certain format
-        var currentData = dataMerge(dataConf[labelIndex], {
+        // temporary save data
+        // unnecessarry with db
+        while (currentData.length < labelIndex)
+          currentData.push({});
+
+        // save and format data
+        currentData[labelIndex] = dataMerge(dataConf[labelIndex], {
           exceeds: threshold(data, dataConf[labelIndex].types),
           data: data
         });
 
-        console.log(JSON.stringify(clients));
-
-        // Save new Data in Database
-        for (var socketId in clients) {
-          // console.log(socketId + ' ' + (new Date()).toLocaleTimeString());
-          clients[socketId].socket.emit('data', {
-            label: dataLabels[labelIndex],
-            content: currentData.content,
-            time: new Date(), // current message time
-          });
-        }
+        // serve clients
+        serveData(currentData[labelIndex]);
       }
     }
     dataFile.push(new dataFileHandler({
       index: i,
-      // Object used the Configuration
       connection: configArray[i].connections,
       listener: listeners
     }));
@@ -157,14 +154,11 @@ function connect(config, server, err) {
     socket.emit('clientConfig', configuration, socket.id);
 
     socket.on('clientConfig', function(options) {
-      var current_client = new Client(socket, options);
-      console.log(socket.id);
+      var currentClient = new Client(socket, options);
 
-      socket.emit('data', []);
+      socket.emit('data', currentData);
 
-      // append the client to array after the first message is sent
-      current_client.hasFirst = true;
-      clients[socket.id] = current_client;
+      clients[socket.id] = currentClient;
 
       socket.on('disconnect', function() {
         // if client is disconnected, remove them from list
@@ -181,6 +175,13 @@ function connect(config, server, err) {
   });
 
   server.listen(config.port);
+}
+
+function serveData(content) {
+  for (var socketId in clients) {
+    // console.log(socketId + ' ' + (new Date()).toLocaleTimeString());
+    clients[socketId].socket.emit('data', content);
+  }
 }
 
 function disconnect() {
