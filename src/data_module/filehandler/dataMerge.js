@@ -89,7 +89,6 @@ function processData(settings, currentData) {
     // Creation of an Return Object
     // TODO: socket for each messurement-device possible?
     returnObject = {
-      time: currentData.time,
       content: processedData,
       label: settings.label
     };

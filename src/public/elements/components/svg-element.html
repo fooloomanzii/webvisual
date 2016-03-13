@@ -44,11 +44,12 @@ Use `isZoomable` to make it isZoomable.
     width: auto;
   	position: relative;
   	overflow: hidden;
+    /*max-height: 1000px;
+    transition: max-height 300ms linear;*/
   }
-
-  :host(:not(.opened)) {
+  /*:host(:not(.opened)) {
     max-height: 0px;
-  }
+  }*/
   div#svgContainer {
     border-radius: inherit;
     display: flex;
@@ -170,6 +171,7 @@ Use `isZoomable` to make it isZoomable.
       opened: {
         type: Boolean,
         value: false,
+        reflectToAttribute: true,
         observer: "_openedChanged"
       },
       minZoom: {
@@ -206,6 +208,7 @@ Use `isZoomable` to make it isZoomable.
     observers: [
       "_selectedChanged(selected.*)"
     ],
+
     _sourceChanged: function(source) {
       if (source && this.recentSrc != source) {
         if (!svgSource[source])
@@ -271,11 +274,10 @@ Use `isZoomable` to make it isZoomable.
       this.height = viewBox[3] - viewBox[1];
 
       // set selectable elements
-
       this.async( function() {
-        this._selectableChanged();
+        this._selectableChanged(this.selectable);
         this.select(this.selected, this.selectedClass, this.multi);
-      }, 150);
+      }, 200);
     },
 
     _zoom: function () {
@@ -285,7 +287,9 @@ Use `isZoomable` to make it isZoomable.
 
     _selectedChanged: function(change) {
       if(!change || !this.selected) return;
-      this.select(this.selected, this.selectedClass, this.multi);
+      this.async( function() {
+        this.select(this.selected, this.selectedClass, this.multi);
+      }, 400);
     },
 
     _initialSelectedChanged: function(change) {
@@ -294,11 +298,8 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _openedChanged: function(opened) {
-      this.toggleClass('opened', opened);
       if (opened) {
-        this.async( function() {
-          this._selectedChanged(opened);
-        }, 300);
+        this._selectedChanged(true);
       }
     },
 
@@ -430,9 +431,9 @@ Use `isZoomable` to make it isZoomable.
       }
     },
 
-    _selectableChanged: function() {
-      if (!this.mainG) // if svg is loaded
-        return;
+    _selectableChanged: function(selectable) {
+      if (!selectable || !this.mainG) return;
+
       this.svg.on('contextmenu',
         function () {
           d3.event.preventDefault();
@@ -455,7 +456,7 @@ Use `isZoomable` to make it isZoomable.
 
       // add 'svg-element-selectable' class and click listener
       self = this;
-      this.mainG.selectAll(this.selectable)
+      this.mainG.selectAll(selectable)
                 .classed("svg-element-selectable", true)  // for styling selectable
                 .classed("svg-element", true) // for style-scoping in polymer
                 .on("click",
@@ -478,6 +479,14 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _resetZoom: function() {
+      if (this.selected && this.selected.length != 0) {
+        var selected;
+        if (!(selected = this.mainG.selectAll(this.initialSelected)
+                                   .filter(".svg-element-selectable")).empty()) {
+          this.select(this.selected, this.selectedClass, this.multi);
+          return;
+        }
+      }
       if (this.initialSelected) {
         var initial;
         if (!(initial = this.mainG.selectAll(this.initialSelected)

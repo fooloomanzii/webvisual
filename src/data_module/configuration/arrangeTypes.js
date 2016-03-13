@@ -95,13 +95,11 @@ function arrangeTypes(label, labelindex, locals) {
       for (var k = 0; k < groups[l].subgroup.length; k++) {
         if (groups[l].subgroup[k].ids && (pos = groups[l].subgroup[k].ids.indexOf(types[i].id)) != -1) {
           needToSetElement = false;
-          if (!groups[l].subgroup[k].elements || !Array.isArray(groups[l].subgroup[k].elements)) {
+          if (!groups[l].subgroup[k].elements) {
             groups[l].subgroup[k].elements = [];
           }
           if (groups[l].subgroup[k].elements.indexOf(types[i]) == -1) {
-            while (groups[l].subgroup[k].elements.length < pos)
-              groups[l].subgroup[k].elements.push({});
-            groups[l].subgroup[k].elements[pos] = types[i];
+            groups[l].subgroup[k].elements.push(types[i]);
           }
           break;
         }
@@ -135,10 +133,10 @@ function arrangeTypes(label, labelindex, locals) {
 
             if (svgSources.lastIndexOf(groups[l].subgroup[where].svg.src) == -1)
               svgSources.push(groups[l].subgroup[where].svg.src);
-
-            groups[l].subgroup[where].ids.push(types[i].id);
-            groups[l].subgroup[where].elements.push(types[i]);
           }
+          groups[l].subgroup[where].elements.push(types[i]);
+          groups[l].subgroup[where].ids.push(types[i].id);
+
         }
       }
     }
@@ -151,10 +149,13 @@ function arrangeTypes(label, labelindex, locals) {
   for (var i = 0; i < groups.length; i++) {
     paths[groups[i].key] = {};
     for (var j = 0; j < groups[i].subgroup.length; j++) {
-      // paths[groups[i].key][groups[i].subgroup[j].name] = {};
       for (var k = 0; k < groups[i].subgroup[j].ids.length; k++) {
+        for (var l = 0; l < groups[i].subgroup[j].elements.length; l++) {
+          if (groups[i].subgroup[j].elements[l].id == groups[i].subgroup[j].ids[k])
+            break; // position in elements array
+        }
         paths[groups[i].key][groups[i].subgroup[j].ids[k]] = 'data.' +
-          labelindex + '.groups.' + i + '.subgroup.' + j + '.elements.' + k + '.values';
+          labelindex + '.groups.' + i + '.subgroup.' + j + '.elements.' + l + '.values';
       }
     }
   }

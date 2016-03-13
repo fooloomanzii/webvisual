@@ -44,22 +44,19 @@
         background: #345475;
         color: #A8CCDB;
       }
-      section.header[opened] {
+      svg-element {
+        flex: 1;
+        transition: max-height ease-in-out 0.2s, opacity ease-in-out 0.5s;
       }
       svg-element[opened] {
-        flex: 1;
-        visibility: visible;
         opacity: 1;
-        height: 25vh;
+        min-height: 25vh;
         max-height: 1000px;
-        transition: transform ease-in-out 0.3s, max-height ease-in-out 0.3s, visibility ease-in-out 0.6s, opacity ease-in-out 0.6s;
       }
       svg-element:not([opened]) {
-        flex: 1;
-        visibility: hidden;
         opacity: 0;
-        max-height: 43px;
-        transition: transform ease-in-out 0.3s, max-height ease-in-out 0.3s, visibility ease-in-out 0.6s, opacity ease-in-out 0.6s;
+        min-height: 0px;
+        max-height: 0px;
       }
       section#title {
         position: relative;
@@ -198,12 +195,12 @@
       },
 
       toggle: function() {
-        if (this.svg && this.svg.src) {
-          this.opened = !this.opened;
-          this.$.title.classList.add('over-image');
-        }
-        if (!this.opened)
-          this.$.title.classList.remove('over-image');
+          if (this.svg && this.svg.src) {
+            this.opened = !this.opened;
+            this.$.title.classList.add('over-image');
+          }
+          if (!this.opened)
+            this.$.title.classList.remove('over-image');
       },
 
       _titleChanged: function(text) {

@@ -22,10 +22,6 @@
         type: Array,
         value: function() { return []; },
       },
-      indexOfLabel: {
-        type: Object,
-        value: function() { return {}; }
-      },
       groupingKeys: {
         type: Object,
         value: function() { return {}; }
@@ -49,12 +45,6 @@
         value: function() { return []; },
         notify: true
       }
-    },
-    _computeSelectedLabelId: function(label) {
-      if (label == undefined)
-        return this.indexOfLabel[this.labels[0]];
-      else
-        return this.indexOfLabel[label];
     },
     _selectedLabelChanged: function(newValue, oldValue) {
       this.set('groupBy', this.preferedGroupingKeys[this.selectedLabel]);

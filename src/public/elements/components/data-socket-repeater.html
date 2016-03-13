@@ -55,11 +55,6 @@
             value: function() { return []; },
             notify: true
           },
-          indexOfLabel: {
-            type: Object,
-            value: function() { return {}; },
-            notify: true
-          },
           groupingKeys: {
             type: Object,
             value: function() { return {}; },
@@ -119,13 +114,12 @@
         this.socket = io.connect('https://'+window.location.host+this.socketName, {secure: true});
         this.set("status.time.lastStatus",new Date()); this.set("status.message", "connecting to "+window.location.host);
         var self = this;
-        this.socket.on('clientConfig', function(config, socketId) {
+        this.socket.on('init', function(config, socketId) {
           // self.set('socketId', socketId);
           // console.log(socketId);
           self._init();
           self.set("availableLabels", config.labels);
           if (!self.opened) {
-            self.set("indexOfLabel", config.indexOfLabel);
             self.set('paths', config.paths);
             self.set('data', config.dataStructure);
             self.set('groupingKeys', config.groupingKeys);
@@ -143,18 +137,18 @@
         this.set("status.time.lastStatus",new Date()); this.set("status.message", "configuring connection");
 
         // Setting Configuration Request Pattern Array
-        var options = { patterns: [] };
+        var config = { labels: this.labels, patterns: [] };
         // this.set("config.firstPattern.time.from",new Date()-72000000);
-        for (var i=0; i<this.labels.length; i++) {
-          options.patterns.push({label: this.labels[i],
-                        firstPattern: this.config.firstPattern,
-                        appendPattern: this.config.appendPattern});
-        }
-        this.socket.emit('clientConfig', options);
+        // for (var i=0; i<this.labels.length; i++) {
+        //   options.patterns.push({label: this.labels[i],
+        //                 firstPattern: this.config.firstPattern,
+        //                 appendPattern: this.config.appendPattern});
+        // }
+        this.socket.emit('init', config);
 
         var self = this;
         // Receive Data
-        this.socket.on('data', function(message) {
+        this.socket.on('update', function(message) {
           self.set("status.message", "receiving data");
           self.async(function() {
             self._onData(message);
@@ -235,6 +229,7 @@
         for (var i=0; i < message.content.length; i++) {
           if(message.content[i].id) {
             path = this.paths[message.label][this.preferedGroupingKeys[message.label]][message.content[i].id];
+            // console.log(message.label,message.content[i].id,path);
             if (path) {
               values = this.get(path);
               if (!this.doAppend)
@@ -242,7 +237,7 @@
               if (this.newestDataLast) {
                 for (var j = 0; j < message.content[i].values.length; j++) {
                   this.unshift(path, message.content[i].values[j]);
-                  this._checkIfExceedingStateHasToBeSet(path,  message.content[i].values[j].exceeds);
+                  this._checkIfExceedingStateHasToBeSet(path, message.content[i].values[j].exceeds);
                 }
               }
               else {

@@ -289,8 +289,8 @@ dataFileHandler = (function() {
     // Process the given listener
     this._addListener(config.listener);
 
-    // Save current index
-    this.index = (config.index==undefined) ? 0 : config.index;
+    // Save current label
+    this.label = (config.label==undefined) ? "test" : config.label;
   }
 
   // Extend with properties; null values are just place holder for instantiated properties
@@ -344,9 +344,9 @@ dataFileHandler = (function() {
     return function(error, data) {
       // TODO: Array or not array?
       if(error) {
-        self._emitter.emit('error', type, error, self.index);
+        self._emitter.emit('error', type, error, self.label);
       } else {
-        self._emitter.emit('data', type, data, self.index);
+        self._emitter.emit('data', type, data, self.label);
       }
     };
   };
