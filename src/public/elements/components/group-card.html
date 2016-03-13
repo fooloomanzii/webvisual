@@ -38,24 +38,26 @@
         border-bottom-left-radius: 0px;
         border-bottom-right-radius: 0px;
         background: #669DB4;
-        font-size: 1.1em;
+        font-size: 1em;
+        transition: max-height ease-in-out 0.3s;
+        min-height: 2.6em;
       }
       section.header[dark] {
         background: #345475;
         color: #A8CCDB;
       }
+      section.header[opened] {
+        max-height: 30vh;
+      }
       svg-element {
         flex: 1;
-        transition: max-height ease-in-out 0.2s, opacity ease-in-out 0.5s;
+        transition: opacity ease-in-out 0.5s;
       }
       svg-element[opened] {
         opacity: 1;
-        min-height: 25vh;
-        max-height: 1000px;
       }
       svg-element:not([opened]) {
         opacity: 0;
-        min-height: 0px;
         max-height: 0px;
       }
       section#title {
@@ -64,6 +66,7 @@
         left: 0;
         height: 100%;
         width: 100%;
+        font-size: 1.1em;
         padding: 0.6em 0.8em;
         box-sizing: border-box;
         color: white;
@@ -125,7 +128,7 @@
   <template>
     <section id="main" name$="[[title]]" nowindow$="{{withoutWindow}}">
 
-      <section class="header">
+      <section class="header" opened$="{{opened}}">
         <!-- <section class="svgcontainer" opened$="{{opened}}"> -->
           <svg-element id="svg" hidden$="{{!svg.src}}" opened$="{{opened}}" src="{{svg.src}}" selected="{{pathToExceedingElements}}" initial-selected="{{svg.initial}}" selectable="{{svg.selectable}}"></svg-element>
         <!-- </section> -->

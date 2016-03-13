@@ -274,10 +274,10 @@ Use `isZoomable` to make it isZoomable.
       this.height = viewBox[3] - viewBox[1];
 
       // set selectable elements
-      this.async( function() {
-        this._selectableChanged(this.selectable);
-        this.select(this.selected, this.selectedClass, this.multi);
-      }, 200);
+      this._selectableChanged(this.selectable);
+
+      // zoom to selected or to initial or to zero
+      this._selectedChanged(true);
     },
 
     _zoom: function () {
@@ -293,8 +293,10 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _initialSelectedChanged: function(change) {
-      if(change && this.svg && this.mainG )
-        this._resetZoom();
+      if(change && this.mainG )
+        this.async( function() {
+          this._resetZoom();
+        }, 600);
     },
 
     _openedChanged: function(opened) {
