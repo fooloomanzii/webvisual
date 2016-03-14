@@ -79,12 +79,11 @@ function connect(config, server, err) {
     var listeners = {
       error: function(type, err, label) {
         // dataSocket.emit('mistake', { error: err, time: new Date() });
-        handleErrors(err, "dataFileHandler label: "+label);
+        handleErrors(err, "dataFileHandler label: " + label);
       },
       data: function(type, data, label) {
         if (!data || data.length == 0)
           return; // Don't handle empty data
-
         // temporary save data
         if (dataConfig[label]) {
           // process data
@@ -94,6 +93,7 @@ function connect(config, server, err) {
           });
           // serve clients in rooms for labels
           dataSocket.to(label).emit("update", currentData[label]);
+
         }
       }
     }
@@ -155,8 +155,7 @@ function serveData(label, content) {
   dataSocket.to(label).emit("update", content);
 }
 
-function disconnect() {
-}
+function disconnect() {}
 
 function initMailer(config) {
   /*

@@ -48,3 +48,4 @@ src/ssl/*
 *.workspace
 .tern-project
 *.tern-port
+*.log
