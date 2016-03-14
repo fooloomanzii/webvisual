@@ -86,11 +86,13 @@ function processData(settings, currentData) {
       }
     }
 
+    var date = new Date(Math.max.apply(null, dateArray));
+
     // Creation of an Return Object
-    // TODO: socket for each messurement-device possible?
     returnObject = {
       content: processedData,
-      label: settings.label
+      label: settings.label,
+      date: date
     };
   }
   return returnObject;

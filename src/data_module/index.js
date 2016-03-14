@@ -68,6 +68,7 @@ function connect(config, server, err) {
   var availableLabels = [];
   var dataConfig = {};
   var dataFile = {};
+  var mergedData;
 
   for (var i = 0; i < configArray.length; i++) {
     var label = configArray[i].label;
@@ -87,13 +88,17 @@ function connect(config, server, err) {
         // temporary save data
         if (dataConfig[label]) {
           // process data
-          currentData[label] = mergeData(dataConfig[label], {
+          mergedData = mergeData(dataConfig[label], {
             exceeds: threshold(data, dataConfig[label].types),
             data: data
           });
           // serve clients in rooms for labels
-          dataSocket.to(label).emit("update", currentData[label]);
-
+          // only newer data is send
+          // TODO: handle this optional by config
+          if (currentData[label] && mergedData.date > currentData[label].date) {
+            dataSocket.to(label).emit("update", currentData[label]);
+          }
+          currentData[label] = mergedData;
         }
       }
     }
