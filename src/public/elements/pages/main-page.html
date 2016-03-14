@@ -13,6 +13,8 @@
       left: 0;
       top: 0;
       position: absolute;
+      --fullscreen-icon-color: rgba(255, 255, 255, 0.8);
+      --fullscreen-icon-hover-color: rgba(255, 255, 255, 1);
     }
     section#mainView {
       position: relative;
@@ -67,8 +69,7 @@
     section#exceedsPanel:not(.exceeds-panel-opened) {
       left: auto;
       visibility: hidden;
-      -webkit-transform: translateX(100%);
-      transform: translateX(100%);
+      -webkit-transform: translateX(100%); transform: translateX(100%);
     }
     section#exceedsHeader {
       position: relative;
@@ -146,8 +147,7 @@
       height: 6px;
       pointer-events: none;
       box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
-      -webkit-transition: opacity 0.5s;
-      transition: opacity 0.5s;
+      -webkit-transition: opacity 0.5s; transition: opacity 0.5s;
       opacity: 0;
     }
     section#dropShadow.has-shadow {
@@ -273,7 +273,6 @@
     section#toolbarHeader paper-icon-button.menu-icon {
       margin-right: 20px;
       margin-left: 20px;
-      z-index: 10;
     }
     section#toolbarHeader paper-icon-button.error {
       color: #FF9D9D;
@@ -324,7 +323,7 @@
       flex-shrink: 0;
     }
     section#toolbarFooter svg-element {
-      background: rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.12);
       border-top: thin solid #669DB4;
       border-bottom: thin solid #669DB4;
     }
@@ -436,6 +435,52 @@
       :host {
         font-size: 1.25em;
       }
+    }
+    section#svgFullscreenContainer {
+      display: flex;
+      flex: 1;
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      visibility: hidden;
+      opacity: 0;
+      background-color: rgba(18, 12, 11, 0.75);
+      transition: opacity ease-in-out 0.5s, visibilty ease-in-out 0.5s;
+    }
+    section#svgFullscreenContainer svg-element {
+      transform-origin: center;
+      transform: scale(0);
+      visibility: hidden;
+      opacity: 0;
+      transition: transform ease-in-out 0.3s, opacity ease-in-out 0.5s, visibilty ease-in-out 0.5s;
+      --icon-color: var(--fullscreen-icon-color);
+      --icon-hover-color: var(--fullscreen-icon-hover-color);
+    }
+    section#svgFullscreenContainer.fullscreen-opened {
+      visibility: visible;
+      opacity: 1;
+      z-index: 100;
+    }
+    section#svgFullscreenContainer.fullscreen-opened svg-element{
+      visibility: visible;
+      transform: scale(1);
+      opacity: 1;
+    }
+    section#svgFullscreenContainer paper-icon-button{
+      position: fixed;
+      right: 12px;
+      top: 12px;
+      color: var(--fullscreen-icon-color);
+      background: #005B82;
+      border-radius: 50%;
+    }
+    section#svgFullscreenContainer paper-icon-button:hover{
+      color: var(--fullscreen-icon-color);
+      box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 5px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 1px -2px rgba(0, 0, 0, 0.2);
     }
   </style>
 
@@ -587,6 +632,11 @@
       </section>
     </section>
 
+    <section id="svgFullscreenContainer">
+      <svg-element id="fullscreenSvg" opened zoom-partion="5" max-zoom="3" min-zoom="0.85"></svg-element>
+      <paper-icon-button icon="close" on-tap="closeSvgFullscreen"></paper-icon-button>
+    </section>
+
   </template>
   <script>
 
@@ -689,7 +739,8 @@
       ],
 
       listeners: {
-        "element-select": "setSelectedElement"
+        "element-select": "setSelectedElement",
+        "svg-fullscreen": "openSvgFullscreen"
       },
 
       setSelectedElement: function(e) {
@@ -720,7 +771,7 @@
       deselectElement: function() {
         this.playAnimation('select-out');
         this.closeDrawer();
-        this.toggleAttribute('opened',false);
+        this.toggleAttribute('opened', false);
         this.debounce('deselect-request', function() {
           this.unlinkPaths('selectedElement');
           this.set("selectedElement", null);
@@ -738,7 +789,16 @@
         else
           return 'expand-more';
       },
-
+      openSvgFullscreen: function(e) {
+        this.closeDrawer();
+        this.$.fullscreenSvg.set('src',e.detail.src);
+        this.$.fullscreenSvg.set('selectable', e.detail.selectable);
+        this.$.fullscreenSvg.set('initialSelected', e.detail.initialSelected);
+        this.$.svgFullscreenContainer.classList.add("fullscreen-opened");
+      },
+      closeSvgFullscreen: function() {
+        this.$.svgFullscreenContainer.classList.remove("fullscreen-opened");
+      },
       _checkExceedsPanel: function(length) {
         if(!(this.$.exceedsPanel.classList.contains("exceeds-panel-opened")) && length > 0) {
           this.openExceedsPanel();

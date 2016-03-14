@@ -39,7 +39,7 @@
         border-bottom-right-radius: 0px;
         background: #669DB4;
         font-size: 1em;
-        transition: max-height ease-in-out 0.3s;
+        transition: max-height ease-in-out 0.3s, min-height ease-in-out 0.3s;
         min-height: 2.6em;
       }
       section.header[dark] {
@@ -47,7 +47,8 @@
         color: #A8CCDB;
       }
       section.header[opened] {
-        max-height: 30vh;
+        min-height: calc(10vh + 120px);
+        max-height: 40vh;
       }
       svg-element {
         flex: 1;

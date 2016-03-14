@@ -44,31 +44,37 @@ Use `isZoomable` to make it isZoomable.
     width: auto;
   	position: relative;
   	overflow: hidden;
-    /*max-height: 1000px;
-    transition: max-height 300ms linear;*/
   }
-  /*:host(:not(.opened)) {
-    max-height: 0px;
-  }*/
   div#svgContainer {
     border-radius: inherit;
     display: flex;
     width: 100%;
   }
-  svg#zoombackcontrol {
+  div#control {
     position: absolute;
+    padding: 0.25em;
     bottom: 0;
     right: 0;
-    padding: 0.8em;
-    fill: currentColor;
-    color: rgba(90, 90, 90, 0.5);
   }
-  svg#zoombackcontrol:hover {
-    color: rgba(50, 50, 50, 0.9);
+  svg.icon {
+    padding: 0.5em;
+    margin: 0.25;
+    transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    fill: currentColor;
+    color: var(--icon-color, rgba(90, 90, 90, 0.5));
+  }
+  svg.icon:hover {
+    background: rgba(255,255,255, 0.25);
+    border-radius: 50%;
+    color: var(--icon-hover-color, rgba(50, 50, 50, 0.9));
+  }
+  svg.icon#fullscreencontrol.fullscreen-opened {
+    display: none;
   }
   .text {
     fill: currentColor !important;
     pointer-events: none;
+    color: #1f1f1f;
     font-family: inherit !important;
     font-weight: inherit !important;
     letter-spacing: normal !important;
@@ -89,13 +95,13 @@ Use `isZoomable` to make it isZoomable.
     stroke-linejoin: round;
   }
   .selected {
-    fill: #D91B1B !important;
-    stroke: black !important;
-    stroke-width: 1.5px !important;
+    fill: #D73333 !important;
+    stroke: #A12525 !important;
+    stroke-width: 2px !important;
     stroke-linecap: round;
     stroke-linejoin: round;
     animation-name: selected-animation;
-    animation-duration: 2s;
+    animation-duration: 3s;
     animation-timing-function: ease;
     animation-iteration-count: infinite;
   }
@@ -110,12 +116,20 @@ Use `isZoomable` to make it isZoomable.
 </style>
 <template>
   <div id="svgContainer">
-    <svg on-tap="_resetZoom" id="zoombackcontrol" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" height="24px" width="24px" viewBox="0 0 240 240" xml:space="preserve">
+  </div>
+  <div id="control">
+    <svg on-tap="_resetZoom" id="zoombackcontrol" class="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" height="24px" width="24px" viewBox="0 0 240 240" xml:space="preserve">
       <g> <polygon points="186.996,66.996 186.996,173.004 240,120"/>
-      	<polygon points="53.004,173.004 53.004,66.996 0,120"/>
-      	<polygon points="66.996,53.004 173.004,53.004 120,0"/>
-      	<polygon points="120,240 173.004,186.996 66.996,186.996"/>
-      	<circle cx="120" cy="120" r="25"/> </g>
+        <polygon points="53.004,173.004 53.004,66.996 0,120"/>
+        <polygon points="66.996,53.004 173.004,53.004 120,0"/>
+        <polygon points="120,240 173.004,186.996 66.996,186.996"/>
+        <circle cx="120" cy="120" r="25"/> </g>
+    </svg>
+    <svg on-tap="_fullscreen" id="fullscreencontrol" class="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" height="24px" width="24px" viewBox="0 0 240 240" xml:space="preserve">
+      <g> <polygon points="186.996,66.996 186.996,173.004 240,120"/>
+        <polygon points="53.004,173.004 53.004,66.996 0,120"/>
+        <polygon points="66.996,53.004 173.004,53.004 120,0"/>
+        <polygon points="120,240 173.004,186.996 66.996,186.996"/>
     </svg>
   </div>
 </template>
@@ -205,6 +219,10 @@ Use `isZoomable` to make it isZoomable.
       }
     },
 
+    listeners: {
+      "xml-dom-import-finish": "_onXmlLoaded"
+    },
+
     observers: [
       "_selectedChanged(selected.*)"
     ],
@@ -222,7 +240,6 @@ Use `isZoomable` to make it isZoomable.
         }
         // import svg
         // prevents multible reloading after creation time
-        // synchronous loading can cause loading problems
         if (svgSource[source] == null) {
           var xhttp = new XMLHttpRequest();
           xhttp.onreadystatechange = function(e) {
@@ -232,7 +249,7 @@ Use `isZoomable` to make it isZoomable.
               }
           }.bind(this);
 
-          xhttp.open("GET", source, false);
+          xhttp.open("GET", source, true);
           xhttp.send();
         }
         else {
@@ -243,39 +260,46 @@ Use `isZoomable` to make it isZoomable.
 
     _registerXML: function(xml) {
       // import svg to document
-      var svgNode = document.importNode(xml.cloneNode(true), true);
-      // register zoom function
-      this._d3Zoom = d3.behavior.zoom()
-                       .scaleExtent([this.minZoom, this.maxZoom])
-                       .on("zoom", this._zoom);
+      // this.async( function() {
+        var date = new Date();
+        var svgNode = document.importNode(xml.cloneNode(true), true);
+        // register zoom function
+        this._d3Zoom = d3.behavior.zoom()
+                         .scaleExtent([this.minZoom, this.maxZoom])
+                         .on("zoom", this._zoom);
 
-      // append imported svg to this element
-      this.$.svgContainer.insertBefore(svgNode, this.$.svgContainer.firstChild);
+        // append imported svg to this element
+        this.$.svgContainer.insertBefore(svgNode, this.$.svgContainer.firstChild);
 
-      this.svg = d3.select(svgNode).attr("id", "main")
-                                   .call(this._d3Zoom);
+        this.svg = d3.select(svgNode).attr("id", "main")
+                                     .call(this._d3Zoom);
 
-      // set style for resizing
-      this.svg.attr("preserveAspectRatio", "xMinYMin meet")
-              .attr("height", null)
-              .attr("width", null)
-              .style("flex","1");
+        // set style for resizing
+        this.svg.attr("preserveAspectRatio", "xMinYMin meet")
+                .attr("height", null)
+                .attr("width", null)
+                .style("flex", "1 1 100%")
+                .style("height", "auto");
 
-      this.mainG = this.svg.select("g")
-                           .attr("id", "mainG");
+        this.mainG = this.svg.select("g")
+                             .attr("id", "mainG");
 
-      this.mainG.selectAll("text")
-                .classed("text", true)  // for styling text
-                .classed("svg-element", true); // style-scoping in polymer
+        this.mainG.selectAll("text")
+                  .classed("text", true)  // for styling text
+                  .classed("svg-element", true); // style-scoping in polymer
 
-      // get original dimensions
-      var viewBox = this.svg.attr("viewBox").split(' ');
-      this.width  = viewBox[2] - viewBox[0];
-      this.height = viewBox[3] - viewBox[1];
+        // get original dimensions
+        var viewBox = this.svg.attr("viewBox").split(' ');
+        this.width  = viewBox[2] - viewBox[0];
+        this.height = viewBox[3] - viewBox[1];
 
+        this.fire("xml-dom-import-finish", {}, {bubbles: false})
+      // });
+    },
+
+    _onXmlLoaded: function() {
       // set selectable elements
       this._selectableChanged(this.selectable);
-
       // zoom to selected or to initial or to zero
       this._selectedChanged(true);
     },
@@ -501,6 +525,10 @@ Use `isZoomable` to make it isZoomable.
       this.svg.transition()
               .duration(500)
               .call(this._d3Zoom.translate([0, 0]).scale(1).event);
+    },
+
+    _fullscreen: function() {
+      this.fire("svg-fullscreen",{src: this.src, selectable: this.selectable, initialSelected: this.initialSelected});
     },
 
     _isZoomableChanged: function() {
