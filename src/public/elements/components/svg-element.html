@@ -52,25 +52,43 @@ Use `isZoomable` to make it isZoomable.
   }
   div#control {
     position: absolute;
-    padding: 0.25em;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    padding-right: 6px;
     bottom: 0;
     right: 0;
   }
-  svg.icon {
-    padding: 0.5em;
-    margin: 0.25;
-    transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-    fill: currentColor;
-    color: var(--icon-color, rgba(90, 90, 90, 0.5));
+  div#control[top] {
+    top: 0;
+    right: 0;
+    bottom: auto;
   }
-  svg.icon:hover {
-    background: rgba(255,255,255, 0.25);
+  paper-icon-button {
+    margin-right: 6px;
+    transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--icon-color, rgb(150, 150, 150));
     border-radius: 50%;
-    color: var(--icon-hover-color, rgba(50, 50, 50, 0.9));
+    background: rgba(255,255,255, 0.1);
   }
-  svg.icon#fullscreencontrol.fullscreen-opened {
-    display: none;
+  paper-icon-button:hover {
+    background: rgba(255,255,255, 0.3);
+    color: var(--icon-hover-color, rgb(60, 60, 60));
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                0 1px 5px 0 rgba(0, 0, 0, 0.12),
+                0 3px 1px -2px rgba(0, 0, 0, 0.2);
   }
+
+  /*paper-icon-button:hover:after {
+    content: attr(label);
+    position: absolute;
+    top: 50%;
+    right: 125%;
+    padding: 0.5em;
+    font-size: 0.75em;
+    border-radius: 12px;
+    background: rgba(255,255,255, 0.25);
+    color: #1f1f1f;
+  }*/
   .text {
     fill: currentColor !important;
     pointer-events: none;
@@ -80,15 +98,10 @@ Use `isZoomable` to make it isZoomable.
     letter-spacing: normal !important;
   }
   .svg-element-selectable {
-    /*fill: rgb(203, 67, 107) !important;
-    stroke: white !important;
-    stroke-linecap: round;
-    stroke-linejoin: round;*/
     transform-origin: center center;
     -moz-transform-origin: 50% 50%;
   }
   .clicked {
-    /*fill: #F6EBCD !important;*/
     stroke: #1f1f1f !important;
     stroke-width: 1.5px !important;
     stroke-linecap: round;
@@ -110,27 +123,17 @@ Use `isZoomable` to make it isZoomable.
       transform: scale(1.0);
     }
     50% {
-      transform: scale(0.5);
+      transform: scale(0.75);
     }
   }
 </style>
 <template>
   <div id="svgContainer">
   </div>
-  <div id="control">
-    <svg on-tap="_resetZoom" id="zoombackcontrol" class="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" height="24px" width="24px" viewBox="0 0 240 240" xml:space="preserve">
-      <g> <polygon points="186.996,66.996 186.996,173.004 240,120"/>
-        <polygon points="53.004,173.004 53.004,66.996 0,120"/>
-        <polygon points="66.996,53.004 173.004,53.004 120,0"/>
-        <polygon points="120,240 173.004,186.996 66.996,186.996"/>
-        <circle cx="120" cy="120" r="25"/> </g>
-    </svg>
-    <svg on-tap="_fullscreen" id="fullscreencontrol" class="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" height="24px" width="24px" viewBox="0 0 240 240" xml:space="preserve">
-      <g> <polygon points="186.996,66.996 186.996,173.004 240,120"/>
-        <polygon points="53.004,173.004 53.004,66.996 0,120"/>
-        <polygon points="66.996,53.004 173.004,53.004 120,0"/>
-        <polygon points="120,240 173.004,186.996 66.996,186.996"/>
-    </svg>
+  <div id="control" top$="{{fullscreen}}">
+    <paper-icon-button label="focus" icon="focus" on-tap="_resetZoom"></paper-icon-button>
+    <paper-icon-button label="fullscreen" hidden$="{{fullscreen}}" icon="fullscreen" on-tap="_openFullscreen"></paper-icon-button>
+    <paper-icon-button label="exit fullscreen" hidden$="{{!fullscreen}}" icon="fullscreen-exit" on-tap="_exitFullscreen"></paper-icon-button>
   </div>
 </template>
 
@@ -187,6 +190,11 @@ Use `isZoomable` to make it isZoomable.
         value: false,
         reflectToAttribute: true,
         observer: "_openedChanged"
+      },
+      fullscreen: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
       },
       minZoom: {
         type: Number,
@@ -527,8 +535,11 @@ Use `isZoomable` to make it isZoomable.
               .call(this._d3Zoom.translate([0, 0]).scale(1).event);
     },
 
-    _fullscreen: function() {
-      this.fire("svg-fullscreen",{src: this.src, selectable: this.selectable, initialSelected: this.initialSelected});
+    _openFullscreen: function() {
+      this.fire("svg-open-fullscreen",{src: this.src, selectable: this.selectable, initialSelected: this.initialSelected});
+    },
+    _exitFullscreen: function() {
+      this.fire("svg-exit-fullscreen");
     },
 
     _isZoomableChanged: function() {

@@ -24,7 +24,7 @@ var io = require('socket.io')(),
   // currentData temporary saved for the first sending (unnecessary with db requests)
   currentData = {},
   // array of configurations
-  configArray = [];
+  configs = [];
 
 // private function to handle the errors
 function handleErrors(errors, id_message) {
@@ -62,7 +62,7 @@ function connect(config, server, err) {
   io.listen(server);
 
   // TODO: Test for an array of configurations
-  configArray = config.configurations;
+  configs = config.configurations;
 
   // dataFileHandler - established the data connections
   var availableLabels = [];
@@ -70,12 +70,10 @@ function connect(config, server, err) {
   var dataFile = {};
   var mergedData;
 
-  for (var i = 0; i < configArray.length; i++) {
-    var label = configArray[i].label;
+  for (var label in configs) {
 
     availableLabels.push(label);
-
-    dataConfig[label] = arrangeTypes(label, i, configArray[i].locals);
+    dataConfig[label] = arrangeTypes(label, availableLabels.indexOf(label), configs[label].locals);
 
     var listeners = {
       error: function(type, err, label) {
@@ -104,7 +102,7 @@ function connect(config, server, err) {
     }
     dataFile[label] = new dataFileHandler({
       label: label,
-      connection: configArray[i].connections,
+      connection: configs[label].connections,
       listener: listeners
     });
     dataFile[label].connect();
