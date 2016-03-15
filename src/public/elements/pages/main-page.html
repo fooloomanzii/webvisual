@@ -507,7 +507,8 @@
           <!-- <section style="display: flex; flex-grow: 1; flex-shrink: 1;"> -->
             <svg-element id="selectedElementSVG" class="selectedElement" hidden$="{{!selectedElement.svg.source}}"
                          source="{{selectedElement.svg.source}}" selected="{{pathToExceedingElements}}" opened="{{opened}}"
-                         initial-selected="{{selectedElement.svg.initial}}" selectable="{{selectedElement.svg.selectable}}">
+                         initial-selected="{{selectedElement.svg.initial}}" selectable="{{selectedElement.svg.selectable}}"
+                         zoom-partition="1.5" max-zoom="4" min-zoom="1">
             </svg-element>
           <!-- </section> -->
         </section>
@@ -621,7 +622,7 @@
     </section>
 
     <section id="svgFullscreenContainer">
-      <svg-element id="fullscreenSvg" opened zoom-partion="5" max-zoom="3" min-zoom="0.85" fullscreen></svg-element>
+      <svg-element id="fullscreenSvg" opened zoom-partition="5" max-zoom="3" min-zoom="0.85" fullscreen></svg-element>
     </section>
 
   </template>

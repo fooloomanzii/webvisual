@@ -195,10 +195,11 @@
         for (var id in sources) {
           // import svg
           // prevents multible reloading after creation time
+          svgSource[id] = {selectable: sources[id].selectable};
           req = new XMLHttpRequest();
           req.onreadystatechange = function(name) {
               if (this.readyState == 4 && this.status == 200) {
-                svgSource[name] = this.responseXML.documentElement;
+                svgSource[name].node = this.responseXML.documentElement;
               }
           }.bind(req, id);
           req.open("GET", sources[id].src, true);

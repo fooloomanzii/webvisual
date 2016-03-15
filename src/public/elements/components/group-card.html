@@ -230,7 +230,16 @@
 
       _setSelectedElement: function(e) {
         // this.close();
-        this.fire("element-select", {element: e.model.element, svg: {source: e.model.element.svg.source, initial: e.model.element.svg.path, selectable: e.model.element.svg.path} || {}});
+        var svg = e.model.element.svg || {};
+
+        if (svg.path) {
+          var selectable = svg.path || "";
+          if (svgSource[svg.source].selectable)
+            selectable = selectable + ',' + svgSource[svg.source].selectable;
+          svg = {"source": svg.source, "initial": svg.path, "selectable": selectable}
+        }
+
+        this.fire("element-select", {"element": e.model.element, "svg": svg});
       },
 
       _setExceedingElement: function(e) {

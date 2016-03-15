@@ -241,6 +241,8 @@ Use `isZoomable` to make it isZoomable.
       if (source && this.recentSource != source) {
         if (!svgSource[source])
           return;
+        if (!svgSource[source].node)
+          return;
 
         this.recentSource = source;
 
@@ -249,7 +251,7 @@ Use `isZoomable` to make it isZoomable.
           this.$.svgContainer.removeChild(this.svg.node());
         }
         // import svg (came by data-socket-repeater)
-        this._registerXML(svgSource[source]);
+        this._registerXML(svgSource[source].node);
       }
     },
 
