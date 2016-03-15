@@ -207,6 +207,12 @@
           if (!this.opened)
             this.$.title.classList.remove('over-image');
       },
+      close: function() {
+          if (this.svg && this.svg.source) {
+            this.opened = false;
+            this.$.title.classList.remove('over-image');
+          }
+      },
 
       _titleChanged: function(text) {
         if (!text)
@@ -223,7 +229,8 @@
       },
 
       _setSelectedElement: function(e) {
-        this.fire("element-select", {element: e.model.element, svg: e.model.element.svg || {}});
+        // this.close();
+        this.fire("element-select", {element: e.model.element, svg: {source: e.model.element.svg.source, initial: e.model.element.svg.path, selectable: e.model.element.svg.path} || {}});
       },
 
       _setExceedingElement: function(e) {
