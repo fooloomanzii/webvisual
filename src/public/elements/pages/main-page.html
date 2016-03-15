@@ -13,8 +13,6 @@
       left: 0;
       top: 0;
       position: absolute;
-      --fullscreen-icon-color: rgba(255, 255, 255, 0.8);
-      --fullscreen-icon-hover-color: rgba(255, 255, 255, 1);
     }
     section#mainView {
       position: relative;
@@ -450,7 +448,7 @@
       left: 0;
       visibility: hidden;
       opacity: 0;
-      background-color: rgba(52, 84, 117, 0.75);
+      background-color: rgba(52, 84, 117, 0.8);
       transition: opacity ease-in-out 0.5s, visibilty ease-in-out 0.5s;
     }
     section#svgFullscreenContainer svg-element {
@@ -458,8 +456,10 @@
       transform: scale(0);
       opacity: 0;
       transition: transform ease-in-out 0.3s, opacity ease-in-out 0.5s, visibilty ease-in-out 0.5s;
-      --icon-color: var(--fullscreen-icon-color);
-      --icon-hover-color: var(--fullscreen-icon-hover-color);
+      --icon-color: rgba(255, 255, 255, 0.8);
+      --icon-hover-color: rgba(255, 255, 255, 1);
+      --icon-background: rgba(255,255,255, 0.15);
+      --icon-hover-background: rgba(255,255,255, 0.4);
     }
     section#svgFullscreenContainer.fullscreen-opened {
       visibility: visible;
@@ -505,8 +505,8 @@
             </table-element>
           </section>
           <!-- <section style="display: flex; flex-grow: 1; flex-shrink: 1;"> -->
-            <svg-element id="selectedElementSVG" class="selectedElement" hidden$="{{!selectedElement.svg.src}}"
-                         src="{{selectedElement.svg.src}}" selected="{{pathToExceedingElements}}" opened="{{opened}}"
+            <svg-element id="selectedElementSVG" class="selectedElement" hidden$="{{!selectedElement.svg.source}}"
+                         source="{{selectedElement.svg.source}}" selected="{{pathToExceedingElements}}" opened="{{opened}}"
                          initial-selected="{{selectedElement.svg.initial}}" selectable="{{selectedElement.svg.selectable}}">
             </svg-element>
           <!-- </section> -->
@@ -779,7 +779,7 @@
       },
       openSvgFullscreen: function(e) {
         this.closeDrawer();
-        this.$.fullscreenSvg.set('src',e.detail.src);
+        this.$.fullscreenSvg.set('source', e.detail.source);
         this.$.fullscreenSvg.set('selectable', e.detail.selectable);
         this.$.fullscreenSvg.set('initialSelected', e.detail.initialSelected);
         this.$.svgFullscreenContainer.classList.add("fullscreen-opened");

@@ -124,8 +124,8 @@
             self.set('data', config.dataStructure);
             self.set('groupingKeys', config.groupingKeys);
             self.set('preferedGroupingKeys', config.preferedGroupingKeys);
-            if (config.svgSources)
-              self._loadSvgSources(config.svgSources);
+            if (config.svg)
+              self._loadSvgSources(config.svg);
           } else {
             self.connect();
           }
@@ -191,16 +191,17 @@
 
       _loadSvgSources: function(sources) {
         var xhttp = [];
-        for (var i = 0; i < sources.length; i++) {
+        var req;
+        for (var id in sources) {
           // import svg
           // prevents multible reloading after creation time
-          var req = new XMLHttpRequest();
-          req.onreadystatechange = function(source) {
+          req = new XMLHttpRequest();
+          req.onreadystatechange = function(name) {
               if (this.readyState == 4 && this.status == 200) {
-                svgSource[source] = this.responseXML.documentElement;
+                svgSource[name] = this.responseXML.documentElement;
               }
-          }.bind(req, sources[i]);
-          req.open("GET", sources[i], true);
+          }.bind(req, id);
+          req.open("GET", sources[id].src, true);
           req.send();
           xhttp.push(req);
         }

@@ -11,7 +11,7 @@ var defaults = {
   }]
 };
 
-function arrangeTypes(label, labelindex, locals) {
+function arrangeTypes(label, labelindex, locals, svgSources) {
 
   if (!locals || !locals.types)
     return; // Check the Existence
@@ -65,7 +65,6 @@ function arrangeTypes(label, labelindex, locals) {
   // initialy set the preferedGroups
   var groups = locals.exclusiveGroups;
   var key, where, pos, needToSetElement, needToSetGroup;
-  var svgSources = [];
 
   var groupingKeys = locals.groupingKeys;
   if (groupingKeys.indexOf('all') == -1) {
@@ -123,20 +122,42 @@ function arrangeTypes(label, labelindex, locals) {
             groups[l].subgroup[where].elements = [];
           if (!groups[l].subgroup[where].ids)
             groups[l].subgroup[where].ids = [];
-          if (groups[l].subgroup[where].svg && groups[l].subgroup[where].svg.src && types[i].svgPath) {
-            if (groups[l].subgroup[where].svg.initial && groups[l].subgroup[where].svg.selectable.lastIndexOf(groups[l]
-                .subgroup[where].svg.initial) == -1)
-              groups[l].subgroup[where].svg.selectable += "," + groups[l].subgroup[where].svg.initial;
-            groups[l].subgroup[where].svg.selectable = (groups[l].subgroup[where].svg.selectable ? groups[l].subgroup[
-              where].svg.selectable + "," : "");
-            groups[l].subgroup[where].svg.selectable += types[i].svgPath;
 
-            if (svgSources.lastIndexOf(groups[l].subgroup[where].svg.src) == -1)
-              svgSources.push(groups[l].subgroup[where].svg.src);
+          // elements in groups in svg are selectable
+          if (groups[l].subgroup[where].svg &&
+            groups[l].subgroup[where].svg.source &&
+            svgSources[groups[l].subgroup[where].svg.source]) {
+
+            if (!groups[l].subgroup[where].svg.selectable)
+              groups[l].subgroup[where].svg.selectable = "";
+
+            // add main selectable
+            if (svgSources[groups[l].subgroup[where].svg.source].selectable && groups[l].subgroup[where].svg.selectable
+              .lastIndexOf(svgSources[groups[l].subgroup[where].svg.source].selectable) == -1) {
+              groups[l].subgroup[where].svg.selectable = svgSources[groups[l].subgroup[where].svg.source].selectable;
+            }
+
+            // initial is selectable
+            if (groups[l].subgroup[where].svg.initial && groups[l].subgroup[where].svg.selectable.lastIndexOf(groups[l]
+                .subgroup[where].svg.initial) == -1) {
+              // add seperator
+              if (groups[l].subgroup[where].svg.selectable.slice(-1) != "," && groups[l].subgroup[where].svg.selectable)
+                groups[l].subgroup[where].svg.selectable += ",";
+              groups[l].subgroup[where].svg.selectable += groups[l].subgroup[where].svg.initial;
+            }
+
+            // add elements path
+            if (types[i].svg &&
+              types[i].svg.path &&
+              groups[l].subgroup[where].svg.selectable.lastIndexOf(types[i].svg.path) == -1) {
+              // add seperator
+              if (groups[l].subgroup[where].svg.selectable.slice(-1) != "," && groups[l].subgroup[where].svg.selectable)
+                groups[l].subgroup[where].svg.selectable += ",";
+              groups[l].subgroup[where].svg.selectable += types[i].svg.path;
+            }
           }
           groups[l].subgroup[where].elements.push(types[i]);
           groups[l].subgroup[where].ids.push(types[i].id);
-
         }
       }
     }
@@ -171,7 +192,6 @@ function arrangeTypes(label, labelindex, locals) {
     unnamedType: locals.unnamedType,
     timeFormat: locals.timeFormat,
     ignore: locals.ignore,
-    svgSources: svgSources,
     label: label
   };
 }

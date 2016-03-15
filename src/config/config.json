@@ -24,6 +24,21 @@
     "content": "Folgende Messgeräte senden kritische Messwerte:\n"
   },
 
+  "svg": {
+    "E0": {
+      "src": "/img/HNF-GDS/E0_gaskabinet.svg",
+      "selectable": "g#Cabinets path"
+    },
+    "E1": {
+      "src": "/img/HNF-GDS/E1_bypack.svg",
+      "selectable": "g#Cabinets path"
+    },
+    "E2": {
+      "src": "/img/HNF-GDS/E2_reinraum.svg",
+      "selectable": "g#Cabinets path"
+    }
+  },
+
   "database": {},
 
   "configurations": {
@@ -50,6 +65,10 @@
               "system": "intern",
               "alarmlevel": ""
             },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
             "isBoolean": false,
             "threshold": {
               "from": 0,
@@ -66,7 +85,10 @@
               "system": "H₂-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
-            "svgPath": "path#path4514,path#path4512",
+            "svg": {
+              "path": "path#path4514,path#path4512",
+              "source": "E0"
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -82,7 +104,10 @@
               "system": "H₂-Gasüberwachung",
               "alarmlevel": "Alarm 2"
             },
-            "svgPath": "path#path4514,path#path4512",
+            "svg": {
+              "path": "path#path4514,path#path4512",
+              "source": "E0"
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -96,6 +121,10 @@
               "kind": "H₂",
               "system": "H₂-Gasüberwachung",
               "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "path#path5110-0,path#path5112-1,path#path5114-4",
+              "source": "E1"
             },
             "isBoolean": true,
             "threshold": {
@@ -111,6 +140,10 @@
               "system": "H₂-Gasüberwachung",
               "alarmlevel": "Alarm 2"
             },
+            "svg": {
+              "path": "path#path5110-0,path#path5112-1,path#path5114-4",
+              "source": "E1"
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -124,6 +157,10 @@
               "kind": "H₂",
               "system": "H₂-Gasüberwachung",
               "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true,
             "threshold": {
@@ -139,6 +176,10 @@
               "system": "H₂-Gasüberwachung",
               "alarmlevel": "Alarm 2"
             },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -150,6 +191,10 @@
               "kind": "H₂",
               "system": "H₂-Gasüberwachung",
               "alarmlevel": "Störung"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true,
             "threshold": {
@@ -163,6 +208,10 @@
               "system": "intern",
               "alarmlevel": ""
             },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
             "isBoolean": true
           },
 
@@ -172,6 +221,10 @@
               "kind": "Verschiedene",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Störung"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true,
             "threshold": {
@@ -184,6 +237,10 @@
               "kind": "Verschiedene",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Wartung"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true,
             "threshold": {
@@ -200,7 +257,10 @@
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 2"
             },
-            "svgPath": "path#path4478,path#path4476,path#path4470,path#path4472,path#path4474",
+            "svg": {
+              "path": "path#path4478,path#path4476,path#path4470,path#path4472,path#path4474",
+              "source": "E0"
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -216,7 +276,14 @@
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 2"
             },
-            "svgPath": "path#path4504,path#path4506,path#path4508,path#path4510",
+            "svg": {
+              "path": "",
+              "source": ""
+            },
+            "svg": {
+              "path": "path#path4504,path#path4506,path#path4508,path#path4510",
+              "source": "E0"
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -230,6 +297,10 @@
               "kind": "Verschiedene",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 2"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true,
             "threshold": {
@@ -245,6 +316,10 @@
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 2"
             },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -259,6 +334,10 @@
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -271,6 +350,10 @@
               "system": "intern",
               "alarmlevel": ""
             },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
             "isBoolean": true
           },
 
@@ -279,6 +362,10 @@
             "property": "Reserve",
             "system": "intern",
             "alarmlevel": "",
+            "svg": {
+              "path": "",
+              "source": ""
+            },
             "isBoolean": true
           }, {
             "id": "DI1-3",
@@ -288,6 +375,10 @@
               "kind": "Cl₂",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true,
             "threshold": {
@@ -304,7 +395,10 @@
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
-            "svgPath": "path#path4476,path#path4478",
+            "svg": {
+              "path": "path#path4476,path#path4478",
+              "source": "E0"
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -320,7 +414,10 @@
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
-            "svgPath": "path#path4472,path#path4470",
+            "svg": {
+              "path": "path#path4472,path#path4470",
+              "source": "E0"
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -333,6 +430,10 @@
               "system": "intern",
               "alarmlevel": ""
             },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
             "isBoolean": true
           }, {
             "id": "DI5-3",
@@ -340,6 +441,10 @@
               "property": "Reserve",
               "system": "intern",
               "alarmlevel": ""
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true
           }, {
@@ -350,6 +455,10 @@
               "kind": "NH₃",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true,
             "threshold": {
@@ -364,6 +473,10 @@
               "kind": "NH₃",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true,
             "threshold": {
@@ -382,7 +495,10 @@
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
-            "svgPath": "path#path4508,path#path4510",
+            "svg": {
+              "path": "path#path4508,path#path4510",
+              "source": "E0"
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -396,6 +512,10 @@
               "kind": "BCl₃",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true,
             "threshold": {
@@ -411,6 +531,10 @@
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -424,6 +548,10 @@
               "kind": "BCl₃",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true,
             "threshold": {
@@ -439,6 +567,10 @@
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -452,6 +584,10 @@
               "kind": "SiH₄",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true,
             "threshold": {
@@ -468,7 +604,10 @@
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
-            "svgPath": "path#path4504,path#path4506",
+            "svg": {
+              "path": "path#path4504,path#path4506",
+              "source": "E0"
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -482,6 +621,10 @@
               "kind": "Cl₂",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true,
             "threshold": {
@@ -499,6 +642,10 @@
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -512,6 +659,10 @@
               "kind": "HBr",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true,
             "threshold": {
@@ -528,7 +679,10 @@
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
-            "svgPath": "path#path4474,path#path4470",
+            "svg": {
+              "path": "path#path4474,path#path4470",
+              "source": "E0"
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -543,6 +697,10 @@
               "property": "Mangel 19%",
               "system": "O₂-Gasüberwachung",
               "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true,
             "threshold": {
@@ -559,6 +717,10 @@
               "system": "O₂-Gasüberwachung",
               "alarmlevel": "Alarm 2"
             },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -573,6 +735,10 @@
               "property": "Mangel 19%",
               "system": "O₂-Gasüberwachung",
               "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true,
             "threshold": {
@@ -589,6 +755,10 @@
               "system": "O₂-Gasüberwachung",
               "alarmlevel": "Alarm 2"
             },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
             "isBoolean": true,
             "threshold": {
               "from": 0,
@@ -600,6 +770,10 @@
               "kind": "O₂",
               "system": "O₂-Gasüberwachung",
               "alarmlevel": "Störung"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
             },
             "isBoolean": true,
             "threshold": {
@@ -624,7 +798,10 @@
             "from": null,
             "to": null
           },
-          "svgPath": "",
+          "svg": {
+            "path": "",
+            "source": ""
+          },
           "isBoolean": false,
           "values": [{
             "x": 0,
@@ -642,7 +819,7 @@
             "name": "Wartung und Störungen",
             "ids": ["DI0-2", "DI7-5", "DI1-2", "DI6-1"],
             "svg": {
-              "src": "",
+              "source": "",
               "initial": "",
               "selectable": ""
             }
@@ -650,15 +827,7 @@
             "name": "kombinierte Alarme",
             "ids": ["DI2-2", "DI3-2", "DI4-2", "DI5-2"],
             "svg": {
-              "src": "",
-              "initial": "",
-              "selectable": ""
-            }
-          }, {
-            "name": "4006",
-            "ids": ["DI3-5", "DI4-5", "DI5-5", "DI6-5"],
-            "svg": {
-              "src": "",
+              "source": "",
               "initial": "",
               "selectable": ""
             }
@@ -666,17 +835,33 @@
             "name": "2030",
             "ids": [],
             "svg": {
-              "src": "/img/HNF-GDS/E0_gaskabinet.svg",
+              "source": "E0",
               "initial": "rect#R2030",
-              "selectable": "g#Cabinets path"
+              "selectable": ""
             }
           }, {
             "name": "2032",
             "ids": [],
             "svg": {
-              "src": "/img/HNF-GDS/E0_gaskabinet.svg",
+              "source": "E0",
               "initial": "rect#R2032",
-              "selectable": "g#Cabinets path"
+              "selectable": ""
+            }
+          }, {
+            "name": "3005",
+            "ids": [],
+            "svg": {
+              "source": "E1",
+              "initial": "rect#Room",
+              "selectable": ""
+            }
+          }, {
+            "name": "4006",
+            "ids": ["DI3-5", "DI4-5", "DI5-5", "DI6-5"],
+            "svg": {
+              "source": "E2",
+              "initial": "path#path6038,path#path6036,path#path5359",
+              "selectable": ""
             }
           }]
         }, {
@@ -685,7 +870,7 @@
             "name": "Wartung und Störungen",
             "ids": ["DI6-1", "DI0-2", "DI1-2", "DI7-5"],
             "svg": {
-              "src": "",
+              "source": "",
               "initial": "",
               "selectable": ""
             }
@@ -693,8 +878,8 @@
         }]
       }
     },
-    "test": {
 
+    "test": {
       "connections": {
         "file": {
           "mode": "all",

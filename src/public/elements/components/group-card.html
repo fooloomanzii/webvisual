@@ -132,7 +132,7 @@
 
       <section class="header" opened$="{{opened}}">
         <!-- <section class="svgcontainer" opened$="{{opened}}"> -->
-          <svg-element id="svg" hidden$="{{!svg.src}}" opened$="{{opened}}" src="{{svg.src}}" selected="{{pathToExceedingElements}}" initial-selected="{{svg.initial}}" selectable="{{svg.selectable}}"></svg-element>
+          <svg-element id="svg" hidden$="{{!svg.source}}" opened$="{{opened}}" source="{{svg.source}}" selected="{{pathToExceedingElements}}" initial-selected="{{svg.initial}}" selectable="{{svg.selectable}}"></svg-element>
         <!-- </section> -->
         <section id="title" hidden$="[[_hideTitle(title,withoutWindow)]]" on-tap="toggle">[[title]]</section>
       </section>
@@ -191,7 +191,7 @@
          */
         svg: {
           type: Object,
-          value: function() { return {src: "", selectable: "", initial: ""}; }
+          value: function() { return {source: "", selectable: "", initial: ""}; }
         },
         pathToExceedingElements: {
           type: Array,
@@ -200,7 +200,7 @@
       },
 
       toggle: function() {
-          if (this.svg && this.svg.src) {
+          if (this.svg && this.svg.source) {
             this.opened = !this.opened;
             this.$.title.classList.add('over-image');
           }
@@ -223,21 +223,23 @@
       },
 
       _setSelectedElement: function(e) {
-        this.fire("element-select", {element: e.model.element, svg: this.svg || {}});
+        this.fire("element-select", {element: e.model.element, svg: e.model.element.svg || {}});
       },
 
       _setExceedingElement: function(e) {
-        if(e.detail.element.svgPath &&
-            this.pathToExceedingElements.indexOf(e.detail.element.svgPath) == -1) {
-          this.push("pathToExceedingElements", e.detail.element.svgPath);
+        if(e.detail.element.svg &&
+           e.detail.element.svg.path &&
+           this.pathToExceedingElements.indexOf(e.detail.element.svg.path) == -1) {
+          this.push("pathToExceedingElements", e.detail.element.svg.path);
           if (!this.opened) {
             this.toggle();
           }
         }
       },
       _unsetExceedingElement: function(e) {
-        if(e.detail.element.svgPath)
-          this.arrayDelete("pathToExceedingElements", e.detail.element.svgPath);
+        if(e.detail.element.svg &&
+           e.detail.element.svg.path)
+          this.arrayDelete("pathToExceedingElements", e.detail.element.svg.path);
       }
     });
   </script>

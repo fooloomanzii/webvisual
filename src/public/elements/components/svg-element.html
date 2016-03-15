@@ -66,16 +66,18 @@ Use `isZoomable` to make it isZoomable.
   paper-icon-button {
     margin-right: 6px;
     transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
-    color: var(--icon-color, rgb(150, 150, 150));
+    color: var(--icon-color, rgb(120, 120, 120));
     border-radius: 50%;
-    background: rgba(255,255,255, 0.1);
+    background: var(--icon-background, rgba(255,255,255, 0.1));
   }
   paper-icon-button:hover {
-    background: rgba(255,255,255, 0.3);
+    background: var(--icon-hover-background, rgba(255,255,255, 0.3));
     color: var(--icon-hover-color, rgb(60, 60, 60));
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
                 0 1px 5px 0 rgba(0, 0, 0, 0.12),
                 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+  }
+  div#control[top] {
   }
 
   /*paper-icon-button:hover:after {
@@ -133,7 +135,7 @@ Use `isZoomable` to make it isZoomable.
   <div id="control" top$="{{fullscreen}}">
     <paper-icon-button label="focus" icon="focus" on-tap="_resetZoom"></paper-icon-button>
     <paper-icon-button label="fullscreen" hidden$="{{fullscreen}}" icon="fullscreen" on-tap="_openFullscreen"></paper-icon-button>
-    <paper-icon-button label="exit fullscreen" hidden$="{{!fullscreen}}" icon="fullscreen-exit" on-tap="_exitFullscreen"></paper-icon-button>
+    <paper-icon-button label="exit fullscreen" hidden$="{{!fullscreen}}" icon="close" on-tap="_exitFullscreen"></paper-icon-button>
   </div>
 </template>
 
@@ -145,12 +147,12 @@ Use `isZoomable` to make it isZoomable.
     is: 'svg-element',
 
     properties: {
-      src: {
+      source: {
         type: String,
         value: '',
         observer: "_sourceChanged"
       },
-      recentSrc: {
+      recentSource: {
         type: String,
         value: ''
       },
@@ -236,33 +238,18 @@ Use `isZoomable` to make it isZoomable.
     ],
 
     _sourceChanged: function(source) {
-      if (source && this.recentSrc != source) {
+      if (source && this.recentSource != source) {
         if (!svgSource[source])
-          svgSource[source] = null;
+          return;
 
-        this.recentSrc = source;
+        this.recentSource = source;
 
         this.svg = d3.select(this.$.svgContainer).select('svg#main');
         if (this.svg && !this.svg.empty()) {
           this.$.svgContainer.removeChild(this.svg.node());
         }
-        // import svg
-        // prevents multible reloading after creation time
-        if (svgSource[source] == null) {
-          var xhttp = new XMLHttpRequest();
-          xhttp.onreadystatechange = function(e) {
-              if (xhttp.readyState == 4 && xhttp.status == 200) {
-                svgSource[source] = xhttp.responseXML.documentElement;
-                this._registerXML(svgSource[source]);
-              }
-          }.bind(this);
-
-          xhttp.open("GET", source, true);
-          xhttp.send();
-        }
-        else {
-          this._registerXML(svgSource[source]);
-        }
+        // import svg (came by data-socket-repeater)
+        this._registerXML(svgSource[source]);
       }
     },
 
@@ -536,7 +523,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _openFullscreen: function() {
-      this.fire("svg-open-fullscreen",{src: this.src, selectable: this.selectable, initialSelected: this.initialSelected});
+      this.fire("svg-open-fullscreen",{source: this.source, selectable: this.selectable, initialSelected: this.initialSelected});
     },
     _exitFullscreen: function() {
       this.fire("svg-exit-fullscreen");

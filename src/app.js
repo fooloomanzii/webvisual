@@ -36,10 +36,11 @@ var // EXPRESS
   winston = require('winston');
 
 try {
-  config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json'));
+  var file = fs.readFileSync(__dirname + '/config/config.json')
+  config = JSON.parse(file);
 } catch (err) {
   console.warn('There has been an error parsing the config-file.')
-  console.warn(err.stack);
+  console.warn(err);
 }
 
 // Use defaults for undefined values
@@ -141,28 +142,28 @@ try {
 // start Server
 var server = require('https').createServer(sslOptions, app);
 var httpServer = require('http').createServer(httpApp)
-                                .listen(httpApp.get('port'), function() {
-                                    console.log('HTTP server is listening on port ' + httpApp.get('port') + ' for redirecting to https');
-                                  });
+  .listen(httpApp.get('port'), function() {
+    console.log('HTTP server is listening on port ' + httpApp.get('port') + ' for redirecting to https');
+  });
 
 // if Error: EADDRINUSE --> log in console
 server.on('error',
-        function(e) {
-          if (e.code == 'EADDRINUSE') {
-            console.log('Port ' + config.port + ' in use, retrying...');
-            console.log(
-              "Please check if \"node.exe\" is not already running on this port.");
-            setTimeout(function() {
-              if (running)
-                server.close();
-              server.listen(config.port);
-            }, 1000);
-          }
-        })
-      .once('listening', function() {
-        console.log("HTTPS Server is listening on port %d in %s mode", config.port,
-          app.settings.env);
-      });
+    function(e) {
+      if (e.code == 'EADDRINUSE') {
+        console.log('Port ' + config.port + ' in use, retrying...');
+        console.log(
+          "Please check if \"node.exe\" is not already running on this port.");
+        setTimeout(function() {
+          if (running)
+            server.close();
+          server.listen(config.port);
+        }, 1000);
+      }
+    })
+  .once('listening', function() {
+    console.log("HTTPS Server is listening on port %d in %s mode", config.port,
+      app.settings.env);
+  });
 
 // connect the DATA-Module
 dataModule.connect(config, server);

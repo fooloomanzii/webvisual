@@ -20,6 +20,7 @@ var io = require('socket.io')(),
   dataFileHandler = filehandler.dataFileHandler, // extension: of DATAMODULE
   mergeData = filehandler.dataMerge, // extension: of DATAMODULE
   arrangeTypes = require('./configuration').arrangeTypes, // extension: of DATAMODULE
+  svgSources,
 
   // currentData temporary saved for the first sending (unnecessary with db requests)
   currentData = {},
@@ -61,8 +62,8 @@ function connect(config, server, err) {
 
   io.listen(server);
 
-  // TODO: Test for an array of configurations
   configs = config.configurations;
+  svgSources = config.svg;
 
   // dataFileHandler - established the data connections
   var availableLabels = [];
@@ -70,10 +71,11 @@ function connect(config, server, err) {
   var dataFile = {};
   var mergedData;
 
+
   for (var label in configs) {
 
     availableLabels.push(label);
-    dataConfig[label] = arrangeTypes(label, availableLabels.indexOf(label), configs[label].locals);
+    dataConfig[label] = arrangeTypes(label, availableLabels.indexOf(label), configs[label].locals, svgSources);
 
     var listeners = {
       error: function(type, err, label) {
@@ -115,7 +117,7 @@ function connect(config, server, err) {
     paths: {},
     preferedGroupingKeys: {},
     labels: availableLabels,
-    svgSources: []
+    svg: svgSources
   };
   for (var label in dataConfig) {
     configuration.groupingKeys[label] = dataConfig[label].groupingKeys;
@@ -125,10 +127,6 @@ function connect(config, server, err) {
       label: label,
       groups: dataConfig[label].groups
     });
-    for (var j = 0; j < dataConfig[label].svgSources.length; j++) {
-      if (configuration.svgSources.lastIndexOf(dataConfig[label].svgSources[j]) == -1)
-        configuration.svgSources.push(dataConfig[label].svgSources[j]);
-    }
   }
 
   // Handle connections of new clients
