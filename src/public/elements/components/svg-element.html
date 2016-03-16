@@ -100,21 +100,37 @@ Use `isZoomable` to make it isZoomable.
     letter-spacing: normal !important;
   }
   .svg-element-selectable {
+    cursor: pointer;
     transform-origin: center center;
     -moz-transform-origin: 50% 50%;
   }
+  svg path.svg-element-selectable:hover:after {
+    content: attr(id) !important;
+    position: absolute !important;
+    top: 50% !important;
+    right: 125% !important;
+    padding: 0.5em !important;
+    font-size: 0.75em !important;
+    border-radius: 12px !important;
+    background: rgba(255,255,255, 0.25) !important;
+    color: #1f1f1f !important;
+  }
   .clicked {
-    stroke: #1f1f1f !important;
-    stroke-width: 1.5px !important;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+    stroke-width: 2px !important;
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
+    stroke-dashoffset: 0;
+    stroke-dasharray: 1.25 3.75 1.25 3.75 0.25 3.75;
+    animation: circular 3s infinite linear;
   }
   .selected {
-    fill: #D73333 !important;
-    stroke: #A12525 !important;
+    fill: #F7FF62 !important;
+    stroke: #2B2B2B !important;
     stroke-width: 2px !important;
     stroke-linecap: round;
     stroke-linejoin: round;
+    stroke-dashoffset: 0;
+    stroke-dasharray: 0.25 2.75;
     animation-name: selected-animation;
     animation-duration: 3s;
     animation-timing-function: ease;
@@ -122,12 +138,23 @@ Use `isZoomable` to make it isZoomable.
   }
   @keyframes selected-animation {
     0% {
-      transform: scale(1.0);
+      -webkit-transform: scale(1.0);
+      stroke-dashoffset: 0;
     }
     50% {
-      transform: scale(0.75);
+      -webkit-transform: scale(0.8);
+    }
+    100% {
+      -webkit-transform: scale(1.0);
+      stroke-dashoffset: 18;
     }
   }
+  @keyframes circular {
+    to {
+      stroke-dashoffset: 14;
+    }
+  }
+
 </style>
 <template>
   <div id="svgContainer">
@@ -498,7 +525,12 @@ Use `isZoomable` to make it isZoomable.
                     }
                     node._zoomToElement(this);
                     node._setClass(this, "clicked", false, true);
-                  });
+                  })
+                  .append("title")
+                  .text(function() {
+                        //  return "This value is " + d;
+                          return this.parentNode.id;
+                   });
     },
 
     _resetZoom: function() {
