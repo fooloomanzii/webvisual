@@ -63,7 +63,7 @@ function processData(settings, currentData) {
       var k = 0;
       for (var j = 0; j < valuesArray[i].length; j++) {
         // head-data of measuring-points
-        if (settings.ignore.indexOf(j) == -1 && j < settings.types.length) { // ignored are not in returnObject and so ALSO NOT in DataBase
+        if (settings.ignore.indexOf(j) == -1 && k < settings.types.length) {
           // if it didn't exist before in process for return
           if (!processedData[k]) {
             element = {};
@@ -86,12 +86,13 @@ function processData(settings, currentData) {
       }
     }
 
+    var date = new Date(Math.max.apply(null, dateArray));
+
     // Creation of an Return Object
-    // TODO: socket for each messurement-device possible?
     returnObject = {
-      time: currentData.time,
       content: processedData,
-      label: settings.label
+      label: settings.label,
+      date: date
     };
   }
   return returnObject;

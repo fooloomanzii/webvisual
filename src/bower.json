@@ -8,13 +8,15 @@
   ],
   "dependencies": {
     "iron-elements": "PolymerElements/iron-elements",
-    "leaflet-map": "*",
     "paper-elements": "PolymerElements/paper-elements",
-    "poly-nvd3": "*",
     "polymer": "Polymer/polymer",
-    "neon-animation": "PolymerElements/neon-animation"
+    "neon-animation": "PolymerElements/neon-animation",
+    "d3": "*"
   },
   "ignoredDependencies": [
-    "PolymerElements/font-roboto"
+    "PolymerElements/font-roboto",
+    "PolymerElements/iron-component-page",
+    "PolymerElements/iron-doc-viewer",
+    "PolymerElements/paper-styles"
   ]
 }

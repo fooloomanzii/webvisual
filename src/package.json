@@ -3,14 +3,14 @@
   "version": "0.6.0",
   "private": "true",
   "scripts": {
-    "prestart": "start /b mongod --dbpath ../data/db",
     "start": "node app.js",
     "stop": "taskkill /IM node.exe /F",
-    "poststop": "mongo admin --eval 'db.shutdownServer()'"
+    "postinstall" : "bower update"
   },
   "dependencies": {
     "activedirectory": "^0.7.1",
     "async": "*",
+    "bower": "*",
     "body-parser": "*",
     "cookie-parser": "*",
     "dateformat": "*",
@@ -20,7 +20,6 @@
     "fs": "*",
     "jade": "*",
     "merge-defaults": "*",
-    "moment": "*",
     "morgan": "*",
     "net": "*",
     "passport": "*",
