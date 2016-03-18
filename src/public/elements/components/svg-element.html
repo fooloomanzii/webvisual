@@ -65,19 +65,21 @@ Use `isZoomable` to make it isZoomable.
   }
   paper-icon-button {
     margin-right: 6px;
-    transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: none !important;
     color: var(--icon-color, rgb(120, 120, 120));
     border-radius: 50%;
-    background: var(--icon-background, rgba(255,255,255, 0.1));
+    background: var(--icon-background, rgba(255,255,255, 0.2));
   }
   paper-icon-button:hover {
-    background: var(--icon-hover-background, rgba(255,255,255, 0.3));
+    background: var(--icon-hover-background, rgba(255,255,255, 0.4));
     color: var(--icon-hover-color, rgb(60, 60, 60));
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-                0 1px 5px 0 rgba(0, 0, 0, 0.12),
-                0 3px 1px -2px rgba(0, 0, 0, 0.2);
   }
-  div#control[top] {
+
+  div#control[top] paper-icon-button {
+    background: rgba(255,255,255, 0.3);
+  }
+  div#control[top] paper-icon-button:hover {
+    background: rgba(255,255,255, 0.6);
   }
 
   /*paper-icon-button:hover:after {
@@ -116,7 +118,7 @@ Use `isZoomable` to make it isZoomable.
     color: #1f1f1f !important;
   }
   .clicked {
-    stroke-width: 2px !important;
+    stroke-width: 1px !important;
     stroke-linecap: round !important;
     stroke-linejoin: round !important;
     stroke-dashoffset: 0;
@@ -129,8 +131,6 @@ Use `isZoomable` to make it isZoomable.
     stroke-width: 2px !important;
     stroke-linecap: round;
     stroke-linejoin: round;
-    stroke-dashoffset: 0;
-    stroke-dasharray: 0.25 2.75;
     animation-name: selected-animation;
     animation-duration: 3s;
     animation-timing-function: ease;
@@ -139,14 +139,12 @@ Use `isZoomable` to make it isZoomable.
   @keyframes selected-animation {
     0% {
       -webkit-transform: scale(1.0);
-      stroke-dashoffset: 0;
     }
     50% {
       -webkit-transform: scale(0.8);
     }
     100% {
       -webkit-transform: scale(1.0);
-      stroke-dashoffset: 18;
     }
   }
   @keyframes circular {
@@ -534,6 +532,10 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _resetZoom: function() {
+      // remove clicked class
+      this.mainG.selectAll(".svg-element-selectable")
+                .classed("clicked", false);
+
       if (this.selected && this.selected.length != 0) {
         var selected;
         if (!(selected = this.mainG.selectAll(this.initialSelected)

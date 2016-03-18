@@ -297,19 +297,20 @@
       margin-right: 6px;
     }
     section#toolbarFooter {
-      /*min-height: 0px;*/
+      min-height: 0px;
       max-height: 0px;
       display: flex;
       box-sizing: border-box;
       overflow: hidden !important;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
-      transition: max-height 300ms ease-in-out;
+      transition: max-height 200ms linear;
     }
     section#toolbarFooter[opened] {
-      /*min-height: 150px;*/
+      min-height: 150px;
       max-height: 22vh;
     }
     section#toolbarFooter[opened][expanded] {
+      min-height: 300px;
       max-height: 32vh;
     }
     section#toolbarFooter sign-element {
@@ -750,7 +751,7 @@
                 this.playAnimation('select-in');
               }
             }
-          }, 300 );
+          }, 250 );
         }
       },
       deselectElement: function() {
@@ -760,7 +761,7 @@
         this.debounce('deselect-request', function() {
           this.unlinkPaths('selectedElement');
           this.set("selectedElement", null);
-        }, 300);
+        }, 250);
       },
       _toolbarExpand: function() {
         if (this.opened) {
@@ -789,33 +790,27 @@
           this.openExceedsPanel();
         }
       },
-
       openExceedsPanel: function() {
         this.$.exceedsPanel.classList.toggle("exceeds-panel-opened");
         // this.$.backdrop.classList.add("backdrop-opened");
       },
-
       toggleExceedsPanel: function() {
         this.$.exceedsPanel.classList.toggle("exceeds-panel-opened");
         // this.$.backdrop.classList.toggle("backdrop-opened");
       },
-
       toggleDrawer: function(){
         this.$.drawerPanel.classList.toggle("drawer-opened");
         this.$.backdrop.classList.toggle("backdrop-opened");
       },
-
       closeDrawer: function(){
         this.$.drawerPanel.classList.remove("drawer-opened");
         this.$.backdrop.classList.remove("backdrop-opened");
       },
-
       tapBackdrop: function(){
         // this.$.exceedsPanel.classList.remove("exceeds-panel-opened");
         this.$.drawerPanel.classList.remove("drawer-opened");
         this.$.backdrop.classList.remove("backdrop-opened");
       },
-
       changeTheme: function(){
         var elems = document.querySelectorAll('*');
         if(this.dark) {
@@ -831,7 +826,6 @@
           this.dark = true;
         }
       },
-
       toggleCollapse: function(e){
         var button = e.currentTarget;
         if (!button.hasAttribute('collapse-id')) {
@@ -850,12 +844,10 @@
           }
         }
       },
-
       backToMainMenu: function() {
         this.closeDrawer();
         this.fire("restart");
       },
-
       closeToast: function(e) {
         var obj = e.currentTarget;
         while (obj != window) {
@@ -867,9 +859,6 @@
           }
         }
       }
-
     });
-
   </script>
-
 </dom-module>

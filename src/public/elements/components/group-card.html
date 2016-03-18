@@ -191,7 +191,8 @@
          */
         svg: {
           type: Object,
-          value: function() { return {source: "", selectable: "", initial: ""}; }
+          value: function() { return {source: "", selectable: "", initial: ""}; },
+          observer: "_svgChanged"
         },
         pathToExceedingElements: {
           type: Array,
@@ -208,10 +209,14 @@
             this.$.title.classList.remove('over-image');
       },
       close: function() {
-          if (this.svg && this.svg.source) {
-            this.opened = false;
-            this.$.title.classList.remove('over-image');
-          }
+          this.opened = false;
+          this.$.title.classList.remove('over-image');
+      },
+
+      _svgChanged: function() {
+        if (!this.svg || !this.svg.source) {
+          this.close();
+        }
       },
 
       _titleChanged: function(text) {

@@ -66,8 +66,8 @@
             oldPath = this.paths[label][oldValue][id];
             newItem = this.get(newPath);
             oldItem = this.get(oldPath);
-            tmp = this.splice(newPath,0,newItem.length - 1);
-            this.set(newPath, this.splice(oldPath, 0, oldItem.length - 1));
+            tmp = this.splice(newPath,0,newItem.length);
+            this.set(newPath, this.splice(oldPath, 0, oldItem.length));
             this.set(oldPath, tmp);
           }
           // this.$$('template#labeltemplate').render();
