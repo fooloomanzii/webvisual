@@ -3,7 +3,7 @@
   "updateIntervall": 1000,
 
   "auth": {
-    "required": false,
+    "required": true,
     "ldap": {
       "url": "ibn-net.kfa-juelich.de",
       "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de"
@@ -47,8 +47,8 @@
       "connections": {
         "file": {
           "mode": "all",
-          "#path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
-          "path_folder": "",
+          "path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
+          "#path_folder": "",
           "path": "HNF_Datafile.txt"
         }
       },
@@ -159,8 +159,8 @@
               "alarmlevel": "Alarm 1"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#H2 path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -177,8 +177,8 @@
               "alarmlevel": "Alarm 2"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#H2 path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -193,8 +193,8 @@
               "alarmlevel": "Störung"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#H2 path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -335,8 +335,8 @@
               "alarmlevel": "Alarm 1"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#HBR path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -377,8 +377,8 @@
               "alarmlevel": "Alarm 1"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#CL2 path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -457,8 +457,8 @@
               "alarmlevel": "Alarm 1"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#NH3 path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -514,8 +514,8 @@
               "alarmlevel": "Alarm 1"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#BCL3 path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -532,8 +532,8 @@
               "alarmlevel": "Alarm 1"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#BCL3 path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -550,8 +550,8 @@
               "alarmlevel": "Alarm 1"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#HBR path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -568,8 +568,8 @@
               "alarmlevel": "Alarm 1"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#SIH4 path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -586,8 +586,8 @@
               "alarmlevel": "Alarm 1"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#SIH4 path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -623,8 +623,8 @@
               "alarmlevel": "Alarm 1"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#CL2 path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -643,8 +643,8 @@
               "alarmlevel": "Alarm 1"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#CL2 path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -661,8 +661,8 @@
               "alarmlevel": "Alarm 1"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#HBR path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -699,8 +699,8 @@
               "alarmlevel": "Alarm 1"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#O2 path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -718,8 +718,8 @@
               "alarmlevel": "Alarm 2"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#O2 path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -737,8 +737,8 @@
               "alarmlevel": "Alarm 1"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#O2 path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -756,8 +756,8 @@
               "alarmlevel": "Alarm 2"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#O2 path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -860,7 +860,7 @@
             "ids": ["DI3-5", "DI4-5", "DI5-5", "DI6-5"],
             "svg": {
               "source": "E2",
-              "initial": "path#path6038,path#path6036,path#path5359",
+              "initial": "",
               "selectable": ""
             }
           }]
@@ -880,137 +880,764 @@
     },
 
     "test": {
+
       "connections": {
         "file": {
           "mode": "all",
+          "#path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
           "path_folder": "",
           "path": "HNF_Datafile.txt"
         }
       },
 
-      "database": {
-        "max_query_limit": 5000,
-        "default_storage_size": 100,
-        "save_identical_values": false
-      },
-
       "locals": {
-
-        "ignore": [8],
-
+        "ignore": [0, 8, 16, 17, 21, 22],
         "types": [{
-          "id": "id1",
-          "keys": {
-            "propA": "Aa",
-            "propB": "Bb",
-            "propC": "C1"
+            "id": "Binary",
+            "keys": {
+              "roomNr": "test",
+              "room": "test",
+              "kind": "Test",
+              "property": "Binärzahl",
+              "system": "intern",
+              "alarmlevel": ""
+            },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
+            "isBoolean": false,
+            "threshold": {
+              "from": 0,
+              "to": 10000000
+            },
+            "unit": "₍₂₎"
+          }, {
+            "id": "DI0-1",
+            "keys": {
+              "roomNr": "2032",
+              "room": "Gaslager",
+              "kind": "H₂",
+              "property": "brennbar",
+              "system": "H₂-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "path#path4514,path#path4512",
+              "source": "E0"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI1-1",
+            "keys": {
+              "roomNr": "2032",
+              "room": "Gaslager",
+              "kind": "H₂",
+              "property": "brennbar",
+              "system": "H₂-Gasüberwachung",
+              "alarmlevel": "Alarm 2"
+            },
+            "svg": {
+              "path": "path#path4514,path#path4512",
+              "source": "E0"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI2-1",
+            "keys": {
+              "roomNr": "3005",
+              "room": "Bypack",
+              "kind": "H₂",
+              "system": "H₂-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "path#path5110-0,path#path5112-1,path#path5114-4",
+              "source": "E1"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI3-1",
+            "keys": {
+              "roomNr": "3005",
+              "room": "Bypack",
+              "kind": "H₂",
+              "system": "H₂-Gasüberwachung",
+              "alarmlevel": "Alarm 2"
+            },
+            "svg": {
+              "path": "path#path5110-0,path#path5112-1,path#path5114-4",
+              "source": "E1"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI4-1",
+            "keys": {
+              "roomNr": "4006",
+              "room": "Reinraum",
+              "kind": "H₂",
+              "system": "H₂-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "g#H2 path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI5-1",
+            "keys": {
+              "roomNr": "4006",
+              "room": "Reinraum",
+              "kind": "H₂",
+              "system": "H₂-Gasüberwachung",
+              "alarmlevel": "Alarm 2"
+            },
+            "svg": {
+              "path": "g#H2 path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI6-1",
+            "keys": {
+              "kind": "H₂",
+              "system": "H₂-Gasüberwachung",
+              "alarmlevel": "Störung"
+            },
+            "svg": {
+              "path": "g#H2 path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI7-1",
+            "keys": {
+              "property": "Reserve",
+              "system": "intern",
+              "alarmlevel": ""
+            },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
+            "isBoolean": true
           },
 
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 5
+          {
+            "id": "DI0-2",
+            "keys": {
+              "kind": "Verschiedene",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Störung"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI1-2",
+            "keys": {
+              "kind": "Verschiedene",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Wartung"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI2-2",
+            "keys": {
+              "roomNr": "2030",
+              "room": "Gaslager",
+              "kind": "Verschiedene",
+              "property": "korrosiv",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 2"
+            },
+            "svg": {
+              "path": "path#path4478,path#path4476,path#path4470,path#path4472,path#path4474",
+              "source": "E0"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI3-2",
+            "keys": {
+              "roomNr": "2032",
+              "room": "Gaslager",
+              "kind": "Verschiedene",
+              "property": "brennbar",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 2"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
+            "svg": {
+              "path": "path#path4504,path#path4506,path#path4508,path#path4510",
+              "source": "E0"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI4-2",
+            "keys": {
+              "roomNr": "3005",
+              "room": "Bypack",
+              "kind": "Verschiedene",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 2"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI5-2",
+            "keys": {
+              "roomNr": "4006",
+              "room": "Reinraum",
+              "kind": "Verschiedene",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 2"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI6-2",
+            "keys": {
+              "roomNr": "4006",
+              "room": "Reinraum",
+              "kind": "HBr",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "g#HBR path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI7-2",
+            "keys": {
+              "property": "Reserve",
+              "system": "intern",
+              "alarmlevel": ""
+            },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
+            "isBoolean": true
           },
-          "unit": "cm²"
-        }, {
-          "id": "id2",
-          "keys": {
-            "propA": "id2",
-            "propB": "Bd",
-            "propC": "C2"
+
+          {
+            "id": "DI0-3",
+            "property": "Reserve",
+            "system": "intern",
+            "alarmlevel": "",
+            "svg": {
+              "path": "",
+              "source": ""
+            },
+            "isBoolean": true
+          }, {
+            "id": "DI1-3",
+            "keys": {
+              "roomNr": "4006",
+              "room": "Reinraum",
+              "kind": "Cl₂",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "g#CL2 path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI2-3",
+            "keys": {
+              "roomNr": "2030",
+              "room": "Gaslager",
+              "kind": "Cl₂",
+              "property": "korrosiv",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "path#path4476,path#path4478",
+              "source": "E0"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI3-3",
+            "keys": {
+              "roomNr": "2030",
+              "room": "Gaslager",
+              "kind": "HBr",
+              "property": "korrosiv",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "path#path4472,path#path4470",
+              "source": "E0"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI4-3",
+            "keys": {
+              "property": "Reserve",
+              "system": "intern",
+              "alarmlevel": ""
+            },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
+            "isBoolean": true
+          }, {
+            "id": "DI5-3",
+            "keys": {
+              "property": "Reserve",
+              "system": "intern",
+              "alarmlevel": ""
+            },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
+            "isBoolean": true
+          }, {
+            "id": "DI6-3",
+            "keys": {
+              "roomNr": "4006",
+              "room": "Reinraum",
+              "kind": "NH₃",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "g#NH3 path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI7-3",
+            "keys": {
+              "roomNr": "3005",
+              "room": "Bypack",
+              "kind": "NH₃",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
           },
-          "isBoolean": false,
-          "threshold": {
-            "from": -5,
-            "to": 5
+
+          {
+            "id": "DI0-4",
+            "keys": {
+              "roomNr": "2032",
+              "room": "Gaslager",
+              "kind": "NH₃",
+              "property": "brennbar",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "path#path4508,path#path4510",
+              "source": "E0"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI1-4",
+            "keys": {
+              "roomNr": "4006",
+              "room": "Reinraum",
+              "kind": "BCl₃",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "g#BCL3 path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI2-4",
+            "keys": {
+              "roomNr": "4006",
+              "room": "Reinraum",
+              "kind": "BCl₃",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "g#BCL3 path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI3-4",
+            "keys": {
+              "roomNr": "3005",
+              "room": "Bypack",
+              "kind": "BCl₃",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "g#HBR path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI4-4",
+            "keys": {
+              "roomNr": "4006",
+              "room": "Reinraum",
+              "kind": "SiH₄",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "g#SIH4 path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI5-4",
+            "keys": {
+              "roomNr": "3005",
+              "room": "Bypack",
+              "kind": "SiH₄",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "g#SIH4 path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI6-4",
+            "keys": {
+              "roomNr": "2032",
+              "room": "Gaslager",
+              "kind": "SiH₄",
+              "property": "brennbar",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "path#path4504,path#path4506",
+              "source": "E0"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI7-4",
+            "keys": {
+              "roomNr": "4006",
+              "room": "Reinraum",
+              "kind": "Cl₂",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "g#CL2 path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
           },
-          "unit": "°"
-        }, {
-          "id": "id3",
-          "keys": {
-            "propA": "Ab",
-            "propB": "Ba",
-            "propC": "C3"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
+
+          {
+            "id": "DI0-5",
+            "keys": {
+              "roomNr": "4006",
+              "room": "Reinraum",
+              "kind": "Cl₂",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "g#CL2 path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI1-5",
+            "keys": {
+              "roomNr": "3005",
+              "room": "Bypack",
+              "kind": "HBr",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "g#HBR path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI2-5",
+            "keys": {
+              "roomNr": "2030",
+              "room": "Gaslager",
+              "kind": "HCl",
+              "property": "korrosiv",
+              "system": "TOX-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "path#path4474,path#path4470",
+              "source": "E0"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI3-5",
+            "keys": {
+              "roomNr": "4006-21",
+              "room": "Reinraum",
+              "kind": "O₂",
+              "property": "Mangel 19%",
+              "system": "O₂-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "g#O2 path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI4-5",
+            "keys": {
+              "roomNr": "4006-21",
+              "room": "Reinraum",
+              "kind": "O₂",
+              "property": "Mangel 17%",
+              "system": "O₂-Gasüberwachung",
+              "alarmlevel": "Alarm 2"
+            },
+            "svg": {
+              "path": "g#O2 path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI5-5",
+            "keys": {
+              "roomNr": "4006-23",
+              "room": "Reinraum",
+              "kind": "O₂",
+              "property": "Mangel 19%",
+              "system": "O₂-Gasüberwachung",
+              "alarmlevel": "Alarm 1"
+            },
+            "svg": {
+              "path": "g#O2 path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI6-5",
+            "keys": {
+              "roomNr": "4006-23",
+              "room": "Reinraum",
+              "kind": "O₂",
+              "property": "Mangel 17%",
+              "system": "O₂-Gasüberwachung",
+              "alarmlevel": "Alarm 2"
+            },
+            "svg": {
+              "path": "g#O2 path",
+              "source": "E2"
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
+          }, {
+            "id": "DI7-5",
+            "keys": {
+              "kind": "O₂",
+              "system": "O₂-Gasüberwachung",
+              "alarmlevel": "Störung"
+            },
+            "svg": {
+              "path": "",
+              "source": ""
+            },
+            "isBoolean": true,
+            "threshold": {
+              "from": 0,
+              "to": 0
+            }
           }
-        }, {
-          "id": "id4",
-          "keys": {
-            "propA": "Ab",
-            "propB": "Bc",
-            "propC": "C4"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "id5",
-          "keys": {
-            "propA": "Ab",
-            "propB": "Bb",
-            "propC": "C2"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "id6",
-          "keys": {
-            "propA": "Ac",
-            "propB": "Ba",
-            "propC": "C3"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "id7",
-          "keys": {
-            "propA": "Ad",
-            "propB": "Bd",
-            "propC": "C1"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "id8",
-          "keys": {
-            "propA": "Ad",
-            "propB": "Bc",
-            "propC": "C3"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }],
+        ],
 
         "unnamedType": {
           "id": "id",
           "keys": {
-
-            "propA": "",
-            "propB": "",
-            "propC": "",
-            "unit": ""
+            "room": "",
+            "roomNr": "",
+            "kind": "",
+            "property": "",
+            "unit": "",
+            "system": "intern",
+            "alarmlevel": ""
           },
           "threshold": {
             "from": null,
             "to": null
+          },
+          "svg": {
+            "path": "",
+            "source": ""
           },
           "isBoolean": false,
           "values": [{
@@ -1020,17 +1647,70 @@
           }]
         },
 
-        "groupingKeys": ["propA", "propB", "all"],
-        "preferedGroupingKey": "propA",
+        "groupingKeys": ["kind", "room", "property", "roomNr", "system", "alarmlevel", "all"],
+        "preferedGroupingKey": "roomNr",
 
         "exclusiveGroups": [{
-          "key": "propA",
+          "key": "roomNr",
           "subgroup": [{
-            "name": "Werte",
-            "ids": ["id1", "id2"]
+            "name": "Wartung und Störungen",
+            "ids": ["DI0-2", "DI7-5", "DI1-2", "DI6-1"],
+            "svg": {
+              "source": "",
+              "initial": "",
+              "selectable": ""
+            }
           }, {
-            "name": "Alarme",
-            "ids": ["id3", "id4", "id5", "id6", "id7", "id8"]
+            "name": "kombinierte Alarme",
+            "ids": ["DI2-2", "DI3-2", "DI4-2", "DI5-2"],
+            "svg": {
+              "source": "",
+              "initial": "",
+              "selectable": ""
+            }
+          }, {
+            "name": "2030",
+            "ids": [],
+            "svg": {
+              "source": "E0",
+              "initial": "rect#R2030",
+              "selectable": ""
+            }
+          }, {
+            "name": "2032",
+            "ids": [],
+            "svg": {
+              "source": "E0",
+              "initial": "rect#R2032",
+              "selectable": ""
+            }
+          }, {
+            "name": "3005",
+            "ids": [],
+            "svg": {
+              "source": "E1",
+              "initial": "g#Cabinets path",
+              "selectable": ""
+            }
+          }, {
+            "name": "4006",
+            "ids": ["DI3-5", "DI4-5", "DI5-5", "DI6-5"],
+            "svg": {
+              "source": "E2",
+              "initial": "",
+              "selectable": ""
+            }
+          }]
+        }, {
+          "key": "alarmlevel",
+          "subgroup": [{
+            "name": "Wartung und Störungen",
+            "ids": ["DI6-1", "DI0-2", "DI1-2", "DI7-5"],
+            "svg": {
+              "source": "",
+              "initial": "",
+              "selectable": ""
+            }
           }]
         }]
       }
