@@ -42,13 +42,18 @@ Use `isZoomable` to make it isZoomable.
     flex: 1;
     display: flex;
     width: auto;
+    height: auto;
   	position: relative;
   	overflow: hidden;
+  }
+  svg#main {
+    flex: 1;
   }
   div#svgContainer {
     border-radius: inherit;
     display: flex;
     width: 100%;
+    height: auto;
   }
   div#control {
     position: absolute;
@@ -81,7 +86,6 @@ Use `isZoomable` to make it isZoomable.
   div#control[top] paper-icon-button:hover {
     background: rgba(255,255,255, 0.6);
   }
-
   /*paper-icon-button:hover:after {
     content: attr(label);
     position: absolute;
@@ -106,23 +110,15 @@ Use `isZoomable` to make it isZoomable.
     transform-origin: center center;
     -moz-transform-origin: 50% 50%;
   }
-  svg path.svg-element-selectable:hover:after {
-    content: attr(id) !important;
-    position: absolute !important;
-    top: 50% !important;
-    right: 125% !important;
-    padding: 0.5em !important;
-    font-size: 0.75em !important;
-    border-radius: 12px !important;
-    background: rgba(255,255,255, 0.25) !important;
-    color: #1f1f1f !important;
-  }
   .clicked {
     stroke-width: 1px !important;
+    stroke: white !important;
     stroke-linecap: round !important;
     stroke-linejoin: round !important;
     stroke-dashoffset: 0;
-    stroke-dasharray: 1.25 3.75 1.25 3.75 0.25 3.75;
+    stroke-dasharray: 0.5 2.5;
+    will-change: transform;
+    transform-origin: center center;
     animation: circular 3s infinite linear;
   }
   .selected {
@@ -131,6 +127,8 @@ Use `isZoomable` to make it isZoomable.
     stroke-width: 2px !important;
     stroke-linecap: round;
     stroke-linejoin: round;
+    transform-origin: center center;
+    will-change: transform;
     animation-name: selected-animation;
     animation-duration: 3s;
     animation-timing-function: ease;
@@ -149,7 +147,7 @@ Use `isZoomable` to make it isZoomable.
   }
   @keyframes circular {
     to {
-      stroke-dashoffset: 14;
+      stroke-dashoffset: 12;
     }
   }
 
@@ -160,7 +158,7 @@ Use `isZoomable` to make it isZoomable.
   <div id="control" top$="{{fullscreen}}">
     <paper-icon-button label="focus" icon="focus" on-tap="_resetZoom"></paper-icon-button>
     <paper-icon-button label="fullscreen" hidden$="{{fullscreen}}" icon="fullscreen" on-tap="_openFullscreen"></paper-icon-button>
-    <paper-icon-button label="exit fullscreen" hidden$="{{!fullscreen}}" icon="close" on-tap="_exitFullscreen"></paper-icon-button>
+    <paper-icon-button label="exit fullscreen" hidden$="{{!fullscreen}}" icon="fullscreen-exit" on-tap="_exitFullscreen"></paper-icon-button>
   </div>
 </template>
 
@@ -219,6 +217,11 @@ Use `isZoomable` to make it isZoomable.
         observer: "_openedChanged"
       },
       fullscreen: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
+      },
+      initialZoomToSelected: {
         type: Boolean,
         value: false,
         reflectToAttribute: true
@@ -294,17 +297,17 @@ Use `isZoomable` to make it isZoomable.
         this.$.svgContainer.insertBefore(svgNode, this.$.svgContainer.firstChild);
 
         this.svg = d3.select(svgNode).attr("id", "main")
+                                     .classed("svg-element", true)
                                      .call(this._d3Zoom);
 
         // set style for resizing
         this.svg.attr("preserveAspectRatio", "xMinYMin meet")
                 .attr("height", null)
-                .attr("width", null)
-                .style("flex", "1 1 100%")
-                .style("height", "auto");
+                .attr("width", null);
 
         this.mainG = this.svg.select("g")
-                             .attr("id", "mainG");
+                             .attr("id", "mainG")
+                             .style("will-change", "transform");
 
         this.mainG.selectAll("text")
                   .classed("text", true)  // for styling text
@@ -501,6 +504,8 @@ Use `isZoomable` to make it isZoomable.
       this.mainG.selectAll(".svg-element-selectable")
                 .classed("svg-element-selectable", false)
                 .on("click", null);
+      this.mainG.selectAll(".clicked")
+                .classed("clicked", false);
 
       // add 'svg-element-selectable' class and click listener
       self = this;
@@ -523,12 +528,12 @@ Use `isZoomable` to make it isZoomable.
                     }
                     node._zoomToElement(this);
                     node._setClass(this, "clicked", false, true);
-                  })
-                  .append("title")
-                  .text(function() {
-                        //  return "This value is " + this.parentNode.id;
-                          return this.parentNode.id;
-                   });
+                  });
+                  // .append("title")
+                  // .text(function() {
+                  //       //  return "This value is " + this.parentNode.id;
+                  //         return this.parentNode.id;
+                  //  });
     },
 
     _resetZoom: function() {
@@ -536,14 +541,18 @@ Use `isZoomable` to make it isZoomable.
       this.mainG.selectAll(".svg-element-selectable")
                 .classed("clicked", false);
 
-      if (this.selected && this.selected.length != 0) {
-        var selected;
-        if (!(selected = this.mainG.selectAll(this.initialSelected)
-                                   .filter(".svg-element-selectable")).empty()) {
-          this.select(this.selected, this.selectedClass, this.multi);
-          return;
+      // zoom to selectedItems
+      if (this.initialZoomToSelected) {
+        if (this.selected && this.selected.length != 0) {
+          var selected;
+          if (!(selected = this.mainG.selectAll(this.initialSelected)
+                                     .filter(".svg-element-selectable")).empty()) {
+            this.select(this.selected, this.selectedClass, this.multi);
+            return;
+          }
         }
       }
+      // zoom to initialSelected
       if (this.initialSelected) {
         var initial;
         if (!(initial = this.mainG.selectAll(this.initialSelected)
@@ -552,14 +561,12 @@ Use `isZoomable` to make it isZoomable.
           return;
         }
       }
-      // transition to [0,0] scale 1
-      this.svg.transition()
-              .duration(500)
-              .call(this._d3Zoom.translate([0, 0]).scale(1).event);
+      // zomm to mainG
+      this._zoomToElement(this.mainG.node());
     },
 
     _openFullscreen: function() {
-      this.fire("svg-open-fullscreen",{source: this.source, selectable: this.selectable, initialSelected: this.initialSelected});
+      this.fire("svg-open-fullscreen",{source: this.source, selectable: this.selectable, initialSelected: this.initialSelected, selected: this.selected});
     },
     _exitFullscreen: function() {
       this.fire("svg-exit-fullscreen");

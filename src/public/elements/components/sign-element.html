@@ -53,6 +53,9 @@
     section#sign.undefined {
       background: #c3ab12; color: #1f1f1f;
     }
+    section#sign.true iron-icon, section#sign.true iron-icon {
+      will-change: transform;
+    }
     section#sign[dark]{
       color: #d3d3d3;
     }
@@ -90,7 +93,9 @@
       color: #1f1f1f;
       line-height: 1.5;
       padding: 0.25em 0.75em 0.5em 0.5em;
+      display: inline-block;
       flex: 1;
+      min-height: 2.5em;
       border-top: thin solid #BBBBBB;
     }
     iron-icon {

@@ -115,6 +115,12 @@ html
       -webkit-touch-callout: none;
       -webkit-tap-highlight-color:rgba(0,0,0,0);
     }
+    button:hover {
+      background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.10) 40%);
+    }
+    button:focus {
+      box-shadow: inset 0 1px 1px rgba(255,255,255,.075),0 0 8px rgba(255, 255, 255,.6);
+    }
     section.button-container {
       margin-top: 2em;
       float: right;
@@ -126,12 +132,6 @@ html
       float: left;
       margin: 0em 0.75em 0em 0em;
       fill: currentColor;
-    }
-    button:hover {
-      background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.10) 40%);
-    }
-    button:focus {
-      box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(100, 100, 100,.6);
     }
   body
     #background

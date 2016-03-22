@@ -274,6 +274,7 @@
     }
     section#toolbarHeader paper-icon-button.error {
       color: #FF9D9D;
+      will-change: transform;
       animation-name: alarm-animation !important;
       animation-duration: 4s;
       animation-timing-function: ease-in-out;
@@ -304,6 +305,8 @@
       overflow: hidden !important;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
       transition: max-height 200ms linear;
+      will-change: min-height;
+      will-change: max-height;
     }
     section#toolbarFooter[opened] {
       min-height: 150px;
@@ -503,9 +506,9 @@
           </section>
           <!-- <section style="display: flex; flex-grow: 1; flex-shrink: 1;"> -->
             <svg-element id="selectedElementSVG" class="selectedElement" hidden$="{{!selectedElement.svg.source}}"
-                         source="{{selectedElement.svg.source}}" selected="{{pathToExceedingElements}}" opened="{{opened}}"
+                         source="{{selectedElement.svg.source}}" selected="{{selectedElement.svg.selected}}" opened="{{opened}}"
                          initial-selected="{{selectedElement.svg.initial}}" selectable="{{selectedElement.svg.selectable}}"
-                         zoom-partition="1.5" max-zoom="4" min-zoom="1">
+                         zoom-partition="1.25" max-zoom="4" min-zoom="1">
             </svg-element>
           <!-- </section> -->
         </section>
@@ -619,7 +622,7 @@
     </section>
 
     <section id="svgFullscreenContainer">
-      <svg-element id="fullscreenSvg" opened zoom-partition="2" max-zoom="3" min-zoom="0.85" fullscreen></svg-element>
+      <svg-element id="fullscreenSvg" opened zoom-partition="2" max-zoom="3" min-zoom="0.85" fullscreen initial-zoom-to-selected></svg-element>
     </section>
 
   </template>
@@ -715,7 +718,7 @@
         isExceeding: {
           type: Boolean,
           notify: true,
-          observer: "openExceedsPanel"
+          observer: "_checkExceedsPanel"
         }
       },
 
@@ -777,26 +780,31 @@
       },
       openSvgFullscreen: function(e) {
         this.closeDrawer();
+        this.$.control.style.visibility = "hidden";
         this.$.fullscreenSvg.set('source', e.detail.source);
         this.$.fullscreenSvg.set('selectable', e.detail.selectable);
         this.$.fullscreenSvg.set('initialSelected', e.detail.initialSelected);
+        this.$.fullscreenSvg.set('selected', e.detail.selected);
         this.$.svgFullscreenContainer.classList.add("fullscreen-opened");
       },
       exitSvgFullscreen: function() {
+        this.$.control.style.visibility = "visible";
         this.$.svgFullscreenContainer.classList.remove("fullscreen-opened");
       },
       _checkExceedsPanel: function(length) {
-        if(!(this.$.exceedsPanel.classList.contains("exceeds-panel-opened")) && length > 0) {
+        if(!(this.$.exceedsPanel.classList.contains("exceeds-panel-opened")) && length)
           this.openExceedsPanel();
-        }
+        else
+          this.closeExceedsPanel();
       },
       openExceedsPanel: function() {
-        this.$.exceedsPanel.classList.toggle("exceeds-panel-opened");
-        // this.$.backdrop.classList.add("backdrop-opened");
+        this.$.exceedsPanel.classList.add("exceeds-panel-opened");
+      },
+      closeExceedsPanel: function() {
+        this.$.exceedsPanel.classList.remove("exceeds-panel-opened");
       },
       toggleExceedsPanel: function() {
         this.$.exceedsPanel.classList.toggle("exceeds-panel-opened");
-        // this.$.backdrop.classList.toggle("backdrop-opened");
       },
       toggleDrawer: function(){
         this.$.drawerPanel.classList.toggle("drawer-opened");

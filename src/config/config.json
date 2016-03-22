@@ -258,7 +258,7 @@
               "alarmlevel": "Alarm 2"
             },
             "svg": {
-              "path": "path#path4478,path#path4476,path#path4470,path#path4472,path#path4474",
+              "path": "g#HBR path, g#CL2 path",
               "source": "E0"
             },
             "isBoolean": true,
@@ -277,11 +277,7 @@
               "alarmlevel": "Alarm 2"
             },
             "svg": {
-              "path": "",
-              "source": ""
-            },
-            "svg": {
-              "path": "path#path4504,path#path4506,path#path4508,path#path4510",
+              "path": "g#NH3 path, g#SIH4 path",
               "source": "E0"
             },
             "isBoolean": true,
@@ -299,8 +295,8 @@
               "alarmlevel": "Alarm 2"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#CL2 path,g#HBR path, g#HCL path,g#NH3 path, g#SIH4 path",
+              "source": "E1"
             },
             "isBoolean": true,
             "threshold": {
@@ -317,8 +313,8 @@
               "alarmlevel": "Alarm 2"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#CL2 path,g#HBR path, g#HCL path,g#NH3 path, g#SIH4 path",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -330,7 +326,7 @@
             "keys": {
               "roomNr": "4006",
               "room": "Reinraum",
-              "kind": "HBr",
+              "kind": "HBr/BCl₃",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
@@ -370,15 +366,15 @@
           }, {
             "id": "DI1-3",
             "keys": {
-              "roomNr": "4006",
-              "room": "Reinraum",
+              "roomNr": "3005",
+              "room": "Bypack",
               "kind": "Cl₂",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
             "svg": {
               "path": "g#CL2 path",
-              "source": "E2"
+              "source": "E1"
             },
             "isBoolean": true,
             "threshold": {
@@ -476,7 +472,7 @@
             },
             "svg": {
               "path": "",
-              "source": ""
+              "source": "E1"
             },
             "isBoolean": true,
             "threshold": {
@@ -509,7 +505,7 @@
             "keys": {
               "roomNr": "4006",
               "room": "Reinraum",
-              "kind": "BCl₃",
+              "kind": "HCl",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
@@ -527,7 +523,7 @@
             "keys": {
               "roomNr": "4006",
               "room": "Reinraum",
-              "kind": "BCl₃",
+              "kind": "HCl",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
@@ -545,13 +541,13 @@
             "keys": {
               "roomNr": "3005",
               "room": "Bypack",
-              "kind": "BCl₃",
+              "kind": "HCl",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
             "svg": {
               "path": "g#HBR path",
-              "source": "E2"
+              "source": "E1"
             },
             "isBoolean": true,
             "threshold": {
@@ -587,7 +583,7 @@
             },
             "svg": {
               "path": "g#SIH4 path",
-              "source": "E2"
+              "source": "E1"
             },
             "isBoolean": true,
             "threshold": {
@@ -656,13 +652,13 @@
             "keys": {
               "roomNr": "3005",
               "room": "Bypack",
-              "kind": "HBr",
+              "kind": "HBr/BCl₃",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
             "svg": {
               "path": "g#HBR path",
-              "source": "E2"
+              "source": "E1"
             },
             "isBoolean": true,
             "threshold": {
@@ -674,7 +670,7 @@
             "keys": {
               "roomNr": "2030",
               "room": "Gaslager",
-              "kind": "HCl",
+              "kind": "BCl₃",
               "property": "korrosiv",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
@@ -1095,7 +1091,7 @@
               "alarmlevel": "Alarm 2"
             },
             "svg": {
-              "path": "path#path4478,path#path4476,path#path4470,path#path4472,path#path4474",
+              "path": "g#HBR path, g#CL2 path",
               "source": "E0"
             },
             "isBoolean": true,
@@ -1114,11 +1110,7 @@
               "alarmlevel": "Alarm 2"
             },
             "svg": {
-              "path": "",
-              "source": ""
-            },
-            "svg": {
-              "path": "path#path4504,path#path4506,path#path4508,path#path4510",
+              "path": "g#SIH4 path, g#NH3 path",
               "source": "E0"
             },
             "isBoolean": true,
@@ -1136,8 +1128,8 @@
               "alarmlevel": "Alarm 2"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#CL2 path,g#HBR path, g#HCL path,g#NH3 path, g#SIH4",
+              "source": "E1"
             },
             "isBoolean": true,
             "threshold": {
@@ -1154,8 +1146,8 @@
               "alarmlevel": "Alarm 2"
             },
             "svg": {
-              "path": "",
-              "source": ""
+              "path": "g#CL2 path,g#HBR path, g#HCL path,g#NH3 path, g#SIH4",
+              "source": "E2"
             },
             "isBoolean": true,
             "threshold": {
@@ -1167,7 +1159,7 @@
             "keys": {
               "roomNr": "4006",
               "room": "Reinraum",
-              "kind": "HBr",
+              "kind": "HBr/BCl₃",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
@@ -1346,7 +1338,7 @@
             "keys": {
               "roomNr": "4006",
               "room": "Reinraum",
-              "kind": "BCl₃",
+              "kind": "HCl",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
@@ -1364,7 +1356,7 @@
             "keys": {
               "roomNr": "4006",
               "room": "Reinraum",
-              "kind": "BCl₃",
+              "kind": "HCl",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
@@ -1382,13 +1374,13 @@
             "keys": {
               "roomNr": "3005",
               "room": "Bypack",
-              "kind": "BCl₃",
+              "kind": "HCl",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
             "svg": {
               "path": "g#HBR path",
-              "source": "E2"
+              "source": "E1"
             },
             "isBoolean": true,
             "threshold": {
@@ -1424,7 +1416,7 @@
             },
             "svg": {
               "path": "g#SIH4 path",
-              "source": "E2"
+              "source": "E1"
             },
             "isBoolean": true,
             "threshold": {
@@ -1493,13 +1485,13 @@
             "keys": {
               "roomNr": "3005",
               "room": "Bypack",
-              "kind": "HBr",
+              "kind": "HBr/BCl₃",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
             "svg": {
               "path": "g#HBR path",
-              "source": "E2"
+              "source": "E1"
             },
             "isBoolean": true,
             "threshold": {
@@ -1511,7 +1503,7 @@
             "keys": {
               "roomNr": "2030",
               "room": "Gaslager",
-              "kind": "HCl",
+              "kind": "BCl₃",
               "property": "korrosiv",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
