@@ -131,7 +131,7 @@
 
       <section class="header" opened$="{{opened}}">
         <!-- <section class="svgcontainer" opened$="{{opened}}"> -->
-          <svg-element id="svg" hidden$="{{!svg.source}}" opened$="{{opened}}" source="{{svg.source}}" selected="{{pathToExceedingElements}}" initial-selected="{{svg.initial}}" selectable="{{svg.selectable}}" initial-zoom-to-selected></svg-element>
+          <svg-element id="svg" hidden$="{{!svg.source}}" opened$="{{opened}}" source="{{svg.source}}" selected="{{pathToExceedingElements}}" initial="{{svg.initial}}" initially-zoom-to-selected></svg-element>
         <!-- </section> -->
         <section id="title" hidden$="[[_hideTitle(title,withoutWindow)]]" on-tap="toggle">[[title]]</section>
       </section>
@@ -190,7 +190,7 @@
          */
         svg: {
           type: Object,
-          value: function() { return {source: "", selectable: "", initial: ""}; },
+          value: function() { return {source: "", initial: ""}; },
           observer: "_svgChanged"
         },
         pathToExceedingElements: {
@@ -237,7 +237,7 @@
         var svg = e.model.element.svg || {};
 
         if (svg.path) {
-          svg = {"source": svg.source, "initial": svg.path, "selectable": this.svg.selectable, "selected": this.pathToExceedingElements}
+          svg = {"source": svg.source, "initial": svg.path, "selected": this.pathToExceedingElements}
         }
 
         this.fire("element-select", {"element": e.model.element, "svg": svg});

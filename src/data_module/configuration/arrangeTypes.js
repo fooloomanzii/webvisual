@@ -64,7 +64,7 @@ function arrangeTypes(label, labelindex, locals, svgSources) {
   //                     },...]
   // initialy set the preferedGroups
   var groups = locals.exclusiveGroups;
-  var key, where, pos, needToSetElement, needToSetGroup;
+  var key, where, needToSetElement, needToSetGroup, source, initial, name, path;
 
   var groupingKeys = locals.groupingKeys;
   if (groupingKeys.indexOf('all') == -1) {
@@ -78,7 +78,6 @@ function arrangeTypes(label, labelindex, locals, svgSources) {
       needToSetElement = true;
       needToSetGroup = true;
       where = -1;
-      pos = 0;
 
       for (var l = 0; l < groups.length; l++)
         if (groups[l].key == key) {
@@ -92,7 +91,7 @@ function arrangeTypes(label, labelindex, locals, svgSources) {
         });
       }
       for (var k = 0; k < groups[l].subgroup.length; k++) {
-        if (groups[l].subgroup[k].ids && (pos = groups[l].subgroup[k].ids.indexOf(types[i].id)) != -1) {
+        if (groups[l].subgroup[k].ids && (groups[l].subgroup[k].ids.indexOf(types[i].id)) != -1) {
           needToSetElement = false;
           if (!groups[l].subgroup[k].elements) {
             groups[l].subgroup[k].elements = [];
@@ -100,6 +99,7 @@ function arrangeTypes(label, labelindex, locals, svgSources) {
           if (groups[l].subgroup[k].elements.indexOf(types[i]) == -1) {
             groups[l].subgroup[k].elements.push(types[i]);
           }
+          where = k;
           break;
         }
         if (groups[l].subgroup[k].name == types[i].keys[key]) {
@@ -108,56 +108,64 @@ function arrangeTypes(label, labelindex, locals, svgSources) {
           where = k;
         }
       }
-      // if (key=='roomNr')
-      //   console.log(where);
       if (needToSetElement) {
         if (where == -1) {
           groups[l].subgroup.push({
             name: types[i].keys[key] || ((key == 'all') ? 'all' : ''),
             ids: [types[i].id],
-            elements: [types[i]]
+            elements: [types[i]],
+            svg: {
+              source: "",
+              initial: ""
+            }
           });
         } else {
+
           if (!groups[l].subgroup[where].elements)
             groups[l].subgroup[where].elements = [];
           if (!groups[l].subgroup[where].ids)
             groups[l].subgroup[where].ids = [];
 
-          // elements in groups in svg are selectable
-          if (groups[l].subgroup[where].svg &&
-            groups[l].subgroup[where].svg.source &&
-            svgSources[groups[l].subgroup[where].svg.source]) {
-
-            if (!groups[l].subgroup[where].svg.selectable)
-              groups[l].subgroup[where].svg.selectable = "";
-
-            // add main selectable
-            if (svgSources[groups[l].subgroup[where].svg.source].selectable && groups[l].subgroup[where].svg.selectable
-              .lastIndexOf(svgSources[groups[l].subgroup[where].svg.source].selectable) == -1) {
-              groups[l].subgroup[where].svg.selectable = svgSources[groups[l].subgroup[where].svg.source].selectable;
-            }
-
-            // initial is selectable
-            if (groups[l].subgroup[where].svg.initial && groups[l].subgroup[where].svg.selectable.lastIndexOf(groups[l]
-                .subgroup[where].svg.initial) == -1) {
-              // add seperator
-              if (groups[l].subgroup[where].svg.selectable.slice(-1) != "," && groups[l].subgroup[where].svg.selectable)
-                groups[l].subgroup[where].svg.selectable += ",";
-              groups[l].subgroup[where].svg.selectable += groups[l].subgroup[where].svg.initial;
-            }
-
-            // add elements path
-            if (types[i].svg &&
-              types[i].svg.path &&
-              groups[l].subgroup[where].svg.selectable.lastIndexOf(types[i].svg.path) == -1) {
-              // add seperator
-              if (groups[l].subgroup[where].svg.selectable.slice(-1) != "," && groups[l].subgroup[where].svg.selectable)
-                groups[l].subgroup[where].svg.selectable += ",";
-              groups[l].subgroup[where].svg.selectable += types[i].svg.path;
-            }
-          }
           groups[l].subgroup[where].elements.push(types[i]);
           groups[l].subgroup[where].ids.push(types[i].id);
+        }
+      }
+
+      // add svg paths and captions
+      if (where != -1) {
+        // set default if not set
+        if (!groups[l].subgroup[where].svg)
+          groups[l].subgroup[where].svg = {
+            source: "",
+            initial: ""
+          };
+
+        // elements in groups in svg are selectable
+        source = groups[l].subgroup[where].svg.source;
+        initial = groups[l].subgroup[where].svg.initial;
+        name = groups[l].subgroup[where].name;
+
+        if (name && source && svgSources[source]) {
+
+          if (!svgSources[source].selectable)
+            svgSources[source].selectable = {};
+          if (initial && !svgSources[source].selectable[name]) {
+            svgSources[source].selectable[name] = {};
+            svgSources[source].selectable[name] = {
+              "path": initial,
+              "caption": {
+                "name": name
+              }
+            };
+          }
+          // add elements path
+          if (types[i].svg && types[i].svg.path &&
+            !svgSources[source].selectable[types[i].id]) {
+            svgSources[source].selectable[types[i].id] = {
+              "path": types[i].svg.path,
+              "caption": types[i].keys
+            };
+          }
         }
       }
     }

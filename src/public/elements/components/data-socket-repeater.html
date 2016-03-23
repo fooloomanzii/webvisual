@@ -115,8 +115,6 @@
         this.set("status.time.lastStatus",new Date()); this.set("status.message", "connecting to "+window.location.host);
         var self = this;
         this.socket.on('init', function(config, socketId) {
-          // self.set('socketId', socketId);
-          // console.log(socketId);
           self._init();
           self.set("availableLabels", config.labels);
           if (!self.opened) {

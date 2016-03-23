@@ -507,8 +507,8 @@
           <!-- <section style="display: flex; flex-grow: 1; flex-shrink: 1;"> -->
             <svg-element id="selectedElementSVG" class="selectedElement" hidden$="{{!selectedElement.svg.source}}"
                          source="{{selectedElement.svg.source}}" selected="{{selectedElement.svg.selected}}" opened="{{opened}}"
-                         initial-selected="{{selectedElement.svg.initial}}" selectable="{{selectedElement.svg.selectable}}"
-                         zoom-partition="1.25" max-zoom="4" min-zoom="1">
+                         initial="{{selectedElement.svg.initial}}"
+                         zoom-partition="1.1" max-zoom="5" min-zoom="1">
             </svg-element>
           <!-- </section> -->
         </section>
@@ -540,8 +540,11 @@
       </section>
 
       <!-- EXCEEDING -->
-      <section id="exceedsPanel" >
-        <section id="exceedsHeader" on-tap="toggleExceedsPanel"><section class="title">Alarme</section></section>
+      <section id="exceedsPanel">
+        <section id="exceedsHeader" on-tap="toggleExceedsPanel">
+          <paper-ripple id="ripple"></paper-ripple>
+          <section class="title">Alarme</section>
+        </section>
         <iron-swipeable-container id="exceedingElements" on-iron-swipe="_removeSingleExceedingElement">
           <template is="dom-repeat" items="{{exceeding}}" as="element">
               <list-element element="{{element}}" caption-keys="[[getGroupingKeys(element.label)]]"></list-element>
@@ -622,7 +625,7 @@
     </section>
 
     <section id="svgFullscreenContainer">
-      <svg-element id="fullscreenSvg" opened zoom-partition="2" max-zoom="3" min-zoom="0.85" fullscreen initial-zoom-to-selected></svg-element>
+      <svg-element id="fullscreenSvg" opened zoom-partition="2" max-zoom="3" min-zoom="0.85" fullscreen initially-zoom-to-selected></svg-element>
     </section>
 
   </template>
@@ -782,8 +785,7 @@
         this.closeDrawer();
         this.$.control.style.visibility = "hidden";
         this.$.fullscreenSvg.set('source', e.detail.source);
-        this.$.fullscreenSvg.set('selectable', e.detail.selectable);
-        this.$.fullscreenSvg.set('initialSelected', e.detail.initialSelected);
+        this.$.fullscreenSvg.set('initial', e.detail.initial);
         this.$.fullscreenSvg.set('selected', e.detail.selected);
         this.$.svgFullscreenContainer.classList.add("fullscreen-opened");
       },

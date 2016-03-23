@@ -27,15 +27,30 @@
   "svg": {
     "E0": {
       "src": "/img/HNF-GDS/E0_gaskabinet.svg",
-      "selectable": "g#Cabinets path"
+      "selectable": {
+        "Cabinets": {
+          "path": "g#Cabinets path",
+          "caption": "Messkabinett"
+        }
+      }
     },
     "E1": {
       "src": "/img/HNF-GDS/E1_bypack.svg",
-      "selectable": "g#Cabinets path"
+      "selectable": {
+        "Cabinets": {
+          "path": "g#Cabinets path",
+          "caption": "Messkabinett"
+        }
+      }
     },
     "E2": {
       "src": "/img/HNF-GDS/E2_reinraum.svg",
-      "selectable": "g#Cabinets path"
+      "selectable": {
+        "Cabinets": {
+          "path": "g#Cabinets path",
+          "caption": "Messkabinett"
+        }
+      }
     }
   },
 
@@ -816,48 +831,42 @@
             "ids": ["DI0-2", "DI7-5", "DI1-2", "DI6-1"],
             "svg": {
               "source": "",
-              "initial": "",
-              "selectable": ""
+              "initial": ""
             }
           }, {
             "name": "kombinierte Alarme",
             "ids": ["DI2-2", "DI3-2", "DI4-2", "DI5-2"],
             "svg": {
               "source": "",
-              "initial": "",
-              "selectable": ""
+              "initial": ""
             }
           }, {
             "name": "2030",
             "ids": [],
             "svg": {
               "source": "E0",
-              "initial": "rect#R2030",
-              "selectable": ""
+              "initial": "rect#R2030"
             }
           }, {
             "name": "2032",
             "ids": [],
             "svg": {
               "source": "E0",
-              "initial": "rect#R2032",
-              "selectable": ""
+              "initial": "rect#R2032"
             }
           }, {
             "name": "3005",
             "ids": [],
             "svg": {
               "source": "E1",
-              "initial": "g#Cabinets path",
-              "selectable": ""
+              "initial": "g#Cabinets path"
             }
           }, {
             "name": "4006",
             "ids": ["DI3-5", "DI4-5", "DI5-5", "DI6-5"],
             "svg": {
               "source": "E2",
-              "initial": "",
-              "selectable": ""
+              "initial": ""
             }
           }]
         }, {
@@ -867,8 +876,7 @@
             "ids": ["DI6-1", "DI0-2", "DI1-2", "DI7-5"],
             "svg": {
               "source": "",
-              "initial": "",
-              "selectable": ""
+              "initial": ""
             }
           }]
         }]
@@ -1649,48 +1657,42 @@
             "ids": ["DI0-2", "DI7-5", "DI1-2", "DI6-1"],
             "svg": {
               "source": "",
-              "initial": "",
-              "selectable": ""
+              "initial": ""
             }
           }, {
             "name": "kombinierte Alarme",
             "ids": ["DI2-2", "DI3-2", "DI4-2", "DI5-2"],
             "svg": {
               "source": "",
-              "initial": "",
-              "selectable": ""
+              "initial": ""
             }
           }, {
             "name": "2030",
             "ids": [],
             "svg": {
               "source": "E0",
-              "initial": "rect#R2030",
-              "selectable": ""
+              "initial": "rect#R2030"
             }
           }, {
             "name": "2032",
             "ids": [],
             "svg": {
               "source": "E0",
-              "initial": "rect#R2032",
-              "selectable": ""
+              "initial": "rect#R2032"
             }
           }, {
             "name": "3005",
             "ids": [],
             "svg": {
               "source": "E1",
-              "initial": "g#Cabinets path",
-              "selectable": ""
+              "initial": "g#Cabinets path"
             }
           }, {
             "name": "4006",
             "ids": ["DI3-5", "DI4-5", "DI5-5", "DI6-5"],
             "svg": {
               "source": "E2",
-              "initial": "",
-              "selectable": ""
+              "initial": ""
             }
           }]
         }, {
@@ -1700,8 +1702,7 @@
             "ids": ["DI6-1", "DI0-2", "DI1-2", "DI7-5"],
             "svg": {
               "source": "",
-              "initial": "",
-              "selectable": ""
+              "initial": ""
             }
           }]
         }]

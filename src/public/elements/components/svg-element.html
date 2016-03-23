@@ -150,7 +150,17 @@ Use `isZoomable` to make it isZoomable.
       stroke-dashoffset: 12;
     }
   }
-
+  section.tooltip {
+      position: absolute;
+      text-align: center;
+      padding: 0.5em;
+      font: 0.5em
+      background: #A8CCDB;
+      color: #1f1f1f;
+      border: 0px;
+      border-radius: 8px;
+      pointer-events: none;
+  }
 </style>
 <template>
   <div id="svgContainer">
@@ -180,18 +190,17 @@ Use `isZoomable` to make it isZoomable.
         value: ''
       },
       selectable: {
-        type: String,
-        value: '.sel ellipse,g view',
-        observer: "_selectableChanged"
+        type: Object,
+        value: function() { return {}; }
       },
       selected: {
         type: Array,
         value: function() { return [] }
       },
-      initialSelected: {
+      initial: {
         type: String,
         value: "",
-        observer: "_initialSelectedChanged"
+        observer: "_initialChanged"
       },
       selectedItems: {
         type: Array,
@@ -221,7 +230,7 @@ Use `isZoomable` to make it isZoomable.
         value: false,
         reflectToAttribute: true
       },
-      initialZoomToSelected: {
+      initiallyZoomToSelected: {
         type: Boolean,
         value: false,
         reflectToAttribute: true
@@ -233,7 +242,7 @@ Use `isZoomable` to make it isZoomable.
       },
       maxZoom: {
         type: Number,
-        value: 6,
+        value: 5,
         observer: "_isZoomableChanged"
       },
       zoomPartition: {
@@ -279,47 +288,46 @@ Use `isZoomable` to make it isZoomable.
           this.$.svgContainer.removeChild(this.svg.node());
         }
         // import svg (came by data-socket-repeater)
+        this.selectable = svgSource[source].selectable;
         this._registerXML(svgSource[source].node);
       }
     },
 
     _registerXML: function(xml) {
       // import svg to document
-      // this.async( function() {
-        var date = new Date();
-        var svgNode = document.importNode(xml.cloneNode(true), true);
-        // register zoom function
-        this._d3Zoom = d3.behavior.zoom()
-                         .scaleExtent([this.minZoom, this.maxZoom])
-                         .on("zoom", this._zoom);
+      var date = new Date();
+      var svgNode = document.importNode(xml.cloneNode(true), true);
+      // register zoom function
+      this._d3Zoom = d3.behavior.zoom()
+                       .scaleExtent([this.minZoom, this.maxZoom])
+                       .on("zoom", this._zoom);
 
-        // append imported svg to this element
-        this.$.svgContainer.insertBefore(svgNode, this.$.svgContainer.firstChild);
+      // append imported svg to this element
+      this.$.svgContainer.insertBefore(svgNode, this.$.svgContainer.firstChild);
 
-        this.svg = d3.select(svgNode).attr("id", "main")
-                                     .classed("svg-element", true)
-                                     .call(this._d3Zoom);
+      this.svg = d3.select(svgNode).attr("id", "main")
+                                   .classed("svg-element", true)
+                                   .call(this._d3Zoom);
 
-        // set style for resizing
-        this.svg.attr("preserveAspectRatio", "xMinYMin meet")
-                .attr("height", null)
-                .attr("width", null);
+      // set style for resizing
+      this.svg.attr("preserveAspectRatio", "xMinYMin meet")
+              .attr("height", null)
+              .attr("width", null);
 
-        this.mainG = this.svg.select("g")
-                             .attr("id", "mainG")
-                             .style("will-change", "transform");
+      this.mainG = this.svg.select("g")
+                           .attr("id", "mainG")
+                           .style("will-change", "transform");
 
-        this.mainG.selectAll("text")
-                  .classed("text", true)  // for styling text
-                  .classed("svg-element", true); // style-scoping in polymer
+      this.mainG.selectAll("text")
+                .classed("text", true)  // for styling text
+                .classed("svg-element", true); // style-scoping in polymer
 
-        // get original dimensions
-        var viewBox = this.svg.attr("viewBox").split(' ');
-        this.width  = viewBox[2] - viewBox[0];
-        this.height = viewBox[3] - viewBox[1];
+      // get original dimensions
+      var viewBox = this.svg.attr("viewBox").split(' ');
+      this.width  = viewBox[2] - viewBox[0];
+      this.height = viewBox[3] - viewBox[1];
 
-        this.fire("xml-dom-import-finish", {}, {bubbles: false})
-      // });
+      this.fire("xml-dom-import-finish", {}, {bubbles: false})
     },
 
     _onXmlLoaded: function() {
@@ -330,8 +338,8 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _zoom: function () {
-        d3.select(this).select("g#mainG")
-                       .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+      d3.select(this).select("g#mainG")
+                     .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     },
 
     _selectedChanged: function(change) {
@@ -341,7 +349,7 @@ Use `isZoomable` to make it isZoomable.
       }, 400);
     },
 
-    _initialSelectedChanged: function(change) {
+    _initialChanged: function(change) {
       if(change && this.mainG )
         this.async( function() {
           this._resetZoom();
@@ -482,8 +490,8 @@ Use `isZoomable` to make it isZoomable.
       }
     },
 
-    _selectableChanged: function(selectable) {
-      if (!selectable || !this.mainG) return;
+    _selectableChanged: function() {
+      if (!this.mainG || !this.selectable || this.selectable == {}) return;
 
       this.svg.on('contextmenu',
         function () {
@@ -509,31 +517,36 @@ Use `isZoomable` to make it isZoomable.
 
       // add 'svg-element-selectable' class and click listener
       self = this;
-      this.mainG.selectAll(selectable)
-                .classed("svg-element-selectable", true)  // for styling selectable
-                .classed("svg-element", true) // for style-scoping in polymer
-                .on("click",
-                  function() {
-                    // if (d3.event.defaultPrevented) return;
-                    // get polymer-parent-node of the selectable node
-                    // else d3 uses the last instance of svg-element-Object
-                    var node = this;
-                    while (true) {
-                      if (node.nodeName && (node.nodeName.toLowerCase() === 'svg-element'))
-                        break;
-                      else if (node == window)
-                        return;
-                      else
-                        node = node.parentNode;
-                    }
-                    node._zoomToElement(this);
-                    node._setClass(this, "clicked", false, true);
-                  });
-                  // .append("title")
-                  // .text(function() {
-                  //       //  return "This value is " + this.parentNode.id;
-                  //         return this.parentNode.id;
-                  //  });
+      for (var key in this.selectable) {
+        this.mainG.selectAll(this.selectable[key].path)
+                  .classed("svg-element-selectable", true)  // for styling selectable
+                  .classed("svg-element", true) // for style-scoping in polymer
+                  .on("click",
+                    function() {
+                      // if (d3.event.defaultPrevented) return;
+                      // get polymer-parent-node of the selectable node
+                      // else d3 uses the last instance of svg-element-Object
+                      var node = this;
+                      while (true) {
+                        if (node.nodeName && (node.nodeName.toLowerCase() === 'svg-element'))
+                          break;
+                        else if (node == window)
+                          return;
+                        else
+                          node = node.parentNode;
+                      }
+                      node._zoomToElement(this);
+                      node._setClass(this, "clicked", false, true);
+                    })
+                  .append("title")
+                  .text(function() {
+                        //  return "This value is " + this.parentNode.id;
+                        var text = "";
+                        for (var prop in self.selectable[key].caption)
+                          text += self.selectable[key].caption[prop] + " ";
+                        return text;
+                   });
+      }
     },
 
     _resetZoom: function() {
@@ -552,12 +565,12 @@ Use `isZoomable` to make it isZoomable.
           }
         }
       }
-      // zoom to initialSelected
-      if (this.initialSelected) {
+      // zoom to initial
+      if (this.initial) {
         var initial;
-        if (!(initial = this.mainG.selectAll(this.initialSelected)
+        if (!(initial = this.mainG.selectAll(this.initial)
                                   .filter(".svg-element-selectable")).empty()) {
-          this.select(this.initialSelected, "initial");
+          this.select(this.initial, "initial");
           return;
         }
       }
@@ -566,7 +579,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _openFullscreen: function() {
-      this.fire("svg-open-fullscreen",{source: this.source, selectable: this.selectable, initialSelected: this.initialSelected, selected: this.selected});
+      this.fire("svg-open-fullscreen",{source: this.source, initial: this.initial, selected: this.selected});
     },
     _exitFullscreen: function() {
       this.fire("svg-exit-fullscreen");
