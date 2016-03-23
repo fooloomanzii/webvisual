@@ -538,14 +538,14 @@ Use `isZoomable` to make it isZoomable.
 
     _resetZoom: function() {
       // remove clicked class
-      this.mainG.selectAll(".svg-element-selectable")
+      this.mainG.selectAll(".clicked")
                 .classed("clicked", false);
 
       // zoom to selectedItems
       if (this.initialZoomToSelected) {
         if (this.selected && this.selected.length != 0) {
           var selected;
-          if (!(selected = this.mainG.selectAll(this.initialSelected)
+          if (!(selected = this.mainG.selectAll(this.selected)
                                      .filter(".svg-element-selectable")).empty()) {
             this.select(this.selected, this.selectedClass, this.multi);
             return;
