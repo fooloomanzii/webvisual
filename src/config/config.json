@@ -1118,7 +1118,7 @@
               "alarmlevel": "Alarm 2"
             },
             "svg": {
-              "path": "g#SIH4 path, g#NH3 path",
+              "path": "g#NH3 path, g#SIH4 path",
               "source": "E0"
             },
             "isBoolean": true,
@@ -1136,7 +1136,7 @@
               "alarmlevel": "Alarm 2"
             },
             "svg": {
-              "path": "g#CL2 path,g#HBR path, g#HCL path,g#NH3 path, g#SIH4",
+              "path": "g#CL2 path,g#HBR path, g#HCL path,g#NH3 path, g#SIH4 path",
               "source": "E1"
             },
             "isBoolean": true,
@@ -1154,7 +1154,7 @@
               "alarmlevel": "Alarm 2"
             },
             "svg": {
-              "path": "g#CL2 path,g#HBR path, g#HCL path,g#NH3 path, g#SIH4",
+              "path": "g#CL2 path,g#HBR path, g#HCL path,g#NH3 path, g#SIH4 path",
               "source": "E2"
             },
             "isBoolean": true,
@@ -1207,15 +1207,15 @@
           }, {
             "id": "DI1-3",
             "keys": {
-              "roomNr": "4006",
-              "room": "Reinraum",
+              "roomNr": "3005",
+              "room": "Bypack",
               "kind": "Cl₂",
               "system": "TOX-Gasüberwachung",
               "alarmlevel": "Alarm 1"
             },
             "svg": {
               "path": "g#CL2 path",
-              "source": "E2"
+              "source": "E1"
             },
             "isBoolean": true,
             "threshold": {
@@ -1313,7 +1313,7 @@
             },
             "svg": {
               "path": "",
-              "source": ""
+              "source": "E1"
             },
             "isBoolean": true,
             "threshold": {

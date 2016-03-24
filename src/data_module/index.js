@@ -16,7 +16,6 @@ var io = require('socket.io')(),
   fs = require('fs'),
 
   /* Class variables */
-  threshold = filehandler.threshold, // extension: of DATAMODULE
   dataFileHandler = filehandler.dataFileHandler, // extension: of DATAMODULE
   mergeData = filehandler.dataMerge, // extension: of DATAMODULE
   arrangeTypes = require('./configuration').arrangeTypes, // extension: of DATAMODULE
@@ -88,15 +87,12 @@ function connect(config, server, err) {
         // temporary save data
         if (dataConfig[label]) {
           // process data
-          mergedData = mergeData(dataConfig[label], {
-            exceeds: threshold(data, dataConfig[label].types),
-            data: data
-          });
+          mergedData = mergeData(dataConfig[label], data);
           // serve clients in rooms for labels
           // only newer data is send
           // TODO: handle this optional by config
           if (currentData[label] && mergedData.date > currentData[label].date) {
-            dataSocket.to(label).emit("update", currentData[label]);
+            dataSocket.to(label).emit("update", mergedData);
           }
           currentData[label] = mergedData;
         }
@@ -140,6 +136,14 @@ function connect(config, server, err) {
         socket.emit('update', currentData[label]);
       }
     });
+
+    // socket.on('disconnect', function() {
+    //   // leave rooms on disconnect
+    //   var rooms = io.sockets.manager.roomClients[socket.id];
+    //   for (var room in rooms) {
+    //     socket.leave(room);
+    //   }
+    // });
   });
 
   io.of('/data').clients(function(error, clients) {

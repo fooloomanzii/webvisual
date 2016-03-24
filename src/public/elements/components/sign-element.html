@@ -8,6 +8,7 @@
       color: #f1f1f1;;
       overflow: hidden;
       display: flex;
+      flex-direction: column;
       outline: none;
       font-family: Fira Sans Light;
       font-weight: normal;
@@ -20,12 +21,6 @@
     }
     :host[dark] {
       border-color: #606060;
-    }
-    section#mainContent {
-      display: flex;
-      border-radius: inherit;
-      flex: 1;
-      flex-direction: column;
     }
     section#sign {
       border-top-left-radius: inherit;
@@ -95,7 +90,7 @@
       padding: 0.25em 0.75em 0.5em 0.5em;
       display: inline-block;
       flex: 1;
-      min-height: 2.5em;
+      -ms-flex: none;
       border-top: thin solid #BBBBBB;
     }
     iron-icon {
@@ -125,7 +120,7 @@
       }
     }
     @media all and (min-width: 600px) {
-      section#mainContent[horizontal] {
+      :host[horizontal] {
         flex-direction: row;
       }
       section#sign[horizontal] {
@@ -144,7 +139,7 @@
       }
     }
     @media all and (min-height: 690px) and (min-width: 600px){
-      section#mainContent[horizontal] {
+      :host[horizontal] {
         flex-direction: row;
       }
       section#sign[horizontal] {
@@ -169,8 +164,6 @@
     }
   </style>
   <template>
-    <section id="mainContent" horizontal$="{{horizontal}}">
-
       <section id="sign" horizontal$="{{horizontal}}">
         <paper-ripple id="ripple"></paper-ripple>
 
@@ -198,7 +191,6 @@
         </section>
       </template>
 
-    </section>
   </template>
 
   <script>

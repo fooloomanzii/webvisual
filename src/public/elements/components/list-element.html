@@ -13,20 +13,14 @@
       -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
       align-self: stretch;
       display: flex;
-    }
-    section#mainContent {
+      flex-direction: row;
       background: white;
       border-radius: inherit;
       border: thin solid #BBBBBB;
-      display: flex;
-      flex: 1;
     }
-    section#mainContent[dark] {
+    :host[dark] {
       background: #a8a8a8;
       border-color: #606060;
-    }
-    section#mainContent[horizontal] {
-      flex-direction: row;
     }
     section#value.null {
       background: #1BD939; color: #f1f1f1;
@@ -66,7 +60,8 @@
     span.dateSection {
       font-family: Fira Sans Light;
       font-size: 0.6em;
-      margin: auto 8px;
+      margin: auto 0;
+      padding: 1em;
       color: #1f1f1f;
       min-width: 30px;
     }
@@ -74,7 +69,7 @@
       color: #1f1f1f;
       line-height: 1.4;
       padding: 0.75em;
-      flex: 1;
+      margin: auto;
       white-space: nowrap;
     }
     section.caption[dark] {
@@ -102,46 +97,27 @@
     }
   </style>
   <template>
-    <section id="mainContent">
-
-        <section class="caption">
-          <template id="captiontemplate" is="dom-repeat" items="{{captionKeys}}" as="captionKey">
-            <span id="[[key]]" class="captions" style$="[[computeCaptionStyle(index)]]">{{getKey(captionKey, element.keys.*)}}</span>
-          </template>
-        </section>
-
-        <section id="value" class="actualValueSection">
-          <template is="dom-if" if="{{!element.isBoolean}}" restamp>
-            <span class="valueSection">{{computeY(element.values.*,0)}}</span><span class="unitSection">[[element.unit]]</span>
-          </template>
-          <template is="dom-if" if="{{element.isBoolean}}" restamp>
-            <span class="iconSection" hidden$="{{!isExceeding}}">
-              <iron-icon icon="error-outline"></iron-icon>
-            </span>
-          </template>
-        </section>
-
-        <template is="dom-if" if="{{showDate}}" restamp>
-          <span class="dateSection">{{computeX(element.values.*,0)}}</span>
-        </template>
-
-        <!-- <section class="exceedsSection">
-          <template is="dom-if" if="{{!element.isBoolean}}" restamp>
-            <section class="valueSection">{{computeY(element.values.*,0)}}</section><section class="unitSection">[[element.unit]]</section>
-          </template>
-          <template is="dom-if" if="{{element.isBoolean}}" restamp>
-            <section hidden$="{{!isExceeding}}">
-              <iron-icon icon="error-outline"></iron-icon>
-            </section>
-          </template>
-          <template is="dom-if" if="{{showDate}}" restamp>
-            <section class="lowerSection">
-              <section class="dateSection">{{computeX(element.values.*,0)}}</section>
-            </section>
-          </template>
-        </section> -->
-
+    <section class="caption">
+      <template id="captiontemplate" is="dom-repeat" items="{{captionKeys}}" as="captionKey">
+        <span id="[[key]]" class="captions" style$="[[computeCaptionStyle(index)]]">{{getKey(captionKey, element.keys.*)}}</span>
+      </template>
     </section>
+
+    <section id="value" class="actualValueSection">
+      <template is="dom-if" if="{{!element.isBoolean}}" restamp>
+        <span class="valueSection">{{computeY(element.values.*,0)}}</span><span class="unitSection">[[element.unit]]</span>
+      </template>
+      <template is="dom-if" if="{{element.isBoolean}}" restamp>
+        <span class="iconSection" hidden$="{{!isExceeding}}">
+          <iron-icon icon="error-outline"></iron-icon>
+        </span>
+      </template>
+    </section>
+
+    <template is="dom-if" if="{{showDate}}" restamp>
+      <span class="dateSection">{{computeX(element.values.*,0)}}</span>
+    </template>
+
   </template>
 
   <script>

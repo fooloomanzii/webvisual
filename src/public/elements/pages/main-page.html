@@ -46,23 +46,26 @@
       top: 0;
       right: 0;
       left: auto;
-      height: 100%;
+      max-height: 100%;
+      max-width: 100%;
       overflow-y: auto;
       overflow-x: hidden;
       color: #1f1f1f;
       border: 0;
       visibility: visible;
-      background-color: rgba(255, 255, 255, 0.6);
+      background-color: rgba(241, 241, 241, 0.75);
       align-items: center;
       -moz-box-sizing: border-box; box-sizing: border-box;
       will-change: transform;
       transition: transform ease-in-out 0.3s, visibility 0.3s;
       box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.2);
+      border-top-left-radius: 6px 12px;
+      border-bottom-left-radius: 12px;
       -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
       -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
     }
     section#exceedsPanel[dark] {
-      background-color: rgba(62, 62, 62, 0.6);
+      background-color: rgba(62, 62, 62, 0.75);
     }
     section#exceedsPanel:not(.exceeds-panel-opened) {
       left: auto;
@@ -507,8 +510,7 @@
           <!-- <section style="display: flex; flex-grow: 1; flex-shrink: 1;"> -->
             <svg-element id="selectedElementSVG" class="selectedElement" hidden$="{{!selectedElement.svg.source}}"
                          source="{{selectedElement.svg.source}}" selected="{{selectedElement.svg.selected}}" opened="{{opened}}"
-                         initial="{{selectedElement.svg.initial}}"
-                         zoom-partition="1.1" max-zoom="5" min-zoom="1">
+                         initial="{{selectedElement.svg.initial}}" zoom-partition="1.1" max-zoom="5" min-zoom="1">
             </svg-element>
           <!-- </section> -->
         </section>
@@ -550,7 +552,7 @@
               <list-element element="{{element}}" caption-keys="[[getGroupingKeys(element.label)]]"></list-element>
           </template>
         </iron-swipeable-container>
-        <span style="padding: 0.5em; float: right;"><a href="#" on-click="_removeAllExceedingElements">Liste leeren</a></span>
+        <span style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_removeAllExceedingElements">Liste leeren</a></span>
       </section>
 
       <!-- SIDEMENU -->
@@ -796,7 +798,7 @@
       _checkExceedsPanel: function(length) {
         if(!(this.$.exceedsPanel.classList.contains("exceeds-panel-opened")) && length)
           this.openExceedsPanel();
-        else
+        else if (this.exceeding.length == 0)
           this.closeExceedsPanel();
       },
       openExceedsPanel: function() {

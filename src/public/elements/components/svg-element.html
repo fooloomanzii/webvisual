@@ -122,16 +122,15 @@ Use `isZoomable` to make it isZoomable.
     animation: circular 3s infinite linear;
   }
   .selected {
-    fill: #F7FF62 !important;
     stroke: #2B2B2B !important;
-    stroke-width: 2px !important;
+    stroke-width: 1.5px !important;
     stroke-linecap: round;
     stroke-linejoin: round;
     transform-origin: center center;
     will-change: transform;
     animation-name: selected-animation;
-    animation-duration: 3s;
-    animation-timing-function: ease;
+    animation-duration: 2s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     animation-iteration-count: infinite;
   }
   @keyframes selected-animation {
@@ -140,6 +139,8 @@ Use `isZoomable` to make it isZoomable.
     }
     50% {
       -webkit-transform: scale(0.8);
+      fill: #D91B1B;
+      stroke: #8F1111;
     }
     100% {
       -webkit-transform: scale(1.0);
@@ -149,17 +150,6 @@ Use `isZoomable` to make it isZoomable.
     to {
       stroke-dashoffset: 12;
     }
-  }
-  section.tooltip {
-      position: absolute;
-      text-align: center;
-      padding: 0.5em;
-      font: 0.5em
-      background: #A8CCDB;
-      color: #1f1f1f;
-      border: 0px;
-      border-radius: 8px;
-      pointer-events: none;
   }
 </style>
 <template>
@@ -555,7 +545,7 @@ Use `isZoomable` to make it isZoomable.
                 .classed("clicked", false);
 
       // zoom to selectedItems
-      if (this.initialZoomToSelected) {
+      if (this.initiallyZoomToSelected) {
         if (this.selected && this.selected.length != 0) {
           var selected;
           if (!(selected = this.mainG.selectAll(this.selected)
