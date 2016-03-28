@@ -265,6 +265,7 @@ Use `isZoomable` to make it isZoomable.
     ],
 
     _sourceChanged: function(source) {
+      console.log("src changed", source);
       if (source && this.recentSource != source) {
         if (!svgSource[source])
           return;
@@ -284,6 +285,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _registerXML: function(xml) {
+      console.log("register");
       // import svg to document
       var date = new Date();
       var svgNode = document.importNode(xml.cloneNode(true), true);
@@ -328,11 +330,13 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _zoom: function () {
+            console.log("zoom");
       d3.select(this).select("g#mainG")
                      .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     },
 
     _selectedChanged: function(change) {
+            console.log("selected changed");
       if(!change || !this.selected) return;
       this.async( function() {
         this.select(this.selected, this.selectedClass, this.multi);
@@ -340,6 +344,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _initialChanged: function(change) {
+            console.log("initial changed");
       if(change && this.mainG )
         this.async( function() {
           this._resetZoom();
@@ -347,12 +352,14 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _openedChanged: function(opened) {
+            console.log("opened changed");
       if (opened) {
         this._selectedChanged(true);
       }
     },
 
     select: function(selected, selectedClass, multi) {
+            console.log("select");
       if (!this.mainG)
         return;
       // previous selected elements: remove class for selected elements
@@ -397,6 +404,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _zoomToElement: function(elem) {
+            console.log("zoom to element");
       if (!elem) return;
       // calc centered zoom coordinates
       var transform = this._calcCenterZoom(elem);
@@ -407,6 +415,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _calcCenterZoom: function(elem) {
+            console.log("calc center zoom");
       // get view height and width
       var view = this.getClientRects()[0];
       if (!view || !elem || view.height == 0 || view.width == 0)
@@ -454,6 +463,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _setClass: function(elem, selectedClass, multi, toggle) {
+            console.log("set class");
       var pos = this.selectedItems.indexOf(elem);
       if (multi) {
         if ( pos == -1 ) {
@@ -481,6 +491,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _selectableChanged: function() {
+            console.log("selectable changed");
       if (!this.mainG || !this.selectable || this.selectable == {}) return;
 
       this.svg.on('contextmenu',
@@ -540,6 +551,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _resetZoom: function() {
+            console.log("reset zoom");
       // remove clicked class
       this.mainG.selectAll(".clicked")
                 .classed("clicked", false);
@@ -576,6 +588,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _isZoomableChanged: function() {
+            console.log("zoomable changed");
       if (this.mainG && !this.mainG.empty()) {
         if (!this.isZoomable) {
           this._resetZoom()
