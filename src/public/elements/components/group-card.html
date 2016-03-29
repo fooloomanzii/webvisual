@@ -127,19 +127,19 @@
     </style>
     <!-- <link rel="import" href="../style/ol.css" type="css"/> -->
   <template>
-    <section id="main" name$="[[title]]" nowindow$="{{withoutWindow}}">
+    <section id="main" name$="[[title]]" nowindow$="[[withoutWindow]]">
 
-      <section class="header" opened$="{{opened}}">
-        <!-- <section class="svgcontainer" opened$="{{opened}}"> -->
-          <svg-element id="svg" hidden$="{{!svg.source}}" opened$="{{opened}}" source="{{svg.source}}" selected="{{pathToExceedingElements}}" initial="{{svg.initial}}" initially-zoom-to-selected></svg-element>
+      <section class="header" opened$="[[opened]]">
+        <!-- <section class="svgcontainer" opened$="[[opened]]"> -->
+          <svg-element id="svgElement" hidden$="[[!svg.source]]" opened$="[[opened]]" source="[[svg.source]]" selected="{{exceedingElements}}" initial="[[svg.initial]]" initially-zoom-to-selected></svg-element>
         <!-- </section> -->
         <section id="title" hidden$="[[_hideTitle(title,withoutWindow)]]" on-tap="toggle">[[title]]</section>
       </section>
 
       <section id="mainContent">
-        <template is="dom-repeat" items="{{elements}}" as="element">
-          <sign-element element="{{element}}" caption-keys="{{captionKeys}}"
-                        on-tap="_setSelectedElement" show-date="{{showDate}}"
+        <template is="dom-repeat" items="[[elements]]" as="element">
+          <sign-element element="[[element]]" caption-keys="[[captionKeys]]"
+                        on-tap="_setSelectedElement" show-date="[[showDate]]"
                         on-element-is-exceeding="_setExceedingElement"
                         on-element-is-not-exceeding="_unsetExceedingElement">
           </sign-element>
@@ -193,7 +193,7 @@
           value: function() { return {source: "", initial: ""}; },
           observer: "_svgChanged"
         },
-        pathToExceedingElements: {
+        exceedingElements: {
           type: Array,
           value: function() { return [] }
         }
@@ -237,7 +237,7 @@
         var svg = e.model.element.svg || {};
 
         if (svg.path) {
-          svg = {"source": svg.source, "initial": svg.path, "selected": this.pathToExceedingElements}
+          svg = {"source": svg.source, "initial": svg.path, "selected": this.exceedingElements}
         }
 
         this.fire("element-select", {"element": e.model.element, "svg": svg});
@@ -246,8 +246,8 @@
       _setExceedingElement: function(e) {
         if(e.detail.element.svg &&
            e.detail.element.svg.path &&
-           this.pathToExceedingElements.indexOf(e.detail.element.svg.path) == -1) {
-          this.push("pathToExceedingElements", e.detail.element.svg.path);
+           this.exceedingElements.indexOf(e.detail.element.svg.path) == -1) {
+          this.set("exceedingElements." + e.detail.element.id, e.detail.element.svg.path);
           if (!this.opened) {
             this.toggle();
           }
@@ -255,8 +255,9 @@
       },
       _unsetExceedingElement: function(e) {
         if(e.detail.element.svg &&
-           e.detail.element.svg.path)
-          this.arrayDelete("pathToExceedingElements", e.detail.element.svg.path);
+           e.detail.element.svg.path){
+          this.set("exceedingElements." + e.detail.element.id, e.detail.element.svg.path);
+        }
       }
     });
   </script>

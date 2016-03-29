@@ -23,7 +23,7 @@
     <data-socket-repeater id="datasocket"
       data="{{data}}" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}"
       available-labels="{{availableLabels}}" labels="{{labels}}" max-total-lines="[[maxLines]]" paths="{{paths}}"
-      interval="[[interval]]" grouping-keys="{{groupingKeys}}" status="{{status}}"
+      grouping-keys="{{groupingKeys}}" status="{{status}}"
       prefered-grouping-keys="{{preferedGroupingKeys}}">
     </data-socket-repeater>
     <neon-animated-pages id="pages">
@@ -33,7 +33,7 @@
         data="[[data]]" exceeding="{{exceeding}}" is-exceeding="{{isExceeding}}"
         labels="[[labels]]" grouping-keys="[[groupingKeys]]"
         max-total-lines="{{maxLines}}" interval="{{interval}}" paths="[[paths]]" available-labels="[[availableLabels]]"
-        prefered-grouping-keys="{{preferedGroupingKeys}}" always-show-tabs></main-page>
+        prefered-grouping-keys="{{preferedGroupingKeys}}"></main-page>
     </neon-animated-pages>
   </template>
   <script>
@@ -51,9 +51,6 @@
           this.$.datasocket.connect();
           this.start = new Date();
           this.$.pages.set('selected', 1);
-        },
-        _onConfigreset: function() {
-          this.$.datasocket.connect();
         },
         _onLoaded: function(e) {
           var self = this;
@@ -77,8 +74,7 @@
         listeners: {
           "restart": "_onRestart",
           "loaded": "_onLoaded",
-          "configset": "_onConfigset",
-          "reconnect": "_onConfigreset"
+          "configset": "_onConfigset"
         }
       });
   </script>

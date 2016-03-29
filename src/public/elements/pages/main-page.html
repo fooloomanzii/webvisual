@@ -498,9 +498,9 @@
           </section>
         </section>
       </section>
-      <section id="toolbarFooter" opened$="{{opened}}" expanded$="{{expanded}}">
+      <section id="toolbarFooter" opened$="[[opened]]" expanded$="[[expanded]]">
         <section id="toolbarSelectedElement">
-          <sign-element id="selectedElementSign" class="selectedElement" horizontal="{{!expanded}}"
+          <sign-element id="selectedElementSign" class="selectedElement" horizontal="[[!expanded]]"
                         element="[[selectedElement]]" on-tap="deselectElement" caption-keys="[[getGroupingKeys(selectedElement.label)]]">
           </sign-element>
           <section style="display: flex; ">
@@ -508,9 +508,8 @@
             </table-element>
           </section>
           <!-- <section style="display: flex; flex-grow: 1; flex-shrink: 1;"> -->
-            <svg-element id="selectedElementSVG" class="selectedElement" hidden$="{{!selectedElement.svg.source}}"
-                         source="{{selectedElement.svg.source}}" selected="{{selectedElement.svg.selected}}" opened="{{opened}}"
-                         initial="{{selectedElement.svg.initial}}" zoom-partition="1.1" max-zoom="5" min-zoom="1">
+            <svg-element id="selectedElementSVG" class="selectedElement" hidden$="[[!selectedElement.svg.source]]" opened="[[opened]]"
+            zoom-partition="1.1" max-zoom="5" min-zoom="1">
             </svg-element>
           <!-- </section> -->
         </section>
@@ -529,7 +528,7 @@
             <template id="grouptemplate" is="dom-repeat" items="{{items.groups}}" as="groups" observe="key subgroup" filter="filterPreferedGroup" delay="250">
               <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroup">
                 <group-card title="{{subgroup.name}}" elements="{{subgroup.elements}}"
-                            caption-keys="{{getGroupingKeys(selectedLabel)}}" without-window$="[[withoutWindow]]"
+                            caption-keys="{{getGroupingKeys(selectedLabel)}}" without-window$="{{withoutWindow}}"
                             svg="{{subgroup.svg}}" show-date="{{showDate}}">
                 </group-card>
               </template>
@@ -700,11 +699,6 @@
           value: 100,
           notify: true
         },
-        interval: {
-          type: Number,
-          value: 0,
-          notify: true
-        },
         // Attribute for toolbar is opened
         opened: {
           type: Boolean,
@@ -752,7 +746,9 @@
                                                                                                .replace('subgroup.','subgroup.#')
                                                                                                .replace('elements.','elements.#');
               this.set("selectedElement", item);
-              this.set("selectedElement.svg", e.detail.svg);
+              this.$.selectedElementSVG.set('source', e.detail.svg.source);
+              this.$.selectedElementSVG.set('initial', e.detail.svg.initial);
+              this.$.selectedElementSVG.set('selected', e.detail.svg.selected);
               this.linkPaths('selectedElement', path);
               if (!this.opened){
                 this.toggleAttribute('opened',true);

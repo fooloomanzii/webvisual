@@ -43,7 +43,6 @@
 
     exceedStateChanged: function(change) {
       // delegating state-change-event upwards
-
       switch (change) {
         case true:
           this.fire("element-is-exceeding", {element: this.element});

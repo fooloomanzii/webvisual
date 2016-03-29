@@ -164,29 +164,29 @@
     }
   </style>
   <template>
-      <section id="sign" horizontal$="{{horizontal}}">
+      <section id="sign" horizontal$="[[horizontal]]">
         <paper-ripple id="ripple"></paper-ripple>
 
         <section class="actualValueSection">
-          <template is="dom-if" if="{{!element.isBoolean}}" restamp>
-            <section class="valueSection">{{computeY(element.values.*,0)}}</section><section class="unitSection">[[element.unit]]</section>
+          <template is="dom-if" if="[[!element.isBoolean]]" restamp>
+            <section class="valueSection">[[computeY(element.values.*,0)]]</section><section class="unitSection">[[element.unit]]</section>
           </template>
-          <template is="dom-if" if="{{element.isBoolean}}" restamp>
-            <section class="iconSection" hidden$="{{!isExceeding}}">
+          <template is="dom-if" if="[[element.isBoolean]]" restamp>
+            <section class="iconSection" hidden$="[[!isExceeding]]">
               <iron-icon icon="error-outline"></iron-icon>
             </section>
           </template>
         </section>
 
-        <template is="dom-if" if="{{showDate}}" restamp>
-          <section class="dateSection">{{computeX(element.values.*,0)}}</section>
+        <template is="dom-if" if="[[showDate]]" restamp>
+          <section class="dateSection">[[computeX(element.values.*,0)]]</section>
         </template>
       </section>
 
-      <template is="dom-if" if="{{showCaption}}" restamp>
-        <section class="caption" horizontal$="{{horizontal}}">
-          <template id="captiontemplate" is="dom-repeat" items="{{captionKeys}}" as="captionKey">
-            <span id="[[key]]" class="captions" style$="[[computeCaptionStyle(index)]]">{{getKey(captionKey, element.keys.*)}}</span>
+      <template is="dom-if" if="[[showCaption]]" restamp>
+        <section class="caption" horizontal$="[[horizontal]]">
+          <template id="captiontemplate" is="dom-repeat" items="[[captionKeys]]" as="captionKey">
+            <span id="[[key]]" class="captions" style$="[[computeCaptionStyle(index)]]">[[getKey(captionKey, element.keys.*)]]</span>
           </template>
         </section>
       </template>
@@ -229,7 +229,7 @@
 
       _handleExceeding: function(value) {
         if (this.element && this.element.values) {
-          this.isExceeding = value;
+          this.setAttribute("isExceeding", value);
           this.$.sign.classList.remove('true');
           this.$.sign.classList.remove('false');
           this.$.sign.classList.remove('null');

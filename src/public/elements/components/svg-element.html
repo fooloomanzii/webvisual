@@ -112,7 +112,7 @@ Use `isZoomable` to make it isZoomable.
   }
   .clicked {
     stroke-width: 1px !important;
-    stroke: white !important;
+    stroke: #2DCC75 !important;
     stroke-linecap: round !important;
     stroke-linejoin: round !important;
     /*stroke-dashoffset: 0;
@@ -122,7 +122,7 @@ Use `isZoomable` to make it isZoomable.
     animation: circular 3s infinite linear;*/
   }
   .selected {
-    stroke: #2B2B2B !important;
+    stroke: #EB4949 !important;
     stroke-width: 1.5px !important;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -140,7 +140,6 @@ Use `isZoomable` to make it isZoomable.
     50% {
       -webkit-transform: scale(0.8);
       fill: #D91B1B;
-      stroke: #8F1111;
     }
     100% {
       -webkit-transform: scale(1.0);
@@ -172,7 +171,8 @@ Use `isZoomable` to make it isZoomable.
     properties: {
       source: {
         type: String,
-        value: ''
+        value: '',
+        observer: "_openedChanged"
       },
       recentSource: {
         type: String,
@@ -188,7 +188,8 @@ Use `isZoomable` to make it isZoomable.
       },
       initial: {
         type: String,
-        value: ""
+        value: "",
+        observer: "_resetZoom"
       },
       selectedItems: {
         type: Array,
@@ -260,7 +261,7 @@ Use `isZoomable` to make it isZoomable.
     ],
 
     _setSource: function(source) {
-      if (source && this.recentSource != source) {
+      if (source && this.recentSource != source && this.opened) {
         if (!svgSource[source])
           return;
         if (!svgSource[source].node)
@@ -315,7 +316,9 @@ Use `isZoomable` to make it isZoomable.
       // set selectable elements
       this._setSelectable(this.selectable);
       // zoom to selected or to initial or to zero
-      this._setSelected(true);
+      if (this.selected && this.selected.length > 0) {
+        this.select(this.selected, this.selectedClass, this.multi);
+      }
     },
 
     _zoom: function () {
@@ -325,9 +328,7 @@ Use `isZoomable` to make it isZoomable.
 
     _setSelected: function(change) {
       if(!change || !this.selected) return;
-      this.async( function() {
-        this.select(this.selected, this.selectedClass, this.multi);
-      }, 400);
+      this.select(this.selected, this.selectedClass, this.multi);
     },
 
     _openedChanged: function(opened) {
@@ -336,21 +337,22 @@ Use `isZoomable` to make it isZoomable.
     },
 
     select: function(selected, selectedClass, multi) {
-      if (!this.mainG) return;
+      if (!this.mainG || !selectedClass) return;
       // previous selected elements: remove class for selected elements
       if (!this.selectedItems)
         this.set("selectedItems", []);
 
-      for (var i = this.selectedItems.length-1; i>=0; i--) {
+      for (var i = this.selectedItems.length - 1; i >= 0; i--) {
         if (this.selectedItems[i].classList.contains(selectedClass)) {
           this.selectedItems[i].classList.remove(selectedClass);
           this.arrayDelete('selectedItems', this.selectedItems[i]);
         }
       }
 
+      console.log(Object.getOwnPropertyNames(selected));
       var elems;
       if (!selected || selected.length == 0 ||
-          (elems = this.mainG.selectAll(selected.toString())
+          (elems = this.mainG.selectAll(Object.getOwnPropertyNames(selected))
                              .filter('.svg-element-selectable')).empty()) {
         if (this.opened)
           this._resetZoom();
@@ -384,7 +386,7 @@ Use `isZoomable` to make it isZoomable.
       var transform = this._calcCenterZoom(elem);
       // call zoom to translate and scale
       this.svg.transition()
-              .duration(300)
+              .duration(350)
               .call(this._d3Zoom.translate(transform.translate).scale(transform.scale).event);
     },
 
@@ -523,14 +525,12 @@ Use `isZoomable` to make it isZoomable.
 
     _resetZoom: function() {
       if (!this.mainG) return;
-
       // remove clicked class
       this.mainG.selectAll(".clicked")
                 .classed("clicked", false);
-
       // zoom to selectedItems
       if (this.initiallyZoomToSelected) {
-        if (this.selected && this.selected.length != 0) {
+        if (this.selected && this.selected.length > 0) {
           var selected;
           if (!(selected = this.mainG.selectAll(this.selected)
                                      .filter(".svg-element-selectable")).empty()) {
@@ -555,6 +555,7 @@ Use `isZoomable` to make it isZoomable.
     _openFullscreen: function() {
       this.fire("svg-open-fullscreen",{source: this.source, initial: this.initial, selected: this.selected});
     },
+
     _exitFullscreen: function() {
       this.fire("svg-exit-fullscreen");
     }

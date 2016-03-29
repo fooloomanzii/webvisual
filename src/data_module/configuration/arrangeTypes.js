@@ -4,11 +4,13 @@
 module.exports = arrangeTypes;
 
 var defaults = {
-  values: [{
-    x: new Date(),
-    y: 0,
-    exceeds: null
-  }]
+  values: [
+    // {
+    // x: new Date(),
+    // y: 0,
+    // exceeds: null
+    // }
+  ]
 };
 
 function arrangeTypes(label, labelindex, locals, svgSources) {
