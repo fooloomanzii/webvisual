@@ -137,9 +137,9 @@
         // Receive Data
         this.socket.on('update', function(message) {
           self.set("status.message", "receiving data");
-          // self.async(function() {
+          self.async(function() {
             self._onData(message);
-          // });
+          });
         });
         // Disconnect
         this.socket.on('disconnect', function() {

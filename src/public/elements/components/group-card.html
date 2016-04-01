@@ -38,7 +38,7 @@
         border-bottom-right-radius: 0px;
         background: #669DB4;
         font-size: 1em;
-        transition: max-height ease-in-out 0.3s, min-height ease-in-out 0.3s;
+        transition: max-height ease-in-out 0.2s, min-height ease-in-out 0.2s;
         min-height: 2.6em;
       }
       section.header[dark] {
@@ -51,7 +51,7 @@
       }
       svg-element {
         flex: 1;
-        transition: opacity ease-in-out 0.5s;
+        transition: opacity ease-in-out 0.3s;
       }
       svg-element[opened] {
         opacity: 1;
@@ -194,22 +194,22 @@
           observer: "_svgChanged"
         },
         exceedingElements: {
-          type: Array,
-          value: function() { return [] }
+          type: Object,
+          value: function() { return {}; }
         }
       },
 
       toggle: function() {
-          if (this.svg && this.svg.source) {
-            this.opened = !this.opened;
-            this.$.title.classList.add('over-image');
-          }
-          if (!this.opened)
-            this.$.title.classList.remove('over-image');
+        if (this.svg && this.svg.source) {
+          this.opened = !this.opened;
+          this.$.title.classList.add('over-image');
+        }
+        if (!this.opened)
+          this.$.title.classList.remove('over-image');
       },
       close: function() {
-          this.opened = false;
-          this.$.title.classList.remove('over-image');
+        this.opened = false;
+        this.$.title.classList.remove('over-image');
       },
 
       _svgChanged: function() {
@@ -245,8 +245,7 @@
 
       _setExceedingElement: function(e) {
         if(e.detail.element.svg &&
-           e.detail.element.svg.path &&
-           this.exceedingElements.indexOf(e.detail.element.svg.path) == -1) {
+           e.detail.element.svg.path) {
           this.set("exceedingElements." + e.detail.element.id, e.detail.element.svg.path);
           if (!this.opened) {
             this.toggle();
@@ -255,8 +254,8 @@
       },
       _unsetExceedingElement: function(e) {
         if(e.detail.element.svg &&
-           e.detail.element.svg.path){
-          this.set("exceedingElements." + e.detail.element.id, e.detail.element.svg.path);
+           e.detail.element.svg.path) {
+          this.set("exceedingElements." + e.detail.element.id, "");
         }
       }
     });
