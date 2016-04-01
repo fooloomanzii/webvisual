@@ -4,6 +4,11 @@ html
     title Webvisual
     meta(name='viewport', charset='utf-8', content='width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.8')
     script(src='components/webcomponentsjs/webcomponents-lite.js')
+    script.
+      window.Polymer = {
+        dom: 'shady',
+        lazyRegister: true
+      };
     script(src='socket.io/socket.io.js')
     link(rel='import', href='components/polymer/polymer.html')
     link(rel='import', href='elements/imports.html')
