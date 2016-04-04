@@ -70,7 +70,7 @@ Use `isZoomable` to make it isZoomable.
   }
   paper-icon-button {
     margin-right: 6px;
-    transition: none !important;
+    transition: box-shadow 0.3s ease;
     color: var(--icon-color, rgb(120, 120, 120));
     border-radius: 50%;
     background: var(--icon-background, rgba(255,255,255, 0.2));
@@ -81,10 +81,11 @@ Use `isZoomable` to make it isZoomable.
   }
 
   div#control[top] paper-icon-button {
-    background: rgba(255,255,255, 0.3);
+    box-shadow: 0px 0px 3px 0px rgba(31,31,31,0.5);
   }
   div#control[top] paper-icon-button:hover {
-    background: rgba(255,255,255, 0.6);
+    background: rgba(255,255,255, 0.5);
+    box-shadow: 0px 0px 6px 0px rgba(31,31,31,0.5);
   }
   /*paper-icon-button:hover:after {
     content: attr(label);
