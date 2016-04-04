@@ -4,8 +4,6 @@
  */
 var // EXPRESS
   express = require('express'),
-  // EXPRESS-ERROR-HANDLER
-  errorHandler = require('express-error-handler'),
   // FS <-- File System
   fs = require('fs'),
   // UNDERSCORE <-- js extensions

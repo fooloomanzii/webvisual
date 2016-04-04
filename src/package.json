@@ -2,10 +2,11 @@
   "name": "webvisual",
   "version": "0.6.0",
   "private": "true",
+  "main": "main.js",
   "scripts": {
     "start": "node app.js",
     "stop": "taskkill /IM node.exe /F",
-    "postinstall" : "bower update"
+    "postinstall": "bower update"
   },
   "dependencies": {
     "activedirectory": "^0.7.1",
