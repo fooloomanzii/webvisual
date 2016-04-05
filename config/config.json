@@ -1,6 +1,5 @@
 {
   "port": 443,
-  "updateIntervall": 1000,
 
   "auth": {
     "required": true,

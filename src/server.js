@@ -6,6 +6,7 @@ var // EXPRESS
   express = require('express'),
   // FS <-- File System
   fs = require('fs'),
+  path = require('path'),
   // UNDERSCORE <-- js extensions
   _ = require('underscore'),
   // DEFAULTSDEEP <-- extended underscrore/lodash _.defaults,
@@ -20,61 +21,9 @@ var // EXPRESS
   bodyParser = require('body-parser'),
   cookieParser = require('cookie-parser'),
 
-  /* Default config */
-
-  defaults = {
-    connections: [],
-    port: 3000,
-    updateIntervall: 1000,
-    dbName: "test"
-  },
   // Config Object
-  config,
-  // Logger
-  winston = require('winston');
+  config = require('./config')(__dirname + '/../config/config.json');
 
-try {
-  var file = fs.readFileSync(__dirname + '/config/config.json')
-  config = JSON.parse(file);
-} catch (err) {
-  console.warn('There has been an error parsing the config-file.')
-  console.warn(err);
-}
-
-// Use defaults for undefined values
-config = defaultsDeep(config, defaults);
-
-/*
- * Extend UNDERSCORE
- */
-_.mixin({
-  exclone: function(object, extra) {
-    return _(object).chain().clone().extend(extra).value();
-  }
-});
-
-// Checks for program arguments and runs the responsible operations
-// e.g. "node app.js <arg1> <arg2>"
-//   "-port <portnumber>" changes server port on <portnumber>
-function checkArguments() {
-  for (var i = 0; i < process.argv.length; i++) {
-    switch (process.argv[i]) {
-      case "-port": // next argument need to be a port number
-        // isNaN() checks if content is not a number
-        if (!isNaN(process.argv[++i])) {
-          config.port = process.argv[i];
-        } else { // next argument isn't a port number, so check it in next loop
-          i--;
-        }
-        break;
-      default:
-        // react on unrecognized arguments
-    }
-  }
-}
-
-// check for program arguments
-checkArguments();
 
 // *** Routing ***
 
@@ -151,9 +100,8 @@ server.on('error',
         console.log('Port ' + config.port + ' in use, retrying...');
         console.log(
           "Please check if \"node.exe\" is not already running on this port.");
+        server.close();
         setTimeout(function() {
-          if (running)
-            server.close();
           server.listen(config.port);
         }, 1000);
       }
@@ -170,23 +118,12 @@ dataModule.connect(config, server);
  * Handle various process events
  */
 
-// After Server has started, we start the winston.logger
-var logger = new winston.Logger({
-  transports: [new(winston.transports.Console)()],
-  exceptionHandlers: [
-    new winston.transports.File({
-      filename: __dirname + config.logs.server_log
-    })
-  ],
-  exitOnError: false
-});
-
 /* TODO: make sure that the server is not closing (or is restarting) with errors
  *      Maybe just count the restarts within given time,
  *      so if it's totally crashed, it will not try to restart anymore. */
 
 process.on('uncaughtException', function(err) {
-  logger.log('error', err); // print error to the logger (console + file)
+  console.log('error', err);
   try {
     server.close();
   } catch (e) {
@@ -194,6 +131,7 @@ process.on('uncaughtException', function(err) {
       throw e;
   }
   //try to reconnect
+  console.log('uncaughtException', 'try to reconnect');
   dataModule.disconnect();
   dataModule.connect(config, server);
 });
@@ -216,14 +154,13 @@ process.on('SIGINT', function(err) {
   try {
     console.log('close server');
     server.close();
-    console.log('disconnect db');
     dataModule.disconnect();
   } catch (err) {
-    if (err.message !== 'Not running')
-      throw err;
+    if (err)
+      console.error(err);
+  } finally {
+    process.exit(0);
   }
-
-  console.warn(err.stack);
 });
 
 process.on('exit', function(err) {
@@ -231,11 +168,9 @@ process.on('exit', function(err) {
     server.close();
     dataModule.disconnect();
   } catch (err) {
-    if (err.message !== 'Not running')
-      throw err;
+    if (err)
+      console.error(err);
   }
-  if (err)
-    console.warn(err.stack);
 });
 
 module.exports = app;

@@ -1,7 +1,5 @@
-'use strict';
-
-// Module exports
-module.exports = arrangeTypes;
+var fs = require('fs');
+var config;
 
 var defaults = {
   values: [
@@ -13,7 +11,66 @@ var defaults = {
   ]
 };
 
-function arrangeTypes(label, labelindex, locals, svgSources) {
+module.exports = getConfig;
+
+function getConfig(filepath) {
+  if (!filepath)
+    throw new Error("No path for configuration is given");
+
+  var rawConfig = _readFromFile(filepath);
+
+  config = {
+    groupingKeys: {},
+    dataStructure: [],
+    paths: {},
+    preferedGroupingKeys: {},
+    labels: [],
+    svg: rawConfig.svg
+  };
+
+  var dataConfig = {};
+  var connection = {};
+
+  for (var label in rawConfig.configurations) {
+    config.labels.push(label);
+    dataConfig[label] = _arrange(label, config.labels.indexOf(label), rawConfig.configurations[label].locals,
+      rawConfig.svg);
+
+    config.groupingKeys[label] = dataConfig[label].groupingKeys;
+    config.paths[label] = dataConfig[label].paths;
+    config.preferedGroupingKeys[label] = dataConfig[label].preferedGroupingKey;
+    config.dataStructure.push({
+      label: label,
+      groups: dataConfig[label].groups
+    });
+
+    connection[label] = rawConfig.configurations[label].connections;
+  }
+
+  return {
+    configuration: config,
+    dataConfig: dataConfig,
+    connection: connection,
+    port: rawConfig.port,
+    mail: rawConfig.mail,
+    auth: rawConfig.auth,
+    logs: rawConfig.svg
+  };
+}
+
+function _readFromFile(filepath) {
+  var obj;
+  try {
+    var file = fs.readFileSync(filepath)
+    obj = JSON.parse(file);
+  } catch (err) {
+    console.warn('There has been an error parsing the config-file.')
+    console.warn(err);
+  }
+  return obj || {};
+};
+
+function _arrange(label, labelindex, locals, svgSources) {
 
   if (!locals || !locals.types)
     return; // Check the Existence
@@ -204,4 +261,6 @@ function arrangeTypes(label, labelindex, locals, svgSources) {
     ignore: locals.ignore,
     label: label
   };
-}
+};
+
+function _mergeDefaults(config) {}

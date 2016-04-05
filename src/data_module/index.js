@@ -6,25 +6,25 @@ module.exports = {
   disconnect: disconnect
 };
 
-var io = require('socket.io')(),
-  dataSocket = io.of('/data'),
+var ioServer = require('socket.io'),
+  io,
+  dataSocket,
   // custom: DATAMODULE
   filehandler = require('./filehandler'),
   // custom: mailer
   mailer = new require('./mail')('exceeds'),
-  // FS <-- File System
-  fs = require('fs'),
 
   /* Class variables */
   dataFileHandler = filehandler.dataFileHandler, // extension: of DATAMODULE
   mergeData = filehandler.dataMerge, // extension: of DATAMODULE
-  arrangeTypes = require('./configuration').arrangeTypes, // extension: of DATAMODULE
   svgSources,
 
   // currentData temporary saved for the first sending (unnecessary with db requests)
   currentData = {},
-  // array of configurations
-  configs = [];
+  dataFile = {},
+  configuration,
+  connection,
+  dataConfig;
 
 // private function to handle the errors
 function handleErrors(errors, id_message) {
@@ -58,23 +58,18 @@ function connect(config, server, err) {
   /*
    * Configure SOCKET.IO (watch the data file)
    */
-
+  io = new ioServer();
   io.listen(server);
+  dataSocket = io.of('/data');
 
-  configs = config.configurations;
-  svgSources = config.svg;
+  configuration = config.configuration;
+  dataConfig = config.dataConfig;
+  connection = config.connection;
 
   // dataFileHandler - established the data connections
-  var availableLabels = [];
-  var dataConfig = {};
-  var dataFile = {};
   var mergedData;
 
-
-  for (var label in configs) {
-
-    availableLabels.push(label);
-    dataConfig[label] = arrangeTypes(label, availableLabels.indexOf(label), configs[label].locals, svgSources);
+  for (var label of configuration.labels) {
 
     var listeners = {
       error: function(type, err, label) {
@@ -97,32 +92,15 @@ function connect(config, server, err) {
           currentData[label] = mergedData;
         }
       }
-    }
+    };
+
     dataFile[label] = new dataFileHandler({
       label: label,
-      connection: configs[label].connections,
+      connection: connection[label],
       listener: listeners
     });
-    dataFile[label].connect();
-  }
 
-  // configuration ordering
-  var configuration = {
-    groupingKeys: {},
-    dataStructure: [],
-    paths: {},
-    preferedGroupingKeys: {},
-    labels: availableLabels,
-    svg: svgSources
-  };
-  for (var label in dataConfig) {
-    configuration.groupingKeys[label] = dataConfig[label].groupingKeys;
-    configuration.paths[label] = dataConfig[label].paths;
-    configuration.preferedGroupingKeys[label] = dataConfig[label].preferedGroupingKey;
-    configuration.dataStructure.push({
-      label: label,
-      groups: dataConfig[label].groups
-    });
+    dataFile[label].connect();
   }
 
   // Handle connections of new clients
@@ -160,7 +138,18 @@ function serveData(label, content) {
   dataSocket.to(label).emit("update", content);
 }
 
-function disconnect() {}
+function disconnect() {
+  if (dataFile && configuration && configuration.labels) {
+    for (var label of configuration.labels) {
+      if (dataFile[label]) {
+        dataFile[label].close();
+        delete dataFile[label];
+      }
+    }
+  }
+  io = null;
+  dataFile = {};
+}
 
 function initMailer(config) {
   /*
