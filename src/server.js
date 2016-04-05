@@ -56,9 +56,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 require('./routes/index.js')(app, passport, config.auth); // load our routes and pass in our app and fully configured passport
 
 // Routing to https if http is requested
-httpApp.set('port', 80);
+httpApp.set('port', config.port.http);
 httpApp.get("*", function(req, res, next) {
-  res.redirect("https://" + req.headers.host + ':' + config.port + req.path);
+  res.redirect("https://" + req.headers.host + ':' + config.port.https + req.path);
 });
 
 /*
@@ -97,17 +97,17 @@ var httpServer = require('http').createServer(httpApp)
 server.on('error',
     function(e) {
       if (e.code == 'EADDRINUSE') {
-        console.log('Port ' + config.port + ' in use, retrying...');
+        console.log('Port ' + config.port.http + ' or ' + config.port.https + ' in use, retrying...');
         console.log(
           "Please check if \"node.exe\" is not already running on this port.");
         server.close();
         setTimeout(function() {
-          server.listen(config.port);
-        }, 1000);
+          server.listen(config.port.https);
+        }, 5000);
       }
     })
   .once('listening', function() {
-    console.log("HTTPS Server is listening on port %d in %s mode", config.port,
+    console.log("HTTPS Server is listening on port %d in %s mode", config.port.https,
       app.settings.env);
   });
 

@@ -131,7 +131,7 @@ function connect(config, server, err) {
     }
   });
 
-  server.listen(config.port);
+  server.listen(config.port.https);
 }
 
 function serveData(label, content) {

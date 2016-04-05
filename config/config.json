@@ -1,5 +1,8 @@
 {
-  "port": 443,
+  "port": {
+    "http": 80,
+    "https": 443
+  },
 
   "auth": {
     "required": true,

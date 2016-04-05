@@ -541,7 +541,8 @@ The function returns a watcher instance or a array of watcher if multiple paths 
         return fs.unlink(path, (callback || _error_handler));
       } else if (callback) return callback();
     } else {
-      return callback(new Error("No such file is watched."));
+      if (callback)
+        return callback(new Error("No such file is watched."));
     }
   }
 
