@@ -22,13 +22,19 @@ var // EXPRESS
   cookieParser = require('cookie-parser'),
 
   // Config Object
-  config = require('./config')(__dirname + '/../config/config.json');
+  Settings = require('./settings');
 
 
 // *** Routing ***
 
 var app = express(),
   httpApp = express();
+
+var config = new Settings(__dirname + '/../config/config.json');
+
+config.on("error", function(err) {
+  console.log('Error in Config', err);
+})
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -123,7 +129,7 @@ dataModule.connect(config, server);
  *      so if it's totally crashed, it will not try to restart anymore. */
 
 process.on('uncaughtException', function(err) {
-  console.log('error', err);
+  console.log('uncaughtException', err);
   try {
     server.close();
   } catch (e) {

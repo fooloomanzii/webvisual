@@ -891,8 +891,9 @@
         "file": {
           "mode": "all",
           "#path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
-          "path_folder": "",
-          "path": "HNF_Datafile.txt"
+          "path_folder": "\\examples\\datafile\\",
+          "path": "HNF_Datafile.txt",
+          "relativePath": true
         }
       },
 

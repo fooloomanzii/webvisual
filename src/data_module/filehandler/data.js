@@ -36,20 +36,20 @@
 
 var
 // Own modules
-  udpwatch     = require('./udpwatch'),
-  copywatch    = require('./copywatch/'),
-  data_parser  = require('./dataParser'),
-  path_util    = require('path'),
-// Node modules
-  net          = require('net'),
-  _            = require('underscore'),
+  udpwatch = require('./udpwatch'),
+  copywatch = require('./copywatch/'),
+  data_parser = require('./dataParser'),
+  path_util = require('path'),
+  // Node modules
+  net = require('net'),
+  _ = require('underscore'),
   defaultsDeep = require('merge-defaults'),
-// Mailer variables and log in information
+  // Mailer variables and log in information
   // mail, icsMail = require('./mail.json'),
-// Class
+  // Class
   EventEmitter = require('events').EventEmitter,
   dataFileHandler,
-// Config & Co
+  // Config & Co
   connectionDefaults = {
     "db": {
       // TODO: Default DB configuration
@@ -61,8 +61,9 @@ var
       // 'complete' e.g. for json-files
       mode: 'all',
       // Default file: Same dir as the "master" script,
-      path_folder: __dirname + '/../../../data/',
+      path_folder: "//",
       path: 'data.txt',
+      relativePath: false,
       // Default log file
       copy_path: __dirname + "/../../../logs/",
       // The default parse function from the data_parser module
@@ -84,15 +85,15 @@ var
   // All connect and close functions for the different connection types; the functions are added at a later point
   connectionFn = {
     db: {
-      close:   null,
+      close: null,
       connect: null
     },
     file: {
-      close:   null,
+      close: null,
       connect: null
     },
     tcp: {
-      close:   null,
+      close: null,
       connect: null
     }
   },
@@ -100,24 +101,25 @@ var
     ConnectionConfigTypeMsg: "Expected simple object as config-value for connection.",
     functions: {
       ConnectionTypeMsgFn: function(connectionType) {
-        return "The given connection type \""+connectionType+"\" is invalid. Valid types are: "+_(connectionFn).functions();
+        return "The given connection type \"" + connectionType + "\" is invalid. Valid types are: " + _(connectionFn)
+          .functions();
       },
       DataErrorMsgFn: function(type, error) {
         return _(error).reduce(function(memo, value) {
           // Use the 'toString'-method, if available, to create a easier to read message
-          return memo+'\n'+(typeof value.toString === 'function' ? value.toString() : value);
-        }, "Recieved a single or multiple errors from the connection '"+type+"'.");
+          return memo + '\n' + (typeof value.toString === 'function' ? value.toString() : value);
+        }, "Recieved a single or multiple errors from the connection '" + type + "'.");
       },
       TypeErrorMsgFn: function(expectedType, forWhat, recievedType) {
         // Returns a descriptive message dependend on the arguments
-        return "Expected \""+expectedType+"\"-type"+
-        (forWhat ? " for "+forWhat : "")+
-        (recievedType ? ", recieved \""+recievedType+"\"" : "")+".";
+        return "Expected \"" + expectedType + "\"-type" +
+          (forWhat ? " for " + forWhat : "") +
+          (recievedType ? ", recieved \"" + recievedType + "\"" : "") + ".";
       },
       UnknownErrorMsgFn: function() {
         return _(arguments).reduce(function(memo, value) {
           // Use the 'toString'-method, if available, to create a easier to read message
-          return memo+'\n'+(typeof value.toString === 'function' ? value.toString() : value);
+          return memo + '\n' + (typeof value.toString === 'function' ? value.toString() : value);
         }, "Unknown error occured. For more information see additional arguments:");
       }
     }
@@ -137,9 +139,9 @@ _.mixin({
    */
   makeArray: function(thing) {
     // Test if the thing is already an array
-    if(_(thing).isArray()) return thing;
-    else if(_(thing).isUndefined()) return [];
-    else return [ thing ];
+    if (_(thing).isArray()) return thing;
+    else if (_(thing).isUndefined()) return [];
+    else return [thing];
   },
   // Iterates over an object and executes the iterator function on every key
   mapKeys: function(object, iterator) {
@@ -167,10 +169,10 @@ _.mixin({
   },
   // String manipulation
   toLowerCase: function(string) {
-    if(typeof string === 'string') return string.toLowerCase();
+    if (typeof string === 'string') return string.toLowerCase();
   },
   toUpperCase: function(string) {
-    if(typeof string === 'string') return string.toUpperCase();
+    if (typeof string === 'string') return string.toUpperCase();
   },
 });
 
@@ -212,11 +214,17 @@ connectionFn.file = {
     // Add the function which recieves the parsed data; calls the emitter
     config.content = emitter;
 
+    if (config.relativePath)
+      config.path_folder = process.cwd() + config.path_folder;
+
     // Start watching the file
     copywatch.watch(config.mode, config.path_folder + config.path, config);
 
     // Return the necessary data to end the watcher
-    return { path: config.path_folder + config.path, remove: config.copy };
+    return {
+      path: config.path_folder + config.path,
+      remove: config.copy
+    };
   }
 };
 
@@ -246,7 +254,10 @@ connectionFn.udp = {
     udpwatch.watch(config.port, config);
 
     // Return the necessary data to end the watcher
-    return { port: config.port, remove: config.copy };
+    return {
+      port: config.port,
+      remove: config.copy
+    };
   }
 };
 
@@ -259,24 +270,23 @@ connectionFn.udp = {
 dataFileHandler = (function() {
   // jshint validthis:true
   var defaults = {
-      listener: {
-        error: function(type, err) {
-          //here is the space for reactions on the mistaken data
-          throw new Error(messages.functions.DataErrorMsgFn(type, err));
-        },
-        data: function(type, data) {
-        }
-      }
-    };
+    listener: {
+      error: function(type, err) {
+        //here is the space for reactions on the mistaken data
+        throw new Error(messages.functions.DataErrorMsgFn(type, err));
+      },
+      data: function(type, data) {}
+    }
+  };
 
   // jshint newcap: false
   // Constructor
   function _Class(config) {
     // Ensure the constructor was called correctly with 'new'
-    if( !(this instanceof _Class) ) return new _Class(config);
+    if (!(this instanceof _Class)) return new _Class(config);
 
     // Use defaults for undefined values
-    config = defaultsDeep(config,defaults);
+    config = defaultsDeep(config, defaults);
     if (config.connection.file.path_folder == "")
       config.connection.file.path_folder = connectionDefaults.file.path_folder;
 
@@ -290,15 +300,15 @@ dataFileHandler = (function() {
     this._addListener(config.listener);
 
     // Save current label
-    this.label = (config.label==undefined) ? "test" : config.label;
+    this.label = (config.label == undefined) ? "test" : config.label;
   }
 
   // Extend with properties; null values are just place holder for instantiated properties
   _(_Class.prototype).extend({
-    _emitter         : null,
-    _connections     : {},
-    connection       : [],
-    connectionConfig : {}
+    _emitter: null,
+    _connections: {},
+    connection: [],
+    connectionConfig: {}
   });
 
   /////////////////////
@@ -315,8 +325,10 @@ dataFileHandler = (function() {
     var self = this;
 
     // Check if the listener object is actually a function; in this case the function is assumed to be the 'data'-listener
-    if(typeof listener === 'function') {
-      listener = { data: listener };
+    if (typeof listener === 'function') {
+      listener = {
+        data: listener
+      };
     }
     // Use default values, if necessary
     _(listener).defaults(defaults.listener);
@@ -325,8 +337,12 @@ dataFileHandler = (function() {
     listener = _(listener).mapValues(_.makeArray);
 
     // Add the listener
-    _(listener.data).each(function(listener) { self._emitter.on('data', listener); });
-    _(listener.error).each(function(listener) { self._emitter.on('error', listener); });
+    _(listener.data).each(function(listener) {
+      self._emitter.on('data', listener);
+    });
+    _(listener.error).each(function(listener) {
+      self._emitter.on('error', listener);
+    });
   };
 
   /**
@@ -343,7 +359,7 @@ dataFileHandler = (function() {
     // emits a fitting event with the given type information
     return function(error, data) {
       // TODO: Array or not array?
-      if(error) {
+      if (error) {
         self._emitter.emit('error', type, error, self.label);
       } else {
         self._emitter.emit('data', type, data, self.label);
@@ -364,7 +380,7 @@ dataFileHandler = (function() {
       self = this;
     // Check if the connection option is an object but not an array
     // TODO: REWRITE for file-support
-    if(_(connection).isObject() && !_(connection).isArray()) {
+    if (_(connection).isObject() && !_(connection).isArray()) {
       // If it's an object, then the object keys specify the connection to use while the values should be config objects
       // for the specified connection
       // Example:
@@ -380,9 +396,9 @@ dataFileHandler = (function() {
       connectionConfig = _(connection).mapKeys(_.toLowerCase);
 
       // Ensure the values of the connection keys are actually proper objects (not arrays, numbers, strings or whatever)
-      _(connection).each(function( config ) {
+      _(connection).each(function(config) {
         // Allowed values are: null, undefined, object (but not an array)
-        if( config && (! _(config).isObject() || _(config).isArray()) ) {
+        if (config && (!_(config).isObject() || _(config).isArray())) {
           throw TypeError(messages.ConnectionConfigTypeMsg);
         }
       });
@@ -391,25 +407,25 @@ dataFileHandler = (function() {
       connection = _(connectionConfig).keys();
     }
     // Ensure it's an array, if it's not an object
-    else if(!_(connection).isArray()) {
-      connection = [ connection ];
+    else if (!_(connection).isArray()) {
+      connection = [connection];
     }
 
     // Fill the connectionConfig with default values, if necessary
-    self.connectionConfig = defaultsDeep(connectionConfig,connectionDefaults);
+    self.connectionConfig = defaultsDeep(connectionConfig, connectionDefaults);
 
     // Ensure the array of strings describe actually valid connection types; throw an error in case of an invalid type
     // Also ensure that the keys are actually all lower case
-    self.connection = _(connection).map( function( value ) {
-      var  objType  = typeof value;
+    self.connection = _(connection).map(function(value) {
+      var objType = typeof value;
 
       // Check for correct type
-      if(objType === 'string') {
+      if (objType === 'string') {
         // This conversion is possibly redundant, if the connection argument was an object; but whatever
         value = value.toLowerCase();
 
         // Is it a string which describes a valid connection function? if not, throw an error
-        if(_(connectionFn[value]).isUndefined()) {
+        if (_(connectionFn[value]).isUndefined()) {
           throw new Error(messages.functions.ConnectionTypeMsgFn(value));
         }
       }
@@ -434,7 +450,7 @@ dataFileHandler = (function() {
      */
     _Class.prototype.addListener = _Class.prototype.on = function(eventName, listener) {
       // Check if the given event is actually a valid one ('data' or 'error')
-      if(!_(validEvents).contains(eventName)) return;
+      if (!_(validEvents).contains(eventName)) return;
 
       // Add the listener to the event
       this._emitter.on(eventName, listener);
@@ -446,7 +462,7 @@ dataFileHandler = (function() {
     _Class.prototype.connect = function() {
       var self = this;
       // Execute the necessary connection functions which are saved in the connectionsFn object
-      _(self.connection).each( function( type ) {
+      _(self.connection).each(function(type) {
         // Execute the connection function with configuration; ensure it is called in the this-context of the dataFileHandler
         // Add the resulting connection object to the "private" _connection object of the instance
         self._connections[type] = connectionFn[type].connect(
@@ -463,7 +479,7 @@ dataFileHandler = (function() {
     _Class.prototype.close = function() {
       var self = this;
       // Execute the necessary connection functions which are saved in the connectionsFn object
-      _(self.connection).each( function( type ) {
+      _(self.connection).each(function(type) {
         // Execute the connection function with configuration; ensure it is called in the this-context of the dataFileHandler
         // Add the resulting connection object to the "private" _connection object of the instance
         self._connections[type] = connectionFn[type].close(
