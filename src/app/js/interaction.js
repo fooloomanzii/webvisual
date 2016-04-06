@@ -10,19 +10,23 @@ const MenuItem = remote.require('menu-item')
 const dialog = remote.require('dialog');
 
 function startServer() {
-  ipcRenderer.send('server-start')
+  ipcRenderer.send('server-start');
 }
 
 function stopServer() {
-  ipcRenderer.send('server-stop')
+  ipcRenderer.send('server-stop');
 }
 
 function restartServer() {
-  ipcRenderer.send('server-restart')
+  ipcRenderer.send('server-restart');
 }
 
 function quitApp() {
-  ipcRenderer.send('app-quit')
+  ipcRenderer.send('app-quit');
+}
+
+function openClientView() {
+  ipcRenderer.send('open-client-view');
 }
 
 // });

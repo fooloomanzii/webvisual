@@ -130,8 +130,6 @@ function connect(config, server, err) {
       console.log('data-socket clients error', clients); // => [PZDoMHjiu8PYfRiKAAAF, Anw2LatarvGVVXEIAAAD]
     }
   });
-
-  server.listen(config.port.https);
 }
 
 function serveData(label, content) {

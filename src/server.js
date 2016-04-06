@@ -2,16 +2,10 @@
 /*
  * Module dependencies
  */
-var // EXPRESS
-  express = require('express'),
-  // FS <-- File System
+const express = require('express'),
   fs = require('fs'),
   path = require('path'),
-  // UNDERSCORE <-- js extensions
-  _ = require('underscore'),
-  // DEFAULTSDEEP <-- extended underscrore/lodash _.defaults,
-  // for default-value in   deeper structures
-  defaultsDeep = require('merge-defaults'),
+  EventEmitter = require('events').EventEmitter,
   // DATA-MODULE
   dataModule = require('./data_module'),
   // Routing
@@ -19,22 +13,17 @@ var // EXPRESS
   session = require('express-session'),
   passport = require('passport'),
   bodyParser = require('body-parser'),
-  cookieParser = require('cookie-parser'),
+  cookieParser = require('cookie-parser');
 
-  // Config Object
-  Settings = require('./settings');
-
+// Config Object
+var config = {},
+  isRunning = false,
+  httpsServer,
+  httpServer;
 
 // *** Routing ***
-
-var app = express(),
+const app = express(),
   httpApp = express();
-
-var config = new Settings(__dirname + '/../config/config.json');
-
-config.on("error", function(err) {
-  console.log('Error in Config', err);
-})
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -54,129 +43,125 @@ app.use(session({
 
 // Prevent Clickjacking
 app.use(xFrameOptions());
-
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
-require('./routes/index.js')(app, passport, config.auth); // load our routes and pass in our app and fully configured passport
+class WebvisualServer extends EventEmitter {
 
-// Routing to https if http is requested
-httpApp.set('port', config.port.http);
-httpApp.get("*", function(req, res, next) {
-  res.redirect("https://" + req.headers.host + ':' + config.port.https + req.path);
-});
+  constructor(settings) {
+    super();
 
-/*
- * Server
- */
+    if (!settings) return;
 
-// Configure SSL Encryption
-var sslOptions = {
-  key: fs.readFileSync(__dirname + '/ssl/ca.key', 'utf8'),
-  cert: fs.readFileSync(__dirname + '/ssl/ca.crt', 'utf8'),
-  passphrase: require('./ssl/ca.pw.json').password,
-  requestCert: true,
-  rejectUnauthorized: false
+    config = settings;
+
+    require('./routes/index.js')(app, passport, config.auth); // load our routes and pass in our app and fully configured passport
+
+    // Routing to https if http is requested
+    httpApp.set('port', config.port.http);
+    httpApp.get("*", function(req, res, next) {
+      res.redirect("https://" + req.headers.host + ':' + config.port.https + req.path);
+    });
+
+    // Configure SSL Encryption
+    var sslOptions = {
+      port: config.port.https,
+      key: fs.readFileSync(__dirname + '/ssl/ca.key', 'utf8'),
+      cert: fs.readFileSync(__dirname + '/ssl/ca.crt', 'utf8'),
+      passphrase: require('./ssl/ca.pw.json').password,
+      requestCert: true,
+      rejectUnauthorized: false
+    };
+
+    try {
+      // Read files for the certification path
+      var cert_chain = [];
+      fs.readdirSync(__dirname + '/ssl/cert_chain').forEach(function(filename) {
+        cert_chain.push(
+          fs.readFileSync(__dirname + '/ssl/cert_chain/' + filename, 'utf-8'));
+      });
+      sslOptions.ca = cert_chain;
+    } catch (err) {
+      console.warn("Cannot open '/ssl/cert_chain' to read Certification chain");
+    }
+
+    /*
+     * Server
+     */
+
+    httpsServer = require('https').createServer(sslOptions, app);
+    httpServer = require('http').createServer(httpApp);
+
+    // if Error: EADDRINUSE --> log in console
+    httpServer.on('error',
+        function(e) {
+          if (e.code == 'EADDRINUSE') {
+            console.log('Port ' + config.port.http + ' in use, retrying...');
+            console.log(
+              "Please check if \"node.exe\" is not already running on this port.");
+            httpServer.close();
+            setTimeout(function() {
+              httpServer.listen(config.port.https);
+            }, 5000);
+          }
+        })
+      .once('listening', function() {
+        console.log("HTTP Server is listening for redirecting to https on port %d in %s mode", config.port.http,
+          app.settings.env);
+      });
+    httpsServer.on('error',
+        function(e) {
+          if (e.code == 'EADDRINUSE') {
+            console.log('Port ' + config.port.https + ' in use, retrying...');
+            console.log(
+              "Please check if \"node.exe\" is not already running on this port.");
+            httpsServer.close();
+            setTimeout(function() {
+              httpsServer.listen(config.port.https);
+            }, 5000);
+          }
+        })
+      .once('listening', function() {
+        console.log("HTTPS Server is listening on port %d in %s mode", config.port.https,
+          app.settings.env);
+      });
+  }
+
+  connect(settings) {
+    if (settings)
+      config = settings;
+    // connect the DATA-Module
+    if (isRunning)
+      this.reconnect();
+    else {
+      console.log("WebvisualServer is starting");
+      dataModule.connect(config, httpsServer);
+      httpServer.listen(config.port.http);
+      httpsServer.listen(config.port.https);
+      isRunning = true;
+    }
+  }
+
+  disconnect() {
+    console.log("WebvisualServer is closing");
+    httpServer.close();
+    httpsServer.close();
+    dataModule.disconnect();
+    isRunning = false;
+  }
+
+  reconnect(settings) {
+    if (settings)
+      config = settings;
+    console.log("WebvisualServer is restarting");
+    if (isRunning)
+      this.disconnect();
+    var self = this;
+    setTimeout(function() {
+      self.connect();
+    }, 3000);
+  }
 };
 
-try {
-  // Read files for the certification path
-  var cert_chain = [];
-  fs.readdirSync(__dirname + '/ssl/cert_chain').forEach(function(filename) {
-    cert_chain.push(
-      fs.readFileSync(__dirname + '/ssl/cert_chain/' + filename, 'utf-8'));
-  });
-  sslOptions.ca = cert_chain;
-} catch (err) {
-  console.warn("Cannot open '/ssl/cert_chain' to read Certification chain");
-}
-
-// start Server
-var server = require('https').createServer(sslOptions, app);
-var httpServer = require('http').createServer(httpApp)
-  .listen(httpApp.get('port'), function() {
-    console.log('HTTP server is listening on port ' + httpApp.get('port') + ' for redirecting to https');
-  });
-
-// if Error: EADDRINUSE --> log in console
-server.on('error',
-    function(e) {
-      if (e.code == 'EADDRINUSE') {
-        console.log('Port ' + config.port.http + ' or ' + config.port.https + ' in use, retrying...');
-        console.log(
-          "Please check if \"node.exe\" is not already running on this port.");
-        server.close();
-        setTimeout(function() {
-          server.listen(config.port.https);
-        }, 5000);
-      }
-    })
-  .once('listening', function() {
-    console.log("HTTPS Server is listening on port %d in %s mode", config.port.https,
-      app.settings.env);
-  });
-
-// connect the DATA-Module
-dataModule.connect(config, server);
-
-/*
- * Handle various process events
- */
-
-/* TODO: make sure that the server is not closing (or is restarting) with errors
- *      Maybe just count the restarts within given time,
- *      so if it's totally crashed, it will not try to restart anymore. */
-
-process.on('uncaughtException', function(err) {
-  console.log('uncaughtException', err);
-  try {
-    server.close();
-  } catch (e) {
-    if (e.message !== 'Not running')
-      throw e;
-  }
-  //try to reconnect
-  console.log('uncaughtException', 'try to reconnect');
-  dataModule.disconnect();
-  dataModule.connect(config, server);
-});
-
-process.on('ECONNRESET', function(err) {
-  try {
-    // server.close();
-    // dataModule.disconnect();
-  } catch (e) {
-    if (e.message !== 'Not running')
-      throw e;
-  }
-  // try to reconnect
-  console.error('ECONNRESET: ' + err);
-  // dataModule.connect(config,server);
-});
-
-/* SIGINT can usually be generated with Ctrl-C */
-process.on('SIGINT', function(err) {
-  try {
-    console.log('close server');
-    server.close();
-    dataModule.disconnect();
-  } catch (err) {
-    if (err)
-      console.error(err);
-  } finally {
-    process.exit(0);
-  }
-});
-
-process.on('exit', function(err) {
-  try {
-    server.close();
-    dataModule.disconnect();
-  } catch (err) {
-    if (err)
-      console.error(err);
-  }
-});
-
-module.exports = app;
+module.exports = WebvisualServer;
