@@ -39,9 +39,8 @@ var
   udpwatch = require('./udpwatch'),
   copywatch = require('./copywatch/'),
   data_parser = require('./dataParser'),
-  path_util = require('path'),
+  path = require('path'),
   // Node modules
-  net = require('net'),
   _ = require('underscore'),
   defaultsDeep = require('merge-defaults'),
   // Mailer variables and log in information
@@ -202,8 +201,15 @@ connectionFn.file = {
    * @param  {Function} callback A callback function which recieves a potential error.
    */
   close: function(config, callback) {
+    let path_folder;
+
+    if (config.relativePath)
+      path_folder = path.join(process.cwd(), config.path_folder);
+    else
+      path_folder = config.path_folder;
+
     // End the watching
-    copywatch.unwatch(config.path_folder + config.path, config.remove, callback);
+    copywatch.unwatch(path.join(path_folder, config.path), config.remove, callback);
   },
   /**
    * The file watch connect function. Enables the watching and processing of a file.
@@ -214,15 +220,19 @@ connectionFn.file = {
     // Add the function which recieves the parsed data; calls the emitter
     config.content = emitter;
 
+    let path_folder;
+
     if (config.relativePath)
-      config.path_folder = process.cwd() + config.path_folder;
+      path_folder = path.join(process.cwd(), config.path_folder);
+    else
+      path_folder = config.path_folder;
 
     // Start watching the file
-    copywatch.watch(config.mode, config.path_folder + config.path, config);
+    copywatch.watch(config.mode, path.join(path_folder, config.path), config);
 
     // Return the necessary data to end the watcher
     return {
-      path: config.path_folder + config.path,
+      path: path.join(path_folder, config.path),
       remove: config.copy
     };
   }
@@ -287,8 +297,6 @@ dataFileHandler = (function() {
 
     // Use defaults for undefined values
     config = defaultsDeep(config, defaults);
-    if (config.connection.file.path_folder == "")
-      config.connection.file.path_folder = connectionDefaults.file.path_folder;
 
     // Add a instance of the EventEmitter
     this._emitter = new EventEmitter();

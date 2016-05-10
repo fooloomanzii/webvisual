@@ -99,14 +99,14 @@
       var icol = Polymer.Collection.get(this.exceeding);
       var items = icol.getItems();
       for (var i=0; i < items.length; i++) {
-        if (all || this.labels.indexOf(items[i].label) == -1) {
+        if (all || this.labels.indexOf(items[i].label) === -1) {
           var key = icol.getKey(items[i]);
           if(key) {
             this.unlinkPaths('exceeding.' + key);
             this.arrayDelete('exceeding', items[i]);
           }
         }
-        if (this.exceeding.length == 0)
+        if (this.exceeding.length === 0)
           this.set("isExceeding",false);
       }
     },
@@ -118,7 +118,7 @@
           this.unlinkPaths('exceeding.' + key);
           this.arrayDelete('exceeding', icol.getItem(key));
         }
-        if (this.exceeding.length == 0)
+        if (this.exceeding.length === 0)
           this.set("isExceeding",false);
       }
     }

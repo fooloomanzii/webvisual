@@ -735,7 +735,7 @@
         if(e) {
           this.debounce('select-request', function() {
             var item = e.detail.element;
-            if (this.selectedElement == item){
+            if (this.selectedElement === item){
               this.deselectElement();
             }
             else {
@@ -796,7 +796,7 @@
       _checkExceedsPanel: function(length) {
         if(!(this.$.exceedsPanel.classList.contains("exceeds-panel-opened")) && length)
           this.openExceedsPanel();
-        else if (this.exceeding.length == 0)
+        else if (this.exceeding.length === 0)
           this.closeExceedsPanel();
       },
       openExceedsPanel: function() {
@@ -847,7 +847,7 @@
         if (collapse) {
           collapse.toggle();
           if (iconbutton) {
-            if (iconbutton.getAttribute('icon') == 'arrow-drop-down')
+            if (iconbutton.getAttribute('icon') === 'arrow-drop-down')
               iconbutton.setAttribute('icon','arrow-drop-up');
             else
               iconbutton.setAttribute('icon','arrow-drop-down');

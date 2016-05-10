@@ -200,7 +200,7 @@
 
           // check if the loaded labels (from cookie) match the availableLabels (send by data-socket)
           for(var i=0; i < this.labels.length; i++) {
-            if (this.availableLabels.indexOf(this.labels[i]) == -1) {
+            if (this.availableLabels.indexOf(this.labels[i]) === -1) {
               this.splice("labels",i, 1);
               i--;
             }

@@ -1,0 +1,15 @@
+{
+  "userPath": "",
+  "userConfigFileName": "",
+  "recentPath": "",
+  "options": {
+    "width": 400,
+    "height": 400,
+    "autoHideMenuBar": true,
+    "backgroundColor": "#005B82",
+    "acceptFirstMouse": true,
+    "webPreferences": {
+      "webSecurity": false
+    }
+  }
+}

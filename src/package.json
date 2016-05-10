@@ -1,7 +1,15 @@
 {
   "name": "webvisual",
-  "version": "0.6.0",
+  "version": "0.6.5",
+  "description": "Visualisierung von Sensordaten",
   "private": "true",
+  "homepage": "https://github.com/fooloomanzii/webvisual",
+  "author": "Johannes Brautzsch <hannes-b@web.de>",
+  "contributors": [
+    "Johannes Brautzsch",
+    "Alexander Diener",
+    "Sascha Wolff"
+  ],
   "main": "main.js",
   "scripts": {
     "start": "node app.js",
@@ -11,7 +19,6 @@
   "dependencies": {
     "activedirectory": "^0.7.1",
     "async": "*",
-    "bower": "*",
     "body-parser": "*",
     "cookie-parser": "*",
     "dateformat": "*",
@@ -21,14 +28,13 @@
     "fs": "*",
     "jade": "*",
     "merge-defaults": "*",
-    "morgan": "*",
     "net": "*",
     "passport": "*",
     "passport-local": "^1.0.0",
     "socket.io": "*",
     "underscore": "*",
-    "winston": "*",
-    "x-frame-options": "*"
+    "x-frame-options": "*",
+    "underscore": "*"
   },
   "devDependencies": {},
   "engines": {

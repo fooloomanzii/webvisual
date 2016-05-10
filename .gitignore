@@ -1,5 +1,6 @@
 # Packaged Stuff #
 *.exe
+dist/*
 
 # Config files
 src/config/config.json
@@ -12,6 +13,7 @@ src/public/components/*
 !src/public/components/README.md
 
 # Node Modules #
+node_modules/*
 src/node_modules/*
 !src/node_modules/README.md
 

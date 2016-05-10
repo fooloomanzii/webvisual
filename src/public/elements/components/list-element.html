@@ -75,7 +75,7 @@
     section.caption[dark] {
       color: #1d1d1d;
     }
-    iron-icon {
+    iron-icon.sign {
       --iron-icon-height: 1em;
       --iron-icon-width: 1em;
       color: currentColor;
@@ -109,7 +109,7 @@
       </template>
       <template is="dom-if" if="{{element.isBoolean}}" restamp>
         <span class="iconSection" hidden$="{{!isExceeding}}">
-          <iron-icon icon="error-outline"></iron-icon>
+          <iron-icon class="sign" icon="error-outline"></iron-icon>
         </span>
       </template>
     </section>

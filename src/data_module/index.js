@@ -12,7 +12,7 @@ var ioServer = require('socket.io'),
   // custom: DATAMODULE
   filehandler = require('./filehandler'),
   // custom: mailer
-  mailer = new require('./mail')('exceeds'),
+  // mailer = new require('./mail')('exceeds'),
 
   /* Class variables */
   dataFileHandler = filehandler.dataFileHandler, // extension: of DATAMODULE
@@ -22,9 +22,9 @@ var ioServer = require('socket.io'),
   // currentData temporary saved for the first sending (unnecessary with db requests)
   currentData = {},
   dataFile = {},
-  configuration,
-  connection,
-  dataConfig;
+  configuration = {},
+  connection = {},
+  dataConfig = {};
 
 // private function to handle the errors
 function handleErrors(errors, id_message) {
@@ -50,10 +50,15 @@ function handleErrors(errors, id_message) {
 
 function connect(config, server, err) {
 
-  if (server == undefined || config == undefined) {
+  if (server === undefined || config === undefined) {
     //    err.msg = "No valid configuration file"
     return; // Check the Existence
   }
+
+  configuration = config.configuration;
+  connection = config.connection;
+  dataConfig = config.dataConfig;
+
   // initMailer(config.mail);
   /*
    * Configure SOCKET.IO (watch the data file)
@@ -61,10 +66,6 @@ function connect(config, server, err) {
   io = new ioServer();
   io.listen(server);
   dataSocket = io.of('/data');
-
-  configuration = config.configuration;
-  dataConfig = config.dataConfig;
-  connection = config.connection;
 
   // dataFileHandler - established the data connections
   var mergedData;
@@ -137,27 +138,23 @@ function serveData(label, content) {
 }
 
 function disconnect() {
-  if (dataFile && configuration && configuration.labels) {
-    for (var label of configuration.labels) {
-      if (dataFile[label]) {
-        dataFile[label].close();
-        delete dataFile[label];
-      }
-    }
+  for (var label in dataFile) {
+    dataFile[label].close();
+    delete dataFile[label];
   }
   io = null;
   dataFile = {};
 }
 
-function initMailer(config) {
-  /*
-   * Init mailer
-   */
-  mailer.init({
-    from: config.from, // sender address
-    to: config.to, // list of receivers
-    subject: config.subject
-  });
-  mailer.setType('html');
-  mailer.setDelay(1000);
-}
+// function initMailer(config) {
+//   /*
+//    * Init mailer
+//    */
+//   mailer.init({
+//     from: config.from, // sender address
+//     to: config.to, // list of receivers
+//     subject: config.subject
+//   });
+//   mailer.setType('html');
+//   mailer.setDelay(1000);
+// }

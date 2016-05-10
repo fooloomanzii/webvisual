@@ -1,9 +1,16 @@
 "use strict";
 
+// EventEmitter types
+//    "ready"
+//    "saved"
+//    "test-error"
+//    "file-error"
+
+
 var fs = require('fs');
+var path = require('path');
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
-var config;
 
 var defaults = {
   values: [
@@ -17,10 +24,10 @@ var defaults = {
 
 class configLoader extends EventEmitter {
 
-  constructor(filepath) {
+  constructor(filepath, app) {
 
     super();
-
+    // console.log(app.getPath('userData'));
     this.on("error", function(err) {
       console.log('Error in Config', err);
     })
@@ -31,9 +38,9 @@ class configLoader extends EventEmitter {
       return;
     }
 
-    var rawConfig = this._readFromFile(filepath);
+    let rawConfig = this._readFromFile(filepath);
 
-    config = {
+    let config = {
       groupingKeys: {},
       dataStructure: [],
       paths: {},
@@ -42,10 +49,10 @@ class configLoader extends EventEmitter {
       svg: rawConfig.svg
     };
 
-    var dataConfig = {};
-    var connection = {};
+    let dataConfig = {};
+    let connection = {};
 
-    for (var label in rawConfig.configurations) {
+    for (let label in rawConfig.configurations) {
       config.labels.push(label);
       dataConfig[label] = this._arrange(label, config.labels.indexOf(label), rawConfig.configurations[label].locals,
         rawConfig.svg);
@@ -70,6 +77,31 @@ class configLoader extends EventEmitter {
     this.logs = rawConfig.svg;
   }
 
+  loadAppConfig() {
+
+  };
+
+  writeAppConfig(config) {
+
+  };
+
+  loadUserConfig(filepath) {
+
+  };
+
+  writeUserConfig(config, targetpath) {
+
+  };
+
+  initUserDefaults() {
+
+  };
+
+  initDefaults() {
+
+  };
+
+
   _readFromFile(filepath) {
     var obj;
     try {
@@ -77,7 +109,7 @@ class configLoader extends EventEmitter {
       obj = JSON.parse(file);
     } catch (err) {
       this.emit("error", err)
-      console.log("Config File", err);
+      console.log("Config File", filepath, err);
       return {};
     }
     return obj || {};

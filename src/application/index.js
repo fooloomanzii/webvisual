@@ -1,7 +1,5 @@
 'use strict';
 
-// void(function() {
-
 const ipcRenderer = require('electron').ipcRenderer;
 const remote = require('remote')
 const Tray = remote.require('tray')
@@ -28,5 +26,3 @@ function quitApp() {
 function openClientView() {
   ipcRenderer.send('open-client-view');
 }
-
-// });

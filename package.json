@@ -1,0 +1,40 @@
+{
+  "name": "webvisual-installer",
+  "version": "0.0.5",
+  "license": "MIT",
+  "private": true,
+  "description": "installer for webvisual",
+  "author": [
+    "Johannes Brautzsch <hannes-b@web.de>"
+  ],
+  "scripts": {
+    "preinstall": "npm update",
+    "postinstall": "install-app-deps",
+    "dist:osx": "build --platform darwin",
+    "dist:win32": "build --platform win32 --arch ia32",
+    "dist:win64": "build --platform win32 --arch x64"
+  },
+  "build": {
+    "win": {
+      "noMsi": false,
+      "owners": "Forschungszentrum Jülich"
+    },
+    "asar": false,
+    "compression": "store",
+    "iconUrl": "https://github.com/fooloomanzii/webvisual/tree/master/build/icon.ico"
+  },
+  "publish": "never",
+  "devDependencies": {
+    "electron-builder": "*",
+    "electron-prebuilt": "*"
+  },
+  "engines": {
+    "node": ">= 5.0",
+    "npm": "*"
+  },
+  "directories": {
+    "buildResources": "./build",
+    "output": "./dist",
+    "app": "./src"
+  }
+}

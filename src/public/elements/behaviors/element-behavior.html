@@ -96,11 +96,11 @@
     computeStyle: function(change, index){
       if (change.base && change.base.length != 0 && this.exceedsStyle){
         var exceeds = this.get('exceeds', change.base[index]);
-        if(exceeds == true)
+        if(exceeds === true)
           return this.exceedsStyle.true;
-        else if(exceeds == false)
+        else if(exceeds === false)
           return this.exceedsStyle.false;
-        else if(exceeds == null)
+        else if(exceeds === null)
           return this.exceedsStyle.none;
         else if(exceeds === undefined)
           return this.exceedsStyle.undef;
@@ -135,11 +135,11 @@
     computeSpecificStyle: function(selector){
       if (this.element && this.element[selector] && this.element[selector].exceeds && this.exceedsStyle) {
         var exceeds = this.element[selector].exceeds;
-        if(exceeds == true)
+        if(exceeds === true)
           return this.exceedsStyle.true;
-        else if(exceeds == false)
+        else if(exceeds === false)
           return this.exceedsStyle.false;
-        else if(exceeds == null)
+        else if(exceeds === null)
           return this.exceedsStyle.none;
       }
       else

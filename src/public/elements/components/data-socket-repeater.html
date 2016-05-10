@@ -205,7 +205,7 @@
           svgSource[id] = {selectable: sources[id].selectable};
           req = new XMLHttpRequest();
           req.onreadystatechange = function(name) {
-              if (this.readyState == 4 && this.status == 200) {
+              if (this.readyState === 4 && this.status === 200) {
                 svgSource[name].node = this.responseXML.documentElement;
               }
           }.bind(req, id);
@@ -216,7 +216,7 @@
       },
 
       _onData: function(message) {
-        if(message == undefined) { // Check the Existence
+        if(message === undefined) { // Check the Existence
           this.set("status.time.lastError", new Date()); console.warn("socket: received undefined message"); return;
         }
         if (Array.isArray(message)) // if message is an Array
@@ -267,7 +267,7 @@
       _checkIfExceedingStateHasToBeSet: function(path, exceeds) {
         path = path.slice(0,-7);
         var item = this.get(path);
-        if (item.isExceeding == undefined || item.isExceeding == null)
+        if (item.isExceeding === undefined || item.isExceeding === null)
           this.set(path + ".isExceeding", false);
 
         if (exceeds === null) {
@@ -297,7 +297,7 @@
         if(item && key) {
           this.unlinkPaths('exceeding.' + key);
           this.arrayDelete('exceeding', item);
-          if (this.exceeding.length == 0)
+          if (this.exceeding.length === 0)
             this.set("isExceeding", false);
         }
       },
@@ -310,14 +310,14 @@
 
         var items = Polymer.Collection.get(this.exceeding).getItems();
         for (var i=0; i < items.length; i++) {
-          if (all || this.labels.indexOf(items[i].label) == -1) {
+          if (all || this.labels.indexOf(items[i].label) === -1) {
             var key = Polymer.Collection.get(this.exceeding).getKey(items[i]);
             if(key) {
               this.unlinkPaths('exceeding.' + key);
               this.arrayDelete('exceeding', items[i]);
             }
           }
-          if (this.exceeding.length == 0)
+          if (this.exceeding.length === 0)
             this.set("isExceeding",false);
         }
       },

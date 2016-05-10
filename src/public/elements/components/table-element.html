@@ -120,7 +120,7 @@
               tdX.textContent = new Date(change.value.indexSplices[i].object[index + j].x).toLocaleTimeString();
               tdY = document.createElement('section');
               tdY.id = "td"; tdY.className = "y";
-              isExceeding = (change.value.indexSplices[i].object[index + j].exceeds == null) ? false : true;
+              isExceeding = (change.value.indexSplices[i].object[index + j].exceeds === null) ? false : true;
               tdY.textContent = (this.element.isBoolean ? (isExceeding ? '✗' : '✓') : change.value.indexSplices[i].object[index + j].y);
 
               row.className = change.value.indexSplices[i].object[index + j].exceeds;
@@ -151,7 +151,7 @@
             tdX.textContent = new Date(this.element.values[j].x).toLocaleTimeString();
             tdY = document.createElement('section');
             tdY.id = "td"; tdY.className = "y";
-            isExceeding = (this.element.values[j].exceeds == null) ? false : true;
+            isExceeding = (this.element.values[j].exceeds === null) ? false : true;
             tdY.textContent = (this.element.isBoolean ? (isExceeding ? '✗' : '✓') : this.element.values[j].y);
 
             row.className = this.element.values[j].exceeds;

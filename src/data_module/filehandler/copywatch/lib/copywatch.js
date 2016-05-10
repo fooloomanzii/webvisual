@@ -659,7 +659,6 @@ The function returns a watcher instance or a array of watcher if multiple paths 
     // The object with the function that will be executed after the watcher was correctly configured
     nextObj = function(err, watcherInstance) {
       ++_watcherCount;
-
       // Execute the next function
       if (callback) return callback(err);
     };
@@ -697,7 +696,8 @@ The function returns a watcher instance or a array of watcher if multiple paths 
         path: fileDir, // We need to watch the directory in order to not stop watching on delete
         ignoreCustomPatterns: new RegExp('^(?!.*' + baseName + '$)'), // The RegExp which ensures that just our file is watched and nothing else
         listeners: listenersObj,
-        next: nextObj
+        next: nextObj,
+        interval: 750
       };
       _watchers[resFile] = watchr.watch(_watcher_options[resFile]);
 

@@ -70,7 +70,7 @@ Use `isZoomable` to make it isZoomable.
   }
   paper-icon-button {
     margin-right: 6px;
-    transition: box-shadow 0.3s ease;
+    transition: none;
     color: var(--icon-color, rgb(120, 120, 120));
     border-radius: 50%;
     background: var(--icon-background, rgba(255,255,255, 0.2));
@@ -113,7 +113,7 @@ Use `isZoomable` to make it isZoomable.
   }
   .clicked {
     stroke-width: 1px !important;
-    stroke: #2DCC75 !important;
+    stroke: #183880 !important;
     stroke-linecap: round !important;
     stroke-linejoin: round !important;
     /*stroke-dashoffset: 0;
@@ -391,7 +391,7 @@ Use `isZoomable` to make it isZoomable.
     _calcCenterZoom: function(elem) {
       // get view height and width
       var view = this.getClientRects()[0];
-      if (!view || !elem || view.height == 0 || view.width == 0)
+      if (!view || !elem || view.height === 0 || view.width === 0)
         return {translate: [0,0], scale: 1};
 
       // calculate scale based on partioned view and dimensions of the element
@@ -436,7 +436,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _setSelectable: function() {
-      if (!this.mainG || !this.selectable || this.selectable == {}) return;
+      if (!this.mainG || !this.selectable || this.selectable === {}) return;
 
       this.svg.on('contextmenu',
         function () {
@@ -445,7 +445,7 @@ Use `isZoomable` to make it isZoomable.
           while (true) {
             if (node.nodeName && (node.nodeName.toLowerCase() === 'svg-element'))
               break;
-            else if (node == window)
+            else if (node === window)
               return;
             else
               node = node.parentNode;
@@ -475,7 +475,7 @@ Use `isZoomable` to make it isZoomable.
                       while (true) {
                         if (node.nodeName && (node.nodeName.toLowerCase() === 'svg-element'))
                           break;
-                        else if (node == window)
+                        else if (node === window)
                           return;
                         else
                           node = node.parentNode;

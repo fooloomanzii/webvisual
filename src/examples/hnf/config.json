@@ -1,7 +1,7 @@
 {
   "port": {
     "http": 80,
-    "https": 443
+    "https": 3000
   },
 
   "auth": {
@@ -15,8 +15,8 @@
   "logs": {
     "external_log": "HNF.log",
     "external_log_path": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Log\\",
-    "http_server_log": "/../logs/http-error.log",
-    "server_log": "/../logs/server-error.log"
+    "http_server_log": "./logs/http-error.log",
+    "server_log": "./logs/server-error.log"
   },
 
   "mail": {

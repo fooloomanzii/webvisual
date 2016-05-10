@@ -59,7 +59,6 @@ class WebvisualServer extends EventEmitter {
     require('./routes/index.js')(app, passport, config.auth); // load our routes and pass in our app and fully configured passport
 
     // Routing to https if http is requested
-    httpApp.set('port', config.port.http);
     httpApp.get("*", function(req, res, next) {
       res.redirect("https://" + req.headers.host + ':' + config.port.https + req.path);
     });
@@ -102,7 +101,7 @@ class WebvisualServer extends EventEmitter {
               "Please check if \"node.exe\" is not already running on this port.");
             httpServer.close();
             setTimeout(function() {
-              httpServer.listen(config.port.https);
+              httpServer.listen(config.port.http);
             }, 5000);
           }
         })

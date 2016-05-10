@@ -18,6 +18,8 @@ exit
 
 :UPDATE
 echo Install packages. This can take a moment ...
+start /WAIT cmd /C "cd %~dp0 & npm.cmd install -g bower"
+start /WAIT cmd /C "cd %~dp0 & npm.cmd install -g electron-prebuilt"
 start /WAIT cmd /C "cd %~dp0 & npm.cmd update"
 start /WAIT cmd /C "cd %~dp0 & bower update"
 goto:eof
