@@ -4,9 +4,8 @@
   "license": "MIT",
   "private": true,
   "description": "installer for webvisual",
-  "author": [
-    "Johannes Brautzsch <hannes-b@web.de>"
-  ],
+  "author": "Johannes Brautzsch <hannes-b@web.de>",
+  "owner": "Forschungszentrum Jülich GmbH",
   "scripts": {
     "preinstall": "npm update",
     "postinstall": "install-app-deps",

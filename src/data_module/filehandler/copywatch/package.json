@@ -2,8 +2,8 @@
   "name": "copywatch",
   "version": "0.4.0",
   "private": "true",
-  "#watchr is commented out because it was changed by hand":"",
+  "#watchr is commented out because it was changed by hand": "but updated now to newest version",
   "#dependencies": {
-    "#watchr": "~2.4"
+    "watchr": "*"
   }
 }

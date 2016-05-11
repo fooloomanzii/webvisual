@@ -5,8 +5,9 @@
   "private": "true",
   "homepage": "https://github.com/fooloomanzii/webvisual",
   "author": "Johannes Brautzsch <hannes-b@web.de>",
+  "owner": "Forschungszentrum Jülich GmbH",
   "contributors": [
-    "Johannes Brautzsch",
+    "Johannes Brautzsch <hannes-b@web.de>",
     "Alexander Diener",
     "Sascha Wolff"
   ],
@@ -34,7 +35,8 @@
     "socket.io": "*",
     "underscore": "*",
     "x-frame-options": "*",
-    "underscore": "*"
+    "underscore": "*",
+    "watchr": "*"
   },
   "devDependencies": {},
   "engines": {

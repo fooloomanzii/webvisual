@@ -54,7 +54,9 @@ The function returns a watcher instance or a array of watcher if multiple paths 
         callback(null, string);
       },
       work_function: _copy,
-      watch_error: _error_handler
+      watch_error: _error_handler,
+      interval: 400,
+      catchupDelay: 400 // according Nyquist-Theorem
     },
     _watchers = {},
     _watcher_options = {},
@@ -353,7 +355,9 @@ The function returns a watcher instance or a array of watcher if multiple paths 
       work_function: _default.work_function,
       process: options.process || _default.process,
       content: options.content,
-      copy_path: options.copy_path + options.path
+      copy_path: path_util.join(options.copy_path, options.path),
+      interval: options.interval || _default.interval,
+      catchupDelay: options.catchupDelay || _default.catchupDelay
     };
 
     // Helpfunction
@@ -456,8 +460,8 @@ The function returns a watcher instance or a array of watcher if multiple paths 
               "copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
           }
           // We don't need to delete the copied file if there is no copied file
-          fs.exists(options.copy_path + _extension, function(exists) {
-            if (exists) fs.unlink(options.copy_path + _extension, options.watch_error);
+          fs.exists(path_util.join(options.copy_path, _extension), function(exists) {
+            if (exists) fs.unlink(path_util.join(options.copy_path, _extension), options.watch_error);
           });
         }
       });
@@ -690,6 +694,7 @@ The function returns a watcher instance or a array of watcher if multiple paths 
         }
       });
 
+      console.log("interval", options.interval, "catchupDelay", options.catchupDelay);
 
       // Finally watch the file
       _watcher_options[resFile] = {
@@ -697,7 +702,8 @@ The function returns a watcher instance or a array of watcher if multiple paths 
         ignoreCustomPatterns: new RegExp('^(?!.*' + baseName + '$)'), // The RegExp which ensures that just our file is watched and nothing else
         listeners: listenersObj,
         next: nextObj,
-        interval: 750
+        interval: options.interval,
+        catchupDelay: options.catchupDelay
       };
       _watchers[resFile] = watchr.watch(_watcher_options[resFile]);
 

@@ -66,7 +66,10 @@ var
       // Default log file
       copy_path: __dirname + "/../../../logs/",
       // The default parse function from the data_parser module
-      process: data_parser.parse
+      process: data_parser.parse,
+      // according Nyquist-Theorem
+      interval: 400,
+      catchupDelay: 400
     },
     "udp": {
       // We don't need to make a copy of the data
