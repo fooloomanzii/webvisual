@@ -4,7 +4,32 @@
     properties: {
         element: {
           type: Object,
-          value: function() { return {}; }
+          value: function() { return {}; },
+          reflectToAttribute: true
+        },
+        label: {
+          type: String,
+          value: "",
+          reflectToAttribute: true
+        },
+        id: {
+          type: String,
+          value: "",
+          reflectToAttribute: true
+        },
+        keys: {
+          type: Object,
+          value: function() { return {}; },
+          reflectToAttribute: true
+        },
+        values: {
+          type: Array,
+          value: function() { return []; }
+        },
+        captionKeys: {
+          type: Array,
+          value: function() { return []; },
+          reflectToAttribute: true
         },
         exceedsStyle: {
           type: Object,
@@ -20,10 +45,6 @@
         isExceeding: {
           type: Boolean,
           value: false
-        },
-        captionKeys: {
-          type: Array,
-          value: function() { return []; }
         },
         captionStyle: {
           type: Array,
@@ -55,7 +76,7 @@
 
     getKey: function(key) {
       // if(this.element && this.element[key])
-        return this.element.keys[key];
+        return this.keys[key];
     },
     computeCaptionStyle: function(index) {
       if (this.captionStyle[index])

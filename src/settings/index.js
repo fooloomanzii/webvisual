@@ -13,13 +13,11 @@ var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 
 var defaults = {
-  values: [
-    // {
-    // x: new Date(),
-    // y: 0,
-    // exceeds: null
-    // }
-  ]
+  values: [{
+    x: new Date(),
+    y: 0,
+    exceeds: null
+  }]
 };
 
 class configLoader extends EventEmitter {
@@ -42,8 +40,7 @@ class configLoader extends EventEmitter {
 
     let config = {
       groupingKeys: {},
-      dataStructure: [],
-      paths: {},
+      dataStructure: {},
       preferedGroupingKeys: {},
       labels: [],
       svg: rawConfig.svg
@@ -58,12 +55,9 @@ class configLoader extends EventEmitter {
         rawConfig.svg);
 
       config.groupingKeys[label] = dataConfig[label].groupingKeys;
-      config.paths[label] = dataConfig[label].paths;
+      // config.paths[label] = dataConfig[label].paths;
       config.preferedGroupingKeys[label] = dataConfig[label].preferedGroupingKey;
-      config.dataStructure.push({
-        label: label,
-        groups: dataConfig[label].groups
-      });
+      config.dataStructure[label] = dataConfig[label].groups;
 
       connection[label] = rawConfig.configurations[label].connections;
     }
@@ -168,7 +162,7 @@ class configLoader extends EventEmitter {
     //                     },...]
     // initialy set the preferedGroups
     var groups = locals.exclusiveGroups;
-    var key, where, needToSetElement, needToSetGroup, source, initial, name, path;
+    var key, where, source, initial, name, path;
 
     var groupingKeys = locals.groupingKeys;
     if (groupingKeys.indexOf('all') == -1) {
@@ -179,117 +173,105 @@ class configLoader extends EventEmitter {
     for (var i = 0; i < types.length; i++) {
       for (var j = 0; j < groupingKeys.length; j++) {
         key = groupingKeys[j];
-        needToSetElement = true;
-        needToSetGroup = true;
-        where = -1;
+        if (!groups[key])
+          groups[key] = {};
 
-        for (var l = 0; l < groups.length; l++)
-          if (groups[l].key == key) {
-            needToSetGroup = false;
+        where = types[i].keys[key];
+
+        for (var subgroup in groups[key]) {
+          if (Object.keys(groups[key][subgroup]).indexOf(types[i].id) !== -1) {
+            where = subgroup;
             break;
           }
-        if (needToSetGroup) {
-          groups.push({
-            key: key,
-            subgroup: []
-          });
-        }
-        for (var k = 0; k < groups[l].subgroup.length; k++) {
-          if (groups[l].subgroup[k].ids && (groups[l].subgroup[k].ids.indexOf(types[i].id)) != -1) {
-            needToSetElement = false;
-            if (!groups[l].subgroup[k].elements) {
-              groups[l].subgroup[k].elements = [];
-            }
-            if (groups[l].subgroup[k].elements.indexOf(types[i]) == -1) {
-              groups[l].subgroup[k].elements.push(types[i]);
-            }
-            where = k;
-            break;
-          }
-          if (groups[l].subgroup[k].name == types[i].keys[key]) {
-            where = k;
-          } else if (key == 'all') {
-            where = k;
-          }
-        }
-        if (needToSetElement) {
-          if (where == -1) {
-            groups[l].subgroup.push({
-              name: types[i].keys[key] || ((key == 'all') ? 'all' : ''),
-              ids: [types[i].id],
-              elements: [types[i]],
-              svg: {
-                source: "",
-                initial: ""
-              }
-            });
-          } else {
-
-            if (!groups[l].subgroup[where].elements)
-              groups[l].subgroup[where].elements = [];
-            if (!groups[l].subgroup[where].ids)
-              groups[l].subgroup[where].ids = [];
-
-            groups[l].subgroup[where].elements.push(types[i]);
-            groups[l].subgroup[where].ids.push(types[i].id);
-          }
         }
 
-        // add svg paths and captions
-        if (where != -1) {
-          // set default if not set
-          if (!groups[l].subgroup[where].svg)
-            groups[l].subgroup[where].svg = {
-              source: "",
-              initial: ""
-            };
+        //TODO: gebraucht wird ein extra Object für svg-Pfade der Gruppen
 
-          // elements in groups in svg are selectable
-          source = groups[l].subgroup[where].svg.source;
-          initial = groups[l].subgroup[where].svg.initial;
-          name = groups[l].subgroup[where].name;
 
-          if (name && source && svgSources[source]) {
 
-            if (!svgSources[source].selectable)
-              svgSources[source].selectable = {};
-            if (initial && !svgSources[source].selectable[name]) {
-              svgSources[source].selectable[name] = {};
-              svgSources[source].selectable[name] = {
-                "path": initial,
-                "caption": {
-                  "name": name
-                }
-              };
-            }
-            // add elements path
-            if (types[i].svg && types[i].svg.path &&
-              !svgSources[source].selectable[types[i].id]) {
-              svgSources[source].selectable[types[i].id] = {
-                "path": types[i].svg.path,
-                "caption": types[i].keys
-              };
-            }
-          }
-        }
-      }
-    }
-    // PATHSTRUCTURE
-    // for faster finding elements for client
-    // made for Polymer 1.2 Array structure
+        // for (var k = 0; k < groups[l].subgroup.length; k++) {
+        //   if (groups[l].subgroup[k].ids && (groups[l].subgroup[k].ids.indexOf(types[i].id)) != -1) {
+        //     needToSetElement = false;
+        //     if (!groups[l].subgroup[k].elements) {
+        //       groups[l].subgroup[k].elements = [];
+        //     }
+        //     if (groups[l].subgroup[k].elements.indexOf(types[i]) == -1) {
+        //       groups[l].subgroup[k].elements.push(types[i]);
+        //     }
+        //     where = k;
+        //     break;
+        //   }
+        //   if (groups[l].subgroup[k].name == types[i].keys[key]) {
+        //     where = k;
+        //   } else if (key == 'all') {
+        //     where = k;
+        //   }
+        // }
+        if (!groups[key][where])
+          groups[key][where] = {};
 
-    var paths = {};
-    for (var i = 0; i < groups.length; i++) {
-      paths[groups[i].key] = {};
-      for (var j = 0; j < groups[i].subgroup.length; j++) {
-        for (var k = 0; k < groups[i].subgroup[j].ids.length; k++) {
-          for (var l = 0; l < groups[i].subgroup[j].elements.length; l++) {
-            if (groups[i].subgroup[j].elements[l].id == groups[i].subgroup[j].ids[k])
-              break; // position in elements array
-          }
-          paths[groups[i].key][groups[i].subgroup[j].ids[k]] = 'data.' +
-            labelindex + '.groups.' + i + '.subgroup.' + j + '.elements.' + l + '.values';
-        }
+        groups[key][where][types[i].id] = types[i];
+
+        // if (needToSetElement) {
+        //   if (where == -1) {
+        //     groups[l].subgroup.push({
+        //       name: types[i].keys[key] || ((key == 'all') ? 'all' : ''),
+        //       ids: [types[i].id],
+        //       elements: [types[i]],
+        //       svg: {
+        //         source: "",
+        //         initial: ""
+        //       }
+        //     });
+        //   } else {
+        //
+        //     if (!groups[l].subgroup[where].elements)
+        //       groups[l].subgroup[where].elements = [];
+        //     if (!groups[l].subgroup[where].ids)
+        //       groups[l].subgroup[where].ids = [];
+        //
+        //     groups[l].subgroup[where].elements.push(types[i]);
+        //     groups[l].subgroup[where].ids.push(types[i].id);
+        //   }
+        // }
+        //
+        // // add svg paths and captions
+        // if (where !== -1) {
+        //   // set default if not set
+        //   if (!groups[l].subgroup[where].svg)
+        //     groups[l].subgroup[where].svg = {
+        //       source: "",
+        //       initial: ""
+        //     };
+        //
+        //   // elements in groups in svg are selectable
+        //   source = groups[l].subgroup[where].svg.source;
+        //   initial = groups[l].subgroup[where].svg.initial;
+        //   name = groups[l].subgroup[where].name;
+        //
+        //   if (name && source && svgSources[source]) {
+        //
+        //     if (!svgSources[source].selectable)
+        //       svgSources[source].selectable = {};
+        //     if (initial && !svgSources[source].selectable[name]) {
+        //       svgSources[source].selectable[name] = {};
+        //       svgSources[source].selectable[name] = {
+        //         "path": initial,
+        //         "caption": {
+        //           "name": name
+        //         }
+        //       };
+        //     }
+        //     // add elements path
+        //     if (types[i].svg && types[i].svg.path &&
+        //       !svgSources[source].selectable[types[i].id]) {
+        //       svgSources[source].selectable[types[i].id] = {
+        //         "path": types[i].svg.path,
+        //         "caption": types[i].keys
+        //       };
+        //     }
+        //   }
+        // }
       }
     }
 
@@ -297,7 +279,6 @@ class configLoader extends EventEmitter {
       types: types,
       ids: ids,
       groups: groups,
-      paths: paths,
       groupingKeys: locals.groupingKeys,
       preferedGroupingKey: preferedGroupingKey,
       keys: keys,

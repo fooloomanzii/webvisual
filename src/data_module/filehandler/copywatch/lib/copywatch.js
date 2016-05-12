@@ -694,8 +694,6 @@ The function returns a watcher instance or a array of watcher if multiple paths 
         }
       });
 
-      console.log("interval", options.interval, "catchupDelay", options.catchupDelay);
-
       // Finally watch the file
       _watcher_options[resFile] = {
         path: fileDir, // We need to watch the directory in order to not stop watching on delete

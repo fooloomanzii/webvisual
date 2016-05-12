@@ -56,7 +56,7 @@ class WebvisualServer extends EventEmitter {
 
     config = settings;
 
-    require('./routes/index.js')(app, passport, config.auth); // load our routes and pass in our app and fully configured passport
+    require('./routes/index.js')(app, passport, config); // load our routes and pass in our app and fully configured passport
 
     // Routing to https if http is requested
     httpApp.get("*", function(req, res, next) {
