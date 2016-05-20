@@ -25,16 +25,19 @@ html
     }
     div#background{
       position: absolute;
-      background: radial-gradient(rgba(102, 157, 180,1) 80%,rgba(102, 157, 180,0.8) 100%);
+      background: radial-gradient(rgba(102, 157, 180,1) 80%,rgba(102, 157, 180,0.7) 100%);
       height: 100%;
       width: 100%;
       left: 0;
       top: 0;
     }
+    section.circles svg{
+      height: 8vw;
+    }
     section.circles {
       z-index: 0;
       position: fixed;
-      top: calc(50% - 100px);
+      top: calc(50% - 20vw);
       left: 50%;
       display: flex;
       flex-direction: row;
@@ -44,14 +47,12 @@ html
       -webkit-tap-highlight-color:rgba(0,0,0,0);
     }
     section#spinner.circles section.outer {
-      height: 16px;
-      width: 16px;
       animation-name: outer-animation;
       animation-duration: 2.5s;
       animation-timing-function: linear;
       animation-iteration-count: infinite;
       position: fixed;
-      transform-origin: 0% 100px;
+      transform-origin: 0% 20vw;
     }
     section.outer svg {
       animation-name: inner-animation;
@@ -76,7 +77,7 @@ html
       100% {transform:rotate(-360deg)}
     }
   body
-    //- #background
+    #background
     section#spinner.circles
       section.outer.l1
         svg#l1(viewbox='0 0 48 48', width='48', height='48', fill='#E41A1A')
@@ -104,15 +105,14 @@ html
             g#g01(transform='scale(0.1,0.1)')
               path#Logo(d='m 503.402,705.496 c 0.157,-0.098 4.418,8.078 7.868,13.918 28.031,47.383 198.16,468.966 239.82,568.246 -56.34,18.57 -116.543,28.77 -179.125,28.77 C 256.07,1316.43 0,1060.49 0,744.762 0,692.703 7.10547,642.328 20.1484,594.41 c 35.9102,23.352 254.79,174.738 255.118,173.672 35.054,-129.023 153.136,-195.555 228.136,-62.586 z M 1009.09,1113.29 C 966.109,1011.68 821.477,670.809 782.699,594.098 706.316,455.242 584.27,325.691 418.922,318.25 224.848,309.52 122.07,383.562 66.746,476.805 162.832,296.16 353.012,173.148 571.965,173.148 c 315.91,0 571.985,255.942 571.985,571.614 0,140.48 -50.81,269.008 -134.86,368.528')
     //- index-page
-    div
-      each Struct, Label in config.dataStructure
+    main-page(labels= JSON.stringify(config.labels))
+      each Label in config.labels
         h1!= Label
-        each Group, Key in Struct
-          h2!= Key
-          each Subgroup, Name in Group
-            h3!= Name
-            each Element, Id in Subgroup
-              sign-element(element= JSON.stringify(Element), caption-keys= JSON.stringify(config.groupingKeys[Label]))
+        div.panel(label!= Label)
+          each Subgroup, Name in config.dataStructure[Label][config.preferedGroupingKeys[Label]]
+            group-card(title= Name)
+              each Element, Id in Subgroup
+                sign-element.content(element= JSON.stringify(Element), caption-keys= JSON.stringify(config.groupingKeys[Label]))
     script.
       window.addEventListener('WebComponentsReady', function(e) {
         try {

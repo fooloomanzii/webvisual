@@ -125,20 +125,56 @@
     section#mainContent {
       background: #b5bbb5;
       display: flex;
-      flex-wrap: wrap;
-      align-content: flex-start;
-      flex-direction: row;
       position: relative;
-      overflow-y: auto;
-      overflow-x: hidden;
+      overflow: hidden;
       -webkit-overflow-scrolling: touch;
       -ms-flex: 1 1 0.000000001px; -webkit-flex: 1; flex: 1;
       flex-basis: 0.000000001px; -webkit-flex-basis: 0.000000001px;
-      padding: 0.5em;
+      z-index: auto;
+      height: auto;
+      width: auto;
+      margin: 0;
+      padding: 0;
     }
     section#mainContent[dark] {
       background: #656665;
     }
+
+    iron-selector#contentSelector {
+      flex: 1;
+    }
+
+    iron-selector#contentSelector ::content .panel {
+      position: absolute;
+      top: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      box-sizing: border-box;
+      background: none;
+      color: currentColor;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      -webkit-overflow-scrolling: touch;
+      -ms-flex: 1 1 0.000000001px; -webkit-flex: 1; flex: 1;
+      flex-basis: 0.000000001px; -webkit-flex-basis: 0.000000001px;
+      padding: 0.5em;
+      z-index: auto;
+      height: 100%;
+      width: 100%;
+      /*opacity: 1;
+      visibility: visible;
+      transition: opacity 750ms ease, visibility 1000ms, transform 1000ms ease;*/
+    }
+
+    iron-selector#contentSelector ::content .panel:not(.iron-selected){
+      /*opacity: 0;
+      visibility: hidden;
+      transform: translateX(38%);*/
+      display: none;
+    }
+
     section#dropShadow {
       position: absolute;
       top: 0;
@@ -277,17 +313,6 @@
     }
     section#toolbarHeader paper-icon-button.error {
       color: #FF9D9D;
-      /*will-change: transform;
-      animation-name: alarm-animation !important;
-      animation-duration: 4s;
-      animation-timing-function: ease-in-out;
-      animation-iteration-count: infinite;
-      --paper-icon-button-ink-color: currentColor;*/
-    }
-    @keyframes alarm-animation {
-      0%   {transform: scale(1);}
-      33%  {transform: scale(1.10);}
-      100% {transform: scale(1);}
     }
     section#toolbarHeader div.logo-element-placeholder {
       height: 44px;
@@ -484,9 +509,9 @@
 
         <div class="logo-element-placeholder"></div>
 
-        <paper-tabs id="labelsTabs" attr-for-selected="label" selected="{{selectedLabel}}" no-bar scrollable hide-scroll-buttons>
+        <paper-tabs id="labelsTabs" selected="{{selectedLabel}}" no-bar scrollable hide-scroll-buttons>
           <template is="dom-repeat" items="[[labels]]">
-            <paper-tab class="label" label="[[item]]">[[item]]</paper-tab>
+            <paper-tab class="label">[[item]]</paper-tab>
           </template>
         </paper-tabs>
 
@@ -522,20 +547,23 @@
 
         <!-- Content -->
         <section id="mainContent">
-
-          <!-- Elements -->
-          <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="items" observe="label groups" filter="filterSelectedLabel" delay="250">
-            <template id="grouptemplate" is="dom-repeat" items="{{items.groups}}" as="groups" observe="key subgroup" filter="filterPreferedGroup" delay="250">
-              <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroup">
-                <group-card title="{{subgroup.name}}" elements="{{subgroup.elements}}"
-                            caption-keys="{{getGroupingKeys(selectedLabel)}}" without-window$="{{withoutWindow}}"
-                            svg="{{subgroup.svg}}" show-date="{{showDate}}">
-                </group-card>
+          <iron-selector id="contentSelector" selected="[[selectedLabel]]" fallback-selection="0">
+            <content select=".panel"></content>
+            <!-- Elements -->
+            <!-- <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="items" observe="label groups" filter="filterSelectedLabel" delay="250">
+              <template id="grouptemplate" is="dom-repeat" items="{{items.groups}}" as="groups" observe="key subgroup" filter="filterPreferedGroup" delay="250">
+                <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroup">
+                  <group-card title="{{subgroup.name}}" elements="{{subgroup.elements}}"
+                              caption-keys="{{getGroupingKeys(selectedLabel)}}" without-window$="{{withoutWindow}}"
+                              svg="{{subgroup.svg}}" show-date="{{showDate}}">
+                  </group-card>
+                </template>
               </template>
-            </template>
-          </template>
+            </template> -->
 
+          </iron-selector>
         </section>
+
         <section id="backdrop" on-tap="tapBackdrop"></section>
         <section id="dropShadow" class="has-shadow"></section>
       </section>
@@ -635,7 +663,7 @@
     Polymer({
       is: 'main-page',
 
-      behaviors: [PageBehavior, Polymer.NeonAnimationRunnerBehavior, Polymer.NeonSharedElementAnimatableBehavior],
+      behaviors: [Polymer.NeonAnimationRunnerBehavior, Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
         sharedElements: {
@@ -714,6 +742,48 @@
           notify: true
         },
         // Attribute sent by datasocket-repeater
+        data: {
+          type: Array,
+          value: function() { return []; },
+          notify: true
+        },
+        selectedElement: {
+          type: Object,
+          value: function() { return {}; }
+        },
+        paths: {
+          type: Object,
+          value: function() { return {}; }
+        },
+        labels: {
+          type: Array,
+          value: function() { return []; },
+          reflectToAttribute: true
+        },
+        groupingKeys: {
+          type: Object,
+          value: function() { return {}; }
+        },
+        preferedGroupingKeys: {
+          type: Object,
+          value: function() { return {}; },
+          notify: true
+        },
+        // selected Label
+        selectedLabel: {
+          type: String,
+          value: "0",
+          observer: "_selectedLabelChanged"
+        },
+        groupBy: {
+          type: String,
+          observer: "_setPreferedGroupingKey"
+        },
+        exceeding: {
+          type: Array,
+          value: function() { return []; },
+          notify: true
+        },
         isExceeding: {
           type: Boolean,
           notify: true,
@@ -730,7 +800,9 @@
         "svg-open-fullscreen": "openSvgFullscreen",
         "svg-exit-fullscreen": "exitSvgFullscreen"
       },
-
+      _hideNotSelectedPanels: function(e) {
+        console.log("selected");
+      },
       setSelectedElement: function(e) {
         if(e) {
           this.debounce('select-request', function() {
@@ -740,11 +812,12 @@
             }
             else {
               this.unlinkPaths('selectedElement');
-              var path = this.paths[item.label][this.preferedGroupingKeys[item.label]][item.id].slice(0,-7)
-                                                                                               .replace('data.','data.#')
-                                                                                               .replace('groups.','groups.#')
-                                                                                               .replace('subgroup.','subgroup.#')
-                                                                                               .replace('elements.','elements.#');
+              var path = this.paths[item.label][this.preferedGroupingKeys[item.label]][item.id]
+                             .slice(0,-7)
+                             .replace('data.','data.#')
+                             .replace('groups.','groups.#')
+                             .replace('subgroup.','subgroup.#')
+                             .replace('elements.','elements.#');
               this.set("selectedElement", item);
               this.$.selectedElementSVG.set('source', e.detail.svg.source);
               this.$.selectedElementSVG.set('initial', e.detail.svg.initial);
@@ -767,6 +840,83 @@
           this.set("selectedElement", null);
         }, 250);
       },
+      _selectedLabelChanged: function(newValue, oldValue) {
+        this.set('groupBy', this.preferedGroupingKeys[this.selectedLabel]);
+        // this.$.labeltemplate.render();
+
+        if(this.opened) {
+          this.deselectElement();
+        }
+      },
+      _setPreferedGroupingKey: function(newValue, oldValue) {
+        var label = this.selectedLabel;
+        this.set('preferedGroupingKeys.' + label, newValue);
+        if (oldValue) {
+          this.async(function(){
+            // Swaping Elements Data to the new groupBy
+            var newItem, oldItem, newPath, oldPath, tmp;
+            for (var id in this.paths[label][oldValue]) {
+              newPath = this.paths[label][newValue][id];
+              oldPath = this.paths[label][oldValue][id];
+              newItem = this.get(newPath);
+              oldItem = this.get(oldPath);
+              tmp = this.splice(newPath,0,newItem.length);
+              this.set(newPath, this.splice(oldPath, 0, oldItem.length));
+              this.set(oldPath, tmp);
+            }
+            // this.$$('template#labeltemplate').render();
+          });
+        }
+      },
+      getGroupingKeys: function(label) {
+        if (this.groupingKeys)
+          return this.groupingKeys[label];
+      },
+      sortGroup: function(first,next){
+        if (first.ids.length > next.ids.length)
+          return true;
+        else
+          return false;
+      },
+      // filter data to selected ids
+      filterSelectedLabel: function(dataItem) {
+        return (this.selectedLabel === dataItem.label);
+      },
+      filterPreferedGroup: function(groupItem) {
+        return (this.preferedGroupingKeys[this.selectedLabel] === groupItem.key);
+      },
+      _removeAllExceedingElements: function(all) {
+        // @all - if false, only elements will be removed,
+        //        if there are not of the selected Labels from select-page
+        if (all != false)
+          all = true;
+        var icol = Polymer.Collection.get(this.exceeding);
+        var items = icol.getItems();
+        for (var i=0; i < items.length; i++) {
+          if (all || this.labels.indexOf(items[i].label) === -1) {
+            var key = icol.getKey(items[i]);
+            if(key) {
+              this.unlinkPaths('exceeding.' + key);
+              this.arrayDelete('exceeding', items[i]);
+            }
+          }
+          if (this.exceeding.length === 0)
+            this.set("isExceeding",false);
+        }
+      },
+      _removeSingleExceedingElement: function(e) {
+        if(e.detail.target && e.detail.target.element) {
+          var icol = Polymer.Collection.get(this.exceeding);
+          var key = icol.getKey(e.detail.target.element);
+          if(key) {
+            this.unlinkPaths('exceeding.' + key);
+            this.arrayDelete('exceeding', icol.getItem(key));
+          }
+          if (this.exceeding.length === 0)
+            this.set("isExceeding",false);
+        }
+      },
+
       _toolbarExpand: function() {
         if (this.opened) {
           this.set('expanded',!this.expanded);
