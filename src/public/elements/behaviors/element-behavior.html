@@ -29,18 +29,8 @@
         captionKeys: {
           type: Array,
           value: function() { return []; },
-          reflectToAttribute: true
-        },
-        exceedsStyle: {
-          type: Object,
-          value: function() {
-            return {
-              'true':  'background: rgb(255, 21, 41); color: #f1f1f1;',
-              'false': 'background: rgb(255, 20, 110); color: #f1f1f1;',
-              'none':  'background: rgb(0, 202, 53); color: #f1f1f1;',
-              'undef': 'background: rgb(236, 249, 97); color: #1f1f1f;'
-            };
-          }
+          reflectToAttribute: true,
+          observer: "_setAriaLabel"
         },
         isExceeding: {
           type: Boolean,
@@ -76,7 +66,7 @@
 
     getKey: function(key) {
       // if(this.element && this.element[key])
-        return this.keys[key];
+        return this.element.keys[key];
     },
     computeCaptionStyle: function(index) {
       if (this.captionStyle[index])
@@ -114,57 +104,11 @@
       else
         return ' ';
     },
-    computeStyle: function(change, index){
-      if (change.base && change.base.length != 0 && this.exceedsStyle){
-        var exceeds = this.get('exceeds', change.base[index]);
-        if(exceeds === true)
-          return this.exceedsStyle.true;
-        else if(exceeds === false)
-          return this.exceedsStyle.false;
-        else if(exceeds === null)
-          return this.exceedsStyle.none;
-        else if(exceeds === undefined)
-          return this.exceedsStyle.undef;
-      }
-    },
+    _setAriaLabel: function(){
+      // this.setAttribute("aria-label", this.element.keys[this.captionKeys[0]])
+    }
     // TODO: eventuell durch vorhandene obere Funktionen zu lösen
     // selector: name of the predicted element's values
     // e.g.: 'lastExceeds', 'firstExceeds'
-    computeSpecificX: function(selector){
-      if (this.element && this.element[selector] && this.element[selector].x) {
-        var date = this.element[selector].x;
-        if(date !== undefined)
-          return new Date(date).toLocaleTimeString();
-      }
-    },
-    computeSpecificY: function(selector){
-      if (this.element && this.element[selector] && this.element[selector].y && this.element[selector].exceeds) {
-        var value = this.element[selector].y;
-        var exceeds = this.element[selector].exceeds;
-        if (value !== undefined) {
-          if (this.element.isBoolean){
-            if (exceeds==true || exceeds==false)
-              return '✗';
-            else
-              return '✓';
-          }
-          else
-            return value;
-        }
-      }
-    },
-    computeSpecificStyle: function(selector){
-      if (this.element && this.element[selector] && this.element[selector].exceeds && this.exceedsStyle) {
-        var exceeds = this.element[selector].exceeds;
-        if(exceeds === true)
-          return this.exceedsStyle.true;
-        else if(exceeds === false)
-          return this.exceedsStyle.false;
-        else if(exceeds === null)
-          return this.exceedsStyle.none;
-      }
-      else
-        return this.exceedsStyle.undef;
-    }
   };
 </script>

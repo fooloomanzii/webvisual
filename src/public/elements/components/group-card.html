@@ -28,7 +28,7 @@
         box-shadow: none;
         border-color: transparent;
       }
-      section.header {
+      section#header {
         display: flex;
         position: relative;
         border-top-left-radius: inherit;
@@ -41,24 +41,13 @@
         transition: max-height ease-in-out 0.2s, min-height ease-in-out 0.2s;
         min-height: 2.6em;
       }
-      section.header[dark] {
+      section#header[dark] {
         background: #345475;
         color: #A8CCDB;
       }
-      section.header[opened] {
+      section#header[opened] {
         min-height: calc(15vh + 120px);
         max-height: 40vh;
-      }
-      svg-element {
-        flex: 1;
-        transition: opacity ease-in-out 0.3s;
-      }
-      svg-element[opened] {
-        opacity: 1;
-      }
-      svg-element:not([opened]) {
-        opacity: 0;
-        max-height: 0px;
       }
       section#title {
         position: relative;
@@ -77,7 +66,7 @@
         background: linear-gradient(to bottom, rgba(255,255,255,0.01) 5%,rgba(255,255,255,0.05) 40%);
         text-transform: none;
       }
-      section.header section#title.over-image {
+      section#header section#title.over-image {
         position: absolute;
         height: auto;
         width: auto;
@@ -103,6 +92,11 @@
         border-bottom-left-radius: inherit;
         border-bottom-right-radius: inherit;
         padding: 0.5em 0em 0em 0.5em;
+        background: none;
+        box-sizing: border-box;
+        z-index: inherit;;
+        height: auto;
+        width: auto;
       }
       @media all and (min-width: 750px) and (max-width: 1280px) and (orientation: portrait) {
         section#main:not([name='all']) {
@@ -119,31 +113,40 @@
           max-width: 39.5em;
         }
       }
-      sign-element {
+      section#mainContent ::content .content {
         margin: 0 0.5em 0.5em 0;
         border-radius: 12px;
       }
-
+      svg-element {
+        flex: 1;
+        transition: opacity ease-in-out 0.3s;
+      }
+      svg-element[opened] {
+        opacity: 1;
+      }
+      svg-element:not([opened]) {
+        opacity: 0;
+        max-height: 0px;
+      }
     </style>
-    <!-- <link rel="import" href="../style/ol.css" type="css"/> -->
   <template>
     <section id="main" name$="[[title]]" nowindow$="[[withoutWindow]]">
 
-      <section class="header" opened$="[[opened]]">
-        <!-- <section class="svgcontainer" opened$="[[opened]]"> -->
-          <svg-element id="svgElement" hidden$="[[!svg.source]]" opened$="[[opened]]" source="[[svg.source]]" selected="{{exceedingElements}}" initial="[[svg.initial]]" initially-zoom-to-selected></svg-element>
-        <!-- </section> -->
+      <section id="header" opened$="[[opened]]">
+        <!-- <content select=".header"></content> -->
+        <svg-element id="svgElement" hidden$="[[!svg.source]]" opened$="[[opened]]" source="[[svg.source]]" selected="{{exceedingElements}}" initial="[[svg.initial]]" initially-zoom-to-selected></svg-element>
         <section id="title" hidden$="[[_hideTitle(title,withoutWindow)]]" on-tap="toggle">[[title]]</section>
       </section>
 
       <section id="mainContent">
-        <template is="dom-repeat" items="[[elements]]" as="element">
+        <content select=".content"></content>
+        <!-- <template is="dom-repeat" items="[[elements]]" as="element">
           <sign-element element="[[element]]" caption-keys="[[captionKeys]]"
                         on-tap="_setSelectedElement" show-date="[[showDate]]"
                         on-element-is-exceeding="_setExceedingElement"
                         on-element-is-not-exceeding="_unsetExceedingElement">
           </sign-element>
-        </template>
+        </template> -->
       </section>
 
     </section>
@@ -154,34 +157,22 @@
       is: 'group-card',
 
       properties: {
-        elements: {
-          type: Array,
-          value: function() { return []; },
-          notify: true
-        },
-        captionKeys: {
-          type: Array,
-          value: function() { return []; }
-        },
         title: {
           type: String,
           value: '',
-          observer: '_titleChanged'
+          observer: '_titleChanged',
+          reflectToAttribute: true
         },
         placeholder: {
           type: String,
-          value: "Diverse"
+          value: 'Diverse'
         },
         withoutWindow: {
           type: Boolean,
           value: false,
-          reflectToAttribute: true
+          reflectToAttribute: true,
         },
         opened: {
-          type: Boolean,
-          value: false
-        },
-        showDate: {
           type: Boolean,
           value: false
         },
@@ -199,11 +190,15 @@
         }
       },
 
+      listeners: {
+        "element-is-exceeding": "_setExceedingElement",
+        "element-is-not-exceeding": "_unsetExceedingElement",
+        "element-select": "_onSelected"
+      },
+
       toggle: function() {
-        if (this.svg && this.svg.source) {
-          this.opened = !this.opened;
-          this.$.title.classList.add('over-image');
-        }
+        this.opened = !this.opened;
+        this.$.title.classList.add('over-image');
         if (!this.opened)
           this.$.title.classList.remove('over-image');
       },
@@ -212,17 +207,11 @@
         this.$.title.classList.remove('over-image');
       },
 
-      _svgChanged: function() {
-        if (!this.svg || !this.svg.source) {
-          this.close();
-        }
-      },
-
       _titleChanged: function(text) {
-        if (!text)
+        if (!text || text === 'undefined')
           this.set('title', this.placeholder);
         // var label = this.getAttribute('aria-label');
-        this.setAttribute('aria-label', this.title);
+        this.$.header.setAttribute('aria-label', this.title);
       },
 
       _hideTitle: function(title,withoutWindow) {
@@ -232,15 +221,14 @@
           return false;
       },
 
-      _setSelectedElement: function(e) {
-        this.close();
-        var svg = e.model.element.svg || {};
-
-        if (svg.path) {
-          svg = {"source": svg.source, "initial": svg.path, "selected": this.exceedingElements}
+      _svgChanged: function() {
+        if (!this.svg || !this.svg.source) {
+          this.close();
         }
+      },
 
-        this.fire("element-select", {"element": e.model.element, "svg": svg});
+      _onSelected: function(e) {
+        this.close();
       },
 
       _setExceedingElement: function(e) {

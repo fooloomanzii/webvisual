@@ -41,7 +41,7 @@ html
       font-size: 1em;
       line-height: 1;
     }
-    div#mainContent {
+    div#mainContent.login {
       z-index: 0;
       padding: 1.5em;
       align-self: center;
@@ -135,7 +135,7 @@ html
     }
   body
     #background
-    #mainContent
+    #mainContent.login
       h1 Webvisual Login
       form#formPost(method='post', action='/login/')
         label(for='username') Username
