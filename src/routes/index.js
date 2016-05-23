@@ -9,14 +9,16 @@ module.exports = function(app, passport, config) {
     res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
     res.render('index', {
       user: req.user,
-      config: config.configuration
+      config: config.configuration,
+      mobile: isMobile(req)
     });
     res.end();
   });
 
   app.get('/login', function(req, res) {
     res.render('login', {
-      user: req.user
+      user: req.user,
+      mobile: isMobile(req)
     });
   });
 
@@ -55,5 +57,14 @@ module.exports = function(app, passport, config) {
     } else {
       res.redirect('/login');
     }
+  }
+
+  function isMobile(req) {
+    var ua = req.header('user-agent');
+    // console.log(ua);
+    if (/mobile/i.test(ua) || /tablet/i.test(ua) || /android/i.test(ua))
+      return true;
+    else
+      return false;
   }
 }
