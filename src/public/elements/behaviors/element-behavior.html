@@ -2,11 +2,6 @@
   ElementBehavior = {
 
     properties: {
-        element: {
-          type: Object,
-          value: function() { return {}; },
-          reflectToAttribute: true
-        },
         label: {
           type: String,
           value: "",
@@ -26,15 +21,33 @@
           type: Array,
           value: function() { return []; }
         },
-        captionKeys: {
+        firstExceeds: {
           type: Array,
-          value: function() { return []; },
-          reflectToAttribute: true,
-          observer: "_setAriaLabel"
+          value: function() { return []; }
+        },
+        lastExceeds: {
+          type: Array,
+          value: function() { return []; }
+        },
+        isBoolean: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        updatable: {
+          type: Boolean,
+          value: true,
+          readOnly: true,
+          reflectToAttribute: true
         },
         isExceeding: {
           type: Boolean,
           value: false
+        },
+        captionKeys: {
+          type: Array,
+          value: function() { return []; },
+          reflectToAttribute: true
         },
         captionStyle: {
           type: Array,
@@ -49,30 +62,9 @@
         }
     },
 
-    observers:
-      ["exceedStateChanged(element.isExceeding)"],
-
-    exceedStateChanged: function(change) {
-      // delegating state-change-event upwards
-      switch (change) {
-        case true:
-          this.fire("element-is-exceeding", {element: this.element});
-          break;
-        case false:
-          this.fire("element-is-not-exceeding", {element: this.element});
-          break;
-      }
-    },
-
     getKey: function(key) {
       // if(this.element && this.element[key])
-        return this.element.keys[key];
-    },
-    computeCaptionStyle: function(index) {
-      if (this.captionStyle[index])
-        return this.captionStyle[index];
-      else
-        return this.captionStyle[this.captionStyle.length - 1];
+        return this.keys[key];
     },
     computeX: function(change, index){
       if (change.base && change.base.length != 0){
@@ -86,7 +78,7 @@
     },
     computeY: function(change, index){
       if (change.base && change.base.length != 0){
-        if (this.element.isBoolean){
+        if (this.isBoolean){
           var exceeds = this.get('exceeds', change.base[index]);
           if (exceeds==true || exceeds==false)
             return '✗';
@@ -104,9 +96,35 @@
       else
         return ' ';
     },
-    _setAriaLabel: function(){
-      // this.setAttribute("aria-label", this.element.keys[this.captionKeys[0]])
+    unshiftValues: function(value) {
+      this.unshift('values', value);
+
+      if (value.exceeds === null) {
+        if(this.isExceeding !== false) {
+          this.setExceedingState(false);
+          this.push("lastExceeds", this.values[1]);
+        }
+      }
+      else if (value.exceeds === true || value.exceeds === false) {
+        if(this.isExceeding === false) {
+          this.setExceedingState(true);
+          this.push("firstExceeds", this.values[0]);
+        }
+      }
+      this._updateView(value);
+    },
+
+    spliceValues: function(start, end) {
+      this.splice('values', start, end);
+    },
+
+    setExceedingState: function(state) {
+      this.set('isExceeding', state);
+    },
+
+    _updateView: function() {
     }
+
     // TODO: eventuell durch vorhandene obere Funktionen zu lösen
     // selector: name of the predicted element's values
     // e.g.: 'lastExceeds', 'firstExceeds'

@@ -55,7 +55,7 @@
     section#sign[dark]{
       color: #d3d3d3;
     }
-    section.actualValueSection {
+    section#actualValueSection {
       text-shadow: 0px 0px 1px #1f1f1f;
       display: flex;
       flex: 1;
@@ -65,22 +65,22 @@
       justify-content: center;
       align-items: center;
     }
-    section.valueSection {
+    section#valueSection {
       font-size: 1.5em;
     }
-    section.unitSection {
+    section#unitSection {
       margin-left: 0.25em;
       font-family: Fira Sans Light;
       font-size: 0.8em;
     }
-    section.dateSection {
+    section#dateSection {
       font-family: Fira Sans Light;
       font-size: 0.6em;
       color: #606060;
       align-self: center;
       margin-bottom: 0.5em;
     }
-    section.caption {
+    section#caption {
       border-top-left-radius: 0;
       border-top-right-radius: 0;
       border-bottom-left-radius: inherit;
@@ -95,21 +95,34 @@
       -ms-flex: none;
       border-top: thin solid #BBBBBB;
     }
-    section.caption[dark] {
+    section#caption[dark] {
       background: #B0B0B0;
       border-color: #808080;
       color: #1d1d1d;
     }
-    section.caption span.captions {
+    section#caption span#captions {
       float: left;
       clear: both;
       padding: 0;
       margin: 0;
+      font-weight: normal;
+      font-size: 0.6em;
     }
-    svg.sign {
+    span#captions:first-child {
+      font-weight: bold !important;
+      font-size: 1em !important;
+    }
+    span#captions:nth-child(2) {
+      font-size: 0.85em !important;
+    }
+    span#captions:nth-child(3) {
+      font-size: 0.75em !important;
+    }
+
+    svg#icon {
       height: 1.5em;
       width: 1.5em;
-      color: currentColor;
+      fill: currentColor;
       animation-name: exceed-animation;
       animation-duration: 2s;
       animation-timing-function: ease-in-out;
@@ -120,7 +133,7 @@
         33%  {transform: scale(1.10);}
         100% {transform: scale(1);}
     }
-    #ripple {
+    paper-ripple#ripple {
       color: #1d1d1d;
     }
     @media all and (max-width: 480px) {
@@ -138,7 +151,7 @@
         border-bottom-left-radius: inherit;
         border-bottom-right-radius: 0;
       }
-      section.caption[horizontal]{
+      section#caption[horizontal]{
         border-top: none;
         border-left: thin solid #BBBBBB;
         border-top-left-radius: 0;
@@ -157,7 +170,7 @@
         border-bottom-left-radius: inherit;
         border-bottom-right-radius: 0;
       }
-      section.caption[horizontal]{
+      section#caption[horizontal]{
         border-top: none;
         border-left: thin solid #BBBBBB;
         border-top-left-radius: 0;
@@ -168,34 +181,28 @@
     }
   </style>
   <template>
-      <section id="sign" horizontal$="[[horizontal]]" on-tap="_onTap">
+      <section id="sign" horizontal$="[[horizontal]]" on-tap="_onTap" class="null">
         <paper-ripple id="ripple"></paper-ripple>
 
-        <section class="actualValueSection">
-          <template is="dom-if" if="[[!element.isBoolean]]" restamp>
-            <section class="valueSection">[[computeY(element.values.*,0)]]</section><section class="unitSection">[[element.unit]]</section>
+        <section id="actualValueSection">
+          <template is="dom-if" if="[[!isBoolean]]" restamp>
+            <section id="valueSection"></section><section id="unitSection">[[keys.unit]]</section>
           </template>
-          <template is="dom-if" if="[[element.isBoolean]]" restamp>
-            <section class="iconSection" hidden$="[[!isExceeding]]">
-              <svg class="sign">
+          <template is="dom-if" if="[[isBoolean]]" restamp>
+            <svg id="icon" hidden$="[[!isExceeding]]">
                 <g id="error-outline"><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></g>
-              </svg>
-            </section>
+            </svg>
           </template>
         </section>
 
-        <template is="dom-if" if="[[showDate]]" restamp>
-          <section class="dateSection">[[computeX(element.values.*,0)]]</section>
-        </template>
+        <section id="dateSection" hidden$="[[!showDate]]"></section>
       </section>
 
-      <template is="dom-if" if="[[showCaption]]" restamp>
-        <section class="caption" horizontal$="[[horizontal]]">
-          <template id="captiontemplate" is="dom-repeat" items="[[captionKeys]]" as="captionKey">
-            <span id="[[key]]" class="captions" style$="[[computeCaptionStyle(index)]]">[[getKey(captionKey, element.keys.*)]]</span>
-          </template>
-        </section>
-      </template>
+      <section id="caption" horizontal$="[[horizontal]]" hidden$="[[!showCaption]]">
+        <template id="captiontemplate" is="dom-repeat" items="[[captionKeys]]" as="captionKey">
+          <span id="captions">[[getKey(captionKey, keys.*)]]</span>
+        </template>
+      </section>
 
   </template>
 
@@ -209,7 +216,7 @@
       properties: {
         showDate: {
           type: Boolean,
-          value: false,
+          value: true,
           reflectToAttribute: true
         },
         horizontal: {
@@ -223,29 +230,37 @@
           reflectToAttribute: true
         }
       },
-
       // attached: function() {
-      //   this.linkPaths("isExceeding", "element.isExceeding");
-      //   this.notifyPath('isExceeding', this.element.isExceeding);
+      //   this.linkPaths("isExceeding", "isExceeding");
+      //   this.notifyPath('isExceeding', this.isExceeding);
       // },
 
-      observers: [
-        "_handleExceeding(element.isExceeding)"
-      ],
+      // observers: [
+      //   "_handleExceeding(isExceeding)"
+      // ],
 
-      _handleExceeding: function(value) {
-        if (this.element && this.element.values) {
-          this.setAttribute("isExceeding", value);
-          this.$.sign.classList.remove('true');
-          this.$.sign.classList.remove('false');
-          this.$.sign.classList.remove('null');
-          this.$.sign.classList.remove('undefined');
-          this.$.sign.classList.add(this.element.values[0].exceeds);
-        }
+      setExceedingState: function(state) {
+        this.set('isExceeding', state);
+        // set color of the sign
+        this.$.sign.classList.remove('true');
+        this.$.sign.classList.remove('false');
+        this.$.sign.classList.remove('null');
+        this.$.sign.classList.remove('undefined');
+        this.$.sign.classList.add(this.values[0].exceeds);
+      },
+
+      _updateView: function(value) {
+        // set value
+        if (!this.isBoolean)
+          this.$.valueSection.textContent = value.y || ' ';
+
+        // set date
+        if (this.showDate)
+          this.$.dateSection.textContent = new Date(value.x).toLocaleTimeString() || ' ';
       },
 
       _onTap: function(e) {
-        this.fire("element-select", {"id": this.id, "label": this.label});
+        this.fire("element-select", {"id": this.id, "label": this.label, "keys": this.keys, "captionKeys": this.captionKeys});
       }
 
     });
