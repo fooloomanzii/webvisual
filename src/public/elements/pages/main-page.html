@@ -759,6 +759,11 @@
         "svg-exit-fullscreen": "exitSvgFullscreen"
       },
 
+      // app Control
+      backToMainMenu: function() {
+        this.closeDrawer();
+        this.fire("restart");
+      },
       // Tab Control
       _selectedLabelChanged: function(newValue, oldValue) {
         this.set('groupBy', PreferedGroupingKeys[newValue]);
@@ -766,7 +771,6 @@
           this.deselectElement();
         }
       },
-
       // Selecting Element
       setSelectedElement: function(e) {
         if(e) {
@@ -878,70 +882,8 @@
         }
       },
       getGroupingKeys: function(label) {
-        if (this.groupingKeys)
-          return this.groupingKeys[label];
-      },
-      sortGroup: function(first,next){
-        if (first.ids.length > next.ids.length)
-          return true;
-        else
-          return false;
-      },
-      // Toolbar Actions
-      _toolbarExpand: function() {
-        if (this.opened) {
-          this.set('expanded',!this.expanded);
-          this.toggleAttribute('expanded',this.expanded,this.$.toolbarFooter);
-        }
-      },
-      _computeExpandIcon: function() {
-        if (this.expanded)
-          return 'expand-less';
-        else
-          return 'expand-more';
-      },
-      // Toolbar-SVG-Element Controlls
-      openSvgFullscreen: function(e) {
-        this.closeDrawer();
-        this.$.control.style.visibility = "hidden";
-        this.$.fullscreenSvg.set('source', e.detail.source);
-        this.$.fullscreenSvg.set('initial', e.detail.initial);
-        this.$.fullscreenSvg.set('selected', e.detail.selected);
-        this.$.fullscreenSvg.set('opened', true);
-        this.$.svgFullscreenContainer.classList.add("fullscreen-opened");
-      },
-      exitSvgFullscreen: function() {
-        this.$.control.style.visibility = "visible";
-        this.$.fullscreenSvg.set('opened', false);
-        this.$.svgFullscreenContainer.classList.remove("fullscreen-opened");
-      },
-      _checkExceedsPanel: function(value) {
-        if(value && !(this.$.exceedsPanel.classList.contains("exceeds-panel-opened")))
-          this.openExceedsPanel();
-        else if (this.$.exceedingElements.children.length === 0)
-          this.closeExceedsPanel();
-      },
-      openExceedsPanel: function() {
-        this.$.exceedsPanel.classList.add("exceeds-panel-opened");
-      },
-      closeExceedsPanel: function() {
-        this.$.exceedsPanel.classList.remove("exceeds-panel-opened");
-      },
-      toggleExceedsPanel: function() {
-        this.$.exceedsPanel.classList.toggle("exceeds-panel-opened");
-      },
-      toggleDrawer: function(){
-        this.$.drawerPanel.classList.toggle("drawer-opened");
-        this.$.backdrop.classList.toggle("backdrop-opened");
-      },
-      closeDrawer: function(){
-        this.$.drawerPanel.classList.remove("drawer-opened");
-        this.$.backdrop.classList.remove("backdrop-opened");
-      },
-      tapBackdrop: function(){
-        // this.$.exceedsPanel.classList.remove("exceeds-panel-opened");
-        this.$.drawerPanel.classList.remove("drawer-opened");
-        this.$.backdrop.classList.remove("backdrop-opened");
+        if (GroupingKeys && GroupingKeys[label])
+          return GroupingKeys[label];
       },
       changeTheme: function(){
         var elems = document.querySelectorAll('*');
@@ -976,20 +918,62 @@
           }
         }
       },
-      backToMainMenu: function() {
-        this.closeDrawer();
-        this.fire("restart");
-      },
-      closeToast: function(e) {
-        var obj = e.currentTarget;
-        while (obj != window) {
-          if (obj.nodeName && (obj.nodeName.toLowerCase() === 'paper-toast')) {
-            obj.close();
-            break;
-          } else {
-            obj = obj.parentNode;
-          }
+      // Toolbar Actions
+      _toolbarExpand: function() {
+        if (this.opened) {
+          this.set('expanded', !this.expanded);
+          this.toggleAttribute('expanded', this.expanded, this.$.toolbarFooter);
         }
+      },
+      _computeExpandIcon: function() {
+        if (this.expanded)
+          return 'expand-less';
+        else
+          return 'expand-more';
+      },
+      // Toolbar-SVG-Element Control
+      openSvgFullscreen: function(e) {
+        this.closeDrawer();
+        this.$.control.style.visibility = "hidden";
+        this.$.fullscreenSvg.set('source', e.detail.source);
+        this.$.fullscreenSvg.set('initial', e.detail.initial);
+        this.$.fullscreenSvg.set('selected', e.detail.selected);
+        this.$.fullscreenSvg.set('opened', true);
+        this.$.svgFullscreenContainer.classList.add("fullscreen-opened");
+      },
+      exitSvgFullscreen: function() {
+        this.$.control.style.visibility = "visible";
+        this.$.fullscreenSvg.set('opened', false);
+        this.$.svgFullscreenContainer.classList.remove("fullscreen-opened");
+      },
+      // Panel Control
+      _checkExceedsPanel: function(value) {
+        if(value && !(this.$.exceedsPanel.classList.contains("exceeds-panel-opened")))
+          this.openExceedsPanel();
+        else if (this.$.exceedingElements.children.length === 0)
+          this.closeExceedsPanel();
+      },
+      openExceedsPanel: function() {
+        this.$.exceedsPanel.classList.add("exceeds-panel-opened");
+      },
+      closeExceedsPanel: function() {
+        this.$.exceedsPanel.classList.remove("exceeds-panel-opened");
+      },
+      toggleExceedsPanel: function() {
+        this.$.exceedsPanel.classList.toggle("exceeds-panel-opened");
+      },
+      toggleDrawer: function(){
+        this.$.drawerPanel.classList.toggle("drawer-opened");
+        this.$.backdrop.classList.toggle("backdrop-opened");
+      },
+      closeDrawer: function(){
+        this.$.drawerPanel.classList.remove("drawer-opened");
+        this.$.backdrop.classList.remove("backdrop-opened");
+      },
+      tapBackdrop: function(){
+        // this.$.exceedsPanel.classList.remove("exceeds-panel-opened");
+        this.$.drawerPanel.classList.remove("drawer-opened");
+        this.$.backdrop.classList.remove("backdrop-opened");
       }
     });
   </script>

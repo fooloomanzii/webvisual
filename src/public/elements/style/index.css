@@ -33,6 +33,7 @@ paper-button.sidemenu {
   padding: 1.3em 0.8em;
   border-top: thin solid rgba(200, 200, 200, 0);
   border-bottom: thin solid  rgba(200, 200, 200, 0);
+  align-items: center;
 }
 paper-button iron-icon.right-icon{
   margin: 0em 0.65em;
@@ -48,6 +49,11 @@ paper-button .content{
   justify-content: flex-start;
   align-items: center;
   flex-direction: row;
+}
+span {
+  font-size: inherit;
+  padding: 0;
+  margin: 0;
 }
 paper-icon-button {
   transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);

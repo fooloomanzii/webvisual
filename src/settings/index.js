@@ -40,10 +40,13 @@ class configLoader extends EventEmitter {
 
     let config = {
       groupingKeys: {},
-      dataStructure: {},
+      structure: {},
       preferedGroupingKeys: {},
       labels: [],
-      svg: rawConfig.svg
+      svg: rawConfig.svg,
+      svgElements: {},
+      svgGroups: {},
+      captions: {}
     };
 
     let dataConfig = {};
@@ -51,17 +54,19 @@ class configLoader extends EventEmitter {
 
     for (let label in rawConfig.configurations) {
       config.labels.push(label);
-      dataConfig[label] = this._arrange(label, config.labels.indexOf(label), rawConfig.configurations[label].locals,
-        rawConfig.svg);
+      dataConfig[label] = this._arrange(label, config.labels.indexOf(label), rawConfig.configurations[label].locals);
 
       config.groupingKeys[label] = dataConfig[label].groupingKeys;
       // config.paths[label] = dataConfig[label].paths;
       config.preferedGroupingKeys[label] = dataConfig[label].preferedGroupingKey;
-      config.dataStructure[label] = dataConfig[label].groups;
-
+      config.structure[label] = dataConfig[label].groups;
+      config.svgGroups[label] = dataConfig[label].svgGroups;
+      config.svgElements[label] = dataConfig[label].svgElements;
+      config.captions[label] = dataConfig[label].captions;
       connection[label] = rawConfig.configurations[label].connections;
     }
 
+    console.log(config.svgGroups['test']);
     this.configuration = config;
     this.dataConfig = dataConfig;
     this.connection = connection;
@@ -109,7 +114,7 @@ class configLoader extends EventEmitter {
     return obj || {};
   };
 
-  _arrange(label, labelindex, locals, svgSources) {
+  _arrange(label, labelindex, locals) {
 
     if (!locals || !locals.types)
       return; // Check the Existence
@@ -163,6 +168,8 @@ class configLoader extends EventEmitter {
     // initialy set the preferedGroups
     var groups = locals.exclusiveGroups;
     var key, where, source, initial, name, path;
+    var svgElements = {},
+      svgGroups = {};
 
     var groupingKeys = locals.groupingKeys;
     if (groupingKeys.indexOf('all') == -1) {
@@ -178,104 +185,50 @@ class configLoader extends EventEmitter {
 
         where = types[i].keys[key];
 
-        for (var subgroup in groups[key]) {
+        for (var subgroup in groups[key])
           if (Object.keys(groups[key][subgroup]).indexOf(types[i].id) !== -1) {
             where = subgroup;
             break;
           }
-        }
 
-        //TODO: gebraucht wird ein extra Object für svg-Pfade der Gruppen
-
-
-
-        // for (var k = 0; k < groups[l].subgroup.length; k++) {
-        //   if (groups[l].subgroup[k].ids && (groups[l].subgroup[k].ids.indexOf(types[i].id)) != -1) {
-        //     needToSetElement = false;
-        //     if (!groups[l].subgroup[k].elements) {
-        //       groups[l].subgroup[k].elements = [];
-        //     }
-        //     if (groups[l].subgroup[k].elements.indexOf(types[i]) == -1) {
-        //       groups[l].subgroup[k].elements.push(types[i]);
-        //     }
-        //     where = k;
-        //     break;
-        //   }
-        //   if (groups[l].subgroup[k].name == types[i].keys[key]) {
-        //     where = k;
-        //   } else if (key == 'all') {
-        //     where = k;
-        //   }
-        // }
         if (!groups[key][where])
           groups[key][where] = {};
 
         groups[key][where][types[i].id] = types[i];
 
-        // if (needToSetElement) {
-        //   if (where == -1) {
-        //     groups[l].subgroup.push({
-        //       name: types[i].keys[key] || ((key == 'all') ? 'all' : ''),
-        //       ids: [types[i].id],
-        //       elements: [types[i]],
-        //       svg: {
-        //         source: "",
-        //         initial: ""
-        //       }
-        //     });
-        //   } else {
-        //
-        //     if (!groups[l].subgroup[where].elements)
-        //       groups[l].subgroup[where].elements = [];
-        //     if (!groups[l].subgroup[where].ids)
-        //       groups[l].subgroup[where].ids = [];
-        //
-        //     groups[l].subgroup[where].elements.push(types[i]);
-        //     groups[l].subgroup[where].ids.push(types[i].id);
-        //   }
-        // }
-        //
-        // // add svg paths and captions
-        // if (where !== -1) {
-        //   // set default if not set
-        //   if (!groups[l].subgroup[where].svg)
-        //     groups[l].subgroup[where].svg = {
-        //       source: "",
-        //       initial: ""
-        //     };
-        //
-        //   // elements in groups in svg are selectable
-        //   source = groups[l].subgroup[where].svg.source;
-        //   initial = groups[l].subgroup[where].svg.initial;
-        //   name = groups[l].subgroup[where].name;
-        //
-        //   if (name && source && svgSources[source]) {
-        //
-        //     if (!svgSources[source].selectable)
-        //       svgSources[source].selectable = {};
-        //     if (initial && !svgSources[source].selectable[name]) {
-        //       svgSources[source].selectable[name] = {};
-        //       svgSources[source].selectable[name] = {
-        //         "path": initial,
-        //         "caption": {
-        //           "name": name
-        //         }
-        //       };
-        //     }
-        //     // add elements path
-        //     if (types[i].svg && types[i].svg.path &&
-        //       !svgSources[source].selectable[types[i].id]) {
-        //       svgSources[source].selectable[types[i].id] = {
-        //         "path": types[i].svg.path,
-        //         "caption": types[i].keys
-        //       };
-        //     }
-        //   }
-        // }
+        if (types[i].svg)
+          svgElements[types[i].id] = types[i].svg;
+      }
+    }
+
+    var sameSource, source, selectable;
+    for (var group in groups) {
+      svgGroups[group] = {};
+      for (var subgroup in groups[group]) {
+        source = '';
+        selectable = {};
+        sameSource = true;
+        for (var id in groups[group][subgroup]) {
+          if (svgElements[id] && svgElements[id].source) {
+            if (source && source !== svgElements[id].source) {
+              sameSource = false;
+            } else {
+              source = svgElements[id].source;
+              selectable[id] = svgElements[id].path;
+            }
+          }
+        }
+        if (sameSource) {
+          svgGroups[group][subgroup] = {
+            source: source,
+            selectable: selectable
+          }
+        }
       }
     }
 
     return {
+      label: label,
       types: types,
       ids: ids,
       groups: groups,
@@ -285,7 +238,8 @@ class configLoader extends EventEmitter {
       unnamedType: locals.unnamedType,
       timeFormat: locals.timeFormat,
       ignore: locals.ignore,
-      label: label
+      svgGroups: svgGroups,
+      svgElements: svgElements
     };
   };
 
