@@ -14,6 +14,7 @@
       font-size: 0.7em;
       overflow: hidden;
       border-top-color: #408B45;
+      cursor: default;
     }
     :host[dark] {
       background: #a8a8a8;
@@ -21,7 +22,6 @@
     }
     section#head {
       height: 2.5em;
-      line-height: 2.5em;
       display: flex;
       flex-direction: row;
       flex-shrink: 0;
@@ -86,80 +86,73 @@
 
   <script>
 
-    Polymer({
+    TableElement = Polymer({
       is: 'table-element',
 
-      properties: {
-        element: {
-          type: Object,
-          value: function() { return {}; }
-        }
+      behaviors: [ElementBehavior],
+
+      factoryImpl: function(element, bubbles) {
+        this.setElement(element);
+        if (bubbles === true)
+          this.bubbles = true;
       },
 
-      observers: [
-        "update(element.values.*)",
-        "buildup(element.id)"
-      ],
-
-      update: function(change) {
-        if (change.value && change.value.indexSplices) {
-          var body = Polymer.dom(this.$.body);
-          var row, tdX, tdY, isExceeding, index, tdI;
-          for (var i = 0; i < change.value.indexSplices.length; i++) {
-            if (change.value.indexSplices[i].removed)
-              for (var j = 0; j < change.value.indexSplices[i].removed.length; j++) {
-                body.removeChild(body.lastElementChild);
-              }
-            index = change.value.indexSplices[i].index;
-            for (var j = change.value.indexSplices[i].addedCount-1; j >=0 ; j--) {
-              row = document.createElement('section');
-              row.id = "tr";
-
-              tdX = document.createElement('section');
-              tdX.id = "td"; tdX.className = "x";
-              tdX.textContent = new Date(change.value.indexSplices[i].object[index + j].x).toLocaleTimeString();
-              tdY = document.createElement('section');
-              tdY.id = "td"; tdY.className = "y";
-              isExceeding = (change.value.indexSplices[i].object[index + j].exceeds === null) ? false : true;
-              tdY.textContent = (this.element.isBoolean ? (isExceeding ? '✗' : '✓') : change.value.indexSplices[i].object[index + j].y);
-
-              row.className = change.value.indexSplices[i].object[index + j].exceeds;
-              row.appendChild(tdX); row.appendChild(tdY);
-
-              body.insertBefore(row, body.childNodes[0]);
-            }
+      _updateView: function(value, splices) {
+        var body = Polymer.dom(this.$.body);
+        var row, tdX, tdY, isExceeding, index, tdI;
+        if (value === undefined && splices.start !== undefined && splices.end !== undefined) {
+          for (var i = splices.end; i > splices.start; i--) {
+            if (body.children[i])
+            body.removeChild(body.children[i]);
           }
-          Polymer.dom.flush()
+        }
+        else if (Array.isArray(value)) {
+          this.setValues(value);
+        }
+        else if (value) {
+          row = document.createElement('section');
+          row.id = "tr";
+          tdX = document.createElement('section');
+          tdX.id = "td"; tdX.className = "x";
+          tdX.textContent = new Date(value.x).toLocaleTimeString();
+          tdY = document.createElement('section');
+          tdY.id = "td"; tdY.className = "y";
+          isExceeding = (value.exceeds === null) ? false : true;
+          tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : value.y);
+
+          row.className = value.exceeds;
+          row.appendChild(tdX); row.appendChild(tdY);
+          body.insertBefore(row, body.childNodes[0]);
         }
       },
 
-      buildup: function() {
+      setValues: function(values) {
+        // this.set('values', values);
         var body = Polymer.dom(this.$.body);
         while (body.lastChild) {
           body.removeChild(body.lastChild);
         }
 
-        if (this.element && this.element.values) {
+        if (values.length !== 0) {
           var row, tdX, tdY, isExceeding, tdI;
 
-          for (var j = this.element.values.length-1; j >=0 ; j--) {
+          for (var j = values.length-1; j >=0 ; j--) {
             row = document.createElement('section');
             row.id = "tr";
 
             tdX = document.createElement('section');
             tdX.id = "td"; tdX.className = "x";
-            tdX.textContent = new Date(this.element.values[j].x).toLocaleTimeString();
+            tdX.textContent = new Date(values[j].x).toLocaleTimeString();
             tdY = document.createElement('section');
             tdY.id = "td"; tdY.className = "y";
-            isExceeding = (this.element.values[j].exceeds === null) ? false : true;
-            tdY.textContent = (this.element.isBoolean ? (isExceeding ? '✗' : '✓') : this.element.values[j].y);
+            isExceeding = (values[j].exceeds === null) ? false : true;
+            tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : values[j].y);
 
-            row.className = this.element.values[j].exceeds;
+            row.className = values[j].exceeds;
             row.appendChild(tdX); row.appendChild(tdY);
-            // body.appendChild(row);
             body.insertBefore(row, body.childNodes[0]);
           }
-          Polymer.dom.flush()
+          Polymer.dom.flush();
         }
       }
     });

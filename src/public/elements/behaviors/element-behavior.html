@@ -17,6 +17,11 @@
           value: function() { return {}; },
           reflectToAttribute: true
         },
+        captionKeys: {
+          type: Array,
+          value: function() { return []; },
+          reflectToAttribute: true
+        },
         values: {
           type: Array,
           value: function() { return []; }
@@ -34,68 +39,49 @@
           value: false,
           reflectToAttribute: true
         },
+        isExceeding: {
+          type: Boolean,
+          value: false
+        },
         updatable: {
           type: Boolean,
           value: true,
           readOnly: true,
           reflectToAttribute: true
         },
-        isExceeding: {
+        bubbles: {
           type: Boolean,
-          value: false
-        },
-        captionKeys: {
-          type: Array,
-          value: function() { return []; },
+          value: false,
           reflectToAttribute: true
-        },
-        captionStyle: {
-          type: Array,
-          value: function() {
-            return [
-              'font-weight: bold; font-size: 1em;',
-              'font-weight: normal; font-size: 0.85em;',
-              'font-weight: normal; font-size: 0.75em;',
-              'font-weight: normal; font-size: 0.6em;'
-            ];
-          }
         }
     },
 
+    observers: [
+      "_handleExceeding(isExceeding)"
+    ],
+
     getKey: function(key) {
-      // if(this.element && this.element[key])
-        return this.keys[key];
+      return this.keys[key];
     },
-    computeX: function(change, index){
-      if (change.base && change.base.length != 0){
-        var date = this.get('x', change.base[index]);
-        if(date){
-          return new Date(date).toLocaleTimeString();
-        }
-        else
-          return ' ';
-      }
+
+    setElement: function(element) {
+      this.set('id', element.id);
+      this.set('label', element.label);
+      this.set('keys', element.keys);
+      this.set('captionKeys', element.captionKeys);
+      this.set('isBoolean', element.isBoolean);
+      this.setValues(element.values);
     },
-    computeY: function(change, index){
-      if (change.base && change.base.length != 0){
-        if (this.isBoolean){
-          var exceeds = this.get('exceeds', change.base[index]);
-          if (exceeds==true || exceeds==false)
-            return '✗';
-          else
-            return '✓';
-        }
-        else {
-          var value = this.get('y', change.base[index]);
-          if ((value !== undefined) && (value !== ''))
-            return value;
-          else
-            return ' ';
-        }
-      }
-      else
-        return ' ';
+
+    getElement: function() {
+      return {"id": this.id,
+              "label": this.label,
+              "keys": this.keys,
+              "captionKeys": this.captionKeys,
+              "isBoolean": this.isBoolean,
+              "values": this.values};
     },
+
     unshiftValues: function(value) {
       this.unshift('values', value);
 
@@ -116,13 +102,35 @@
 
     spliceValues: function(start, end) {
       this.splice('values', start, end);
+      this._updateView(undefined, {start: start, end: end});
     },
 
     setExceedingState: function(state) {
       this.set('isExceeding', state);
     },
 
-    _updateView: function() {
+    setValues: function(values, newestDataLast) {
+      this.set('values', values);
+      if (newestDataLast) {
+        this.setExceedingState(values[values.length - 1].exceeds);
+        this._updateView(values[values.length - 1]);
+      }
+      else {
+        this.setExceedingState(values[0].exceeds);
+        this._updateView(values[0]);
+      }
+    },
+
+    _updateView: function(value, splices) {
+    },
+
+    _handleExceeding: function(isExceeding) {
+      if(this.bubbles) {
+        if (isExceeding)
+          this.fire("element-is-exceeding", this.getElement());
+        else
+          this.fire("element-is-not-exceeding", this.getElement());
+      }
     }
 
     // TODO: eventuell durch vorhandene obere Funktionen zu lösen

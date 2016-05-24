@@ -36,6 +36,8 @@
       flex-direction: column;
       min-height: 4em;
       min-width: 5em;
+      padding-bottom: 0.25em;
+      box-sizing: border-box;
     }
     section#sign.null {
       background: #1BD939; color: #f1f1f1;
@@ -48,9 +50,6 @@
     }
     section#sign.undefined {
       background: #c3ab12; color: #1f1f1f;
-    }
-    section#sign.true iron-icon, section#sign.true iron-icon {
-      will-change: transform;
     }
     section#sign[dark]{
       color: #d3d3d3;
@@ -78,9 +77,9 @@
       font-size: 0.6em;
       color: #606060;
       align-self: center;
-      margin-bottom: 0.5em;
     }
     section#caption {
+      cursor: default;
       border-top-left-radius: 0;
       border-top-right-radius: 0;
       border-bottom-left-radius: inherit;
@@ -216,7 +215,7 @@
       properties: {
         showDate: {
           type: Boolean,
-          value: true,
+          value: false,
           reflectToAttribute: true
         },
         horizontal: {
@@ -239,6 +238,14 @@
       //   "_handleExceeding(isExceeding)"
       // ],
 
+      factoryImpl: function(element, bubbles, showDate) {
+        this.setElement(element);
+        if (showDate === false)
+          this.showDate = false;
+        if (bubbles === true)
+          this.bubbles = true;
+      },
+
       setExceedingState: function(state) {
         this.set('isExceeding', state);
         // set color of the sign
@@ -250,6 +257,9 @@
       },
 
       _updateView: function(value) {
+        if (value === undefined)
+          return;
+
         // set value
         if (!this.isBoolean)
           this.$.valueSection.textContent = value.y || ' ';
@@ -260,7 +270,7 @@
       },
 
       _onTap: function(e) {
-        this.fire("element-select", {"id": this.id, "label": this.label, "keys": this.keys, "captionKeys": this.captionKeys});
+        this.fire("element-select", this.getElement());
       }
 
     });

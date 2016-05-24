@@ -1,6 +1,7 @@
 <dom-module id="list-element">
   <style>
     :host {
+      cursor: pointer;
       position: relative;
       box-sizing: border-box;
       border-radius: 5px;
@@ -22,63 +23,96 @@
       background: #a8a8a8;
       border-color: #606060;
     }
-    section#value.null {
+    section#sign {
+      min-width: 48px;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+    section#sign.null {
       background: #1BD939; color: #f1f1f1;
     }
-    section#value.true {
+    section#sign.true {
       background: #D91B1B; color: #f1f1f1;
     }
-    section#value.false {
+    section#sign.false {
       background: #920bad; color: #f1f1f1;
     }
-    section#value.undefined {
+    section#sign.undefined {
       background: #c3ab12; color: #1f1f1f;
     }
-    section#value.true iron-icon, section#value.true iron-icon {
-      will-change: transform;
-    }
-    section#value[dark]{
+    section#sign[dark]{
       color: #d3d3d3;
     }
-    section#value {
+    section#actualValueSection {
       text-shadow: 0px 0px 1px #1f1f1f;
-      padding: 0em 1em;
-      min-width: 48px;
-      box-sizing: border-box;
       display: flex;
+      flex: 1;
+      background: linear-gradient(180deg,rgba(255,255,255,0),rgba(230,230,230,0.2),rgba(255,255,255,0));
+      padding: 0.25em;
+      line-height: 1.5em;
       justify-content: center;
       align-items: center;
     }
-    span.valueSection {
-      font-size: 1em;
+    section#valueSection {
+      font-size: 1.5em;
     }
-    span.unitSection {
+    section#unitSection {
+      margin-left: 0.25em;
       font-family: Fira Sans Light;
-      font-size: 0.65em;
-      padding-left: 0.25em;
+      font-size: 0.8em;
     }
-    span.dateSection {
+    section#dateSection {
       font-family: Fira Sans Light;
       font-size: 0.6em;
-      margin: auto 0;
-      padding: 1em;
-      color: #1f1f1f;
-      min-width: 30px;
+      color: #606060;
+      align-self: center;
+      text-align: center;
+      min-width: 5em;
+      padding: 0.5em;
+      box-sizing: border-box;
     }
-    section.caption {
+    section#caption {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      border-bottom-left-radius: inherit;
+      border-bottom-right-radius: inherit;
+      background: white;
       color: #1f1f1f;
-      line-height: 1.4;
-      padding: 0.75em;
-      margin: auto;
-      white-space: nowrap;
+      line-height: 1.5;
+      padding: 0.5em;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex: 1;
+      margin: 0;
     }
-    section.caption[dark] {
+    section#caption[dark] {
+      background: #B0B0B0;
       color: #1d1d1d;
     }
-    iron-icon.sign {
-      --iron-icon-height: 1em;
-      --iron-icon-width: 1em;
-      color: currentColor;
+    section#caption span#captions {
+      padding: 0;
+      margin: 0;
+      margin-left: 0.5em;
+      font-weight: normal;
+      font-size: 0.6em;
+    }
+    span#captions:first-child {
+      margin-left: 0 !important;
+      font-weight: bold !important;
+      font-size: 1em !important;
+    }
+    span#captions:nth-child(2) {
+      font-size: 0.85em !important;
+    }
+    span#captions:nth-child(3) {
+      font-size: 0.75em !important;
+    }
+    svg#icon {
+      height: 1.5em;
+      width: 1.5em;
+      fill: currentColor;
       animation-name: exceed-animation;
       animation-duration: 2s;
       animation-timing-function: ease-in-out;
@@ -89,40 +123,34 @@
         33%  {transform: scale(1.10);}
         100% {transform: scale(1);}
     }
-    #ripple {
-      color: #1d1d1d;
-    }
-    span.captions {
-      margin-right: 0.25em;
-    }
   </style>
   <template>
-    <section class="caption">
-      <template id="captiontemplate" is="dom-repeat" items="{{captionKeys}}" as="captionKey">
-        <span id="[[key]]" class="captions" style$="[[computeCaptionStyle(index)]]">{{getKey(captionKey, element.keys.*)}}</span>
+    <section id="caption">
+      <template id="captiontemplate" is="dom-repeat" items="[[captionKeys]]" as="captionKey">
+        <span id="captions">[[getKey(captionKey, keys.*)]]</span>
       </template>
     </section>
 
-    <section id="value" class="actualValueSection">
-      <template is="dom-if" if="{{!element.isBoolean}}" restamp>
-        <span class="valueSection">{{computeY(element.values.*,0)}}</span><span class="unitSection">[[element.unit]]</span>
-      </template>
-      <template is="dom-if" if="{{element.isBoolean}}" restamp>
-        <span class="iconSection" hidden$="{{!isExceeding}}">
-          <iron-icon class="sign" icon="error-outline"></iron-icon>
-        </span>
-      </template>
+    <section id="sign" class="null">
+      <section id="actualValueSection">
+        <template is="dom-if" if="[[!isBoolean]]" restamp>
+          <section id="valueSection"></section><section id="unitSection">[[keys.unit]]</section>
+        </template>
+        <template is="dom-if" if="[[isBoolean]]" restamp>
+          <svg id="icon" hidden$="[[!isExceeding]]">
+              <g id="error-outline"><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></g>
+          </svg>
+        </template>
+      </section>
     </section>
 
-    <template is="dom-if" if="{{showDate}}" restamp>
-      <span class="dateSection">{{computeX(element.values.*,0)}}</span>
-    </template>
+    <section id="dateSection" hidden$="[[!showDate]]"></section>
 
   </template>
 
   <script>
 
-    SignElement = Polymer({
+    ListElement = Polymer({
       is: 'list-element',
 
       behaviors: [ElementBehavior],
@@ -132,17 +160,19 @@
           type: Boolean,
           value: true,
           reflectToAttribute: true
-        },
-        horizontal: {
-          type: Boolean,
-          value: true,
-          reflectToAttribute: true
-        },
-        showCaption: {
-          type: Boolean,
-          value: true,
-          reflectToAttribute: true
         }
+      },
+
+      factoryImpl: function(element, bubbles, showDate) {
+        this.setElement(element);
+        if (showDate === false)
+          this.showDate = false;
+        if (bubbles === true)
+          this.bubbles = true;
+      },
+
+      listeners: {
+        "tap": "_onTap"
       },
 
       // attached: function() {
@@ -150,19 +180,31 @@
       //   this.notifyPath('isExceeding', this.element.isExceeding);
       // },
 
-      observers: [
-        "_handleExceeding(element.isExceeding)"
-      ],
+      setExceedingState: function(state) {
+        this.set('isExceeding', state);
+        // set color of the sign
+        this.$.sign.classList.remove('true');
+        this.$.sign.classList.remove('false');
+        this.$.sign.classList.remove('null');
+        this.$.sign.classList.remove('undefined');
+        this.$.sign.classList.add(this.values[0].exceeds);
+      },
 
-      _handleExceeding: function(value) {
-        if (this.element && this.element.values) {
-          this.isExceeding = value;
-          this.$.value.classList.remove('true');
-          this.$.value.classList.remove('false');
-          this.$.value.classList.remove('null');
-          this.$.value.classList.remove('undefined');
-          this.$.value.classList.add(this.element.values[0].exceeds);
-        }
+      _updateView: function(value) {
+        if (value === undefined)
+          return;
+
+        // set value
+        if (!this.isBoolean)
+          this.$.valueSection.textContent = value.y || ' ';
+
+        // set date
+        if (this.showDate)
+          this.$.dateSection.textContent = new Date(value.x).toLocaleTimeString() || ' ';
+      },
+
+      _onTap: function(e) {
+        this.fire("element-select", this.getElement());
       }
 
     });

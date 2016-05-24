@@ -61,6 +61,7 @@
       box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.2);
       border-top-left-radius: 6px 12px;
       border-bottom-left-radius: 12px;
+      cursor: default;
       -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
       -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
     }
@@ -146,7 +147,7 @@
 
     iron-selector#contentSelector ::content .panel {
       position: absolute;
-      top: 0;
+      left: 0;
       overflow-y: auto;
       overflow-x: hidden;
       box-sizing: border-box;
@@ -176,7 +177,7 @@
     iron-selector#contentSelector ::content .panel:not(.iron-selected)[animated]{
       opacity: 0;
       visibility: hidden;
-      transform: translateX(38%);
+      transform: translateY(25%);
       display: flex;
     }
 
@@ -337,7 +338,7 @@
       box-sizing: border-box;
       overflow: hidden !important;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
-      transition: max-height 200ms linear;
+      transition: max-height 150ms linear;
       will-change: min-height;
       will-change: max-height;
     }
@@ -530,18 +531,13 @@
       </section>
       <section id="toolbarFooter" opened$="[[opened]]" expanded$="[[expanded]]">
         <section id="toolbarSelectedElement">
-          <sign-element id="selectedElementSign" class="selectedElement" horizontal="[[!expanded]]"
-                        element="[[selectedElement]]" on-tap="deselectElement" caption-keys="[[getGroupingKeys(selectedElement.label)]]">
-          </sign-element>
-          <section style="display: flex; ">
-            <table-element id="selectedElementTable" class="selectedElement" element="[[selectedElement]]">
-            </table-element>
+          <sign-element id="selectedElementSign" class="selectedElement" horizontal="[[!expanded]]" on-tap="deselectElement"></sign-element>
+          <section style="display: flex;">
+            <table-element id="selectedElementTable" class="selectedElement"></table-element>
           </section>
-          <!-- <section style="display: flex; flex-grow: 1; flex-shrink: 1;"> -->
-            <svg-element id="selectedElementSVG" class="selectedElement" hidden$="[[!selectedElement.svg.source]]" opened="[[opened]]"
-            zoom-partition="1.1" max-zoom="5" min-zoom="1">
-            </svg-element>
-          <!-- </section> -->
+          <svg-element id="selectedElementSVG" class="selectedElement" hidden$="[[!selectedElement.svg.source]]" opened="[[opened]]"
+          zoom-partition="1.1" max-zoom="5" min-zoom="1">
+          </svg-element>
         </section>
       </section>
     </section>
@@ -554,18 +550,6 @@
         <section id="mainContent">
           <iron-selector id="contentSelector" selected="[[selectedLabel]]" fallback-selection="0">
             <content select=".panel"></content>
-            <!-- Elements -->
-            <!-- <template id="labeltemplate" is="dom-repeat" items="{{data}}" as="items" observe="label groups" filter="filterSelectedLabel" delay="250">
-              <template id="grouptemplate" is="dom-repeat" items="{{items.groups}}" as="groups" observe="key subgroup" filter="filterPreferedGroup" delay="250">
-                <template is="dom-repeat" items="{{groups.subgroup}}" as="subgroup">
-                  <group-card title="{{subgroup.name}}" elements="{{subgroup.elements}}"
-                              caption-keys="{{getGroupingKeys(selectedLabel)}}" without-window$="{{withoutWindow}}"
-                              svg="{{subgroup.svg}}" show-date="{{showDate}}">
-                  </group-card>
-                </template>
-              </template>
-            </template> -->
-
           </iron-selector>
         </section>
 
@@ -580,9 +564,6 @@
           <section class="title">Alarme</section>
         </section>
         <iron-swipeable-container id="exceedingElements" on-iron-swipe="_removeSingleExceedingElement">
-          <template is="dom-repeat" items="{{exceeding}}" as="element">
-              <list-element element="{{element}}" caption-keys="[[getGroupingKeys(element.label)]]"></list-element>
-          </template>
         </iron-swipeable-container>
         <span style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_removeAllExceedingElements">Liste leeren</a></span>
       </section>
@@ -746,17 +727,7 @@
           value: false,
           notify: true
         },
-        // Attribute sent by datasocket-repeater
-        data: {
-          type: Array,
-          value: function() { return []; },
-          notify: true
-        },
         selectedElement: {
-          type: Object,
-          value: function() { return {}; }
-        },
-        paths: {
           type: Object,
           value: function() { return {}; }
         },
@@ -765,16 +736,6 @@
           value: function() { return []; },
           reflectToAttribute: true
         },
-        groupingKeys: {
-          type: Object,
-          value: function() { return {}; }
-        },
-        preferedGroupingKeys: {
-          type: Object,
-          value: function() { return {}; },
-          notify: true
-        },
-        // selected Label
         selectedLabel: {
           type: String,
           value: "0",
@@ -784,11 +745,6 @@
           type: String,
           observer: "_setPreferedGroupingKey"
         },
-        exceeding: {
-          type: Array,
-          value: function() { return []; },
-          notify: true
-        },
         isExceeding: {
           type: Boolean,
           notify: true,
@@ -796,44 +752,56 @@
         }
       },
 
-      observers: [
-        '_checkExceedsPanel(exceeding.length)'
-      ],
-
       listeners: {
         "element-select": "setSelectedElement",
+        "element-is-exceeding": "_setExceedingElement",
         "svg-open-fullscreen": "openSvgFullscreen",
         "svg-exit-fullscreen": "exitSvgFullscreen"
       },
-      _hideNotSelectedPanels: function(e) {
-        console.log("selected");
+
+      // Tab Control
+      _selectedLabelChanged: function(newValue, oldValue) {
+        this.set('groupBy', PreferedGroupingKeys[newValue]);
+        if(this.opened) {
+          this.deselectElement();
+        }
       },
+
+      // Selecting Element
       setSelectedElement: function(e) {
         if(e) {
           this.debounce('select-request', function() {
-            var item = e.detail.element;
-            if (this.selectedElement === item){
+            var element = e.detail;
+            if (this.selectedElement.id && this.selectedElement.id === element.id &&
+                this.selectedElement.label && this.selectedElement.label === element.label){
               this.deselectElement();
             }
             else {
-              this.unlinkPaths('selectedElement');
-              var path = this.paths[item.label][this.preferedGroupingKeys[item.label]][item.id]
-                             .slice(0,-7)
-                             .replace('data.','data.#')
-                             .replace('groups.','groups.#')
-                             .replace('subgroup.','subgroup.#')
-                             .replace('elements.','elements.#');
-              this.set("selectedElement", item);
-              this.$.selectedElementSVG.set('source', e.detail.svg.source);
-              this.$.selectedElementSVG.set('initial', e.detail.svg.initial);
-              this.$.selectedElementSVG.set('selected', e.detail.svg.selected);
-              this.linkPaths('selectedElement', path);
+              if (Object.keys(this.selectedElement).length !== 0) {
+                var id = this.selectedElement.id;
+                var label = this.selectedElement.label;
+                var pos = Nodes[label][id].indexOf(this.$.selectedElementSign);
+                Nodes[label][id].splice(pos, 1);
+                var pos = Nodes[label][id].indexOf(this.$.selectedElementTable);
+                Nodes[label][id].splice(pos, 1);
+              }
+              Nodes[element.label][element.id].push(this.$.selectedElementSign);
+              Nodes[element.label][element.id].push(this.$.selectedElementTable);
+
+              this.set("selectedElement", element);
+              this.$.selectedElementSign.setElement(element);
+              this.$.selectedElementTable.setElement(element);
+
+              // this.$.selectedElementSVG.set('source', e.detail.svg.source);
+              // this.$.selectedElementSVG.set('initial', e.detail.svg.initial);
+              // this.$.selectedElementSVG.set('selected', e.detail.svg.selected);
+              // this.linkPaths('selectedElement', path);
               if (!this.opened){
-                this.toggleAttribute('opened',true);
+                this.toggleAttribute('opened', true);
                 this.playAnimation('select-in');
               }
             }
-          }, 250 );
+          }, 150);
         }
       },
       deselectElement: function() {
@@ -841,18 +809,54 @@
         this.closeDrawer();
         this.toggleAttribute('opened', false);
         this.debounce('deselect-request', function() {
-          this.unlinkPaths('selectedElement');
-          this.set("selectedElement", null);
-        }, 250);
+          var id = this.selectedElement.id;
+          var label = this.selectedElement.label;
+          var pos = Nodes[label][id].indexOf(this.$.selectedElementSign);
+          Nodes[label][id].splice(pos, 1);
+          var pos = Nodes[label][id].indexOf(this.$.selectedElementTable);
+          Nodes[label][id].splice(pos, 1);
+          this.set("selectedElement", {});
+        }, 150);
       },
-      _selectedLabelChanged: function(newValue, oldValue) {
-        this.set('groupBy', this.preferedGroupingKeys[this.selectedLabel]);
-        // this.$.labeltemplate.render();
-
-        if(this.opened) {
-          this.deselectElement();
+      // Exceeding Elements
+      _setExceedingElement: function(e) {
+        var element = e.detail;
+        if (Polymer.dom(this.$.exceedingElements).querySelectorAll('#'+element.id+'[label='+element.label+']').length === 0) {
+          var node = new ListElement(element);
+          Polymer.dom(this.$.exceedingElements).appendChild(node);
+          Polymer.dom(node).classList.add('exceedingElement');
+          Nodes[element.label][element.id].push(node);
+        }
+        if (!this.isExceeding)
+          this.isExceeding = true;
+      },
+      _removeSingleExceedingElement: function(e) {
+        if(e.detail.target) {
+          var id = e.detail.target.id;
+          var label = e.detail.target.label;
+          var pos = Nodes[label][id].indexOf(e.detail.target);
+          Nodes[label][id].splice(pos, 1);
+          Polymer.dom(this.$.exceedingElements).removeChild(e.detail.target);
+        }
+        if (this.$.exceedingElements.children.length === 0) {
+          this.set("isExceeding", false);
+          this.closeExceedsPanel();
         }
       },
+      _removeAllExceedingElements: function() {
+        var id, label, pos;
+        var nodes = Polymer.dom(this.$.exceedingElements).querySelectorAll('.exceedingElement');
+        for (var i = 0; i < nodes.length; i++) {
+          id = nodes[i].id;
+          label = nodes[i].label;
+          pos = Nodes[label][id].indexOf(nodes[i].target);
+          Nodes[label][id].splice(pos, 1);
+          Polymer.dom(this.$.exceedingElements).removeChild(nodes[i]);
+        }
+        this.set("isExceeding", false);
+        this.closeExceedsPanel();
+      },
+      // Menu Options
       _setPreferedGroupingKey: function(newValue, oldValue) {
         var label = this.selectedLabel;
         this.set('preferedGroupingKeys.' + label, newValue);
@@ -883,45 +887,7 @@
         else
           return false;
       },
-      // filter data to selected ids
-      filterSelectedLabel: function(dataItem) {
-        return (this.selectedLabel === dataItem.label);
-      },
-      filterPreferedGroup: function(groupItem) {
-        return (this.preferedGroupingKeys[this.selectedLabel] === groupItem.key);
-      },
-      _removeAllExceedingElements: function(all) {
-        // @all - if false, only elements will be removed,
-        //        if there are not of the selected Labels from select-page
-        if (all != false)
-          all = true;
-        var icol = Polymer.Collection.get(this.exceeding);
-        var items = icol.getItems();
-        for (var i=0; i < items.length; i++) {
-          if (all || this.labels.indexOf(items[i].label) === -1) {
-            var key = icol.getKey(items[i]);
-            if(key) {
-              this.unlinkPaths('exceeding.' + key);
-              this.arrayDelete('exceeding', items[i]);
-            }
-          }
-          if (this.exceeding.length === 0)
-            this.set("isExceeding",false);
-        }
-      },
-      _removeSingleExceedingElement: function(e) {
-        if(e.detail.target && e.detail.target.element) {
-          var icol = Polymer.Collection.get(this.exceeding);
-          var key = icol.getKey(e.detail.target.element);
-          if(key) {
-            this.unlinkPaths('exceeding.' + key);
-            this.arrayDelete('exceeding', icol.getItem(key));
-          }
-          if (this.exceeding.length === 0)
-            this.set("isExceeding",false);
-        }
-      },
-
+      // Toolbar Actions
       _toolbarExpand: function() {
         if (this.opened) {
           this.set('expanded',!this.expanded);
@@ -934,6 +900,7 @@
         else
           return 'expand-more';
       },
+      // Toolbar-SVG-Element Controlls
       openSvgFullscreen: function(e) {
         this.closeDrawer();
         this.$.control.style.visibility = "hidden";
@@ -948,10 +915,10 @@
         this.$.fullscreenSvg.set('opened', false);
         this.$.svgFullscreenContainer.classList.remove("fullscreen-opened");
       },
-      _checkExceedsPanel: function(length) {
-        if(!(this.$.exceedsPanel.classList.contains("exceeds-panel-opened")) && length)
+      _checkExceedsPanel: function(value) {
+        if(value && !(this.$.exceedsPanel.classList.contains("exceeds-panel-opened")))
           this.openExceedsPanel();
-        else if (this.exceeding.length === 0)
+        else if (this.$.exceedingElements.children.length === 0)
           this.closeExceedsPanel();
       },
       openExceedsPanel: function() {
