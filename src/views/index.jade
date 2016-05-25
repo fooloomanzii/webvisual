@@ -108,12 +108,11 @@ html
     //- index-page
     main-page(labels= JSON.stringify(config.labels))
       each Label in config.labels
-        h1!= Label
         div.panel(label!= Label, animated!= (!mobile))
-          each Subgroup, Name in config.structure[Label][config.preferedGroupingKeys[Label]]
-            group-card(title= Name)
-              each Element, Id in Subgroup
-                sign-element.content(label!= Label, id!= Id, is-boolean!= JSON.stringify(Element.isBoolean), keys= JSON.stringify(Element.keys), caption-keys= JSON.stringify(config.groupingKeys[Label]), show-date!= (!mobile), bubbles)
+          each Subgroup, Name in config.groups[Label][config.preferedGroupingKeys[Label]]
+            group-card(title= Name, svg= JSON.stringify(Subgroup.svg))
+              each Id, i in Subgroup.ids
+                sign-element.content(label!= Label, id!= Id, is-boolean!= JSON.stringify(config.elements[Label][Id].isBoolean), keys= JSON.stringify(config.elements[Label][Id].keys), svg= JSON.stringify(config.elements[Label][Id].svg), caption-keys= JSON.stringify(config.groupingKeys[Label]), show-date!= (!mobile), bubbles)
     script.
       window.addEventListener('WebComponentsReady', function(e) {
         try {

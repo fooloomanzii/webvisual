@@ -5,7 +5,7 @@
       position: relative;
       box-sizing: border-box;
       border-radius: 5px;
-      color: #f1f1f1;;
+      color: #f1f1f1;
       overflow: hidden;
       outline: none;
       font-family: Fira Sans Light;
@@ -15,12 +15,12 @@
       align-self: stretch;
       display: flex;
       flex-direction: row;
-      background: white;
       border-radius: inherit;
       border: thin solid #BBBBBB;
+      background: white;
     }
     :host[dark] {
-      background: #a8a8a8;
+      background: #B0B0B0;
       border-color: #606060;
     }
     section#sign {
@@ -62,22 +62,21 @@
       font-family: Fira Sans Light;
       font-size: 0.8em;
     }
-    section#dateSection {
-      font-family: Fira Sans Light;
-      font-size: 0.6em;
-      color: #606060;
+    section#label{
+      color: #333333;
+      transform: rotate(-90deg);
+      transform-origin: center;
+      border-bottom: thin solid currentColor;
       align-self: center;
-      text-align: center;
-      min-width: 5em;
-      padding: 0.5em;
-      box-sizing: border-box;
+      line-height: normal;
+      font-size: 0.6em;
+      font-weight: normal
     }
     section#caption {
       border-top-left-radius: 0;
       border-top-right-radius: 0;
       border-bottom-left-radius: inherit;
       border-bottom-right-radius: inherit;
-      background: white;
       color: #1f1f1f;
       line-height: 1.5;
       padding: 0.5em;
@@ -88,7 +87,6 @@
       margin: 0;
     }
     section#caption[dark] {
-      background: #B0B0B0;
       color: #1d1d1d;
     }
     section#caption span#captions {
@@ -118,6 +116,16 @@
       animation-timing-function: ease-in-out;
       animation-iteration-count: infinite;
     }
+    section#dateSection {
+      font-family: Fira Sans Light;
+      font-size: 0.6em;
+      color: #606060;
+      align-self: center;
+      text-align: center;
+      min-width: 5em;
+      padding: 0.5em;
+      box-sizing: border-box;
+    }
     @keyframes exceed-animation {
         0%   {transform: scale(1);}
         33%  {transform: scale(1.10);}
@@ -125,6 +133,7 @@
     }
   </style>
   <template>
+    <section id="label">[[label]]</section>
     <section id="caption">
       <template id="captiontemplate" is="dom-repeat" items="[[captionKeys]]" as="captionKey">
         <span id="captions">[[getKey(captionKey, keys.*)]]</span>

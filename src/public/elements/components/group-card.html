@@ -132,28 +132,21 @@
   <template>
     <section id="main" name$="[[title]]" nowindow$="[[withoutWindow]]">
 
-      <section id="header" opened$="[[opened]]">
+      <section id="header" opened$="[[opened]]" hidden$="[[_hideTitle(title,withoutWindow)]]">
         <!-- <content select=".header"></content> -->
-        <svg-element id="svgElement" hidden$="[[!svg.source]]" opened$="[[opened]]" source="[[svg.source]]" selected="{{exceedingElements}}" initial="[[svg.initial]]" initially-zoom-to-selected></svg-element>
-        <section id="title" hidden$="[[_hideTitle(title,withoutWindow)]]" on-tap="toggle">[[title]]</section>
+        <svg-element id="svgElement" hidden opened$="[[opened]]" selected="[[exceedingElements]]" initially-zoom-to-selected></svg-element>
+        <section id="title" on-tap="toggle">[[title]]</section>
       </section>
 
       <section id="mainContent">
         <content select=".content"></content>
-        <!-- <template is="dom-repeat" items="[[elements]]" as="element">
-          <sign-element element="[[element]]" caption-keys="[[captionKeys]]"
-                        on-tap="_setSelectedElement" show-date="[[showDate]]"
-                        on-element-is-exceeding="_setExceedingElement"
-                        on-element-is-not-exceeding="_unsetExceedingElement">
-          </sign-element>
-        </template> -->
       </section>
 
     </section>
 
   </template>
   <script>
-    Polymer({
+    GroupCard = Polymer({
       is: 'group-card',
 
       properties: {
@@ -176,12 +169,10 @@
           type: Boolean,
           value: false
         },
-        /**
-         * The url of the svg of the card.
-         */
         svg: {
           type: Object,
-          value: function() { return {source: "", initial: ""}; },
+          value: function() { return {}; },
+          reflectToAttribute: true,
           observer: "_svgChanged"
         },
         exceedingElements: {
@@ -221,9 +212,15 @@
           return false;
       },
 
-      _svgChanged: function() {
-        if (!this.svg || !this.svg.source) {
-          this.close();
+      _svgChanged: function(svg) {
+        if (svg && svg.source) {
+          this.$.svgElement.toggleAttribute("hidden", false);
+          this.$.svgElement.set('source', svg.source);
+          this.$.svgElement.set('selectable', svg.selectable);
+          this.$.svgElement.set('initial', svg.initial);
+        }
+        else {
+          this.$.svgElement.setAttribute("hidden", true);
         }
       },
 
@@ -232,18 +229,18 @@
       },
 
       _setExceedingElement: function(e) {
-        if(e.detail.element.svg &&
-           e.detail.element.svg.path) {
-          this.set("exceedingElements." + e.detail.element.id, e.detail.element.svg.path);
+        if(e.detail.svg &&
+           e.detail.svg.path) {
+          this.set("exceedingElements." + e.detail.id, e.detail.svg.path);
           if (!this.opened) {
             this.toggle();
           }
         }
       },
       _unsetExceedingElement: function(e) {
-        if(e.detail.element.svg &&
-           e.detail.element.svg.path) {
-          this.set("exceedingElements." + e.detail.element.id, "");
+        if(e.detail.svg &&
+           e.detail.svg.path) {
+          this.set("exceedingElements." + e.detail.id, "");
         }
       }
     });

@@ -39,9 +39,15 @@
           value: false,
           reflectToAttribute: true
         },
+        svg: {
+          type: Object,
+          value: function() { return {}; },
+          reflectToAttribute: true
+        },
         isExceeding: {
           type: Boolean,
-          value: false
+          value: false,
+          observer: "_handleExceeding"
         },
         updatable: {
           type: Boolean,
@@ -56,10 +62,6 @@
         }
     },
 
-    observers: [
-      "_handleExceeding(isExceeding)"
-    ],
-
     getKey: function(key) {
       return this.keys[key];
     },
@@ -70,6 +72,7 @@
       this.set('keys', element.keys);
       this.set('captionKeys', element.captionKeys);
       this.set('isBoolean', element.isBoolean);
+      this.set('svg', element.svg);
       this.setValues(element.values);
     },
 
@@ -79,6 +82,7 @@
               "keys": this.keys,
               "captionKeys": this.captionKeys,
               "isBoolean": this.isBoolean,
+              "svg": this.svg,
               "values": this.values};
     },
 

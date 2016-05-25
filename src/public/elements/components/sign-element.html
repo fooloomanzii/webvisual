@@ -229,14 +229,6 @@
           reflectToAttribute: true
         }
       },
-      // attached: function() {
-      //   this.linkPaths("isExceeding", "isExceeding");
-      //   this.notifyPath('isExceeding', this.isExceeding);
-      // },
-
-      // observers: [
-      //   "_handleExceeding(isExceeding)"
-      // ],
 
       factoryImpl: function(element, bubbles, showDate) {
         this.setElement(element);
@@ -267,6 +259,22 @@
         // set date
         if (this.showDate)
           this.$.dateSection.textContent = new Date(value.x).toLocaleTimeString() || ' ';
+      },
+
+      _captionKeysChanged(captionKeys){
+        var caption = Polymer.dom(this.$.caption);
+        while (caption.lastChild) {
+          caption.removeChild(caption.lastChild);
+        }
+        var span;
+        for (var i=0; i < captionKeys.length; i++) {
+          if (this.element.keys[captionKeys[i]]) {
+            span = document.createElement('span');
+            span.className = 'captions';
+            span.textContent = this.element.keys[captionKeys[i]];
+            caption.appendChild(span);
+          }
+        }
       },
 
       _onTap: function(e) {

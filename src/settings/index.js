@@ -38,36 +38,36 @@ class configLoader extends EventEmitter {
 
     let rawConfig = this._readFromFile(filepath);
 
-    let config = {
+    let configuration = {
+      elements: {},
+      groups: {},
       groupingKeys: {},
-      structure: {},
       preferedGroupingKeys: {},
       labels: [],
-      svg: rawConfig.svg,
-      svgElements: {},
-      svgGroups: {},
-      captions: {}
+      valueType: {},
+      svg: rawConfig.svg
     };
 
     let dataConfig = {};
     let connection = {};
 
     for (let label in rawConfig.configurations) {
-      config.labels.push(label);
-      dataConfig[label] = this._arrange(label, config.labels.indexOf(label), rawConfig.configurations[label].locals);
+      configuration.labels.push(label);
+      configuration.valueType[label] = rawConfig.configurations[label].valueType || defaults.value;
 
-      config.groupingKeys[label] = dataConfig[label].groupingKeys;
-      // config.paths[label] = dataConfig[label].paths;
-      config.preferedGroupingKeys[label] = dataConfig[label].preferedGroupingKey;
-      config.structure[label] = dataConfig[label].groups;
-      config.svgGroups[label] = dataConfig[label].svgGroups;
-      config.svgElements[label] = dataConfig[label].svgElements;
-      config.captions[label] = dataConfig[label].captions;
+      dataConfig[label] = this._arrange(label, rawConfig.configurations[label].locals, configuration.valueType[label],
+        rawConfig.svg);
+
+      configuration.groupingKeys[label] = dataConfig[label].groupingKeys;
+      configuration.preferedGroupingKeys[label] = dataConfig[label].preferedGroupingKey;
+      configuration.groups[label] = dataConfig[label].groups;
+      configuration.elements[label] = dataConfig[label].elements;
+      configuration.valueType[label] = dataConfig[label].valueType;
+
       connection[label] = rawConfig.configurations[label].connections;
     }
 
-    console.log(config.svgGroups['test']);
-    this.configuration = config;
+    this.configuration = configuration;
     this.dataConfig = dataConfig;
     this.connection = connection;
     this.port = rawConfig.port;
@@ -114,13 +114,14 @@ class configLoader extends EventEmitter {
     return obj || {};
   };
 
-  _arrange(label, labelindex, locals) {
+  _arrange(label, locals, valueType, svg) {
 
     if (!locals || !locals.types)
       return; // Check the Existence
 
     var types = [];
     var ids = [];
+    var elements = {};
     var type;
     var keys = Object.keys(locals.unnamedType.keys);
 
@@ -129,17 +130,15 @@ class configLoader extends EventEmitter {
       // ignored if set in locals.ignore
       if (locals.ignore && locals.ignore.indexOf(i) == -1) {
         type = locals.types[i] || {};
-
-        // if types of values is not an Array or doesn't exist then use the default
-        if (!type.values || !Array.isArray(type.values))
-          type.values = defaults.values;
-
         // if keys don't exist in locals
         if (!type.keys)
           type.keys = {};
         for (var j = 0; j < keys.length; j++) {
           type.keys[keys[j]] = type.keys[keys[j]] || locals.unnamedType.keys[keys[j]];
         }
+        // isBoolean
+        if (type.isBoolean === undefined)
+          type.isBoolean = false;
         // label
         type.label = label;
         // isExceeding
@@ -151,77 +150,78 @@ class configLoader extends EventEmitter {
         // id has to be different from unnamedType
         if (type.id == locals.unnamedType.id)
           type.id += i;
+        // for Element structure
+        elements[type.id] = type;
+        // initial Values
+        // type.values = valueType;
         types.push(type);
         ids.push(type.id);
       }
     }
 
     // GROUPING
-    // note:      this speeds up client handling of grouping, and could save transmitted
-    //            data initially
-    // structure: groups: [{ key: '---',
-    //                       subgroups: [ { name: '---'
-    //                                      elements: [ {id = '---', ...}, ...]
-    //                                      ids: [ '---', ....]
-    //                                    },...]
-    //                     },...]
-    // initialy set the preferedGroups
-    var groups = locals.exclusiveGroups;
-    var key, where, source, initial, name, path;
-    var svgElements = {},
-      svgGroups = {};
 
+    var groups = locals.exclusiveGroups;
+    var needToSet, where;
     var groupingKeys = locals.groupingKeys;
+
     if (groupingKeys.indexOf('all') == -1) {
       groupingKeys.push('all');
     }
     var preferedGroupingKey = locals.preferedGroupingKey || groupingKeys[0];
 
-    for (var i = 0; i < types.length; i++) {
-      for (var j = 0; j < groupingKeys.length; j++) {
-        key = groupingKeys[j];
+    for (var id in elements) {
+      for (var key of groupingKeys) {
         if (!groups[key])
           groups[key] = {};
 
-        where = types[i].keys[key];
+        needToSet = true;
+        where = elements[id].keys[key];
 
         for (var subgroup in groups[key])
-          if (Object.keys(groups[key][subgroup]).indexOf(types[i].id) !== -1) {
-            where = subgroup;
+          if (groups[key][subgroup].ids.indexOf(id) !== -1) {
+            needToSet = false;
             break;
           }
 
-        if (!groups[key][where])
-          groups[key][where] = {};
-
-        groups[key][where][types[i].id] = types[i];
-
-        if (types[i].svg)
-          svgElements[types[i].id] = types[i].svg;
+        if (needToSet) {
+          if (!groups[key][where])
+            groups[key][where] = {};
+          if (!groups[key][where].ids)
+            groups[key][where].ids = [];
+          groups[key][where].ids.push(id);
+        }
       }
     }
-
+    // Setting SVG
     var sameSource, source, selectable;
     for (var group in groups) {
-      svgGroups[group] = {};
       for (var subgroup in groups[group]) {
         source = '';
         selectable = {};
         sameSource = true;
-        for (var id in groups[group][subgroup]) {
-          if (svgElements[id] && svgElements[id].source) {
-            if (source && source !== svgElements[id].source) {
+        for (var id of groups[group][subgroup].ids) {
+          if (elements[id] && elements[id].svg && elements[id].svg.source) {
+            if (source && source !== elements[id].svg.source) {
               sameSource = false;
+              break;
             } else {
-              source = svgElements[id].source;
-              selectable[id] = svgElements[id].path;
+              source = elements[id].svg.source;
+              if (elements[id].svg.path)
+                selectable[id] = elements[id].svg.path;
             }
           }
         }
-        if (sameSource) {
-          svgGroups[group][subgroup] = {
+        if (sameSource && svg[source]) {
+          var initial = '';
+          for (var id in selectable) {
+            initial += selectable[id] + ',';
+          }
+          initial = initial.slice(0, -1);
+          groups[group][subgroup].svg = {
             source: source,
-            selectable: selectable
+            selectable: selectable,
+            initial: initial
           }
         }
       }
@@ -232,14 +232,13 @@ class configLoader extends EventEmitter {
       types: types,
       ids: ids,
       groups: groups,
+      elements: elements,
       groupingKeys: locals.groupingKeys,
       preferedGroupingKey: preferedGroupingKey,
       keys: keys,
       unnamedType: locals.unnamedType,
       timeFormat: locals.timeFormat,
-      ignore: locals.ignore,
-      svgGroups: svgGroups,
-      svgElements: svgElements
+      ignore: locals.ignore
     };
   };
 

@@ -3,6 +3,7 @@ var SvgSource = {};
 var socketName = "/data";
 var Selector = "[updatable]";
 var Nodes = {};
+var Elements = {};
 var Labels = [];
 var AvailableLabels = [];
 var GroupingKeys = {};
@@ -28,6 +29,8 @@ socket.on('connect', function() {
 socket.on('init', function(settings) {
   AvailableLabels = settings.labels;
   if (!opened) {
+    Groups = settings.groups;
+    Elements = settings.elements;
     GroupingKeys = settings.groupingKeys;
     PreferedGroupingKeys = settings.preferedGroupingKeys;
     if (settings.svg)

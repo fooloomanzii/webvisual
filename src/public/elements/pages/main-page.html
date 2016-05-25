@@ -563,9 +563,9 @@
           <paper-ripple id="ripple"></paper-ripple>
           <section class="title">Alarme</section>
         </section>
-        <iron-swipeable-container id="exceedingElements" on-iron-swipe="_removeSingleExceedingElement">
+        <iron-swipeable-container id="exceedingElements" on-iron-swipe="_removeSingleExceedingElementFromList">
         </iron-swipeable-container>
-        <span style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_removeAllExceedingElements">Liste leeren</a></span>
+        <span style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_removeAllExceedingElementFromList">Liste leeren</a></span>
       </section>
 
       <!-- SIDEMENU -->
@@ -594,17 +594,17 @@
 
               <paper-item>
                 <iron-icon icon="date-range"></iron-icon>
-                <paper-toggle-button id="colorschema" checked="{{showDate}}">Zeit anzeigen</paper-toggle-button>
+                <paper-toggle-button id="colorschema" on-change="toggleDateView">Zeit anzeigen</paper-toggle-button>
               </paper-item>
 
               <paper-item>
                 <iron-icon icon="editor:border-style"></iron-icon>
-                <paper-toggle-button id="border-style" checked="{{withoutWindow}}">Fensterstil</paper-toggle-button>
+                <paper-toggle-button id="border-style" on-change="toggleWindowStyle" checked="{{withoutWindow}}">Fensterstil</paper-toggle-button>
               </paper-item>
 
               <paper-item>
                 <iron-icon icon="settings-brightness"></iron-icon>
-                <paper-toggle-button id="colorschema" on-change="changeTheme">Farbschema</paper-toggle-button>
+                <paper-toggle-button id="colorschema" on-change="toggleTheme">Farbschema</paper-toggle-button>
               </paper-item>
 
               <paper-button collapse-id="measurement" class="sidemenu" on-tap="toggleCollapse">
@@ -749,12 +749,17 @@
           type: Boolean,
           notify: true,
           observer: "_checkExceedsPanel"
+        },
+        exceedingElements: {
+          type: Object,
+          value: function() { return {}; }
         }
       },
 
       listeners: {
         "element-select": "setSelectedElement",
         "element-is-exceeding": "_setExceedingElement",
+        "element-is-not-exceeding": "_unsetExceedingElement",
         "svg-open-fullscreen": "openSvgFullscreen",
         "svg-exit-fullscreen": "exitSvgFullscreen"
       },
@@ -796,10 +801,16 @@
               this.$.selectedElementSign.setElement(element);
               this.$.selectedElementTable.setElement(element);
 
-              // this.$.selectedElementSVG.set('source', e.detail.svg.source);
-              // this.$.selectedElementSVG.set('initial', e.detail.svg.initial);
-              // this.$.selectedElementSVG.set('selected', e.detail.svg.selected);
-              // this.linkPaths('selectedElement', path);
+              if (element.svg && element.svg.source) {
+                this.$.selectedElementSVG.removeAttribute('hidden');
+                this.$.selectedElementSVG.set('source', element.svg.source);
+                this.$.selectedElementSVG.set('initial', element.svg.path);
+                this.$.selectedElementSVG.set('selectable.'+id, element.svg.path);
+              }
+              else {
+                this.$.selectedElementSVG.toggleAttribute('hidden', true);
+              }
+
               if (!this.opened){
                 this.toggleAttribute('opened', true);
                 this.playAnimation('select-in');
@@ -823,6 +834,7 @@
         }, 150);
       },
       // Exceeding Elements
+
       _setExceedingElement: function(e) {
         var element = e.detail;
         if (Polymer.dom(this.$.exceedingElements).querySelectorAll('#'+element.id+'[label='+element.label+']').length === 0) {
@@ -831,10 +843,23 @@
           Polymer.dom(node).classList.add('exceedingElement');
           Nodes[element.label][element.id].push(node);
         }
+        if (element.svg && element.svg.path) {
+          this.$.selectedElementSVG.set('selectable.'+element.id, element.svg.path);
+          this.set("exceedingElements." + element.label + '.' + element.id, element.svg.path);
+          this.$.selectedElementSVG.set('selected', this.exceedingElements[this.labels[this.selectedLabel]]);
+        }
         if (!this.isExceeding)
           this.isExceeding = true;
       },
-      _removeSingleExceedingElement: function(e) {
+
+      _unsetExceedingElement: function(e) {
+        var element = e.detail;
+        if (element.svg && element.svg.path)
+          this.set("exceedingElements." + element.label + '.' + element.id, "");
+        this.$.selectedElementSVG.set('selected', this.exceedingElements[this.labels[this.selectedLabel]]);
+      },
+
+      _removeSingleExceedingElementFromList: function(e) {
         if(e.detail.target) {
           var id = e.detail.target.id;
           var label = e.detail.target.label;
@@ -847,7 +872,7 @@
           this.closeExceedsPanel();
         }
       },
-      _removeAllExceedingElements: function() {
+      _removeAllExceedingElementFromList: function() {
         var id, label, pos;
         var nodes = Polymer.dom(this.$.exceedingElements).querySelectorAll('.exceedingElement');
         for (var i = 0; i < nodes.length; i++) {
@@ -885,7 +910,7 @@
         if (GroupingKeys && GroupingKeys[label])
           return GroupingKeys[label];
       },
-      changeTheme: function(){
+      toggleTheme: function(){
         var elems = document.querySelectorAll('*');
         if(this.dark) {
           for (i = 0; i < elems.length; ++i) {
@@ -898,6 +923,18 @@
             elems[i].setAttribute("dark", true);
           }
           this.dark = true;
+        }
+      },
+      toggleWindowStyle: function(){
+        var elems = document.querySelectorAll('group-card');
+        for (i = 0; i < elems.length; ++i) {
+          elems[i].toggleAttribute("without-window");
+        }
+      },
+      toggleDateView: function(){
+        var elems = document.querySelectorAll('[updatable]');
+        for (i = 0; i < elems.length; ++i) {
+          elems[i].toggleAttribute("show-date");
         }
       },
       toggleCollapse: function(e){
