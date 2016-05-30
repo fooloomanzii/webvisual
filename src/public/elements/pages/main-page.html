@@ -972,9 +972,7 @@
       openSvgFullscreen: function(e) {
         this.closeDrawer();
         this.$.control.style.visibility = "hidden";
-        this.$.fullscreenSvg.set('source', e.detail.source);
-        this.$.fullscreenSvg.set('initial', e.detail.initial);
-        this.$.fullscreenSvg.set('selected', e.detail.selected);
+        this.$.fullscreenSvg.setSvg(e.detail.source);
         this.$.fullscreenSvg.set('opened', true);
         this.$.svgFullscreenContainer.classList.add("fullscreen-opened");
       },

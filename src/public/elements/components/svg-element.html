@@ -181,12 +181,11 @@ Use `isZoomable` to make it isZoomable.
       },
       selectable: {
         type: Object,
-        value: function() { return {}; },
         observer: "_selectableChanged"
       },
       selected: {
         type: Object,
-        value: function() { return {}; }
+        observer: "_selectedChanged"
       },
       initial: {
         type: String,
@@ -246,16 +245,34 @@ Use `isZoomable` to make it isZoomable.
       }
     },
 
-    listeners: {
-      "xml-dom-import-finish": "_onXmlLoaded"
+    factoryImpl: function(svg, opened) {
+      this.setSvg(svg);
+      if (opened)
+        this.toggleAttribute("opened", true)
     },
 
-    observers: [
-      "_setSelected(selected.*)"
-    ],
+    getSvg: function() {
+      return {source: this.source,
+              initial: this.initial,
+              selected: this.selected,
+              selectable: this.selectable};
+    },
+
+    setSvg: function(svg) {
+      this.async(function(){
+        if (svg.selectable)
+          this.set("selectable", svg.selectable);
+        if (svg.source)
+          this.set("source", svg.source);
+        if (svg.selected)
+          this.set("selected", svg.selected);
+        if (svg.initial)
+          this.set("initial", svg.initial);
+      });
+    },
 
     _sourceChanged: function(source) {
-      if (source && this.recentSource != source && this.opened) {
+      if (this.opened && source && this.recentSource !== source) {
         if (!SvgSource[source])
           return;
         if (!SvgSource[source].node)
@@ -303,28 +320,8 @@ Use `isZoomable` to make it isZoomable.
       this.width  = viewBox[2] - viewBox[0];
       this.height = viewBox[3] - viewBox[1];
 
-      this.fire("xml-dom-import-finish", {source: source}, {bubbles: false})
-    },
-
-    _onXmlLoaded: function(e) {
-      // set selectable elements
-      this._selectableChanged();
+      this._selectableChanged(this.selectable);
       this.select(this.selected, this.selectedClass);
-    },
-
-    _zoom: function () {
-      d3.select(this).select("g#mainG")
-                     .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-    },
-
-    _setSelected: function(change) {
-      if(!change || !this.selected) return;
-      this.select(this.selected, this.selectedClass);
-    },
-
-    _initialChanged: function(initial) {
-      this.select(this.selected, this.selectedClass);
-      this._resetZoom();
     },
 
     _openedChanged: function(opened) {
@@ -332,7 +329,74 @@ Use `isZoomable` to make it isZoomable.
       this._sourceChanged(this.source);
       this.async( function() {
         this._resetZoom();
-      }, 750);
+      }, 150);
+    },
+
+    _selectedChanged: function(change) {
+      if(!change || !this.selected) return;
+      this.select(this.selected, this.selectedClass);
+    },
+
+    _initialChanged: function(initial) {
+      if (!this.source || !opened) return;
+      this.async( function() {
+        this._resetZoom();
+      }, 150);
+    },
+
+    _selectableChanged: function(change) {
+      if (!this.mainG || !change || Object.keys(change).length === 0) return;
+
+      self = this;
+      this.svg.on('contextmenu',
+        (function () {
+          d3.event.preventDefault();
+          this._resetZoom();
+        }).bind(self));
+
+      // previous selectable elements: remove 'svg-element-selectable' class and click listener
+      this.mainG.selectAll(".svg-element-selectable")
+                .classed("svg-element-selectable", false)
+                .on("click", null);
+      this.mainG.selectAll(".clicked")
+                .classed("clicked", false);
+
+      // add 'svg-element-selectable' class and click listener
+      for (var key in this.selectable)
+        this.mainG.selectAll(this.selectable[key])
+                  .classed("svg-element-selectable", true)  // for styling selectable
+                  .classed("svg-element", true) // for style-scoping in polymer
+                  .on("click",
+                    function() {
+                      self._zoomToElement(this);
+                      self.mainG.selectAll(".clicked")
+                                .classed("clicked", false);
+                      self.classList.add("clicked");
+                    })
+                  .append("title")
+                  .text(function() {
+                      return key;
+                   });
+      for (var key in SvgSource[this.source].selectable)
+        this.mainG.selectAll(SvgSource[this.source].selectable[key])
+                  .classed("svg-element-selectable", true)  // for styling selectable
+                  .classed("svg-element", true) // for style-scoping in polymer
+                  .on("click",
+                    function() {
+                      self._zoomToElement(this);
+                      self.mainG.selectAll('.clicked')
+                                .classed("clicked", false);
+                      self.classList.add("clicked");
+                    })
+                  .append("title")
+                  .text(function() {
+                      return key;
+                   });
+    },
+
+    _zoom: function () {
+      d3.select(this).select("g#mainG")
+                     .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     },
 
     select: function(selected, selectedClass) {
@@ -435,106 +499,13 @@ Use `isZoomable` to make it isZoomable.
         return {translate: [x,y], scale: scale};
     },
 
-    _selectableChanged: function() {
-      if (!this.mainG || !this.selectable || this.selectable === {}) return;
-
-      this.svg.on('contextmenu',
-        function () {
-          d3.event.preventDefault();
-          var node = this;
-          while (true) {
-            if (node.nodeName && (node.nodeName.toLowerCase() === 'svg-element'))
-              break;
-            else if (node === window)
-              return;
-            else
-              node = node.parentNode;
-          }
-          node._resetZoom();
-        })
-
-      // previous selectable elements: remove 'svg-element-selectable' class and click listener
-      this.mainG.selectAll(".svg-element-selectable")
-                .classed("svg-element-selectable", false)
-                .on("click", null);
-      this.mainG.selectAll(".clicked")
-                .classed("clicked", false);
-
-      // add 'svg-element-selectable' class and click listener
-      self = this;
-      for (var key in this.selectable)
-        this.mainG.selectAll(this.selectable[key])
-                  .classed("svg-element-selectable", true)  // for styling selectable
-                  .classed("svg-element", true) // for style-scoping in polymer
-                  .on("click",
-                    function() {
-                      // if (d3.event.defaultPrevented) return;
-                      // get polymer-parent-node of the selectable node
-                      // else d3 uses the last instance of svg-element-Object
-                      var node = this;
-                      while (true) {
-                        if (node.nodeName && (node.nodeName.toLowerCase() === 'svg-element'))
-                          break;
-                        else if (node === window)
-                          return;
-                        else
-                          node = node.parentNode;
-                      }
-                      node._zoomToElement(this);
-                      node.mainG.selectAll('.clicked')
-                                .classed("clicked", false);
-                      this.classList.add("clicked");
-                    })
-                  .append("title")
-                  .text(function() {
-                        // var text = "";
-                        // for (var prop in self.selectable[key].caption)
-                        //   text += self.selectable[key].caption[prop] + " ";
-                        // return text;
-                        return key;
-                   });
-      for (var key in SvgSource[this.source].selectable)
-        this.mainG.selectAll(SvgSource[this.source].selectable[key])
-                  .classed("svg-element-selectable", true)  // for styling selectable
-                  .classed("svg-element", true) // for style-scoping in polymer
-                  .on("click",
-                    function() {
-                      // if (d3.event.defaultPrevented) return;
-                      // get polymer-parent-node of the selectable node
-                      // else d3 uses the last instance of svg-element-Object
-                      var node = this;
-                      while (true) {
-                        if (node.nodeName && (node.nodeName.toLowerCase() === 'svg-element'))
-                          break;
-                        else if (node === window)
-                          return;
-                        else
-                          node = node.parentNode;
-                      }
-                      node._zoomToElement(this);
-                      node.mainG.selectAll('.clicked')
-                                .classed("clicked", false);
-                      this.classList.add("clicked");
-                    })
-                  .append("title")
-                  .text(function() {
-                        // var text = "";
-                        // for (var prop in self.selectable[key].caption)
-                        //   text += self.selectable[key].caption[prop] + " ";
-                        // return text;
-                        return key;
-                   });
-    },
-
     _resetZoom: function() {
-      if (!this.mainG) return;
-      // remove clicked class
-      this.mainG.selectAll(".clicked")
-                .classed("clicked", false);
+      if (!this.mainG || !this.opened) return;
+
       // zoom to selectedItems
       if (this.initiallyZoomToSelected && this.selected) {
         for (var key in this.selected) {
-          if (this.selected[key] != "" && !(selected = this.mainG.selectAll(this.selected[key])
+          if (this.selected[key] !== "" && !(selected = this.mainG.selectAll(this.selected[key])
                                     .filter(".svg-element-selectable")).empty()) {
             this.select(this.selected, this.selectedClass);
             return;
@@ -555,7 +526,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _openFullscreen: function() {
-      this.fire("svg-open-fullscreen",{source: this.source, initial: this.initial, selected: this.selected});
+      this.fire("svg-open-fullscreen", this.getSvg());
     },
 
     _exitFullscreen: function() {
