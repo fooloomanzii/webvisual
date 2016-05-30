@@ -12,7 +12,7 @@
 /* Application theme */
 
 :root {
-    font-family: Regular;
+    font-family: Fira Sans Light;
     font-size: 1em;
     text-align: left;
     line-height: 1.4rem;
@@ -47,8 +47,8 @@
     --dark-secondary-drawer-color: rgba(170, 170, 170, 0.5);
 
     --ink-color: rgb(0, 202, 53); /* Effects */
-    --primary-hover-color: rgba(255, 255, 255, 0.3);
-    --secondary-hover-color: rgba(0, 202, 53, 0.2);
+    --primary-hover-color: rgba(255, 255, 255, 0.2);
+    --secondary-hover-color: rgba(255, 255, 255, 0.4);
     --selected-color: rgba(255, 255, 255, 0.75);
     --dark-selected-color: rgba(210, 210, 210, 0.75);
 
@@ -68,6 +68,7 @@
     /* Mixins*/
     --paper-button: {
         border-radius: 3px;
+        border: none;
         min-height: none;
         margin: 0em;
         padding: 0.2em;
@@ -99,7 +100,7 @@
         align-items: center;
         background: var(--default-button-color);
         color: currentColor;
-        font-family: Regular;
+        font-family: Fira Sans Light;
         cursor: pointer;
         text-align: left;
         text-transform: none;
@@ -113,6 +114,7 @@
     --icon-button-theme: {
         color: currentColor;
         cursor: pointer;
+        flex-shrink: 0;
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
@@ -121,7 +123,7 @@
       };
 
     --paper-tabs: {
-        font-family: Regular;
+        font-family: Fira Sans Light;
         margin: 0em;
         padding: 0em;
         background: none;
@@ -161,7 +163,7 @@
       };
 
     --default-transition: {
-      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
     };
 
     --paper-drawer-panel-drawer-container: {
@@ -199,10 +201,6 @@ paper-item {
 
 paper-item[dark] {
   background: var(--dark-button-color);
-}
-
-paper-button {
-  @apply(--button-theme)
 }
 
 paper-button[dark] {
@@ -260,12 +258,17 @@ iron-collapse {
  * Tabs
  */
 paper-tab {
-  border-radius: 2px;
+  font-family: Fira Sans Light;
+  border-radius: 6px 6px 0px 0px;
+  padding: 0em 1em;
+  height: 100%;
   @apply(--default-transition)
 }
 
-paper-tab:hover {
+paper-tab:hover:not(.iron-selected) {
    background: var(--secondary-hover-color);
-   border-radius: 2px;
+ }
+paper-tab:hover:not(.iron-selected)[dark] {
+   background: var(--primary-hover-color);
  }
 </style>

@@ -14,144 +14,18 @@
       top: 0;
       position: absolute;
     }
-    section#mainView {
-      position: relative;
-      flex: 1;
-      overflow: hidden;
-    }
-    section#drawerPanel {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      overflow-y: auto;
-      color: #1f1f1f;
-      border: 0;
-      background-color: rgba(255, 255, 255, 0.75);
-      align-items: center;
-      -moz-box-sizing: border-box; box-sizing: border-box;
-      will-change: transform;
-      transition: transform ease-in-out 0.3s, visibility 0.3s;
-      box-shadow: 4px 3px 6px rgba(0, 0, 0, 0.2);
-      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-      -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
-    }
-    section#drawerPanel:not(.drawer-opened) {
-      -webkit-transform: translateX(-100%);
-      transform: translateX(-100%);
-      /*visibility: hidden;*/
-    }
-    section#exceedsPanel {
-      position: absolute;
-      top: 0;
-      right: 0;
-      left: auto;
-      max-height: 100%;
-      max-width: 100%;
-      overflow-y: auto;
-      overflow-x: hidden;
-      color: #1f1f1f;
-      border: 0;
-      visibility: visible;
-      background-color: rgba(241, 241, 241, 0.75);
-      align-items: center;
-      -moz-box-sizing: border-box; box-sizing: border-box;
-      will-change: transform;
-      transition: transform ease-in-out 0.3s, visibility 0.3s;
-      box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.2);
-      border-top-left-radius: 6px 12px;
-      border-bottom-left-radius: 12px;
-      cursor: default;
-      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-      -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
-    }
-    section#exceedsPanel[dark] {
-      background-color: rgba(62, 62, 62, 0.75);
-    }
-    section#exceedsPanel:not(.exceeds-panel-opened) {
-      left: auto;
-      visibility: hidden;
-      -webkit-transform: translateX(100%); transform: translateX(100%);
-    }
-    section#exceedsHeader {
-      position: relative;
-      overflow: hidden;
-      width: auto;
-      background-color: #B46674;
-      color: #f1f1f1;
-    }
-    section#exceedsHeader[dark] {
-      background: #753446;
-      color: #A8CCDB;
-      border-color: #444;
-    }
-    section#exceedsHeader .title {
-      background: linear-gradient(180deg,rgba(255,255,255,0),rgba(230,230,230,0.1),rgba(255,255,255,0));
-      width: auto;
-      font-size: 1.25em;
-      padding: 0.75em 1em;
-    }
-    section#exceedsPanel iron-swipeable-container#exceedingElements {
-      padding: 0.5em 0.5em 0.25em 0.5em;
-    }
-    section#exceedsPanel iron-swipeable-container#exceedingElements list-element {
-      margin-bottom: 0.25em;
-      border-radius: 12px;
-    }
-    section#backdrop {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      visibility: hidden;
-      opacity: 0;
-      transition: opacity ease-in-out 0.38s, visibility ease-in-out 0.38s;
-      background-color: rgba(18, 12, 11, 0.25);
-    }
-    section#backdrop.backdrop-opened {
-      visibility: visible;
-      opacity: 1;
-    }
-    section#mainPanel {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
-    section#mainContent {
-      background: #b5bbb5;
-      display: flex;
-      position: relative;
-      overflow: hidden;
-      -webkit-overflow-scrolling: touch;
-      -ms-flex: 1 1 0.000000001px; -webkit-flex: 1; flex: 1;
-      flex-basis: 0.000000001px; -webkit-flex-basis: 0.000000001px;
-      z-index: auto;
-      height: auto;
-      width: auto;
-      margin: 0;
-      padding: 0;
-    }
-    section#mainContent[dark] {
-      background: #656665;
-    }
 
-    iron-selector#contentSelector {
+    iron-selector#panelSelector {
       flex: 1;
     }
 
-    iron-selector#contentSelector ::content .panel {
+    iron-selector#panelSelector ::content section.panel {
       position: absolute;
       left: 0;
       overflow-y: auto;
       overflow-x: hidden;
       box-sizing: border-box;
-      background: linear-gradient(rgba(255, 255, 255, 0),rgba(255,255,255,0.3));
+      background: linear-gradient(rgba(255, 255, 255, 0),rgba(255,255,255,0.15));
       color: currentColor;
       display: flex;
       flex-direction: row;
@@ -165,227 +39,88 @@
       height: 100%;
       width: 100%;
     }
-    iron-selector#contentSelector ::content .panel:not(.iron-selected){
+    iron-selector#panelSelector ::content section.panel:not(.iron-selected){
       display: none;
     }
-
-    iron-selector#contentSelector ::content .panel[animated] {
+    iron-selector#panelSelector ::content section.panel[animated] {
       opacity: 1;
       visibility: visible;
       transition: opacity 500ms ease, visibility 500ms, transform 1000ms ease;
+      z-index: 50;
     }
-    iron-selector#contentSelector ::content .panel:not(.iron-selected)[animated]{
+    iron-selector#panelSelector ::content section.panel:not(.iron-selected)[animated]{
       opacity: 0;
       visibility: hidden;
       transform: translateY(25%);
+      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+      -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
+      z-index: 0;
       display: flex;
     }
-
-    section#dropShadow {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: -6px;
-      height: 6px;
-      pointer-events: none;
-      box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.5);
-      -webkit-transition: opacity 0.5s; transition: opacity 0.5s;
-      opacity: 0;
-    }
-    section#dropShadow.has-shadow {
-      opacity: 1;
-    }
-    paper-button.sidemenu {
-      /*margin: 0.25em 0em;*/
-      width: 100%;
+    iron-selector#groupingKeysLabelSelector {
       display: flex;
+      flex-direction: column;
     }
-    paper-radio-button {
-      --paper-radio-button-checked-color: #B71C1C;
-      --paper-radio-button-checked-ink-color: #B71C1C;
-      --paper-radio-button-unchecked-color: #1d1d1d;
-      --paper-radio-button-unchecked-ink-color: #1d1d1d;
+    iron-selector#groupingKeysLabelSelector ::content iron-selector.groupingKeySelector {
+      display: flex;
+      flex-direction: column;
     }
-    paper-slider {
-      --paper-slider-active-color: #1565C0;
-      --paper-slider-knob-color: #1565C0;
-      --paper-slider-pin-color: #1565C0;
-      --paper-slider-knob-start-border-color: #1565C0;
-      --paper-slider-knob-start-color: #1565C0;
-      --paper-slider-font-color: #1d1d1d;
+    iron-selector#groupingKeysLabelSelector ::content iron-selector.groupingKeySelector:not(.iron-selected){
+      display: none;
     }
-    paper-slider {
-      --paper-input-container-input {
-        font-size: 0.5em;
-      };
-    }
-    paper-toggle-button {
-      --paper-toggle-button-unchecked-bar-color: #333333;
-      --paper-toggle-button-unchecked-button-color: #f1f1f1;
-      --paper-toggle-button-unchecked-ink-color: #1d1d1d;
-      --paper-toggle-button-checked-bar-color:	#FDD835;
-      --paper-toggle-button-checked-button-color:	#FDD835;
-      --paper-toggle-button-checked-ink-color:	#FDD835;
-    }
-    paper-toggle-button#colorschema{
-      --paper-toggle-button-checked-bar-color:	#1d1d1d;
-      --paper-toggle-button-checked-button-color:	#1d1d1d;
-      --paper-toggle-button-checked-ink-color:	#1d1d1d;
-    }
-    paper-tabs#labelsTabs {
+    section#labelsTabs {
       margin-left: 44px;
       height: 62%;
       align-self: flex-end;
       flex: 2;
       font-family: Fira Sans Light;
+      font-size: 16px;
     }
-    paper-tab.paper-tab-0:hover {
-      background: rgba(255,255,255,0.4);
-    }
-    paper-tab.label {
-      font-family: Fira Sans Light;
-      --paper-tab-ink: rgba(255,255,255,0.30);
-      --paper-tab:	{
-        align-self: flex-end;
-        padding: 0em 2em;
-      };
-      --paper-tab-content:	{
-        font-family: Fira Sans Light;
-        font-weight: bold;
-      };
-      --paper-tab-content-unselected: {
-        font-family: Fira Sans Light;
-      };
-    }
-    paper-tab.paper-tab-0.iron-selected {
-      background: rgba(255,255,255,0.3);
-      border-radius: 8px 8px 0px 0px;
-    }
-    paper-tab.paper-tab-0:not(.iron-selected) {
-      background: rgba(255,255,255,0.1);
-      border-radius: 12px 12px 0px 0px;
-    }
-    paper-tab.paper-tab-0:hover {
-      background: rgba(255,255,255,0.4);
-    }
-    logo-element#logo {
-      position: fixed;
-      color: #f1f1f1;
-      height: 44px;
-      top: 10px;
-      bottom: auto;
-      left: 80px;
-      z-index: 10;
-      width: 140px;
-    }
-    logo-element#logo[dark] {
-      fill: #A8CCDB;
-    }
-    section#toolbar {
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden !important;
-      font-family: Fira Sans Light;
-      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-      -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      margin: 0em;
-      padding: 0em;
-      background: #005B82;
+    section#labelsTabs ::content paper-tab.label.iron-selected{
+      /*border: thin solid #A8CCDB;*/
+      border-bottom: thin solid transparent;
+      background: linear-gradient(to top, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.15));
       color: #f1f1f1;
     }
-    section#toolbar[dark] {
-      background: #345475;
+    section#labelsTabs ::content paper-tab.label:not(.iron-selected){
+      /*border: thin solid transparent;*/
+    }
+    section#labelsTabs ::content paper-tab.label:hover:not(.iron-selected){
+      background: linear-gradient(to top, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+    }
+    section#labelsTabs ::content paper-tab.label.iron-selected[dark]{
+      /*border: thin solid #A8CCDB;*/
+      border-bottom: thin solid transparent;
+      background: linear-gradient(to top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
       color: #A8CCDB;
     }
-    section#toolbarHeader {
-      height: 64px;
-      width: 100%;
-      display: flex;
-      flex-shrink: 0;
-      flex-direction: row;
-      align-items: center;
+    @media all and (max-width: 600px) {
+      :host {
+        font-size: 0.9em;
+      }
     }
-    section#toolbarHeader paper-icon-button {
-      display: inline-block;
-      margin-right: 6px;
+    @media all and (min-width: 1000px) and (max-width: 1200px) {
+      :host {
+        font-size: 1.1em;
+      }
     }
-    section#toolbarHeader paper-icon-button.menu-icon {
-      margin-right: 20px;
-      margin-left: 20px;
+    @media all and (min-width: 1201px) and (max-width: 1400px) {
+      :host {
+        font-size: 1.15em;
+      }
     }
-    section#toolbarHeader paper-icon-button.error {
-      color: #FF9D9D;
+    @media all and (min-width: 1401px)  and (max-width: 1800px){
+      :host {
+        font-size: 1.2em;
+      }
     }
-    section#toolbarHeader div.logo-element-placeholder {
-      height: 44px;
-      max-width: 140px;
-      min-width: 100px;
-      flex: 1;
-    }
-    section#toolbarHeader section#control {
-      display: flex;
-      flex-shrink: 0;
-      margin-right: 6px;
-    }
-    section#toolbarFooter {
-      min-height: 0px;
-      max-height: 0px;
-      display: flex;
-      box-sizing: border-box;
-      overflow: hidden !important;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230, 230, 230, 0.2), rgba(255, 255, 255, 0));
-      transition: max-height 150ms linear;
-      will-change: min-height;
-      will-change: max-height;
-    }
-    section#toolbarFooter[opened] {
-      min-height: 150px;
-      max-height: 22vh;
-    }
-    section#toolbarFooter[opened][expanded] {
-      min-height: 300px;
-      max-height: 32vh;
-    }
-    section#toolbarFooter sign-element {
-      border: none;
-      flex-shrink: 0;
-    }
-    section#toolbarFooter table-element {
-      flex-shrink: 0;
-    }
-    section#toolbarFooter svg-element {
-      background: rgba(255,255,255,0.2);
-      border-top: thin solid #669DB4;
-      border-bottom: thin solid #669DB4;
-    }
-    section#toolbarFooter svg-element[dark] {
-      border-top: thin solid #005B82 !important;
-      border-bottom: thin solid #005B82 !important;
-    }
-    section#toolbarFooter svg-element:not([opened]) {
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-    section#toolbarFooter .selectedElement {
-      border-right: thin solid #BBBBBB;
-      border-radius: 8px;
-    }
-    section#toolbarFooter .selectedElement[dark] {
-      border-color: #808080;
-    }
-    section#toolbarFooter section#toolbarSelectedElement {
-      padding: 2px 6px 4px 6px;
-      display: flex;
-      flex-direction: row;
-      width: 100%;
+    @media all and (min-width: 1801px) {
+      :host {
+        font-size: 1.25em;
+      }
     }
     @media all and (max-width: 520px) {
-      section#mainContent {
+      section.panel {
         display: block;
         padding: 0em;
       }
@@ -406,7 +141,7 @@
         width: 44px !important;
         left: 64px !important;
       }
-      paper-tabs#labelsTabs {
+      section#labelsTabs {
         margin-left: 18px !important;
       }
     }
@@ -418,7 +153,7 @@
       logo-element#logo {
         left: 72px !important;
       }
-      section#toolbarHeader paper-tabs#labelsTabs {
+      section#toolbarHeader section#labelsTabs {
         margin-left: 28px !important;
       }
     }
@@ -448,61 +183,6 @@
       section#toolbarFooter .caption {
         border-top: none;
       }
-      :host {
-        font-size: 1em;
-      }
-    }
-    @media all and (min-width: 1000px) and (max-width: 1200px) {
-      :host {
-        font-size: 1.1em;
-      }
-    }
-    @media all and (min-width: 1201px) and (max-width: 1400px) {
-      :host {
-        font-size: 1.15em;
-      }
-    }
-    @media all and (min-width: 1401px)  and (max-width: 1800px){
-      :host {
-        font-size: 1.2em;
-      }
-    }
-    @media all and (min-width: 1801px) {
-      :host {
-        font-size: 1.25em;
-      }
-    }
-    section#svgFullscreenContainer {
-      display: flex;
-      flex: 1;
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      visibility: hidden;
-      opacity: 0;
-      background-color: rgba(52, 84, 117, 0.8);
-      transition: opacity ease-in-out 0.5s, visibilty ease-in-out 0.5s;
-    }
-    section#svgFullscreenContainer svg-element {
-      transform-origin: center;
-      transform: scale(0);
-      opacity: 0;
-      transition: transform ease-in-out 0.3s, opacity ease-in-out 0.5s, visibilty ease-in-out 0.5s;
-      --icon-color: rgba(255, 255, 255, 0.8);
-      --icon-hover-color: rgba(255, 255, 255, 1);
-      --icon-background: rgba(255,255,255, 0.15);
-      --icon-hover-background: rgba(255,255,255, 0.4);
-    }
-    section#svgFullscreenContainer.fullscreen-opened {
-      visibility: visible;
-      opacity: 1;
-      z-index: 100;
-    }
-    section#svgFullscreenContainer.fullscreen-opened svg-element{
-      transform: scale(1);
-      opacity: 1;
     }
   </style>
 
@@ -515,11 +195,11 @@
 
         <div class="logo-element-placeholder"></div>
 
-        <paper-tabs id="labelsTabs" selected="{{selectedLabel}}" no-bar scrollable hide-scroll-buttons>
-          <template is="dom-repeat" items="[[labels]]">
-            <paper-tab class="label">[[item]]</paper-tab>
-          </template>
-        </paper-tabs>
+        <section id="labelsTabs">
+          <iron-selector id="labelSelector" fallback-selection="0">
+            <content select="paper-tab.label"></content>
+          </iron-selector>
+        </section>
 
         <section id="control">
           <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsPanel" hidden$="[[!isExceeding]]"></paper-icon-button>
@@ -548,8 +228,8 @@
 
         <!-- Content -->
         <section id="mainContent">
-          <iron-selector id="contentSelector" selected="[[selectedLabel]]" fallback-selection="0">
-            <content select=".panel"></content>
+          <iron-selector id="panelSelector" fallback-selection="0">
+            <content select="section.panel"></content>
           </iron-selector>
         </section>
 
@@ -563,8 +243,7 @@
           <paper-ripple id="ripple"></paper-ripple>
           <section class="title">Alarme</section>
         </section>
-        <iron-swipeable-container id="exceedingElements" on-iron-swipe="_removeSingleExceedingElementFromList">
-        </iron-swipeable-container>
+        <iron-swipeable-container id="exceedingElements" on-iron-swipe="_removeSingleExceedingElementFromList"></iron-swipeable-container>
         <span style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_removeAllExceedingElementFromList">Liste leeren</a></span>
       </section>
 
@@ -585,11 +264,11 @@
               </paper-button>
 
                 <iron-collapse class="sidemenu collapse grouping">
-                  <paper-radio-group selected="{{groupBy}}" class="indention">
-                    <template is="dom-repeat" items="[[getGroupingKeys(selectedLabel)]]" as="key">
-                      <paper-radio-button name="[[key]]">[[key]]</paper-radio-button>
-                    </template>
-                  </paper-radio-group>
+                  <section id="groupingKeysButtons" class="indention">
+                    <iron-selector id="groupingKeysLabelSelector" fallback-selection="0">
+                      <content select="iron-selector.groupingKeySelector"></content>
+                    </iron-selector>
+                  </section>
                 </iron-collapse>
 
               <paper-item>
@@ -607,27 +286,6 @@
                 <paper-toggle-button id="colorschema" on-change="toggleTheme">Farbschema</paper-toggle-button>
               </paper-item>
 
-              <paper-button collapse-id="measurement" class="sidemenu" on-tap="toggleCollapse">
-                <iron-icon icon="filter-list"></iron-icon>
-                <span class="flex">Messwerte</span>
-                <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="measurement"></iron-icon>
-              </paper-button>
-
-                <iron-collapse class="sidemenu collapse measurement">
-                  <section class="indention collapse-content">
-                    <paper-item class="sidemenu">
-                      <iron-icon icon="editor:format-line-spacing"></iron-icon>
-                      <section>Anzahl der Messwerte</section>
-                    </paper-item>
-                    <paper-slider max="300" min="1" step="1" value="{{maxTotalLines}}" editable id="maxlines"></paper-slider>
-                    <!-- <paper-item class="sidemenu">
-                      <iron-icon icon="image:timelapse"></iron-icon>
-                      <div>Aktualisierung in ms</div>
-                    </paper-item>
-                    <paper-slider max="20000" min="0" step="100" value="{{interval}}" editable id="freq"></paper-slider> -->
-                  </section>
-                </iron-collapse>
-
             </section>
           </iron-collapse>
 
@@ -640,7 +298,7 @@
     </section>
 
     <section id="svgFullscreenContainer">
-      <svg-element id="fullscreenSvg" zoom-partition="2" max-zoom="3" min-zoom="0.85" fullscreen initially-zoom-to-selected></svg-element>
+      <svg-element id="fullscreenSvg" zoom-partition="2" max-zoom="2.8" min-zoom="0.85" fullscreen initially-zoom-to-selected></svg-element>
     </section>
 
   </template>
@@ -683,7 +341,7 @@
                 {
                   name: 'cascaded-animation',
                   animation: 'fade-in-animation',
-                  timing: {duration: 300},
+                  timing: {duration: 250},
                   nodeDelay: 50,
                   nodes: [this.$.selectedElementSign, this.$.selectedElementTable, this.$.selectedElementSVG]
                 }
@@ -692,7 +350,7 @@
                 {
                   name: 'cascaded-animation',
                   animation: 'fade-out-animation',
-                  timing: {duration: 300},
+                  timing: {duration: 250},
                   nodeDelay: 50,
                   nodes: [this.$.selectedElementSVG, this.$.selectedElementTable, this.$.selectedElementSign]
                 }
@@ -710,8 +368,7 @@
         },
         maxTotalLines: {
           type: Number,
-          value: 100,
-          notify: true
+          value: 100
         },
         // Attribute for toolbar is opened
         opened: {
@@ -731,19 +388,9 @@
           type: Object,
           value: function() { return {}; }
         },
-        labels: {
-          type: Array,
-          value: function() { return []; },
-          reflectToAttribute: true
-        },
-        selectedLabel: {
+        selectedLabelIndex: {
           type: String,
-          value: "0",
-          observer: "_selectedLabelChanged"
-        },
-        groupBy: {
-          type: String,
-          observer: "_setPreferedGroupingKey"
+          value: "0"
         },
         isExceeding: {
           type: Boolean,
@@ -756,12 +403,25 @@
         }
       },
 
+      attached: function() {
+        var self = this;
+        Polymer.dom(this.$.groupingKeysLabelSelector)
+               .observeNodes(function(info) {
+                 for (var i in info.addedNodes)
+                  if (info.addedNodes[i].nodeName === "IRON-SELECTOR")
+                    info.addedNodes[i].addEventListener("iron-select", function(e){
+                      self._setPreferedGroupingKey(e.currentTarget.selected);
+                    });
+               });
+      },
+
       listeners: {
         "element-select": "setSelectedElement",
         "element-is-exceeding": "_setExceedingElement",
         "element-is-not-exceeding": "_unsetExceedingElement",
         "svg-open-fullscreen": "openSvgFullscreen",
-        "svg-exit-fullscreen": "exitSvgFullscreen"
+        "svg-exit-fullscreen": "exitSvgFullscreen",
+        "labelSelector.iron-select": "_selectedLabelIndexChanged"
       },
 
       // app Control
@@ -770,16 +430,57 @@
         this.fire("restart");
       },
       // Tab Control
-      _selectedLabelChanged: function(newValue, oldValue) {
-        this.set('groupBy', PreferedGroupingKeys[newValue]);
-        if(this.opened) {
-          this.deselectElement();
+      _selectedLabelIndexChanged: function(e) {
+        if (e.detail && e.detail.item && Labels.length > 0) {
+          this.selectedLabelIndex = Labels.indexOf(e.detail.item.getAttribute("label"));
+          if (this.selectedLabelIndex !== -1) {
+            this.deselectElement();
+            this.$.panelSelector.select(this.selectedLabelIndex);
+            this.$.groupingKeysLabelSelector.select(this.selectedLabelIndex);
+          }
         }
+      },
+      // Grouping Options
+      _setPreferedGroupingKey: function(key) {
+        var label = Labels[this.selectedLabelIndex];
+        if (label && key && Groups[label][key]) {
+          PreferedGroupingKeys[label] = key;
+          var panel = this.queryEffectiveChildren('section.panel[label="'+label+'"]');
+          var oldgroupcards = Polymer.dom(panel).getEffectiveChildNodes();
+
+          var elements = [];
+          for (var i = 0; i < oldgroupcards.length; i++) {
+            elements = elements.concat([].slice.call(oldgroupcards[i].querySelectorAll('.content')));
+          }
+
+          var newgroupcards = {};
+          for (var subgroup in Groups[label][key]) {
+            newgroupcards[subgroup] = new GroupCard(subgroup, Groups[label][key][subgroup].svg);
+            Polymer.dom(panel).appendChild(newgroupcards[subgroup]);
+            for (var i in Groups[label][key][subgroup].ids) {
+              for (var j = 0; j < elements.length; j++) {
+                if (elements[j].id === Groups[label][key][subgroup].ids[i])
+                  break;
+              }
+              if (j !== elements.length) {
+                 Polymer.dom(newgroupcards[subgroup]).node.querySelector("section#mainContent").appendChild(elements[j]);
+              }
+            }
+          }
+          for (var i=0; i < oldgroupcards.length; i++) {
+             Polymer.dom(panel).removeChild(oldgroupcards[i]);
+          }
+          Polymer.dom.flush();
+        }
+      },
+      getGroupingKeys: function(label) {
+        if (GroupingKeys && GroupingKeys[label])
+          return GroupingKeys[label];
       },
       // Selecting Element
       setSelectedElement: function(e) {
-        if(e) {
-          this.debounce('select-request', function() {
+        if(e && e.detail) {
+          // this.debounce('select-request', function() {
             var element = e.detail;
             if (this.selectedElement.id && this.selectedElement.id === element.id &&
                 this.selectedElement.label && this.selectedElement.label === element.label){
@@ -790,9 +491,11 @@
                 var id = this.selectedElement.id;
                 var label = this.selectedElement.label;
                 var pos = Nodes[label][id].indexOf(this.$.selectedElementSign);
-                Nodes[label][id].splice(pos, 1);
-                var pos = Nodes[label][id].indexOf(this.$.selectedElementTable);
-                Nodes[label][id].splice(pos, 1);
+                if (pos !== -1)
+                  Nodes[label][id].splice(pos, 1);
+                pos = Nodes[label][id].indexOf(this.$.selectedElementTable);
+                if (pos !== -1)
+                  Nodes[label][id].splice(pos, 1);
               }
               Nodes[element.label][element.id].push(this.$.selectedElementSign);
               Nodes[element.label][element.id].push(this.$.selectedElementTable);
@@ -803,9 +506,13 @@
 
               if (element.svg && element.svg.source) {
                 this.$.selectedElementSVG.removeAttribute('hidden');
-                this.$.selectedElementSVG.set('source', element.svg.source);
-                this.$.selectedElementSVG.set('initial', element.svg.path);
-                this.$.selectedElementSVG.set('selectable.'+id, element.svg.path);
+                var sel = {source: element.svg.source,
+                           initial: element.svg.path,
+                           selectable: {},
+                           selected: this.exceedingElements || {}};
+                if (element.svg.path)
+                  sel.selectable[id] = element.svg.path;
+                this.$.selectedElementSVG.setSvg(sel);
               }
               else {
                 this.$.selectedElementSVG.toggleAttribute('hidden', true);
@@ -816,22 +523,25 @@
                 this.playAnimation('select-in');
               }
             }
-          }, 150);
+          // }, 150);
         }
       },
       deselectElement: function() {
         this.playAnimation('select-out');
         this.closeDrawer();
         this.toggleAttribute('opened', false);
-        this.debounce('deselect-request', function() {
+        try {
           var id = this.selectedElement.id;
           var label = this.selectedElement.label;
           var pos = Nodes[label][id].indexOf(this.$.selectedElementSign);
-          Nodes[label][id].splice(pos, 1);
-          var pos = Nodes[label][id].indexOf(this.$.selectedElementTable);
-          Nodes[label][id].splice(pos, 1);
-          this.set("selectedElement", {});
-        }, 150);
+          if (pos !== -1)
+            Nodes[label][id].splice(pos, 1);
+          pos = Nodes[label][id].indexOf(this.$.selectedElementTable);
+          if (pos !== -1)
+            Nodes[label][id].splice(pos, 1);
+        }
+        catch (err) {}
+        finally { this.set("selectedElement", {}); }
       },
       // Exceeding Elements
 
@@ -846,7 +556,7 @@
         if (element.svg && element.svg.path) {
           this.$.selectedElementSVG.set('selectable.'+element.id, element.svg.path);
           this.set("exceedingElements." + element.label + '.' + element.id, element.svg.path);
-          this.$.selectedElementSVG.set('selected', this.exceedingElements[this.labels[this.selectedLabel]]);
+          this.$.selectedElementSVG.set('selected', this.exceedingElements[Labels[this.selectedLabelIndex]]);
         }
         if (!this.isExceeding)
           this.isExceeding = true;
@@ -856,7 +566,7 @@
         var element = e.detail;
         if (element.svg && element.svg.path)
           this.set("exceedingElements." + element.label + '.' + element.id, "");
-        this.$.selectedElementSVG.set('selected', this.exceedingElements[this.labels[this.selectedLabel]]);
+        this.$.selectedElementSVG.set('selected', this.exceedingElements[Labels[this.selectedLabelIndex]]);
       },
 
       _removeSingleExceedingElementFromList: function(e) {
@@ -884,31 +594,6 @@
         }
         this.set("isExceeding", false);
         this.closeExceedsPanel();
-      },
-      // Menu Options
-      _setPreferedGroupingKey: function(newValue, oldValue) {
-        var label = this.selectedLabel;
-        this.set('preferedGroupingKeys.' + label, newValue);
-        if (oldValue) {
-          this.async(function(){
-            // Swaping Elements Data to the new groupBy
-            var newItem, oldItem, newPath, oldPath, tmp;
-            for (var id in this.paths[label][oldValue]) {
-              newPath = this.paths[label][newValue][id];
-              oldPath = this.paths[label][oldValue][id];
-              newItem = this.get(newPath);
-              oldItem = this.get(oldPath);
-              tmp = this.splice(newPath,0,newItem.length);
-              this.set(newPath, this.splice(oldPath, 0, oldItem.length));
-              this.set(oldPath, tmp);
-            }
-            // this.$$('template#labeltemplate').render();
-          });
-        }
-      },
-      getGroupingKeys: function(label) {
-        if (GroupingKeys && GroupingKeys[label])
-          return GroupingKeys[label];
       },
       toggleTheme: function(){
         var elems = document.querySelectorAll('*');
@@ -949,9 +634,9 @@
           collapse.toggle();
           if (iconbutton) {
             if (iconbutton.getAttribute('icon') === 'arrow-drop-down')
-              iconbutton.setAttribute('icon','arrow-drop-up');
+              iconbutton.toggleAttribute('icon','arrow-drop-up');
             else
-              iconbutton.setAttribute('icon','arrow-drop-down');
+              iconbutton.toggleAttribute('icon','arrow-drop-down');
           }
         }
       },
@@ -972,7 +657,7 @@
       openSvgFullscreen: function(e) {
         this.closeDrawer();
         this.$.control.style.visibility = "hidden";
-        this.$.fullscreenSvg.setSvg(e.detail.source);
+        this.$.fullscreenSvg.setSvg(e.detail);
         this.$.fullscreenSvg.set('opened', true);
         this.$.svgFullscreenContainer.classList.add("fullscreen-opened");
       },

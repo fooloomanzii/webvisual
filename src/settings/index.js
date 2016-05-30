@@ -165,8 +165,8 @@ class configLoader extends EventEmitter {
     var needToSet, where;
     var groupingKeys = locals.groupingKeys;
 
-    if (groupingKeys.indexOf('all') == -1) {
-      groupingKeys.push('all');
+    if (groupingKeys.indexOf('*') == -1) {
+      groupingKeys.push('*'); // all elements
     }
     var preferedGroupingKey = locals.preferedGroupingKey || groupingKeys[0];
 
@@ -176,7 +176,7 @@ class configLoader extends EventEmitter {
           groups[key] = {};
 
         needToSet = true;
-        where = elements[id].keys[key];
+        where = (key === "*" ? "*" : elements[id].keys[key] || "");
 
         for (var subgroup in groups[key])
           if (groups[key][subgroup].ids.indexOf(id) !== -1) {

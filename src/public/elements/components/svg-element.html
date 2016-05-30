@@ -55,6 +55,7 @@ Use `isZoomable` to make it isZoomable.
     display: flex;
     width: 100%;
     height: auto;
+    background: linear-gradient(to right top, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.2));
   }
   div#control {
     position: absolute;
@@ -170,6 +171,8 @@ Use `isZoomable` to make it isZoomable.
   SvgElement = Polymer({
     is: 'svg-element',
 
+    // behaviors: [Polymer.IronResizableBehavior],
+
     properties: {
       source: {
         type: String,
@@ -245,6 +248,10 @@ Use `isZoomable` to make it isZoomable.
       }
     },
 
+    listeners: {
+      "iron-resize": "_asyncResetZoom"
+    },
+
     factoryImpl: function(svg, opened) {
       this.setSvg(svg);
       if (opened)
@@ -308,8 +315,7 @@ Use `isZoomable` to make it isZoomable.
               .attr("width", null);
 
       this.mainG = this.svg.select("g")
-                           .attr("id", "mainG")
-                           .attr("transform", "translate(0,0)scale(1)");
+                           .attr("id", "mainG");
 
       this.mainG.selectAll("text")
                 .classed("text", true)  // for styling text
@@ -327,9 +333,7 @@ Use `isZoomable` to make it isZoomable.
     _openedChanged: function(opened) {
       if (!this.source || !opened) return;
       this._sourceChanged(this.source);
-      this.async( function() {
-        this._resetZoom();
-      }, 150);
+      this._asyncResetZoom(2000);
     },
 
     _selectedChanged: function(change) {
@@ -339,15 +343,13 @@ Use `isZoomable` to make it isZoomable.
 
     _initialChanged: function(initial) {
       if (!this.source || !opened) return;
-      this.async( function() {
-        this._resetZoom();
-      }, 150);
+      this._asyncResetZoom(1000);
     },
 
     _selectableChanged: function(change) {
       if (!this.mainG || !change || Object.keys(change).length === 0) return;
 
-      self = this;
+      var self = this;
       this.svg.on('contextmenu',
         (function () {
           d3.event.preventDefault();
@@ -422,7 +424,7 @@ Use `isZoomable` to make it isZoomable.
       }
 
       var boundE, bounds = [];
-      self = this;
+      var self = this;
       elems.each(
              function() {
                boundE = this.getBoundingClientRect();
@@ -499,9 +501,14 @@ Use `isZoomable` to make it isZoomable.
         return {translate: [x,y], scale: scale};
     },
 
+    _asyncResetZoom: function(time) {
+      this.async( function() {
+        this._resetZoom()
+      }, time || 1000);
+    },
+
     _resetZoom: function() {
       if (!this.mainG || !this.opened) return;
-
       // zoom to selectedItems
       if (this.initiallyZoomToSelected && this.selected) {
         for (var key in this.selected) {

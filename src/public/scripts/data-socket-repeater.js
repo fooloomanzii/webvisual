@@ -63,8 +63,9 @@ socket.on('connect_error', function() {
 // MESSAGE HANDLING
 function connect() {
   // send Config
+  Labels = ["HNF-GDS", "test"];
   var settings = {
-    labels: ["HNF-GDS", "test"]
+    labels: Labels
   };
   socket.emit('init', settings);
   _init();
