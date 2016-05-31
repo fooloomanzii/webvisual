@@ -2,7 +2,7 @@
 
 var electron = require('electron');
 var remote = require('electron').remote;
-var ipcMain = require('electron').ipcMain;
+const {ipcMain} = require('electron');
 var shell = require('electron').shell;
 
 var app = electron.app; // Module to control application life.
@@ -76,19 +76,19 @@ app.on('ready', function() {
 
 
   // start server
-  ipcMain.on('app-quit', function() {
+  ipcMain.on('app-quit', (event, arg) => {
     app.quit()
   });
   // start server
-  ipcMain.on('server-start', function() {
+  ipcMain.on('server-start', (event, arg) => {
     webvisualserver.connect();
   });
   // restart server
-  ipcMain.on('server-restart', function() {
+  ipcMain.on('server-restart', (event, arg) => {
     webvisualserver.reconnect();
   });
   // stop server
-  ipcMain.on('server-stop', function() {
+  ipcMain.on('server-stop', (event, arg) => {
     webvisualserver.disconnect();
   });
   // clientView

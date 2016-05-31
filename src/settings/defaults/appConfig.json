@@ -9,7 +9,7 @@
     "backgroundColor": "#005B82",
     "acceptFirstMouse": true,
     "webPreferences": {
-      "webSecurity": false
+      "webSecurity": true
     }
   }
 }

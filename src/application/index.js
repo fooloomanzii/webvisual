@@ -1,11 +1,11 @@
-'use strict';
+// 'use strict';
 
-const ipcRenderer = require('electron').ipcRenderer;
-const remote = require('remote')
-const Tray = remote.require('tray')
-const Menu = remote.require('menu')
-const MenuItem = remote.require('menu-item')
-const dialog = remote.require('dialog');
+const {ipcRenderer} = require('electron');
+// const remote = require('remote')
+// const Tray = remote.require('tray')
+// const Menu = remote.require('menu')
+// const MenuItem = remote.require('menu-item')
+// const dialog = remote.require('dialog');
 
 function startServer() {
   ipcRenderer.send('server-start');

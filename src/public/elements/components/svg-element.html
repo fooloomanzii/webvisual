@@ -73,13 +73,13 @@ Use `isZoomable` to make it isZoomable.
   paper-icon-button {
     margin-right: 6px;
     transition: none;
-    color: var(--icon-color, rgb(120, 120, 120));
+    color: rgb(120, 120, 120);
     border-radius: 50%;
-    background: var(--icon-background, rgba(255,255,255, 0.2));
+    background: rgba(255,255,255, 0.2);
   }
   paper-icon-button:hover {
-    background: var(--icon-hover-background, rgba(255,255,255, 0.4));
-    color: var(--icon-hover-color, rgb(60, 60, 60));
+    background: rgba(255,255,255, 0.4);
+    color: rgb(60, 60, 60);
   }
 
   div#control[top] paper-icon-button {
@@ -267,14 +267,14 @@ Use `isZoomable` to make it isZoomable.
 
     setSvg: function(svg) {
       this.async(function(){
-        if (svg.selectable)
-          this.set("selectable", svg.selectable);
         if (svg.source)
           this.set("source", svg.source);
-        if (svg.selected)
-          this.set("selected", svg.selected);
+        if (svg.selectable)
+          this.set("selectable", svg.selectable);
         if (svg.initial)
           this.set("initial", svg.initial);
+        if (svg.selected)
+          this.set("selected", svg.selected);
       });
     },
 

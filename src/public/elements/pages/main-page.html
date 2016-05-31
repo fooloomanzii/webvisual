@@ -14,11 +14,9 @@
       top: 0;
       position: absolute;
     }
-
     iron-selector#panelSelector {
       flex: 1;
     }
-
     iron-selector#panelSelector ::content section.panel {
       position: absolute;
       left: 0;
@@ -35,27 +33,20 @@
       -ms-flex: 1 1 0.000000001px; -webkit-flex: 1; flex: 1;
       flex-basis: 0.000000001px; -webkit-flex-basis: 0.000000001px;
       padding: 0.5em;
-      z-index: auto;
       height: 100%;
       width: 100%;
-    }
-    iron-selector#panelSelector ::content section.panel:not(.iron-selected){
-      display: none;
-    }
-    iron-selector#panelSelector ::content section.panel[animated] {
       opacity: 1;
-      visibility: visible;
-      transition: opacity 500ms ease, visibility 500ms, transform 1000ms ease;
-      z-index: 50;
+      visibility: inherit;
+      transition: opacity 500ms ease, transform 1000ms ease, visibility 250ms ease;
+    }
+    iron-selector#panelSelector ::content section.panel:not(.iron-selected):not([animated]){
+      display: none;
     }
     iron-selector#panelSelector ::content section.panel:not(.iron-selected)[animated]{
       opacity: 0;
       visibility: hidden;
       transform: translateY(25%);
-      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-      -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
-      z-index: 0;
-      display: flex;
+      pointer-events: none;
     }
     iron-selector#groupingKeysLabelSelector {
       display: flex;
@@ -196,7 +187,7 @@
         <div class="logo-element-placeholder"></div>
 
         <section id="labelsTabs">
-          <iron-selector id="labelSelector" fallback-selection="0">
+          <iron-selector id="labelSelector" selected={{selectedLabelIndex}} fallback-selection="0">
             <content select="paper-tab.label"></content>
           </iron-selector>
         </section>
@@ -215,7 +206,7 @@
           <section style="display: flex;">
             <table-element id="selectedElementTable" class="selectedElement"></table-element>
           </section>
-          <svg-element id="selectedElementSVG" class="selectedElement" hidden$="[[!selectedElement.svg.source]]" opened="[[opened]]"
+          <svg-element id="selectedElementSVG" class="selectedElement"  opened="[[opened]]"
           zoom-partition="1.1" max-zoom="5" min-zoom="1">
           </svg-element>
         </section>
@@ -298,12 +289,12 @@
     </section>
 
     <section id="svgFullscreenContainer">
-      <svg-element id="fullscreenSvg" zoom-partition="2" max-zoom="2.8" min-zoom="0.85" fullscreen initially-zoom-to-selected></svg-element>
+      <svg-element id="fullscreenSvg" zoom-partition="2" max-zoom="2.75" min-zoom="0.75" fullscreen initially-zoom-to-selected></svg-element>
     </section>
 
   </template>
   <script>
-
+    var ExceedingSvgPaths = {};
     Polymer({
       is: 'main-page',
 
@@ -396,10 +387,6 @@
           type: Boolean,
           notify: true,
           observer: "_checkExceedsPanel"
-        },
-        exceedingElements: {
-          type: Object,
-          value: function() { return {}; }
         }
       },
 
@@ -410,8 +397,14 @@
                  for (var i in info.addedNodes)
                   if (info.addedNodes[i].nodeName === "IRON-SELECTOR")
                     info.addedNodes[i].addEventListener("iron-select", function(e){
-                      self._setPreferedGroupingKey(e.currentTarget.selected);
+                      self._regroup(e.currentTarget.selected);
                     });
+                  self.$.groupingKeysLabelSelector.select(self.selectedLabelIndex);
+               });
+        Polymer.dom(this.$.panelSelector)
+               .observeNodes( function(info) {
+                 if (info.addedNodes.length > 0)
+                   self.$.panelSelector.select(self.selectedLabelIndex);
                });
       },
 
@@ -441,89 +434,88 @@
         }
       },
       // Grouping Options
-      _setPreferedGroupingKey: function(key) {
+      _regroup: function(key) {
         var label = Labels[this.selectedLabelIndex];
-        if (label && key && Groups[label][key]) {
-          PreferedGroupingKeys[label] = key;
-          var panel = this.queryEffectiveChildren('section.panel[label="'+label+'"]');
-          var oldgroupcards = Polymer.dom(panel).getEffectiveChildNodes();
+        if (!label || !key || !Groups[label][key] || PreferedGroupingKeys[label] == key)
+          return;
 
-          var elements = [];
-          for (var i = 0; i < oldgroupcards.length; i++) {
-            elements = elements.concat([].slice.call(oldgroupcards[i].querySelectorAll('.content')));
-          }
+        PreferedGroupingKeys[label] = key;
+        var panel = this.queryEffectiveChildren('section.panel[label="'+label+'"]');
+        var oldgroupcards = Polymer.dom(panel).getEffectiveChildNodes();
 
-          var newgroupcards = {};
-          for (var subgroup in Groups[label][key]) {
-            newgroupcards[subgroup] = new GroupCard(subgroup, Groups[label][key][subgroup].svg);
-            Polymer.dom(panel).appendChild(newgroupcards[subgroup]);
-            for (var i in Groups[label][key][subgroup].ids) {
-              for (var j = 0; j < elements.length; j++) {
-                if (elements[j].id === Groups[label][key][subgroup].ids[i])
-                  break;
-              }
-              if (j !== elements.length) {
-                 Polymer.dom(newgroupcards[subgroup]).node.querySelector("section#mainContent").appendChild(elements[j]);
-              }
+        var elements = [];
+        for (var i = 0; i < oldgroupcards.length; i++) {
+          elements = elements.concat([].slice.call(oldgroupcards[i].querySelectorAll('.content')));
+        }
+
+        var newgroupcards = {};
+        for (var subgroup in Groups[label][key]) {
+          newgroupcards[subgroup] = new GroupCard(subgroup, Groups[label][key][subgroup].svg);
+          Polymer.dom(panel).appendChild(newgroupcards[subgroup]);
+          for (var i in Groups[label][key][subgroup].ids) {
+            for (var j = 0; j < elements.length; j++) {
+              if (elements[j].id === Groups[label][key][subgroup].ids[i])
+                break;
+            }
+            if (j !== elements.length) {
+               Polymer.dom(newgroupcards[subgroup]).node.querySelector("section#mainContent").appendChild(elements[j]);
             }
           }
-          for (var i=0; i < oldgroupcards.length; i++) {
-             Polymer.dom(panel).removeChild(oldgroupcards[i]);
-          }
-          Polymer.dom.flush();
         }
-      },
-      getGroupingKeys: function(label) {
-        if (GroupingKeys && GroupingKeys[label])
-          return GroupingKeys[label];
+        for (var i=0; i < oldgroupcards.length; i++) {
+           Polymer.dom(panel).removeChild(oldgroupcards[i]);
+        }
+        Polymer.dom.flush();
       },
       // Selecting Element
       setSelectedElement: function(e) {
         if(e && e.detail) {
-          // this.debounce('select-request', function() {
-            var element = e.detail;
-            if (this.selectedElement.id && this.selectedElement.id === element.id &&
-                this.selectedElement.label && this.selectedElement.label === element.label){
-              this.deselectElement();
+          var element = e.detail;
+          if (this.selectedElement.id && this.selectedElement.id === element.id &&
+              this.selectedElement.label && this.selectedElement.label === element.label){
+            this.deselectElement();
+          }
+          else {
+            if (Object.keys(this.selectedElement).length !== 0) {
+              var id = this.selectedElement.id;
+              var label = this.selectedElement.label;
+              var pos = Nodes[label][id].indexOf(this.$.selectedElementSign);
+              if (pos !== -1)
+                Nodes[label][id].splice(pos, 1);
+              pos = Nodes[label][id].indexOf(this.$.selectedElementTable);
+              if (pos !== -1)
+                Nodes[label][id].splice(pos, 1);
+            }
+            Nodes[Labels[this.selectedLabelIndex]][element.id].push(this.$.selectedElementSign);
+            Nodes[element.label][element.id].push(this.$.selectedElementTable);
+
+            this.set("selectedElement", element);
+            this.$.selectedElementSign.setElement(element);
+            this.$.selectedElementTable.setElement(element);
+
+            if (element.svg && element.svg.source) {
+              this.$.selectedElementSVG.removeAttribute('hidden');
+              var selectable = {};
+              if (ExceedingSvgPaths[element.label] && ExceedingSvgPaths[element.label][element.svg.source]) {
+                selectable = JSON.parse(JSON.stringify(ExceedingSvgPaths[element.label][element.svg.source]));
+              }
+              if (element.svg.path && !selectable[element.id])
+                selectable[element.id] = element.svg.path;
+
+              this.$.selectedElementSVG.setSvg({source: element.svg.source,
+                         initial: element.svg.path,
+                         selectable: selectable,
+                         selected: ExceedingSvgPaths[element.label][element.svg.source] });
             }
             else {
-              if (Object.keys(this.selectedElement).length !== 0) {
-                var id = this.selectedElement.id;
-                var label = this.selectedElement.label;
-                var pos = Nodes[label][id].indexOf(this.$.selectedElementSign);
-                if (pos !== -1)
-                  Nodes[label][id].splice(pos, 1);
-                pos = Nodes[label][id].indexOf(this.$.selectedElementTable);
-                if (pos !== -1)
-                  Nodes[label][id].splice(pos, 1);
-              }
-              Nodes[element.label][element.id].push(this.$.selectedElementSign);
-              Nodes[element.label][element.id].push(this.$.selectedElementTable);
-
-              this.set("selectedElement", element);
-              this.$.selectedElementSign.setElement(element);
-              this.$.selectedElementTable.setElement(element);
-
-              if (element.svg && element.svg.source) {
-                this.$.selectedElementSVG.removeAttribute('hidden');
-                var sel = {source: element.svg.source,
-                           initial: element.svg.path,
-                           selectable: {},
-                           selected: this.exceedingElements || {}};
-                if (element.svg.path)
-                  sel.selectable[id] = element.svg.path;
-                this.$.selectedElementSVG.setSvg(sel);
-              }
-              else {
-                this.$.selectedElementSVG.toggleAttribute('hidden', true);
-              }
-
-              if (!this.opened){
-                this.toggleAttribute('opened', true);
-                this.playAnimation('select-in');
-              }
+              this.$.selectedElementSVG.toggleAttribute('hidden', true);
             }
-          // }, 150);
+
+            if (!this.opened){
+              this.toggleAttribute('opened', true);
+              this.playAnimation('select-in');
+            }
+          }
         }
       },
       deselectElement: function() {
@@ -544,7 +536,6 @@
         finally { this.set("selectedElement", {}); }
       },
       // Exceeding Elements
-
       _setExceedingElement: function(e) {
         var element = e.detail;
         if (Polymer.dom(this.$.exceedingElements).querySelectorAll('#'+element.id+'[label='+element.label+']').length === 0) {
@@ -553,20 +544,22 @@
           Polymer.dom(node).classList.add('exceedingElement');
           Nodes[element.label][element.id].push(node);
         }
-        if (element.svg && element.svg.path) {
-          this.$.selectedElementSVG.set('selectable.'+element.id, element.svg.path);
-          this.set("exceedingElements." + element.label + '.' + element.id, element.svg.path);
-          this.$.selectedElementSVG.set('selected', this.exceedingElements[Labels[this.selectedLabelIndex]]);
+        if (element.svg && element.svg.source && element.svg.path) {
+          if (!ExceedingSvgPaths[element.label])
+            ExceedingSvgPaths[element.label] = {};
+          if (!ExceedingSvgPaths[element.label][element.svg.source])
+            ExceedingSvgPaths[element.label][element.svg.source] = {};
+          ExceedingSvgPaths[element.label][element.svg.source][element.id] = element.svg.path;
         }
         if (!this.isExceeding)
           this.isExceeding = true;
       },
 
       _unsetExceedingElement: function(e) {
-        var element = e.detail;
-        if (element.svg && element.svg.path)
-          this.set("exceedingElements." + element.label + '.' + element.id, "");
-        this.$.selectedElementSVG.set('selected', this.exceedingElements[Labels[this.selectedLabelIndex]]);
+        // var element = e.detail;
+        // if (element.svg && element.svg.path)
+        //   this.set("exceedingSvgPaths.#" + element.label + '.#' + element.id, "");
+        // this.$.selectedElementSVG.set('selected', ExceedingSvgPaths[Labels[this.selectedLabelIndex]]);
       },
 
       _removeSingleExceedingElementFromList: function(e) {
@@ -668,8 +661,9 @@
       },
       // Panel Control
       _checkExceedsPanel: function(value) {
-        if(value && !(this.$.exceedsPanel.classList.contains("exceeds-panel-opened")))
+        if(value && !(this.$.exceedsPanel.classList.contains("exceeds-panel-opened"))) {
           this.openExceedsPanel();
+        }
         else if (this.$.exceedingElements.children.length === 0)
           this.closeExceedsPanel();
       },
