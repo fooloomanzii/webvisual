@@ -450,7 +450,7 @@
 
         var newgroupcards = {};
         for (var subgroup in Groups[label][key]) {
-          newgroupcards[subgroup] = new GroupCard(subgroup, Groups[label][key][subgroup].svg);
+          newgroupcards[subgroup] = new GroupCard(subgroup, Groups[label][key][subgroup].svg, this.dark);
           Polymer.dom(panel).appendChild(newgroupcards[subgroup]);
           for (var i in Groups[label][key][subgroup].ids) {
             for (var j = 0; j < elements.length; j++) {
@@ -539,7 +539,7 @@
       _setExceedingElement: function(e) {
         var element = e.detail;
         if (Polymer.dom(this.$.exceedingElements).querySelectorAll('#'+element.id+'[label='+element.label+']').length === 0) {
-          var node = new ListElement(element);
+          var node = new ListElement(element, this.showDate, false, this.dark);
           Polymer.dom(this.$.exceedingElements).appendChild(node);
           Polymer.dom(node).classList.add('exceedingElement');
           Nodes[element.label][element.id].push(node);

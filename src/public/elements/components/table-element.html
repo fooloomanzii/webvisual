@@ -91,10 +91,14 @@
 
       behaviors: [ElementBehavior],
 
-      factoryImpl: function(element, bubbles) {
+      factoryImpl: function(element, bubbles, dark) {
         this.setElement(element);
         if (bubbles === true)
           this.bubbles = true;
+        if (dark) {
+          this.toggleAttribute("dark", true);
+          this.$.body.toggleAttribute("dark", true);
+        }
       },
 
       _updateView: function(value, splices) {

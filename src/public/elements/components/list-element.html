@@ -178,6 +178,11 @@
           this.showDate = false;
         if (bubbles === true)
           this.bubbles = true;
+        if (dark) {
+          this.toggleAttribute("dark", true);
+          this.$.caption.toggleAttribute("dark", true);
+          this.$.sign.toggleAttribute("dark", true);
+        }
       },
 
       listeners: {

@@ -184,9 +184,15 @@
         }
       },
 
-      factoryImpl: function(title, svg) {
+      factoryImpl: function(title, svg, dark) {
         this.set("title", title || "");
         this.set("svg", svg || {});
+        if (dark) {
+          this.$.mainContent.toggleAttribute("dark", true);
+          this.$.header.toggleAttribute("dark", true);
+          this.$.main.toggleAttribute("dark", true);
+          this.$.title.toggleAttribute("dark", true);
+        }
       },
 
       listeners: {
