@@ -1,3 +1,4 @@
+<link rel="import" href="../behaviors/element-behavior.html">
 <dom-module id="table-element">
   <style>
     :host {
@@ -15,6 +16,7 @@
       overflow: hidden;
       border-top-color: #408B45;
       cursor: default;
+      z-index: auto;
     }
     :host[dark] {
       background: #a8a8a8;
@@ -96,8 +98,8 @@
         if (bubbles === true)
           this.bubbles = true;
         if (dark) {
-          this.toggleAttribute("dark", true);
-          this.$.body.toggleAttribute("dark", true);
+          this.setAttribute("dark", true);
+          this.$.body.setAttribute("dark", true);
         }
       },
 

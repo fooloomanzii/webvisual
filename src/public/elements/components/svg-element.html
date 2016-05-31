@@ -43,7 +43,6 @@ Use `isZoomable` to make it isZoomable.
     display: flex;
     width: auto;
     height: auto;
-  	position: relative;
   	overflow: hidden;
   }
   svg#main {
@@ -89,17 +88,6 @@ Use `isZoomable` to make it isZoomable.
     background: rgba(255,255,255, 0.5);
     box-shadow: 0px 0px 6px 0px rgba(31,31,31,0.5);
   }
-  /*paper-icon-button:hover:after {
-    content: attr(label);
-    position: absolute;
-    top: 50%;
-    right: 125%;
-    padding: 0.5em;
-    font-size: 0.75em;
-    border-radius: 12px;
-    background: rgba(255,255,255, 0.25);
-    color: #1f1f1f;
-  }*/
   .text {
     fill: currentColor !important;
     pointer-events: none;
@@ -118,11 +106,6 @@ Use `isZoomable` to make it isZoomable.
     stroke: #183880 !important;
     stroke-linecap: round !important;
     stroke-linejoin: round !important;
-    /*stroke-dashoffset: 0;
-    stroke-dasharray: 0.5 2.5;
-    will-change: transform;
-    transform-origin: center center;
-    animation: circular 3s infinite linear;*/
   }
   .selected {
     stroke: #EB4949 !important;
@@ -170,8 +153,6 @@ Use `isZoomable` to make it isZoomable.
 
   SvgElement = Polymer({
     is: 'svg-element',
-
-    // behaviors: [Polymer.IronResizableBehavior],
 
     properties: {
       source: {
@@ -246,10 +227,6 @@ Use `isZoomable` to make it isZoomable.
       _d3Zoom: {
         type: Function
       }
-    },
-
-    listeners: {
-      "iron-resize": "_asyncResetZoom"
     },
 
     factoryImpl: function(svg, opened) {

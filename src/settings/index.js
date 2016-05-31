@@ -56,13 +56,14 @@ class configLoader extends EventEmitter {
       configuration.valueType[label] = rawConfig.configurations[label].valueType || defaults.value;
 
       dataConfig[label] = this._arrange(label, rawConfig.configurations[label].locals, configuration.valueType[label],
-        rawConfig.svg);
+        configuration.svg);
 
       configuration.groupingKeys[label] = dataConfig[label].groupingKeys;
       configuration.preferedGroupingKeys[label] = dataConfig[label].preferedGroupingKey;
       configuration.groups[label] = dataConfig[label].groups;
       configuration.elements[label] = dataConfig[label].elements;
       configuration.valueType[label] = dataConfig[label].valueType;
+      configuration.svg = dataConfig[label].svg;
 
       connection[label] = rawConfig.configurations[label].connections;
     }
@@ -193,7 +194,7 @@ class configLoader extends EventEmitter {
         }
       }
     }
-    // Setting SVG
+    // Setting SVG for Groups
     var sameSource, source, selectable;
     for (var group in groups) {
       for (var subgroup in groups[group]) {
@@ -227,6 +228,19 @@ class configLoader extends EventEmitter {
       }
     }
 
+    // Setting Global SVG-Selectables
+    for (var id in elements) {
+      if (elements[id] && elements[id].svg && elements[id].svg.source) {
+        source = elements[id].svg.source
+        if (svg[source]) {
+          if (!svg[source].selectable)
+            svg[source].selectable = {};
+          if (elements[id].svg.path)
+            svg[source].selectable[id] = elements[id].svg.path;
+        }
+      }
+    }
+
     return {
       label: label,
       types: types,
@@ -238,7 +252,8 @@ class configLoader extends EventEmitter {
       keys: keys,
       unnamedType: locals.unnamedType,
       timeFormat: locals.timeFormat,
-      ignore: locals.ignore
+      ignore: locals.ignore,
+      svg: svg
     };
   };
 

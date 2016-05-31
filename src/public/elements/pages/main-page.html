@@ -1,5 +1,5 @@
 <dom-module id="main-page">
-  <link rel="import" href="../style/index.css" type="css"/>
+  <link rel="import" href="../style/main-page.css" type="css"/>
   <style>
     :host {
       font-family: Fira Sans Light;
@@ -36,17 +36,18 @@
       height: 100%;
       width: 100%;
       opacity: 1;
-      visibility: inherit;
-      transition: opacity 500ms ease, transform 1000ms ease, visibility 250ms ease;
+      transition: opacity 500ms ease, transform 750ms ease;
+      z-index: 50;
     }
     iron-selector#panelSelector ::content section.panel:not(.iron-selected):not([animated]){
       display: none;
+      z-index: 25;
     }
     iron-selector#panelSelector ::content section.panel:not(.iron-selected)[animated]{
       opacity: 0;
-      visibility: hidden;
       transform: translateY(25%);
       pointer-events: none;
+      z-index: 51;
     }
     iron-selector#groupingKeysLabelSelector {
       display: flex;
@@ -59,6 +60,12 @@
     iron-selector#groupingKeysLabelSelector ::content iron-selector.groupingKeySelector:not(.iron-selected){
       display: none;
     }
+    iron-selector#groupingKeysLabelSelector ::content paper-radio-button{
+      display: inline-block;
+      font-family: Fira Sans Light;
+      padding: 0.25em 0.5em;
+      font-size: 0.85em;
+    }
     section#labelsTabs {
       margin-left: 44px;
       height: 62%;
@@ -67,7 +74,7 @@
       font-family: Fira Sans Light;
       font-size: 16px;
     }
-    section#labelsTabs ::content paper-tab.label.iron-selected{
+    section#labelsTabs ::content paper-tab.label.iron-selected {
       /*border: thin solid #A8CCDB;*/
       border-bottom: thin solid transparent;
       background: linear-gradient(to top, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.15));
@@ -187,7 +194,7 @@
         <div class="logo-element-placeholder"></div>
 
         <section id="labelsTabs">
-          <iron-selector id="labelSelector" selected={{selectedLabelIndex}} fallback-selection="0">
+          <iron-selector id="labelSelector" selected="{{selectedLabelIndex}}" fallback-selection="0">
             <content select="paper-tab.label"></content>
           </iron-selector>
         </section>
@@ -219,7 +226,7 @@
 
         <!-- Content -->
         <section id="mainContent">
-          <iron-selector id="panelSelector" fallback-selection="0">
+          <iron-selector id="panelSelector" activate-event="" fallback-selection="0">
             <content select="section.panel"></content>
           </iron-selector>
         </section>
@@ -256,7 +263,7 @@
 
                 <iron-collapse class="sidemenu collapse grouping">
                   <section id="groupingKeysButtons" class="indention">
-                    <iron-selector id="groupingKeysLabelSelector" fallback-selection="0">
+                    <iron-selector id="groupingKeysLabelSelector" activate-event="" fallback-selection="0">
                       <content select="iron-selector.groupingKeySelector"></content>
                     </iron-selector>
                   </section>
@@ -372,8 +379,7 @@
         },
         showDate: {
           type: Boolean,
-          value: false,
-          notify: true
+          value: false
         },
         selectedElement: {
           type: Object,
@@ -387,6 +393,11 @@
           type: Boolean,
           notify: true,
           observer: "_checkExceedsPanel"
+        },
+        animated: {
+          type: Boolean,
+          value: true,
+          reflectToAttribute: true
         }
       },
 
@@ -424,14 +435,24 @@
       },
       // Tab Control
       _selectedLabelIndexChanged: function(e) {
-        if (e.detail && e.detail.item && Labels.length > 0) {
-          this.selectedLabelIndex = Labels.indexOf(e.detail.item.getAttribute("label"));
-          if (this.selectedLabelIndex !== -1) {
-            this.deselectElement();
-            this.$.panelSelector.select(this.selectedLabelIndex);
-            this.$.groupingKeysLabelSelector.select(this.selectedLabelIndex);
-          }
-        }
+        // remove hidden class for every panel
+        if (this.animated)
+          this.$.panelSelector.getContentChildren().forEach(
+            function(element) {
+              element.style.display = "flex";
+            });
+        this.$.panelSelector.select(this.selectedLabelIndex);
+        this.deselectElement();
+        this.$.groupingKeysLabelSelector.select(this.selectedLabelIndex);
+        // hide non selected panels after a timeout (for not repainting)
+        if (this.animated)
+          this.async( function() {
+            this.$.panelSelector.getContentChildren().forEach(
+              function(element) {
+                if(!element.classList.contains("iron-selected"))
+                  element.style.display = "none";
+              });
+          }, 1000)
       },
       // Grouping Options
       _regroup: function(key) {
@@ -486,7 +507,7 @@
               if (pos !== -1)
                 Nodes[label][id].splice(pos, 1);
             }
-            Nodes[Labels[this.selectedLabelIndex]][element.id].push(this.$.selectedElementSign);
+            Nodes[element.label][element.id].push(this.$.selectedElementSign);
             Nodes[element.label][element.id].push(this.$.selectedElementTable);
 
             this.set("selectedElement", element);
@@ -495,17 +516,16 @@
 
             if (element.svg && element.svg.source) {
               this.$.selectedElementSVG.removeAttribute('hidden');
-              var selectable = {};
+              var selected = {};
               if (ExceedingSvgPaths[element.label] && ExceedingSvgPaths[element.label][element.svg.source]) {
-                selectable = JSON.parse(JSON.stringify(ExceedingSvgPaths[element.label][element.svg.source]));
+                selected = JSON.parse(JSON.stringify(ExceedingSvgPaths[element.label][element.svg.source]));
               }
-              if (element.svg.path && !selectable[element.id])
-                selectable[element.id] = element.svg.path;
 
-              this.$.selectedElementSVG.setSvg({source: element.svg.source,
-                         initial: element.svg.path,
-                         selectable: selectable,
-                         selected: ExceedingSvgPaths[element.label][element.svg.source] });
+              this.$.selectedElementSVG.setSvg(
+                { source: element.svg.source,
+                  initial: element.svg.path || "",
+                  selectable: SvgSource[element.svg.source].selectable,
+                  selected: selected } );
             }
             else {
               this.$.selectedElementSVG.toggleAttribute('hidden', true);
@@ -519,21 +539,23 @@
         }
       },
       deselectElement: function() {
-        this.playAnimation('select-out');
-        this.closeDrawer();
-        this.toggleAttribute('opened', false);
-        try {
-          var id = this.selectedElement.id;
-          var label = this.selectedElement.label;
-          var pos = Nodes[label][id].indexOf(this.$.selectedElementSign);
-          if (pos !== -1)
-            Nodes[label][id].splice(pos, 1);
-          pos = Nodes[label][id].indexOf(this.$.selectedElementTable);
-          if (pos !== -1)
-            Nodes[label][id].splice(pos, 1);
+        if (this.opened) {
+          this.playAnimation('select-out');
+          this.closeDrawer();
+          this.toggleAttribute('opened', false);
+          try {
+            var id = this.selectedElement.id;
+            var label = this.selectedElement.label;
+            var pos = Nodes[label][id].indexOf(this.$.selectedElementSign);
+            if (pos !== -1)
+              Nodes[label][id].splice(pos, 1);
+            pos = Nodes[label][id].indexOf(this.$.selectedElementTable);
+            if (pos !== -1)
+              Nodes[label][id].splice(pos, 1);
+          }
+          catch (err) {}
+          finally { this.set("selectedElement", {}); }
         }
-        catch (err) {}
-        finally { this.set("selectedElement", {}); }
       },
       // Exceeding Elements
       _setExceedingElement: function(e) {

@@ -1,3 +1,4 @@
+<link rel="import" href="../behaviors/element-behavior.html">
 <dom-module id="list-element">
   <style>
     :host {
@@ -15,12 +16,14 @@
       align-self: stretch;
       display: flex;
       flex-direction: row;
+      justify-content: space-between;
       border-radius: inherit;
       border: thin solid #BBBBBB;
       background: white;
+      z-index: auto;
     }
     :host[dark] {
-      background: #B0B0B0;
+      background: #C1C1C1;
       border-color: #606060;
     }
     section#sign {
@@ -82,8 +85,8 @@
       padding: 0.5em;
       display: flex;
       flex-direction: row;
+      flex: 1 1 auto;
       align-items: center;
-      flex: 1;
       margin: 0;
     }
     section#caption[dark] {
@@ -95,11 +98,15 @@
       margin-left: 0.5em;
       font-weight: normal;
       font-size: 0.6em;
+      word-wrap: break-word;
+      word-break: break-all;
     }
     span#captions:first-child {
       margin-left: 0 !important;
       font-weight: bold !important;
       font-size: 1em !important;
+      word-wrap: normal !important;
+      word-break: keep-all  !important;
     }
     span#captions:nth-child(2) {
       font-size: 0.85em !important;
@@ -136,7 +143,7 @@
     <section id="label">[[label]]</section>
     <section id="caption">
       <template id="captiontemplate" is="dom-repeat" items="[[captionKeys]]" as="captionKey">
-        <span id="captions">[[getKey(captionKey, keys.*)]]</span>
+        <span id="captions" hidden$="[[isEmptyCaption(captionKey)]]">[[getKey(captionKey, keys.*)]]</span>
       </template>
     </section>
 
@@ -146,7 +153,7 @@
           <section id="valueSection"></section><section id="unitSection">[[keys.unit]]</section>
         </template>
         <template is="dom-if" if="[[isBoolean]]" restamp>
-          <svg id="icon" hidden$="[[!isExceeding]]">
+          <svg id="icon" hidden$="[[!isExceeding]]" viewBox="0 0 24 24">
               <g id="error-outline"><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></g>
           </svg>
         </template>
@@ -172,16 +179,16 @@
         }
       },
 
-      factoryImpl: function(element, bubbles, showDate) {
+      factoryImpl: function(element, bubbles, showDate, dark) {
         this.setElement(element);
         if (showDate === false)
           this.showDate = false;
         if (bubbles === true)
           this.bubbles = true;
         if (dark) {
-          this.toggleAttribute("dark", true);
-          this.$.caption.toggleAttribute("dark", true);
-          this.$.sign.toggleAttribute("dark", true);
+          this.setAttribute("dark", true);
+          this.$.caption.setAttribute("dark", true);
+          this.$.sign.setAttribute("dark", true);
         }
       },
 
@@ -189,19 +196,14 @@
         "tap": "_onTap"
       },
 
-      // attached: function() {
-      //   this.linkPaths("isExceeding", "element.isExceeding");
-      //   this.notifyPath('isExceeding', this.element.isExceeding);
-      // },
-
-      setExceedingState: function(state) {
-        this.set('isExceeding', state);
+      setExceedingState: function(isExceeding, state) {
+        this.set('isExceeding', isExceeding);
         // set color of the sign
         this.$.sign.classList.remove('true');
         this.$.sign.classList.remove('false');
         this.$.sign.classList.remove('null');
         this.$.sign.classList.remove('undefined');
-        this.$.sign.classList.add(this.values[0].exceeds);
+        this.$.sign.classList.add(state);
       },
 
       _updateView: function(value) {

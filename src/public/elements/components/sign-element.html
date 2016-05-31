@@ -1,4 +1,7 @@
+<link rel="import" href="../behaviors/element-behavior.html">
 <link rel="import" href="../../components/paper-ripple/paper-ripple.html"/>
+<link rel="import" href="../../components/paper-tooltip/paper-tooltip.html"/>
+<link rel="import" href="../../components/iron-list/iron-list.html"/>
 
 <dom-module id="sign-element">
   <style>
@@ -8,7 +11,6 @@
       border-radius: 2px 2px 2px 3px;
       border: thin solid #BBBBBB;
       color: #f1f1f1;;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
       outline: none;
@@ -20,6 +22,7 @@
       font-size: 1em;
       line-height: 1;
       align-self: stretch;
+      z-index: auto;
     }
     :host[dark] {
       border-color: #606060;
@@ -89,9 +92,8 @@
       line-height: 1.5;
       padding: 0.25em 0.75em 0.5em 0.5em;
       display: inline-block;
-      flex: 1;
+      flex: 1 0 auto;
       margin: 0;
-      -ms-flex: none;
       border-top: thin solid #BBBBBB;
     }
     section#caption[dark] {
@@ -188,7 +190,7 @@
             <section id="valueSection"></section><section id="unitSection">[[keys.unit]]</section>
           </template>
           <template is="dom-if" if="[[isBoolean]]" restamp>
-            <svg id="icon" hidden$="[[!isExceeding]]">
+            <svg id="icon" hidden$="[[!isExceeding]]" viewBox="0 0 24 24">
                 <g id="error-outline"><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></g>
             </svg>
           </template>
@@ -197,9 +199,24 @@
         <section id="dateSection" hidden$="[[!showDate]]"></section>
       </section>
 
+      <paper-tooltip for="sign" position="right">
+        <section id="start">
+          <h4>Start</h4>
+          <template is="dom-repeat" items="[[firstExceeds]]" as="item">
+            <div>Datum: [[item.x]]</div><div> Wert: [[item.y]]</div>
+          </template>
+        </section>
+        <section id="end">
+          <h4>Ende</h4>
+          <template is="dom-repeat" items="[[firstExceeds]]" as="item">
+            <div>Datum: [[item.x]]</div><div> Wert: [[item.y]]</div>
+          </template>
+        </section>
+      </paper-tooltip>
+
       <section id="caption" horizontal$="[[horizontal]]" hidden$="[[!showCaption]]">
         <template id="captiontemplate" is="dom-repeat" items="[[captionKeys]]" as="captionKey">
-          <span id="captions">[[getKey(captionKey, keys.*)]]</span>
+          <span id="captions" hidden$="[[isEmptyCaption(captionKey)]]">[[getKey(captionKey, keys.*)]]</span>
         </template>
       </section>
 
@@ -237,20 +254,20 @@
         if (bubbles === true)
           this.bubbles = true;
         if (dark) {
-          this.toggleAttribute("dark", true);
-          this.$.caption.toggleAttribute("dark", true);
-          this.$.sign.toggleAttribute("dark", true);
+          this.setAttribute("dark", true);
+          this.$.caption.setAttribute("dark", true);
+          this.$.sign.setAttribute("dark", true);
         }
       },
 
-      setExceedingState: function(state) {
-        this.set('isExceeding', state);
+      setExceedingState: function(isExceeding, state) {
+        this.set('isExceeding', isExceeding);
         // set color of the sign
         this.$.sign.classList.remove('true');
         this.$.sign.classList.remove('false');
         this.$.sign.classList.remove('null');
         this.$.sign.classList.remove('undefined');
-        this.$.sign.classList.add(this.values[0].exceeds);
+        this.$.sign.classList.add(state);
       },
 
       _updateView: function(value) {
@@ -266,21 +283,21 @@
           this.$.dateSection.textContent = new Date(value.x).toLocaleTimeString() || ' ';
       },
 
-      _captionKeysChanged(captionKeys){
-        var caption = Polymer.dom(this.$.caption);
-        while (caption.lastChild) {
-          caption.removeChild(caption.lastChild);
-        }
-        var span;
-        for (var i=0; i < captionKeys.length; i++) {
-          if (this.element.keys[captionKeys[i]]) {
-            span = document.createElement('span');
-            span.className = 'captions';
-            span.textContent = this.element.keys[captionKeys[i]];
-            caption.appendChild(span);
-          }
-        }
-      },
+      // _captionKeysChanged: function(captionKeys){
+      //   var caption = Polymer.dom(this.$.caption);
+      //   while (caption.lastChild) {
+      //     caption.removeChild(caption.lastChild);
+      //   }
+      //   var span;
+      //   for (var i=0; i < captionKeys.length; i++) {
+      //     if (this.element.keys[captionKeys[i]]) {
+      //       span = document.createElement('span');
+      //       span.className = 'captions';
+      //       span.textContent = this.element.keys[captionKeys[i]];
+      //       caption.appendChild(span);
+      //     }
+      //   }
+      // },
 
       _onTap: function(e) {
         this.fire("element-select", this.getElement());

@@ -8,6 +8,7 @@
         font-family: Fira Sans Light;
         font-weight: normal;
         padding: 0.4em;
+        z-index: auto;
       }
       section#main {
         background: #f1f1f1;
@@ -184,15 +185,17 @@
         }
       },
 
-      factoryImpl: function(title, svg, dark) {
+      factoryImpl: function(title, svg, dark, withoutWindow) {
         this.set("title", title || "");
         this.set("svg", svg || {});
         if (dark) {
-          this.$.mainContent.toggleAttribute("dark", true);
-          this.$.header.toggleAttribute("dark", true);
-          this.$.main.toggleAttribute("dark", true);
-          this.$.title.toggleAttribute("dark", true);
+          this.$.mainContent.setAttribute("dark", true);
+          this.$.header.setAttribute("dark", true);
+          this.$.main.setAttribute("dark", true);
+          this.$.title.setAttribute("dark", true);
         }
+        if (withoutWindow)
+          this.setAttribute("withoutWindow", true);
       },
 
       listeners: {
