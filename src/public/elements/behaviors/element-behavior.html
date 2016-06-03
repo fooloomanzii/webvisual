@@ -49,6 +49,11 @@
           value: false,
           observer: "_handleExceeding"
         },
+        hasExceeded: {
+          type: Boolean,
+          value: false,
+          observer: "_hasExceededChanged"
+        },
         updatable: {
           type: Boolean,
           value: true,
@@ -93,7 +98,7 @@
     },
 
     unshiftValues: function(value) {
-      this.unshift('values', value);
+      this.values.unshift(value);
 
       if (value.exceeds === null) {
         if(this.isExceeding !== false) {
@@ -105,14 +110,16 @@
         if(this.isExceeding === false) {
           this.setExceedingState(true, value.exceeds);
           this.push("firstExceeds", this.values[0]);
+          if (this.hasExceeded === false)
+            this.set("hasExceeded", true);
         }
       }
       this._updateView(value);
     },
 
-    spliceValues: function(start, end) {
-      this.splice('values', start, end);
-      this._updateView(undefined, {start: start, end: end});
+    spliceValues: function(start, length) {
+      this.values.splice(start, length);
+      this._updateView(undefined, {start: start, length: length});
     },
 
     setExceedingState: function(isExceeding, state) {
@@ -120,7 +127,7 @@
     },
 
     setValues: function(values, newestDataLast) {
-      this.set('values', values);
+      this.values = values;
       if (newestDataLast) {
         this.setExceedingState(values[values.length - 1].exceeds !== null, values[values.length - 1].exceeds);
         this._updateView(values[values.length - 1]);
@@ -135,12 +142,13 @@
     },
 
     _handleExceeding: function(isExceeding) {
-      if(this.bubbles) {
-        if (isExceeding)
-          this.fire("element-is-exceeding", this.getElement());
-        else
-          this.fire("element-is-not-exceeding", this.getElement());
-      }
+    },
+
+    _hasExceededChanged: function() {
+    },
+
+    reset: function() {
+      this.set("hasExceeded", false);
     }
 
     // TODO: eventuell durch vorhandene obere Funktionen zu lösen

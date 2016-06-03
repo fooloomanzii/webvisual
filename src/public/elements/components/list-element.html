@@ -186,7 +186,12 @@
         if (bubbles === true)
           this.bubbles = true;
         if (dark) {
-          this.setAttribute("dark", true);
+          this.dark = true;
+        }
+      },
+
+      attached: function() {
+        if (this.dark) {
           this.$.caption.setAttribute("dark", true);
           this.$.sign.setAttribute("dark", true);
         }
@@ -217,6 +222,15 @@
         // set date
         if (this.showDate)
           this.$.dateSection.textContent = new Date(value.x).toLocaleTimeString() || ' ';
+      },
+
+      _handleExceeding: function(isExceeding) {
+        if(this.bubbles) {
+          if (isExceeding)
+            this.fire("element-is-exceeding", this.getElement());
+          else
+            this.fire("element-is-not-exceeding", this.getElement());
+        }
       },
 
       _onTap: function(e) {

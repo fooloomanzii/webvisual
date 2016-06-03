@@ -310,7 +310,7 @@ Use `isZoomable` to make it isZoomable.
     _openedChanged: function(opened) {
       if (!this.source || !opened) return;
       this._sourceChanged(this.source);
-      this._asyncResetZoom(2000);
+      this._debouncedResetZoom();
     },
 
     _selectedChanged: function(change) {
@@ -320,7 +320,7 @@ Use `isZoomable` to make it isZoomable.
 
     _initialChanged: function(initial) {
       if (!this.source || !opened) return;
-      this._asyncResetZoom(1000);
+      this._debouncedResetZoom();
     },
 
     _selectableChanged: function(change) {
@@ -478,13 +478,14 @@ Use `isZoomable` to make it isZoomable.
         return {translate: [x,y], scale: scale};
     },
 
-    _asyncResetZoom: function(time) {
-      this.async( function() {
+    _debouncedResetZoom: function() {
+      this.debounce( "resetZoom", function() {
         this._resetZoom()
-      }, time || 1000);
+      }, 1000);
     },
 
     _resetZoom: function() {
+            console.log(new Date());
       if (!this.mainG || !this.opened) return;
       // zoom to selectedItems
       if (this.initiallyZoomToSelected && this.selected) {

@@ -8,30 +8,32 @@
       display: flex;
       flex-direction: column;
       height: inherit;
-      background: white;
-      color: #1f1f1f;
-      min-width: 10em;
       text-align: center;
-      font-size: 0.7em;
+      font-size: 0.75em;
+      line-height: 1.5em;
       overflow: hidden;
-      border-top-color: #408B45;
       cursor: default;
       z-index: auto;
+
+      background: white;
+      color: #1f1f1f;
+      border-color: #BBBBBB;
+      @apply(--table-theme);
     }
     :host[dark] {
       background: #a8a8a8;
       color: #1d1d1d;
+      border-color: #808080;
+      @apply(--table-dark-theme);
     }
     section#head {
-      height: 2.5em;
       display: flex;
       flex-direction: row;
       flex-shrink: 0;
       align-items: center;
+      line-height: 2em;
     }
     section#tr {
-      height: 1.6em;
-      line-height: 1.6em;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -54,31 +56,32 @@
       background: #c3ab12; color: #1f1f1f;
     }
     section#tr:hover {
+      border: thin dotted #BBBBBB;
+      border-color: inherit;
+    }
+    section#tr:active  {
       border: thin solid #BBBBBB;
+      border-color: inherit;
     }
     section#body {
       border-top: thin solid #BBBBBB;
+      border-color: inherit;
       width: 100%;
       flex: 1;
       overflow-x: auto;
       overflow-y: scroll;
     }
-    section#body[dark] {
-      border-color: #808080;
-    }
     section#td {
       font-size: 1em;
+      padding: 0em 0.75em;
+      white-space: nowrap;
     }
     section#td.x {
       min-width: 3.5em;
     }
-    section#th, section#td{
-      padding: 0em 1em;
-      white-space: nowrap;
-    }
   </style>
   <template>
-    <section id="head">
+    <section id="head" hidden$="[[hideHeader]]">
       <section id="td" class="x">Datum</section>
       <section id="td" class="y">Wert</section>
     </section>
@@ -93,8 +96,17 @@
 
       behaviors: [ElementBehavior],
 
-      factoryImpl: function(element, bubbles, dark) {
+      properties: {
+        hideHeader: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        }
+      },
+
+      factoryImpl: function(element, hideHeader, bubbles, dark) {
         this.setElement(element);
+        this.set("hideHeader", hideHeader);
         if (bubbles === true)
           this.bubbles = true;
         if (dark) {
@@ -106,10 +118,10 @@
       _updateView: function(value, splices) {
         var body = Polymer.dom(this.$.body);
         var row, tdX, tdY, isExceeding, index, tdI;
-        if (value === undefined && splices.start !== undefined && splices.end !== undefined) {
-          for (var i = splices.end; i > splices.start; i--) {
+        if (value === undefined && splices.start !== undefined && splices.length !== undefined) {
+          for (var i = splices.length + splices.start; i > splices.start; i--) {
             if (body.children[i])
-            body.removeChild(body.children[i]);
+              body.removeChild(body.children[i]);
           }
         }
         else if (Array.isArray(value)) {
@@ -133,7 +145,7 @@
       },
 
       setValues: function(values) {
-        // this.set('values', values);
+        this.values = values;
         var body = Polymer.dom(this.$.body);
         while (body.lastChild) {
           body.removeChild(body.lastChild);
