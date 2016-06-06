@@ -9,6 +9,7 @@ src/config/config.json
 .project
 
 # Bower Components #
+node_modules/*
 src/public/components/*
 !src/public/components/README.md
 
@@ -44,6 +45,9 @@ src/ssl/*
 !src/ssl/cert_chain/
 !src/ssl/default/
 !src/ssl/README.md
+
+# Distributions #
+dist/*
 
 *.prefs
 
