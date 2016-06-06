@@ -9,13 +9,11 @@
   "scripts": {
     "preinstall": "npm update",
     "postinstall": "install-app-deps",
-    "dist:osx": "build --platform darwin",
-    "dist:win32": "build --platform win32 --arch ia32",
-    "dist:win64": "build --platform win32 --arch x64"
+    "dist:win": "build --windows"
   },
   "build": {
     "win": {
-      "noMsi": false,
+      "msi": false,
       "owners": "Forschungszentrum Jülich"
     },
     "asar": false,
