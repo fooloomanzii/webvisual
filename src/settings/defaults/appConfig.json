@@ -3,10 +3,9 @@
   "userConfigFileName": "",
   "recentPath": "",
   "options": {
-    "width": 400,
+    "width": 300,
     "height": 400,
     "autoHideMenuBar": true,
-    "backgroundColor": "#005B82",
     "acceptFirstMouse": true,
     "webPreferences": {
       "webSecurity": true

@@ -19,7 +19,6 @@
       font-size: 1em;
       line-height: 1;
       align-self: stretch;
-      z-index: auto;
       color: #f1f1f1;
       border-radius: 2px 2px 2px 3px;
       border: none !important;
@@ -128,10 +127,10 @@
       height: 1.5em;
       width: 1.5em;
       fill: currentColor;
-      animation-name: exceed-animation;
+      /*animation-name: exceed-animation;
       animation-duration: 2s;
       animation-timing-function: ease-in-out;
-      animation-iteration-count: infinite;
+      animation-iteration-count: infinite;*/
     }
     @keyframes exceed-animation {
         0%   {transform: scale(1);}
@@ -190,10 +189,10 @@
       top: -0.1em;
       width: 1em;
       height: 1em;
-      background: #EB4242;
+      background: rgba(65,65,65,0.8);
       color: #f1f1f1;
       box-shadow: 0px 0px 1px #333;
-      border-radius: 20%;
+      border-radius: 50%;
       transition: all 280ms ease;
       box-sizing: content-box;
     }
@@ -205,15 +204,13 @@
     }
 
     section#tooltip {
+      display: block;
       position: absolute;
-      left: calc(100% + 0.5em);
-      top: -0.5em;
       transition: all 280ms ease;
       opacity: 1;
       visibility: visible;
       background: rgba(65,65,65,0.8);
       color: #f1f1f1;
-      padding: 0.5em;
       border-radius: 2px;
       z-index: 150;
     }
@@ -221,28 +218,44 @@
       opacity: 0;
       visibility: hidden;
     }
-
+    section#tooltip div.title {
+      font-size: 0.5em;
+      font-weight: normal;
+      padding: 0.5em;
+      text-align: center;
+    }
+    section#tooltip section#tooltipContent {
+      display: inline-flex;
+    }
+    section#tooltip section#tooltipContent table-element:first-child {
+      border-right: solid thin #BBB;
+    }
+    section#tooltip section#tooltipContent table-element {
+      background: transparent;
+      color: currentColor;
+      min-width: 4em;
+    }
   </style>
   <template>
-      <section id="bookmark" hidden$="[[!hasExceeded]]" on-tap="_toggleTooltip">!</section>
-
       <section id="sign" horizontal$="[[horizontal]]" on-tap="_fireSelect" class="null">
         <paper-ripple id="ripple"></paper-ripple>
 
         <section id="actualValueSection">
-          <template is="dom-if" if="[[!isBoolean]]" restamp>
+          <section hidden$="[[isBoolean]]">
             <section id="valueSection"></section><section id="unitSection">[[keys.unit]]</section>
-          </template>
-          <template is="dom-if" if="[[isBoolean]]" restamp>
+          </section>
+          <section hidden$="[[!isBoolean]]">
             <svg id="icon" hidden$="[[!isExceeding]]" viewBox="0 0 24 24">
                 <g id="error-outline"><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></g>
             </svg>
-          </template>
+          </section>
         </section>
 
         <section id="dateSection" hidden$="[[!showDate]]">
         </section>
       </section>
+
+      <section id="bookmark" hidden$="[[_hasTooltip(hasExceeded)]]" on-tap="_toggleTooltip">!</section>
 
       <section id="caption" horizontal$="[[horizontal]]" hidden$="[[!showCaption]]">
         <template id="captiontemplate" is="dom-repeat" items="[[captionKeys]]" as="captionKey">
@@ -250,9 +263,12 @@
         </template>
       </section>
 
-      <section id="tooltip" hidden$="[[!hasExceeded]]" on-tap="_hideToolTip">
-        sdfsdfdfsdf
-        sdfdsfsdf
+      <section id="tooltip" hidden$="[[_hasTooltip(hasExceeded)]]" on-tap="_hideTooltip" on-mouseleave="_hideTooltip" role="tooltip" tabindex="-1">
+        <div class="title">Alarmphasen</div>
+        <section id="tooltipContent">
+          <table-element id="firstExceedsTable" caption="Start" hide-header show-full-date hide-overflow is-boolean="[[isBoolean]]"></table-element>
+          <table-element id="lastExceedsTable" caption="Ende" hide-header show-full-date hide-overflow is-boolean="[[isBoolean]]"></table-element>
+        </section>
       </section>
 
   </template>
@@ -276,6 +292,11 @@
           reflectToAttribute: true
         },
         showCaption: {
+          type: Boolean,
+          value: true,
+          reflectToAttribute: true
+        },
+        tooltip: {
           type: Boolean,
           value: true,
           reflectToAttribute: true
@@ -317,6 +338,21 @@
           this.$.dateSection.textContent = new Date(value.x).toLocaleTimeString() || ' ';
       },
 
+      _setTooltip: function() {
+        this.$.firstExceedsTable.setValues(this.firstExceeds);
+        this.$.lastExceedsTable.setValues(this.lastExceeds);
+      },
+
+      _setFirstExceeds: function(value) {
+        this.firstExceeds.push(value);
+        this.$.firstExceedsTable._updateView(value);
+      },
+
+      _setLastExceeds: function(value) {
+        this.lastExceeds.push(value);
+        this.$.lastExceedsTable._updateView(value);
+      },
+
       _handleExceeding: function(isExceeding) {
         if(this.bubbles) {
           if (isExceeding)
@@ -328,26 +364,61 @@
 
       _fireSelect: function(e) {
         this.fire("element-select", this.getElement());
-        if (this.hasExceeded) this._hideToolTip();
+        if (this.hasExceeded) this._hideTooltip();
+      },
+
+      _hasTooltip: function(hasExceeded) {
+        return !hasExceeded && !this.tooltip;
       },
 
       _openTooltip: function() {
         if (!this.hasExceeded) return;
         this.$.tooltip.classList.add("opened");
+        this._updateTooltipPosition();
       },
 
       _toggleTooltip: function() {
         if (!this.hasExceeded) return;
         if (this.$.tooltip.classList.contains("opened"))
           this.$.tooltip.classList.remove("opened");
-        else
+        else {
           this.$.tooltip.classList.add("opened");
+          this._updateTooltipPosition();
+        }
       },
 
-      _hideToolTip: function() {
+      _hideTooltip: function() {
         this.$.tooltip.classList.remove("opened");
-      }
+      },
 
+      _updateTooltipPosition: function() {
+        var offset = 8;
+
+        var parentRect = this.getBoundingClientRect();
+        var targetRect = this.$.sign.getBoundingClientRect();
+        var thisRect = this.$.tooltip.getBoundingClientRect();
+
+        var targetLeft = targetRect.left - parentRect.left;
+        var targetTop = targetRect.top - parentRect.top;
+        var tooltipLeft = targetLeft + targetRect.width + offset;
+        var tooltipTop = targetTop + (targetRect.height - thisRect.height) / 2;
+
+        if (tooltipLeft + thisRect.width + parentRect.left > window.innerWidth) {
+          this.$.tooltip.style.right = '0px';
+          this.$.tooltip.style.left = 'auto';
+        } else {
+          this.$.tooltip.style.left = Math.max(0, tooltipLeft) + 'px';
+          this.$.tooltip.style.right = 'auto';
+        }
+
+        if (tooltipTop + thisRect.height + parentRect.top> window.innerHeight) {
+          this.$.tooltip.style.top = '0px';
+          this.$.tooltip.style.bottom = 'auto';
+        } else {
+          this.$.tooltip.style.top = Math.max(0, tooltipTop) + 'px';
+          this.$.tooltip.style.bottom = 'auto';
+        }
+      }
     });
   </script>
 

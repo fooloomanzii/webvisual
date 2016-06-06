@@ -31,7 +31,7 @@ function handleErrors(errors, id_message) {
   console.log("error");
   if (errors === undefined)
     return;
-  if (_.isArray(errors)) {
+  if (Array.isArray(errors)) {
     errors.forEach(function(err) {
       handleErrors(err, id_message)
     });

@@ -1,5 +1,5 @@
 <dom-module id="main-page">
-  <link rel="import" href="../style/main-page.css" type="css"/>
+  <link rel="import" type="css" href="../style/main-page.css"/>
   <style>
     :host {
       font-family: Fira Sans Light;
@@ -14,10 +14,7 @@
       top: 0;
       position: absolute;
     }
-    iron-selector#panelSelector {
-      flex: 1;
-    }
-    iron-selector#panelSelector ::content section.panel {
+    section#mainContent ::content section.panel {
       position: absolute;
       left: 0;
       overflow-y: auto;
@@ -36,42 +33,48 @@
       height: 100%;
       width: 100%;
       opacity: 1;
-      transition: opacity 500ms ease, transform 750ms ease;
-      z-index: 50;
+      /*z-index: 50;*/
     }
-    iron-selector#panelSelector ::content section.panel:not(.iron-selected):not([animated]){
-      display: none !important;
+    section#mainContent ::content section.panel.foreground {
+      display: flex;
     }
-    iron-selector#panelSelector ::content section.panel:not(.iron-selected)[animated]{
+    section#mainContent ::content section.panel:not(.foreground) {
+      display: none;
+    }
+    section#mainContent ::content section.panel.selected[animated] {
+      transition: opacity 150ms ease, transform 300ms ease;
+    }
+    section#mainContent ::content section.panel:not(.selected)[animated] {
+      transition: opacity 300ms ease, transform 150ms ease;
       opacity: 0;
       transform: translateY(25%);
       pointer-events: none;
       z-index: 51;
     }
-    iron-selector#groupingKeysLabelSelector {
+    section#groupingKeysLabelSelector {
       display: flex;
       flex-direction: column;
     }
-    iron-selector#groupingKeysLabelSelector ::content iron-selector.groupingKeySelector {
+    section#groupingKeysLabelSelector ::content iron-selector.groupingKeySelector {
       display: flex;
       flex-direction: column;
     }
-    iron-selector#groupingKeysLabelSelector ::content iron-selector.groupingKeySelector:not(.iron-selected){
+    section#groupingKeysLabelSelector ::content iron-selector.groupingKeySelector:not(.foreground){
       display: none;
     }
-    iron-selector#groupingKeysLabelSelector ::content paper-radio-button{
+    section#groupingKeysLabelSelector ::content paper-radio-button{
       display: inline-block;
       font-family: Fira Sans Light;
       padding: 0.25em 0.5em;
       font-size: 0.85em;
     }
     section#labelsTabs {
-      margin-left: 44px;
+      margin-left: 36px;
       height: 62%;
       align-self: flex-end;
       flex: 2;
       font-family: Fira Sans Light;
-      font-size: 16px;
+      font-size: 0.85em;
     }
     section#labelsTabs ::content paper-tab.label.iron-selected {
       /*border: thin solid #A8CCDB;*/
@@ -139,7 +142,7 @@
         left: 64px !important;
       }
       section#labelsTabs {
-        margin-left: 18px !important;
+        margin-left: 12px !important;
       }
     }
     @media all and (min-width: 521px) and (max-width: 600px){
@@ -151,7 +154,7 @@
         left: 72px !important;
       }
       section#toolbarHeader section#labelsTabs {
-        margin-left: 28px !important;
+        margin-left: 20px !important;
       }
     }
     @media all and (max-width: 600px) {
@@ -210,7 +213,7 @@
         <section id="toolbarSelectedElement">
           <sign-element id="selectedElementSign" class="selectedElement" horizontal="[[!expanded]]" on-tap="deselectElement"></sign-element>
           <section style="display: flex;">
-            <table-element id="selectedElementTable" class="selectedElement"></table-element>
+            <table-element id="selectedElementTable" class="selectedElement" highlight-exceeding></table-element>
           </section>
           <svg-element id="selectedElementSVG" class="selectedElement"  opened="[[opened]]"
           zoom-partition="1.1" max-zoom="5" min-zoom="1">
@@ -225,9 +228,7 @@
 
         <!-- Content -->
         <section id="mainContent">
-          <iron-selector id="panelSelector" activate-event="" fallback-selection="0">
-            <content select="section.panel"></content>
-          </iron-selector>
+          <content select="section.panel"></content>
         </section>
 
         <section id="backdrop" on-tap="tapBackdrop"></section>
@@ -240,7 +241,7 @@
           <paper-ripple id="ripple"></paper-ripple>
           <section class="title">Alarme</section>
         </section>
-        <iron-swipeable-container id="exceedingElements" on-iron-swipe="_removeSingleExceedingElementFromList"></iron-swipeable-container>
+        <iron-swipeable-container id="exceedingElementsList" on-iron-swipe="_removeSingleExceedingElementFromList"></iron-swipeable-container>
         <span style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_removeAllExceedingElementFromList">Liste leeren</a></span>
       </section>
 
@@ -262,9 +263,9 @@
 
                 <iron-collapse class="sidemenu collapse grouping">
                   <section id="groupingKeysButtons" class="indention">
-                    <iron-selector id="groupingKeysLabelSelector" activate-event="" fallback-selection="0">
+                    <section id="groupingKeysLabelSelector">
                       <content select="iron-selector.groupingKeySelector"></content>
-                    </iron-selector>
+                    </section>
                   </section>
                 </iron-collapse>
 
@@ -304,57 +305,57 @@
     Polymer({
       is: 'main-page',
 
-      behaviors: [Polymer.NeonAnimationRunnerBehavior, Polymer.NeonSharedElementAnimatableBehavior],
+      // behaviors: [Polymer.NeonAnimationRunnerBehavior, Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
-        sharedElements: {
-          value: function() {
-            return {
-              'herologo2': this.$.logo
-            }
-          }
-        },
-        animationConfig: {
-          value: function() {
-            return {
-              'entry': [
-                {
-                  name: 'hero-animation',
-                  id: 'herologo2',
-                  toPage: this,
-                },
-                {
-                  name: 'fade-in-animation',
-                  node: this.$.mainView
-                }
-              ],
-              'exit': [
-                {
-                  name: 'scale-down-animation',
-                  node: this
-                }
-              ],
-              'select-in': [
-                {
-                  name: 'cascaded-animation',
-                  animation: 'fade-in-animation',
-                  timing: {duration: 250},
-                  nodeDelay: 50,
-                  nodes: [this.$.selectedElementSign, this.$.selectedElementTable, this.$.selectedElementSVG]
-                }
-              ],
-              'select-out': [
-                {
-                  name: 'cascaded-animation',
-                  animation: 'fade-out-animation',
-                  timing: {duration: 250},
-                  nodeDelay: 50,
-                  nodes: [this.$.selectedElementSVG, this.$.selectedElementTable, this.$.selectedElementSign]
-                }
-              ]
-            }
-          }
-        },
+        // sharedElements: {
+        //   value: function() {
+        //     return {
+        //       'herologo2': this.$.logo
+        //     }
+        //   }
+        // },
+        // animationConfig: {
+        //   value: function() {
+        //     return {
+        //       'entry': [
+        //         {
+        //           name: 'hero-animation',
+        //           id: 'herologo2',
+        //           toPage: this,
+        //         },
+        //         {
+        //           name: 'fade-in-animation',
+        //           node: this.$.mainView
+        //         }
+        //       ],
+        //       'exit': [
+        //         {
+        //           name: 'scale-down-animation',
+        //           node: this
+        //         }
+        //       ],
+        //       'select-in': [
+        //         {
+        //           name: 'cascaded-animation',
+        //           animation: 'fade-in-animation',
+        //           timing: {duration: 250},
+        //           nodeDelay: 50,
+        //           nodes: [this.$.selectedElementSign, this.$.selectedElementTable, this.$.selectedElementSVG]
+        //         }
+        //       ],
+        //       'select-out': [
+        //         {
+        //           name: 'cascaded-animation',
+        //           animation: 'fade-out-animation',
+        //           timing: {duration: 250},
+        //           nodeDelay: 50,
+        //           nodes: [this.$.selectedElementSVG, this.$.selectedElementTable, this.$.selectedElementSign]
+        //         }
+        //       ]
+        //     }
+        //   }
+        // },
         withoutWindow: {
           type: Boolean,
           value: false
@@ -385,18 +386,22 @@
           value: function() { return {}; }
         },
         selectedLabelIndex: {
-          type: String,
-          value: "0"
+          type: Number,
+          value: 0,
+          observer: "_selectedLabelIndexChanged"
+        },
+        exceedingElements: {
+          type: Object,
+          value: function() { return {}; }
         },
         isExceeding: {
           type: Boolean,
-          notify: true,
+          value: false,
           observer: "_checkExceedsPanel"
         },
         animated: {
           type: Boolean,
-          value: true,
-          reflectToAttribute: true
+          value: true
         }
       },
 
@@ -409,13 +414,25 @@
                     info.addedNodes[i].addEventListener("iron-select", function(e){
                       self._regroup(e.currentTarget.selected);
                     });
-                  self.$.groupingKeysLabelSelector.select(self.selectedLabelIndex);
                });
-        Polymer.dom(this.$.panelSelector)
+        Polymer.dom(this.$.mainContent)
                .observeNodes( function(info) {
                  if (info.addedNodes.length > 0)
-                   self.$.panelSelector.select(self.selectedLabelIndex);
+                   self.$.mainContent.children[0].classList.add("selected");
                });
+        // Notifications
+        if (!("Notification" in window)) {
+          console.warn("This browser does not support desktop notification");
+        }
+        //  ask the user for permission
+        else if (Notification.permission !== 'denied') {
+          Notification.requestPermission(function (permission) {
+            // If the user accepts, let's create a notification
+            if (permission === "granted") {
+              var notification = new Notification("Notifikationen aktiv", {icon: '../../img/icons/webicon.png', body: '', tag: ''});
+            }
+          });
+        }
       },
 
       listeners: {
@@ -423,8 +440,7 @@
         "element-is-exceeding": "_setExceedingElement",
         "element-is-not-exceeding": "_unsetExceedingElement",
         "svg-open-fullscreen": "openSvgFullscreen",
-        "svg-exit-fullscreen": "exitSvgFullscreen",
-        "labelSelector.iron-select": "_selectedLabelIndexChanged"
+        "svg-exit-fullscreen": "exitSvgFullscreen"
       },
 
       // app Control
@@ -433,24 +449,38 @@
         this.fire("restart");
       },
       // Tab Control
-      _selectedLabelIndexChanged: function(e) {
-        // remove hidden class for every panel, hide non selected panels for 'transitionend'-Event (for not repainting)
-        var self = this;
-        if (this.animated) {
-          this.$.panelSelector.getContentChildren().forEach(
-            function(element) {
-              element.style.display = "flex";
-              element.addEventListener('transitionend', self._hidePanel);
-            });
-        }
-        this.$.panelSelector.select(this.selectedLabelIndex);
+      _selectedLabelIndexChanged: function(newIndex, oldIndex) {
+        this._selectPanel(newIndex, oldIndex);
         this.deselectElement();
-        this.$.groupingKeysLabelSelector.select(this.selectedLabelIndex);
       },
-      _hidePanel: function(e) {
-        if(e.target.classList.contains('panel') && !e.target.classList.contains("iron-selected"))
-          e.target.style.display = "none";
-        e.target.removeEventListener(e.type, arguments.callee);
+      _selectPanel: function(newIndex, oldIndex) {
+        var content = this.$.mainContent.children;
+        var groupingkeys = this.$.groupingKeysLabelSelector.children;
+
+        groupingkeys[newIndex].classList.add("foreground");
+        content[newIndex].classList.add("foreground");
+
+        if (this.animated) {
+          if (oldIndex !== undefined) {
+            content[oldIndex].addEventListener("transitionend", function(e) {
+              content[newIndex].classList.add("selected");
+              content[oldIndex].classList.remove("foreground");
+              content[oldIndex].removeEventListener(e.type, arguments.callee);
+            });
+            content[oldIndex].classList.remove("selected");
+            groupingkeys[oldIndex].classList.remove("foreground");
+          }
+          else
+            content[newIndex].classList.add("selected");
+        }
+        else {
+          content[newIndex].classList.add("selected");
+          if (oldIndex !== undefined) {
+            content[oldIndex].classList.remove("foreground");
+            content[oldIndex].classList.remove("selected");
+            groupingkeys[oldIndex].classList.remove("foreground");
+          }
+        }
       },
       // Grouping Options
       _regroup: function(key) {
@@ -532,14 +562,14 @@
 
             if (!this.opened){
               this.toggleAttribute('opened', true);
-              this.playAnimation('select-in');
+              // this.playAnimation('select-in');
             }
           }
         }
       },
       deselectElement: function() {
         if (this.opened) {
-          this.playAnimation('select-out');
+          // this.playAnimation('select-out');
           this.closeDrawer();
           this.toggleAttribute('opened', false);
           try {
@@ -559,10 +589,10 @@
       // Exceeding Elements
       _setExceedingElement: function(e) {
         var element = JSON.parse(JSON.stringify(e.detail)); // bug: references are mixing in each other
-        if (Polymer.dom(this.$.exceedingElements).querySelectorAll('#'+element.id+'[label='+element.label+']').length === 0) {
+        if (Polymer.dom(this.$.exceedingElementsList).querySelectorAll('#'+element.id+'[label='+element.label+']').length === 0) {
           var node = new ListElement(element, this.showDate, false, this.dark);
           Nodes[element.label][element.id].push(node);
-          Polymer.dom(this.$.exceedingElements).appendChild(node);
+          Polymer.dom(this.$.exceedingElementsList).appendChild(node);
           Polymer.dom(node).classList.add('exceedingElement');
 
           Polymer.dom.flush();
@@ -576,9 +606,43 @@
         }
         if (!this.isExceeding)
           this.isExceeding = true;
+        if (!this.exceedingElements[element.label])
+          this.set("exceedingElements."+element.label, []);
+        this.push("exceedingElements."+element.label, element.id);
+        this.debounceExceedsNotification();
       },
 
       _unsetExceedingElement: function(e) {
+        var element = JSON.parse(JSON.stringify(e.detail)); // bug: references are mixing in each other
+        if (this.exceedingElements[element.label]) {
+          var pos = this.exceedingElements[element.label].indexOf(element.id);
+          if (pos !== -1) {
+            this.splice('exceedingElements.' + element.label, pos, 1);
+          }
+        }
+      },
+
+      debounceExceedsNotification: function() {
+        this.debounce('exceesNotification',
+          function() {
+            this.createExceedsNotification();
+          }, 2000);
+      },
+
+      createExceedsNotification: function() {
+        if (Notification.permission !== 'denied') {
+          var count = 0;
+          var msg = '';
+          for (var label in this.exceedingElements) {
+            count += this.exceedingElements[label].length;
+            msg += label + ': ' + '\n' + this.exceedingElements[label].join(', ') + '\n\n';
+          }
+
+          var notification = new Notification(count + ' Elemente im Alarmzustand',
+            { icon: '../../img/icons/warning.png',
+              body: msg,
+              tag: msg });
+        }
       },
 
       _removeSingleExceedingElementFromList: function(e) {
@@ -587,22 +651,22 @@
           var label = e.detail.target.label;
           var pos = Nodes[label][id].indexOf(e.detail.target);
           Nodes[label][id].splice(pos, 1);
-          Polymer.dom(this.$.exceedingElements).removeChild(e.detail.target);
+          Polymer.dom(this.$.exceedingElementsList).removeChild(e.detail.target);
         }
-        if (this.$.exceedingElements.children.length === 0) {
+        if (this.$.exceedingElementsList.children.length === 0) {
           this.set("isExceeding", false);
           this.closeExceedsPanel();
         }
       },
       _removeAllExceedingElementFromList: function() {
         var id, label, pos;
-        var nodes = Polymer.dom(this.$.exceedingElements).querySelectorAll('.exceedingElement');
+        var nodes = Polymer.dom(this.$.exceedingElementsList).querySelectorAll('.exceedingElement');
         for (var i = 0; i < nodes.length; i++) {
           id = nodes[i].id;
           label = nodes[i].label;
           pos = Nodes[label][id].indexOf(nodes[i].target);
           Nodes[label][id].splice(pos, 1);
-          Polymer.dom(this.$.exceedingElements).removeChild(nodes[i]);
+          Polymer.dom(this.$.exceedingElementsList).removeChild(nodes[i]);
         }
         this.set("isExceeding", false);
         this.closeExceedsPanel();
@@ -684,7 +748,7 @@
         if(value && !(this.$.exceedsPanel.classList.contains("exceeds-panel-opened"))) {
           this.openExceedsPanel();
         }
-        else if (this.$.exceedingElements.children.length === 0)
+        else if (this.$.exceedingElementsList.children.length === 0)
           this.closeExceedsPanel();
       },
       openExceedsPanel: function() {

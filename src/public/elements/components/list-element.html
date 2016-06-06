@@ -106,7 +106,7 @@
       font-weight: bold !important;
       font-size: 1em !important;
       word-wrap: normal !important;
-      word-break: keep-all  !important;
+      word-break: keep-all !important;
     }
     span#captions:nth-child(2) {
       font-size: 0.85em !important;
@@ -115,13 +115,13 @@
       font-size: 0.75em !important;
     }
     svg#icon {
-      height: 1.5em;
-      width: 1.5em;
+      height: 1em;
+      width: 1em;
       fill: currentColor;
-      animation-name: exceed-animation;
+      /*animation-name: exceed-animation;
       animation-duration: 2s;
       animation-timing-function: ease-in-out;
-      animation-iteration-count: infinite;
+      animation-iteration-count: infinite;*/
     }
     section#dateSection {
       font-family: Fira Sans Light;
@@ -149,14 +149,14 @@
 
     <section id="sign" class="null">
       <section id="actualValueSection">
-        <template is="dom-if" if="[[!isBoolean]]" restamp>
+        <section hidden$="[[isBoolean]]">
           <section id="valueSection"></section><section id="unitSection">[[keys.unit]]</section>
-        </template>
-        <template is="dom-if" if="[[isBoolean]]" restamp>
+        </section>
+        <section hidden$="[[!isBoolean]]">
           <svg id="icon" hidden$="[[!isExceeding]]" viewBox="0 0 24 24">
               <g id="error-outline"><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></g>
           </svg>
-        </template>
+        </section>
       </section>
     </section>
 

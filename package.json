@@ -1,5 +1,5 @@
 {
-  "name": "webvisual-installer",
+  "productName": "webvisual installer",
   "version": "0.0.5",
   "license": "MIT",
   "private": true,
@@ -20,7 +20,7 @@
     },
     "asar": false,
     "compression": "store",
-    "iconUrl": "https://github.com/fooloomanzii/webvisual/tree/master/build/icon.ico"
+    "iconUrl": "https://github.com/fooloomanzii/webvisual/tree/electron-app/build/icon.ico"
   },
   "publish": "never",
   "devDependencies": {

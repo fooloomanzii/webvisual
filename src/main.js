@@ -4,6 +4,7 @@ var electron = require('electron');
 var remote = require('electron').remote;
 const {ipcMain} = require('electron');
 var shell = require('electron').shell;
+var util = require('util');
 
 var app = electron.app; // Module to control application life.
 var BrowserWindow = electron.BrowserWindow; // Module to create native browser window.
@@ -16,10 +17,38 @@ var Settings = require('./settings');
 var config = {},
   appConfig = {};
 
+// check User Data and folder
+var appConfigFilePath = path.join(app.getPath('userData'), 'config', 'appConfig.json');
+fs.access(appConfigFilePath, fs.F_OK, function(err) {
+  if (!err) {
+    try {
+      appConfig = JSON.parse(fs.readFileSync(appConfigFilePath));
+    } catch (e) {
+      err = true;
+    }
+  }
+  if (err) {
+    mkdirp(path.join(app.getPath('userData'), 'config'));
+    copyFile(path.join(__dirname, 'settings', 'defaults', 'appConfig.json'), appConfigFilePath, function(err) {});
+    appConfig =
+      JSON.parse(fs.readFileSync(path.join(__dirname, 'settings', 'defaults', 'appConfig.json')));
+  }
+  console.log(appConfig.options);
+});
+
+  config = new Settings(path.join(__dirname, 'settings', 'defaults', 'userConfig.json'), app);
+  config.on('error', function(err) {
+    console.log('Error in Config', err);
+  });
+
+  var webvisualserver = new WebvisualServer(config);
+  webvisualserver.on('error', function(err) {
+    console.log('Error in WebvisualServer', err);
+  });
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
-var clientView = null;
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
@@ -32,27 +61,20 @@ app.on('window-all-closed', function() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
-  // check User Data and folder
-  let appConfigFilePath = path.join(app.getPath('userData'), 'config', 'appConfig.json');
-  fs.access(appConfigFilePath, fs.F_OK, function(err) {
-    if (!err) {
-      try {
-        appConfig = JSON.parse(fs.readFileSync(appConfigFilePath));
-      } catch (e) {
-        err = true;
-      }
-    }
-    if (err) {
-      mkdirp(path.join(app.getPath('userData'), 'config'));
-      copyFile(path.join(__dirname, 'settings', 'defaults', 'appConfig.json'), appConfigFilePath, function(err) {});
-      appConfig =
-        JSON.parse(fs.readFileSync(path.join(__dirname, 'settings', 'defaults', 'appConfig.json')));
-    }
     // Create the browser window.
     mainWindow = new BrowserWindow(appConfig.options);
 
     // load server GUI
     mainWindow.loadURL('file://' + __dirname + '/index.html');
+
+    mainWindow.webContents.on('dom-ready', () => {
+      // Log to main process
+      console.log = function () {
+        mainWindow.webContents.send("log", util.format.apply(null, arguments) + '\n');
+        process.stdout.write(util.format.apply(null, arguments) + '\n');
+      }
+      console.error = console.log;
+    });
 
     // Open the DevTools.
     // mainWindow.webContents.openDevTools();
@@ -61,21 +83,8 @@ app.on('ready', function() {
     mainWindow.on('closed', function() {
       mainWindow = null;
     });
-  });
 
-  config = new Settings(path.join(__dirname, 'settings', 'defaults', 'userConfig.json'), app);
-  config.on('error', function(err) {
-    console.log('Error in Config', err);
-  });
-
-  var webvisualserver = new WebvisualServer(config);
-  webvisualserver.on('error', function(err) {
-    console.log('Error in WebvisualServer', err);
-  });
-
-
-
-  // start server
+  // app quit
   ipcMain.on('app-quit', (event, arg) => {
     app.quit()
   });

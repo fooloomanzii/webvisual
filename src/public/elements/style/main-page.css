@@ -7,6 +7,11 @@ body, html {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
+span {
+  font-size: inherit;
+  padding: 0;
+  margin: 0;
+}
 paper-button iron-icon {
   margin-left: 0.5em;
   margin-right: 0.75em;
@@ -20,7 +25,7 @@ paper-item iron-icon {
 iron-icon {
   transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
-paper-button: {
+paper-button {
   border: none;
   border-top: thin solid rgba(200, 200, 200, 0);
   border-bottom: thin solid  rgba(200, 200, 200, 0);
@@ -50,11 +55,6 @@ paper-button .content{
   justify-content: flex-start;
   align-items: center;
   flex-direction: row;
-}
-span {
-  font-size: inherit;
-  padding: 0;
-  margin: 0;
 }
 paper-icon-button {
   transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
@@ -186,10 +186,10 @@ section#exceedsHeader .title {
   font-size: 1.25em;
   padding: 0.75em 1em;
 }
-section#exceedsPanel iron-swipeable-container#exceedingElements {
+section#exceedsPanel iron-swipeable-container#exceedingElementsList {
   padding: 0.5em 0.5em 0.25em 0.5em;
 }
-section#exceedsPanel iron-swipeable-container#exceedingElements list-element {
+section#exceedsPanel iron-swipeable-container#exceedingElementsList list-element {
   margin-bottom: 0.25em;
   border-radius: 12px;
 }

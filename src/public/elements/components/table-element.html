@@ -6,7 +6,6 @@
       font-family: Fira Sans Light;
       font-weight: normal;
       display: flex;
-      flex-direction: column;
       height: inherit;
       text-align: center;
       font-size: 0.75em;
@@ -14,17 +13,24 @@
       overflow: hidden;
       cursor: default;
       z-index: auto;
-
       background: white;
       color: #1f1f1f;
       border-color: #BBBBBB;
-      @apply(--table-theme);
     }
     :host[dark] {
       background: #a8a8a8;
       color: #1d1d1d;
       border-color: #808080;
-      @apply(--table-dark-theme);
+    }
+    section#table {
+      display: flex;
+      flex-direction: column;
+      border-color: inherit;
+    }
+    section#caption {
+      font-size: 0.9em;
+      font-weight: bold;
+      padding: 0em 1.5em;
     }
     section#head {
       display: flex;
@@ -32,6 +38,9 @@
       flex-shrink: 0;
       align-items: center;
       line-height: 2em;
+      border-bottom-style: solid;
+      border-bottom-width: thin;
+      border-color: inherit;
     }
     section#tr {
       display: flex;
@@ -39,12 +48,11 @@
       align-items: center;
       border: thin solid transparent;
     }
-    section#tr.null:hover {
-      background-color: rgba(137, 137, 137, 0.25) !important;
-      color: #1f1f1f !important;
-    }
     section#tr.null {
       background: none; color: #1f1f1f;
+    }
+    section#tr.null:nth-child(even) {
+      background-color: rgba(137, 137, 137, 0.15);
     }
     section#tr.true {
       background: #D91B1B; color: #f1f1f1;
@@ -55,17 +63,7 @@
     section#tr.undefined {
       background: #c3ab12; color: #1f1f1f;
     }
-    section#tr:hover {
-      border: thin dotted #BBBBBB;
-      border-color: inherit;
-    }
-    section#tr:active  {
-      border: thin solid #BBBBBB;
-      border-color: inherit;
-    }
     section#body {
-      border-top: thin solid #BBBBBB;
-      border-color: inherit;
       width: 100%;
       flex: 1;
       overflow-x: auto;
@@ -81,11 +79,14 @@
     }
   </style>
   <template>
-    <section id="head" hidden$="[[hideHeader]]">
-      <section id="td" class="x">Datum</section>
-      <section id="td" class="y">Wert</section>
-    </section>
-    <section id="body">
+    <section id="table">
+      <section id="caption">[[caption]]</section>
+      <section id="head" hidden$="[[hideHeader]]">
+        <section id="td" class="x">Datum</section>
+        <section id="td" class="y">Wert</section>
+      </section>
+      <section id="body">
+      </section>
     </section>
   </template>
 
@@ -97,21 +98,47 @@
       behaviors: [ElementBehavior],
 
       properties: {
+        caption: {
+          type: String,
+          value: ""
+        },
+        highlightExceeding: {
+          type: Boolean,
+          value: false
+        },
         hideHeader: {
           type: Boolean,
-          value: false,
-          reflectToAttribute: true
+          value: false
+        },
+        showFullDate: {
+          type: Boolean,
+          value: false
+        },
+        hideOverflow: {
+          type: Boolean,
+          value: false
         }
       },
 
-      factoryImpl: function(element, hideHeader, bubbles, dark) {
+      factoryImpl: function(element, highlightExceeding, hideHeader, hideOverflow, bubbles, dark) {
         this.setElement(element);
-        this.set("hideHeader", hideHeader);
+        if (highlightExceeding === true)
+          this.set("hideHeader", hideHeader);
+        if (hideHeader === true)
+          this.set("highlightExceeding", highlightExceeding);
+        if (hideOverflow === true)
+          this.set("hideOverflow", hideOverflow);
         if (bubbles === true)
           this.bubbles = true;
         if (dark) {
           this.setAttribute("dark", true);
           this.$.body.setAttribute("dark", true);
+        }
+      },
+
+      attached: function() {
+        if (this.hideOverflow) {
+          this.$.body.style.overflow = 'hidden';
         }
       },
 
@@ -132,13 +159,15 @@
           row.id = "tr";
           tdX = document.createElement('section');
           tdX.id = "td"; tdX.className = "x";
-          tdX.textContent = new Date(value.x).toLocaleTimeString();
+          tdX.textContent = (this.showFullDate ? new Date(value.x).toLocaleString() : new Date(value.x).toLocaleTimeString());
           tdY = document.createElement('section');
           tdY.id = "td"; tdY.className = "y";
           isExceeding = (value.exceeds === null) ? false : true;
           tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : value.y);
 
-          row.className = value.exceeds;
+          if (this.highlightExceeding)
+            row.className = value.exceeds;
+
           row.appendChild(tdX); row.appendChild(tdY);
           body.insertBefore(row, body.childNodes[0]);
         }
@@ -160,13 +189,14 @@
 
             tdX = document.createElement('section');
             tdX.id = "td"; tdX.className = "x";
-            tdX.textContent = new Date(values[j].x).toLocaleTimeString();
+            tdX.textContent = (this.showFullDate ? new Date(values[j].x).toLocaleString() : new Date(values[j].x).toLocaleTimeString());
             tdY = document.createElement('section');
             tdY.id = "td"; tdY.className = "y";
             isExceeding = (values[j].exceeds === null) ? false : true;
             tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : values[j].y);
 
-            row.className = values[j].exceeds;
+            if (this.highlightExceeding)
+              row.className = values[j].exceeds;
             row.appendChild(tdX); row.appendChild(tdY);
             body.insertBefore(row, body.childNodes[0]);
           }

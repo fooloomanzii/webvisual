@@ -4,12 +4,24 @@
     <meta charset="UTF-8">
     <title>Webvisual Server</title>
     <script type="text/javascript" src='./application/index.js'></script>
+    <link rel='import' href='./public/components/polymer/polymer.html'/>
+    <link rel='import' href='./public/elements/imports.html'/>
+    <link rel="import" href="./public/elements/style/app-theme.html"/>
   </head>
   <body>
-    <button onclick="startServer()">start server</button>
-    <button onclick="stopServer()">stop server</button>
-    <button onclick="restartServer()">restart server</button>
-    <!-- <button onclick="openClientView()">open client view</button> -->
-
+    <link rel="stylesheet" type="text/css" href="./public/elements/style/application.css"/>
+    <section id="toolbar">
+      <section id="toolbarHeader">
+        <paper-button onclick="startServer()">start server</paper-button>
+        <paper-button onclick="stopServer()">stop server</paper-button>
+        <paper-button onclick="restartServer()">restart server</paper-button>
+      </section>
+    </section>
+    <section id="mainContent">
+      <section id="log">
+        <section id="head"></section>
+        <section id="body"></section>
+      </section>
+    </section>
   </body>
 </html>
