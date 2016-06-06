@@ -7,9 +7,9 @@
     "fooloomanzii <hannes-b@web.de>"
   ],
   "dependencies": {
+    "polymer": "Polymer/polymer",
     "iron-elements": "PolymerElements/iron-elements",
     "paper-elements": "PolymerElements/paper-elements",
-    "polymer": "Polymer/polymer",
     "neon-animation": "PolymerElements/neon-animation",
     "d3": "*"
   },

@@ -17,10 +17,13 @@ echo node.js is not installed! Please install it!
 exit
 
 :UPDATE
-echo Install packages. This can take a moment ...
-start /WAIT cmd /C "cd %~dp0 & npm.cmd install -g bower"
-start /WAIT cmd /C "cd %~dp0 & npm.cmd install -g electron-prebuilt"
-start /WAIT cmd /C "cd %~dp0 & npm.cmd update"
+echo Install 'bower'. This can take a moment ...
+cmd /C "cd %~dp0 & npm.cmd install -g bower"
+echo Install 'electron'. This can take a moment ...
+cmd /C "cd %~dp0 & npm.cmd install -g electron-prebuilt"
+echo Install node dependencies. This can take a moment ...
+cmd /C "cd %~dp0 & npm.cmd update"
+echo Install bower-components. This can take a moment ...
 start /WAIT cmd /C "cd %~dp0 & bower update"
 goto:eof
 
