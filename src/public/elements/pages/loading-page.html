@@ -1,39 +1,23 @@
 <dom-module id="loading-page">
   <style>
     :host {
-      height: 100%;
-      width: 100%;
-      left: 0;
-      top: 0;
-      position: absolute;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       overflow: hidden;
-      color: #f1f1f1;
-      font-family: Fira Sans Light;
-      font-weight: normal;
-      line-height: 1.2;
-      font-kerning: normal !important;
-      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-      -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
+      @apply(--bright-theme-in-dark-context);
     }
     :host[dark] {
-      color: #A8CCDB;
+      @apply(--dark-theme-in-dark-context);
     }
     section#background {
-      position: absolute;
-      background: radial-gradient(rgba(0, 91, 130,1) 80%,rgba(0, 91, 130,0.8) 100%);
-      height: 100%;
-      width: 100%;
-      left: 0;
-      top: 0;
-      z-index: 0;
+      @apply(--primary-color-background);
     }
     section#background[dark] {
-      background: radial-gradient(rgba(52, 84, 117,1) 80%,rgba(52, 84, 117,0.8) 100%);
+      @apply(--dark-color-background);
     }
+
     section#mainContent {
       box-sizing: border-box;
       padding: 1.5em 1.5em 1.5em 1.5em;

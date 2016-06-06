@@ -436,21 +436,3 @@ section#svgFullscreenContainer.fullscreen-opened svg-element{
   transform: scale(1);
   opacity: 1;
 }
-/*
- * Fonts
- */
-
-@font-face {
- font-family: Fira Sans Light;
- src: url('fonts/FiraSans-Light.otf') format('truetype');
- font-weight: normal;
- font-style: normal;
-}
-
-/* Polymer Elements Issue */
-@font-face {
- font-family: Roboto;
- src: url('fonts/FiraSans-Light.otf') format('truetype');
- font-weight: normal;
- font-style: normal;
-}

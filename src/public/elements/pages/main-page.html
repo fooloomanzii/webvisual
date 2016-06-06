@@ -401,7 +401,8 @@
         },
         animated: {
           type: Boolean,
-          value: true
+          value: false,
+          reflectToAttribute: true
         }
       },
 
@@ -590,12 +591,10 @@
       _setExceedingElement: function(e) {
         var element = JSON.parse(JSON.stringify(e.detail)); // bug: references are mixing in each other
         if (Polymer.dom(this.$.exceedingElementsList).querySelectorAll('#'+element.id+'[label='+element.label+']').length === 0) {
-          var node = new ListElement(element, this.showDate, false, this.dark);
+          var node = new ListElement(element, false, this.showDate, this.dark);
           Nodes[element.label][element.id].push(node);
           Polymer.dom(this.$.exceedingElementsList).appendChild(node);
           Polymer.dom(node).classList.add('exceedingElement');
-
-          Polymer.dom.flush();
         }
         if (element.svg && element.svg.source && element.svg.path) {
           if (!ExceedingSvgPaths[element.label])

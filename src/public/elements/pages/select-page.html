@@ -1,52 +1,31 @@
 <dom-module id="select-page">
-  <link rel="import" href="../style/index.css" type="css"/>
   <style>
     :host {
-      height: 100%;
-      width: 100%;
-      left: 0;
-      top: 0;
-      position: absolute;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      color: #f1f1f1;
-      font-family: Fira Sans Light;
-      line-height: 1.2;
-      font-kerning: normal !important;
-      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-      -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
+      @apply(--bright-theme-in-dark-context);
     }
     :host[dark] {
-      color: #A8CCDB;
+      @apply(--dark-theme-in-dark-context);
     }
-    div#background{
-      position: absolute;
-      background: radial-gradient(rgba(0, 91, 130,1) 80%,rgba(0, 91, 130,0.8) 100%);
-      height: 100%;
-      width: 100%;
-      left: 0;
-      top: 0;
-      z-index: 0;
+    section#background {
+      @apply(--primary-color-background);
     }
-    div#background[dark] {
-      background: radial-gradient(rgba(52, 84, 117,1) 80%,rgba(52, 84, 117,0.8) 100%);
+    section#background[dark] {
+      @apply(--dark-color-background);
     }
-    div#mainContent {
+    section#mainContent {
       box-sizing: border-box;
       padding: 1.5em;
-      z-index: 0;
     }
-    h1 {
-      color: currentColor;
-      font-family: Fira Sans Light;
-      font-weight: normal;
+    section.title {
       font-size: 2em;
       margin: 0.67em 0em;
       text-align: center;
     }
-    section.select {
+    section#select {
       font-family: Fira Sans Light;
       font-size: 1em;
       box-sizing: border-box;
@@ -54,47 +33,30 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-    }
-    paper-radio-button {
-      --paper-radio-button-checked-color: currentColor;
-      --paper-radio-button-checked-ink-color: currentColor;
-      --paper-radio-button-label-color: currentColor;
-      --paper-radio-button-label-spacing: 1em;
-      --paper-radio-button-unchecked-color: #669DB4;
-      --paper-radio-button-unchecked-ink-color: #669DB4;
-    }
-    paper-radio-button  {
-      font-size: 1em;
-      font-family: Fira Sans Light;
-      font-weight: normal;
       color: currentColor;
+    }
+    iron-selector#labelSelector {
+      color: currentColor;
+    }
+
+    iron-selector#labelSelector ::content paper-radio-button  {
+      font-size: 1em;
       padding: 0em;
-      padding-top: 1em;
+      padding-top: 1.5em;
+      float: left;
+      clear: both;
     }
     span {
       font-size: 1.2em;
       padding: 1em 1em 0.75em 1em;
     }
-    paper-button.select-page {
+    paper-button#submitButton {
       margin-left: auto;
       margin-top: 3em;
-      padding: 0.75em 1.5em;
-      font-family: Fira Sans Light;
-      font-weight: normal;
-      color: currentColor;
-      border-radius: 5px;
-      border: thin solid currentColor;
-      background: linear-gradient(to bottom, rgba(255,255,255,0.01) 5%,rgba(255,255,255,0.05) 40%);
+      border-style: solid;
+      border-width: thin;
     }
-    paper-button.select-page[disabled] {
-      color: #669DB4;
-      background: none;
-    }
-    paper-button.select-page:hover {
-      border: thin solid currentColor;
-      background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.10) 40%);
-    }
-    paper-button.select-page iron-icon {
+    paper-button#submitButton iron-icon {
       margin: 0em 0.75em 0em 0em;
       z-index: 10;
     }
@@ -103,21 +65,19 @@
 
   <template>
 
-    <div id="background"></div>
-    <div id="mainContent">
-      <h1 class="dialog-title">Auswahl des Messraums</h2>
-      <section class="select">
+    <section id="background"></section>
+    <section id="mainContent">
+      <section class="title">Auswahl des Messraums</section>
+      <section id="select">
         <span>verfügbar sind:</span>
-        <iron-selector selected-values="{{labels}}" attr-for-selected="label" selected-attribute="checked" multi>
-          <template is="dom-repeat" items="[[availableLabels]]">
-            <paper-radio-button label="[[item]]">[[item]]</paper-radio-button>
-          </template>
+        <iron-selector id="labelSelector" selected-values="[[selectedLabels]]" on-iron-select="_disableButton" on-iron-deselect="_disableButton" multi attr-for-selected="label">
+          <content></content>
         </iron-selector>
-        <paper-button disabled="[[notSelected]]" raised="[[notSelected]]" on-click="_onSelected"><iron-icon id="logo" icon="juelich:logo"></iron-icon>Verbinden</paper-button>
+        <paper-button id="submitButton" disabled raised="[[notSelected]]" on-click="_onSubmit"><iron-icon id="logo" icon="juelich:logo"></iron-icon>Verbinden</paper-button>
       </section>
-    </div>
+    </section>
 
-    <cookie-element id="labelsCookie" name="webvisual-stored-connections" value="{{labels}}"></cookie-element>
+    <cookie-element id="labelsCookie" name="selected-label" value="{{selectedLabels}}"></cookie-element>
   </template>
 
   <script>
@@ -128,18 +88,10 @@
       behaviors: [Polymer.NeonSharedElementAnimatableBehavior, Polymer.NeonAnimationRunnerBehavior],
 
       properties: {
-        availableLabels: {
+        selectedLabels: {
           type: Array,
-          value: function() { return []; }
-        },
-        labels: {
-          type: Array,
-          notify: true,
-          value: function() { return []; }
-        },
-        notSelected: {
-          type: Boolean,
-          value: true
+          value: function() { return [];},
+          notify: true
         },
         sharedElements: {
           type: Object,
@@ -184,35 +136,16 @@
         }
       },
 
-      observers: [
-        '_labelsChanged(labels.length)',
-        '_availableLabelsChanged(availableLabels.*)'
-      ],
-
-      _labelsChanged: function(length) {
-        this.set("notSelected",(length < 1));
+      _disableButton: function() {
+        if (this.selectedLabels.length === 0)
+          this.$.submitButton.setAttribute('disabled', true);
+        else
+          this.$.submitButton.removeAttribute('disabled');
       },
 
-      _availableLabelsChanged: function() {
-        if (this.labels && this.availableLabels.length > 0) {
-          var self = this;
-          // var needToRestart = false;
-
-          // check if the loaded labels (from cookie) match the availableLabels (send by data-socket)
-          for(var i=0; i < this.labels.length; i++) {
-            if (this.availableLabels.indexOf(this.labels[i]) === -1) {
-              this.splice("labels",i, 1);
-              i--;
-            }
-          }
-
-          this.$.labelsCookie.save();
-        }
-      },
-
-      _onSelected: function() {
+      _onSubmit: function() {
         this.$.labelsCookie.save();
-        this.fire("configset");
+        this.fire("labels-set", this.selectedLabels);
       }
     });
   </script>
