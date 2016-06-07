@@ -431,20 +431,19 @@
 
         groupingkeys[newIndex].classList.add("foreground");
         content[newIndex].classList.add("foreground");
-
-        if (this.animated) {
+        if (oldIndex !== undefined && content[oldIndex].getAttribute('hidden') === "true") {
+          content[newIndex].classList.add("selected");
+          content[oldIndex].classList.remove("foreground");
+          content[oldIndex].classList.remove("selected");
+          groupingkeys[oldIndex].classList.remove("foreground");
+        }
+        else if (this.animated) {
           if (oldIndex !== undefined) {
-            if (content[oldIndex].getAttribute('hidden') === "true") {
-              content[newIndex].classList.add("selected");
-              content[oldIndex].classList.remove("foreground");
-            }
-            else {
               content[oldIndex].addEventListener("transitionend", function(e) {
                 content[newIndex].classList.add("selected");
                 content[oldIndex].classList.remove("foreground");
                 content[oldIndex].removeEventListener(e.type, arguments.callee);
               });
-            }
             content[oldIndex].classList.remove("selected");
             groupingkeys[oldIndex].classList.remove("foreground");
           }
