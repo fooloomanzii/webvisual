@@ -222,14 +222,14 @@
           <section class="title">Alarme</section>
         </section>
         <iron-swipeable-container id="exceedingElementsList" on-iron-swipe="_removeSingleExceedingElementFromList"></iron-swipeable-container>
-        <span style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_removeAllExceedingElementFromList">Liste leeren</a></span>
+        <div style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_removeAllExceedingElementFromList">Liste leeren</a></div>
       </section>
 
       <!-- SIDEMENU -->
       <section id="drawerPanel">
         <paper-button collapse-id="settings" class="sidemenu collapsable" on-tap="toggleCollapse">
           <iron-icon icon="settings"></iron-icon>
-          <span class="flex">Einstellungen</span>
+          <div class="flex">Einstellungen</div>
           <iron-icon icon="arrow-drop-up" class="collapse-arrow right-icon" id="settings"></iron-icon>
         </paper-button>
 
@@ -237,7 +237,7 @@
             <section class="indention collapse-content">
               <paper-button collapse-id="grouping" class="sidemenu" on-tap="toggleCollapse">
                 <iron-icon icon="reorder"></iron-icon>
-                <span class="flex">Gruppierung</span>
+                <div class="flex">Gruppierung</div>
                 <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="grouping"></iron-icon>
               </paper-button>
 
@@ -249,17 +249,17 @@
                   </section>
                 </iron-collapse>
 
-              <paper-item>
+              <paper-item class="sidemenu">
                 <iron-icon icon="date-range"></iron-icon>
-                <paper-toggle-button id="colorschema" on-change="toggleDateView">Zeit anzeigen</paper-toggle-button>
+                <paper-toggle-button on-change="toggleDateView">Zeit anzeigen</paper-toggle-button>
               </paper-item>
 
-              <paper-item>
+              <paper-item class="sidemenu">
                 <iron-icon icon="editor:border-style"></iron-icon>
-                <paper-toggle-button id="border-style" on-change="toggleWindowStyle" checked="{{withoutWindow}}">Fensterstil</paper-toggle-button>
+                <paper-toggle-button on-change="toggleWindowStyle" checked="{{withoutWindow}}">Fensterstil</paper-toggle-button>
               </paper-item>
 
-              <paper-item>
+              <paper-item class="sidemenu">
                 <iron-icon icon="settings-brightness"></iron-icon>
                 <paper-toggle-button id="colorschema" on-change="toggleTheme">Farbschema</paper-toggle-button>
               </paper-item>
@@ -269,7 +269,7 @@
 
         <paper-button class="sidemenu" on-tap="backToMainMenu">
           <iron-icon icon="arrow-back"></iron-icon>
-          <span class="flex">Auswahl</span>
+          <div class="flex">Auswahl</div>
         </paper-button>
 
       </section>

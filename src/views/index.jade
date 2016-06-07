@@ -111,7 +111,7 @@ html
           each Label in config.labels
             iron-selector.groupingKeySelector(attr-for-selected= "groupingkey", selected-attribute= "checked", selected!= config.preferedGroupingKeys[Label], fallback-selection!= config.preferedGroupingKeys[Label], activate-event="change")
               each GroupingKey in config.groupingKeys[Label]
-                paper-radio-button.groupingKey(groupingkey!= GroupingKey)
+                paper-radio-button.lightcontext.groupingKey(groupingkey!= GroupingKey)
                   != GroupingKey
           each Label, I in config.labels
             section.panel(label!= Label, animated!= (!mobile))

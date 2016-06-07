@@ -34,16 +34,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="86.581965"
+     inkscape:cx="-78.418035"
      inkscape:cy="81.634376"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="1920"
-     inkscape:window-height="1005"
-     inkscape:window-x="-9"
-     inkscape:window-y="-9"
+     inkscape:window-width="1680"
+     inkscape:window-height="988"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata4411">
@@ -53,7 +53,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -108,19 +108,19 @@
        inkscape:flatsided="true"
        inkscape:rounded="1"
        inkscape:randomized="0"
-       d="m 163.51522,905.59889 c 35.73548,61.61289 35.73548,61.61289 -35.49059,61.75427 -71.22607,0.14139 -71.22607,0.14139 -35.735478,-61.61289 35.490588,-61.75428 35.490588,-61.75428 71.226068,-0.14138 z"
+       d="m 163.51522,905.59889 c 35.73548,61.61289 35.73548,61.61289 -35.49059,61.75427 -71.226067,0.14139 -71.226067,0.14139 -35.735475,-61.61289 35.490595,-61.75428 35.490595,-61.75428 71.226065,-0.14138 z"
        inkscape:transform-center-x="1.7010704"
        inkscape:transform-center-y="-25.511416" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#aa0000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="102.8525"
+       x="96.494873"
        y="950.2832"
        id="text4976"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4978"
-         x="102.8525"
+         x="96.494873"
          y="950.2832"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:105px;font-family:Inconsolata;-inkscape-font-specification:Inconsolata;fill:#aa0000">!</tspan></text>
   </g>

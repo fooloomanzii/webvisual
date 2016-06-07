@@ -37,14 +37,15 @@
         overflow: hidden;
         border-bottom-left-radius: 0px;
         border-bottom-right-radius: 0px;
-        background: #669DB4;
+        background: var(--bright-primary-color);
+        color: var(--bright-text-color);
         font-size: 1em;
         transition: max-height linear 180ms, min-height linear 180ms;
         min-height: 2.6em;
       }
       section#header[dark] {
-        background: #345475;
-        color: #A8CCDB;
+        background: var(--dark-primary-color);
+        color: var(--highlight-color);
       }
       section#header[opened] {
         min-height: calc(15vh + 120px);
@@ -77,7 +78,7 @@
         text-shadow: -1px 0px 1px #1f1f1f;
       }
       section#title[dark] {
-        color: #A8CCDB;
+        color: var(--highlight-color);
       }
       section#mainContent {
         flex-direction: row;
