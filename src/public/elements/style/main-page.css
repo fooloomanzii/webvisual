@@ -158,7 +158,7 @@ section#exceedsPanel {
   cursor: default;
   -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
   -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
-  z-index: 100;
+  z-index: 90;
 }
 section#exceedsPanel[dark] {
   background-color: rgba(162, 162, 162, 0.5);
@@ -296,7 +296,7 @@ logo-element#logo {
   top: 10px;
   bottom: auto;
   left: 80px;
-  z-index: 10;
+  z-index: 200;
   width: 140px;
 }
 logo-element#logo[dark] {
@@ -314,12 +314,23 @@ section#toolbar {
   white-space: nowrap;
   margin: 0em;
   padding: 0em;
-  background: #005B82;
   color: #f1f1f1;
 }
 section#toolbar[dark] {
-  background: #345475;
   color: #A8CCDB;
+}
+section#toolbarBackground {
+  flex: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: #005B82;
+  z-index: 100;
+}
+section#toolbarBackground[dark] {
+  background: #345475;
 }
 section#toolbarHeader {
   height: 64px;
@@ -328,6 +339,7 @@ section#toolbarHeader {
   flex-shrink: 0;
   flex-direction: row;
   align-items: center;
+  z-index: 100;
 }
 section#toolbarHeader paper-icon-button {
   display: inline-block;
@@ -361,6 +373,7 @@ section#toolbarFooter {
   transition: max-height 150ms linear, min-height 150ms linear;
   will-change: min-height;
   will-change: max-height;
+  z-index: 100;
 }
 section#toolbarFooter[opened] {
   min-height: 150px;
@@ -394,6 +407,7 @@ section#toolbarFooter svg-element:not([opened]) {
 section#toolbarFooter .selectedElement {
   border-right: thin solid #BBBBBB;
   border-radius: 8px;
+  z-index: 100;
 }
 section#toolbarFooter .selectedElement[dark] {
   border-color: #808080;

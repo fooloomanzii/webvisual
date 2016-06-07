@@ -94,31 +94,6 @@
       background: linear-gradient(to top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
       color: #A8CCDB;
     }
-    @media all and (max-width: 600px) {
-      :host {
-        font-size: 0.9em;
-      }
-    }
-    @media all and (min-width: 1000px) and (max-width: 1200px) {
-      :host {
-        font-size: 1.1em;
-      }
-    }
-    @media all and (min-width: 1201px) and (max-width: 1400px) {
-      :host {
-        font-size: 1.15em;
-      }
-    }
-    @media all and (min-width: 1401px)  and (max-width: 1800px){
-      :host {
-        font-size: 1.2em;
-      }
-    }
-    @media all and (min-width: 1801px) {
-      :host {
-        font-size: 1.25em;
-      }
-    }
     @media all and (max-width: 520px) {
       section.panel {
         display: block;
@@ -145,7 +120,17 @@
         margin-left: 12px !important;
       }
     }
-    @media all and (min-width: 521px) and (max-width: 600px){
+    @media all and (max-width: 419px) {
+      section#toolbarHeader paper-icon-button.expand-icon {
+        display: none;
+      }
+    }
+    @media all and (max-height: 519px)  {
+      section#toolbarHeader paper-icon-button.expand-icon {
+        display: none;
+      }
+    }
+    @media all and (min-width: 520px) and (max-width: 600px){
       section#toolbarHeader paper-icon-button.menu-icon {
         margin-right: 16px;
         margin-left: 16px;
@@ -158,9 +143,6 @@
       }
     }
     @media all and (max-width: 600px) {
-      section#toolbarHeader paper-icon-button.expand-icon {
-        display: none !important;
-      }
       section#toolbarFooter[opened] {
         max-height: 32vh;
       }
@@ -169,9 +151,6 @@
       }
     }
     @media all and (max-height: 690px) {
-      section#toolbarHeader paper-icon-button.expand-icon {
-        display: none !important;
-      }
       section#toolbarFooter[opened] {
         max-height: 32vh;
       }
@@ -190,13 +169,14 @@
     <logo-element id="logo" on-tap="backToMainMenu"></logo-element>
     <!-- TOOLBAR -->
     <section id="toolbar">
+      <section id="toolbarBackground"></section>
       <section id="toolbarHeader">
         <paper-icon-button icon="menu" class="menu-icon" on-tap="toggleDrawer"></paper-icon-button>
 
         <div class="logo-element-placeholder"></div>
 
         <section id="labelsTabs">
-          <iron-selector id="labelSelector" selected="{{selectedLabelIndex}}" fallback-selection="0">
+          <iron-selector id="labelSelector" selected="{{selectedLabel}}" attr-for-selected="label">
             <content select="paper-tab.label"></content>
           </iron-selector>
         </section>
@@ -305,57 +285,39 @@
     Polymer({
       is: 'main-page',
 
-      // behaviors: [Polymer.NeonAnimationRunnerBehavior, Polymer.NeonSharedElementAnimatableBehavior],
+      behaviors: [Polymer.NeonSharedElementAnimatableBehavior],
 
       properties: {
-        // sharedElements: {
-        //   value: function() {
-        //     return {
-        //       'herologo2': this.$.logo
-        //     }
-        //   }
-        // },
-        // animationConfig: {
-        //   value: function() {
-        //     return {
-        //       'entry': [
-        //         {
-        //           name: 'hero-animation',
-        //           id: 'herologo2',
-        //           toPage: this,
-        //         },
-        //         {
-        //           name: 'fade-in-animation',
-        //           node: this.$.mainView
-        //         }
-        //       ],
-        //       'exit': [
-        //         {
-        //           name: 'scale-down-animation',
-        //           node: this
-        //         }
-        //       ],
-        //       'select-in': [
-        //         {
-        //           name: 'cascaded-animation',
-        //           animation: 'fade-in-animation',
-        //           timing: {duration: 250},
-        //           nodeDelay: 50,
-        //           nodes: [this.$.selectedElementSign, this.$.selectedElementTable, this.$.selectedElementSVG]
-        //         }
-        //       ],
-        //       'select-out': [
-        //         {
-        //           name: 'cascaded-animation',
-        //           animation: 'fade-out-animation',
-        //           timing: {duration: 250},
-        //           nodeDelay: 50,
-        //           nodes: [this.$.selectedElementSVG, this.$.selectedElementTable, this.$.selectedElementSign]
-        //         }
-        //       ]
-        //     }
-        //   }
-        // },
+        sharedElements: {
+          value: function() {
+            return {
+              'herologo': this.$.logo
+            }
+          }
+        },
+        animationConfig: {
+          value: function() {
+            return {
+              'entry': [
+                {
+                  name: 'hero-animation',
+                  id: 'herologo',
+                  toPage: this,
+                },
+                {
+                  animatable: this.$.logo,
+                  type: 'loading'
+                }
+              ],
+              'exit': [
+                {
+                  name: 'scale-down-animation',
+                  node: this
+                }
+              ]
+            }
+          }
+        },
         withoutWindow: {
           type: Boolean,
           value: false
@@ -385,10 +347,10 @@
           type: Object,
           value: function() { return {}; }
         },
-        selectedLabelIndex: {
+        selectedLabel: {
           type: Number,
           value: 0,
-          observer: "_selectedLabelIndexChanged"
+          observer: "_selectedLabelChanged"
         },
         exceedingElements: {
           type: Object,
@@ -418,8 +380,9 @@
                });
         Polymer.dom(this.$.mainContent)
                .observeNodes( function(info) {
-                 if (info.addedNodes.length > 0)
-                   self.$.mainContent.children[0].classList.add("selected");
+                 if (info.addedNodes.length > 0) {
+                    this.set("selectedLabel", Labels[0]);
+                 }
                });
         // Notifications
         if (!("Notification" in window)) {
@@ -447,16 +410,24 @@
       // app Control
       backToMainMenu: function() {
         this.closeDrawer();
-        this.fire("restart");
+        PageSelector.select("0");
       },
-      // Tab Control
-      _selectedLabelIndexChanged: function(newIndex, oldIndex) {
-        this._selectPanel(newIndex, oldIndex);
+      // Panel Control
+      _selectedLabelChanged: function(newLabel, oldLabel) {
+        this._selectPanel(newLabel, oldLabel);
         this.deselectElement();
       },
-      _selectPanel: function(newIndex, oldIndex) {
+      _selectPanel: function(newLabel, oldLabel) {
+        var newIndex, oldIndex;
         var content = this.$.mainContent.children;
         var groupingkeys = this.$.groupingKeysLabelSelector.children;
+
+        for (var i = 0; i < content.length; i++) {
+          if (content[i].getAttribute('label') === newLabel)
+            newIndex = i;
+          else if (oldLabel && content[i].getAttribute('label') === oldLabel)
+            oldIndex = i;
+        }
 
         groupingkeys[newIndex].classList.add("foreground");
         content[newIndex].classList.add("foreground");
@@ -483,9 +454,27 @@
           }
         }
       },
+      dissemblePanels: function(labels) {
+        var content = this.$.mainContent.children;
+        var tabs = this.$.labelSelector.children;
+        var groupingkeys = this.$.groupingKeysLabelSelector.children;
+
+        for (var i = 0; i < content.length; i++) {
+          if (labels.indexOf(content[i].getAttribute('label')) === -1) {
+            content[i].setAttribute("hidden", true);
+            tabs[i].setAttribute("hidden", true);
+            groupingkeys[i].setAttribute("hidden", true);
+          }
+          else {
+            content[i].removeAttribute("hidden");
+            tabs[i].removeAttribute("hidden");
+            groupingkeys[i].removeAttribute("hidden");
+          }
+        }
+      },
       // Grouping Options
       _regroup: function(key) {
-        var label = Labels[this.selectedLabelIndex];
+        var label = this.selectedLabel;
         if (!label || !key || !Groups[label][key] || PreferedGroupingKeys[label] == key)
           return;
 
@@ -563,14 +552,12 @@
 
             if (!this.opened){
               this.toggleAttribute('opened', true);
-              // this.playAnimation('select-in');
             }
           }
         }
       },
       deselectElement: function() {
         if (this.opened) {
-          // this.playAnimation('select-out');
           this.closeDrawer();
           this.toggleAttribute('opened', false);
           try {

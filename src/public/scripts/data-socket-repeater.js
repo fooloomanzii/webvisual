@@ -1,9 +1,9 @@
 // globals
-var SvgSource = {};
 var socketName = "/data";
 var Selector = "[updatable]";
 var Nodes = {};
 var Elements = {};
+var SvgSource = {};
 var Labels = [];
 var AvailableLabels = [];
 var GroupingKeys = {};
@@ -27,8 +27,8 @@ socket.on('connect', function() {
 });
 // Init connection
 socket.on('init', function(settings) {
-  AvailableLabels = settings.labels;
   if (!opened) {
+    Labels = settings.labels;
     Groups = settings.groups;
     Elements = settings.elements;
     GroupingKeys = settings.groupingKeys;
@@ -36,7 +36,7 @@ socket.on('init', function(settings) {
     if (settings.svg)
       _loadSvgSources(settings.svg);
   } else {
-    connect();
+    connect(Labels);
   }
 });
 // Receive Data
@@ -44,7 +44,7 @@ socket.on('update', function(message) {
   if (message)
     _update(message);
   else
-    console.warn("socket: received empty message");
+    console.info("socket: received empty message");
   return;
 });
 // Disconnect
@@ -61,14 +61,15 @@ socket.on('connect_error', function() {
 });
 
 // MESSAGE HANDLING
-function connect() {
+function connect(labels) {
   // send Config
-  Labels = ["HNF-GDS", "test"];
-  var settings = {
-    labels: Labels
-  };
-  socket.emit('init', settings);
+  if (!labels || labels.length === 0) {
+    console.warn("No labels set for connection");
+    return;
+  }
+  Labels = labels;
   _init();
+  socket.emit('init', { labels: Labels });
 }
 
 function reconnect() {
@@ -76,10 +77,6 @@ function reconnect() {
   socket = io.connect('https://' + window.location.host + socketName, {
     secure: true,
     multiplex: false
-  });
-  socket.on('clientConfig', function(message) {
-    AvailableLabels = message.Labels;
-    connect();
   });
 }
 
@@ -176,6 +173,4 @@ function _updateNodes(message) {
       console.warn("no Nodes for", label, id);
     }
   }
-  // if (messageContent.lastExceeds)
-  //   this.set('groups.' + labelindex + '.groups.' + a + '.subgroup.' + b + '.Nodes.' + c + '.values', messageContent.lastExceeds);
 }

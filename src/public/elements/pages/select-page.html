@@ -12,16 +12,24 @@
     }
     section#background {
       @apply(--primary-color-background);
+      z-index: 95;
+      box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 10px 0 rgba(0, 0, 0, 0.12),
+                  0 2px 4px -1px rgba(0, 0, 0, 0.4);
     }
     section#background[dark] {
       @apply(--dark-color-background);
     }
     section#mainContent {
       box-sizing: border-box;
+      width: auto;
+      height: auto;
       padding: 1.5em;
+      z-index: 100;
     }
     section.title {
       font-size: 2em;
+      line-height: normal;
       margin: 0.67em 0em;
       text-align: center;
     }
@@ -77,7 +85,7 @@
       </section>
     </section>
 
-    <cookie-element id="labelsCookie" name="selected-label" value="{{selectedLabels}}"></cookie-element>
+    <cookie-element id="labelsCookie" name="selected-label" value="[[selectedLabels]]"></cookie-element>
   </template>
 
   <script>
@@ -97,7 +105,7 @@
           type: Object,
           value: function() {
             return {
-              'herologo1': this.$.logo
+              'herologo': this.$.logo
             }
           }
         },
@@ -109,13 +117,13 @@
                   name: 'fade-in-animation',
                   node: this.$.background,
                   timing: {
-                    duration: 1500,
+                    duration: 1000,
                     delay: 0,
                     easing: 'ease'
                   }
                 },
                 {
-                  name: 'fade-in-animation',
+                  name: 'scale-up-animation',
                   node: this.$.mainContent,
                   timing: {
                     duration: 500,
@@ -127,13 +135,35 @@
               'exit': [
                 {
                   name: 'hero-animation',
-                  id: 'herologo1',
-                  fromPage: this
+                  id: 'herologo',
+                  fromPage: this,
+                },
+                {
+                  name: 'slide-up-animation',
+                  node: this.$.background,
+                  timing: {
+                    duration: 500,
+                    delay: 0,
+                    easing: 'ease'
+                  }
+                },
+                {
+                  name: 'fade-out-animation',
+                  node: this.$.mainContent,
+                  timing: {
+                    duration: 300,
+                    delay: 0,
+                    easing: 'linear'
+                  }
                 }
               ]
             }
           }
         }
+      },
+
+      attached: function() {
+        this.$.labelsCookie.load();
       },
 
       _disableButton: function() {
@@ -144,8 +174,16 @@
       },
 
       _onSubmit: function() {
+        // save the label
         this.$.labelsCookie.save();
-        this.fire("labels-set", this.selectedLabels);
+        // connect the datasocket
+        connect(this.selectedLabels);
+        // select the MainPage
+        PageSelector.select("1");
+        // Hide in MianPage the non selected label-related Elements
+        MainPage.dissemblePanels(this.selectedLabels);
+        // Set Window title to selectedLabels
+        document.title = ((this.selectedLabels.length > 0) ? this.selectedLabels.join(', ') : this.selectedLabels.toString());
       }
     });
   </script>
