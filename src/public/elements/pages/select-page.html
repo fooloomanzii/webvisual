@@ -85,7 +85,7 @@
       </section>
     </section>
 
-    <cookie-element id="labelsCookie" name="selected-label" value="[[selectedLabels]]"></cookie-element>
+    <cookie-element id="labelsCookie" name="selected-label"></cookie-element>
   </template>
 
   <script>
@@ -163,7 +163,14 @@
       },
 
       attached: function() {
-        this.$.labelsCookie.load();
+        this._setSelected(this.$.labelsCookie.load());
+      },
+
+      _setSelected: function(labels) {
+        var labelSelector = this.$.labelSelector;
+        for (var label in labels) {
+          labelSelector.select(label);
+        }
       },
 
       _disableButton: function() {

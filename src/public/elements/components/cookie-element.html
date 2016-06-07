@@ -132,6 +132,7 @@ the `value` attribute or explicitely calling the `save` method.
         var kv = this._parseCookie();
         if (kv)
           this.set("value", JSON.parse(kv.value));
+        return this.value;
       },
 
       /**
