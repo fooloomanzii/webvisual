@@ -381,7 +381,7 @@
         Polymer.dom(this.$.mainContent)
                .observeNodes( function(info) {
                  if (info.addedNodes.length > 0) {
-                    this.set("selectedLabel", Labels[0]);
+                    self.set("selectedLabel", Labels[0]);
                  }
                });
         // Notifications
@@ -418,7 +418,7 @@
         this.deselectElement();
       },
       _selectPanel: function(newLabel, oldLabel) {
-        var newIndex, oldIndex;
+        var newIndex = 0, oldIndex;
         var content = this.$.mainContent.children;
         var groupingkeys = this.$.groupingKeysLabelSelector.children;
 

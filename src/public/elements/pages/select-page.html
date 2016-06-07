@@ -78,7 +78,7 @@
       <section class="title">Auswahl des Messraums</section>
       <section id="select">
         <span>verfügbar sind:</span>
-        <iron-selector id="labelSelector" selected-values="[[selectedLabels]]" on-iron-select="_disableButton" on-iron-deselect="_disableButton" multi attr-for-selected="label">
+        <iron-selector id="labelSelector" selected-values="[[selectedLabels]]" on-iron-select="_disableButton" on-iron-deselect="_disableButton" multi attr-for-selected="label" selected-attribute="checked">
           <content></content>
         </iron-selector>
         <paper-button id="submitButton" disabled raised="[[notSelected]]" on-click="_onSubmit"><iron-icon id="logo" icon="juelich:logo"></iron-icon>Verbinden</paper-button>
@@ -167,9 +167,11 @@
       },
 
       _setSelected: function(labels) {
+        if (!labels) return;
         var labelSelector = this.$.labelSelector;
-        for (var label in labels) {
-          labelSelector.select(label);
+        for (var i in labels) {
+          if (Labels.indexOf(labels[i]) !== -1)
+            labelSelector.select(labels[i]);
         }
       },
 
@@ -182,7 +184,7 @@
 
       _onSubmit: function() {
         // save the label
-        this.$.labelsCookie.save();
+        this.$.labelsCookie.save(this.selectedLabels);
         // connect the datasocket
         connect(this.selectedLabels);
         // select the MainPage
