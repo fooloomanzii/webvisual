@@ -434,11 +434,17 @@
 
         if (this.animated) {
           if (oldIndex !== undefined) {
-            content[oldIndex].addEventListener("transitionend", function(e) {
+            if (content[oldIndex].getAttribute('hidden') === "true") {
               content[newIndex].classList.add("selected");
               content[oldIndex].classList.remove("foreground");
-              content[oldIndex].removeEventListener(e.type, arguments.callee);
-            });
+            }
+            else {
+              content[oldIndex].addEventListener("transitionend", function(e) {
+                content[newIndex].classList.add("selected");
+                content[oldIndex].classList.remove("foreground");
+                content[oldIndex].removeEventListener(e.type, arguments.callee);
+              });
+            }
             content[oldIndex].classList.remove("selected");
             groupingkeys[oldIndex].classList.remove("foreground");
           }
@@ -458,6 +464,7 @@
         var content = this.$.mainContent.children;
         var tabs = this.$.labelSelector.children;
         var groupingkeys = this.$.groupingKeysLabelSelector.children;
+        var newLabel;
 
         for (var i = 0; i < content.length; i++) {
           if (labels.indexOf(content[i].getAttribute('label')) === -1) {
@@ -466,11 +473,14 @@
             groupingkeys[i].setAttribute("hidden", true);
           }
           else {
+            if (!newLabel)
+              newLabel = content[i].getAttribute('label'),
             content[i].removeAttribute("hidden");
             tabs[i].removeAttribute("hidden");
             groupingkeys[i].removeAttribute("hidden");
           }
         }
+        this.set("selectedLabel", newLabel);
       },
       // Grouping Options
       _regroup: function(key) {
