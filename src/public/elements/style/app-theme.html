@@ -22,20 +22,20 @@
 
     --primary-text-color: #1f1f1f;
     --bright-text-color: #f1f1f1;
-    --disabled-text-color: #a8a8a8;
+    --disabled-text-color: #BDE2F1;
 
-    --highlight-color: #A8CCDB;
-    --select-color: #C9CBEE;
+    --highlight-color: #BDE2F1;
+    --select-color: #CCF2DD;
 
     --default-icon-color: none;
     --default-hover-icon-color: rgba(255,255,255, 0.25);
 
-    --primary-color-background: radial-gradient(rgba(0,91,130,1) 80%, rgba(0,91,130,0.8) 100%);
-    --dark-primary-color-background: radial-gradient(rgba(52,84,117,1) 80%, rgba(52,84,117,0.8) 100%);
-    --app-content-background: #B5BBB5;
-    --dark-app-content-background: #656665;
+    --primary-color-background: radial-gradient(rgba(0,91,130,1) 80%, rgba(0,91,130,0.8) 160%);
+    --dark-primary-color-background: radial-gradient(rgba(52,84,117,1) 80%, rgba(52,84,117,0.8) 160%);
+    --app-content-background: #BBBBBB;
+    --dark-app-content-background: #666666;
 
-    --blur-overlay-background: linear-gradient(180deg, rgba(255,255,255,0), rgba(230,230,230,0.2), rgba(255,255,255,0));
+    --blur-overlay-background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230,230,230,0.2), rgba(255,255,255,0));
 
     --warning-color: #FF9D9D;
 
@@ -66,10 +66,10 @@
     --paper-toggle-button-checked-ink-color:	#FCA135;
 
     --paper-radio-button-checked-color: var(--select-color);
-    --paper-radio-button-checked-ink-color: var(--select-color);
+    --paper-radio-button-checked-ink-color: var(--highlight-color);
     --paper-radio-button-unchecked-color: var(--highlight-color);
     --paper-radio-button-unchecked-ink-color: var(--highlight-color);
-    --paper-radio-button-label-color: var(--bright-text-color);
+    --paper-radio-button-label-color: currentColor;
     --paper-radio-button-label-spacing: 1em;
     --paper-radio-button-size: 20px;
 
@@ -86,7 +86,7 @@
     --paper-button: {
         border-radius: 5px;
         border: none;
-        border-color: var(--bright-primary-color);
+        border-color: var(--highlight-color);
         min-height: none;
         margin: 0em;
         padding: 0.75em 1.5em;
@@ -96,13 +96,13 @@
         text-transform: none;
         cursor: pointer;
         transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
-        align-items: flex-end;
+        align-items: center;
       };
 
     --paper-button-disabled: {
-        color: var(--bright-primary-color);
+        color: var(--disabled-text-color);
         background: none;
-        border-color: var(--bright-primary-color);
+        border-color: var(--disabled-text-color);
       };
 
     --item-theme: {
@@ -149,10 +149,6 @@
    * Items, Buttons and Icons
    */
 
-  paper-button:hover {
-   background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.10) 40%);
-  }
-
   iron-icon {
     --iron-icon-height: 24px;
     --iron-icon-width: 24px;
@@ -194,11 +190,10 @@
   }
 
   paper-radio-button.lightcontext {
-    --paper-radio-button-checked-color: var(--dark-primary-color);
-    --paper-radio-button-checked-ink-color: var(--dark-primary-color);
-    --paper-radio-button-unchecked-color: var(--primary-color);
-    --paper-radio-button-unchecked-ink-color: var(--primary-color);
-    --paper-radio-button-label-color: var(--primary-text-color);
+    --paper-radio-button-checked-color: var(--primary-color);
+    --paper-radio-button-checked-ink-color: var(--primary-color);
+    --paper-radio-button-unchecked-color: var(--primary-text-color);
+    --paper-radio-button-unchecked-ink-color: var(--primary-text-color);
   }
 
   /*
