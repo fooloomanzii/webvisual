@@ -78,7 +78,7 @@
     }
     section#labelsTabs ::content paper-tab.label.iron-selected {
       /*border: thin solid #A8CCDB;*/
-      border-bottom: thin solid transparent;
+      /*border-bottom: thin solid transparent;*/
       background: linear-gradient(to top, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.15));
       color: #f1f1f1;
     }
@@ -90,7 +90,7 @@
     }
     section#labelsTabs ::content paper-tab.label.iron-selected[dark]{
       /*border: thin solid #A8CCDB;*/
-      border-bottom: thin solid transparent;
+      /*border-bottom: thin solid transparent;*/
       background: linear-gradient(to top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
       color: #A8CCDB;
     }
@@ -191,11 +191,11 @@
       </section>
       <section id="toolbarFooter" opened$="[[opened]]" expanded$="[[expanded]]">
         <section id="toolbarSelectedElement">
-          <sign-element id="selectedElementSign" class="selectedElement" horizontal="[[!expanded]]" on-tap="deselectElement"></sign-element>
+          <sign-element id="selectedElementSign" class="selectedElement" hidden$="[[!opened]]" horizontal="[[!expanded]]" on-tap="deselectElement"></sign-element>
           <section style="display: flex;">
-            <table-element id="selectedElementTable" class="selectedElement" highlight-exceeding></table-element>
+            <table-element id="selectedElementTable" hidden$="[[!opened]]" class="selectedElement" highlight-exceeding></table-element>
           </section>
-          <svg-element id="selectedElementSVG" class="selectedElement"  opened="[[opened]]"
+          <svg-element id="selectedElementSVG" class="selectedElement" opened="[[opened]]"
           zoom-partition="1.1" max-zoom="5" min-zoom="1">
           </svg-element>
         </section>
@@ -473,7 +473,7 @@
           }
           else {
             if (!newLabel)
-              newLabel = content[i].getAttribute('label'),
+              newLabel = content[i].getAttribute('label');
             content[i].removeAttribute("hidden");
             tabs[i].removeAttribute("hidden");
             groupingkeys[i].removeAttribute("hidden");
@@ -716,7 +716,7 @@
         if (this.opened) {
           this.set('expanded', !this.expanded);
           this.toggleAttribute('expanded', this.expanded, this.$.toolbarFooter);
-          this.$.selectedElementSVG._debouncedResetZoom();
+          this.$.selectedElementSVG._debounceResetZoom();
         }
       },
       _computeExpandIcon: function() {

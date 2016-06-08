@@ -86,9 +86,9 @@
         flex-wrap: wrap;
         justify-content: center;
         align-items: flex-start;
-        border-width: thin;
-        border-style: solid;
-        border-color: inherit;
+        border-top-width: thin;
+        border-top-style: solid;
+        border-top-color: inherit;
         border-top-left-radius: 0px;
         border-top-right-radius: 0px;
         border-bottom-left-radius: inherit;
@@ -140,7 +140,7 @@
 
       <section id="header" hidden$="[[_hideTitle(title,withoutWindow)]]">
         <!-- <content select=".header"></content> -->
-        <svg-element id="svgElement" hidden selected="[[exceedingElements]]" initially-zoom-to-selected></svg-element>
+        <svg-element id="svgElement" hidden selected="{{exceedingElements}}" initially-zoom-to-selected></svg-element>
         <section id="title" on-tap="toggle">[[title]]</section>
       </section>
 

@@ -36,7 +36,6 @@ Use `isZoomable` to make it isZoomable.
     border-radius: inherit;
     -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
     -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
-    color: #1f1f1f;
     flex: 1;
     display: flex;
     width: auto;
@@ -56,9 +55,9 @@ Use `isZoomable` to make it isZoomable.
   }
   div#control {
     position: absolute;
-    padding-top: 12px;
-    padding-bottom: 12px;
-    padding-right: 6px;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    padding-right: 0.5em;
     bottom: 0;
     right: 0;
   }
@@ -68,9 +67,9 @@ Use `isZoomable` to make it isZoomable.
     bottom: auto;
   }
   paper-icon-button {
-    --iron-icon-height: 20px;
-    --iron-icon-width: 20px;
-    margin-right: 6px;
+    height: 2em;
+    width: 2em;
+    margin-right: 0.5em;
     transition: none;
     color: rgb(120, 120, 120);
     border-radius: 50%;
@@ -89,7 +88,7 @@ Use `isZoomable` to make it isZoomable.
     box-shadow: 0px 0px 6px 0px rgba(31,31,31,0.5);
   }
   .text {
-    color: var(--bright-text-color);
+    color: var(--primary-text-color);
     fill: currentColor !important;
     pointer-events: none;
     font-family: inherit !important;
@@ -141,9 +140,9 @@ Use `isZoomable` to make it isZoomable.
   <div id="svgContainer">
   </div>
   <div id="control" top$="{{fullscreen}}">
-    <paper-icon-button label="focus" icon="focus" on-tap="_resetZoom"></paper-icon-button>
-    <paper-icon-button label="fullscreen" hidden$="{{fullscreen}}" icon="fullscreen" on-tap="_openFullscreen"></paper-icon-button>
-    <paper-icon-button label="exit fullscreen" hidden$="{{!fullscreen}}" icon="fullscreen-exit" on-tap="_exitFullscreen"></paper-icon-button>
+    <paper-icon-button title="focus" icon="focus" on-tap="_debounceResetZoom"></paper-icon-button>
+    <paper-icon-button title="fullscreen" hidden$="{{fullscreen}}" icon="fullscreen" on-tap="_openFullscreen"></paper-icon-button>
+    <paper-icon-button title="exit fullscreen" hidden$="{{!fullscreen}}" icon="fullscreen-exit" on-tap="_exitFullscreen"></paper-icon-button>
   </div>
 </template>
 
@@ -169,7 +168,7 @@ Use `isZoomable` to make it isZoomable.
       },
       selected: {
         type: Object,
-        observer: "_selectedChanged"
+        value: function() { return {}; }
       },
       initial: {
         type: String,
@@ -202,7 +201,7 @@ Use `isZoomable` to make it isZoomable.
       },
       minZoom: {
         type: Number,
-        value: 1
+        value: 0.9
       },
       maxZoom: {
         type: Number,
@@ -228,6 +227,10 @@ Use `isZoomable` to make it isZoomable.
         type: Function
       }
     },
+
+    observers: [
+      "_selectedChanged(selected.*)"
+    ],
 
     factoryImpl: function(svg, opened) {
       this.setSvg(svg);
@@ -256,7 +259,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _sourceChanged: function(source) {
-      if (this.opened && source && this.recentSource !== source) {
+      if (this.opened === true && source !== "" && this.recentSource !== source) {
         if (!SvgSource[source])
           return;
         if (!SvgSource[source].node)
@@ -304,33 +307,32 @@ Use `isZoomable` to make it isZoomable.
       this.height = viewBox[3] - viewBox[1];
 
       this._selectableChanged(this.selectable);
-      this.select(this.selected, this.selectedClass);
+      this._debounceSelect();
     },
 
     _openedChanged: function(opened) {
       if (!this.source || !opened) return;
       this._sourceChanged(this.source);
-      this._debouncedResetZoom();
+      this._debounceResetZoom();
     },
 
     _selectedChanged: function(change) {
-      if(!change || !this.selected) return;
-      this.select(this.selected, this.selectedClass);
+      this._debounceSelect();
     },
 
     _initialChanged: function(initial) {
-      if (!this.source || !opened) return;
-      this._debouncedResetZoom();
+      if (this.source === "" || initial === "") return;
+      this._debounceResetZoom();
     },
 
     _selectableChanged: function(change) {
-      if (!this.mainG || !change || Object.keys(change).length === 0) return;
+      if (this.mainG === undefined || change === undefined || Object.keys(change).length === 0) return;
 
       var self = this;
       this.svg.on('contextmenu',
         (function () {
           d3.event.preventDefault();
-          this._resetZoom();
+          this._debounceResetZoom();
         }).bind(self));
 
       // previous selectable elements: remove 'svg-element-selectable' class and click listener
@@ -378,25 +380,32 @@ Use `isZoomable` to make it isZoomable.
                      .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     },
 
+    _debounceSelect: function() {
+      this.debounce("select",
+        function() {
+          this.select(this.selected, this.selectedClass);
+        }, 300);
+    },
+
     select: function(selected, selectedClass) {
-      if (!this.mainG || !selectedClass) return;
+      if (this.mainG === undefined || selectedClass === "") return;
       // previous selected elements: remove class for selected elements
 
       this.mainG.selectAll("." + selectedClass)
                 .classed(selectedClass, false);
 
       var elems;
-      var sel = "";
+      var sel = [];
       for (var key in selected) {
-        if (selected[key])
-          sel += selected[key] + ','
+        if (selected[key] !== "")
+          sel.push(selected[key]);
       }
-      sel = sel.slice(0,-1);
-      if (!sel ||
+      var sel = sel.join(",");
+      if (sel === "" ||
           (elems = this.mainG.selectAll(sel)
                              .filter('.svg-element-selectable')).empty()) {
         if (this.opened)
-          this._resetZoom();
+          this._debounceResetZoom();
         return;
       }
 
@@ -422,7 +431,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _zoomToElement: function(elem) {
-      if (!elem) return;
+      if (elem === undefined) return;
       // calc centered zoom coordinates
       var transform = this._calcCenterZoom(elem);
       // call zoom to translate and scale
@@ -434,12 +443,12 @@ Use `isZoomable` to make it isZoomable.
     _calcCenterZoom: function(elem) {
       // get view height and width
       var view = this.getClientRects()[0];
-      if (!view || !elem || view.height === 0 || view.width === 0)
+      if (view === undefined || elem === undefined || view.height === 0 || view.width === 0)
         return {translate: [0,0], scale: 1};
 
       // calculate scale based on partioned view and dimensions of the element
       var boundE; var bboxE;
-      if (elem.nodeType)
+      if (elem.nodeType !== undefined)
         boundE = elem.getBoundingClientRect();
       else boundE = elem;
 
@@ -454,14 +463,14 @@ Use `isZoomable` to make it isZoomable.
       // calculate zoom based on partions or minZoom or maxZoom
       // scaling and centering
       // view height/width in comparison tho viewboxheight/-width is important because of resizing by the browser
-      // diffence in calculation by firefox in comparison to chromium based browsers
-      if (view.width/view.height > 1)
+      // difference in calculation by firefox in comparison to chromium based browsers
+      if (view.width > view.height)
         var scale = Math.min(this.width/(this.zoomPartition*vs*boundE.width), this.height/(this.zoomPartition*vs*boundE.height));
       else
         var scale = Math.max(this.width/(this.zoomPartition*vs*boundE.width), this.height/(this.zoomPartition*vs*boundE.height));
 
       if (scale < this.minZoom) scale = this.minZoom;
-      if (scale > this.maxZoom) scale = this.maxZoom;
+      else if (scale > this.maxZoom) scale = this.maxZoom;
 
       if (view.width/view.height > this.width/this.height) {
         x = -scale*x + (this.height*view.width/view.height - scale*boundE.width*vs)/2;
@@ -478,26 +487,27 @@ Use `isZoomable` to make it isZoomable.
         return {translate: [x,y], scale: scale};
     },
 
-    _debouncedResetZoom: function() {
-      this.debounce( "resetZoom", function() {
-        this._resetZoom()
-      }, 1000);
+    _debounceResetZoom: function() {
+      this.debounce("resetZoom",
+        function() {
+          this._resetZoom()
+        }, 300);
     },
 
     _resetZoom: function() {
-      if (!this.mainG || !this.opened) return;
+      if (this.mainG === undefined || this.opened === false) return;
       // zoom to selectedItems
-      if (this.initiallyZoomToSelected && this.selected) {
+      if (this.initiallyZoomToSelected === true && this.selected) {
         for (var key in this.selected) {
-          if (this.selected[key] !== "" && !(selected = this.mainG.selectAll(this.selected[key])
+          if (this.selected[key] !== "" && !(this.mainG.selectAll(this.selected[key])
                                     .filter(".svg-element-selectable")).empty()) {
-            this.select(this.selected, this.selectedClass);
+            this._debounceSelect();
             return;
           }
         }
       }
       // zoom to initial
-      if (this.initial) {
+      if (this.initial !== "") {
         var initial;
         if (!(initial = this.mainG.selectAll(this.initial)
                                   .filter(".svg-element-selectable")).empty()) {

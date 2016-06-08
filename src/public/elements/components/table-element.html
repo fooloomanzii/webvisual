@@ -3,8 +3,7 @@
   <style>
     :host {
       /*height needs to be set by outer element*/
-      font-family: Fira Sans Light;
-      font-weight: normal;
+      color: var(--primary-text-color);
       display: flex;
       height: inherit;
       text-align: center;
@@ -18,7 +17,6 @@
     }
     :host[dark] {
       background: #a8a8a8;
-      color: #1d1d1d;
       border-color: #808080;
     }
     section#table {
@@ -48,19 +46,19 @@
       border: thin solid transparent;
     }
     section#tr.null {
-      background: none; color: #1f1f1f;
+      background: none; color: inherit;
     }
     section#tr.null:nth-child(even) {
       background-color: rgba(137, 137, 137, 0.15);
     }
     section#tr.true {
-      background: #D91B1B; color: #f1f1f1;
+      background: #D91B1B; color: var(--bright-text-color);
     }
     section#tr.false {
-      background: #920bad; color: #f1f1f1;
+      background: #920bad; color: var(--bright-text-color);
     }
     section#tr.undefined {
-      background: #c3ab12; color: #1f1f1f;
+      background: #c3ab12; color: inherit;
     }
     section#body {
       width: 100%;
