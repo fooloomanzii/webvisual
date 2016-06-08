@@ -1,0 +1,31 @@
+{
+  "port": {
+    "http": 80,
+    "https": 443
+  },
+
+  "auth": {
+    "required": true,
+    "ldap": {
+      "url": "ibn-net.kfa-juelich.de",
+      "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de"
+    }
+  },
+
+  "logs": {
+    "http_server_log": "./logs/http-error.log",
+    "server_log": "./logs/server-error.log"
+  },
+
+  "database": {},
+
+  "configFiles": [{
+    "path_folder": "settings/defaults",
+    "path": "HNF_GDS.json",
+    "relativePath": true
+  }, {
+    "path_folder": "settings/defaults",
+    "path": "Plasmadetect.json",
+    "relativePath": true
+  }]
+}

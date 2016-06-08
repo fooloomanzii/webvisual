@@ -56,8 +56,7 @@ var
     "file": {
       // We don't need to make a copy of the file
       copy: false,
-      // The watching mode ('all', 'append', 'prepend', 'complete')
-      // 'complete' e.g. for json-files
+      // The watching mode ('all', 'append', 'prepend', 'json')
       mode: 'all',
       // Default file: Same dir as the "master" script,
       path_folder: "//",

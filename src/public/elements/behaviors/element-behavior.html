@@ -44,6 +44,11 @@
           value: function() { return {}; },
           reflectToAttribute: true
         },
+        exceedable: {
+          type: Boolean,
+          value: true,
+          reflectToAttribute: true
+        },
         isExceeding: {
           type: Boolean,
           value: false,
@@ -54,20 +59,29 @@
           value: false,
           observer: "_hasExceededChanged"
         },
-        updatable: {
-          type: Boolean,
-          value: true,
-          readOnly: true,
-          reflectToAttribute: true
-        },
         bubbles: {
           type: Boolean,
           value: false,
           reflectToAttribute: true
         },
-        tooltip: {
+        selectable: {
           type: Boolean,
           value: false,
+          reflectToAttribute: true
+        },
+        addable: {
+          type: Boolean,
+          value: true,
+          reflectToAttribute: true
+        },
+        isAdded: {
+          type: Boolean,
+          value: false
+        },
+        updatable: {
+          type: Boolean,
+          value: true,
+          readOnly: true,
           reflectToAttribute: true
         }
     },

@@ -99,6 +99,11 @@
           type: String,
           value: ""
         },
+        descendingOrder: {
+          type: Boolean,
+          value: true,
+          observer: "_reorder"
+        },
         highlightExceeding: {
           type: Boolean,
           value: false
@@ -143,9 +148,17 @@
         var body = Polymer.dom(this.$.body);
         var row, tdX, tdY, isExceeding, index, tdI;
         if (value === undefined && splices.start !== undefined && splices.length !== undefined) {
-          for (var i = splices.length + splices.start; i > splices.start; i--) {
-            if (body.children[i])
-              body.removeChild(body.children[i]);
+          if (this.descendingOrder) {
+            for (var i = 0; i < splices.length + splices.start; i++) {
+              if (body.children[0])
+                body.removeChild(body.children[0]);
+            }
+          }
+          else {
+            for (var i = splices.length + splices.start; i > splices.start; i--) {
+              if (body.children[i])
+                body.removeChild(body.children[i]);
+            }
           }
         }
         else if (Array.isArray(value)) {
@@ -166,7 +179,11 @@
             row.className = value.exceeds;
 
           row.appendChild(tdX); row.appendChild(tdY);
-          body.insertBefore(row, body.childNodes[0]);
+
+          if (this.descendingOrder)
+            body.appendChild(row);
+          else
+            body.insertBefore(row, body.childNodes[0]);
         }
       },
 
@@ -195,9 +212,25 @@
             if (this.highlightExceeding)
               row.className = values[j].exceeds;
             row.appendChild(tdX); row.appendChild(tdY);
-            body.insertBefore(row, body.childNodes[0]);
+
+            if (this.descendingOrder)
+              body.appendChild(row);
+            else
+              body.insertBefore(row, body.childNodes[0]);
           }
           Polymer.dom.flush();
+        }
+      },
+
+      _reorder: function(descendingOrder) {
+        var body = Polymer.dom(this.$.body);
+        var rows = body.children;
+
+        if (descendingOrder) {
+
+        }
+        else {
+
         }
       }
     });

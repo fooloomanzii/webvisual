@@ -195,8 +195,7 @@
           <section style="display: flex;">
             <table-element id="selectedElementTable" hidden$="[[!opened]]" class="selectedElement" highlight-exceeding></table-element>
           </section>
-          <svg-element id="selectedElementSVG" class="selectedElement" opened="[[opened]]"
-          zoom-partition="1.1" max-zoom="5" min-zoom="1">
+          <svg-element id="selectedElementSVG" class="selectedElement" opened="[[opened]]">
           </svg-element>
         </section>
       </section>
@@ -628,9 +627,11 @@
         if (Notification.permission !== 'denied') {
           var count = 0;
           var msg = '';
-          for (var label in this.exceedingElements) {
-            count += this.exceedingElements[label].length;
-            msg += label + ': ' + '\n' + this.exceedingElements[label].join(', ') + '\n\n';
+          for (var i in Labels) {
+            if (this.exceedingElements[Labels[i]]) {
+              count += this.exceedingElements[Labels[i]].length;
+              msg += Labels[i] + ': ' + '\n' + this.exceedingElements[Labels[i]].join(', ') + '\n\n';
+            }
           }
 
           var notification = new Notification(count + ' Elemente im Alarmzustand',

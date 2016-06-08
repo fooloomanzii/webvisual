@@ -93,7 +93,7 @@ The function returns a watcher instance or a array of watcher if multiple paths 
       mode = mode.toLowerCase();
 
       // and check if it's a valid mode
-      if (!(mode === 'append' || mode === 'prepend' || mode === 'all' || mode === 'complete')) {
+      if (!(mode === 'append' || mode === 'prepend' || mode === 'all' || mode === 'json')) {
         return new Error(mode + " - Not a valid mode.");
       }
     } else {
@@ -288,8 +288,8 @@ The function returns a watcher instance or a array of watcher if multiple paths 
     });
   }
 
-  // Read a complete file (e.g. a json file)
-  function _process_read_complete_file(path, start, end, process, callback) {
+  // Read a json file
+  function _process_read_json_file(path, start, end, process, callback) {
     // (starts same as _process_read)
     // Define variables
     var processedData = [],
@@ -378,9 +378,9 @@ The function returns a watcher instance or a array of watcher if multiple paths 
       // It was already checked if content is a valid function
       if (options.content) {
         // Just process the file and give the data to the specified callback
-        if (nOptions.mode === "complete")
-        // read option, if you like to watch a complete file (e.g. watching a json-file)
-          nOptions.work_function = _process_read_complete_file;
+        if (nOptions.mode === "json")
+        // read option, if you like to watch a json file
+          nOptions.work_function = _process_read_json_file;
         else
           nOptions.work_function = _process_read;
       } else {
@@ -412,7 +412,7 @@ The function returns a watcher instance or a array of watcher if multiple paths 
         options.work_function(path, 0, (currStat.size - prevStat.size), options.process, options.content, options.copy_path);
       } else if (options.mode === 'all') {
         options.work_function(path, undefined, undefined, options.process, options.content, options.copy_path);
-      } else if (options.mode === 'complete') {
+      } else if (options.mode === 'json') {
         options.work_function(path, undefined, undefined, options.process, options.content, options.copy_path);
       }
     }
