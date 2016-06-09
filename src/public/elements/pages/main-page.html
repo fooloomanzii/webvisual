@@ -14,7 +14,7 @@
       top: 0;
       position: absolute;
     }
-    section#mainContent ::content section.panel {
+    section#mainContent ::content .panel {
       position: absolute;
       left: 0;
       overflow-y: auto;
@@ -35,16 +35,16 @@
       opacity: 1;
       /*z-index: 50;*/
     }
-    section#mainContent ::content section.panel.foreground {
+    section#mainContent ::content .panel.foreground {
       display: flex;
     }
-    section#mainContent ::content section.panel:not(.foreground) {
+    section#mainContent ::content .panel:not(.foreground) {
       display: none;
     }
-    section#mainContent ::content section.panel.selected[animated] {
+    section#mainContent ::content .panel.selected[animated] {
       transition: opacity 150ms ease, transform 300ms ease;
     }
-    section#mainContent ::content section.panel:not(.selected)[animated] {
+    section#mainContent ::content .panel:not(.selected)[animated] {
       transition: opacity 300ms ease, transform 150ms ease;
       opacity: 0;
       transform: translateY(25%);
@@ -95,7 +95,7 @@
       color: #A8CCDB;
     }
     @media all and (max-width: 520px) {
-      section.panel {
+      .panel {
         display: block;
         padding: 0em;
       }
@@ -202,17 +202,13 @@
     </section>
 
     <section id="mainView">
-      <!-- MAIN VIEW -->
-      <section id="mainPanel">
-
         <!-- Content -->
         <section id="mainContent">
-          <content select="section.panel"></content>
+          <content select=".panel"></content>
         </section>
 
         <section id="backdrop" on-tap="tapBackdrop"></section>
         <section id="dropShadow" class="has-shadow"></section>
-      </section>
 
       <!-- EXCEEDING -->
       <section id="exceedsPanel">
@@ -274,11 +270,12 @@
       </section>
     </section>
 
-    <section id="svgFullscreenContainer">
-      <svg-element id="fullscreenSvg" zoom-partition="2" max-zoom="2.75" min-zoom="0.75" fullscreen initially-zoom-to-selected></svg-element>
+    <section id="overlay">
+      <content select=".overlay"></content>
     </section>
 
   </template>
+  
   <script>
     var ExceedingSvgPaths = {};
     Polymer({
@@ -401,9 +398,7 @@
       listeners: {
         "element-select": "setSelectedElement",
         "element-is-exceeding": "_setExceedingElement",
-        "element-is-not-exceeding": "_unsetExceedingElement",
-        "svg-open-fullscreen": "openSvgFullscreen",
-        "svg-exit-fullscreen": "exitSvgFullscreen"
+        "element-is-not-exceeding": "_unsetExceedingElement"
       },
 
       // app Control
@@ -487,7 +482,7 @@
           return;
 
         PreferedGroupingKeys[label] = key;
-        var panel = this.queryEffectiveChildren('section.panel[label="'+label+'"]');
+        var panel = this.queryEffectiveChildren('.panel[label="'+label+'"]');
         var oldgroupcards = Polymer.dom(panel).getEffectiveChildNodes();
 
         var elements = [];
@@ -727,18 +722,18 @@
           return 'expand-more';
       },
       // Toolbar-SVG-Element Control
-      openSvgFullscreen: function(e) {
-        this.closeDrawer();
-        this.$.control.style.visibility = "hidden";
-        this.$.fullscreenSvg.setSvg(e.detail);
-        this.$.fullscreenSvg.set('opened', true);
-        this.$.svgFullscreenContainer.classList.add("fullscreen-opened");
-      },
-      exitSvgFullscreen: function() {
-        this.$.control.style.visibility = "visible";
-        this.$.fullscreenSvg.set('opened', false);
-        this.$.svgFullscreenContainer.classList.remove("fullscreen-opened");
-      },
+      // openSvgFullscreen: function(e) {
+      //   this.closeDrawer();
+      //   this.$.control.style.visibility = "hidden";
+      //   this.$.fullscreenSvg.setSvg(e.detail);
+      //   this.$.fullscreenSvg.set('opened', true);
+      //   this.$.svgFullscreenContainer.classList.add("fullscreen-opened");
+      // },
+      // exitSvgFullscreen: function() {
+      //   this.$.control.style.visibility = "visible";
+      //   this.$.fullscreenSvg.set('opened', false);
+      //   this.$.svgFullscreenContainer.classList.remove("fullscreen-opened");
+      // },
       // Panel Control
       _checkExceedsPanel: function(value) {
         if(value && !(this.$.exceedsPanel.classList.contains("exceeds-panel-opened"))) {

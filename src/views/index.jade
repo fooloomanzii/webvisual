@@ -100,21 +100,26 @@ html
               != Label
         //- MAIN-PAGE
         main-page.page(animated!= (!mobile))
-          //- INITIAL CONTENT
+          //- TABS
           each Label in config.labels
             paper-tab.label(label!= Label)
               != Label
+          //- GROUPINGKEY SELECTORS
           each Label in config.labels
             iron-selector.groupingKeySelector(attr-for-selected= "groupingkey", selected-attribute= "checked", selected!= config.preferedGroupingKeys[Label], fallback-selection!= config.preferedGroupingKeys[Label], activate-event="change")
               each GroupingKey in config.groupingKeys[Label]
                 paper-radio-button.lightcontext.groupingKey(groupingkey!= GroupingKey)
                   != GroupingKey
+          //- PANELS
           each Label, I in config.labels
             section.panel(label!= Label, animated!= (!mobile))
               each Subgroup, Name in config.groups[Label][config.preferedGroupingKeys[Label]]
                 group-card(title= Name, svg= JSON.stringify(Subgroup.svg))
                   each Id, i in Subgroup.ids
                     sign-element.content(label!= Label, id!= Id, is-boolean!= JSON.stringify(config.elements[Label][Id].isBoolean), keys= JSON.stringify(config.elements[Label][Id].keys), svg= JSON.stringify(config.elements[Label][Id].svg), caption-keys= JSON.stringify(config.groupingKeys[Label]), show-date!= (!mobile), bubbles)
+          //- FULLSCREEN-SVG-ELEMENT
+          svg-element.overlay(fullscreen, zoom-partition='3', max-zoom='3', min-zoom='0.75', initially-zoom-to-selected)
+
     script.
       var PageSelector;
       var MainPage;
