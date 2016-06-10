@@ -69,7 +69,9 @@ function connect(labels) {
   }
   Labels = labels;
   _init();
-  socket.emit('init', { labels: Labels });
+  socket.emit('init', {
+    labels: Labels
+  });
 }
 
 function reconnect() {
@@ -150,6 +152,8 @@ function _updateNodes(message) {
 
   var label = message.label;
   var id;
+  //
+  // .splice(1, 1, {name: 'Sam'}); this.items.push({name: 'Bob'}); this.notifySplices('items', [ { index: 1, removed: [{name: 'Todd'}], addedCount: 1, obect: this.items, type: 'splice' }, { index: 3, removed: [], addedCount: 1, object: this.items, type: 'splice'} ]);
 
   for (var i = 0; i < message.content.length; i++) {
     id = message.content[i].id;

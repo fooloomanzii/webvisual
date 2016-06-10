@@ -101,7 +101,7 @@
         },
         descendingOrder: {
           type: Boolean,
-          value: false,
+          value: true,
           observer: "_reorder"
         },
         highlightExceeding: {
@@ -119,12 +119,6 @@
         hideOverflow: {
           type: Boolean,
           value: false
-        },
-        _body: {
-          type: Object,
-          value: function() {
-            return Polymer.dom(this.$.body);
-          }
         }
       },
 
@@ -151,18 +145,19 @@
       },
 
       _updateView: function(value, splices) {
+        var body = Polymer.dom(this.$.body);
         var row, tdX, tdY, isExceeding, index, tdI;
         if (value === undefined && splices.start !== undefined && splices.length !== undefined) {
-          if (this.descendingOrder === true) {
-            for (var i = 0; i < splices.length; i++) {
-              if (this._body.children[0])
-                this._body.removeChild(this._body.children[0]);
+          if (this.descendingOrder) {
+            for (var i = 0; i < splices.length + splices.start; i++) {
+              if (body.children[0])
+                body.removeChild(body.children[0]);
             }
           }
           else {
             for (var i = splices.length + splices.start; i > splices.start; i--) {
-              if (this._body.children[i])
-                this._body.removeChild(this._body.children[i]);
+              if (body.children[i])
+                body.removeChild(body.children[i]);
             }
           }
         }
@@ -180,22 +175,23 @@
           isExceeding = (value.exceeds === null) ? false : true;
           tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : value.y);
 
-          if (this.highlightExceeding === true)
+          if (this.highlightExceeding)
             row.className = value.exceeds;
 
           row.appendChild(tdX); row.appendChild(tdY);
 
-          if (this.descendingOrder === true)
-            this._body.appendChild(row);
+          if (this.descendingOrder)
+            body.appendChild(row);
           else
-            this._body.insertBefore(row, this._body.childNodes[0]);
+            body.insertBefore(row, body.childNodes[0]);
         }
       },
 
       setValues: function(values) {
-        this.set("values", values);
-        while (this._body.lastChild) {
-          this._body.removeChild(this._body.lastChild);
+        this.values = values;
+        var body = Polymer.dom(this.$.body);
+        while (body.lastChild) {
+          body.removeChild(body.lastChild);
         }
 
         if (values.length !== 0) {
@@ -213,21 +209,22 @@
             isExceeding = (values[j].exceeds === null) ? false : true;
             tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : values[j].y);
 
-            if (this.highlightExceeding === true)
+            if (this.highlightExceeding)
               row.className = values[j].exceeds;
             row.appendChild(tdX); row.appendChild(tdY);
 
-            if (this.descendingOrder === true)
-              this._body.appendChild(row);
+            if (this.descendingOrder)
+              body.appendChild(row);
             else
-              this._body.insertBefore(row, this._body.childNodes[0]);
+              body.insertBefore(row, body.childNodes[0]);
           }
           Polymer.dom.flush();
         }
       },
 
       _reorder: function(descendingOrder) {
-        // var rows = this._body.children;
+        var body = Polymer.dom(this.$.body);
+        var rows = body.children;
 
         if (descendingOrder) {
 

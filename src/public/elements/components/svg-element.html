@@ -19,14 +19,11 @@
 #about absolut positioning
 <http://stackoverflow.com/a/26053262>
 
-Use `isZoomable` to make it isZoomable.
-
 #reference and inspiration
 <http://bl.ocks.org/mbostock/9656675>
 
 @element svg-element
 -->
-
 <!-- <script src='../../../components/d3/d3.min.js'></script> -->
 
 <dom-module id="svg-element">
@@ -49,7 +46,7 @@ Use `isZoomable` to make it isZoomable.
           -ms-user-select: none !important;
               user-select: none !important;
   }
-  :host[fullscreen] {
+  :host[is-fullscreen] {
     position: absolute;
     top: 0;
     right: 0;
@@ -61,7 +58,7 @@ Use `isZoomable` to make it isZoomable.
     opacity: 0;
     transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1), transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
   }
-  :host[fullscreen][opened] {
+  :host[is-fullscreen][opened] {
     background: rgba(52,84,117,0.8);
     opacity: 1;
     transform: scale(1);
@@ -115,7 +112,6 @@ Use `isZoomable` to make it isZoomable.
     opacity: 0.9;
     background: rgba(255,255,255, 0.4);
   }
-
   div#control[top] svg.icon {
     box-shadow: 0px 0px 3px 0px rgba(31,31,31,0.5);
   }
@@ -123,7 +119,7 @@ Use `isZoomable` to make it isZoomable.
     background: rgba(255,255,255, 0.8);
     box-shadow: 0px 0px 6px 0px rgba(31,31,31,0.5);
   }
-  .text {
+  text.text {
     color: var(--primary-text-color);
     fill: currentColor !important;
     pointer-events: none;
@@ -171,10 +167,10 @@ Use `isZoomable` to make it isZoomable.
 <template>
   <div id="svgContainer">
   </div>
-  <div id="control" top$="{{fullscreen}}">
+  <div id="control" top$="{{isFullscreen}}">
     <svg class="icon" viewBox="0 -4 16 24" on-tap="_debounceResetZoom"><title>focus</title><g id="focus"> <path d="M 16,5.5 13,8 16,10.5 Z" /> <path d="M 10.5,16 8,13 5.5,16 Z" /> <path d="M 0,10.5 3,7.9999999 0,5.5 Z" /><path d="M 5.5,0 8,3 10.5,0 Z"/><circle r="1.5" cx="8" cy="8" /></g></svg>
-    <svg class="icon" viewBox="0 0 24 24" hidden$="{{fullscreen}}" on-tap="_fireOpenFullscreen"><title>fullscreen</title><g id="fullscreen"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></g></svg>
-    <svg class="icon" viewBox="0 0 24 24" hidden$="{{!fullscreen}}" on-tap="close"><title>close</title><g id="fullscreen-exit"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></g></paper-icon-button>
+      <svg class="icon" viewBox="0 0 24 24" hidden$="{{isFullscreen}}" on-tap="_fireOpenFullscreen"><title>fullscreen</title><g id="fullscreen"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></g></svg>
+      <svg class="icon" viewBox="0 0 24 24" hidden$="{{!isFullscreen}}" on-tap="close"><title>close</title><g id="fullscreen-exit"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></g></svg>
   </div>
 </template>
 
@@ -186,6 +182,9 @@ Use `isZoomable` to make it isZoomable.
     is: 'svg-element',
 
     properties: {
+      /**
+       * Object key of a global 'SvgSource'-Element that stores SVG-Nodes (so that their are no unesseccary reloads)
+       */
       source: {
         type: String,
         observer: "_sourceChanged"
@@ -194,67 +193,125 @@ Use `isZoomable` to make it isZoomable.
         type: String,
         value: ''
       },
+      /**
+       * If true, on Svg-Element's Nodes can be attached (and removed) a unique class, so that it can be styled via css
+       */
       selectable: {
         type: Object,
         observer: "_selectableChanged"
       },
+      /**
+       * Object of unique Identifiers (an ID or a Title) and the related (css-like) selector of selected Nodes
+       */
       selected: {
         type: Object,
         value: function() { return {}; }
       },
+      /**
+       * class-attribute to add a selected Node
+       */
+      selectedClass: {
+        type: String,
+        value: "selected"
+      },
+      /**
+       * (css-like) selector of a initially zoomed Nodes
+       */
       initial: {
         type: String,
         value: "",
         observer: "_initialChanged"
       },
-      selectedClass: {
-        type: String,
-        value: "selected"
-      },
-      isZoomable: {
+      /**
+       * If true, initially it is not zoomed to 'initial' if there are selected Nodes
+       */
+      initiallyZoomToSelected: {
         type: Boolean,
-        value: true
+        value: false,
+        reflectToAttribute: true
       },
+      /**
+       * If true, Svg-Element is shown
+       */
       opened: {
         type: Boolean,
         value: false,
         reflectToAttribute: true,
         observer: "_openedChanged"
       },
+      /**
+       * If true, Svg-Element can be in fullscreen-presentation.
+       * The Element sends an Event, that would being catched by another Svg-Element (that is marked 'isFullscreen')
+       */
       fullscreen: {
         type: Boolean,
-        value: false,
-        reflectToAttribute: true
+        value: true
       },
-      initiallyZoomToSelected: {
+      /**
+       * Marks the element, that triggers, when an another Svg-Element requests fullscreen-presentation.
+       * This Element should be in Polymer-DOM's Top Level, to catch the events.
+       */
+      isFullscreen: {
         type: Boolean,
         value: false,
         reflectToAttribute: true
       },
+      /**
+       * If true, Element is zoomable
+       */
+      isZoomable: {
+        type: Boolean,
+        value: true
+      },
+      /**
+       * If true, Element is zoomable
+       */
       minZoom: {
         type: Number,
         value: 0.9
       },
+      /**
+       * If true, Element is zoomable
+       */
       maxZoom: {
         type: Number,
         value: 5
       },
+      /**
+       * a clicked or selected Node will be centered and zoomed, depending how many times a zoomed Node,
+       * would fit in the actual view
+       */
       zoomPartition: {
         type: Number,
         value: 3
       },
-      height: {
+      /**
+       * {private} inititial viewBox-height
+       */
+      _height: {
         type: Number
       },
-      width: {
+      /**
+       * {private} inititial viewBox-width
+       */
+      _width: {
         type: Number
       },
-      mainG: {
+      /**
+       * {private} mayor <g></g>-Node (that should be all sourounding group in the Svg-Graphic)
+       */
+      _mainG: {
         type: Object
       },
-      svg: {
+      /**
+       * {private} svg-Node
+       */
+      _svg: {
         type: Object
       },
+      /**
+       * {private} d3-zoom-behavior
+       */
       _d3Zoom: {
         type: Function
       }
@@ -272,7 +329,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     attached: function() {
-      if (this.fullscreen) {
+      if (this.isFullscreen) {
         this.listen(this.rootElement, "svg-open-fullscreen", "open");
         this.listen(this.rootElement, "svg-close-fullscreen", "close");
       }
@@ -283,7 +340,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     detached: function() {
-      if (this.fullscreen) {
+      if (this.isFullscreen) {
         this.unlisten(this.rootElement, "svg-open-fullscreen", "open");
         this.unlisten(this.rootElement, "svg-close-fullscreen", "close");
       }
@@ -329,14 +386,12 @@ Use `isZoomable` to make it isZoomable.
 
     _sourceChanged: function(source) {
       if (this.opened === true && source !== "" && this.recentSource !== source) {
-        if (!SvgSource[source])
-          return;
-        if (!SvgSource[source].node)
-          return;
+        if (!SvgSource[source]) return;
+        if (!SvgSource[source].node) return;
         this.recentSource = source;
-        this.svg = d3.select(this.$.svgContainer).select('svg#main');
-        if (this.svg && !this.svg.empty()) {
-          this.$.svgContainer.removeChild(this.svg.node());
+        this._svg = d3.select(this.$.svgContainer).select('svg#main');
+        if (this._svg && !this._svg.empty()) {
+          this.$.svgContainer.removeChild(this._svg.node());
         }
         // import svg (came by data-socket-repeater)
         this._registerXML(SvgSource[source].node, source);
@@ -348,32 +403,33 @@ Use `isZoomable` to make it isZoomable.
       var date = new Date();
       var svgNode = document.importNode(xml.cloneNode(true), true);
       // register zoom function
+      var self = this;
       this._d3Zoom = d3.behavior.zoom()
                        .scaleExtent([this.minZoom, this.maxZoom])
-                       .on("zoom", this._zoom);
+                       .on("zoom", function() { self._zoom(); });
 
       // append imported svg to this element
       this.$.svgContainer.insertBefore(svgNode, this.$.svgContainer.firstChild);
-      this.svg = d3.select(svgNode).attr("id", "main")
-                                   .classed("svg-element", true)
-                                   .call(this._d3Zoom);
+      this._svg = d3.select(svgNode).attr("id", "main")
+                                    .classed("svg-element", true)
+                                    .call(this._d3Zoom);
 
       // set style for resizing
-      this.svg.attr("preserveAspectRatio", "xMinYMin meet")
-              .attr("height", null)
-              .attr("width", null);
+      this._svg.attr("preserveAspectRatio", "xMinYMin meet")
+               .attr("height", null)
+               .attr("width", null);
 
-      this.mainG = this.svg.select("g")
-                           .attr("id", "mainG");
+      this._mainG = this._svg.select("g")
+                             .attr("id", "mainG");
 
-      this.mainG.selectAll("text")
-                .classed("text", true)  // for styling text
-                .classed("svg-element", true); // style-scoping in polymer
+      this._mainG.selectAll("text")
+                 .classed("text", true)  // for styling text
+                 .classed("svg-element", true); // style-scoping in polymer
 
       // get original dimensions
-      var viewBox = this.svg.attr("viewBox").split(' ');
-      this.width  = viewBox[2] - viewBox[0];
-      this.height = viewBox[3] - viewBox[1];
+      var viewBox = this._svg.attr("viewBox").split(' ');
+      this._width  = viewBox[2] - viewBox[0];
+      this._height = viewBox[3] - viewBox[1];
 
       this._selectableChanged(this.selectable);
       this._debounceSelect();
@@ -395,31 +451,31 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _selectableChanged: function(change) {
-      if (this.mainG === undefined || change === undefined || Object.keys(change).length === 0) return;
+      if (this._mainG === undefined || change === undefined || Object.keys(change).length === 0) return;
 
       var self = this;
-      this.svg.on('contextmenu',
+      this._svg.on('contextmenu',
         (function () {
           d3.event.preventDefault();
           this._debounceResetZoom();
         }).bind(self));
 
       // previous selectable elements: remove 'svg-element-selectable' class and click listener
-      this.mainG.selectAll(".svg-element-selectable")
+      this._mainG.selectAll(".svg-element-selectable")
                 .classed("svg-element-selectable", false)
                 .on("click", null);
-      this.mainG.selectAll(".clicked")
-                .classed("clicked", false);
+      this._mainG.selectAll(".clicked")
+                 .classed("clicked", false);
 
       // add 'svg-element-selectable' class and click listener
       for (var key in this.selectable)
-        this.mainG.selectAll(this.selectable[key])
+        this._mainG.selectAll(this.selectable[key])
                   .classed("svg-element-selectable", true)  // for styling selectable
                   .classed("svg-element", true) // for style-scoping in polymer
                   .on("click",
                     function() {
                       self._zoomToElement(this);
-                      self.mainG.selectAll(".clicked")
+                      self._mainG.selectAll(".clicked")
                                 .classed("clicked", false);
                       self.classList.add("clicked");
                     })
@@ -428,14 +484,14 @@ Use `isZoomable` to make it isZoomable.
                       return key;
                    });
       for (var key in SvgSource[this.source].selectable)
-        this.mainG.selectAll(SvgSource[this.source].selectable[key])
+        this._mainG.selectAll(SvgSource[this.source].selectable[key])
                   .classed("svg-element-selectable", true)  // for styling selectable
                   .classed("svg-element", true) // for style-scoping in polymer
                   .on("click",
                     function() {
                       self._zoomToElement(this);
-                      self.mainG.selectAll('.clicked')
-                                .classed("clicked", false);
+                      self._mainG.selectAll('.clicked')
+                                 .classed("clicked", false);
                       self.classList.add("clicked");
                     })
                   .append("title")
@@ -445,8 +501,7 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _zoom: function () {
-      d3.select(this).select("g#mainG")
-                     .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+      this._mainG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     },
 
     _debounceSelect: function() {
@@ -457,10 +512,10 @@ Use `isZoomable` to make it isZoomable.
     },
 
     select: function(selected, selectedClass) {
-      if (this.mainG === undefined || selectedClass === "") return;
+      if (this._mainG === undefined || selectedClass === "") return;
       // previous selected elements: remove class for selected elements
 
-      this.mainG.selectAll("." + selectedClass)
+      this._mainG.selectAll("." + selectedClass)
                 .classed(selectedClass, false);
 
       var elems;
@@ -471,7 +526,7 @@ Use `isZoomable` to make it isZoomable.
       }
       var sel = sel.join(",");
       if (sel === "" ||
-          (elems = this.mainG.selectAll(sel)
+          (elems = this._mainG.selectAll(sel)
                              .filter('.svg-element-selectable')).empty()) {
         if (this.opened)
           this._debounceResetZoom();
@@ -504,9 +559,9 @@ Use `isZoomable` to make it isZoomable.
       // calc centered zoom coordinates
       var transform = this._calcCenterZoom(elem);
       // call zoom to translate and scale
-      this.svg.transition()
-              .duration(350)
-              .call(this._d3Zoom.translate(transform.translate).scale(transform.scale).event);
+      this._svg.transition()
+               .duration(350)
+               .call(this._d3Zoom.translate(transform.translate).scale(transform.scale).event);
     },
 
     _calcCenterZoom: function(elem) {
@@ -521,8 +576,8 @@ Use `isZoomable` to make it isZoomable.
         boundE = elem.getBoundingClientRect();
       else boundE = elem;
 
-      var bboxG = this.mainG.node().getBBox();
-      var boundG = this.mainG.node().getBoundingClientRect();
+      var bboxG = this._mainG.node().getBBox();
+      var boundG = this._mainG.node().getBoundingClientRect();
 
       // absolute position (for angled or transioned element)
       var vs = bboxG.width/boundG.width || 1; // view scale
@@ -534,20 +589,20 @@ Use `isZoomable` to make it isZoomable.
       // view height/width in comparison tho viewboxheight/-width is important because of resizing by the browser
       // difference in calculation by firefox in comparison to chromium based browsers
       if (view.width > view.height)
-        var scale = Math.min(this.width/(this.zoomPartition*vs*boundE.width), this.height/(this.zoomPartition*vs*boundE.height));
+        var scale = Math.min(this._width/(this.zoomPartition*vs*boundE.width), this._height/(this.zoomPartition*vs*boundE.height));
       else
-        var scale = Math.max(this.width/(this.zoomPartition*vs*boundE.width), this.height/(this.zoomPartition*vs*boundE.height));
+        var scale = Math.max(this._width/(this.zoomPartition*vs*boundE.width), this._height/(this.zoomPartition*vs*boundE.height));
 
       if (scale < this.minZoom) scale = this.minZoom;
       else if (scale > this.maxZoom) scale = this.maxZoom;
 
-      if (view.width/view.height > this.width/this.height) {
-        x = -scale*x + (this.height*view.width/view.height - scale*boundE.width*vs)/2;
-        y = -scale*y + (this.height - scale*boundE.height*vs)/2;
+      if (view.width/view.height > this._width/this._height) {
+        x = -scale*x + (this._height*view.width/view.height - scale*boundE.width*vs)/2;
+        y = -scale*y + (this._height - scale*boundE.height*vs)/2;
       }
       else {
-        x = -scale*x + (this.width - scale*boundE.width*vs)/2;
-        y = -scale*y + (this.width*view.height/view.width - scale*boundE.height*vs)/2;
+        x = -scale*x + (this._width - scale*boundE.width*vs)/2;
+        y = -scale*y + (this._width*view.height/view.width - scale*boundE.height*vs)/2;
       }
 
       if (isNaN(x) || isNaN(y) || isNaN(scale))
@@ -564,11 +619,11 @@ Use `isZoomable` to make it isZoomable.
     },
 
     _resetZoom: function() {
-      if (this.mainG === undefined || this.opened === false) return;
+      if (this._mainG === undefined || this.opened === false) return;
       // zoom to selectedItems
       if (this.initiallyZoomToSelected === true && this.selected) {
         for (var key in this.selected) {
-          if (this.selected[key] !== "" && !(this.mainG.selectAll(this.selected[key])
+          if (this.selected[key] !== "" && !(this._mainG.selectAll(this.selected[key])
                                     .filter(".svg-element-selectable")).empty()) {
             this._debounceSelect();
             return;
@@ -578,14 +633,14 @@ Use `isZoomable` to make it isZoomable.
       // zoom to initial
       if (this.initial !== "") {
         var initial;
-        if (!(initial = this.mainG.selectAll(this.initial)
+        if (!(initial = this._mainG.selectAll(this.initial)
                                   .filter(".svg-element-selectable")).empty()) {
           this.select({initial: this.initial}, "initial");
           return;
         }
       }
-      // zomm to mainG
-      this._zoomToElement(this.mainG.node());
+      // zomm to _mainG
+      this._zoomToElement(this._mainG.node());
     },
 
     _fireOpenFullscreen: function() {

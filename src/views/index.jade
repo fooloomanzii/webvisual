@@ -21,12 +21,12 @@ html
       width: 100%;
       padding: 0;
       margin: 0;
-      background: #f1f1f1;
+      background: #669DB4;
       font-family: Fira Sans Light;
       font-weight: normal;
     }
     div#background {
-      background: #669DB4;
+      background: radial-gradient(rgba(0,91,130,1) 80%, rgba(0,91,130,0.8));
     }
     .page {
       height: 100%;
@@ -118,7 +118,7 @@ html
                   each Id, i in Subgroup.ids
                     sign-element.content(label!= Label, id!= Id, is-boolean!= JSON.stringify(config.elements[Label][Id].isBoolean), keys= JSON.stringify(config.elements[Label][Id].keys), svg= JSON.stringify(config.elements[Label][Id].svg), caption-keys= JSON.stringify(config.groupingKeys[Label]), show-date!= (!mobile), bubbles)
           //- FULLSCREEN-SVG-ELEMENT
-          svg-element.overlay(fullscreen, zoom-partition='3', max-zoom='3', min-zoom='0.75', initially-zoom-to-selected)
+          svg-element.overlay(is-fullscreen, zoom-partition='3', max-zoom='3', min-zoom='0.75', initially-zoom-to-selected)
 
     script.
       var PageSelector;
