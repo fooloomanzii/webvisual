@@ -78,7 +78,7 @@
   <template>
     <section id="table">
       <section id="caption">[[caption]]</section>
-      <section id="head" hidden$="[[hideHeader]]">
+      <section id="head" hidden$="[[hideHeader]]" on-tap="switchOrder">
         <section id="td" class="x">Datum</section>
         <section id="td" class="y">Wert</section>
       </section>
@@ -226,14 +226,24 @@
         }
       },
 
-      _reorder: function(descendingOrder) {
-        // var rows = this._body.children;
+      switchOrder: function() {
+        this.set("descendingOrder", !this.descendingOrder);
+      },
 
-        if (descendingOrder) {
+      _reorder: function(descendingOrder, oldOrder) {
+        if (!(this._body && oldOrder !== undefined)) return;
 
+        var rows = this._body.children;
+
+        if (descendingOrder === true) {
+          for (var i=0; rows.length; i++) {
+            this._body.appendChild(rows[i]);
+          }
         }
         else {
-
+          for (var i=0; rows.length; i++) {
+            this._body.insertBefore(rows[i], this._body.childNodes[0]);
+          }
         }
       }
     });
