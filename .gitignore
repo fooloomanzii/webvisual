@@ -26,6 +26,7 @@ data/db/*
 src/public/maps
 src/**/test/
 !src/tests/
+!src/public/test/
 
 # Logs #
 *.log

@@ -476,8 +476,8 @@
                     function() {
                       self._zoomToElement(this);
                       self._mainG.selectAll(".clicked")
-                                .classed("clicked", false);
-                      self.classList.add("clicked");
+                                 .classed("clicked", false);
+                      this.classList.add("clicked");
                     })
                   .append("title")
                   .text(function() {

@@ -38,7 +38,7 @@
 
   <script>
 
-    TableElement = Polymer({
+    D3Diagram = Polymer({
       is: 'd3-diagram',
 
       properties: {
@@ -71,13 +71,11 @@
          */
         _d3Zoom: {
           type: Function
-        }        
+        }
       },
 
       attached: function() {
-        if (this.hideOverflow) {
-          this.$.body.style.overflow = 'hidden';
-        }
+        
       },
 
     });
