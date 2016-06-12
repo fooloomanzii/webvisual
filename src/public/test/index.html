@@ -4,48 +4,64 @@
     <meta charset="utf-8">
     <title></title>
 
-
     <script src='../components/d3/d3.min.js'></script>
     <link rel='import' href='../components/polymer/polymer.html'/>
     <link rel="import" href="../elements/style/app-theme.html">
 
-    <link rel="import" href="../elements/imports.html"/>
-    <link rel="import" href="../elements/d3-diagram.html"/>
+    <link rel="import" href="polymer/svg-container.html"/>
+    <link rel="import" href="polymer/svg-circle.html"/>
+    <link rel="import" href="polymer/svg-component.html"/>
 
     <style media="screen">
       body {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
       }
-      /*section#main {
-
-      }
-      group-card #main{
-        max-width: 1500px !important;
-      }*/
     </style>
 
   </head>
 
 
   <body>
-    <template id="t" is="dom-bind">
-      <section id="main">
-        <d3-diagram></d3-diagram>
-      </section>
-    </template>
-    <script>
-      // window.addEventListener('WebComponentsReady', function(e) {
-        var t = document.querySelector('#t');
-
-        t.addEventListener('dom-change', function() {
-
-          // auto-binding template is ready.
-          console.log("changed");
+    <dom-module id="test-element">
+      <template>
+        <svg-container id="SvgContainer" view-box="0 0 400 400">
+            <svg-component is="g" id="SomeCircles" transform="translate(40, 40)scale(0.75)">
+              <template is="dom-repeat" items="[20, 120, 220, 300]" as="cx">
+                <svg-component is="circle" r="25" cx$="{{cx}}" cy="25" stroke="#3e7cd7" stroke-width="5px" fill="rgb(226, 198, 10)"></svg-component>
+              </template>
+              <svg-component is="rect" x="50" y="20" width="150" height="150" stroke="#a23ed7" stroke-width="10px" fill="rgb(67, 193, 72)"></svg-component>
+            </svg-component>
+        </svg-container>
+      </template>
+      <script>
+        Polymer({
+          is: 'test-element',
+          properties: {
+            positions: {
+              type: Array,
+              value: function() { return [20, 120, 220, 300]; }
+            }
+          },
+          attached: function() {
+            var self = this;
+            setTimeout(function() {
+              var node = new SvgComponent(
+                {"is": "ellipse",
+                 "rx": "80",
+                 "ry": "50",
+                 "cx": "200",
+                 "cy": "140",
+                 "stroke": "#d73e3e",
+                 "stroke-width": "5px",
+                 "fill": "#425ec1"
+                });
+              self.$.SvgContainer.appendChild(node);
+            }, 2000)
+          }
         });
-
-    </script>
+      </script>
+    </dom-module>
+    <test-element></test-element>
   </body>
 
 </html>

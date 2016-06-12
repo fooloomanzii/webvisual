@@ -46,6 +46,9 @@ body {
 
 <script>
 
+var precision = 4/3 - 1/3;
+console.log(Math.sin(180 * Math.PI / 180));
+
 data = [{
     "date": 1357714800000,
         "value": "5.2"
@@ -228,8 +231,9 @@ function zoomed() {
         .call(make_y_axis()
         .tickSize(-width, 0, 0)
         .tickFormat(""));
-    pointNodes.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")")
-              .attr("r", 3 / d3.event.scale);
+    pointNodes.attr("cx", function(d,i) {return x(d.date)})
+              .attr("cy", function(d,i) {return y(d.value)})
+              .attr("r", "3");
     svg.select(".line")
         .attr("class", "line")
         .attr("d", line);

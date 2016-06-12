@@ -325,7 +325,10 @@
       var rootNode = Polymer.dom(this).getOwnerRoot();
       if (rootNode === null)
         rootNode = Polymer.dom(this.parentNode).getOwnerRoot();
-      return rootNode.host;
+      if (rootNode && rootNode.host)
+        return rootNode.host;
+      else
+        return this.parentNode;
     },
 
     attached: function() {
@@ -333,10 +336,10 @@
         this.listen(this.rootElement, "svg-open-fullscreen", "open");
         this.listen(this.rootElement, "svg-close-fullscreen", "close");
       }
-      this.listen(this.rootElement, "svg-open", "open");
-      this.listen(this.rootElement, "svg-close", "close");
-      this.listen(this.rootElement, "svg-select", "select");
-      this.listen(this.rootElement, "svg-deselect", "select");
+      // this.listen(this.rootElement, "svg-open", "open");
+      // this.listen(this.rootElement, "svg-close", "close");
+      // this.listen(this.rootElement, "svg-select", "select");
+      // this.listen(this.rootElement, "svg-deselect", "select");
     },
 
     detached: function() {
@@ -344,10 +347,10 @@
         this.unlisten(this.rootElement, "svg-open-fullscreen", "open");
         this.unlisten(this.rootElement, "svg-close-fullscreen", "close");
       }
-      this.unlisten(this.rootElement, "svg-open", "open");
-      this.unlisten(this.rootElement, "svg-close", "close");
-      this.unlisten(this.rootElement, "svg-select", "select");
-      this.unlisten(this.rootElement, "svg-deselect", "select");
+      // this.unlisten(this.rootElement, "svg-open", "open");
+      // this.unlisten(this.rootElement, "svg-close", "close");
+      // this.unlisten(this.rootElement, "svg-select", "select");
+      // this.unlisten(this.rootElement, "svg-deselect", "select");
     },
 
     open: function(e) {
