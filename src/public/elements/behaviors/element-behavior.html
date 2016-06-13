@@ -93,7 +93,6 @@
       this.set('captionKeys', element.captionKeys);
       this.set('isBoolean', element.isBoolean);
       this.set('isExceeding', element.isExceeding);
-      this.set('tooltip', element.tooltip);
       this.set('firstExceeds', element.firstExceeds);
       this.set('lastExceeds', element.lastExceeds);
       this.set('svg', element.svg);
@@ -110,12 +109,11 @@
               "svg": this.svg,
               "firstExceeds": this.firstExceeds,
               "lastExceeds": this.lastExceeds,
-              "tooltip": this.tooltip,
               "values": this.values};
     },
 
     unshiftValues: function(value) {
-      this.values.unshift(value);
+      this.unshift("values", value);
 
       if (value.exceeds === null) {
         if(this.isExceeding !== false) {
@@ -168,9 +166,6 @@
     },
 
     _updateView: function(value, splices) {
-    },
-
-    _setTooltip: function() {
     },
 
     _handleExceeding: function(isExceeding) {

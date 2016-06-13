@@ -212,24 +212,6 @@
       color: currentColor;
       min-width: 4em;
     }
-    svg#add {
-      cursor: pointer;
-      outline: none;
-      position: absolute;
-      padding: 4px;
-      right: -4px;
-      bottom: -4px;
-      height: 1.25em;
-      width: 1.25em;
-      fill: white;
-      opacity: 0.5;
-      transform-origin: center;
-      transition: all 280ms cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    svg#add:hover {
-      transform: scale(1.25);
-      opacity: 0.9;
-    }
     [hidden] {
       pointer-events: none;
     }
@@ -252,10 +234,6 @@
         <section id="dateSection" hidden$="[[!showDate]]">
         </section>
 
-        <svg id="add" hidden$="[[!addable]]" viewBox="0 0 24 24" on-tap="_toggleTooltip" aria-label="add">
-          <g id="add-box" hidden$="[[isAdded]]"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></g>
-          <g id="indeterminate-check-box" hidden$="[[!isAdded]]"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></g>
-        </svg>
         <svg id="bookmark" hidden$="[[_hasTooltip(hasExceeded)]]" viewBox="0 0 24 24" on-tap="_toggleTooltip" aria-label="Alarme">
           <g id="announcement"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 9h-2V5h2v6zm0 4h-2v-2h2v2z"/></g>
         </svg>
@@ -370,17 +348,6 @@
         if(this.selectable === true) {
           this.fire("element-select", this.getElement());
           if (this.hasExceeded) this._hideTooltip();
-        }
-      },
-
-      _fireAdd: function(e) {
-        if(this.addable === true) {
-          if (this.isAdded)
-            this.fire("element-remove", {label: this.label, id: this.id});
-          else
-            this.fire("element-add", this.getElement());
-
-          this.set("isAdded", !this.isAdded);
         }
       },
 

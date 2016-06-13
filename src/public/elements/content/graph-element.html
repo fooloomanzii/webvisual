@@ -1,0 +1,182 @@
+<!-- Dependent to be content of diagram-container -->
+<!-- Using d3.js-library -->
+
+<link rel="import" href="../behaviors/element-behavior.html">
+<dom-module id="graph-element">
+
+  <script>
+
+    DiagramGraph = Polymer({
+      is: 'graph-element',
+
+      behaviors: [ElementBehavior],
+
+      properties: {
+        values: {
+          type: Array,
+          value: function() {
+            return [{
+                "x": Math.random()*10 + 1,
+                    "y": Math.random()*10
+            }, {
+                "x": Math.random()*10 + 10,
+                    "y": Math.random()*10
+            }, {
+                "x": Math.random()*10 + 100,
+                    "y": Math.random()*10
+            }, {
+                "x": Math.random()*10 + 1000,
+                    "y": Math.random()*10
+            }, {
+                "x": Math.random()*10 + 10000,
+                    "y": Math.random()*10
+            }, {
+                "x": Math.random()*10 + 100000,
+                    "y": Math.random()*10
+            }, {
+                "x": Math.random()*10 + 1000000,
+                    "y": Math.random()*10
+            }, {
+                "x": Math.random()*10 + 10000000,
+                    "y": Math.random()*10
+            }, {
+                "x": Math.random()*10 + 100000000,
+                    "y": Math.random()*10
+            }, {
+                "x": Math.random()*10 + 1000000000,
+                    "y": Math.random()*10
+            }, {
+                "x": Math.random()*100 + 10000000000,
+                    "y": Math.random()*10
+            }]
+          }
+        },
+        color: {
+          type: String,
+          value: "#4375E4"
+        },
+        dots: {
+          type: Boolean,
+          value: true
+        },
+        line: {
+          type: Boolean,
+          value: true
+        },
+        dotWidth: {
+          type: Number,
+          value: 4
+        },
+        lineWidth: {
+          type: Number,
+          value: 2
+        }
+      },
+
+      _line: {},
+      _dots: {},
+      _chart: {},
+      _node: {},
+
+      factoryImpl: function(element, bubbles) {
+        this.setElement(element);
+        if (bubbles === true)
+          this.bubbles = true;
+      },
+
+      attached: function() {
+        if (this.parentNode.nodeName !== 'CHART-ELEMENT') {
+          console.warn(this.id, "Graph is not attached to a container");
+          return;
+        }
+
+        this._chart = this.parentNode._chart;
+
+        this._node = this._chart.append("g")
+                                .attr("clip-path", "url(#clip)")
+                                .attr("id", this.id)
+                                .attr("label", this.label);
+
+        if (this.line)
+          this._attachLine();
+
+        if (this.dots)
+          this._attachDots();
+
+        var newMax = d3.max(this.values, function(d) { return d.y; });
+        var oldMax = this.parentElement._y.domain()[1];
+
+        if (oldMax === undefined || newMax > oldMax){
+          this.parentElement._y.domain([0, newMax]);
+        }
+        this.parentElement._x.domain(d3.extent(this.values, function(d) { return d.x; }));
+      },
+
+      _attachLine: function() {
+        var self = this;
+        this._line = d3.svg.line()
+                           .x( function (d) {
+                             return self.parentElement._x(d.x);
+                           })
+                           .y( function (d) {
+                             return self.parentElement._y(d.y);
+                           });
+
+        this._node.append("svg:path")
+                  .datum(this.values)
+                  .attr("class", "line")
+                  .attr("d", this._line)
+                  .attr("fill", "none")
+                  .attr("stroke", this.color)
+                  .attr("stroke-width", this.lineWidth);
+      },
+
+      _attachDots: function() {
+        var self = this;
+        this._node.selectAll('.dot')
+                  .data(this.values).enter()
+                  .append("svg:circle")
+                  .attr("class", "dot")
+                  .attr("cx", function(d,i) {
+                    return self.parentElement._x(d.x)})
+                  .attr("cy", function(d,i) {
+                    return self.parentElement._y(d.y)})
+                  .attr("r", this.dotWidth)
+                  .attr("fill", "#FFF")
+                  .attr("stroke", this.color)
+                  .attr("stroke-width", this.lineWidth)
+                  .on("click",
+                    function() {
+                      self._chart.selectAll(".clicked")
+                                 .classed("clicked", false)
+                                 .attr("fill", "#FFF");
+                      this.classList.add("clicked");
+                      this.setAttribute("fill", self.color);
+                    })
+                  .append("title")
+                  .text(function(d, i) {
+                      return (new Date(d.x)).toLocaleString() + " " + d.y;
+                   });
+        this._dots = this._node.selectAll('.dot');
+      },
+
+      redraw: function() {
+        var self = this;
+        this._dots.attr("cx", function(d,i) {return self.parentElement._x(d.x)})
+                  .attr("cy", function(d,i) {return self.parentElement._y(d.y)})
+                  .attr("r", this.dotWidth);
+        this._node.select(".line")
+                  .attr("class", "line")
+                  .attr("d", this._line);
+      },
+
+      _updateView: function(value, splices) {
+      },
+
+      setValues: function(values) {
+      }
+    });
+
+  </script>
+
+</dom-module>

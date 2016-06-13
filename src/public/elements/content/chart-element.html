@@ -1,0 +1,304 @@
+<!-- Using d3.js-library -->
+
+<dom-module id="chart-element">
+
+<style>
+  :host {
+    font-family: inherit;
+    font-size: 0.65em;
+    letter-spacing: normal !important;
+    border-radius: inherit;
+    -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+    -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
+    flex: 1;
+    display: flex;
+    width: auto;
+    height: auto;
+  	overflow: hidden;
+    visibility: visible;
+    -webkit-touch-callout: none !important;
+      -webkit-user-select: none !important;
+       -khtml-user-select: none !important;
+         -moz-user-select: none !important;
+          -ms-user-select: none !important;
+              user-select: none !important;
+  }
+  svg#svg {
+    flex: 1;
+    height: auto;
+  }
+  rect.plot {
+      fill: rgba(248, 252, 255, 0.9) !important;
+  }
+  g.grid .tick {
+      stroke: rgba(31, 31, 31, 0.2);
+  }
+  g.grid path {
+      stroke-width: 0;
+  }
+  g.axis path, g.axis line {
+      fill: none;
+      stroke: #1f1f1f;
+      shape-rendering: crispEdges;
+  }
+  g.x.axis path {
+      display: none !important;
+  }
+  .line {
+      fill: none;
+      stroke: #3F7CCC;
+      stroke-width: 1.5px;
+  }
+
+</style>
+
+<template>
+  <svg id="svg" viewBox="[[viewBox]]" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <g id="chart">
+      <rect class="plot"></rect>
+      <g class="x axis"></g>
+      <g class="y axis"></g>
+      <g class="x grid"></g>
+      <g class="y grid"></g>
+      <clippath id="clip">
+        <rect x="0" y="0"></rect>
+      </clippath>
+    </g>
+  </svg>
+  <content id="collector" select="graph-element"></content>
+</template>
+
+  <script>
+    ChartElement = Polymer({
+      is: 'chart-element',
+
+      properties: {
+        margin: {
+          type: Object,
+          value: function() {
+            return {  top: 20,
+                      right: 20,
+                      bottom: 20,
+                      left: 45  };
+          }
+        },
+        viewBox: {
+          type: String,
+          value: "0 0 400 200"
+        },
+        width: {
+          type: Number,
+          value: 400
+        },
+        height: {
+          type: Number,
+          value: 200
+        },
+        ticks: {
+          type: Number,
+          value: 6
+        },
+        locale: {
+          type: Object,
+          value: function() { return {}; }
+        }
+      },
+
+      _width: 0,
+      _height: 0,
+
+      _chart: {},
+      _d3Zoom: {},
+      _x: {},
+      _y: {},
+
+      _xAxis: {},
+      _yAxis: {},
+      _clip: {},
+
+      _graphs: [],
+
+      _createXAxis: function() {
+        return d3.svg.axis()
+                 .scale(this._x)
+                 .orient("bottom")
+                 .ticks(this.ticks)
+                 .tickFormat(this.timeFormat);
+      },
+
+      _createYAxis: function() {
+        return d3.svg.axis()
+                 .scale(this._y)
+                 .orient("left")
+                 .ticks(this.ticks)
+                 .tickFormat(this.numberFormat);
+      },
+
+      _buildLayout: function() {
+        this._chart.select("rect.plot")
+                  .attr("width", this._width)
+                  .attr("height", this._height);
+
+        this._chart.select("g.x.axis")
+                  .attr("transform", "translate(0," + this._height + ")")
+                  .call(this._xAxis);
+
+        this._chart.select("g.y.axis")
+                  .call(this._yAxis);
+
+        this._chart.select("g.x.grid")
+                  .attr("transform", "translate(0," + this._height + ")")
+                  .call(this._createXAxis()
+                          .tickSize(-this._height, 0, 0)
+                          .tickFormat(""));
+        this._chart.select("g.y.grid")
+                  .call(this._createYAxis()
+                          .tickSize(-this._width, 0, 0)
+                          .tickFormat(""));
+        // Limiting Projection to Margin
+        this._clip = this._chart.select("clippath#clip rect")
+                                .attr("width", this._width)
+                                .attr("height", this._height);
+        this._chart.selectAll('g.tick,g.tick line,g.tick text,g path.domain')
+                   .classed('style-scope', true)
+                   .classed('chart-element', true);
+      },
+
+      created: function() {
+        this.locale = d3.locale({
+          "decimal": ",",
+          "thousands": "_",
+          "grouping": [3],
+          "currency": ["€", ""],
+          "dateTime": "%a %b %e %X %Y",
+          "date": "%d.%m.%Y",
+          "time": "%H:%M:%S",
+          "periods": ["", ""],
+          "days": ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
+          "shortDays": ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+          "months": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+          "shortMonths": ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Dez"]
+        });
+
+        this.timeFormat = this.locale.timeFormat.multi([
+        	["%_S.%L", function(d) { return d.getMilliseconds(); }],
+        	["%_M:%S", function(d) { return d.getSeconds(); }],
+        	["%_H:%M", function(d) { return d.getMinutes(); }],
+        	["%_H:%M", function(d) { return d.getHours(); }],
+        	["%a %d", function(d) { return d.getDay() && d.getDate() != 1; }],
+        	["%b %d", function(d) { return d.getDate() != 1; }],
+        	["%B", function(d) { return d.getMonth(); }],
+        	["%Y", function() { return true; }]
+        ]);
+
+        this.numberFormat = this.locale.numberFormat();
+      },
+
+      attached: function() {
+        this._width = this.width - this.margin.left - this.margin.right;
+        this._height = this.height - this.margin.top - this.margin.bottom;
+
+        this._x = d3.time.scale().range([0, this._width]);
+        this._y = d3.scale.linear().range([this._height, 0]);
+
+        this._d3Zoom = d3.behavior.zoom()
+                         .x(this._x)
+                         .y(this._y)
+                         .on("zoom", this._zoomed.bind(this));
+
+        var self = this;
+        Polymer.dom(this.$.collector).observeNodes(
+          function(info) {
+            var id;
+            for (var i = 0; i < info.addedNodes.length; i++) {
+              id = info.addedNodes[i].id;
+              self._graphs.push(info.addedNodes[i]);
+            }
+            self.chartDomains();
+          });
+
+        d3.select('#svg').attr('viewBox', this.viewBox)
+                         .attr('width', this.width)
+                         .attr('height', this.height);
+
+        this._chart = d3.select('g#chart')
+                        .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
+                        .call(this._d3Zoom);
+
+        this._xAxis = this._createXAxis();
+        this._yAxis = this._createYAxis();
+        this._buildLayout();
+      },
+
+      addGraph: function () {
+
+      },
+
+      chartDomains: function () {
+        this.debounce("set-chart-domains", function() { this._setChartDomains() }, 300);
+      },
+
+      _setChartDomains: function () {
+        // var graphs = this.queryAllEffectiveChildren('graph-element');
+        // this._x.domain([
+        //   d3.min(graphs, function(g) { return d3.min(g.values, function(v) { return v.x; }); }),
+        //   d3.max(graphs, function(g) { return d3.max(g.values, function(v) { return v.x; }); })
+        // ]);
+        // this._y.domain([
+        //   d3.min(graphs, function(g) { return d3.min(g.values, function(v) { return v.y; }); }),
+        //   d3.max(graphs, function(g) { return d3.max(g.values, function(v) { return v.y; }); })
+        // ]);
+        this._redraw();
+      },
+
+      redraw: function () {
+        this.debounce("redraw", function() { this._redraw() }, 300);
+      },
+
+      _redraw: function () {
+        this._chart.select(".x.axis").call(this._xAxis);
+        this._chart.select(".y.axis").call(this._yAxis);
+        this._chart.select(".x.grid")
+                   .call(this._createXAxis()
+                             .tickSize(-this._height, 0, 0)
+                             .tickFormat(""));
+        this._chart.select(".y.grid")
+                   .call(this._createYAxis()
+                             .tickSize(-this._width, 0, 0)
+                             .tickFormat(""));
+        this._chart.selectAll('g.tick,g.tick line,g.tick text,g path.domain')
+                   .classed('style-scope', true)
+                   .classed('chart-element', true);
+
+        var graphs = this.queryAllEffectiveChildren('graph-element');
+        for (var id in graphs) {
+          graphs[id].redraw();
+        }
+      },
+
+      _zoomed: function () {
+        this._chart.select(".x.axis").call(this._xAxis);
+        this._chart.select(".y.axis").call(this._yAxis);
+        this._chart.select(".x.grid")
+                   .call(this._createXAxis()
+                             .tickSize(-this._height, 0, 0)
+                             .tickFormat(""));
+        this._chart.select(".y.grid")
+                   .call(this._createYAxis()
+                             .tickSize(-this._width, 0, 0)
+                             .tickFormat(""));
+        this._chart.selectAll('g.tick,g.tick line,g.tick text,g path.domain')
+                   .classed('style-scope', true)
+                   .classed('chart-element', true);
+
+        var graphs = this.queryAllEffectiveChildren('graph-element');
+        for (var id in graphs) {
+          graphs[id].redraw();
+        }
+      }
+
+    });
+
+  </script>
+
+</dom-module>
