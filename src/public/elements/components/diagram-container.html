@@ -1,3 +1,6 @@
+<!-- Using d3.js-library -->
+
+
 <dom-module id="d3-diagram">
 
 <style>
@@ -31,9 +34,10 @@
   }
 
 </style>
+
 <template>
-  <div id="diagramContainer">
-  </div>
+  <svg id="diagram"></svg>
+  <content select="diagram-graph"></content>
 </template>
 
   <script>
@@ -42,40 +46,16 @@
       is: 'd3-diagram',
 
       properties: {
-        /**
-         * {private} inititial viewBox-height
-         */
-        _height: {
-          type: Number
-        },
-        /**
-         * {private} inititial viewBox-width
-         */
-        _width: {
-          type: Number
-        },
-        /**
-         * {private} mayor <g></g>-Node (that should be all sourounding group in the Svg-Graphic)
-         */
-        _mainG: {
-          type: Object
-        },
-        /**
-         * {private} svg-Node
-         */
-        _svg: {
-          type: Object
-        },
-        /**
-         * {private} d3-zoom-behavior
-         */
-        _d3Zoom: {
-          type: Function
-        }
       },
 
+      _svg: {},
+      _d3Zoom: {},
+      _x: {},
+      _y: {},
+      _graphs: {},
+
       attached: function() {
-        
+
       },
 
     });

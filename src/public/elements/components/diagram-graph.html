@@ -1,0 +1,79 @@
+<link rel="import" href="../behaviors/element-behavior.html">
+<dom-module id="diagram-graph">
+
+  <script>
+
+    DiagramGraph = Polymer({
+      is: 'diagram-graph',
+
+      behaviors: [ElementBehavior],
+
+      properties: {},
+
+      _line: {},
+      _points: {},
+      _svg: {},
+
+      factoryImpl: function(element, bubbles) {
+        this.setElement(element);
+        if (bubbles === true)
+          this.bubbles = true;
+      },
+
+      attached: function() {
+      },
+
+      _updateView: function(value, splices) {
+      },
+
+      setValues: function(values) {
+        this.values = values;
+        var body = Polymer.dom(this.$.body);
+        while (body.lastChild) {
+          body.removeChild(body.lastChild);
+        }
+
+        if (values.length !== 0) {
+          var row, tdX, tdY, isExceeding, tdI;
+
+          for (var j = values.length-1; j >=0 ; j--) {
+            row = document.createElement('section');
+            row.id = "tr";
+
+            tdX = document.createElement('section');
+            tdX.id = "td"; tdX.className = "x";
+            tdX.textContent = (this.showFullDate ? new Date(values[j].x).toLocaleString() : new Date(values[j].x).toLocaleTimeString());
+            tdY = document.createElement('section');
+            tdY.id = "td"; tdY.className = "y";
+            isExceeding = (values[j].exceeds === null) ? false : true;
+            tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : values[j].y);
+
+            if (this.highlightExceeding)
+              row.className = values[j].exceeds;
+            row.appendChild(tdX); row.appendChild(tdY);
+
+            if (this.descendingOrder)
+              body.appendChild(row);
+            else
+              body.insertBefore(row, body.childNodes[0]);
+          }
+          Polymer.dom.flush();
+        }
+      },
+
+      _reorder: function(descendingOrder) {
+        var body = Polymer.dom(this.$.body);
+        var rows = body.children;
+
+        if (descendingOrder) {
+
+        }
+        else {
+
+        }
+      }
+    });
+
+  </script>
+
+</dom-module>

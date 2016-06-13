@@ -284,38 +284,29 @@
       zoomPartition: {
         type: Number,
         value: 3
-      },
-      /**
-       * {private} inititial viewBox-height
-       */
-      _height: {
-        type: Number
-      },
-      /**
-       * {private} inititial viewBox-width
-       */
-      _width: {
-        type: Number
-      },
-      /**
-       * {private} mayor <g></g>-Node (that should be all sourounding group in the Svg-Graphic)
-       */
-      _mainG: {
-        type: Object
-      },
-      /**
-       * {private} svg-Node
-       */
-      _svg: {
-        type: Object
-      },
-      /**
-       * {private} d3-zoom-behavior
-       */
-      _d3Zoom: {
-        type: Function
       }
     },
+
+    /**
+     * {private} inititial viewBox-height
+     */
+    _height: {},
+    /**
+     * {private} inititial viewBox-width
+     */
+    _width: {},
+    /**
+     * {private} mayor <g></g>-Node (that should be all sourounding group in the Svg-Graphic)
+     */
+    _mainG: {},
+    /**
+     * {private} svg-Node
+     */
+    _svg: {},
+    /**
+     * {private} d3-zoom-behavior
+     */
+    _d3Zoom: {},
 
     observers: [
       "_selectedChanged(selected.*)"
