@@ -203,28 +203,30 @@
         if (values.length !== 0) {
           var row, tdX, tdY, isExceeding, tdI;
 
-          for (var j = values.length-1; j >=0 ; j--) {
-            row = document.createElement('section');
-            row.id = "tr";
+          this.async( function() {
+            for (var j = values.length-1; j >=0 ; j--) {
+              row = document.createElement('section');
+              row.id = "tr";
 
-            tdX = document.createElement('section');
-            tdX.id = "td"; tdX.className = "x";
-            tdX.textContent = (this.showFullDate ? new Date(values[j].x).toLocaleString() : new Date(values[j].x).toLocaleTimeString());
-            tdY = document.createElement('section');
-            tdY.id = "td"; tdY.className = "y";
-            isExceeding = (values[j].exceeds === null) ? false : true;
-            tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : values[j].y);
+              tdX = document.createElement('section');
+              tdX.id = "td"; tdX.className = "x";
+              tdX.textContent = (this.showFullDate ? new Date(values[j].x).toLocaleString() : new Date(values[j].x).toLocaleTimeString());
+              tdY = document.createElement('section');
+              tdY.id = "td"; tdY.className = "y";
+              isExceeding = (values[j].exceeds === null) ? false : true;
+              tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : values[j].y);
 
-            if (this.highlightExceeding === true)
-              row.className = values[j].exceeds;
-            row.appendChild(tdX); row.appendChild(tdY);
+              if (this.highlightExceeding === true)
+                row.className = values[j].exceeds;
+              row.appendChild(tdX); row.appendChild(tdY);
 
-            if (this.descendingOrder === true)
-              this._body.appendChild(row);
-            else
-              this._body.insertBefore(row, this._body.childNodes[0]);
-          }
-          Polymer.dom.flush();
+              if (this.descendingOrder === true)
+                this._body.appendChild(row);
+              else
+                this._body.insertBefore(row, this._body.childNodes[0]);
+            }
+            Polymer.dom.flush();
+          });
         }
       },
 
@@ -233,20 +235,20 @@
       },
 
       _reorder: function(descendingOrder, oldOrder) {
-        if (!(this._body && oldOrder !== undefined)) return;
-
-        var rows = this._body.children;
-
-        if (descendingOrder === true) {
-          for (var i=0; rows.length; i++) {
-            this._body.appendChild(rows[i]);
-          }
-        }
-        else {
-          for (var i=0; rows.length; i++) {
-            this._body.insertBefore(rows[i], this._body.childNodes[0]);
-          }
-        }
+        // if (!(this._body && oldOrder !== undefined)) return;
+        //
+        // var rows = this._body.children;
+        //
+        // if (descendingOrder === true) {
+        //   for (var i=0; rows.length; i++) {
+        //     this._body.appendChild(rows[i]);
+        //   }
+        // }
+        // else {
+        //   for (var i=0; rows.length; i++) {
+        //     this._body.insertBefore(rows[i], this._body.childNodes[0]);
+        //   }
+        // }
       }
     });
 

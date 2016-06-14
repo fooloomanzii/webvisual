@@ -19,34 +19,34 @@
                 "x": new Date(Math.random()*10 + 1 + Date.now()),
                     "y": Math.random()*10 + 1
             }, {
-                "x": new Date(Math.random()*10 + Math.random()*500 + Date.now()),
+                "x": new Date(Math.random()*10 + (Math.random()+1)*500 + Date.now()),
                     "y": Math.random()*10 + 1
             }, {
-                "x": new Date(Math.random()*10 + Math.random()*1000 + Date.now()),
+                "x": new Date(Math.random()*10 + (Math.random()+1)*1000 + Date.now()),
                     "y": Math.random()*10 + 1
             }, {
-                "x": new Date(Math.random()*10 + Math.random()*2000 + Date.now()),
+                "x": new Date(Math.random()*10 + (Math.random()+1)*2000 + Date.now()),
                     "y": Math.random()*10 + 1
             }, {
-                "x": new Date(Math.random()*10 + Math.random()*3000 + Date.now()),
+                "x": new Date(Math.random()*10 + (Math.random()+1)*4000 + Date.now()),
                     "y": Math.random()*10 + 1
             }, {
-                "x": new Date(Math.random()*10 + Math.random()*4000 + Date.now()),
+                "x": new Date(Math.random()*10 + (Math.random()+1)*8000 + Date.now()),
                     "y": Math.random()*10 + 1
             }, {
-                "x": new Date(Math.random()*10 + Math.random()*5000 + Date.now()),
+                "x": new Date(Math.random()*10 + (Math.random()+1)*16000 + Date.now()),
                     "y": Math.random()*10 + 1
             }, {
-                "x": new Date(Math.random()*10 + Math.random()*7000 + Date.now()),
+                "x": new Date(Math.random()*10 + (Math.random()+1)*32000 + Date.now()),
                     "y": Math.random()*10 + 1
             }, {
-                "x": new Date(Math.random()*10 + Math.random()*8000 + Date.now()),
+                "x": new Date(Math.random()*10 + (Math.random()+1)*64000 + Date.now()),
                     "y": Math.random()*10 + 1
             }, {
-                "x": new Date(Math.random()*10 + Math.random()*9000 + Date.now()),
+                "x": new Date(Math.random()*10 + (Math.random()+1)*128000 + Date.now()),
                     "y": Math.random()*10 + 1
             }, {
-                "x": new Date(Math.random()*100 + Math.random()*20000 + Date.now()),
+                "x": new Date(Math.random()*100 + (Math.random()+1)*256000 + Date.now()),
                     "y": Math.random()*10 + 1
             }]
           }
@@ -97,7 +97,7 @@
           perm.push(Math.floor(Math.random()*256).toString(16));
           for (var i = 3; i > 0; i--) {
             var pos = Math.floor(Math.random()*i);
-            this.color += perm[pos];
+            this.color += ((perm[pos].length === 1) ? "0" : "") + perm[pos];
             perm.splice(pos, 1);
           }
         }
@@ -133,7 +133,11 @@
                   .attr("d", this._line)
                   .attr("fill", "none")
                   .attr("stroke", this.color)
-                  .attr("stroke-width", this.lineWidth);
+                  .attr("stroke-width", this.lineWidth)
+                  .append("title")
+                  .text(function(d, i) {
+                      return (new Date(d.x)).toLocaleString() + " " + d.y;
+                   });
       },
 
       _attachDots: function() {
