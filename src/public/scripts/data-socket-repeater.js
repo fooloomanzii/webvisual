@@ -8,8 +8,7 @@ var Labels = [];
 var AvailableLabels = [];
 var GroupingKeys = {};
 var PreferedGroupingKeys = {};
-var maxTotalLines = 100;
-var maxLines = this.maxTotalLines;
+var maxValues = 7200;
 var doAppend = true;
 var newestDataLast = true;
 var isExceeding = false;
@@ -170,8 +169,8 @@ function _updateNodes(message) {
             Nodes[label][id][j].unshiftValues(message.content[i].values[k]);
           }
         }
-        if (Nodes[label][id][j].values.length > maxLines)
-          Nodes[label][id][j].spliceValues(maxLines, Nodes[label][id][j].values.length - maxLines);
+        if (Nodes[label][id][j].values.length > maxValues)
+          Nodes[label][id][j].spliceValues(maxValues, Nodes[label][id][j].values.length - maxValues);
       }
     } else {
       console.warn("no Nodes for", label, id);

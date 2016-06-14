@@ -201,11 +201,6 @@
         this._x = d3.time.scale().range([0, this._width]);
         this._y = d3.scale.linear().range([this._height, 0]);
 
-        this._d3Zoom = d3.behavior.zoom()
-                         .x(this._x)
-                         .y(this._y)
-                         .on("zoom", this._zoomed.bind(this));
-
         var self = this;
         Polymer.dom(this.$.collector).observeNodes(
           function(info) {
@@ -214,7 +209,28 @@
               id = info.addedNodes[i].id;
               self._graphs.push(info.addedNodes[i]);
             }
-            self.chartDomains();
+            // reset domains of the axes
+            self._x.domain([
+              d3.min(info.addedNodes, function(g) {
+                return d3.min(g.values, function(v) { return v.x; }); }),
+              d3.max(info.addedNodes, function(g) {
+                return d3.max(g.values, function(v) { return v.x; }); })
+            ]);
+            self._y.domain([
+              0.9*d3.min(info.addedNodes, function(g) {
+                return d3.min(g.values, function(v) { return v.y; }); }),
+              1.1*d3.max(info.addedNodes, function(g) {
+                return d3.max(g.values, function(v) { return v.y; }); })
+            ]);
+
+            console.log(self._x.domain());
+            // self.chartDomains();
+            self._d3Zoom = d3.behavior.zoom()
+                             .x(self._x)
+                             .y(self._y)
+                             .on("zoom", self._redraw.bind(self));
+            self._chart.call(self._d3Zoom);
+            self._redraw();
           });
 
         d3.select('#svg').attr('viewBox', this.viewBox)
@@ -222,12 +238,12 @@
                          .attr('height', this.height);
 
         this._chart = d3.select('g#chart')
-                        .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
-                        .call(this._d3Zoom);
+                        .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
         this._xAxis = this._createXAxis();
         this._yAxis = this._createYAxis();
-        this._buildLayout();
+        this._buildLayout()
+
       },
 
       addGraph: function () {
@@ -235,20 +251,13 @@
       },
 
       chartDomains: function () {
-        this.debounce("set-chart-domains", function() { this._setChartDomains() }, 300);
+        this.debounce("set-chart-domains", function() { this._setChartDomains() }, 1000);
       },
 
       _setChartDomains: function () {
-        // var graphs = this.queryAllEffectiveChildren('graph-element');
-        // this._x.domain([
-        //   d3.min(graphs, function(g) { return d3.min(g.values, function(v) { return v.x; }); }),
-        //   d3.max(graphs, function(g) { return d3.max(g.values, function(v) { return v.x; }); })
-        // ]);
-        // this._y.domain([
-        //   d3.min(graphs, function(g) { return d3.min(g.values, function(v) { return v.y; }); }),
-        //   d3.max(graphs, function(g) { return d3.max(g.values, function(v) { return v.y; }); })
-        // ]);
-        this._redraw();
+        var graphs = this.queryAllEffectiveChildren('graph-element');
+
+        this.redraw();
       },
 
       redraw: function () {
@@ -274,29 +283,7 @@
         for (var id in graphs) {
           graphs[id].redraw();
         }
-      },
-
-      _zoomed: function () {
-        this._chart.select(".x.axis").call(this._xAxis);
-        this._chart.select(".y.axis").call(this._yAxis);
-        this._chart.select(".x.grid")
-                   .call(this._createXAxis()
-                             .tickSize(-this._height, 0, 0)
-                             .tickFormat(""));
-        this._chart.select(".y.grid")
-                   .call(this._createYAxis()
-                             .tickSize(-this._width, 0, 0)
-                             .tickFormat(""));
-        this._chart.selectAll('g.tick,g.tick line,g.tick text,g path.domain')
-                   .classed('style-scope', true)
-                   .classed('chart-element', true);
-
-        var graphs = this.queryAllEffectiveChildren('graph-element');
-        for (var id in graphs) {
-          graphs[id].redraw();
-        }
       }
-
     });
 
   </script>

@@ -430,12 +430,13 @@
     },
 
     _openedChanged: function(opened) {
-      if (!this.source || !opened) return;
+      if (this.source === "" || !opened) return;
       this._sourceChanged(this.source);
       this._debounceResetZoom();
     },
 
     _selectedChanged: function(change) {
+      if (Object.keys(this._mainG).length === 0 || change === undefined || Object.keys(change).length === 0) return;
       this._debounceSelect();
     },
 
@@ -445,7 +446,7 @@
     },
 
     _selectableChanged: function(change) {
-      if (this._mainG === undefined || change === undefined || Object.keys(change).length === 0) return;
+      if (Object.keys(this._mainG).length === 0 || change === undefined || Object.keys(change).length === 0) return;
 
       var self = this;
       this._svg.on('contextmenu',
@@ -506,9 +507,7 @@
     },
 
     select: function(selected, selectedClass) {
-      if (this._mainG === undefined || selectedClass === "") return;
       // previous selected elements: remove class for selected elements
-
       this._mainG.selectAll("." + selectedClass)
                 .classed(selectedClass, false);
 

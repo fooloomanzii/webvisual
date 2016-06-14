@@ -16,44 +16,44 @@
           type: Array,
           value: function() {
             return [{
-                "x": Math.random()*10 + 1,
-                    "y": Math.random()*10
+                "x": new Date(Math.random()*10 + 1 + Date.now()),
+                    "y": Math.random()*10 + 1
             }, {
-                "x": Math.random()*10 + 10,
-                    "y": Math.random()*10
+                "x": new Date(Math.random()*10 + Math.random()*500 + Date.now()),
+                    "y": Math.random()*10 + 1
             }, {
-                "x": Math.random()*10 + 100,
-                    "y": Math.random()*10
+                "x": new Date(Math.random()*10 + Math.random()*1000 + Date.now()),
+                    "y": Math.random()*10 + 1
             }, {
-                "x": Math.random()*10 + 1000,
-                    "y": Math.random()*10
+                "x": new Date(Math.random()*10 + Math.random()*2000 + Date.now()),
+                    "y": Math.random()*10 + 1
             }, {
-                "x": Math.random()*10 + 10000,
-                    "y": Math.random()*10
+                "x": new Date(Math.random()*10 + Math.random()*3000 + Date.now()),
+                    "y": Math.random()*10 + 1
             }, {
-                "x": Math.random()*10 + 100000,
-                    "y": Math.random()*10
+                "x": new Date(Math.random()*10 + Math.random()*4000 + Date.now()),
+                    "y": Math.random()*10 + 1
             }, {
-                "x": Math.random()*10 + 1000000,
-                    "y": Math.random()*10
+                "x": new Date(Math.random()*10 + Math.random()*5000 + Date.now()),
+                    "y": Math.random()*10 + 1
             }, {
-                "x": Math.random()*10 + 10000000,
-                    "y": Math.random()*10
+                "x": new Date(Math.random()*10 + Math.random()*7000 + Date.now()),
+                    "y": Math.random()*10 + 1
             }, {
-                "x": Math.random()*10 + 100000000,
-                    "y": Math.random()*10
+                "x": new Date(Math.random()*10 + Math.random()*8000 + Date.now()),
+                    "y": Math.random()*10 + 1
             }, {
-                "x": Math.random()*10 + 1000000000,
-                    "y": Math.random()*10
+                "x": new Date(Math.random()*10 + Math.random()*9000 + Date.now()),
+                    "y": Math.random()*10 + 1
             }, {
-                "x": Math.random()*100 + 10000000000,
-                    "y": Math.random()*10
+                "x": new Date(Math.random()*100 + Math.random()*20000 + Date.now()),
+                    "y": Math.random()*10 + 1
             }]
           }
         },
         color: {
           type: String,
-          value: "#4375E4"
+          value: ""
         },
         dots: {
           type: Boolean,
@@ -63,13 +63,13 @@
           type: Boolean,
           value: true
         },
-        dotWidth: {
+        dotRadius: {
           type: Number,
-          value: 4
+          value: 2.5
         },
         lineWidth: {
           type: Number,
-          value: 2
+          value: 1.5
         }
       },
 
@@ -90,6 +90,18 @@
           return;
         }
 
+        // if color is not set, set a Random Color
+        if (!this.color) {
+          this.color = '#';
+          var perm = ["2C", "F5"];
+          perm.push(Math.floor(Math.random()*256).toString(16));
+          for (var i = 3; i > 0; i--) {
+            var pos = Math.floor(Math.random()*i);
+            this.color += perm[pos];
+            perm.splice(pos, 1);
+          }
+        }
+
         this._chart = this.parentNode._chart;
 
         this._node = this._chart.append("g")
@@ -103,13 +115,6 @@
         if (this.dots)
           this._attachDots();
 
-        var newMax = d3.max(this.values, function(d) { return d.y; });
-        var oldMax = this.parentElement._y.domain()[1];
-
-        if (oldMax === undefined || newMax > oldMax){
-          this.parentElement._y.domain([0, newMax]);
-        }
-        this.parentElement._x.domain(d3.extent(this.values, function(d) { return d.x; }));
       },
 
       _attachLine: function() {
@@ -141,7 +146,7 @@
                     return self.parentElement._x(d.x)})
                   .attr("cy", function(d,i) {
                     return self.parentElement._y(d.y)})
-                  .attr("r", this.dotWidth)
+                  .attr("r", this.dotRadius)
                   .attr("fill", "#FFF")
                   .attr("stroke", this.color)
                   .attr("stroke-width", this.lineWidth)
@@ -164,7 +169,7 @@
         var self = this;
         this._dots.attr("cx", function(d,i) {return self.parentElement._x(d.x)})
                   .attr("cy", function(d,i) {return self.parentElement._y(d.y)})
-                  .attr("r", this.dotWidth);
+                  .attr("r", this.dotRadius);
         this._node.select(".line")
                   .attr("class", "line")
                   .attr("d", this._line);
