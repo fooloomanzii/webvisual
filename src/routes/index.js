@@ -15,6 +15,16 @@ module.exports = function(app, passport, config) {
     res.end();
   });
 
+  app.get('/tests', loggedIn, function(req, res) {
+    res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
+    res.render('tests', {
+      user: req.user,
+      config: config.configuration,
+      mobile: isMobile(req)
+    });
+    res.end();
+  });
+
   app.get('/login', function(req, res) {
     res.render('login', {
       user: req.user,

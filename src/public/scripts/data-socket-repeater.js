@@ -151,6 +151,7 @@ function _updateNodes(message) {
 
   var label = message.label;
   var id;
+
   //
   // .splice(1, 1, {name: 'Sam'}); this.items.push({name: 'Bob'}); this.notifySplices('items', [ { index: 1, removed: [{name: 'Todd'}], addedCount: 1, obect: this.items, type: 'splice' }, { index: 3, removed: [], addedCount: 1, object: this.items, type: 'splice'} ]);
 
@@ -158,8 +159,11 @@ function _updateNodes(message) {
     id = message.content[i].id;
     if (Nodes[label][id]) {
       for (var j = 0; j < Nodes[label][id].length; j++) {
+        message.content[i].values.forEach(function(d) {
+            d.x = Date.parse(d.x); // parse Date in Standard Date Object
+        });
         if (!doAppend)
-          Nodes[label][id][j].spliceValues(0, values.length);
+          Nodes[label][id][j].spliceValues(0, message.content[i].values.length);
         if (newestDataLast) {
           for (var k = 0; k < message.content[i].values.length; k++) {
             Nodes[label][id][j].unshiftValues(message.content[i].values[k]);

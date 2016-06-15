@@ -4,12 +4,12 @@
     properties: {
         label: {
           type: String,
-          value: "",
+          value: '',
           reflectToAttribute: true
         },
         id: {
           type: String,
-          value: "",
+          value: '',
           reflectToAttribute: true
         },
         keys: {
@@ -52,27 +52,27 @@
         isExceeding: {
           type: Boolean,
           value: false,
-          observer: "_handleExceeding"
+          observer: '_handleExceeding'
         },
         hasExceeded: {
           type: Boolean,
           value: false,
-          observer: "_hasExceededChanged"
+          observer: '_hasExceededChanged'
         },
         bubbles: {
           type: Boolean,
           value: false,
           reflectToAttribute: true
         },
-        selectable: {
-          type: Boolean,
-          value: true,
-          reflectToAttribute: true
-        },
         updatable: {
           type: Boolean,
           value: true,
           readOnly: true,
+          reflectToAttribute: true
+        },
+        tooltip: {
+          type: Boolean,
+          value: false,
           reflectToAttribute: true
         }
     },
@@ -92,7 +92,6 @@
       this.set('keys', element.keys);
       this.set('captionKeys', element.captionKeys);
       this.set('isBoolean', element.isBoolean);
-      this.set('isExceeding', element.isExceeding);
       this.set('firstExceeds', element.firstExceeds);
       this.set('lastExceeds', element.lastExceeds);
       this.set('svg', element.svg);
@@ -100,20 +99,19 @@
     },
 
     getElement: function() {
-      return {"id": this.id,
-              "label": this.label,
-              "keys": this.keys,
-              "captionKeys": this.captionKeys,
-              "isBoolean": this.isBoolean,
-              "isExceeding": this.isExceeding,
-              "svg": this.svg,
-              "firstExceeds": this.firstExceeds,
-              "lastExceeds": this.lastExceeds,
-              "values": this.values};
+      return {'id': this.id,
+              'label': this.label,
+              'keys': this.keys,
+              'captionKeys': this.captionKeys,
+              'isBoolean': this.isBoolean,
+              'svg': this.svg,
+              'firstExceeds': this.firstExceeds,
+              'lastExceeds': this.lastExceeds,
+              'values': this.values};
     },
 
     unshiftValues: function(value) {
-      this.unshift("values", value);
+      this.unshift('values', value);
 
       if (value.exceeds === null) {
         if(this.isExceeding !== false) {
@@ -126,7 +124,7 @@
           this.setExceedingState(true, value.exceeds);
           this._setFirstExceeds(this.values[0]);
           if (this.hasExceeded === false)
-            this.set("hasExceeded", true);
+            this.set('hasExceeded', true);
         }
       }
       this._updateView(value);
@@ -150,7 +148,7 @@
     },
 
     setValues: function(values, newestDataLast) {
-      this.values = values;
+      this.set('values', values);
 
       if (newestDataLast) {
         this.setExceedingState(values[values.length - 1].exceeds !== null, values[values.length - 1].exceeds);
@@ -175,7 +173,7 @@
     },
 
     reset: function() {
-      this.set("hasExceeded", false);
+      this.set('hasExceeded', false);
     }
 
     // TODO: eventuell durch vorhandene obere Funktionen zu lösen

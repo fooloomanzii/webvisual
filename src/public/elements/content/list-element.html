@@ -1,5 +1,5 @@
-<link rel="import" href="../behaviors/element-behavior.html">
-<dom-module id="list-element">
+<link rel='import' href='../behaviors/element-behavior.html'>
+<dom-module id='list-element'>
   <style>
     :host {
       cursor: pointer;
@@ -128,27 +128,27 @@
     }
   </style>
   <template>
-    <section id="label">[[label]]</section>
-    <section id="caption">
-      <template id="captiontemplate" is="dom-repeat" items="[[captionKeys]]" as="captionKey">
-        <span id="captions" hidden$="[[isEmptyCaption(captionKey)]]">[[getKey(captionKey, keys.*)]]</span>
+    <section id='label'>[[label]]</section>
+    <section id='caption'>
+      <template id='captiontemplate' is='dom-repeat' items='[[captionKeys]]' as='captionKey'>
+        <span id='captions' hidden$='[[isEmptyCaption(captionKey)]]'>[[getKey(captionKey, keys.*)]]</span>
       </template>
     </section>
 
-    <section id="sign" class="null">
-      <section id="actualValueSection">
-        <section hidden$="[[isBoolean]]">
-          <section id="valueSection"></section><section id="unitSection">[[keys.unit]]</section>
+    <section id='sign' class='null'>
+      <section id='actualValueSection'>
+        <section hidden$='[[isBoolean]]'>
+          <section id='valueSection'></section><section id='unitSection'>[[keys.unit]]</section>
         </section>
-        <section hidden$="[[!isBoolean]]">
-          <svg id="icon" hidden$="[[!isExceeding]]" viewBox="0 0 24 24">
-              <g id="error-outline"><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></g>
+        <section hidden$='[[!isBoolean]]'>
+          <svg id='icon' hidden$='[[!isExceeding]]' viewBox='0 0 24 24'>
+              <g id='error-outline'><path d='M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z'/></g>
           </svg>
         </section>
       </section>
     </section>
 
-    <section id="dateSection" hidden$="[[!showDate]]"></section>
+    <section id='dateSection' hidden$='[[!showDate]]'></section>
 
   </template>
 
@@ -180,13 +180,13 @@
 
       attached: function() {
         if (this.dark) {
-          this.$.caption.setAttribute("dark", true);
-          this.$.sign.setAttribute("dark", true);
+          this.$.caption.setAttribute('dark', true);
+          this.$.sign.setAttribute('dark', true);
         }
       },
 
       listeners: {
-        "tap": "_onTap"
+        'tap': '_onTap'
       },
 
       setExceedingState: function(isExceeding, state) {
@@ -215,14 +215,14 @@
       _handleExceeding: function(isExceeding) {
         if(this.bubbles) {
           if (isExceeding)
-            this.fire("element-is-exceeding", this.getElement());
+            this.fire('element-is-exceeding', this.getElement());
           else
-            this.fire("element-is-not-exceeding", this.getElement());
+            this.fire('element-is-not-exceeding', this.getElement());
         }
       },
 
       _onTap: function(e) {
-        this.fire("element-select", this.getElement());
+        this.fire('element-select', this.getElement());
       }
 
     });

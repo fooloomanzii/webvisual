@@ -1,5 +1,5 @@
-<link rel="import" href="../behaviors/element-behavior.html">
-<dom-module id="table-element">
+<link rel='import' href='../behaviors/element-behavior.html'>
+<dom-module id='table-element'>
   <style>
     :host {
       /*height needs to be set by outer element*/
@@ -78,13 +78,13 @@
     }
   </style>
   <template>
-    <section id="table">
-      <section id="caption">[[caption]]</section>
-      <section id="head" hidden$="[[hideHeader]]" on-tap="switchOrder">
-        <section id="td" class="x">Datum</section>
-        <section id="td" class="y">Wert</section>
+    <section id='table'>
+      <section id='caption'>[[caption]]</section>
+      <section id='head' hidden$='[[hideHeader]]' on-tap='switchOrder'>
+        <section id='td' class='x'>Datum</section>
+        <section id='td' class='y'>Wert</section>
       </section>
-      <section id="body">
+      <section id='body'>
       </section>
     </section>
   </template>
@@ -99,12 +99,12 @@
       properties: {
         caption: {
           type: String,
-          value: ""
+          value: ''
         },
         descendingOrder: {
           type: Boolean,
           value: false,
-          observer: "_reorder"
+          observer: '_reorder'
         },
         highlightExceeding: {
           type: Boolean,
@@ -133,16 +133,16 @@
       factoryImpl: function(element, highlightExceeding, hideHeader, hideOverflow, bubbles, dark) {
         this.setElement(element);
         if (highlightExceeding === true)
-          this.set("hideHeader", hideHeader);
+          this.set('hideHeader', hideHeader);
         if (hideHeader === true)
-          this.set("highlightExceeding", highlightExceeding);
+          this.set('highlightExceeding', highlightExceeding);
         if (hideOverflow === true)
-          this.set("hideOverflow", hideOverflow);
+          this.set('hideOverflow', hideOverflow);
         if (bubbles === true)
           this.bubbles = true;
         if (dark) {
-          this.setAttribute("dark", true);
-          this.$.body.setAttribute("dark", true);
+          this.setAttribute('dark', true);
+          this.$.body.setAttribute('dark', true);
         }
       },
 
@@ -173,12 +173,12 @@
         }
         else if (value) {
           row = document.createElement('section');
-          row.id = "tr";
+          row.id = 'tr';
           tdX = document.createElement('section');
-          tdX.id = "td"; tdX.className = "x";
+          tdX.id = 'td'; tdX.className = 'x';
           tdX.textContent = (this.showFullDate ? new Date(value.x).toLocaleString() : new Date(value.x).toLocaleTimeString());
           tdY = document.createElement('section');
-          tdY.id = "td"; tdY.className = "y";
+          tdY.id = 'td'; tdY.className = 'y';
           isExceeding = (value.exceeds === null) ? false : true;
           tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : value.y);
 
@@ -195,7 +195,7 @@
       },
 
       setValues: function(values) {
-        this.set("values", values);
+        this.set('values', values);
         while (this._body.lastChild) {
           this._body.removeChild(this._body.lastChild);
         }
@@ -206,13 +206,13 @@
           this.async( function() {
             for (var j = values.length-1; j >=0 ; j--) {
               row = document.createElement('section');
-              row.id = "tr";
+              row.id = 'tr';
 
               tdX = document.createElement('section');
-              tdX.id = "td"; tdX.className = "x";
+              tdX.id = 'td'; tdX.className = 'x';
               tdX.textContent = (this.showFullDate ? new Date(values[j].x).toLocaleString() : new Date(values[j].x).toLocaleTimeString());
               tdY = document.createElement('section');
-              tdY.id = "td"; tdY.className = "y";
+              tdY.id = 'td'; tdY.className = 'y';
               isExceeding = (values[j].exceeds === null) ? false : true;
               tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : values[j].y);
 
@@ -231,7 +231,7 @@
       },
 
       switchOrder: function() {
-        this.set("descendingOrder", !this.descendingOrder);
+        this.set('descendingOrder', !this.descendingOrder);
       },
 
       _reorder: function(descendingOrder, oldOrder) {

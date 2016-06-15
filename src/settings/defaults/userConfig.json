@@ -5,7 +5,7 @@
   },
 
   "auth": {
-    "required": true,
+    "required": false,
     "ldap": {
       "url": "ibn-net.kfa-juelich.de",
       "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de"
@@ -55,8 +55,8 @@
       "connections": {
         "file": {
           "mode": "all",
-          "path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
-          "#path_folder": "examples/datafile",
+          "#path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
+          "path_folder": "examples/datafile",
           "path": "HNF_Datafile.txt",
           "relativePath": false
         }

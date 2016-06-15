@@ -1,4 +1,4 @@
-<dom-module id="group-card">
+<dom-module id='group-card'>
     <style>
       :host {
         border-radius: 6px;
@@ -96,7 +96,6 @@
         padding: 0.5em 0em 0em 0.5em;
         background: none;
         box-sizing: border-box;
-        /*z-index: inherit;*/
         height: auto;
         width: auto;
         overflow: visible;
@@ -136,16 +135,16 @@
       }
     </style>
   <template>
-    <section id="main" name$="[[title]]" nowindow$="[[withoutWindow]]">
+    <section id='main' name$='[[title]]' nowindow$='[[withoutWindow]]'>
 
-      <section id="header" hidden$="[[_hideTitle(title,withoutWindow)]]">
-        <!-- <content select=".header"></content> -->
-        <svg-element id="svgElement" hidden selected="{{exceedingElements}}" initially-zoom-to-selected max-zoom="6" min-zoom="1.2"></svg-element>
-        <section id="title" on-tap="toggle">[[title]]</section>
+      <section id='header' hidden$='[[_hideTitle(title,withoutWindow)]]'>
+        <!-- <content select='.header'></content> -->
+        <svg-element id='svgElement' hidden selected='{{exceedingElements}}' initially-zoom-to-selected max-zoom='5' min-zoom='1.2'></svg-element>
+        <section id='title' on-tap='toggle'>[[title]]</section>
       </section>
 
-      <section id="mainContent">
-        <content select=".content"></content>
+      <section id='mainContent'>
+        <content select='.content'></content>
       </section>
     </section>
 
@@ -178,7 +177,7 @@
           type: Object,
           value: function() { return {}; },
           reflectToAttribute: true,
-          observer: "_svgChanged"
+          observer: '_svgChanged'
         },
         exceedingElements: {
           type: Object,
@@ -187,22 +186,22 @@
       },
 
       factoryImpl: function(title, svg, dark, withoutWindow) {
-        this.set("title", title || "");
-        this.set("svg", svg || {});
+        this.set('title', title || '');
+        this.set('svg', svg || {});
         if (dark) {
-          this.$.mainContent.setAttribute("dark", true);
-          this.$.header.setAttribute("dark", true);
-          this.$.main.setAttribute("dark", true);
-          this.$.title.setAttribute("dark", true);
+          this.$.mainContent.setAttribute('dark', true);
+          this.$.header.setAttribute('dark', true);
+          this.$.main.setAttribute('dark', true);
+          this.$.title.setAttribute('dark', true);
         }
         if (withoutWindow)
-          this.setAttribute("withoutWindow", true);
+          this.setAttribute('withoutWindow', true);
       },
 
       listeners: {
-        "element-is-exceeding": "_setExceedingElement",
-        "element-is-not-exceeding": "_unsetExceedingElement",
-        "element-select": "_onSelected"
+        'element-is-exceeding': '_setExceedingElement',
+        'element-is-not-exceeding': '_unsetExceedingElement',
+        'element-select': '_onSelected'
       },
 
       toggle: function() {
@@ -251,7 +250,7 @@
           this.$.svgElement.setSvg(svg);
         }
         else {
-          this.$.svgElement.setAttribute("hidden", true);
+          this.$.svgElement.setAttribute('hidden', true);
         }
       },
 
@@ -262,7 +261,7 @@
       _setExceedingElement: function(e) {
         if(e.detail.svg &&
            e.detail.svg.path) {
-          this.set("exceedingElements." + e.detail.id, e.detail.svg.path);
+          this.set('exceedingElements.' + e.detail.id, e.detail.svg.path);
           if (!this.opened) {
             this.toggle();
           }
@@ -271,7 +270,7 @@
       _unsetExceedingElement: function(e) {
         if(e.detail.svg &&
            e.detail.svg.path) {
-          this.set("exceedingElements." + e.detail.id, "");
+          this.set('exceedingElements.' + e.detail.id, '');
         }
       }
     });

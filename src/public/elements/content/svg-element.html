@@ -26,7 +26,7 @@
 -->
 <!-- <script src='../../../components/d3/d3.min.js'></script> -->
 
-<dom-module id="svg-element">
+<dom-module id='svg-element'>
 
 <style>
   :host {
@@ -165,12 +165,12 @@
 
 </style>
 <template>
-  <div id="svgContainer">
+  <div id='svgContainer'>
   </div>
-  <div id="control" top$="{{isFullscreen}}">
-    <svg class="icon" viewBox="0 -4 16 24" on-tap="_debounceResetZoom"><title>focus</title><g id="focus"> <path d="M 16,5.5 13,8 16,10.5 Z" /> <path d="M 10.5,16 8,13 5.5,16 Z" /> <path d="M 0,10.5 3,7.9999999 0,5.5 Z" /><path d="M 5.5,0 8,3 10.5,0 Z"/><circle r="1.5" cx="8" cy="8" /></g></svg>
-      <svg class="icon" viewBox="0 0 24 24" hidden$="{{isFullscreen}}" on-tap="_fireOpenFullscreen"><title>fullscreen</title><g id="fullscreen"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></g></svg>
-      <svg class="icon" viewBox="0 0 24 24" hidden$="{{!isFullscreen}}" on-tap="close"><title>close</title><g id="fullscreen-exit"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></g></svg>
+  <div id='control' top$='{{isFullscreen}}'>
+    <svg class='icon' viewBox='0 -4 16 24' on-tap='_debounceResetZoom'><title>focus</title><g id='focus'> <path d='M 16,5.5 13,8 16,10.5 Z' /> <path d='M 10.5,16 8,13 5.5,16 Z' /> <path d='M 0,10.5 3,7.9999999 0,5.5 Z' /><path d='M 5.5,0 8,3 10.5,0 Z'/><circle r='1.5' cx='8' cy='8' /></g></svg>
+      <svg class='icon' viewBox='0 0 24 24' hidden$='{{isFullscreen}}' on-tap='_fireOpenFullscreen'><title>fullscreen</title><g id='fullscreen'><path d='M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z'/></g></svg>
+      <svg class='icon' viewBox='0 0 24 24' hidden$='{{!isFullscreen}}' on-tap='close'><title>close</title><g id='fullscreen-exit'><path d='M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z'/></g></svg>
   </div>
 </template>
 
@@ -187,7 +187,7 @@
        */
       source: {
         type: String,
-        observer: "_sourceChanged"
+        observer: '_sourceChanged'
       },
       recentSource: {
         type: String,
@@ -198,7 +198,7 @@
        */
       selectable: {
         type: Object,
-        observer: "_selectableChanged"
+        observer: '_selectableChanged'
       },
       /**
        * Object of unique Identifiers (an ID or a Title) and the related (css-like) selector of selected Nodes
@@ -212,15 +212,15 @@
        */
       selectedClass: {
         type: String,
-        value: "selected"
+        value: 'selected'
       },
       /**
        * (css-like) selector of a initially zoomed Nodes
        */
       initial: {
         type: String,
-        value: "",
-        observer: "_initialChanged"
+        value: '',
+        observer: '_initialChanged'
       },
       /**
        * If true, initially it is not zoomed to 'initial' if there are selected Nodes
@@ -237,7 +237,7 @@
         type: Boolean,
         value: false,
         reflectToAttribute: true,
-        observer: "_openedChanged"
+        observer: '_openedChanged'
       },
       /**
        * If true, Svg-Element can be in fullscreen-presentation.
@@ -309,7 +309,7 @@
     _d3Zoom: {},
 
     observers: [
-      "_selectedChanged(selected.*)"
+      '_selectedChanged(selected.*)'
     ],
 
     get rootElement () {
@@ -324,24 +324,24 @@
 
     attached: function() {
       if (this.isFullscreen) {
-        this.listen(this.rootElement, "svg-open-fullscreen", "open");
-        this.listen(this.rootElement, "svg-close-fullscreen", "close");
+        this.listen(this.rootElement, 'svg-open-fullscreen', 'open');
+        this.listen(this.rootElement, 'svg-close-fullscreen', 'close');
       }
-      // this.listen(this.rootElement, "svg-open", "open");
-      // this.listen(this.rootElement, "svg-close", "close");
-      // this.listen(this.rootElement, "svg-select", "select");
-      // this.listen(this.rootElement, "svg-deselect", "select");
+      // this.listen(this.rootElement, 'svg-open', 'open');
+      // this.listen(this.rootElement, 'svg-close', 'close');
+      // this.listen(this.rootElement, 'svg-select', 'select');
+      // this.listen(this.rootElement, 'svg-deselect', 'select');
     },
 
     detached: function() {
       if (this.isFullscreen) {
-        this.unlisten(this.rootElement, "svg-open-fullscreen", "open");
-        this.unlisten(this.rootElement, "svg-close-fullscreen", "close");
+        this.unlisten(this.rootElement, 'svg-open-fullscreen', 'open');
+        this.unlisten(this.rootElement, 'svg-close-fullscreen', 'close');
       }
-      // this.unlisten(this.rootElement, "svg-open", "open");
-      // this.unlisten(this.rootElement, "svg-close", "close");
-      // this.unlisten(this.rootElement, "svg-select", "select");
-      // this.unlisten(this.rootElement, "svg-deselect", "select");
+      // this.unlisten(this.rootElement, 'svg-open', 'open');
+      // this.unlisten(this.rootElement, 'svg-close', 'close');
+      // this.unlisten(this.rootElement, 'svg-select', 'select');
+      // this.unlisten(this.rootElement, 'svg-deselect', 'select');
     },
 
     open: function(e) {
@@ -355,7 +355,7 @@
     factoryImpl: function(svg, opened) {
       this.setSvg(svg);
       if (opened)
-        this.toggleAttribute("opened", true)
+        this.toggleAttribute('opened', true)
     },
 
     getSvg: function() {
@@ -368,18 +368,18 @@
     setSvg: function(svg) {
       this.async(function(){
         if (svg.source)
-          this.set("source", svg.source);
+          this.set('source', svg.source);
         if (svg.selectable)
-          this.set("selectable", svg.selectable);
+          this.set('selectable', svg.selectable);
         if (svg.initial)
-          this.set("initial", svg.initial);
+          this.set('initial', svg.initial);
         if (svg.selected)
-          this.set("selected", svg.selected);
+          this.set('selected', svg.selected);
       });
     },
 
     _sourceChanged: function(source) {
-      if (this.opened === true && source !== "" && this.recentSource !== source) {
+      if (this.opened === true && source !== '' && this.recentSource !== source) {
         if (!SvgSource[source]) return;
         if (!SvgSource[source].node) return;
         this.recentSource = source;
@@ -400,28 +400,28 @@
       var self = this;
       this._d3Zoom = d3.behavior.zoom()
                        .scaleExtent([this.minZoom, this.maxZoom])
-                       .on("zoom", function() { self._zoom(); });
+                       .on('zoom', function() { self._zoom(); });
 
       // append imported svg to this element
       this.$.svgContainer.insertBefore(svgNode, this.$.svgContainer.firstChild);
-      this._svg = d3.select(svgNode).attr("id", "main")
-                                    .classed("svg-element", true)
+      this._svg = d3.select(svgNode).attr('id', 'main')
+                                    .classed('svg-element', true)
                                     .call(this._d3Zoom);
 
       // set style for resizing
-      this._svg.attr("preserveAspectRatio", "xMinYMin meet")
-               .attr("height", null)
-               .attr("width", null);
+      this._svg.attr('preserveAspectRatio', 'xMinYMin meet')
+               .attr('height', null)
+               .attr('width', null);
 
-      this._mainG = this._svg.select("g")
-                             .attr("id", "mainG");
+      this._mainG = this._svg.select('g')
+                             .attr('id', 'mainG');
 
-      this._mainG.selectAll("text")
-                 .classed("text", true)  // for styling text
-                 .classed("svg-element", true); // style-scoping in polymer
+      this._mainG.selectAll('text')
+                 .classed('text', true)  // for styling text
+                 .classed('svg-element', true); // style-scoping in polymer
 
       // get original dimensions
-      var viewBox = this._svg.attr("viewBox").split(' ');
+      var viewBox = this._svg.attr('viewBox').split(' ');
       this._width  = viewBox[2] - viewBox[0];
       this._height = viewBox[3] - viewBox[1];
 
@@ -430,7 +430,7 @@
     },
 
     _openedChanged: function(opened) {
-      if (this.source === "" || !opened) return;
+      if (this.source === '' || !opened) return;
       this._sourceChanged(this.source);
       this._debounceResetZoom();
     },
@@ -441,7 +441,7 @@
     },
 
     _initialChanged: function(initial) {
-      if (this.source === "" || initial === "") return;
+      if (this.source === '' || initial === '') return;
       this._debounceResetZoom();
     },
 
@@ -456,51 +456,51 @@
         }).bind(self));
 
       // previous selectable elements: remove 'svg-element-selectable' class and click listener
-      this._mainG.selectAll(".svg-element-selectable")
-                .classed("svg-element-selectable", false)
-                .on("click", null);
-      this._mainG.selectAll(".clicked")
-                 .classed("clicked", false);
+      this._mainG.selectAll('.svg-element-selectable')
+                .classed('svg-element-selectable', false)
+                .on('click', null);
+      this._mainG.selectAll('.clicked')
+                 .classed('clicked', false);
 
       // add 'svg-element-selectable' class and click listener
       for (var key in this.selectable)
         this._mainG.selectAll(this.selectable[key])
-                  .classed("svg-element-selectable", true)  // for styling selectable
-                  .classed("svg-element", true) // for style-scoping in polymer
-                  .on("click",
+                  .classed('svg-element-selectable', true)  // for styling selectable
+                  .classed('svg-element', true) // for style-scoping in polymer
+                  .on('click',
                     function() {
                       self._zoomToElement(this);
-                      self._mainG.selectAll(".clicked")
-                                 .classed("clicked", false);
-                      this.classList.add("clicked");
+                      self._mainG.selectAll('.clicked')
+                                 .classed('clicked', false);
+                      this.classList.add('clicked');
                     })
-                  .append("title")
+                  .append('title')
                   .text(function() {
                       return key;
                    });
       for (var key in SvgSource[this.source].selectable)
         this._mainG.selectAll(SvgSource[this.source].selectable[key])
-                  .classed("svg-element-selectable", true)  // for styling selectable
-                  .classed("svg-element", true) // for style-scoping in polymer
-                  .on("click",
+                  .classed('svg-element-selectable', true)  // for styling selectable
+                  .classed('svg-element', true) // for style-scoping in polymer
+                  .on('click',
                     function() {
                       self._zoomToElement(this);
                       self._mainG.selectAll('.clicked')
-                                 .classed("clicked", false);
-                      self.classList.add("clicked");
+                                 .classed('clicked', false);
+                      self.classList.add('clicked');
                     })
-                  .append("title")
+                  .append('title')
                   .text(function() {
                       return key;
                    });
     },
 
     _zoom: function () {
-      this._mainG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+      this._mainG.attr('transform', 'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')');
     },
 
     _debounceSelect: function() {
-      this.debounce("select",
+      this.debounce('select',
         function() {
           this.select(this.selected, this.selectedClass);
         }, 300);
@@ -508,17 +508,17 @@
 
     select: function(selected, selectedClass) {
       // previous selected elements: remove class for selected elements
-      this._mainG.selectAll("." + selectedClass)
+      this._mainG.selectAll('.' + selectedClass)
                 .classed(selectedClass, false);
 
       var elems;
       var sel = [];
       for (var key in selected) {
-        if (selected[key] !== "")
+        if (selected[key] !== '')
           sel.push(selected[key]);
       }
-      var sel = sel.join(",");
-      if (sel === "" ||
+      var sel = sel.join(',');
+      if (sel === '' ||
           (elems = this._mainG.selectAll(sel)
                              .filter('.svg-element-selectable')).empty()) {
         if (this.opened)
@@ -605,10 +605,10 @@
     },
 
     _debounceResetZoom: function() {
-      this.debounce("resetZoom",
+      this.debounce('resetZoom',
         function() {
           this._resetZoom()
-        }, 300);
+        }, 500);
     },
 
     _resetZoom: function() {
@@ -616,19 +616,19 @@
       // zoom to selectedItems
       if (this.initiallyZoomToSelected === true && this.selected) {
         for (var key in this.selected) {
-          if (this.selected[key] !== "" && !(this._mainG.selectAll(this.selected[key])
-                                    .filter(".svg-element-selectable")).empty()) {
+          if (this.selected[key] !== '' && !(this._mainG.selectAll(this.selected[key])
+                                    .filter('.svg-element-selectable')).empty()) {
             this._debounceSelect();
             return;
           }
         }
       }
       // zoom to initial
-      if (this.initial !== "") {
+      if (this.initial !== '') {
         var initial;
         if (!(initial = this._mainG.selectAll(this.initial)
-                                  .filter(".svg-element-selectable")).empty()) {
-          this.select({initial: this.initial}, "initial");
+                                  .filter('.svg-element-selectable')).empty()) {
+          this.select({initial: this.initial}, 'initial');
           return;
         }
       }
@@ -637,7 +637,7 @@
     },
 
     _fireOpenFullscreen: function() {
-      this.fire("svg-open-fullscreen", this.getSvg());
+      this.fire('svg-open-fullscreen', this.getSvg());
     }
   });
 </script>

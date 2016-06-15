@@ -16,7 +16,7 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="webicon-alternative-nicht-abgesetzt.svg"
-   inkscape:export-filename="D:\Github\webvisual\src\public\img\icons\webicon-nicht-abgesetzt.png"
+   inkscape:export-filename="C:\Github\webvisual\src\public\img\icons\webicon-nicht-abgesetzt.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -77,17 +77,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4"
-     inkscape:cx="-41.170824"
-     inkscape:cy="103.83544"
+     inkscape:zoom="0.24748737"
+     inkscape:cx="-1939.4005"
+     inkscape:cy="-119.89485"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="1680"
-     inkscape:window-height="988"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-width="1920"
+     inkscape:window-height="1005"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata4411">
@@ -97,7 +97,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -120,7 +120,7 @@
        sodipodi:cx="123.57143"
        sodipodi:sides="6"
        id="path4432"
-       style="fill:#005b8c;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-opacity:1"
+       style="fill:#005b8c;fill-opacity:1;fill-rule:nonzero;stroke:#000116;stroke-opacity:1;stroke-width:5.05235741;stroke-miterlimit:4;stroke-dasharray:none;stroke-linejoin:miter"
        sodipodi:type="star" />
     <path
        style="fill:#f2f2f2;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"

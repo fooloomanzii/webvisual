@@ -1,7 +1,7 @@
-<link rel="import" href="../behaviors/element-behavior.html">
-<link rel="import" href="../../components/paper-ripple/paper-ripple.html"/>
+<link rel='import' href='../behaviors/element-behavior.html'>
+<link rel='import' href='../../components/paper-ripple/paper-ripple.html'/>
 
-<dom-module id="sign-element">
+<dom-module id='sign-element'>
   <style>
     :host {
       position: relative;
@@ -171,14 +171,16 @@
       top: -5px;
       height: 1.25em;
       width: 1.25em;
-      fill: #444;
-      opacity: 0.8;
+      fill: #1f1f1f;
+      stroke: rgba(255, 255, 255, 0.25);;
+      stroke-width: 0.25px;
+      opacity: 0.75;
       transform-origin: center;
       transition: all 280ms cubic-bezier(0.4, 0, 0.2, 1);
     }
     svg#bookmark:hover {
       transform: scale(1.4);
-      opacity: 0.9;
+      opacity: 1;
     }
     section#tooltip {
       display: block;
@@ -190,6 +192,7 @@
       color: #f1f1f1;
       border-radius: 5px;
       z-index: 150;
+      outline: none;
     }
     section#tooltip:not(.opened) {
       opacity: 0;
@@ -217,39 +220,39 @@
     }
   </style>
   <template>
-      <section id="sign" horizontal$="[[horizontal]]" on-tap="_fireSelect" class="null">
-        <paper-ripple hidden$="[[!selectable]]" id="ripple"></paper-ripple>
+      <section id='sign' horizontal$='[[horizontal]]' class='null'>
+        <paper-ripple hidden$='[[!selectable]]' id='ripple'></paper-ripple>
 
-        <section id="actualValueSection">
-          <section hidden$="[[isBoolean]]">
-            <section id="valueSection"></section><section id="unitSection">[[keys.unit]]</section>
+        <section id='actualValueSection' on-tap='_fireSelect'>
+          <section hidden$='[[isBoolean]]'>
+            <section id='valueSection'></section><section id='unitSection'>[[keys.unit]]</section>
           </section>
-          <section hidden$="[[!isBoolean]]">
-            <svg id="exceeding" hidden$="[[!isExceeding]]" viewBox="0 0 24 24">
-                <g id="error-outline"><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></g>
+          <section hidden$='[[!isBoolean]]'>
+            <svg id='exceeding' hidden$='[[!isExceeding]]' viewBox='0 0 24 24'>
+                <g id='error-outline'><path d='M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z'/></g>
             </svg>
           </section>
         </section>
 
-        <section id="dateSection" hidden$="[[!showDate]]">
+        <section id='dateSection' hidden$='[[!showDate]]'>
         </section>
 
-        <svg id="bookmark" hidden$="[[_hasTooltip(hasExceeded)]]" viewBox="0 0 24 24" on-tap="_toggleTooltip" aria-label="Alarme">
-          <g id="announcement"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 9h-2V5h2v6zm0 4h-2v-2h2v2z"/></g>
+        <svg id='bookmark' hidden$='[[_hasTooltip(hasExceeded)]]' viewBox='0 0 24 24' on-tap='_toggleTooltip' aria-label='Alarme'>
+          <g id='announcement'><path d='M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 9h-2V5h2v6zm0 4h-2v-2h2v2z'/></g>
         </svg>
       </section>
 
-      <section id="caption" horizontal$="[[horizontal]]" hidden$="[[!showCaption]]">
-        <template id="captiontemplate" is="dom-repeat" items="[[captionKeys]]" as="captionKey">
-          <span id="captions" hidden$="[[isEmptyCaption(captionKey)]]">[[getKey(captionKey, keys.*)]]</span>
+      <section id='caption' horizontal$='[[horizontal]]' hidden$='[[!showCaption]]'>
+        <template id='captiontemplate' is='dom-repeat' items='[[captionKeys]]' as='captionKey'>
+          <span id='captions' hidden$='[[isEmptyCaption(captionKey)]]'>[[getKey(captionKey, keys.*)]]</span>
         </template>
       </section>
 
-      <section id="tooltip" hidden$="[[_hasTooltip(hasExceeded)]]" on-tap="_hideTooltip" on-mouseleave="_hideTooltip" role="tooltip" tabindex="-1">
-        <div class="title">Alarmphasen</div>
-        <section id="tooltipContent">
-          <table-element id="firstExceedsTable" caption="Start" hide-header show-full-date hide-overflow is-boolean="[[isBoolean]]"></table-element>
-          <table-element id="lastExceedsTable" caption="Ende" hide-header show-full-date hide-overflow is-boolean="[[isBoolean]]"></table-element>
+      <section id='tooltip' hidden$='[[_hasTooltip(hasExceeded)]]' on-tap='_hideTooltip' on-mouseleave='_hideTooltip' role='tooltip' tabindex='-1'>
+        <div class='title'>Alarmphasen</div>
+        <section id='tooltipContent'>
+          <table-element id='firstExceedsTable' caption='Start' hide-header show-full-date hide-overflow is-boolean='[[isBoolean]]'></table-element>
+          <table-element id='lastExceedsTable' caption='Ende' hide-header show-full-date hide-overflow is-boolean='[[isBoolean]]'></table-element>
         </section>
       </section>
 
@@ -292,9 +295,9 @@
         if (bubbles === true)
           this.bubbles = true;
         if (dark) {
-          this.setAttribute("dark", true);
-          this.$.caption.setAttribute("dark", true);
-          this.$.sign.setAttribute("dark", true);
+          this.setAttribute('dark', true);
+          this.$.caption.setAttribute('dark', true);
+          this.$.sign.setAttribute('dark', true);
         }
       },
 
@@ -338,15 +341,15 @@
       _handleExceeding: function(isExceeding) {
         if(this.bubbles) {
           if (isExceeding)
-            this.fire("element-is-exceeding", this.getElement());
+            this.fire('element-is-exceeding', this.getElement());
           else
-            this.fire("element-is-not-exceeding", this.getElement());
+            this.fire('element-is-not-exceeding', this.getElement());
         }
       },
 
       _fireSelect: function(e) {
         if(this.selectable === true) {
-          this.fire("element-select", this.getElement());
+          this.fire('element-select', this.getElement());
           if (this.hasExceeded) this._hideTooltip();
         }
       },
@@ -357,22 +360,22 @@
 
       _openTooltip: function() {
         if (!this.hasExceeded) return;
-        this.$.tooltip.classList.add("opened");
+        this.$.tooltip.classList.add('opened');
         this._updateTooltipPosition();
       },
 
       _toggleTooltip: function() {
-        if (!this.hasExceeded) return;
-        if (this.$.tooltip.classList.contains("opened"))
-          this.$.tooltip.classList.remove("opened");
+        // if (!this.hasExceeded) return;
+        if (this.$.tooltip.classList.contains('opened'))
+          this.$.tooltip.classList.remove('opened');
         else {
-          this.$.tooltip.classList.add("opened");
+          this.$.tooltip.classList.add('opened');
           this._updateTooltipPosition();
         }
       },
 
       _hideTooltip: function() {
-        this.$.tooltip.classList.remove("opened");
+        this.$.tooltip.classList.remove('opened');
       },
 
       _updateTooltipPosition: function() {

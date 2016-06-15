@@ -1,8 +1,8 @@
 <!-- Dependent to be content of diagram-container -->
 <!-- Using d3.js-library -->
 
-<link rel="import" href="../behaviors/element-behavior.html">
-<dom-module id="graph-element">
+<link rel='import' href='../behaviors/element-behavior.html'>
+<dom-module id='graph-element'>
 
   <script>
 
@@ -15,45 +15,55 @@
         values: {
           type: Array,
           value: function() {
-            return [{
-                "x": new Date(Math.random()*10 + 1 + Date.now()),
-                    "y": Math.random()*10 + 1
-            }, {
-                "x": new Date(Math.random()*10 + (Math.random()+1)*500 + Date.now()),
-                    "y": Math.random()*10 + 1
-            }, {
-                "x": new Date(Math.random()*10 + (Math.random()+1)*1000 + Date.now()),
-                    "y": Math.random()*10 + 1
-            }, {
-                "x": new Date(Math.random()*10 + (Math.random()+1)*2000 + Date.now()),
-                    "y": Math.random()*10 + 1
-            }, {
-                "x": new Date(Math.random()*10 + (Math.random()+1)*4000 + Date.now()),
-                    "y": Math.random()*10 + 1
-            }, {
-                "x": new Date(Math.random()*10 + (Math.random()+1)*8000 + Date.now()),
-                    "y": Math.random()*10 + 1
-            }, {
-                "x": new Date(Math.random()*10 + (Math.random()+1)*16000 + Date.now()),
-                    "y": Math.random()*10 + 1
-            }, {
-                "x": new Date(Math.random()*10 + (Math.random()+1)*32000 + Date.now()),
-                    "y": Math.random()*10 + 1
-            }, {
-                "x": new Date(Math.random()*10 + (Math.random()+1)*64000 + Date.now()),
-                    "y": Math.random()*10 + 1
-            }, {
-                "x": new Date(Math.random()*10 + (Math.random()+1)*128000 + Date.now()),
-                    "y": Math.random()*10 + 1
-            }, {
-                "x": new Date(Math.random()*100 + (Math.random()+1)*256000 + Date.now()),
-                    "y": Math.random()*10 + 1
-            }]
-          }
+            return [
+              // {
+              //   x: Date.now() - 100000000,
+              //   y: 0,
+              //   exceeds: null
+              // },
+              // {
+              //   x: Date.now() - 50000000,
+              //   y: 2,
+              //   exceeds: null
+              // }
+            //    { 'x': new Date(Math.random()*10 + 1 + Date.now()),
+            //         'y': Math.random()*10 + 1
+            // }, {
+            //     'x': new Date(Math.random()*10 + (Math.random()+1)*500 + Date.now()),
+            //         'y': Math.random()*10 + 1
+            // }, {
+            //     'x': new Date(Math.random()*10 + (Math.random()+1)*1000 + Date.now()),
+            //         'y': Math.random()*10 + 1
+            // }, {
+            //     'x': new Date(Math.random()*10 + (Math.random()+1)*2000 + Date.now()),
+            //         'y': Math.random()*10 + 1
+            // }, {
+            //     'x': new Date(Math.random()*10 + (Math.random()+1)*4000 + Date.now()),
+            //         'y': Math.random()*10 + 1
+            // }, {
+            //     'x': new Date(Math.random()*10 + (Math.random()+1)*8000 + Date.now()),
+            //         'y': Math.random()*10 + 1
+            // }, {
+            //     'x': new Date(Math.random()*10 + (Math.random()+1)*16000 + Date.now()),
+            //         'y': Math.random()*10 + 1
+            // }, {
+            //     'x': new Date(Math.random()*10 + (Math.random()+1)*32000 + Date.now()),
+            //         'y': Math.random()*10 + 1
+            // }, {
+            //     'x': new Date(Math.random()*10 + (Math.random()+1)*64000 + Date.now()),
+            //         'y': Math.random()*10 + 1
+            // }, {
+            //     'x': new Date(Math.random()*10 + (Math.random()+1)*128000 + Date.now()),
+            //         'y': Math.random()*10 + 1
+            // }, {
+            //     'x': new Date(Math.random()*100 + (Math.random()+1)*256000 + Date.now()),
+            //         'y': Math.random()*10 + 1
+            // }
+          ];}
         },
         color: {
           type: String,
-          value: ""
+          value: ''
         },
         dots: {
           type: Boolean,
@@ -70,119 +80,141 @@
         lineWidth: {
           type: Number,
           value: 1.5
+        },
+        _node: {},
+        _line: {},
+        _lineNode: {},
+        _dots: {},
+        _graph: {}
+      },
+
+      get chartElement () {
+        if (this.parentElement.nodeName !== 'CHART-ELEMENT') {
+          console.warn(this.id, 'Graph is not attached to a container');
+          return;
+        }
+        else {
+          return this.parentElement;
         }
       },
 
-      _line: {},
-      _dots: {},
-      _chart: {},
-      _node: {},
-
-      factoryImpl: function(element, bubbles) {
+      factoryImpl: function (element, bubbles) {
         this.setElement(element);
         if (bubbles === true)
           this.bubbles = true;
       },
 
-      attached: function() {
-        if (this.parentNode.nodeName !== 'CHART-ELEMENT') {
-          console.warn(this.id, "Graph is not attached to a container");
+      attached: function () {
+        if (this.chartElement.nodeName !== 'CHART-ELEMENT') {
+          console.warn(this.id, 'Graph is not attached to a container');
           return;
         }
-
         // if color is not set, set a Random Color
         if (!this.color) {
           this.color = '#';
-          var perm = ["2C", "F5"];
+          var perm = ['2C', 'F5'];
           perm.push(Math.floor(Math.random()*256).toString(16));
           for (var i = 3; i > 0; i--) {
             var pos = Math.floor(Math.random()*i);
-            this.color += ((perm[pos].length === 1) ? "0" : "") + perm[pos];
+            this.color += ((perm[pos].length === 1) ? '0' : '') + perm[pos];
             perm.splice(pos, 1);
           }
         }
+        this._node = this.chartElement._chart.append('g')
+                                             .attr('clip-path', 'url(#clip)')
+                                             .attr('id', this.id)
+                                             .attr('label', this.label);
 
-        this._chart = this.parentNode._chart;
-
-        this._node = this._chart.append("g")
-                                .attr("clip-path", "url(#clip)")
-                                .attr("id", this.id)
-                                .attr("label", this.label);
-
-        if (this.line)
-          this._attachLine();
-
-        if (this.dots)
-          this._attachDots();
-
-      },
-
-      _attachLine: function() {
         var self = this;
-        this._line = d3.svg.line()
+        this._line = d3.svg.line().interpolate('step-after')
                            .x( function (d) {
-                             return self.parentElement._x(d.x);
+                             return self.chartElement._x(d.x);
                            })
                            .y( function (d) {
-                             return self.parentElement._y(d.y);
+                             return self.chartElement._y(d.y);
                            });
-
-        this._node.append("svg:path")
-                  .datum(this.values)
-                  .attr("class", "line")
-                  .attr("d", this._line)
-                  .attr("fill", "none")
-                  .attr("stroke", this.color)
-                  .attr("stroke-width", this.lineWidth)
-                  .append("title")
-                  .text(function(d, i) {
-                      return (new Date(d.x)).toLocaleString() + " " + d.y;
-                   });
+        this._node.append('svg:path')
+                  .attr('class', 'line')
+                  .attr('stroke', this.color)
+                  .attr('stroke-width', this.lineWidth)
+                  .attr('fill', 'none');
+        if (this.values.length > 0)
+          this.setValues(this.values);
       },
 
-      _attachDots: function() {
-        var self = this;
-        this._node.selectAll('.dot')
-                  .data(this.values).enter()
-                  .append("svg:circle")
-                  .attr("class", "dot")
-                  .attr("cx", function(d,i) {
-                    return self.parentElement._x(d.x)})
-                  .attr("cy", function(d,i) {
-                    return self.parentElement._y(d.y)})
-                  .attr("r", this.dotRadius)
-                  .attr("fill", "#FFF")
-                  .attr("stroke", this.color)
-                  .attr("stroke-width", this.lineWidth)
-                  .on("click",
-                    function() {
-                      self._chart.selectAll(".clicked")
-                                 .classed("clicked", false)
-                                 .attr("fill", "#FFF");
-                      this.classList.add("clicked");
-                      this.setAttribute("fill", self.color);
-                    })
-                  .append("title")
-                  .text(function(d, i) {
-                      return (new Date(d.x)).toLocaleString() + " " + d.y;
-                   });
-        this._dots = this._node.selectAll('.dot');
+      redraw: function () {
+        this._dots = this._node.selectAll('.dot')
+                               .data(this.values);
+        this._dots.enter()
+                  .append('svg:circle')
+                  .attr('class', 'dot')
+                  .attr('r', this.dotRadius)
+                  .attr('fill', '#FFF')
+                  .attr('stroke', this.color)
+                  .attr('stroke-width', this.lineWidth);
+        this._dots.exit().remove();
+        this._dots.attr('cx', (function(d,i) {return this._x(d.x)}).bind(this.chartElement))
+                  .attr('cy', (function(d,i) {return this._y(d.y)}).bind(this.chartElement));
+
+        this._node.select('.line')
+                  .attr('d', this._line(this.values));
       },
 
-      redraw: function() {
-        var self = this;
-        this._dots.attr("cx", function(d,i) {return self.parentElement._x(d.x)})
-                  .attr("cy", function(d,i) {return self.parentElement._y(d.y)})
-                  .attr("r", this.dotRadius);
-        this._node.select(".line")
-                  .attr("class", "line")
-                  .attr("d", this._line);
+      setValues: function (values, newestDataLast) {
+        this.set('values', values);
+
+        var domainX  = [ d3.min(values, function(v) { return v.x; }) - 1000,
+                         d3.max(values, function(v) { return v.x; }) + 1000 ];
+        var domainY  = [ d3.min(values, function(v) { return v.y; }) * 0.95,
+                         d3.max(values, function(v) { return v.y; }) * 1.05 ];
+
+        this.chartElement._x.domain(domainX);
+        this.chartElement._y.domain(domainY);
+
+        this._dots = this._node.selectAll('.dot')
+                               .data(this.values);
+        this._dots.enter()
+                  .append('svg:circle')
+                  .attr('class', 'dot')
+                  .attr('r', this.dotRadius)
+                  .attr('fill', '#FFF')
+                  .attr('stroke', this.color)
+                  .attr('stroke-width', this.lineWidth);
+        this._dots.exit().remove();
+
+        this._node.select(".line")   // change the line
+                  .attr("d", this._line(values));
+
+        this._updateView();
       },
 
-      _updateView: function(value, splices) {
+      unshiftValues: function(value) {
+        if (this.values.length === 0) {
+          this.setValues([value]);
+          return;
+        }
+        this.unshift('values', value);
+        this._updateView(value);
       },
 
-      setValues: function(values) {
+      _updateView: function (value, splices) {
+        if (value !== undefined) {
+          var parentDomainX = this.chartElement._x.domain();
+          var parentDomainY = this.chartElement._y.domain();
+          var domainX = [], domainY = [];
+          domainX[0] = (value.x < parentDomainX[0]) ? value.x - 1000 : parentDomainX[0];
+          domainX[1] = (value.x > parentDomainX[1]) ? value.x + 1000 : parentDomainX[1];
+          domainY[0] = (value.y < parentDomainY[0]) ? value.y * 0.95 : parentDomainY[0];
+          domainY[1] = (value.y > parentDomainY[1]) ? value.y * 1.05 : parentDomainY[1];
+          this.chartElement._x.domain(domainX);
+          this.chartElement._y.domain(domainY);
+        }
+        this.redraw();
+        this.chartElement.redraw();
+        // this.chartElement._d3Zoom = d3.behavior.zoom()
+        //                           .x(this.chartElement._x)
+        //                           .y(this.chartElement._x)
+        //                           .on('zoom', this.chartElement._zoom.bind(this.chartElement));
       }
     });
 
