@@ -24,6 +24,7 @@ html
       //- background: #669DB4;
       font-family: Fira Sans Light;
       font-weight: normal;
+      display: flex;
     }
     div#background {
       //- background: radial-gradient(rgba(0,91,130,1) 80%, rgba(0,91,130,0.8));
@@ -35,11 +36,14 @@ html
       left: 0;
       position: absolute;
     }
+    chart-element {
+      height: 100%;
+    }
 
   body.page
     //- START-ANIMATION
     template#mainTemplate(is="dom-bind")
-      section
+      section.page
         chart-element
           each I in [1, 2]
             graph-element.content(label= "tests", id!= I)
@@ -48,6 +52,8 @@ html
       function update() {
         var date = new Date();
         this.unshiftValues({x: +date, y: Math.random() * 2 + 20});
+        if (this.values.length > 15)
+          this.spliceValues(this.values.length - 1, 1); 
       }
       window.addEventListener('WebComponentsReady', function(e) {
         //- connect(['test']);

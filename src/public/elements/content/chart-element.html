@@ -25,7 +25,7 @@
   }
   svg#svg {
     flex: 1;
-    min-height: 25vh;
+    /*min-height: 25vh;*/
     /*height: auto;*/
   }
   rect.plot {
@@ -43,13 +43,18 @@
       shape-rendering: crispEdges;
       stroke-width: 1.5px;
   }
-  g.x.axis path {
+  /*g.x.axis path {
       display: none !important;
-  }
+  }*/
   line.focus.line {
       fill: none;
       stroke: rgba(39, 116, 217, 0.5);
       stroke-width: 3px;
+  }
+  g#context .brush .extent {
+    stroke: #fff;
+    fill-opacity: .125;
+    shape-rendering: crispEdges;
   }
 
 </style>
@@ -69,6 +74,8 @@
         <line class='focus line' y1=0></line>
       </g>
     </g>
+    <g id='context'>
+    </g>
   </svg>
   <content id='collector' select='graph-element'></content>
 </template>
@@ -83,7 +90,7 @@
           value: function() {
             return {  top: 20,
                       right: 20,
-                      bottom: 20,
+                      bottom: 100,
                       left: 45  };
           }
         },
@@ -105,23 +112,31 @@
         },
         _height: {
           type: Number,
-          value: 0
+          value: 0,
         },
 
         _chart: {},
         _d3Zoom: {},
         _x: {},
         _y: {},
+        _x2: {},
+        _y2: {},
 
         _xAxis: {},
+        _xAxis2: {},
         _yAxis: {},
         _focus: {},
         _clip: {},
-
-        _graphs: []
+        _context: {},
       },
 
+      get _self () {
+        return this;
+      },
 
+      get _graphs () {
+        return this.getEffectiveChildren();
+      },
 
       _createXAxis: function() {
         return d3.svg.axis()
@@ -140,6 +155,13 @@
       },
 
       _buildLayout: function() {
+        this._chart = d3.select(this.$.chart)
+                        .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')')
+                        .on('mouseenter', this._showFocus.bind(this))
+                        .on('mousemove', this._drawFocus.bind(this))
+                        .on('mouseleave', this._hideFocus.bind(this));
+                        // .call(this._d3Zoom);
+
         this._chart.select('rect.plot')
                   .attr('width', this._width)
                   .attr('height', this._height);
@@ -167,11 +189,30 @@
 
         this._focus = this._chart.select('line.focus.line')
                                  .attr('clip-path', 'url(#clip)')
-                                 .attr('y2', this._height);;
+                                 .attr('y2', this._height);
+
+        this._context = d3.select(this.$.context)
+                          .attr("transform", "translate(" + this.margin.left + "," + this._height + ")");
+
+        this._context.append("g")
+                     .attr("class", "x axis")
+                     .attr("transform", "translate(0," + this._height2 + ")")
+                     .call(this._xAxis2);
+
+        this._context.append("g")
+                     .attr("class", "x brush")
+                     .call(this._brush)
+                     .on("contextmenu", this._brush.clear())
+                   .selectAll("rect")
+                     .attr("y", -6)
+                     .attr("height", this._height2 + 7);
 
         this._chart.selectAll('g.tick,g.tick line,g.tick text,g path.domain')
                    .classed('style-scope', true)
                    .classed('chart-element', true);
+        this._context.selectAll('g.tick,g.tick line,g.tick text,g path.domain,.brush,rect,g.axis')
+                     .classed('style-scope', true)
+                     .classed('chart-element', true);
       },
 
       created: function() {
@@ -207,58 +248,72 @@
       attached: function() {
         var clientRect = this.getBoundingClientRect();
         if (!this.height) {
-          this.height = clientRect.height || 200;
+          this.height = Math.max(clientRect.height, 200);
         }
         if (!this.width) {
-          this.width = clientRect.width || 300;
+          this.width = Math.max(clientRect.width, 300);
         }
         this._width = this.width - this.margin.left - this.margin.right;
         this._height = this.height - this.margin.top - this.margin.bottom;
+        this._height2 = this.margin.bottom;
 
         this._x = d3.time.scale().range([0, this._width]);
-        this._y = d3.scale.linear().domain([null, null]).range([this._height, 0]);
+        this._y = d3.scale.linear().range([this._height, 0]);
+
+        this._x2 = d3.time.scale().range([0, this._width]),
+        this._y2 = d3.scale.linear().range([this._height2, 0]);
+
+        this._xAxis2 = d3.svg.axis().scale(this._x2).orient("bottom");
 
         d3.select(this.$.svg).attr('viewBox', '0 0 ' + this.width + ' ' + this.height)
                              .attr('preserveAspectRatio', 'xMinYMin meet')
                              .attr('height', null)
                              .attr('width', null);
 
+        this._brush = d3.svg.brush()
+                        .x(this._x2)
+                        .on("brush", this._brushed.bind(this._self));
       //  var self = this;
       //  this._d3Zoom = d3.behavior.zoom()
       //                            .x(this._x)
       //                            .y(this._y)
       //                            .on('zoom', this._zoom.bind(this));
-        this._chart = d3.select(this.$.chart)
-                        .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')')
-                        .on('mouseenter', this._showFocus.bind(this))
-                        .on('mousemove', this._drawFocus.bind(this))
-                        .on('mouseleave', this._hideFocus.bind(this));
-                        // .call(this._d3Zoom);
 
         this._xAxis = this._createXAxis();
         this._yAxis = this._createYAxis();
-        this._buildLayout();
 
+        this._buildLayout();
       },
 
       redraw: function () {
-        this.debounce('redraw', function() { this._redraw() }, 250);
+        this.debounce('redraw', function() { this._redraw() },100);
       },
 
       _redraw: function () {
-        this._chart.select('.x.axis').transition(250).call(this._xAxis);
-        this._chart.select('.y.axis').transition(250).call(this._yAxis);
-        this._chart.select('.x.grid').transition(250)
+        this._chart.select('.x.axis').transition(100).call(this._xAxis);
+        this._chart.select('.y.axis').transition(100).call(this._yAxis);
+        this._chart.select('.x.grid').transition(100)
                    .call(this._createXAxis()
                              .tickSize(-this._height, 0, 0)
                              .tickFormat(''));
-        this._chart.select('.y.grid').transition(250)
+        this._chart.select('.y.grid').transition(100)
                    .call(this._createYAxis()
                              .tickSize(-this._width, 0, 0)
                              .tickFormat(''));
+        this._brush.extent(this._brush.extent());
+        this._context.select('.x.axis').transition(100).call(this._xAxis2);
+        this._context.select(".x.brush").transition(100).call(this._brush)
         this._chart.selectAll('g.tick,g.tick line,g.tick text,g path.domain')
                    .classed('style-scope', true)
                    .classed('chart-element', true);
+        this._graphs.forEach(function(g) { g.redraw(); });
+      },
+
+      _brushed: function() {
+        // console.log(this._brush.empty(),this._brush.extent());
+        this._x.domain(this._brush.empty() ? this._x2.domain() : this._brush.extent());
+        // focus.select(".area").attr("d", area);
+        this._chart.select(".x.axis").call(this._xAxis);
       },
       _zoom: function () {
         this._redraw();

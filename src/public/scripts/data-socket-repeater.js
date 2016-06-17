@@ -136,7 +136,7 @@ function _loadSvgSources(sources) {
 function _update(message) {
   if (Array.isArray(message)) // if message is an Array
     for (var mesId = 0; mesId < message.length; mesId++)
-    this._updateNodes(message[mesId]);
+      this._updateNodes(message[mesId]);
   else // if message is a single Object
     this._updateNodes(message);
   if (!this.opened) {
@@ -154,14 +154,13 @@ function _updateNodes(message) {
 
   //
   // .splice(1, 1, {name: 'Sam'}); this.items.push({name: 'Bob'}); this.notifySplices('items', [ { index: 1, removed: [{name: 'Todd'}], addedCount: 1, obect: this.items, type: 'splice' }, { index: 3, removed: [], addedCount: 1, object: this.items, type: 'splice'} ]);
-
   for (var i = 0; i < message.content.length; i++) {
     id = message.content[i].id;
+    message.content[i].values.forEach(function(d) {
+      d.x = Date.parse(d.x); // parse Date in Standard Date Object
+    });
     if (Nodes[label][id]) {
       for (var j = 0; j < Nodes[label][id].length; j++) {
-        message.content[i].values.forEach(function(d) {
-            d.x = Date.parse(d.x); // parse Date in Standard Date Object
-        });
         if (!doAppend)
           Nodes[label][id][j].spliceValues(0, message.content[i].values.length);
         if (newestDataLast) {

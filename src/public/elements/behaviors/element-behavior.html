@@ -70,10 +70,9 @@
           readOnly: true,
           reflectToAttribute: true
         },
-        tooltip: {
+        selectable: {
           type: Boolean,
-          value: false,
-          reflectToAttribute: true
+          value: true
         }
     },
 
@@ -131,7 +130,7 @@
     },
 
     spliceValues: function(start, length) {
-      this.values.splice(start, length);
+      this.splice("values", start, length);
       this._updateView(undefined, {start: start, length: length});
     },
 

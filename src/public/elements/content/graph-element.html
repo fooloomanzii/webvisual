@@ -14,52 +14,7 @@
       properties: {
         values: {
           type: Array,
-          value: function() {
-            return [
-              // {
-              //   x: Date.now() - 100000000,
-              //   y: 0,
-              //   exceeds: null
-              // },
-              // {
-              //   x: Date.now() - 50000000,
-              //   y: 2,
-              //   exceeds: null
-              // }
-            //    { 'x': new Date(Math.random()*10 + 1 + Date.now()),
-            //         'y': Math.random()*10 + 1
-            // }, {
-            //     'x': new Date(Math.random()*10 + (Math.random()+1)*500 + Date.now()),
-            //         'y': Math.random()*10 + 1
-            // }, {
-            //     'x': new Date(Math.random()*10 + (Math.random()+1)*1000 + Date.now()),
-            //         'y': Math.random()*10 + 1
-            // }, {
-            //     'x': new Date(Math.random()*10 + (Math.random()+1)*2000 + Date.now()),
-            //         'y': Math.random()*10 + 1
-            // }, {
-            //     'x': new Date(Math.random()*10 + (Math.random()+1)*4000 + Date.now()),
-            //         'y': Math.random()*10 + 1
-            // }, {
-            //     'x': new Date(Math.random()*10 + (Math.random()+1)*8000 + Date.now()),
-            //         'y': Math.random()*10 + 1
-            // }, {
-            //     'x': new Date(Math.random()*10 + (Math.random()+1)*16000 + Date.now()),
-            //         'y': Math.random()*10 + 1
-            // }, {
-            //     'x': new Date(Math.random()*10 + (Math.random()+1)*32000 + Date.now()),
-            //         'y': Math.random()*10 + 1
-            // }, {
-            //     'x': new Date(Math.random()*10 + (Math.random()+1)*64000 + Date.now()),
-            //         'y': Math.random()*10 + 1
-            // }, {
-            //     'x': new Date(Math.random()*10 + (Math.random()+1)*128000 + Date.now()),
-            //         'y': Math.random()*10 + 1
-            // }, {
-            //     'x': new Date(Math.random()*100 + (Math.random()+1)*256000 + Date.now()),
-            //         'y': Math.random()*10 + 1
-            // }
-          ];}
+          value: function() { return []; }
         },
         color: {
           type: String,
@@ -83,7 +38,6 @@
         },
         _node: {},
         _line: {},
-        _lineNode: {},
         _dots: {},
         _graph: {}
       },
@@ -126,7 +80,7 @@
                                              .attr('label', this.label);
 
         var self = this;
-        this._line = d3.svg.line().interpolate('step-after')
+        this._line = d3.svg.line().interpolate('cardinal')
                            .x( function (d) {
                              return self.chartElement._x(d.x);
                            })
@@ -134,10 +88,12 @@
                              return self.chartElement._y(d.y);
                            });
         this._node.append('svg:path')
+                  .datum([])
                   .attr('class', 'line')
                   .attr('stroke', this.color)
                   .attr('stroke-width', this.lineWidth)
                   .attr('fill', 'none');
+
         if (this.values.length > 0)
           this.setValues(this.values);
       },
@@ -152,40 +108,39 @@
                   .attr('fill', '#FFF')
                   .attr('stroke', this.color)
                   .attr('stroke-width', this.lineWidth);
-        this._dots.exit().remove();
+        // this._dots.exit().remove();
         this._dots.attr('cx', (function(d,i) {return this._x(d.x)}).bind(this.chartElement))
-                  .attr('cy', (function(d,i) {return this._y(d.y)}).bind(this.chartElement));
+                  .attr('cy', (function(d,i) {return this._y(d.y)}).bind(this.chartElement))
+                  .attr("transform", null)
+                .transition(500)
+                  .attr("transform", "translate(" + this.chartElement._x(this.values[this.values.length-1].x) + ",0)");
 
         this._node.select('.line')
-                  .attr('d', this._line(this.values));
+                  .attr('d', this._line(this.values))
+                  .attr("transform", null)
+                .transition(500)
+                  .attr("transform", "translate(" + this.chartElement._x(this.values[this.values.length-1].x) + ",0)");
+                  // .attr("transform", "translate(" + this.chartElement._x(-1000) + ")");
       },
 
       setValues: function (values, newestDataLast) {
         this.set('values', values);
 
-        var domainX  = [ d3.min(values, function(v) { return v.x; }) - 1000,
-                         d3.max(values, function(v) { return v.x; }) + 1000 ];
-        var domainY  = [ d3.min(values, function(v) { return v.y; }) * 0.95,
-                         d3.max(values, function(v) { return v.y; }) * 1.05 ];
-
-        this.chartElement._x.domain(domainX);
-        this.chartElement._y.domain(domainY);
-
-        this._dots = this._node.selectAll('.dot')
-                               .data(this.values);
-        this._dots.enter()
-                  .append('svg:circle')
-                  .attr('class', 'dot')
-                  .attr('r', this.dotRadius)
-                  .attr('fill', '#FFF')
-                  .attr('stroke', this.color)
-                  .attr('stroke-width', this.lineWidth);
-        this._dots.exit().remove();
+        // this._dots = this._node.selectAll('.dot')
+        //                        .data(this.values);
+        // this._dots.enter()
+        //           .append('svg:circle')
+        //           .attr('class', 'dot')
+        //           .attr('r', this.dotRadius)
+        //           .attr('fill', '#FFF')
+        //           .attr('stroke', this.color)
+        //           .attr('stroke-width', this.lineWidth);
+        // this._dots.exit().remove();
 
         this._node.select(".line")   // change the line
                   .attr("d", this._line(values));
 
-        this._updateView();
+        this._updateView(undefined, {});
       },
 
       unshiftValues: function(value) {
@@ -198,18 +153,43 @@
       },
 
       _updateView: function (value, splices) {
+        var domainX, domainY, domainBrushX;
         if (value !== undefined) {
-          var parentDomainX = this.chartElement._x.domain();
-          var parentDomainY = this.chartElement._y.domain();
-          var domainX = [], domainY = [];
-          domainX[0] = (value.x < parentDomainX[0]) ? value.x - 1000 : parentDomainX[0];
-          domainX[1] = (value.x > parentDomainX[1]) ? value.x + 1000 : parentDomainX[1];
-          domainY[0] = (value.y < parentDomainY[0]) ? value.y * 0.95 : parentDomainY[0];
-          domainY[1] = (value.y > parentDomainY[1]) ? value.y * 1.05 : parentDomainY[1];
-          this.chartElement._x.domain(domainX);
-          this.chartElement._y.domain(domainY);
+          if (this.chartElement._brush.empty()) {
+            domainX = this.chartElement._x.domain();
+            domainY = this.chartElement._y.domain();
+            domainX[0] = (value.x < domainX[0]) ? value.x : domainX[0];
+            domainX[1] = (value.x > domainX[1]) ? value.x : domainX[1];
+            domainY[0] = (value.y < domainY[0]) ? value.y * 0.95 : domainY[0];
+            domainY[1] = (value.y > domainY[1]) ? value.y * 1.05 : domainY[1];
+            this.chartElement._x.domain(domainX);
+            this.chartElement._y.domain(domainY);
+            this.chartElement._x2.domain(domainX);
+          }
+          else {
+            domainX = [0, 0];
+            domainBrushX = this.chartElement._x2.domain();
+            domainX[0] = (value.x < domainBrushX[0]) ? value.x : domainBrushX[0];
+            domainX[1] = (value.x > domainBrushX[1]) ? value.x : domainBrushX[1];
+            this.chartElement._x2.domain(domainX);
+          }
         }
-        this.redraw();
+        if (splices !== undefined) {
+          if (this.chartElement._brush.empty()) {
+            var domainX  = [ d3.min(this.values, function(v) { return v.x; }),
+                             d3.max(this.values, function(v) { return v.x; }) ];
+            var domainY  = [ d3.min(this.values, function(v) { return v.y; }) * 0.95,
+                             d3.max(this.values, function(v) { return v.y; }) * 1.05 ];
+
+            this.chartElement._x.domain(domainX);
+            this.chartElement._y.domain(domainY);
+            this.chartElement._x2.domain(domainX);
+          }
+          else {
+
+          }
+        }
+        // this.redraw();
         this.chartElement.redraw();
         // this.chartElement._d3Zoom = d3.behavior.zoom()
         //                           .x(this.chartElement._x)

@@ -275,7 +275,7 @@
     </section>
 
   </template>
-  
+
   <script>
     var ExceedingSvgPaths = {};
     Polymer({
@@ -458,6 +458,11 @@
         var tabs = this.$.labelSelector.children;
         var groupingkeys = this.$.groupingKeysLabelSelector.children;
         var newLabel;
+
+        if (labels.length > 1)
+          this.$.labelsTabs.style.visibility = "visible";
+        else
+          this.$.labelsTabs.style.visibility = "hidden";
 
         for (var i = 0; i < content.length; i++) {
           if (labels.indexOf(content[i].getAttribute('label')) === -1) {
