@@ -52,13 +52,13 @@ html
       function update() {
         var date = new Date();
         this.unshiftValues({x: +date, y: Math.random() * 2 + 20});
-        if (this.values.length > 15)
-          this.spliceValues(this.values.length - 1, 1); 
+        //- if (this.values.length > 15)
+        //-   this.spliceValues(this.values.length - 1, 1); 
       }
       window.addEventListener('WebComponentsReady', function(e) {
         //- connect(['test']);
         var elems = document.querySelectorAll('[updatable]');
         elems.forEach(function(el) {
-          setInterval(update.bind(el),1000);
+          setInterval(update.bind(el),2500);
         });
       });

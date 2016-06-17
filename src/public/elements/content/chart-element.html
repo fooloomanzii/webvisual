@@ -126,7 +126,6 @@
         _xAxis2: {},
         _yAxis: {},
         _focus: {},
-        _clip: {},
         _context: {},
       },
 
@@ -183,9 +182,9 @@
                             .tickSize(-this._width, 0, 0)
                             .tickFormat(''));
         // Limiting Projection to Margin
-        this._clip = this._chart.select('clippath#clip rect')
-                                .attr('width', this._width)
-                                .attr('height', this._height);
+        this._chart.select('clippath#clip rect')
+                   .attr('width', this._width)
+                   .attr('height', this._height);
 
         this._focus = this._chart.select('line.focus.line')
                                  .attr('clip-path', 'url(#clip)')
@@ -306,7 +305,7 @@
         this._chart.selectAll('g.tick,g.tick line,g.tick text,g path.domain')
                    .classed('style-scope', true)
                    .classed('chart-element', true);
-        this._graphs.forEach(function(g) { g.redraw(); });
+        // this._graphs.forEach(function(g) { g.redraw(); });
       },
 
       _brushed: function() {

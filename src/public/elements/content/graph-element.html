@@ -38,6 +38,7 @@
         },
         _node: {},
         _line: {},
+        _lineNode: {},
         _dots: {},
         _graph: {}
       },
@@ -50,6 +51,14 @@
         else {
           return this.parentElement;
         }
+      },
+
+      get _self () {
+        return this;
+      },
+
+      get _values () {
+        return this.values;
       },
 
       factoryImpl: function (element, bubbles) {
@@ -80,6 +89,8 @@
                                              .attr('label', this.label);
 
         var self = this;
+
+        // node of line
         this._line = d3.svg.line().interpolate('cardinal')
                            .x( function (d) {
                              return self.chartElement._x(d.x);
@@ -87,40 +98,59 @@
                            .y( function (d) {
                              return self.chartElement._y(d.y);
                            });
-        this._node.append('svg:path')
-                  .datum([])
+        this._lineNode = this._node.append("g")
+                  .append('svg:path')
                   .attr('class', 'line')
                   .attr('stroke', this.color)
                   .attr('stroke-width', this.lineWidth)
-                  .attr('fill', 'none');
+                  .attr('fill', 'none')
+                  .datum([])
+                  .attr("d", this._line);
 
+        // group of dots
+        this._dots = this._node.append("g")
+                               .attr("class", "dots");
         if (this.values.length > 0)
           this.setValues(this.values);
       },
 
       redraw: function () {
-        this._dots = this._node.selectAll('.dot')
-                               .data(this.values);
-        this._dots.enter()
-                  .append('svg:circle')
-                  .attr('class', 'dot')
-                  .attr('r', this.dotRadius)
-                  .attr('fill', '#FFF')
-                  .attr('stroke', this.color)
-                  .attr('stroke-width', this.lineWidth);
-        // this._dots.exit().remove();
-        this._dots.attr('cx', (function(d,i) {return this._x(d.x)}).bind(this.chartElement))
-                  .attr('cy', (function(d,i) {return this._y(d.y)}).bind(this.chartElement))
-                  .attr("transform", null)
-                .transition(500)
-                  .attr("transform", "translate(" + this.chartElement._x(this.values[this.values.length-1].x) + ",0)");
+        var dots = this._dots.selectAll('circle.dot')
+                             .data(this.values);
+        // update current dots
+        dots.attr('cx', (function(d,i) {
+              return this.chartElement._x(d.x)}).bind(this._self))
+            .attr('cy', (function(d,i) {
+              return this.chartElement._y(d.y)}).bind(this._self))
+        // enter new dots
+        dots.enter()
+            .append('circle')
+              .attr('class', 'dot')
+              .attr('r', this.dotRadius)
+              .attr('fill', '#FFF')
+              .attr('stroke', this.color)
+              .attr('stroke-width', this.lineWidth)
+              .attr('cx', (function(d,i) {
+                return this.chartElement._x(d.x)}).bind(this._self))
+              .attr('cy', (function(d,i) {
+                return this.chartElement._y(d.y)}).bind(this._self));
+        //  remove old dots
+        dots.exit()
+            .remove();
 
-        this._node.select('.line')
-                  .attr('d', this._line(this.values))
-                  .attr("transform", null)
-                .transition(500)
-                  .attr("transform", "translate(" + this.chartElement._x(this.values[this.values.length-1].x) + ",0)");
+        this._lineNode.data(this._values)
+                  .each()
+
+                  // .datum(this.values)
+                  // .attr("transform", "translate(" + (-0) + ",0)")
+                  .attr('d', this._line);
+                // .transition()
+                //   .duration(500)
+                //   .ease("linear")
+                //   .attr("transform", "translate(" + (-this.chartElement._x(this.values[this.values.length - 1].x)) + ",0)");
+
                   // .attr("transform", "translate(" + this.chartElement._x(-1000) + ")");
+        console.log(this.chartElement._x(this.values[this.values.length -2].x));
       },
 
       setValues: function (values, newestDataLast) {
@@ -189,7 +219,7 @@
 
           }
         }
-        // this.redraw();
+        this.redraw();
         this.chartElement.redraw();
         // this.chartElement._d3Zoom = d3.behavior.zoom()
         //                           .x(this.chartElement._x)
