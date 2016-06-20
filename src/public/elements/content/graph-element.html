@@ -18,29 +18,33 @@
         },
         color: {
           type: String,
-          value: ''
+          value: '',
+          observer: 'setColor'
         },
         dots: {
           type: Boolean,
-          value: true
+          value: false,
+          observer: '_dotsChanged'
         },
         line: {
           type: Boolean,
-          value: true
+          value: true,
+          observer: '_dotsChanged'
         },
         dotRadius: {
           type: Number,
-          value: 2.5
+          value: 2.5,
+          observer: '_dotRadiusChanged'
         },
         lineWidth: {
           type: Number,
-          value: 1.5
+          value: 1.5,
+          observer: '_lineWidthChanged'
         },
         _node: {},
         _line: {},
-        _lineNode: {},
         _dots: {},
-        _graph: {}
+        _lineFunction: {}
       },
 
       get chartElement () {
@@ -48,9 +52,7 @@
           console.warn(this.id, 'Graph is not attached to a container');
           return;
         }
-        else {
-          return this.parentElement;
-        }
+        else return this.parentElement;
       },
 
       get _self () {
@@ -61,57 +63,45 @@
         return this.values;
       },
 
-      factoryImpl: function (element, bubbles) {
-        this.setElement(element);
-        if (bubbles === true)
-          this.bubbles = true;
-      },
-
       attached: function () {
         if (this.chartElement.nodeName !== 'CHART-ELEMENT') {
           console.warn(this.id, 'Graph is not attached to a container');
           return;
         }
-        // if color is not set, set a Random Color
-        if (!this.color) {
-          this.color = '#';
-          var perm = ['2C', 'F5'];
-          perm.push(Math.floor(Math.random()*256).toString(16));
-          for (var i = 3; i > 0; i--) {
-            var pos = Math.floor(Math.random()*i);
-            this.color += ((perm[pos].length === 1) ? '0' : '') + perm[pos];
-            perm.splice(pos, 1);
-          }
-        }
+        if (!this.color) this.setColor();
+        // clippath for this graph
         this._node = this.chartElement._chart.append('g')
                                              .attr('clip-path', 'url(#clip)')
                                              .attr('id', this.id)
                                              .attr('label', this.label);
 
         var self = this;
-
         // node of line
-        this._line = d3.svg.line().interpolate('cardinal')
-                           .x( function (d) {
-                             return self.chartElement._x(d.x);
-                           })
-                           .y( function (d) {
-                             return self.chartElement._y(d.y);
-                           });
-        this._lineNode = this._node.append("g")
-                  .append('svg:path')
-                  .attr('class', 'line')
-                  .attr('stroke', this.color)
-                  .attr('stroke-width', this.lineWidth)
-                  .attr('fill', 'none')
-                  .datum([])
-                  .attr("d", this._line);
-
+        this._lineFunction = d3.svg.line().interpolate('cardinal')
+                               .x( function (d) {
+                                 return self.chartElement._x(d.x);
+                               })
+                               .y( function (d) {
+                                 return self.chartElement._y(d.y);
+                               });
+        this._line = this._node.append("g")
+                                .append('svg:path')
+                                .attr('hidden', this.line ? null : true).attr('class', 'line')
+                                .attr('fill', 'none').attr('stroke', this.color)
+                                .attr('stroke-width', this.lineWidth)                              .datum([])
+                                .attr("d", this._lineFunction);
         // group of dots
         this._dots = this._node.append("g")
-                               .attr("class", "dots");
-        if (this.values.length > 0)
-          this.setValues(this.values);
+                               .attr("class", "dots")
+                               .attr("hidden", this.dots ? null : true);
+        // set Values
+        if (this.values.length > 0) this.setValues(this.values);
+      },
+
+      factoryImpl: function (element, bubbles) {
+        this.setElement(element);
+        if (bubbles === true)
+          this.bubbles = true;
       },
 
       redraw: function () {
@@ -126,10 +116,8 @@
         dots.enter()
             .append('circle')
               .attr('class', 'dot')
-              .attr('r', this.dotRadius)
-              .attr('fill', '#FFF')
-              .attr('stroke', this.color)
-              .attr('stroke-width', this.lineWidth)
+              .attr('r', this.dotRadius).attr('fill', '#FFF')
+              .attr('stroke', this.color).attr('stroke-width', this.lineWidth)
               .attr('cx', (function(d,i) {
                 return this.chartElement._x(d.x)}).bind(this._self))
               .attr('cy', (function(d,i) {
@@ -137,39 +125,12 @@
         //  remove old dots
         dots.exit()
             .remove();
-
-        this._lineNode.data(this._values)
-                  .each()
-
-                  // .datum(this.values)
-                  // .attr("transform", "translate(" + (-0) + ",0)")
-                  .attr('d', this._line);
-                // .transition()
-                //   .duration(500)
-                //   .ease("linear")
-                //   .attr("transform", "translate(" + (-this.chartElement._x(this.values[this.values.length - 1].x)) + ",0)");
-
-                  // .attr("transform", "translate(" + this.chartElement._x(-1000) + ")");
-        console.log(this.chartElement._x(this.values[this.values.length -2].x));
+        // updata line
+        this._line.attr('d', this._lineFunction(this.values));
       },
 
       setValues: function (values, newestDataLast) {
         this.set('values', values);
-
-        // this._dots = this._node.selectAll('.dot')
-        //                        .data(this.values);
-        // this._dots.enter()
-        //           .append('svg:circle')
-        //           .attr('class', 'dot')
-        //           .attr('r', this.dotRadius)
-        //           .attr('fill', '#FFF')
-        //           .attr('stroke', this.color)
-        //           .attr('stroke-width', this.lineWidth);
-        // this._dots.exit().remove();
-
-        this._node.select(".line")   // change the line
-                  .attr("d", this._line(values));
-
         this._updateView(undefined, {});
       },
 
@@ -183,48 +144,119 @@
       },
 
       _updateView: function (value, splices) {
-        var domainX, domainY, domainBrushX;
+        this._setDomains(value);
+        this.chartElement.redraw();
+      },
+
+      _setDomains: function(value) {
+        var domainX, domainY, domainAllX, domainBrushX;
+        // new values
         if (value !== undefined) {
+          domainY = this.chartElement._y.domain();
           if (this.chartElement._brush.empty()) {
             domainX = this.chartElement._x.domain();
-            domainY = this.chartElement._y.domain();
             domainX[0] = (value.x < domainX[0]) ? value.x : domainX[0];
             domainX[1] = (value.x > domainX[1]) ? value.x : domainX[1];
-            domainY[0] = (value.y < domainY[0]) ? value.y * 0.95 : domainY[0];
-            domainY[1] = (value.y > domainY[1]) ? value.y * 1.05 : domainY[1];
-            this.chartElement._x.domain(domainX);
-            this.chartElement._y.domain(domainY);
+
+            domainY[0] = (value.y < domainY[0]) ? value.y - (domainY[1] - value.y) * 0.2: domainY[0];
+            domainY[1] = (value.y > domainY[1]) ? value.y + (value.y - domainY[0]) * 0.2: domainY[1];
+
             this.chartElement._x2.domain(domainX);
           }
           else {
-            domainX = [0, 0];
-            domainBrushX = this.chartElement._x2.domain();
-            domainX[0] = (value.x < domainBrushX[0]) ? value.x : domainBrushX[0];
-            domainX[1] = (value.x > domainBrushX[1]) ? value.x : domainBrushX[1];
-            this.chartElement._x2.domain(domainX);
+            domainAllX = this.chartElement._x2.domain();
+            domainAllX[0] = (value.x < domainAllX[0]) ? value.x : domainAllX[0];
+            domainAllX[1] = (value.x > domainAllX[1]) ? value.x : domainAllX[1];
+            this.chartElement._x2.domain(domainAllX);
+
+            if (this.chartElement.isClamping === true) {
+              domainBrushX = this.chartElement._brush.extent();
+              this.chartElement._brush.extent( [domainBrushX[0], domainAllX[1]] );
+            }
+            domainX = this.chartElement._brush.extent();
           }
         }
-        if (splices !== undefined) {
+        // reducing values
+        else {
+          domainX  = [ d3.min(this.values, function(v) { return v.x; }),
+                       d3.max(this.values, function(v) { return v.x; }) ];
+          this.chartElement._x2.domain(domainX);
           if (this.chartElement._brush.empty()) {
-            var domainX  = [ d3.min(this.values, function(v) { return v.x; }),
-                             d3.max(this.values, function(v) { return v.x; }) ];
-            var domainY  = [ d3.min(this.values, function(v) { return v.y; }) * 0.95,
-                             d3.max(this.values, function(v) { return v.y; }) * 1.05 ];
-
-            this.chartElement._x.domain(domainX);
-            this.chartElement._y.domain(domainY);
-            this.chartElement._x2.domain(domainX);
+            domainY  = [ d3.min(this.values, function(v) { return v.y; }),
+                         d3.max(this.values, function(v) { return v.y; }) ];
+            domainY = [ domainY[0] - (domainY[1] - domainY[0]) * 0.2,
+                        domainY[1] + (domainY[1] - domainY[0]) * 0.2 ];
           }
           else {
+            domainBrushX = this.chartElement._brush.extent();
+            if ( domainBrushX[0] <= domainX[0] ) {
+              this.chartElement._brush.extent( [domainX[0], domainBrushX[1]] );
+              domainBrushX = this.chartElement._brush.extent();
+              if (this.chartElement.isClamping === true || domainBrushX[1] <= domainX[0]) {
+                this.chartElement._brush.clear();
+              }
 
+            }
+            else if (this.chartElement.isClamping === true) {
+              this.chartElement._brush.extent( [domainBrushX[0], domainX[1]] );
+            }
+            domainX = this.chartElement._brush.extent();
+            domainY  = [ d3.min(this.values, function(v) { if (v.x > domainX[0]) return v.y; }),
+                         d3.max(this.values, function(v) { if (v.x < domainX[1]) return v.y; }) ];
+            domainY = [ domainY[0] - (domainY[1] - domainY[0]) * 0.2,
+                        domainY[1] + (domainY[1] - domainY[0]) * 0.2 ];
           }
         }
-        this.redraw();
-        this.chartElement.redraw();
-        // this.chartElement._d3Zoom = d3.behavior.zoom()
-        //                           .x(this.chartElement._x)
-        //                           .y(this.chartElement._x)
-        //                           .on('zoom', this.chartElement._zoom.bind(this.chartElement));
+        this.chartElement._x.domain(domainX);
+        this.chartElement._y.domain(domainY);
+      },
+
+      setColor: function(color) {
+        // random color if color is not set
+        if (!color) {
+          color = '#';
+          var perm = ['2C', 'F5'];
+          perm.push(Math.floor(Math.random()*256).toString(16));
+          for (var i = 3; i > 0; i--) {
+            var pos = Math.floor(Math.random()*i);
+            color += ((perm[pos].length === 1) ? '0' : '') + perm[pos];
+            perm.splice(pos, 1);
+          }
+          this.color = color;
+        }
+        if (this._node) {
+          if (this._line) this._line.attr('stroke', this.color);
+          if (this._dots)
+            this._dots.selectAll('circle.dot')
+                      .attr('stroke', this.color);
+        }
+      },
+
+      _dotsChanged: function(dots) {
+        if (this._node && this._dots) {
+          this._dots.attr('hidden', dots ? null : true);
+        }
+      },
+
+      _lineChanged: function(line) {
+        if (this._node && this._line) {
+          this._line.attr('hidden', line ? null : true);
+        }
+      },
+
+      _dotRadiusChanged: function(dotRadius) {
+        if (this._node && this._dots) {
+          this._dots.selectAll('circle.dot').attr('r', dotRadius);
+        }
+      },
+
+      _lineWidthChanged: function(lineWidth) {
+        if (this._node) {
+          if (this._line) this._line.attr('stroke-width', this.lineWidth);
+          if (this._dots)
+            this._dots.selectAll('circle.dot')
+                      .attr('stroke-width', this.lineWidth);
+        }
       }
     });
 

@@ -10,10 +10,6 @@
     border-radius: inherit;
     -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
     -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
-    flex: 1;
-    display: flex;
-    width: auto;
-    height: auto;
   	overflow: hidden;
     visibility: visible;
     -webkit-touch-callout: none !important;
@@ -24,43 +20,68 @@
               user-select: none !important;
   }
   svg#svg {
-    flex: 1;
-    /*min-height: 25vh;*/
-    /*height: auto;*/
+    position: absolute;
   }
-  rect.plot {
-      fill: rgba(248, 252, 255, 0.9) !important;
+  g#chart rect.plot {
+    fill: #669DB4;
+    fill-opacity: 0.05;
+  }
+  g#brushX rect.background, g#brushY rect.background {
+    fill: #669DB4;
+    fill-opacity: 0.15;
+    stroke: #345475;
+    stroke-opacity: 0.1;
+    shape-rendering: crispEdges;
+    stroke-width: 1.5px;
   }
   g.grid .tick {
-      stroke: rgba(31, 31, 31, 0.2);
+    stroke: #345475;
+    stroke-opacity: 0.2;
   }
   g.grid path {
-      stroke-width: 0;
+    stroke-width: 0;
   }
   g.axis path, g.axis line {
-      fill: none;
-      stroke: rgba(31, 31, 31, 0.2);
-      shape-rendering: crispEdges;
-      stroke-width: 1.5px;
+    fill: none;
+    stroke: #345475;
+    stroke-opacity: 0.1;
+    shape-rendering: crispEdges;
+    stroke-width: 1.5px;
   }
-  /*g.x.axis path {
-      display: none !important;
-  }*/
   line.focus.line {
       fill: none;
-      stroke: rgba(39, 116, 217, 0.5);
+      stroke: #345475;
+      stroke-opacity: 0.4;
       stroke-width: 3px;
   }
-  g#context .brush .extent {
-    stroke: #fff;
-    fill-opacity: .125;
+  g.brush rect.extent {
+    stroke: #345475;
+    fill: #005B82;
+    fill-opacity: 0.5;
     shape-rendering: crispEdges;
+  }
+  g.brush rect.extent.clamp {
+    stroke: #005B82;
+    fill: #345475;
+    fill-opacity: 0.5;
   }
 
 </style>
 
 <template>
   <svg id='svg' version='1.1' xmlns='http://www.w3.org/2000/svg'>
+    <g id='brushX'>
+      <rect class='background'></rect>
+      <g class='x axis'></g>
+      <g class='x grid'></g>
+      <g class='x brush'></g>
+    </g>
+    <g id='brushY'>
+      <rect class='background'></rect>
+      <g class='y axis'></g>
+      <g class='y grid'></g>
+      <g class='y brush'></g>
+    </g>
     <g id='chart'>
       <rect class='plot'></rect>
       <g class='x axis'></g>
@@ -74,8 +95,6 @@
         <line class='focus line' y1=0></line>
       </g>
     </g>
-    <g id='context'>
-    </g>
   </svg>
   <content id='collector' select='graph-element'></content>
 </template>
@@ -84,23 +103,33 @@
     ChartElement = Polymer({
       is: 'chart-element',
 
+      behaviors: [Polymer.IronResizableBehavior],
+
       properties: {
         margin: {
           type: Object,
           value: function() {
-            return {  top: 20,
-                      right: 20,
-                      bottom: 100,
-                      left: 45  };
+            return {  top: 30,
+                      right: 25,
+                      bottom: 30,
+                      left: 50 };
           }
         },
-        width: {
+        brushHeight: {
           type: Number,
-          value: 0
+            value: 50
         },
-        height: {
+        clamp: {
+          type: Boolean,
+          value: true
+        },
+        clampExtend: {
           type: Number,
-          value: 0
+          value: 1000
+        },
+        isClamping: {
+          type: Boolean,
+          value: false
         },
         ticks: {
           type: Number,
@@ -116,17 +145,19 @@
         },
 
         _chart: {},
-        _d3Zoom: {},
         _x: {},
         _y: {},
         _x2: {},
         _y2: {},
 
         _xAxis: {},
-        _xAxis2: {},
         _yAxis: {},
+        _brushAxisX: {},
+        _brushGridX: {},
+        _brushAxisY: {},
+        _brushGridY: {},
         _focus: {},
-        _context: {},
+        _brushX: {},
       },
 
       get _self () {
@@ -137,89 +168,22 @@
         return this.getEffectiveChildren();
       },
 
-      _createXAxis: function() {
-        return d3.svg.axis()
-                 .scale(this._x)
-                 .orient('bottom')
-                 .ticks(this.ticks)
-                 .tickFormat(this.timeFormat);
+      get _parent () {
+        if (this.parentNode.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+          return this.parentNode.host;
+        }
+        return this.parentNode;
       },
 
-      _createYAxis: function() {
-        return d3.svg.axis()
-                 .scale(this._y)
-                 .orient('left')
-                 .ticks(this.ticks)
-                 .tickFormat(this.numberFormat);
-      },
-
-      _buildLayout: function() {
-        this._chart = d3.select(this.$.chart)
-                        .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')')
-                        .on('mouseenter', this._showFocus.bind(this))
-                        .on('mousemove', this._drawFocus.bind(this))
-                        .on('mouseleave', this._hideFocus.bind(this));
-                        // .call(this._d3Zoom);
-
-        this._chart.select('rect.plot')
-                  .attr('width', this._width)
-                  .attr('height', this._height);
-
-        this._chart.select('g.x.axis')
-                  .attr('transform', 'translate(0,' + this._height + ')')
-                  .call(this._xAxis);
-
-        this._chart.select('g.y.axis')
-                  .call(this._yAxis);
-
-        this._chart.select('g.x.grid')
-                  .attr('transform', 'translate(0,' + this._height + ')')
-                  .call(this._createXAxis()
-                            .tickSize(-this._height, 0, 0)
-                            .tickFormat(''));
-        this._chart.select('g.y.grid')
-                  .call(this._createYAxis()
-                            .tickSize(-this._width, 0, 0)
-                            .tickFormat(''));
-        // Limiting Projection to Margin
-        this._chart.select('clippath#clip rect')
-                   .attr('width', this._width)
-                   .attr('height', this._height);
-
-        this._focus = this._chart.select('line.focus.line')
-                                 .attr('clip-path', 'url(#clip)')
-                                 .attr('y2', this._height);
-
-        this._context = d3.select(this.$.context)
-                          .attr("transform", "translate(" + this.margin.left + "," + this._height + ")");
-
-        this._context.append("g")
-                     .attr("class", "x axis")
-                     .attr("transform", "translate(0," + this._height2 + ")")
-                     .call(this._xAxis2);
-
-        this._context.append("g")
-                     .attr("class", "x brush")
-                     .call(this._brush)
-                     .on("contextmenu", this._brush.clear())
-                   .selectAll("rect")
-                     .attr("y", -6)
-                     .attr("height", this._height2 + 7);
-
-        this._chart.selectAll('g.tick,g.tick line,g.tick text,g path.domain')
-                   .classed('style-scope', true)
-                   .classed('chart-element', true);
-        this._context.selectAll('g.tick,g.tick line,g.tick text,g path.domain,.brush,rect,g.axis')
-                     .classed('style-scope', true)
-                     .classed('chart-element', true);
+      listeners: {
+        "iron-resize": "_sizeChanged"
       },
 
       created: function() {
         this.locale = d3.locale({
           'decimal': ',',
           'thousands': '_',
-          'grouping': [5],
-          'currency': ['€', ''],
+          'grouping': [3],
           'dateTime': '%a %b %e %X %Y',
           'date': '%d.%m.%Y',
           'time': '%H:%M:%S',
@@ -244,48 +208,152 @@
         this.numberFormat = this.locale.numberFormat();
       },
 
-      attached: function() {
-        var clientRect = this.getBoundingClientRect();
-        if (!this.height) {
-          this.height = Math.max(clientRect.height, 200);
-        }
-        if (!this.width) {
-          this.width = Math.max(clientRect.width, 300);
-        }
-        this._width = this.width - this.margin.left - this.margin.right;
-        this._height = this.height - this.margin.top - this.margin.bottom;
-        this._height2 = this.margin.bottom;
+      ready: function() {
+        this._buildLayout();
+      },
 
-        this._x = d3.time.scale().range([0, this._width]);
-        this._y = d3.scale.linear().range([this._height, 0]);
+      _sizeChanged: function(e) {
+        this.debounce("resize", this._sizeLayout, 50);
+      },
 
-        this._x2 = d3.time.scale().range([0, this._width]),
-        this._y2 = d3.scale.linear().range([this._height2, 0]);
+      _buildLayout: function() {
+        this._x = d3.time.scale();
+        this._y = d3.scale.linear();
 
-        this._xAxis2 = d3.svg.axis().scale(this._x2).orient("bottom");
+        this._x2 = d3.time.scale(),
+        this._y2 = d3.scale.linear();
 
-        d3.select(this.$.svg).attr('viewBox', '0 0 ' + this.width + ' ' + this.height)
-                             .attr('preserveAspectRatio', 'xMinYMin meet')
+        this._brushAxisX = d3.svg.axis().scale(this._x2).orient("top").tickFormat(this.timeFormat);
+        this._brushGridX = d3.svg.axis().scale(this._x2).orient("top").tickFormat('');
+
+        d3.select(this.$.svg).attr('preserveAspectRatio', 'xMinYMin meet')
                              .attr('height', null)
                              .attr('width', null);
 
         this._brush = d3.svg.brush()
                         .x(this._x2)
                         .on("brush", this._brushed.bind(this._self));
-      //  var self = this;
-      //  this._d3Zoom = d3.behavior.zoom()
-      //                            .x(this._x)
-      //                            .y(this._y)
-      //                            .on('zoom', this._zoom.bind(this));
 
         this._xAxis = this._createXAxis();
         this._yAxis = this._createYAxis();
 
-        this._buildLayout();
+        this._chart = d3.select(this.$.chart)
+                        .on('mouseenter', this._showFocus.bind(this))
+                        .on('mousemove', this._drawFocus.bind(this))
+                        .on('mouseleave', this._hideFocus.bind(this));
+
+        this._chart.select('g.x.axis')
+                  .call(this._xAxis);
+
+        this._chart.select('g.y.axis')
+                  .call(this._yAxis);
+
+        this._focus = this._chart.select('line.focus.line')
+                                 .attr('clip-path', 'url(#clip)');
+
+        this._brushX = d3.select(this.$.brushX);
+
+        this._brushX.select('g.x.axis')
+                     .call(this._brushAxisX);
+
+        this._brushX.select('g.x.grid')
+                     .call(this._brushGridX);
+
+        this._brushX.select('g.x.brush')
+                     .call(this._brush)
+                     .on("contextmenu", function() {
+                        d3.event.preventDefault();
+                        this._brush.clear();
+                        this._brushed();
+                     }.bind(this._self));
+
+        d3.select(this.$.svg).selectAll('g.tick,g.tick line,g.tick text,g path.domain,rect,g.axis')
+                             .classed('style-scope', true)
+                             .classed('chart-element', true);
+      },
+
+      _sizeLayout: function() {
+        this._height = Math.max(this._parent.offsetHeight, 200);
+        this._width = Math.max(this._parent.offsetWidth, 300);
+
+        this._width = this._width - this.margin.left - this.margin.right;
+        this._height = this._height - this.margin.bottom - this.brushHeight;
+
+        this._x.range([0, this._width]);
+        this._y.range([this._height, 0]);
+
+        this._x2.range([0, this._width]),
+        this._y2.range([this.brushHeight, 0]);
+
+        d3.select(this.$.svg).attr('viewBox', '0 0 ' + this._parent.offsetWidth + ' ' + this._parent.offsetHeight);
+
+        this._chart.attr('transform', 'translate(' + this.margin.left + ',' + (this.brushHeight) + ')');
+
+        this._chart.select('rect.plot')
+                  .attr('width', this._width)
+                  .attr('height', this._height);
+
+        this._chart.select('g.x.axis')
+                  .attr('transform', 'translate(0,' + this._height + ')');
+
+        this._chart.select('g.x.grid')
+                  .attr('transform', 'translate(0,' + this._height + ')')
+                  .call(this._createXAxis()
+                            .tickSize(-this._height, 0, 0)
+                            .tickFormat(''));
+        this._chart.select('g.y.grid')
+                  .call(this._createYAxis()
+                            .tickSize(-this._width, 0, 0)
+                            .tickFormat(''));
+        // Limiting Projection to Margin
+        this._chart.select('clippath#clip rect')
+                   .attr('width', this._width)
+                   .attr('height', this._height);
+
+        this._focus.attr('y2', this._height);
+
+        this._brushX.attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+
+        this._brushX.select('rect.background')
+                      .attr('width', this._width)
+                      .attr('height', this.brushHeight - this.margin.top)
+                      .attr("transform", "translate(0,0)");
+
+        // this._brushX.select(".x.axis")
+        //               .attr("transform", "translate(0," + (this.brushHeight - this.margin.bottom )+ ")");
+
+        this._brushGridX.tickSize(this.brushHeight - this.margin.top - 1, 0, 0);
+        this._brushX.select(".x.grid")
+                      .attr("transform", "translate(0," + (this.brushHeight - this.margin.top) + ")");
+
+        this._brushX.select(".x.brush")
+                    .selectAll("rect")
+                      .attr("y",  0)
+                      .attr("height", this.brushHeight - this.margin.top);
+
+        d3.select(this.$.svg).selectAll('g.tick,g.tick line,g.tick text,g path.domain,rect,g.axis')
+                             .classed('style-scope', true)
+                             .classed('chart-element', true);
+      },
+
+      _createXAxis: function() {
+        return d3.svg.axis()
+                 .scale(this._x)
+                 .orient('bottom')
+                 .ticks(this.ticks)
+                 .tickFormat(this.timeFormat);
+      },
+
+      _createYAxis: function() {
+        return d3.svg.axis()
+                 .scale(this._y)
+                 .orient('left')
+                 .ticks(this.ticks)
+                 .tickFormat(this.numberFormat);
       },
 
       redraw: function () {
-        this.debounce('redraw', function() { this._redraw() },100);
+        this.debounce('redraw', function() { this._redraw() }, 100);
       },
 
       _redraw: function () {
@@ -300,24 +368,25 @@
                              .tickSize(-this._width, 0, 0)
                              .tickFormat(''));
         this._brush.extent(this._brush.extent());
-        this._context.select('.x.axis').transition(100).call(this._xAxis2);
-        this._context.select(".x.brush").transition(100).call(this._brush)
-        this._chart.selectAll('g.tick,g.tick line,g.tick text,g path.domain')
-                   .classed('style-scope', true)
-                   .classed('chart-element', true);
-        // this._graphs.forEach(function(g) { g.redraw(); });
+        this._brushX.select('.x.axis').transition(100).call(this._brushAxisX);
+        this._brushX.select('.x.grid').transition(100).call(this._brushGridX);
+        this._brushX.select(".x.brush").transition(100).call(this._brush)
+        d3.select(this.$.svg).selectAll('g.tick,g.tick line,g.tick text,g path.domain,rect,g.axis')
+                             .classed('style-scope', true)
+                             .classed('chart-element', true);
+        this._graphs.forEach(function(g) { g.redraw(); });
       },
 
       _brushed: function() {
-        // console.log(this._brush.empty(),this._brush.extent());
+        this.isClamping = (this.clamp === true && this._brush.empty() === false && this._x2.domain()[1] - this._brush.extent()[1] < this.clampExtend);
+        if (this.isClamping) {
+          this._brush.extent( [ this._brush.extent()[0], this._x2.domain()[1] ] );
+          this._brushX.select('rect.extent').classed('clamp', true);
+        }
+        else
+          this._brushX.select('rect.extent').classed('clamp', false);
         this._x.domain(this._brush.empty() ? this._x2.domain() : this._brush.extent());
-        // focus.select(".area").attr("d", area);
-        this._chart.select(".x.axis").call(this._xAxis);
-      },
-      _zoom: function () {
-        this._redraw();
-        var graphs = Polymer.dom(this.$.collector).querySelectorAll('graph-element');
-        graphs.forEach(function(graph) {graph.redraw()});
+        this.redraw();
       },
 
       _showFocus: function() {
