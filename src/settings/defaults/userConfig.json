@@ -55,8 +55,8 @@
       "connections": {
         "file": {
           "mode": "all",
-          "#path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
-          "path_folder": "examples/datafile",
+          "path_folder": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\",
+          "#path_folder": "examples/datafile",
           "path": "HNF_Datafile.txt",
           "relativePath": false
         }
