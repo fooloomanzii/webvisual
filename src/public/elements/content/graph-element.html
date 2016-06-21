@@ -23,7 +23,7 @@
         },
         dots: {
           type: Boolean,
-          value: false,
+          value: true,
           observer: '_dotsChanged'
         },
         line: {
@@ -70,7 +70,8 @@
         }
         if (!this.color) this.setColor();
         // clippath for this graph
-        this._node = this.chartElement._chart.append('g')
+        this._node = this.chartElement._chart.select('g#graphs')
+                                             .append('svg:g')
                                              .attr('clip-path', 'url(#clip)')
                                              .attr('id', this.id)
                                              .attr('label', this.label);
@@ -84,16 +85,18 @@
                                .y( function (d) {
                                  return self.chartElement._y(d.y);
                                });
-        this._line = this._node.append("g")
-                                .append('svg:path')
-                                .attr('hidden', this.line ? null : true).attr('class', 'line')
-                                .attr('fill', 'none').attr('stroke', this.color)
-                                .attr('stroke-width', this.lineWidth)                              .datum([])
-                                .attr("d", this._lineFunction);
+        this._line = this._node.append('svg:path')
+                               .attr("class", "line")
+                               .attr('hidden', this.line ? null : true)
+                               .attr('fill', 'none').attr('stroke', this.color)
+                               .attr('stroke-width', this.lineWidth)                              .datum([])
+                               .attr("d", this._lineFunction);
         // group of dots
-        this._dots = this._node.append("g")
+        this._dots = this._node.append("svg:g")
                                .attr("class", "dots")
                                .attr("hidden", this.dots ? null : true);
+
+        Polymer.dom.flush();
         // set Values
         if (this.values.length > 0) this.setValues(this.values);
       },
@@ -144,68 +147,47 @@
       },
 
       _updateView: function (value, splices) {
-        this._setDomains(value);
-        this.chartElement.redraw();
+        if (value !== undefined) {
+          this._setDomains(value);
+          this.chartElement.redraw();
+        }
+        else
+          this.chartElement.setAllDomains();
+
       },
 
-      _setDomains: function(value) {
-        var domainX, domainY, domainAllX, domainBrushX;
+      _setDomains: function(value, splice) {
+        var domainX, domainY = [0 ,0], domainTmp;
         // new values
-        if (value !== undefined) {
-          domainY = this.chartElement._y.domain();
-          if (this.chartElement._brush.empty()) {
-            domainX = this.chartElement._x.domain();
-            domainX[0] = (value.x < domainX[0]) ? value.x : domainX[0];
-            domainX[1] = (value.x > domainX[1]) ? value.x : domainX[1];
-
-            domainY[0] = (value.y < domainY[0]) ? value.y - (domainY[1] - value.y) * 0.2: domainY[0];
-            domainY[1] = (value.y > domainY[1]) ? value.y + (value.y - domainY[0]) * 0.2: domainY[1];
-
-            this.chartElement._x2.domain(domainX);
-          }
-          else {
-            domainAllX = this.chartElement._x2.domain();
-            domainAllX[0] = (value.x < domainAllX[0]) ? value.x : domainAllX[0];
-            domainAllX[1] = (value.x > domainAllX[1]) ? value.x : domainAllX[1];
-            this.chartElement._x2.domain(domainAllX);
-
-            if (this.chartElement.isClamping === true) {
-              domainBrushX = this.chartElement._brush.extent();
-              this.chartElement._brush.extent( [domainBrushX[0], domainAllX[1]] );
-            }
-            domainX = this.chartElement._brush.extent();
-          }
-        }
-        // reducing values
-        else {
-          domainX  = [ d3.min(this.values, function(v) { return v.x; }),
-                       d3.max(this.values, function(v) { return v.x; }) ];
+        if (this.chartElement._brushBehaviorX.empty()) {
+          domainX = this.chartElement._x.domain();
+          domainX[0] = (value.x < domainX[0]) ? value.x : domainX[0];
+          domainX[1] = (value.x > domainX[1]) ? value.x : domainX[1];
           this.chartElement._x2.domain(domainX);
-          if (this.chartElement._brush.empty()) {
-            domainY  = [ d3.min(this.values, function(v) { return v.y; }),
-                         d3.max(this.values, function(v) { return v.y; }) ];
-            domainY = [ domainY[0] - (domainY[1] - domainY[0]) * 0.2,
-                        domainY[1] + (domainY[1] - domainY[0]) * 0.2 ];
+        }
+        else {
+          domainX = this.chartElement._x2.domain();
+          domainX[0] = (value.x < domainX[0]) ? value.x : domainX[0];
+          domainX[1] = (value.x > domainX[1]) ? value.x : domainX[1];
+          this.chartElement._x2.domain(domainX);
+          if (this.chartElement.isClamping === true) {
+            domainTmp = this.chartElement._brushBehaviorX.extent();
+            this.chartElement._brushBehaviorX.extent( [domainTmp[0], domainX[1]] );
           }
-          else {
-            domainBrushX = this.chartElement._brush.extent();
-            if ( domainBrushX[0] <= domainX[0] ) {
-              this.chartElement._brush.extent( [domainX[0], domainBrushX[1]] );
-              domainBrushX = this.chartElement._brush.extent();
-              if (this.chartElement.isClamping === true || domainBrushX[1] <= domainX[0]) {
-                this.chartElement._brush.clear();
-              }
-
-            }
-            else if (this.chartElement.isClamping === true) {
-              this.chartElement._brush.extent( [domainBrushX[0], domainX[1]] );
-            }
-            domainX = this.chartElement._brush.extent();
-            domainY  = [ d3.min(this.values, function(v) { if (v.x > domainX[0]) return v.y; }),
-                         d3.max(this.values, function(v) { if (v.x < domainX[1]) return v.y; }) ];
-            domainY = [ domainY[0] - (domainY[1] - domainY[0]) * 0.2,
-                        domainY[1] + (domainY[1] - domainY[0]) * 0.2 ];
-          }
+          domainX = this.chartElement._brushBehaviorX.extent();
+        }
+        if (this.chartElement._brushBehaviorY.empty()) {
+          domainTmp = this.chartElement._y.domain();
+          domainY[0] = (value.y<domainTmp[0]) ? value.y-(domainTmp[1]-value.y)*0.2: domainTmp[0];
+          domainY[1] = (value.y>domainTmp[1]) ? value.y+(value.y-domainTmp[0])*0.2: domainTmp[1];
+          this.chartElement._y2.domain(domainY);
+        }
+        else {
+          domainTmp = this.chartElement._y2.domain();
+          domainY[0] = (value.y<domainTmp[0]) ? value.y-(domainTmp[1]-value.y)*0.2: domainTmp[0];
+          domainY[1] = (value.y>domainTmp[1]) ? value.y+(value.y-domainTmp[0])*0.2: domainTmp[1];
+          this.chartElement._y2.domain(domainY);
+          domainY = this.chartElement._brushBehaviorY.extent();
         }
         this.chartElement._x.domain(domainX);
         this.chartElement._y.domain(domainY);

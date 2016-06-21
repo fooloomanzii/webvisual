@@ -5,7 +5,8 @@
 <style>
   :host {
     font-family: inherit;
-    font-size: 0.65em;
+    font-size: 0.75em;
+    color: currentColor;
     letter-spacing: normal !important;
     border-radius: inherit;
     -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
@@ -19,20 +20,60 @@
           -ms-user-select: none !important;
               user-select: none !important;
   }
+  section#menu {
+    display: block;
+    position: absolute;
+    padding: 0.75em;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                0 1px 5px 0 rgba(0, 0, 0, 0.12),
+                0 3px 1px -2px rgba(0, 0, 0, 0.2);
+  }
+  text {
+    fill: currentColor !important;
+    pointer-events: none;
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    letter-spacing: normal !important;
+  }
   svg#svg {
     position: absolute;
   }
+  svg.button {
+    fill: currentColor;
+    fill-opacity: 0.5;
+    transition: fill-opacity 200ms ease;
+    shape-rendering: crispEdges;
+  }
+  svg.button rect {
+    fill: white;
+    fill-opacity: inherit;
+  }
+  svg.button:hover {
+    fill-opacity: 1;
+  }
+  g#chart text{
+    font-size: 1em;
+  }
+  g#brush text{
+    font-size: 0.5em;
+  }
   g#chart rect.plot {
-    fill: #669DB4;
-    fill-opacity: 0.05;
+    fill: #BDE2F1;
+    fill-opacity: 0.25;
+    stroke: #345475;
+    stroke-opacity: 0.5;
+    shape-rendering: crispEdges;
+    stroke-width: 1px;
   }
   g#brushX rect.background, g#brushY rect.background {
-    fill: #669DB4;
-    fill-opacity: 0.15;
+    fill: white;
+    fill-opacity: 0.5;
     stroke: #345475;
-    stroke-opacity: 0.1;
+    stroke-opacity: 0.2;
     shape-rendering: crispEdges;
-    stroke-width: 1.5px;
+    stroke-width: 1px;
   }
   g.grid .tick {
     stroke: #345475;
@@ -48,21 +89,23 @@
     shape-rendering: crispEdges;
     stroke-width: 1.5px;
   }
-  line.focus.line {
+  g#chart g.axis path, g#chart g.axis line {
+    stroke-opacity: 0.3;
+  }
+  g#focus line.focus.line {
       fill: none;
       stroke: #345475;
       stroke-opacity: 0.4;
-      stroke-width: 3px;
+      stroke-width: 2px;
   }
   g.brush rect.extent {
     stroke: #345475;
     fill: #005B82;
-    fill-opacity: 0.5;
+    fill-opacity: 0.25;
     shape-rendering: crispEdges;
   }
   g.brush rect.extent.clamp {
     stroke: #005B82;
-    fill: #345475;
     fill-opacity: 0.5;
   }
 
@@ -72,15 +115,15 @@
   <svg id='svg' version='1.1' xmlns='http://www.w3.org/2000/svg'>
     <g id='brushX'>
       <rect class='background'></rect>
-      <g class='x axis'></g>
-      <g class='x grid'></g>
-      <g class='x brush'></g>
+      <g class='axis'></g>
+      <!-- <g class='grid'></g> -->
+      <g class='brush'></g>
     </g>
     <g id='brushY'>
       <rect class='background'></rect>
-      <g class='y axis'></g>
-      <g class='y grid'></g>
-      <g class='y brush'></g>
+      <g class='axis'></g>
+      <!-- <g class='grid'></g> -->
+      <g class='brush'></g>
     </g>
     <g id='chart'>
       <rect class='plot'></rect>
@@ -88,14 +131,34 @@
       <g class='y axis'></g>
       <g class='x grid'></g>
       <g class='y grid'></g>
-      <clippath id='clip'>
+      <clipPath id='clip'>
         <rect x='0' y='0'></rect>
       </clippath>
       <g id='focus'>
-        <line class='focus line' y1=0></line>
+        <line class='focus line x' y1='0'></line>
+        <line class='focus line y' x1='0'></line>
       </g>
+      <g id='graphs'></g>
     </g>
+    <svg id='menubutton' class='button' preserveAspectRatio='xMidYMid meet' on-tap='toggleMenu'>
+      <rect></rect>
+      <g><svg viewBox='0 0 24 24'>
+        <path d='M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z'/>
+         </svg></g>
+    </svg>
   </svg>
+
+  <section id='menu' hidden>
+    <iron-selector attr-for-selected="interpolate" on-iron-select='changeInterpolation' selected="cardinal">
+      <paper-item interpolate='linear'>linear</paper-item>
+      <paper-item interpolate='step-before'>step-before</paper-item>
+      <paper-item interpolate='step-after'>step-after</paper-item>
+      <paper-item interpolate='basis'>basis</paper-item>
+      <paper-item interpolate='cardinal'>cardinal</paper-item>
+      <paper-item interpolate='monotone'>monotone</paper-item>
+    </iron-selector>
+  </section>
+
   <content id='collector' select='graph-element'></content>
 </template>
 
@@ -109,15 +172,15 @@
         margin: {
           type: Object,
           value: function() {
-            return {  top: 30,
-                      right: 25,
-                      bottom: 30,
-                      left: 50 };
+            return {  top: 12,
+                      right: 24,
+                      bottom: 36,
+                      left: 60 };
           }
         },
-        brushHeight: {
+        brushWidth: {
           type: Number,
-            value: 50
+            value: 36
         },
         clamp: {
           type: Boolean,
@@ -135,29 +198,31 @@
           type: Number,
           value: 6
         },
-        _width: {
-          type: Number,
-          value: 0
-        },
-        _height: {
-          type: Number,
-          value: 0,
-        },
+
+        _width: {},
+        _height: {},
 
         _chart: {},
         _x: {},
         _y: {},
-        _x2: {},
-        _y2: {},
 
         _xAxis: {},
         _yAxis: {},
+
+        _x2: {},
+        _brushBehaviorX: {},
+        _brushX: {},
         _brushAxisX: {},
         _brushGridX: {},
+
+        _y2: {},
+        _brushBehaviorY: {},
+        _brushY: {},
         _brushAxisY: {},
         _brushGridY: {},
-        _focus: {},
-        _brushX: {},
+
+        _focusX: {},
+        _focusY: {}
       },
 
       get _self () {
@@ -176,7 +241,7 @@
       },
 
       listeners: {
-        "iron-resize": "_sizeChanged"
+        'iron-resize': '_sizeChanged'
       },
 
       created: function() {
@@ -213,26 +278,16 @@
       },
 
       _sizeChanged: function(e) {
-        this.debounce("resize", this._sizeLayout, 50);
+        this.debounce('resize', this._sizeLayout, 50);
       },
 
       _buildLayout: function() {
         this._x = d3.time.scale();
         this._y = d3.scale.linear();
 
-        this._x2 = d3.time.scale(),
-        this._y2 = d3.scale.linear();
-
-        this._brushAxisX = d3.svg.axis().scale(this._x2).orient("top").tickFormat(this.timeFormat);
-        this._brushGridX = d3.svg.axis().scale(this._x2).orient("top").tickFormat('');
-
         d3.select(this.$.svg).attr('preserveAspectRatio', 'xMinYMin meet')
                              .attr('height', null)
                              .attr('width', null);
-
-        this._brush = d3.svg.brush()
-                        .x(this._x2)
-                        .on("brush", this._brushed.bind(this._self));
 
         this._xAxis = this._createXAxis();
         this._yAxis = this._createYAxis();
@@ -248,23 +303,53 @@
         this._chart.select('g.y.axis')
                   .call(this._yAxis);
 
-        this._focus = this._chart.select('line.focus.line')
-                                 .attr('clip-path', 'url(#clip)');
+        this._focusX = this._chart.select('line.focus.line.x')
+                                  .attr('clip-path', 'url(#clip)');
+        this._focusY = this._chart.select('line.focus.line.y')
+                                  .attr('clip-path', 'url(#clip)');
 
+        this._x2 = d3.time.scale(),
+        this._y2 = d3.scale.linear();
+
+        this._brushBehaviorX = d3.svg.brush()
+                                 .x(this._x2)
+                                 .on('brush', this._brushedX.bind(this._self));
         this._brushX = d3.select(this.$.brushX);
-
-        this._brushX.select('g.x.axis')
-                     .call(this._brushAxisX);
-
-        this._brushX.select('g.x.grid')
-                     .call(this._brushGridX);
-
-        this._brushX.select('g.x.brush')
-                     .call(this._brush)
-                     .on("contextmenu", function() {
+        this._brushAxisX = d3.svg.axis().scale(this._x2).orient('top').tickFormat(this.timeFormat);
+        // this._brushGridX = d3.svg.axis().scale(this._x2).orient('top').tickFormat('');
+        this._brushX.select('g.axis')
+                    .call(this._brushAxisX);
+        // this._brushX.select('g.grid')
+        //              .call(this._brushGridX);
+        this._brushX.select('g.brush')
+                    .call(this._brushBehaviorX)
+                    .on('contextmenu', function() {
                         d3.event.preventDefault();
-                        this._brush.clear();
-                        this._brushed();
+                        this._brushBehaviorX.clear();
+                        this._brushedX();
+                     }.bind(this._self));
+
+        this._brushBehaviorY = d3.svg.brush()
+                                 .y(this._y2)
+                                 .on('brush', this._brushedY.bind(this._self));
+        this._brushY = d3.select(this.$.brushY);
+        this._brushAxisY = d3.svg.axis().scale(this._y2).orient('right').tickFormat(this.numberFormat);
+        // this._brushGridY = d3.svg.axis().scale(this._y2).orient('right').tickFormat('');
+        this._brushY.select('g.axis')
+                    .call(this._brushAxisY);
+        // this._brushY.select('g.grid')
+        //             .call(this._brushGridY);
+        this._brushY.select('g.brush')
+                    .call(this._brushBehaviorY)
+                    .on('contextmenu', function() {
+                        d3.event.preventDefault();
+                        this._brushBehaviorY.clear();
+                        this._brushedY();
+                     }.bind(this._self))
+                    .on('ondblclick', function() {
+                        d3.event.preventDefault();
+                        this._brushBehaviorY.clear();
+                        this._brushedY();
                      }.bind(this._self));
 
         d3.select(this.$.svg).selectAll('g.tick,g.tick line,g.tick text,g path.domain,rect,g.axis')
@@ -276,18 +361,37 @@
         this._height = Math.max(this._parent.offsetHeight, 200);
         this._width = Math.max(this._parent.offsetWidth, 300);
 
-        this._width = this._width - this.margin.left - this.margin.right;
-        this._height = this._height - this.margin.bottom - this.brushHeight;
+        this._width = this._width - this.margin.left - this.margin.right - this.brushWidth;
+        this._height = this._height - this.margin.bottom - this.margin.top - this.brushWidth;
 
         this._x.range([0, this._width]);
         this._y.range([this._height, 0]);
 
         this._x2.range([0, this._width]),
-        this._y2.range([this.brushHeight, 0]);
+        this._y2.range([this._height, 0]);
 
         d3.select(this.$.svg).attr('viewBox', '0 0 ' + this._parent.offsetWidth + ' ' + this._parent.offsetHeight);
 
-        this._chart.attr('transform', 'translate(' + this.margin.left + ',' + (this.brushHeight) + ')');
+
+        d3.select(this.$.menubutton).attr('x', (this.margin.left + this._width + 1)+'px')
+                                    .attr('y', (this.margin.top)+'px')
+                                    .attr('height', this.brushWidth+'px')
+                                    .attr('width', this.brushWidth+'px')
+                                    .select('rect')
+                                    .attr('height', this.brushWidth+'px')
+                                    .attr('width', this.brushWidth+'px');
+        d3.select(this.$.menubutton).select('g')
+                                    .attr('transform', 'translate(8,0)')
+                                    .select('svg')
+                                    .attr('width', (this.brushWidth - 16)+'px' );
+        d3.select(this.$.menu).attr('style', 'right:'+(this.margin.right+this.brushWidth+2)+'px;top:'+(this.margin.top+this.brushWidth+2)+'px');
+
+        this._chart.attr('transform', 'translate(' + this.margin.left + ',' + (this.brushWidth + this.margin.top) + ')');
+
+        // Limiting Projection to Margin
+        this._chart.selectAll('clipPath#clip rect')
+                   .attr('width', this._width)
+                   .attr('height', this._height);
 
         this._chart.select('rect.plot')
                   .attr('width', this._width)
@@ -305,33 +409,39 @@
                   .call(this._createYAxis()
                             .tickSize(-this._width, 0, 0)
                             .tickFormat(''));
-        // Limiting Projection to Margin
-        this._chart.select('clippath#clip rect')
-                   .attr('width', this._width)
-                   .attr('height', this._height);
 
-        this._focus.attr('y2', this._height);
+        this._focusX.attr('y2', this._height);
+        this._focusY.attr('x2', this._width);
 
-        this._brushX.attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
-
+        this._brushX.attr('transform', 'translate(' + this.margin.left + ',' + (this.margin.top + this.brushWidth)+ ')');
         this._brushX.select('rect.background')
                       .attr('width', this._width)
-                      .attr('height', this.brushHeight - this.margin.top)
-                      .attr("transform", "translate(0,0)");
+                      .attr('height', this.brushWidth)
+                      .attr('transform', 'translate(0,-' + this.brushWidth + ')');
+        // this._brushGridX.tickSize(this.brushWidth, 0, 0);
+        // this._brushX.select('.grid')
+        //             .attr('transform', 'translate(0,' + (0) + ')');
+        this._brushX.select('.brush')
+                    .selectAll('rect')
+                      .attr('y',  -this.brushWidth)
+                      .attr('width', this._width)
+                      .attr('height', this.brushWidth);
 
-        // this._brushX.select(".x.axis")
-        //               .attr("transform", "translate(0," + (this.brushHeight - this.margin.bottom )+ ")");
+        this._brushY.attr('transform', 'translate(' + (this.margin.left + this._width) + ',' + (this.margin.top + this.brushWidth) + ')');
+        this._brushY.select('rect.background')
+                      .attr('width', this.brushWidth)
+                      .attr('height', this._height)
+                      .attr('transform', 'translate(0,0)');
+        // this._brushGridY.tickSize(this.brushWidth, 0, 0);
+        // this._brushY.select('.grid')
+        //             .attr('transform', 'translate(' + (0) + ',0)');
+        this._brushY.select('.brush')
+                    .selectAll('rect')
+                      .attr('x',  0)
+                      .attr('width', this.brushWidth)
+                      .attr('height', this._height);
 
-        this._brushGridX.tickSize(this.brushHeight - this.margin.top - 1, 0, 0);
-        this._brushX.select(".x.grid")
-                      .attr("transform", "translate(0," + (this.brushHeight - this.margin.top) + ")");
-
-        this._brushX.select(".x.brush")
-                    .selectAll("rect")
-                      .attr("y",  0)
-                      .attr("height", this.brushHeight - this.margin.top);
-
-        d3.select(this.$.svg).selectAll('g.tick,g.tick line,g.tick text,g path.domain,rect,g.axis')
+        d3.select(this.$.svg).selectAll('g.tick,g.tick line,g.tick text,g path.domain,rect,g.axis,text')
                              .classed('style-scope', true)
                              .classed('chart-element', true);
       },
@@ -367,36 +477,100 @@
                    .call(this._createYAxis()
                              .tickSize(-this._width, 0, 0)
                              .tickFormat(''));
-        this._brush.extent(this._brush.extent());
-        this._brushX.select('.x.axis').transition(100).call(this._brushAxisX);
-        this._brushX.select('.x.grid').transition(100).call(this._brushGridX);
-        this._brushX.select(".x.brush").transition(100).call(this._brush)
-        d3.select(this.$.svg).selectAll('g.tick,g.tick line,g.tick text,g path.domain,rect,g.axis')
+        this._brushBehaviorX.extent(this._brushBehaviorX.extent());
+        this._brushX.select('.axis').transition(100).call(this._brushAxisX);
+        // this._brushX.select('.grid').transition(100).call(this._brushGridX);
+        this._brushX.select('.brush').transition(100).call(this._brushBehaviorX)
+        this._brushBehaviorY.extent(this._brushBehaviorY.extent());
+        this._brushY.select('.axis').transition(100).call(this._brushAxisY);
+        // this._brushY.select('.grid').transition(100).call(this._brushGridY);
+        this._brushY.select('.brush').transition(100).call(this._brushBehaviorY)
+        d3.select(this.$.svg).selectAll('g.tick,g.tick line,g.tick text,g path.domain,rect,g.axis,text')
                              .classed('style-scope', true)
                              .classed('chart-element', true);
         this._graphs.forEach(function(g) { g.redraw(); });
       },
 
-      _brushed: function() {
-        this.isClamping = (this.clamp === true && this._brush.empty() === false && this._x2.domain()[1] - this._brush.extent()[1] < this.clampExtend);
+      _brushedX: function() {
+        this.isClamping = (this.clamp === true && this._brushBehaviorX.empty() === false && this._x2.domain()[1] - this._brushBehaviorX.extent()[1] < this.clampExtend);
         if (this.isClamping) {
-          this._brush.extent( [ this._brush.extent()[0], this._x2.domain()[1] ] );
+          this._brushBehaviorX.extent( [ this._brushBehaviorX.extent()[0], this._x2.domain()[1] ] );
           this._brushX.select('rect.extent').classed('clamp', true);
         }
         else
           this._brushX.select('rect.extent').classed('clamp', false);
-        this._x.domain(this._brush.empty() ? this._x2.domain() : this._brush.extent());
+        this._x.domain(this._brushBehaviorX.empty() ? this._x2.domain() : this._brushBehaviorX.extent());
+        this.redraw();
+      },
+      _brushedY: function() {
+        this._y.domain(this._brushBehaviorY.empty() ? this._y2.domain() : this._brushBehaviorY.extent());
+        this.redraw();
+      },
+
+      setAllDomains: function () {
+        this.debounce('domains', function() { this._setAllDomains() }, 100);
+      },
+
+      setAllDomains: function () {
+        var graphs = this._graphs;
+        var domainX, domainY, domainTmp;
+        domainX  = [ d3.min(graphs,function(g){ return d3.min(g.values,function(v){ return v.x; }) }) ,
+                     d3.max(graphs,function(g){ return d3.max(g.values,function(v){ return v.x; }) }) ];
+        domainTmp  = [ d3.min(graphs,function(g){ return d3.min(g.values,function(v){ return v.y; }) }),
+                     d3.max(graphs,function(g){ return d3.max(g.values,function(v){ return v.y;})}) ];
+        domainY = [ domainTmp[0] - (domainTmp[1] - domainTmp[0]) * 0.2,
+                    domainTmp[1] + (domainTmp[1] - domainTmp[0]) * 0.2 ];
+        this._x2.domain(domainX);
+        this._y2.domain(domainY);
+        if (!this._brushBehaviorX.empty()) {
+          domainTmp = this._brushBehaviorX.extent();
+          if ( domainTmp[0] <= domainX[0] ) {
+            this._brushBehaviorX.extent( [domainX[0], domainTmp[1]] );
+            domainTmp = this._brushBehaviorX.extent();
+            if (this.isClamping === true || domainTmp[1] <= domainX[0]) {
+              this._brushBehaviorX.clear();
+            }
+          }
+          else if (this.isClamping === true) {
+            this._brushBehaviorX.extent( [domainTmp[0], domainX[1]] );
+          }
+          domainX = this._brushBehaviorX.extent();
+
+        }
+        if (!this._brushBehaviorY.empty()) {
+          domainY = this._brushBehaviorY.extent();
+        }
+        this._x.domain(domainX);
+        this._y.domain(domainY);
         this.redraw();
       },
 
       _showFocus: function() {
         d3.select('g#focus').style('opacity', 1);
       },
-      _drawFocus: function () {
-        this._focus.attr('transform', 'translate(' + [d3.event.x - this.margin.left,0] + ')');
+      _drawFocus: function() {
+        this._focusX.attr('transform', 'translate(' + (d3.event.layerX - this.margin.left) + ',0)');
+        this._focusY.attr('transform', 'translate(0,' + (d3.event.layerY - this.margin.top - this.brushWidth) + ')');
       },
       _hideFocus: function() {
         d3.select('g#focus').transition(2000).style('opacity', 0);
+      },
+      toggleMenu: function() {
+        if (this.$.menu.hasAttribute('hidden')) {
+          this.$.menu.removeAttribute('hidden');
+        }
+        else {
+          this.$.menu.setAttribute('hidden', true);
+        }
+      },
+      changeInterpolation: function(e) {
+        var value = e.target.selected;
+        this._graphs.forEach(
+          function(g) {
+            if (g._lineFunction)
+              g._lineFunction.interpolate(value);
+          });
+        this.redraw();
       }
     });
 

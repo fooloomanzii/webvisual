@@ -44,7 +44,7 @@
       font-family: Fira Sans Light;
       font-size: 1em;
       text-align: left;
-      line-height: 1.4rem;
+      line-height: 1.4em;
       -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
       word-wrap: break-word;
@@ -106,24 +106,30 @@
       };
 
     --item-theme: {
-        border-radius: 3px;
-        min-height: none;
-        margin: 0em;
-        padding: 0.5em 1em;
-        justify-content: space-between;
-        align-items: center;
-        background: var(--default-icon-color);
-        color: currentColor;
-        font-family: Fira Sans Light;
-        cursor: pointer;
-        text-align: left;
-        text-transform: none;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-      };
+      border-radius: 3px;
+      min-height: none;
+      margin: 0em;
+      padding: 0.75em;
+      justify-content: space-between;
+      align-items: center;
+      color: currentColor;
+      font-family: Fira Sans Light;
+      cursor: pointer;
+      text-align: left;
+      text-transform: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 1em;
+      line-height: 1.4em;
+      min-height: 1em;;
+    };
+
+    --paper-item: {
+      @apply(--item-theme);
+    };
 
     --icon-button-theme: {
         color: currentColor;
@@ -164,10 +170,6 @@
     margin-left: 0.5em;
     margin-right: 0.75em;
     min-width: 1.5em;
-  }
-
-  paper-item {
-    @apply(--item-theme)
   }
 
   paper-item:hover {
