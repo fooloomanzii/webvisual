@@ -114,6 +114,8 @@
         dots.attr('cx', (function(d,i) {
               return this.chartElement._x(d.x)}).bind(this._self))
             .attr('cy', (function(d,i) {
+              if (isNaN(this.chartElement._y(d.y)))
+                console.log(d.y, this.chartElement._y.domain());
               return this.chartElement._y(d.y)}).bind(this._self))
         // enter new dots
         dots.enter()
@@ -148,6 +150,12 @@
 
       _updateView: function (value, splices) {
         if (value !== undefined) {
+          if ( value.y < 0 &&
+              (this.chartElement.yScale === "ln" ||
+               this.chartElement.yScale === "log")) {
+            console.warn("ValueError: value in logarithmic scale below 0");
+            return;
+          }
           this._setDomains(value);
           this.chartElement.redraw();
         }
@@ -159,6 +167,7 @@
       _setDomains: function(value, splice) {
         var domainX, domainY = [0 ,0], domainTmp;
         // new values
+
         if (this.chartElement._brushBehaviorX.empty()) {
           domainX = this.chartElement._x.domain();
           domainX[0] = (value.x < domainX[0]) ? value.x : domainX[0];
@@ -176,21 +185,25 @@
           }
           domainX = this.chartElement._brushBehaviorX.extent();
         }
-        if (this.chartElement._brushBehaviorY.empty()) {
+        if (this.chartElement._brushBehaviorY.empty())
           domainTmp = this.chartElement._y.domain();
-          domainY[0] = (value.y<domainTmp[0]) ? value.y-(domainTmp[1]-value.y)*0.2: domainTmp[0];
-          domainY[1] = (value.y>domainTmp[1]) ? value.y+(value.y-domainTmp[0])*0.2: domainTmp[1];
-          this.chartElement._y2.domain(domainY);
-        }
-        else {
+        else
           domainTmp = this.chartElement._y2.domain();
-          domainY[0] = (value.y<domainTmp[0]) ? value.y-(domainTmp[1]-value.y)*0.2: domainTmp[0];
-          domainY[1] = (value.y>domainTmp[1]) ? value.y+(value.y-domainTmp[0])*0.2: domainTmp[1];
-          this.chartElement._y2.domain(domainY);
-          domainY = this.chartElement._brushBehaviorY.extent();
+
+        if (value.y < domainTmp[0]) {
+          var v = (value.y).toExponential().split('e');
+          domainY[0] = (Math.floor(v[0])) * Math.pow(10,parseInt(v[1],10));
         }
+        else domainY[0] = domainTmp[0];
+        if (value.y > domainTmp[1]) {
+          var v = (value.y).toExponential().split('e');
+          domainY[1] = (Math.ceil(v[0]) + 1) * Math.pow(10,parseInt(v[1],10));
+        }
+        else domainY[1] = domainTmp[1];
+
         this.chartElement._x.domain(domainX);
         this.chartElement._y.domain(domainY);
+        this.chartElement._y2.domain(domainY);
       },
 
       setColor: function(color) {

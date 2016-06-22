@@ -1,7 +1,7 @@
 <!-- Using d3.js-library -->
 
 <dom-module id='chart-element'>
-
+<link rel='import' href='../style/app-theme.html'/>
 <style>
   :host {
     font-family: inherit;
@@ -124,14 +124,14 @@
       <g class='brush'></g>
     </g>
     <g id='chart'>
+      <clipPath id='clip'>
+        <rect x='0' y='0'></rect>
+      </clipPath>
       <rect class='plot'></rect>
       <g class='x axis'></g>
       <g class='y axis'></g>
       <g class='x grid'></g>
       <g class='y grid'></g>
-      <clipPath id='clip'>
-        <rect x='0' y='0'></rect>
-      </clippath>
       <g id='focus'>
         <line class='focus line x' y1='0'></line>
         <line class='focus line y' x1='0'></line>
@@ -147,14 +147,25 @@
   </svg>
 
   <section id='menu' hidden>
-    <iron-selector attr-for-selected="interpolate" on-iron-select='changeInterpolation' selected="cardinal">
-      <paper-item interpolate='linear'>linear</paper-item>
-      <paper-item interpolate='step-before'>step-before</paper-item>
-      <paper-item interpolate='step-after'>step-after</paper-item>
-      <paper-item interpolate='basis'>basis</paper-item>
-      <paper-item interpolate='cardinal'>cardinal</paper-item>
-      <paper-item interpolate='monotone'>monotone</paper-item>
-    </iron-selector>
+    <paper-input>      <div prefix>$</div>
+      <paper-icon-button suffix icon="clear"></paper-icon-button></paper-input>
+    <paper-dropdown-menu label="Interpolierung">
+      <iron-selector class="dropdown-content" attr-for-selected="interpolate" selected="{{interpolation}}">
+        <paper-item interpolate='linear'>linear</paper-item>
+        <paper-item interpolate='basis'>basis</paper-item>
+        <paper-item interpolate='cardinal'>cardinal</paper-item>
+        <paper-item interpolate='monotone'>monotone</paper-item>
+        <paper-item interpolate='step-before'>step-before</paper-item>
+        <paper-item interpolate='step-after'>step-after</paper-item>
+      </iron-selector>
+    </paper-dropdown-menu>
+    <paper-dropdown-menu label="Skalierung">
+      <iron-selector class="dropdown-content" attr-for-selected="scale" selected="{{yScale}}">
+        <paper-item scale='linear'>linear</paper-item>
+        <paper-item scale='ln'>ln</paper-item>
+        <paper-item scale='log'>log₁₀</paper-item>
+      </iron-selector>
+    </paper-dropdown-menu>
   </section>
 
   <content id='collector' select='graph-element'></content>
@@ -196,24 +207,41 @@
           type: Number,
           value: 6
         },
+        yScale: {
+          type: String,
+          value: 'linear',
+          observer: 'changeScale'
+        },
+        interpolation: {
+          type: String,
+          value: 'cardinal',
+          observer: 'changeInterpolation'
+        },
 
         _width: {},
         _height: {},
 
         _chart: {},
-        _x: {},
+
+        _x: {
+          type: Object,
+          value: function() { return d3.time.scale(); }
+        },
+        _x2: {
+          type: Object,
+          value: function() { return d3.time.scale(); }
+        },
         _y: {},
+        _y2: {},
 
         _xAxis: {},
         _yAxis: {},
 
-        _x2: {},
         _brushBehaviorX: {},
         _brushX: {},
         _brushAxisX: {},
         _brushGridX: {},
 
-        _y2: {},
         _brushBehaviorY: {},
         _brushY: {},
         _brushAxisY: {},
@@ -245,7 +273,7 @@
       created: function() {
         this.locale = d3.locale({
           'decimal': ',',
-          'thousands': '_',
+          'thousands': '.',
           'grouping': [3],
           'dateTime': '%a %b %e %X %Y',
           'date': '%d.%m.%Y',
@@ -280,40 +308,37 @@
       },
 
       _buildLayout: function() {
-        this._x = d3.time.scale();
-        this._y = d3.scale.linear();
-
         d3.select(this.$.svg).attr('preserveAspectRatio', 'xMinYMin meet')
                              .attr('height', null)
                              .attr('width', null);
+        console.log(this.yScale);
+        this._y  = this._createNumberScale(this.yScale, this._y);
+        this._y2 = this._createNumberScale(this.yScale, this._y2);
 
-        this._xAxis = this._createXAxis();
-        this._yAxis = this._createYAxis();
+        this._xAxis = this._createTimeAxis(this._x, 'bottom');
+        this._yAxis = this._createNumberAxis(this._y, 'left');
 
         this._chart = d3.select(this.$.chart)
                         .on('mouseenter', this._showFocus.bind(this))
-                        .on('mousemove', this._drawFocus.bind(this))
+                        .on('mousemove',  this._drawFocus.bind(this))
                         .on('mouseleave', this._hideFocus.bind(this));
 
         this._chart.select('g.x.axis')
-                  .call(this._xAxis);
+                   .call(this._xAxis);
 
         this._chart.select('g.y.axis')
-                  .call(this._yAxis);
+                   .call(this._yAxis);
 
         this._focusX = this._chart.select('line.focus.line.x')
                                   .attr('clip-path', 'url(#clip)');
         this._focusY = this._chart.select('line.focus.line.y')
                                   .attr('clip-path', 'url(#clip)');
 
-        this._x2 = d3.time.scale(),
-        this._y2 = d3.scale.linear();
-
         this._brushBehaviorX = d3.svg.brush()
                                  .x(this._x2)
                                  .on('brush', this._brushedX.bind(this._self));
         this._brushX = d3.select(this.$.brushX);
-        this._brushAxisX = d3.svg.axis().scale(this._x2).orient('top').tickFormat(this.timeFormat);
+        this._brushAxisX = this._createTimeAxis(this._x2, 'top');
         // this._brushGridX = d3.svg.axis().scale(this._x2).orient('top').tickFormat('');
         this._brushX.select('g.axis')
                     .call(this._brushAxisX);
@@ -331,7 +356,7 @@
                                  .y(this._y2)
                                  .on('brush', this._brushedY.bind(this._self));
         this._brushY = d3.select(this.$.brushY);
-        this._brushAxisY = d3.svg.axis().scale(this._y2).orient('right').tickFormat(this.numberFormat);
+        this._brushAxisY = this._createNumberAxis(this._y2, 'right');
         // this._brushGridY = d3.svg.axis().scale(this._y2).orient('right').tickFormat('');
         this._brushY.select('g.axis')
                     .call(this._brushAxisY);
@@ -400,11 +425,11 @@
 
         this._chart.select('g.x.grid')
                   .attr('transform', 'translate(0,' + this._height + ')')
-                  .call(this._createXAxis()
+                  .call(this._createTimeAxis(this._x, 'bottom')
                             .tickSize(-this._height, 0, 0)
                             .tickFormat(''));
         this._chart.select('g.y.grid')
-                  .call(this._createYAxis()
+                  .call(this._createNumberAxis(this._y, 'left')
                             .tickSize(-this._width, 0, 0)
                             .tickFormat(''));
 
@@ -444,20 +469,33 @@
                              .classed('chart-element', true);
       },
 
-      _createXAxis: function() {
+      _createNumberScale: function(option, y) {
+        var scale;
+        switch (option) {
+          case 'ln':
+            scale = d3.scale.log().base(Math.E); break;
+          case 'log':
+            scale = d3.scale.log(); break;
+          default:
+            scale = d3.scale.linear();
+        }
+        return scale;
+      },
+
+      _createTimeAxis: function(scale, orient) {
         return d3.svg.axis()
-                 .scale(this._x)
-                 .orient('bottom')
+                 .scale(scale)
+                 .orient(orient)
                  .ticks(this.ticks)
                  .tickFormat(this.timeFormat);
       },
 
-      _createYAxis: function() {
+      _createNumberAxis: function(scale, orient) {
         return d3.svg.axis()
-                 .scale(this._y)
-                 .orient('left')
+                 .scale(scale)
+                 .orient(orient)
                  .ticks(this.ticks)
-                 .tickFormat(this.numberFormat);
+                //  .tickFormat(this.numberFormat);
       },
 
       redraw: function () {
@@ -468,11 +506,11 @@
         this._chart.select('.x.axis').transition(100).call(this._xAxis);
         this._chart.select('.y.axis').transition(100).call(this._yAxis);
         this._chart.select('.x.grid').transition(100)
-                   .call(this._createXAxis()
+                   .call(this._createTimeAxis(this._x, 'bottom')
                              .tickSize(-this._height, 0, 0)
                              .tickFormat(''));
         this._chart.select('.y.grid').transition(100)
-                   .call(this._createYAxis()
+                   .call(this._createNumberAxis(this._y, 'left')
                              .tickSize(-this._width, 0, 0)
                              .tickFormat(''));
         this._brushBehaviorX.extent(this._brushBehaviorX.extent());
@@ -511,13 +549,17 @@
 
       setAllDomains: function () {
         var graphs = this._graphs;
-        var domainX, domainY, domainTmp;
+        var domainX, domainY = [0, 0], domainTmp, v;
         domainX  = [ d3.min(graphs,function(g){ return d3.min(g.values,function(v){ return v.x; }) }) ,
                      d3.max(graphs,function(g){ return d3.max(g.values,function(v){ return v.x; }) }) ];
         domainTmp  = [ d3.min(graphs,function(g){ return d3.min(g.values,function(v){ return v.y; }) }),
                      d3.max(graphs,function(g){ return d3.max(g.values,function(v){ return v.y;})}) ];
-        domainY = [ domainTmp[0] - (domainTmp[1] - domainTmp[0]) * 0.2,
-                    domainTmp[1] + (domainTmp[1] - domainTmp[0]) * 0.2 ];
+
+        v = (domainTmp[0]).toExponential().split('e');
+        domainY[0] = (Math.floor(v[0])) * Math.pow(10,parseInt(v[1],10));
+        v = (domainTmp[1]).toExponential().split('e');
+        domainY[1] = (Math.ceil(v[0]) + 1) * Math.pow(10,parseInt(v[1],10));
+
         this._x2.domain(domainX);
         this._y2.domain(domainY);
         if (!this._brushBehaviorX.empty()) {
@@ -561,13 +603,19 @@
           this.$.menu.setAttribute('hidden', true);
         }
       },
-      changeInterpolation: function(e) {
-        var value = e.target.selected;
+      changeInterpolation: function(newValue, oldValue) {
+        if (oldValue === undefined) return;
         this._graphs.forEach(
           function(g) {
             if (g._lineFunction)
-              g._lineFunction.interpolate(value);
+              g._lineFunction.interpolate(newValue);
           });
+        this.redraw();
+      },
+      changeScale: function(newValue, oldValue) {
+        if (oldValue === undefined) return;
+        this._buildLayout();
+        this._sizeLayout();
         this.redraw();
       }
     });

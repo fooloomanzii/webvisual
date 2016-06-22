@@ -50,7 +50,7 @@ html
     script.
       function update() {
         var date = new Date();
-        this.unshiftValues({x: +date, y: Math.random() * 2 + 20});
+        this.unshiftValues({x: +date, y: Math.random() * 1 });
         if (this.values.length > 30)
           this.spliceValues(this.values.length - 1, 1); 
       }
