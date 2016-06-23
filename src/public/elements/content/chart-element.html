@@ -1,7 +1,7 @@
 <!-- Using d3.js-library -->
 
 <dom-module id='chart-element'>
-<link rel='import' href='../style/app-theme.html'/>
+  <template>
 <style>
   :host {
     font-family: inherit;
@@ -11,7 +11,7 @@
     border-radius: inherit;
     -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
     -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
-  	overflow: hidden;
+  	overflow: visible;
     visibility: visible;
     -webkit-touch-callout: none !important;
       -webkit-user-select: none !important;
@@ -109,7 +109,6 @@
   }
 </style>
 
-<template>
   <svg id='svg' version='1.1' xmlns='http://www.w3.org/2000/svg'>
     <g id='brushX'>
       <rect class='background'></rect>
@@ -147,25 +146,19 @@
   </svg>
 
   <section id='menu' hidden>
-    <paper-input>      <div prefix>$</div>
-      <paper-icon-button suffix icon="clear"></paper-icon-button></paper-input>
-    <paper-dropdown-menu label="Interpolierung">
-      <iron-selector class="dropdown-content" attr-for-selected="interpolate" selected="{{interpolation}}">
-        <paper-item interpolate='linear'>linear</paper-item>
-        <paper-item interpolate='basis'>basis</paper-item>
-        <paper-item interpolate='cardinal'>cardinal</paper-item>
-        <paper-item interpolate='monotone'>monotone</paper-item>
-        <paper-item interpolate='step-before'>step-before</paper-item>
-        <paper-item interpolate='step-after'>step-after</paper-item>
-      </iron-selector>
-    </paper-dropdown-menu>
-    <paper-dropdown-menu label="Skalierung">
-      <iron-selector class="dropdown-content" attr-for-selected="scale" selected="{{yScale}}">
-        <paper-item scale='linear'>linear</paper-item>
-        <paper-item scale='ln'>ln</paper-item>
-        <paper-item scale='log'>log₁₀</paper-item>
-      </iron-selector>
-    </paper-dropdown-menu>
+    <dropdown-selector attr-for-selected="interpolate" selected="{{interpolation}}" horizontal-align="right" >
+        <button-element interpolate='linear'>linear</button-element>
+        <button-element interpolate='basis'>basis</button-element>
+        <button-element interpolate='cardinal'>cardinal</button-element>
+        <button-element interpolate='monotone'>monotone</button-element>
+        <button-element interpolate='step-before'>step-before</button-element>
+        <button-element interpolate='step-after'>step-after</button-element>
+    </dropdown-selector>
+    <dropdown-selector attr-for-selected="scale" selected="{{yScale}}" horizontal-align="right">
+        <button-element scale='linear'>linear</button-element>
+        <button-element scale='ln'>ln</button-element>
+        <button-element scale='log'>log₁₀</button-element>
+    </dropdown-selector>
   </section>
 
   <content id='collector' select='graph-element'></content>
@@ -218,10 +211,10 @@
           observer: 'changeInterpolation'
         },
 
-        _width: {},
-        _height: {},
+        _width: Object,
+        _height: Object,
 
-        _chart: {},
+        _chart: Object,
 
         _x: {
           type: Object,
@@ -231,24 +224,24 @@
           type: Object,
           value: function() { return d3.time.scale(); }
         },
-        _y: {},
-        _y2: {},
+        _y: Object,
+        _y2: Object,
 
-        _xAxis: {},
-        _yAxis: {},
+        _xAxis: Object,
+        _yAxis: Object,
 
-        _brushBehaviorX: {},
-        _brushX: {},
-        _brushAxisX: {},
-        _brushGridX: {},
+        _brushBehaviorX: Object,
+        _brushX: Object,
+        _brushAxisX: Object,
+        _brushGridX: Object,
 
-        _brushBehaviorY: {},
-        _brushY: {},
-        _brushAxisY: {},
-        _brushGridY: {},
+        _brushBehaviorY: Object,
+        _brushY: Object,
+        _brushAxisY: Object,
+        _brushGridY: Object,
 
-        _focusX: {},
-        _focusY: {}
+        _focusX: Object,
+        _focusY: Object
       },
 
       get _self () {

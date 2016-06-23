@@ -1,4 +1,5 @@
 <dom-module id="select-page">
+  <template>
   <style>
     :host {
       display: flex;
@@ -51,35 +52,21 @@
       color: currentColor;
     }
 
-    iron-selector#labelSelector ::content paper-radio-button  {
-      font-size: 1em;
-      padding: 0em;
-      padding-top: 1.5em;
-      float: left;
-      clear: both;
+    iron-selector#labelSelector ::content radio-button-element  {
+      padding: 1em;
     }
 
     span {
       font-size: 1.2em;
       padding: 1em 1em 0.75em 1em;
     }
-    paper-button#submitButton {
+    button-element#submitButton {
       margin-left: auto;
-      margin-top: 3em;
+      margin-top: 2em;
       border-style: solid;
       border-width: thin;
     }
-    paper-button#submitButton iron-icon {
-      margin: 0em 0.75em 0em 0em;
-      z-index: 10;
-    }
-
-    paper-button#submitButton:hover {
-      background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.10) 40%);
-    }
   </style>
-
-  <template>
 
     <section id="background"></section>
     <section id="mainContent">
@@ -89,7 +76,7 @@
         <iron-selector id="labelSelector" selected-values="[[selectedLabels]]" on-iron-select="_disableButton" on-iron-deselect="_disableButton" multi attr-for-selected="label" selected-attribute="checked">
           <content></content>
         </iron-selector>
-        <paper-button id="submitButton" disabled raised="[[notSelected]]" on-click="_onSubmit"><iron-icon id="logo" icon="juelich:logo"></iron-icon>Verbinden</paper-button>
+        <button-element id="submitButton" disabled raised="[[notSelected]]" on-click="_onSubmit"><iron-icon id="logo" icon="juelich:logo" class="left"></iron-icon><section class="content">Verbinden</section></button-element>
       </section>
     </section>
 

@@ -30,48 +30,37 @@
     --default-icon-color: none;
     --default-hover-icon-color: rgba(255,255,255, 0.25);
 
+    --background-0: white;
+    --background-1: #f1f1f1;
+    --background-2: #D0D0D0;
+    --background-3: #BEBEBE;
+    --background-4: #ADADAD;
+
     --primary-color-background: radial-gradient(rgba(0,91,130,1) 80%, rgba(0,91,130,0.8) 160%);
     --dark-primary-color-background: radial-gradient(rgba(52,84,117,1) 80%, rgba(52,84,117,0.8) 160%);
     --app-content-background: #BBBBBB;
     --dark-app-content-background: #666666;
 
     --blur-overlay-background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230,230,230,0.2), rgba(255,255,255,0));
+    --hover-background: rgba(255,255,255,0.2);
 
     --warning-color: #FF9D9D;
 
-    /* Default Font Theme*/
-    --paper-font-common-base: {
-      font-family: Fira Sans Light;
-      font-size: 1em;
-      text-align: left;
-      line-height: 1.4em;
-      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
-      text-rendering: optimizeLegibility;
-      word-wrap: break-word;
-      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-      -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
-    };
+    --iron-icon-height: 24px;
+    --iron-icon-width: 24px;
 
-    /* Paper-Elements */
-    --paper-icon-button-ink-color: currentColor;
-    --paper-tab-ink: currentColor;
-    --paper-input-container-color: #1d1d1d;
-    --paper-input-container-focus-color: #345475;
+    --toggle-button-element-unchecked-bar-color: var(--dark-primary-color);
+    --toggle-button-element-unchecked-button-color: var(--bright-text-color);
+    --toggle-button-element-unchecked-ink-color: var(--bright-text-color);
+    --toggle-button-element-checked-bar-color:	#FCA135;
+    --toggle-button-element-checked-button-color:	#FCA135;
+    --toggle-button-element-checked-ink-color:	#FCA135;
 
-    --paper-toggle-button-unchecked-bar-color: var(--dark-primary-color);
-    --paper-toggle-button-unchecked-button-color: var(--bright-text-color);
-    --paper-toggle-button-unchecked-ink-color: var(--bright-text-color);
-    --paper-toggle-button-checked-bar-color:	#FCA135;
-    --paper-toggle-button-checked-button-color:	#FCA135;
-    --paper-toggle-button-checked-ink-color:	#FCA135;
-
-    --paper-radio-button-checked-color: var(--select-color);
-    --paper-radio-button-checked-ink-color: var(--highlight-color);
-    --paper-radio-button-unchecked-color: var(--highlight-color);
-    --paper-radio-button-unchecked-ink-color: var(--highlight-color);
-    --paper-radio-button-label-color: currentColor;
-    --paper-radio-button-label-spacing: 1em;
-    --paper-radio-button-size: 20px;
+    --radio-button-element-checked-color: var(--select-color);
+    --radio-button-element-checked-ink-color: var(--highlight-color);
+    --radio-button-element-unchecked-color: var(--highlight-color);
+    --radio-button-element-unchecked-ink-color: var(--highlight-color);
+    --radio-button-element-label-color: currentColor;
 
     /* Mixins */
     --background: {
@@ -83,135 +72,67 @@
       transition: background 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     };
 
-    --paper-button: {
-        border-radius: 5px;
-        border: none;
-        border-color: var(--highlight-color);
-        min-height: none;
-        margin: 0em;
-        padding: 0.75em 1.5em;
-        background: linear-gradient(to bottom, rgba(255,255,255,0.01) 5%,rgba(255,255,255,0.05) 40%);
-        color: currentColor;
-        fill: currentColor;
-        text-transform: none;
-        cursor: pointer;
-        transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
-        align-items: center;
-      };
-
-    --paper-button-disabled: {
-        color: var(--disabled-text-color);
-        background: none;
-        border-color: var(--disabled-text-color);
-      };
-
-    --paper-dropdown-menu: {
-      font-family: Fira Sans Light;      
-      display: block;
-      font-size: 0.9em;
-      line-height: 1.4em;
-    };
-
-    --paper-input: {
-      font-family: Fira Sans Light;
-      font-size: 1em;
-      line-height: 1.4em;
-    };
-    --paper-input-container: {
-      font-family: Fira Sans Light;
-      font-size: 1em;
-      line-height: 1.4em;
-    };
-
-    --paper-input-container-label: {
-      font-family: Fira Sans Light;
-      font-size: 0.8em;
-      line-height: 1.4em;
-    };
-
-    --paper-input-container-input: {
-      font-family: Fira Sans Light;
-      font-size: 0.9em;
-      line-height: 1.4em;
-    };
-    --paper-input-prefix: {
-      font-family: Fira Sans Light;
-      font-size: 0.9em;
-      line-height: 1.4em;
-    };
-    --paper-input-suffix: {
-      font-family: Fira Sans Light;
-      font-size: 0.9em;
-      line-height: 1.4em;
-    };
-
-    --paper-input-container-disabled: {
-      font-family: Fira Sans Light;
-      font-size: 0.8em;
-      line-height: 1.4em;
-    };
-    --paper-input-container-label-focus: {
-      font-family: Fira Sans Light;
-      font-size: 0.8em;
-    };
-    --paper-input-container-label-floating: {
-      font-family: Fira Sans Light;
-      font-size: 0.8em;
-    };
-
-    --paper-input-container-underline: {
-      font-family: Fira Sans Light;
-      font-size: 0.8em;
-    };
-    --paper-input-container-underline-focus: {
-      font-family: Fira Sans Light;
-      font-size: 0.8em;
-    };
-    --paper-input-container-underline-disabled: {
-      font-family: Fira Sans Light;
-      font-size: 0.8em;
-    };
-
-
-    --item-theme: {
-      border-radius: 3px;
-      min-height: none;
-      margin: 0em;
-      padding: 0.75em;
-      justify-content: space-between;
-      align-items: center;
-      color: currentColor;
-      font-family: Fira Sans Light;
-      cursor: pointer;
-      text-align: left;
-      text-transform: none;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-      font-size: 1em;
-      line-height: 1.4em;
-      min-height: 1em;;
-    };
-
-    --paper-item: {
-      @apply(--item-theme);
-    };
-
-    --icon-button-theme: {
-        color: currentColor;
-        cursor: pointer;
-        flex-shrink: 0;
-        transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-      };
-
     --default-transition: {
       transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+    };
+    
+    --shadow-transition: {
+      transition: box-shadow 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+    };
+
+    --shadow-none: {
+      box-shadow: none;
+    };
+
+    /* from http://codepen.io/shyndman/pen/c5394ddf2e8b2a5c9185904b57421cdb */
+
+    --shadow-elevation-2dp: {
+      box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 5px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    };
+
+    --shadow-elevation-3dp: {
+      box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 8px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 3px -2px rgba(0, 0, 0, 0.4);
+    };
+
+    --shadow-elevation-4dp: {
+      box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 10px 0 rgba(0, 0, 0, 0.12),
+                  0 2px 4px -1px rgba(0, 0, 0, 0.4);
+    };
+
+    --shadow-elevation-6dp: {
+      box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 18px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 5px -1px rgba(0, 0, 0, 0.4);
+    };
+
+    --shadow-elevation-8dp: {
+      box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14),
+                  0 3px 14px 2px rgba(0, 0, 0, 0.12),
+                  0 5px 5px -3px rgba(0, 0, 0, 0.4);
+    };
+
+    --shadow-elevation-12dp: {
+      box-shadow: 0 12px 16px 1px rgba(0, 0, 0, 0.14),
+                  0 4px 22px 3px rgba(0, 0, 0, 0.12),
+                  0 6px 7px -4px rgba(0, 0, 0, 0.4);
+    };
+
+    --shadow-elevation-16dp: {
+      box-shadow: 0 16px 24px 2px rgba(0, 0, 0, 0.14),
+                  0  6px 30px 5px rgba(0, 0, 0, 0.12),
+                  0  8px 10px -5px rgba(0, 0, 0, 0.4);
     };
   }
 
   /* General styles */
+  paper-ripple {
+    color: currentColor
+  }
 
   span {
     font-size: inherit;
@@ -219,73 +140,17 @@
     margin: 0;
   }
 
-  /*
-   * Items, Buttons and Icons
-   */
-
-  iron-icon {
-    --iron-icon-height: 24px;
-    --iron-icon-width: 24px;
-    transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  radio-button-element.lightcontext {
+    --radio-button-element-checked-color: var(--primary-color);
+    --radio-button-element-checked-ink-color: var(--primary-color);
+    --radio-button-element-unchecked-color: var(--primary-text-color);
+    --radio-button-element-unchecked-ink-color: var(--primary-text-color);
   }
-
-  paper-button iron-icon {
-    margin-left: 0.5em;
-    margin-right: 0.75em;
-    min-width: 1.5em;
-  }
-  paper-item iron-icon {
-    margin-left: 0.5em;
-    margin-right: 0.75em;
-    min-width: 1.5em;
-  }
-
-  paper-item:hover {
-    background: var(--secondary-hover-color);
-  }
-
-  paper-item[dark]:hover {
-    background: var(--secondary-hover-color);
-  }
-
-  paper-icon-button {
-   @apply(--icon-button-theme)
-  }
-
-  paper-radio-button {
-    float: left;
-    clear: both;
-    padding: 0.5em 1em;
-    font-size: 0.9em;
-  }
-
-  paper-radio-button.lightcontext {
-    --paper-radio-button-checked-color: var(--primary-color);
-    --paper-radio-button-checked-ink-color: var(--primary-color);
-    --paper-radio-button-unchecked-color: var(--primary-text-color);
-    --paper-radio-button-unchecked-ink-color: var(--primary-text-color);
-  }
-
-  /*
-   * Collapse
-   */
 
   iron-collapse {
     outline: none;
   }
 
-  /*
-   * Tabs
-   */
-  paper-tab {
-    font-family: Fira Sans Light;
-    border-radius: 6px 6px 0px 0px;
-    padding: 0em 1.2em;
-    height: 100%;
-    -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-    -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
-    @apply(--default-transition)
-  }
 
    /*
     * Fonts

@@ -9,14 +9,9 @@
   "dependencies": {
     "polymer": "Polymer/polymer",
     "iron-elements": "PolymerElements/iron-elements",
-    "paper-elements": "PolymerElements/paper-elements",
+    "paper-behaviors": "PolymerElements/paper-behaviors",
+    "paper-material": "PolymerElements/paper-material",
     "neon-animation": "PolymerElements/neon-animation",
     "d3": "*"
-  },
-  "ignoredDependencies": [
-    "PolymerElements/font-roboto",
-    "PolymerElements/iron-component-page",
-    "PolymerElements/iron-doc-viewer",
-    "PolymerElements/paper-styles"
-  ]
+  }
 }

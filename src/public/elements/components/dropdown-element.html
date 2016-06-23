@@ -1,0 +1,204 @@
+<!-- modification of polymer paper-dropdown -->
+<dom-module id="dropdown-element">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: absolute;
+        outline: none;
+        z-index: 1010;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      section#dropdown {
+        display: block;
+        overflow-x: hidden;
+        overflow-y: auto;
+        position: absolute;
+        transition: all 280ms ease;
+        opacity: 1;
+        visibility: visible;
+        background: var(--background-0);
+        color: var(--primary-text-color);
+        @apply(--shadow-elevation-2dp);
+        border-radius: 5px;
+        outline: none;
+      }
+      section#dropdown:not(.opened) {
+        max-height: 0px;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+    </style>
+
+    <section id="dropdown" class="shadow-elevation-2dp">
+      <content></content>
+    </section>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'dropdown-element',
+
+      behaviors: [Polymer.IronResizableBehavior],
+
+      properties: {
+
+        for: {
+          type: String,
+          observer: '_forChanged'
+        },
+
+        position: {
+          type: String,
+          value: 'bottom'
+        },
+
+        offset: {
+          type: Number,
+          value: 16
+        },
+
+        passiveOnIronSelected: {
+          type: Boolean,
+          value: false,
+          observer: '_unlistenIronSelected'
+        },
+
+        _opened: {
+          type: Boolean,
+          value: false
+        }
+      },
+
+      listeners: {
+        'iron-resize': 'updatePosition'
+      },
+
+      get target () {
+        var parentNode = Polymer.dom(this).parentNode;
+        var ownerRoot = Polymer.dom(this).getOwnerRoot();
+
+        var target;
+        if (this.for) {
+          target = Polymer.dom(ownerRoot).querySelector('#' + this.for);
+        } else {
+          target = parentNode.nodeType == Node.DOCUMENT_FRAGMENT_NODE ?
+              ownerRoot.host : parentNode;
+        }
+        return target;
+      },
+
+      attached: function() {
+        this._target = this.target;
+        this.listen(this._target, 'tap', 'toggle');
+        if (this.passiveOnIronSelected === false)
+          this.listen(this.parentElement, 'iron-select', 'hide');
+      },
+
+      detached: function() {
+        if (this._target) {
+          this.unlisten(this._target, 'tap', 'toggle');
+          this.unlisten(this.parentElement, 'iron-select', 'hide');
+        }
+      },
+
+      show: function() {
+        // If the dropdown is already showing, there's nothing to do.
+        if (this._opened === true)
+          return;
+
+        if (Polymer.dom(this).textContent.trim() === '')
+          return;
+
+        this._opened = true;
+        this.$.dropdown.classList.add('opened');
+        this.updatePosition();
+      },
+
+      hide: function() {
+        // If the dropdown is already hidden, there's nothing to do.
+        if (this._opened === false) {
+          return;
+        }
+        this._opened = false;
+        this.$.dropdown.classList.remove('opened');
+      },
+
+      toggle: function() {
+        if (this._opened === false) this.show();
+        else this.hide();
+      },
+
+      _forChanged: function() {
+        this._target = this.target;
+      },
+
+      _unlistenIronSelected: function() {
+        if (this._target && this.passiveOnIronSelected === true)
+          this.unlisten(this.parentElement, 'iron-select', 'hide');
+      },
+
+      updatePosition: function() {
+        if (!this._target || !this.offsetParent)
+          return;
+
+        var offset = this.offset;
+
+        var parentRect = this.offsetParent.getBoundingClientRect();
+        var targetRect = this._target.getBoundingClientRect();
+        var thisRect = this.getBoundingClientRect();
+
+        var horizontalCenterOffset = (targetRect.width - thisRect.width) / 2;
+        var verticalCenterOffset = (targetRect.height - thisRect.height) / 2;
+
+        var targetLeft = targetRect.left - parentRect.left;
+        var targetTop = targetRect.top - parentRect.top;
+
+        var dropdownLeft, dropdownTop;
+
+        switch (this.position) {
+          case 'top':
+            dropdownLeft = targetLeft + horizontalCenterOffset;
+            dropdownTop = targetTop - thisRect.height - offset;
+            break;
+          case 'bottom':
+            dropdownLeft = targetLeft + horizontalCenterOffset;
+            dropdownTop = targetTop + targetRect.height + offset;
+            break;
+          case 'left':
+            dropdownLeft = targetLeft - thisRect.width - offset;
+            dropdownTop = targetTop + verticalCenterOffset;
+            break;
+          case 'right':
+            dropdownLeft = targetLeft + targetRect.width + offset;
+            dropdownTop = targetTop + verticalCenterOffset;
+            break;
+        }
+
+        // Clip the left/right side.
+        if (dropdownLeft + thisRect.width > window.innerWidth) {
+          this.style.right = '0px';
+          this.style.left = 'auto';
+        } else {
+          this.style.left = Math.max(0, dropdownLeft) + 'px';
+          this.style.right = 'auto';
+        }
+
+        // Clip the top/bottom side.
+        if (dropdownTop + thisRect.height > window.innerHeight) {
+          this.style.bottom = '0px';
+          this.style.top = 'auto';
+        } else {
+          this.style.top = Math.max(0, dropdownTop) + 'px';
+          this.style.bottom = 'auto';
+        }
+
+      }
+    });
+  </script>
+</dom-module>

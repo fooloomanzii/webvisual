@@ -1,5 +1,6 @@
 <link rel='import' href='../behaviors/element-behavior.html'>
 <dom-module id='table-element'>
+  <template>
   <style>
     :host {
       /*height needs to be set by outer element*/
@@ -77,7 +78,7 @@
       min-width: 3.5em;
     }
   </style>
-  <template>
+
     <section id='table'>
       <section id='caption'>[[caption]]</section>
       <section id='head' hidden$='[[hideHeader]]' on-tap='switchOrder'>

@@ -7,9 +7,7 @@
     <script src='../components/d3/d3.min.js'></script>
     <link rel='import' href='../components/polymer/polymer.html'/>
     <link rel="import" href="../elements/style/app-theme.html">
-
-    <link rel="import" href="../elements/content/chart-element.html"/>
-    <link rel="import" href="../elements/content/graph-element.html"/>
+    <link rel="import" href="../elements/imports.html"/>
 
     <style media="screen">
       body {
@@ -22,58 +20,27 @@
 
   <body>
 
-    <chart-element>
-      <graph-element id="id1" label="label1"></graph-element>
-      <graph-element id="id2" label="label1"></graph-element>
-      <graph-element id="id3" label="label2"></graph-element>
-    </chart-element>
+    <dropdown-selector attr-for-selected="interpolate" fallback-selection="0" vertical-align="bottom" horizontal-align="left">
+      <button-element interpolate='linear'><section class="content">
+        wrgrg
+      </section></button-element>
+      <button-element interpolate='basis'><section class="content">
+        adsdaqwesdsad
+      </section></button-element>
+      <button-element interpolate='cardinal'><section class="content">
+        nfggfn
+      </section></button-element>
+      <button-element interpolate='monotone'><section class="content">
+        123adsdasd213213sad
+      </section></button-element>
+      <button-element interpolate='step-before'><section class="content">
+        676ughfgh
+      </section></button-element>
+      <button-element interpolate='step-after'><section class="content">
+        äädsdasdöioööisad
+      </section></button-element>
+    </dropdown-selector>
 
   </body>
 
 </html>
-
-<!-- Observe added and removed children
-
-Use the DOM API's observeNodes method to track when children are added and removed from your element:
-
-this._observer =
-    Polymer.dom(this.$.contentNode).observeNodes(function(info) {
-  this.processNewNodes(info.addedNodes);
-  this.processRemovedNodes(info.removedNodes);
-});
-You pass observeNodes a callback to be invoked when nodes are added or removed. The callback takes a single Object argument, with addedNodes and removedNodes arrays.
-
-The method returns a handle that can be used to stop observation:
-
-Polymer.dom(node).unobserveNodes(this._observer);
-The observeNodes method behaves slightly differently depending on the node being observed:
-
-If the node being observed is a content node, the callback is called when the content node's distributed children change.
-For any other node, the callback is called when the node's effective children change.
-A few notes on observeNodes:
-
-Since the method is attached to the DOM API, the callback is called the observed node as the this value. So if you do:
-
-this._observer = Polymer.dom(this.$.content).observeNodes(_childrenChanged);
-The callback is invoked with this.$.content as the this value. If you want to use the custom element as the this value, you need to bind the callback:
-
-var boundHandler = this._childNodesChanged.bind(this);
-this._observer = Polymer.dom(this.$.content).observeNodes(boundHandler);
-The callback argument lists added and removed nodes, not just elements. If you're only interested in elements, you can filter the node list:
-
-info.addedNodes.filter(function(node) {
-  return (node.nodeType === Node.ELEMENT_NODE)
-});
-The first callback from observeNodes contains all nodes added to the element, not the elements added since observeNodes was called. This works well if you're using observeNodes exclusively.
-
-If you need to synchronously process the element's children -- for example, in attached, and then use observeNodes to monitor changes to the child list, you may need to be aware of this.
-
-Why not just a mutation observer?
-
-If you're familiar with mutation observers, you may wonder why you can't just use a mutation observer to handle DOM changes.
-
-For the simple case, you can use a mutation observer to detect when children are added or removed from your element. However, mutation observers have the same limitation as the children list: they don't reflect local DOM distributions. In the case of the <popup-carousel> example, adding a child to <popup-carousel> wouldn't trigger a mutation observer on <simple-carousel>.
-
-To detect those changes, <simple-carousel> would have to check its child list for <content> nodes. If it's got a <content> node in its children, it would need to add another mutation observer on its shadow host (in this case, <popup-carousel>). And so on. Suddenly, the <simple-carousel> isn't so simple anymore.
-
-The observeNodes method handles this complexity for you. It uses mutation observers internally to track DOM changes, and handles the extra bookkeeping required to track local DOM distributions. Unlike a mutation observer, the observeNodes callback is only invoked when nodes are added or removed—it doesn't handle attribute changes or character data changes. -->

@@ -1,0 +1,103 @@
+<!-- Modification of polymers paper-button because of conflicts with paper-style -->
+
+<dom-module id="button-element">
+  <template strip-whitespace>
+    <style include="paper-material">
+      :host {
+        @apply(--layout-inline);
+        @apply(--layout-center);
+        position: relative;
+        box-sizing: border-box;
+        justify-content: flex-start;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        -webkit-tap-highlight-color: transparent;
+        outline-width: 0;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-select: none;
+        user-select: none;
+        border-radius: 5px;
+        border: none;
+        border-color: var(--highlight-color);
+        margin: 0em;
+        padding: 0.75em 1.5em;
+        background: linear-gradient(to bottom, rgba(255,255,255,0.01) 5%,rgba(255,255,255,0.05) 40%);
+        color: currentColor;
+        fill: currentColor;
+        cursor: pointer;
+        transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      :host:hover {
+        background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.10) 40%);
+      }
+      :host([raised].keyboard-focus) {
+        font-weight: bold;
+      }
+
+      :host(:not([raised]).keyboard-focus) {
+        font-weight: bold;
+      }
+
+      :host([disabled]) {
+        color: var(--disabled-text-color);
+        background: none;
+        border-color: var(--disabled-text-color);
+        cursor: auto;
+        pointer-events: none;
+      }
+
+      ::content iron-icon.left {
+        margin-right: 0.5em;
+      }
+
+      ::content iron-icon.right {
+        margin-left: 0.5em;
+        align-self: flex-end;
+        @apply(--default-transition);
+      }
+
+      ::content iron-icon.right:hover {
+        background: rgba(255,255,255, 0.75);
+        border-radius: 50%;
+      }
+
+      section#content {
+        vertical-align: middle;
+        flex: 1;
+      }
+    </style>
+
+    <content select="iron-icon.left"></content>
+    <section id="content">
+      <content select=".content"></content>
+    </section>
+    <content select="iron-icon.right"></content>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'button-element',
+
+      behaviors: [
+        Polymer.PaperButtonBehavior
+      ],
+
+      properties: {
+        raised: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false,
+          observer: '_calculateElevation'
+        }
+      },
+
+      _calculateElevation: function() {
+        if (!this.raised) {
+          this._setElevation(0);
+        } else {
+          Polymer.PaperButtonBehaviorImpl._calculateElevation.apply(this);
+        }
+      }
+    });
+  </script>
+</dom-module>

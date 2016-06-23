@@ -1,0 +1,98 @@
+<link rel="import" href="../animations/expand-animation.html">
+
+<dom-module id="dropdown-selector">
+  <template>
+
+  <style>
+    :host {
+      display: flex;
+      flex-direction: column;
+    }
+    section.label {
+      margin-left: 4em;
+      font-size: 0.5em;
+      padding: 0.5em;
+    }
+    button-element.dropdown-trigger {
+      align-self: center;
+      padding: 0.5em;
+      border-bottom: 3px solid #2325DA;
+    }
+    div.dropdown-content {
+      display: flex;
+      flex-direction: column;
+    }
+
+  </style>
+
+    <section class="label">asdsads</section>
+    <button-element id="selected" on-tap="toggle">
+      <section class="content">{{selected}}</section>
+    </button-element>
+    <dropdown-element id="dropdown" for="selected">
+      <div class="dropdown-content">
+        <content></content>
+      </div>
+    </dropdown-element>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'dropdown-selector',
+
+      behaviors: [Polymer.IronSelectableBehavior],
+
+      properties: {
+        verticalAlign: String,
+        horizontalAlign: String,
+        selected: {
+          type: String,
+          observer: 'onSelect'
+        },
+        label: String,
+        openAnimationConfig: {
+          type: Array,
+          value: function() {
+            return [{
+              name: 'fade-in-animation',
+              timing: {
+                delay: 150,
+                duration: 50
+              }
+            }, {
+              name: 'expand-animation',
+              timing: {
+                delay: 150,
+                duration: 200
+              }
+            }];
+          }
+        },
+
+        closeAnimationConfig: {
+          type: Array,
+          value: function() {
+            return [{
+              name: 'fade-out-animation',
+              timing: {
+                duration: 200
+              }
+            }];
+          }
+        }
+      },
+
+      listeners: {
+        "iron-select": "onSelect"
+      },
+
+      onSelect: function(e) {
+        console.log('select',e);
+      },
+
+      toggle: function() {
+        // this.$.dropdown.open();
+      }
+    });
+  </script>
+</dom-module>

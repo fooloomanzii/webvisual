@@ -1,41 +1,41 @@
 <dom-module id="logo-element">
-<style>
-  :host{
-    position: relative;
-    color: var(--bright-text-color);
-    fill: currentcolor;
-    flex-direction: row;
-    display: flex;
-    align-items: center;
-  }
-  :host[dark] {
-    color: var(--highlight-color);
-  }
-  svg {
-    transition: fill 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  #logo {
-    height: calc(100% / 8 * 7);
-    margin-right: calc(100% / 47 * 3);
-    cursor: pointer;
-  }
-  #logo:hover {
-    fill: var(--highlight-color);
-  }
-  #script {
-    height: calc(100% / 32 * 29);
-    -ms-flex: 1 0.5 100%;
-  }
-  @media all and (max-width: 520px) {
-    #script {
-      display: none;
+<template>
+  <style>
+    :host{
+      position: relative;
+      color: var(--bright-text-color);
+      fill: currentcolor;
+      flex-direction: row;
+      display: flex;
+      align-items: center;
+    }
+    :host[dark] {
+      color: var(--highlight-color);
+    }
+    svg {
+      transition: fill 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     }
     #logo {
-      margin-right: 0;
+      height: calc(100% / 8 * 7);
+      margin-right: calc(100% / 47 * 3);
+      cursor: pointer;
     }
-  }
-</style>
-<template>
+    #logo:hover {
+      fill: var(--highlight-color);
+    }
+    #script {
+      height: calc(100% / 32 * 29);
+      -ms-flex: 1 0.5 100%;
+    }
+    @media all and (max-width: 520px) {
+      #script {
+        display: none;
+      }
+      #logo {
+        margin-right: 0;
+      }
+    }
+  </style>
   <svg id="logo" viewBox="0 0 48 48">
     <g transform="matrix(0.41959876,0,0,-0.41984392,0,55.269513)">
       <g id="g01" transform="scale(0.1,0.1)">

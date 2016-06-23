@@ -1,0 +1,85 @@
+<!-- Modification of polymers paper-icon-button because of conflicts with paper-style -->
+
+<dom-module id="icon-button-element">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: inline-block;
+        position: relative;
+        padding: 0.5em;
+        outline: none;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        -webkit-tap-highlight-color: transparent;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        cursor: pointer;
+        line-height: 1;
+        opacity: 0.9;
+        flex-shrink: 0;
+        will-change: background;
+
+        width: calc(1em + var(--iron-icon-width));
+        height: calc(1em + var(--iron-icon-height));
+
+        box-sizing: border-box !important;
+        @apply(--default-transition);
+      }
+
+      :host([disabled]) {
+        color: var(--disabled-text-color);
+        background: none;
+        border-color: var(--disabled-text-color);
+        cursor: auto;
+        pointer-events: none;
+      }
+
+      :host(:hover) {
+        opacity: 1;
+        border-radius: 50%;
+        background: var(--hover-background);
+      }
+
+      iron-icon {
+        --iron-icon-width: 100%;
+        --iron-icon-height: 100%;
+      }
+    </style>
+
+    <iron-icon id="icon" icon="[[icon]]" alt$="[[alt]]"></iron-icon>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'icon-button-element',
+
+      behaviors: [
+        Polymer.PaperButtonBehavior
+      ],
+
+      properties: {
+        raised: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false,
+          observer: '_calculateElevation'
+        },
+        icon: {
+          type: String
+        },
+        alt: {
+          type: String,
+          observer: "_altChanged"
+        }
+      },
+
+      _altChanged: function(newValue, oldValue) {
+        var label = this.getAttribute('aria-label');
+        if (!label || oldValue == label) {
+          this.setAttribute('aria-label', newValue);
+        }
+      }
+    });
+  </script>
+</dom-module>

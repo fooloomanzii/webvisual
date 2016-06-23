@@ -41,10 +41,10 @@
           value: 1.5,
           observer: '_lineWidthChanged'
         },
-        _node: {},
-        _line: {},
-        _dots: {},
-        _lineFunction: {}
+        _node: Object,
+        _line: Object,
+        _dots: Object,
+        _lineFunction: Object
       },
 
       get chartElement () {
@@ -136,7 +136,7 @@
 
       setValues: function (values, newestDataLast) {
         this.set('values', values);
-        this._updateView(undefined, {});
+        this._updateView(undefined, Object);
       },
 
       unshiftValues: function(value) {

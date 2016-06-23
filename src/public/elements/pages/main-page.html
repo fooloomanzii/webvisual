@@ -1,5 +1,6 @@
 <dom-module id="main-page">
   <link rel="import" type="css" href="../style/main-page.css"/>
+  <template>
   <style>
     :host {
       font-family: Fira Sans Light;
@@ -62,11 +63,8 @@
     section#groupingKeysLabelSelector ::content iron-selector.groupingKeySelector:not(.foreground){
       display: none;
     }
-    section#groupingKeysLabelSelector ::content paper-radio-button{
-      display: inline-block;
-      font-family: Fira Sans Light;
-      padding: 0.5em 0.5em;
-      font-size: 0.85em;
+    section#groupingKeysLabelSelector ::content radio-button-element {
+      font-size: 0.9em;
     }
     section#labelsTabs {
       margin-left: 36px;
@@ -76,19 +74,19 @@
       font-family: Fira Sans Light;
       font-size: 0.85em;
     }
-    section#labelsTabs ::content paper-tab.label.iron-selected {
+    section#labelsTabs ::content tab-element.label.iron-selected {
       /*border: thin solid #A8CCDB;*/
       /*border-bottom: thin solid transparent;*/
       background: linear-gradient(to top, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.15));
       color: #f1f1f1;
     }
-    section#labelsTabs ::content paper-tab.label:not(.iron-selected){
+    section#labelsTabs ::content tab-element.label:not(.iron-selected){
       /*border: thin solid transparent;*/
     }
-    section#labelsTabs ::content paper-tab.label:hover:not(.iron-selected){
+    section#labelsTabs ::content tab-element.label:hover:not(.iron-selected){
       background: linear-gradient(to top, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
     }
-    section#labelsTabs ::content paper-tab.label.iron-selected[dark]{
+    section#labelsTabs ::content tab-element.label.iron-selected[dark]{
       /*border: thin solid #A8CCDB;*/
       /*border-bottom: thin solid transparent;*/
       background: linear-gradient(to top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
@@ -104,11 +102,11 @@
         border-radius: 0em;
         width: 100%;
       }
-      section#toolbarHeader paper-icon-button.menu-icon {
+      section#toolbarHeader icon-button-element.menu-icon {
         margin-right: 12px;
         margin-left: 12px;
       }
-      section#toolbarHeader div.logo-element-placeholder {
+      section#toolbarHeader section.logo-element-placeholder {
         min-width: 44px !important;
         flex: 0;
       }
@@ -121,17 +119,17 @@
       }
     }
     @media all and (max-width: 419px) {
-      section#toolbarHeader paper-icon-button.expand-icon {
+      section#toolbarHeader icon-button-element.expand-icon {
         display: none;
       }
     }
     @media all and (max-height: 519px)  {
-      section#toolbarHeader paper-icon-button.expand-icon {
+      section#toolbarHeader icon-button-element.expand-icon {
         display: none;
       }
     }
     @media all and (min-width: 520px) and (max-width: 600px){
-      section#toolbarHeader paper-icon-button.menu-icon {
+      section#toolbarHeader icon-button-element.menu-icon {
         margin-right: 16px;
         margin-left: 16px;
       }
@@ -165,27 +163,26 @@
     }
   </style>
 
-  <template>
     <logo-element id="logo" on-tap="backToMainMenu"></logo-element>
     <!-- TOOLBAR -->
     <section id="toolbar">
       <section id="toolbarBackground"></section>
       <section id="toolbarHeader">
-        <paper-icon-button icon="menu" class="menu-icon" on-tap="toggleDrawer"></paper-icon-button>
+        <icon-button-element icon="menu" class="menu-icon" on-tap="toggleDrawer"></icon-button-element>
 
-        <div class="logo-element-placeholder"></div>
+        <section class="logo-element-placeholder"></section>
 
         <section id="labelsTabs">
           <iron-selector id="labelSelector" selected="{{selectedLabel}}" attr-for-selected="label">
-            <content select="paper-tab.label"></content>
+            <content select="tab-element.label"></content>
           </iron-selector>
         </section>
 
         <section id="control">
-          <paper-icon-button icon="error-outline" class="error control" on-tap="toggleExceedsPanel" hidden$="[[!isExceeding]]"></paper-icon-button>
+          <icon-button-element icon="error-outline" class="error control" on-tap="toggleExceedsPanel" hidden$="[[!isExceeding]]"></icon-button-element>
           <section hidden$="[[!opened]]" style="display: flex;">
-            <paper-icon-button icon="[[_computeExpandIcon(expanded)]]" class="expand-icon" on-tap="_toolbarExpand"></paper-icon-button>
-            <paper-icon-button icon="remove" class="toggle-icon control" on-tap="deselectElement"></paper-icon-button>
+            <icon-button-element icon="[[_computeExpandIcon(expanded)]]" class="expand-icon" on-tap="_toolbarExpand"></icon-button-element>
+            <icon-button-element icon="remove" class="toggle-icon control" on-tap="deselectElement"></icon-button-element>
           </section>
         </section>
       </section>
@@ -213,29 +210,27 @@
       <!-- EXCEEDING -->
       <section id="exceedsPanel">
         <section id="exceedsHeader" on-tap="toggleExceedsPanel">
-          <paper-ripple id="ripple"></paper-ripple>
-          <section class="title">Alarme</section>
+          <button-element class="title"><iron-icon icon="warning" class="left"></iron-icon><section class="content">Alarme</section></button-element>
         </section>
         <iron-swipeable-container id="exceedingElementsList" on-iron-swipe="_removeSingleExceedingElementFromList"></iron-swipeable-container>
-        <div style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_removeAllExceedingElementFromList">Liste leeren</a></div>
+        <section style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_removeAllExceedingElementFromList">Liste leeren</a></section>
       </section>
 
       <!-- SIDEMENU -->
       <section id="drawerPanel">
-        <paper-button collapse-id="settings" class="sidemenu collapsable" on-tap="toggleCollapse">
-          <iron-icon icon="settings"></iron-icon>
-          <div class="flex">Einstellungen</div>
-          <iron-icon icon="arrow-drop-up" class="collapse-arrow right-icon" id="settings"></iron-icon>
-        </paper-button>
+        <button-element collapse-id="settings" class="sidemenu collapsable" on-tap="toggleCollapse">
+          <iron-icon icon="settings" class="left"></iron-icon>
+          <section class="content">Einstellungen</section>
+          <iron-icon icon="arrow-drop-up" class="right" id="settings"></iron-icon>
+        </button-element>
 
           <iron-collapse class="sidemenu collapse settings" opened>
             <section class="indention collapse-content">
-              <paper-button collapse-id="grouping" class="sidemenu" on-tap="toggleCollapse">
-                <iron-icon icon="reorder"></iron-icon>
-                <div class="flex">Gruppierung</div>
-                <iron-icon icon="arrow-drop-down" class="collapse-arrow right-icon" id="grouping"></iron-icon>
-              </paper-button>
-
+              <button-element collapse-id="grouping" class="sidemenu" on-tap="toggleCollapse">
+                <iron-icon icon="reorder" class="left"></iron-icon>
+                <section class="content">Gruppierung</section>
+                <iron-icon icon="arrow-drop-down" class="right" id="grouping"></iron-icon>
+              </button-element>
                 <iron-collapse class="sidemenu collapse grouping">
                   <section id="groupingKeysButtons" class="indention">
                     <section id="groupingKeysLabelSelector">
@@ -244,28 +239,16 @@
                   </section>
                 </iron-collapse>
 
-              <paper-item class="sidemenu">
-                <iron-icon icon="date-range"></iron-icon>
-                <paper-toggle-button on-change="toggleDateView">Zeit anzeigen</paper-toggle-button>
-              </paper-item>
-
-              <paper-item class="sidemenu">
-                <iron-icon icon="editor:border-style"></iron-icon>
-                <paper-toggle-button on-change="toggleWindowStyle" checked="{{withoutWindow}}">Fensterstil</paper-toggle-button>
-              </paper-item>
-
-              <paper-item class="sidemenu">
-                <iron-icon icon="settings-brightness"></iron-icon>
-                <paper-toggle-button id="colorschema" on-change="toggleTheme">Farbschema</paper-toggle-button>
-              </paper-item>
-
+              <toggle-button-element on-change="toggleDateView"><iron-icon icon="date-range"></iron-icon>Zeit anzeigen</toggle-button-element>
+              <toggle-button-element on-change="toggleWindowStyle" checked="{{withoutWindow}}"><iron-icon icon="editor:border-style"></iron-icon>Fensterstil</toggle-button-element>
+              <toggle-button-element id="colorschema" on-change="toggleTheme"><iron-icon icon="settings-brightness"></iron-icon>Farbschema</toggle-button-element>
             </section>
           </iron-collapse>
 
-        <paper-button class="sidemenu" on-tap="backToMainMenu">
-          <iron-icon icon="arrow-back"></iron-icon>
-          <div class="flex">Auswahl</div>
-        </paper-button>
+        <button-element class="sidemenu" on-tap="backToMainMenu">
+          <iron-icon icon="arrow-back" class="left"></iron-icon>
+          <section class="content">Auswahl</section>
+        </button-element>
 
       </section>
     </section>
@@ -669,17 +652,17 @@
       },
       toggleTheme: function(){
         var elems = document.querySelectorAll('*');
-        if(this.dark) {
+        if(this.dark === true) {
           for (i = 0; i < elems.length; ++i) {
             elems[i].removeAttribute("dark");
           }
-          this.dark = false;
+          this.set("dark", false);
         }
         else {
           for (i = 0; i < elems.length; ++i) {
             elems[i].setAttribute("dark", true);
           }
-          this.dark = true;
+          this.set("dark", true);
         }
       },
       toggleWindowStyle: function(){
@@ -700,15 +683,15 @@
           return;
         }
         var id = button.getAttribute('collapse-id');
-        var collapse = document.querySelector('iron-collapse.'+id);
-        var iconbutton = document.querySelector('iron-icon.collapse-arrow#'+id);
+        var collapse = Polymer.dom(this.root).querySelector('iron-collapse.'+id);
+        var iconbutton = Polymer.dom(button).querySelector('iron-icon.right');
         if (collapse) {
           collapse.toggle();
           if (iconbutton) {
-            if (iconbutton.getAttribute('icon') === 'arrow-drop-down')
-              iconbutton.toggleAttribute('icon','arrow-drop-up');
+            if (iconbutton.icon === 'arrow-drop-down')
+              iconbutton.set('icon','arrow-drop-up');
             else
-              iconbutton.toggleAttribute('icon','arrow-drop-down');
+              iconbutton.set('icon','arrow-drop-down');
           }
         }
       },
@@ -726,19 +709,6 @@
         else
           return 'expand-more';
       },
-      // Toolbar-SVG-Element Control
-      // openSvgFullscreen: function(e) {
-      //   this.closeDrawer();
-      //   this.$.control.style.visibility = "hidden";
-      //   this.$.fullscreenSvg.setSvg(e.detail);
-      //   this.$.fullscreenSvg.set('opened', true);
-      //   this.$.svgFullscreenContainer.classList.add("fullscreen-opened");
-      // },
-      // exitSvgFullscreen: function() {
-      //   this.$.control.style.visibility = "visible";
-      //   this.$.fullscreenSvg.set('opened', false);
-      //   this.$.svgFullscreenContainer.classList.remove("fullscreen-opened");
-      // },
       // Panel Control
       _checkExceedsPanel: function(value) {
         if(value && !(this.$.exceedsPanel.classList.contains("exceeds-panel-opened"))) {

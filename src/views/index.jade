@@ -13,8 +13,8 @@ html
     script(src='scripts/data-socket-repeater.js')
     link(rel='import', href='components/polymer/polymer.html')
     script(src='../components/d3/d3.min.js')
-    link(rel='import', href='elements/imports.html')
     link(rel="import", href="elements/style/app-theme.html")
+    link(rel='import', href='elements/imports.html')
   style.
     body {
       height: 100%;
@@ -96,19 +96,19 @@ html
         //- LABEL SELECTION PAGE
         select-page.page(available-labels='[[availableLabels]]', labels='{{labels}}')
           each Label in config.labels
-            paper-radio-button.labelButton(label!= Label)
+            radio-button-element.labelButton(label!= Label)
               != Label
         //- MAIN-PAGE
         main-page.page(animated!= (!mobile))
           //- TABS
           each Label in config.labels
-            paper-tab.label(label!= Label)
+            tab-element.label(label!= Label)
               != Label
           //- GROUPINGKEY SELECTORS
           each Label in config.labels
             iron-selector.groupingKeySelector(attr-for-selected= "groupingkey", selected-attribute= "checked", selected!= config.preferedGroupingKeys[Label], fallback-selection!= config.preferedGroupingKeys[Label], activate-event="change")
               each GroupingKey in config.groupingKeys[Label]
-                paper-radio-button.lightcontext.groupingKey(groupingkey!= GroupingKey)
+                radio-button-element.lightcontext.groupingKey(groupingkey!= GroupingKey)
                   != GroupingKey
           //- PANELS
           each Label, I in config.labels

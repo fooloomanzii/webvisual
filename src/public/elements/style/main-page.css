@@ -1,55 +1,14 @@
-paper-button.sidemenu {
-  padding: 1.3em 0.8em;
-  border-top: thin solid rgba(200, 200, 200, 0);
-  border-bottom: thin solid  rgba(200, 200, 200, 0);
-  align-items: center;
-}
-paper-button.sidemenu iron-icon {
-  margin-right: 0.5em;
-}
-paper-button.sidemenu iron-icon.right-icon {
-  margin: 0em 0.5em;
-  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-}
-paper-button.sidemenu iron-icon.right-icon:hover {
-  background: rgba(255,255,255, 0.75);
-  border-radius: 50%;
-}
-paper-button.sidemenu .content {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  flex-direction: row;
-}
-paper-item.sidemenu {
-  font-size: 0.85em;
-}
-paper-item.date {
-  font-family: Fira Sans Light;
-  font-size: 0.75em;
-}
-.collapse-content paper-button {
-  margin: 0em;
-}
 .indention {
-  margin: 0em 0em 0.25em 1.5em;
-  width: calc(100% - 1.5em);
-  background: rgba(255, 255, 255, 0.5);
-  /*border-top: thin solid rgba(170, 170, 170, 0.5);*/
-  border-bottom: thin solid rgba(170, 170, 170, 0.5);
-}
-.collapse-content paper-button {
-  width: 100%;
-}
-.collapse-content paper-toggle-button {
-  padding: 0.5em;
-}
-.collapse-content paper-tabs {
-  border-top: thin solid white;
-  border-bottom: thin solid white;
-}
-.flex {
-  flex: 1;
+  margin: 0em 0em 0.5em 1.5em;
+  padding-top: 0.25em;
+  padding-bottom: 0.5em;
+  display: flex;
+  flex-direction: column;
+  border-radius: 3px;
+  background: rgba(250, 250, 250, 0.75);
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+              0 1px 5px 0 rgba(0, 0, 0, 0.12),
+              0 3px 1px -2px rgba(0, 0, 0, 0.2);
 }
 section#mainView {
   position: relative;
@@ -76,6 +35,28 @@ section#drawerPanel {
 section#drawerPanel:not(.drawer-opened) {
   -webkit-transform: translateX(-100%);
   transform: translateX(-100%);
+}
+section#drawerPanel button-element {
+  width: 100%;
+  padding: 1.3em 0.8em;
+  border-top: thin solid rgba(200, 200, 200, 0);
+  border-bottom: thin solid  rgba(200, 200, 200, 0);
+  float: left;
+  clear: both;
+}
+section#drawerPanel iron-collapse {
+  float: left;
+  clear: both;
+  box-sizing: content-box;
+}
+section#drawerPanel button-element, section#drawerPanel toggle-button-element {
+  width: 100%;
+  float: left;
+  clear: both;
+  background: linear-gradient(to bottom, rgba(35,35,35,0.01) 5%,rgba(35,35,35,0.05) 40%);
+}
+section#drawerPanel button-element:hover {
+  background: linear-gradient(to bottom, rgba(35,35,35,0.02) 5%,rgba(35,35,35,0.1) 40%);
 }
 section#exceedsPanel {
   position: absolute;
@@ -121,11 +102,10 @@ section#exceedsHeader[dark] {
   color: var(--highlight-color);
   border-color: #444;
 }
-section#exceedsHeader .title {
-  background: linear-gradient(to right top, rgba(255, 255, 255, 0.0), rgba(255, 255, 255, 0.3));
-  width: auto;
+section#exceedsHeader button-element.title {
+  width: 100%;
   font-size: 1.25em;
-  padding: 0.75em 1em;
+  border-radius: 0;
 }
 section#exceedsPanel iron-swipeable-container#exceedingElementsList {
   padding: 0.5em 0.5em 0.25em 0.5em;
@@ -181,16 +161,11 @@ section#dropShadow {
 section#dropShadow.has-shadow {
   opacity: 1;
 }
-paper-button.sidemenu {
-  /*margin: 0.25em 0em;*/
-  width: 100%;
-  display: flex;
-}
 
-paper-toggle-button#colorschema{
-  --paper-toggle-button-checked-bar-color:	#1d1d1d;
-  --paper-toggle-button-checked-button-color:	#1d1d1d;
-  --paper-toggle-button-checked-ink-color:	#1d1d1d;
+toggle-button-element#colorschema{
+  --toggle-button-element-checked-bar-color:	#1d1d1d;
+  --toggle-button-element-checked-button-color:	#1d1d1d;
+  --toggle-button-element-checked-ink-color:	#1d1d1d;
 }
 
 logo-element#logo {
@@ -218,10 +193,10 @@ section#toolbar[dark] {
   color: var(--highlight-color);
 }
 section#toolbarBackground {
+  @apply(--background);
   flex: 1;
   z-index: 100;
   background: var(--primary-color);
-  @apply(--background);
 }
 section#toolbarBackground[dark] {
   background: var(--dark-primary-color);
@@ -235,18 +210,15 @@ section#toolbarHeader {
   align-items: center;
   z-index: 100;
 }
-section#toolbarHeader paper-icon-button {
-  display: inline-block;
-}
-section#toolbarHeader paper-icon-button.menu-icon {
-  flex-shrink: 0;
+
+section#toolbarHeader icon-button-element.menu-icon {
   margin-right: 20px;
   margin-left: 20px;
 }
-section#toolbarHeader paper-icon-button.error {
+section#toolbarHeader icon-button-element.error {
   color: var(--warning-color);
 }
-section#toolbarHeader div.logo-element-placeholder {
+section#toolbarHeader section.logo-element-placeholder {
   height: 44px;
   max-width: 140px;
   min-width: 100px;

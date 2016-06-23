@@ -1,5 +1,6 @@
 <link rel='import' href='../behaviors/element-behavior.html'>
 <dom-module id='list-element'>
+  <template>
   <style>
     :host {
       cursor: pointer;
@@ -127,7 +128,7 @@
       box-sizing: border-box;
     }
   </style>
-  <template>
+
     <section id='label'>[[label]]</section>
     <section id='caption'>
       <template id='captiontemplate' is='dom-repeat' items='[[captionKeys]]' as='captionKey'>
@@ -173,13 +174,13 @@
           this.showDate = false;
         if (bubbles === true)
           this.bubbles = true;
-        if (dark) {
+        if (dark === true) {
           this.dark = true;
         }
       },
 
       attached: function() {
-        if (this.dark) {
+        if (this.dark === true) {
           this.$.caption.setAttribute('dark', true);
           this.$.sign.setAttribute('dark', true);
         }
