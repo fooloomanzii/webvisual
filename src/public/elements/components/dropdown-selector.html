@@ -1,5 +1,3 @@
-<link rel="import" href="../animations/expand-animation.html">
-
 <dom-module id="dropdown-selector">
   <template>
 
@@ -50,51 +48,8 @@
         horizontalAlign: String,
         selected: {
           type: String,
-          observer: 'onSelect'
         },
-        label: String,
-        openAnimationConfig: {
-          type: Array,
-          value: function() {
-            return [{
-              name: 'fade-in-animation',
-              timing: {
-                delay: 150,
-                duration: 50
-              }
-            }, {
-              name: 'expand-animation',
-              timing: {
-                delay: 150,
-                duration: 200
-              }
-            }];
-          }
-        },
-
-        closeAnimationConfig: {
-          type: Array,
-          value: function() {
-            return [{
-              name: 'fade-out-animation',
-              timing: {
-                duration: 200
-              }
-            }];
-          }
-        }
-      },
-
-      listeners: {
-        "iron-select": "onSelect"
-      },
-
-      onSelect: function(e) {
-        console.log('select',e);
-      },
-
-      toggle: function() {
-        // this.$.dropdown.open();
+        label: String
       }
     });
   </script>

@@ -72,20 +72,13 @@
       font-size: 0.85em;
     }
     section#labelsTabs ::content tab-element.label.iron-selected {
-      /*border: thin solid #A8CCDB;*/
-      /*border-bottom: thin solid transparent;*/
       background: linear-gradient(to top, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.15));
       color: #f1f1f1;
-    }
-    section#labelsTabs ::content tab-element.label:not(.iron-selected){
-      /*border: thin solid transparent;*/
     }
     section#labelsTabs ::content tab-element.label:hover:not(.iron-selected){
       background: linear-gradient(to top, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
     }
     section#labelsTabs ::content tab-element.label.iron-selected[dark]{
-      /*border: thin solid #A8CCDB;*/
-      /*border-bottom: thin solid transparent;*/
       background: linear-gradient(to top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
       color: #A8CCDB;
     }
@@ -661,6 +654,7 @@
           }
           this.set("dark", true);
         }
+        this.updateStyles();
       },
       toggleWindowStyle: function(){
         var elems = document.querySelectorAll('group-card');
