@@ -51,8 +51,7 @@
       }
 
       ::content iron-icon.right {
-        margin-left: 0.5em;
-        align-self: flex-end;
+        margin-left: auto;
         @apply(--default-transition);
       }
 
@@ -61,17 +60,13 @@
         border-radius: 50%;
       }
 
-      section#content {
-        vertical-align: middle;
-        flex: 1;
+      paper-ripple {
+        color: var(--ripple-color, currentColor);
       }
     </style>
 
-    <content select="iron-icon.left"></content>
-    <section id="content">
-      <content select=".content"></content>
-    </section>
-    <content select="iron-icon.right"></content>
+    <content></content>
+
   </template>
 
   <script>

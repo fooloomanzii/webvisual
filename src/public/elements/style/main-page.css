@@ -105,6 +105,7 @@ section#exceedsHeader[dark] {
 section#exceedsHeader button-element.title {
   width: 100%;
   font-size: 1.25em;
+  padding: 0.75em 1em;
   border-radius: 0;
 }
 section#exceedsPanel iron-swipeable-container#exceedingElementsList {
@@ -221,13 +222,13 @@ section#toolbarHeader icon-button-element.error {
 section#toolbarHeader section.logo-element-placeholder {
   height: 44px;
   max-width: 140px;
-  min-width: 100px;
+  min-width: 124px;
   flex: 1;
 }
 section#toolbarHeader section#control {
   display: flex;
   flex-shrink: 0;
-  margin-right: 6px;
+  margin-right: 8px;
 }
 section#toolbarFooter {
   min-height: 0px;

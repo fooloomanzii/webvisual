@@ -25,6 +25,7 @@
         color: var(--primary-text-color);
         @apply(--shadow-elevation-2dp);
         border-radius: 5px;
+        font-size: 0.8em;
         outline: none;
       }
       section#dropdown:not(.opened) {
@@ -60,13 +61,17 @@
 
         offset: {
           type: Number,
-          value: 16
+          value: 0
         },
 
-        passiveOnIronSelected: {
+        centered: {
           type: Boolean,
-          value: false,
-          observer: '_unlistenIronSelected'
+          value: false
+        },
+
+        parentHidingEvent: {
+          type: String,
+          value: "iron-select"
         },
 
         _opened: {
@@ -96,14 +101,15 @@
       attached: function() {
         this._target = this.target;
         this.listen(this._target, 'tap', 'toggle');
-        if (this.passiveOnIronSelected === false)
-          this.listen(this.parentElement, 'iron-select', 'hide');
+        if (this.parentHidingEvent !== "")
+          this.listen(this.parentElement, this.parentHidingEvent, 'hide');
       },
 
       detached: function() {
         if (this._target) {
           this.unlisten(this._target, 'tap', 'toggle');
-          this.unlisten(this.parentElement, 'iron-select', 'hide');
+          if (this.parentHidingEvent !== "")
+            this.unlisten(this.parentElement, this.parentHidingEvent, 'hide');
         }
       },
 
@@ -138,11 +144,6 @@
         this._target = this.target;
       },
 
-      _unlistenIronSelected: function() {
-        if (this._target && this.passiveOnIronSelected === true)
-          this.unlisten(this.parentElement, 'iron-select', 'hide');
-      },
-
       updatePosition: function() {
         if (!this._target || !this.offsetParent)
           return;
@@ -153,8 +154,8 @@
         var targetRect = this._target.getBoundingClientRect();
         var thisRect = this.getBoundingClientRect();
 
-        var horizontalCenterOffset = (targetRect.width - thisRect.width) / 2;
-        var verticalCenterOffset = (targetRect.height - thisRect.height) / 2;
+        var horizontalCenterOffset = (this.centered) ? (targetRect.width - thisRect.width) / 2 : 0;
+        var verticalCenterOffset = (this.centered) ?  (targetRect.height - thisRect.height) / 2 : 0;
 
         var targetLeft = targetRect.left - parentRect.left;
         var targetTop = targetRect.top - parentRect.top;

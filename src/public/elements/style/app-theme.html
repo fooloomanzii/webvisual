@@ -73,9 +73,9 @@
     };
 
     --default-transition: {
-      transition: all 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     };
-    
+
     --shadow-transition: {
       transition: box-shadow 0.14s cubic-bezier(0.4, 0, 0.2, 1);
     };
@@ -131,7 +131,7 @@
 
   /* General styles */
   paper-ripple {
-    color: currentColor
+    color: var(--ripple-color, currentColor);
   }
 
   span {
