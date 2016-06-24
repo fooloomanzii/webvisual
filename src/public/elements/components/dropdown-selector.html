@@ -1,24 +1,20 @@
 <dom-module id="dropdown-selector">
-  <template>
+  <template strip-whitespace>
 
   <style>
     :host {
-      display: flex;
-      flex-direction: column;
     }
-    section.label {
-      margin-left: 4em;
-      font-size: 0.5em;
-      padding: 0.5em;
-    }
-    button-element.dropdown-trigger {
+    button-element#selected {
       align-self: center;
       padding: 0.5em;
-      border-bottom: 3px solid #2325DA;
+      border-bottom: 2px solid #2325DA;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
     }
-    div.dropdown-content {
-      display: flex;
-      flex-direction: column;
+    dropdown-element#dropdown {
+      border-top: thick solid #111;
+      border-bottom-top-radius: 0;
+      border-bottom-top-radius: 0;
     }
     button-element {
       --ripple-color: rgb(200, 245, 22);
@@ -26,14 +22,9 @@
 
   </style>
 
-    <section class="label">asdsads</section>
-    <button-element id="selected" on-tap="toggle">
-      <section class="content">{{selected}}</section>
-    </button-element>
+    <button-element label="[[label]]" unfloated-label="{{selected}}" id="selected">[[selected]]</button-element>
     <dropdown-element id="dropdown" for="selected">
-      <div class="dropdown-content">
-        <content></content>
-      </div>
+      <div class="dropdown-content"><content></content></div>
     </dropdown-element>
   </template>
 
@@ -44,13 +35,12 @@
       behaviors: [Polymer.IronSelectableBehavior],
 
       properties: {
-        verticalAlign: String,
-        horizontalAlign: String,
-        selected: {
+        label: {
           type: String,
-        },
-        label: String
+          value: "Interpolator"
+        }
       }
+
     });
   </script>
 </dom-module>
