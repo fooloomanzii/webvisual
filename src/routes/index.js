@@ -25,14 +25,23 @@ module.exports = function(app, passport, config) {
     res.end();
   });
 
-  app.get('/login', function(req, res) {
-    res.render('login', {
-      user: req.user,
-      mobile: isMobile(req)
-    });
+  app.get('/login', loggedIn, function(req, res) {
+    if (config.auth.required === true) {
+      res.render('login', {
+        user: req.user,
+        mobile: isMobile(req)
+      });
+    }
+    else {
+      res.render('index', {
+        user: req.user,
+        config: config.configuration,
+        mobile: isMobile(req)
+      });
+    }
   });
 
-  if (config.auth.required) {
+  if (config.auth.required === true) {
     app.post('/login',
       passport.authenticate('activedirectory-login', {
         successRedirect: '/',
@@ -46,7 +55,7 @@ module.exports = function(app, passport, config) {
     app.post('/login',
       passport.authenticate('dummy', {
         successRedirect: '/',
-        failureRedirect: '/login'
+        failureRedirect: '/'
       }),
       function(req, res) {}
     );
@@ -58,11 +67,11 @@ module.exports = function(app, passport, config) {
 
   app.get('/logout', function(req, res) {
     req.logout();
-    res.redirect('/login');
+    res.redirect('/');
   });
 
   function loggedIn(req, res, next) {
-    if (!config.auth.required || req.user) {
+    if (config.auth.required === false || req.user) {
       next();
     } else {
       res.redirect('/login');

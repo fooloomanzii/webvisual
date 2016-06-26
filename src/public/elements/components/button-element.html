@@ -4,6 +4,7 @@
   <template strip-whitespace>
     <style include="paper-material">
       :host {
+        display: inline-flex;
         position: relative;
         box-sizing: border-box;
         -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
@@ -42,18 +43,13 @@
         pointer-events: none;
       }
 
-      ::content iron-icon.left {
+      ::content .left {
         margin-right: 0.5em;
       }
 
-      ::content iron-icon.right {
+      ::content .right {
         margin-left: auto;
         @apply(--default-transition);
-      }
-
-      ::content iron-icon.right:hover {
-        background: rgba(255,255,255, 0.75);
-        border-radius: 50%;
       }
 
       label#label {
@@ -63,12 +59,14 @@
         left: 0;
         width: 100%;
         line-height: 1.5em;
+        opacity: 0.9;
         font-size: 0.5em;
         word-wrap: normal;
         text-align: center;
       }
       section#content {
         display: inline-flex;
+        width: 100%;
         align-items: center;
         align-content: center;
         justify-content: flex-start;
@@ -77,7 +75,7 @@
         color: var(--ripple-color, currentColor);
       }
     </style>
-    <label id="label" for="content">[[label]]</label>
+    <label id="label" hidden="[[!label]]" for="content">[[label]]</label>
     <section id="content">
       <content></content>
     </section>

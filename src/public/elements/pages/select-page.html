@@ -79,7 +79,7 @@
         <iron-selector id="labelSelector" selected-values="[[selectedLabels]]" on-iron-select="_disableButton" on-iron-deselect="_disableButton" multi attr-for-selected="label" selected-attribute="checked">
           <content></content>
         </iron-selector>
-        <button-element id="submitButton" disabled raised="[[notSelected]]" on-click="_onSubmit"><iron-icon id="logo" icon="juelich:logo" class="left"></iron-icon><section class="content">Verbinden</section></button-element>
+        <button-element id="submitButton" disabled raised on-tap="_submit"><iron-icon id="logo" icon="juelich:logo" class="left"></iron-icon>Verbinden</button-element>
       </section>
     </section>
 
@@ -180,7 +180,7 @@
           this.$.submitButton.removeAttribute('disabled');
       },
 
-      _onSubmit: function() {
+      _submit: function() {
         // save the label
         this.$.labelsCookie.save(this.selectedLabels);
         // connect the datasocket
