@@ -12,10 +12,12 @@
         -webkit-user-select: none;
         user-select: none;
         border-radius: 5px;
+        height: 0px;
       }
 
       section#dropdown {
-        display: block;
+        display: flex;
+        flex-direction: column;
         overflow-x: hidden;
         overflow-y: auto;
         position: absolute;
@@ -27,16 +29,27 @@
         @apply(--shadow-elevation-2dp);
         font-size: 0.8em;
         outline: none;
+        align-items: stretch;
+        align-content: stretch;
+        justify-content: center;
+        transform: scaleX(1);
+      }
+      section#dropdown[horizontal] {
+        flex-direction: row;
       }
       section#dropdown:not(.opened) {
-        max-height: 0px;
+        transform: scaleX(0);
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
       }
+
+      section#dropdown ::content {
+        border-radius: 0px;
+      }
     </style>
 
-    <section id="dropdown" class="shadow-elevation-2dp">
+    <section id="dropdown" class="shadow-elevation-2dp" horizontal$="[[horizontal]]" on-tap="toggle" on-transitionend="updatePosition">
       <content></content>
     </section>
   </template>
@@ -65,6 +78,11 @@
         },
 
         centered: {
+          type: Boolean,
+          value: false
+        },
+
+        horizontal: {
           type: Boolean,
           value: false
         },
@@ -114,23 +132,12 @@
       },
 
       show: function() {
-        // If the dropdown is already showing, there's nothing to do.
-        if (this._opened === true)
-          return;
-
-        if (Polymer.dom(this).textContent.trim() === '')
-          return;
-
         this._opened = true;
         this.$.dropdown.classList.add('opened');
         this.updatePosition();
       },
 
       hide: function() {
-        // If the dropdown is already hidden, there's nothing to do.
-        if (this._opened === false) {
-          return;
-        }
         this._opened = false;
         this.$.dropdown.classList.remove('opened');
       },
@@ -145,6 +152,10 @@
       },
 
       updatePosition: function() {
+        this.debounce("update-position", this._updatePosition, 15);
+      },
+
+      _updatePosition: function() {
         if (!this._target || !this.offsetParent)
           return;
 
@@ -152,7 +163,7 @@
 
         var parentRect = this.offsetParent.getBoundingClientRect();
         var targetRect = this._target.getBoundingClientRect();
-        var thisRect = this.getBoundingClientRect();
+        var thisRect = this.$.dropdown.getBoundingClientRect();
 
         var horizontalCenterOffset = (this.centered) ? (targetRect.width - thisRect.width) / 2 : 0;
         var verticalCenterOffset = (this.centered) ?  (targetRect.height - thisRect.height) / 2 : 0;
@@ -182,18 +193,18 @@
         }
 
         // Clip the left/right side.
-        if (dropdownLeft + thisRect.width > window.innerWidth) {
+        if (dropdownLeft + thisRect.width + targetRect.left + 8 > window.innerWidth) {
           this.style.right = '0px';
-          this.style.left = 'auto';
+          this.style.left = (window.innerWidth - (targetRect.left + dropdownLeft + thisRect.width)) + 'px';
         } else {
           this.style.left = Math.max(0, dropdownLeft) + 'px';
           this.style.right = 'auto';
         }
 
         // Clip the top/bottom side.
-        if (dropdownTop + thisRect.height > window.innerHeight) {
+        if (dropdownTop + thisRect.height + parentRect.top + 8 > window.innerHeight) {
           this.style.bottom = '0px';
-          this.style.top = 'auto';
+          this.style.top = (window.innerHeight - (thisRect.height + targetRect.height + 8 )) + "px";
         } else {
           this.style.top = Math.max(0, dropdownTop) + 'px';
           this.style.bottom = 'auto';

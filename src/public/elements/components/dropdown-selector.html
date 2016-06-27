@@ -6,25 +6,26 @@
     }
     button-element#selected {
       align-self: center;
-      padding: 0.5em;
-      border-bottom: 2px solid #2325DA;
+      border-bottom-width: medium;
+      border-bottom-style: solid;
+      border-bottom-color: var(--bright-primary-color);
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
     }
-    dropdown-element#dropdown {
-      border-top: thick solid #111;
-      border-bottom-top-radius: 0;
-      border-bottom-top-radius: 0;
-    }
     button-element {
-      --ripple-color: rgb(200, 245, 22);
+      --ripple-color: var(--bright-primary-color);
+      width: 100%;
     }
 
   </style>
 
-    <button-element label="[[label]]" unfloated-label="{{selected}}" id="selected">[[selected]]</button-element>
-    <dropdown-element id="dropdown" for="selected">
-      <div class="dropdown-content"><content></content></div>
+    <button-element label="[[label]]" unfloated-label="{{selected}}" id="selected" on-tap="toggle">
+      <content select="iron-icon"></content>
+      <section>[[selected]]</section>
+      <iron-icon id="arrow" class="right" icon="arrow-drop-down"></iron-icon>
+    </button-element>
+    <dropdown-element id="dropdown" for="selected" horizontal="[[horizontal]]">
+      <content select=""></content>
     </dropdown-element>
   </template>
 
@@ -37,8 +38,23 @@
       properties: {
         label: {
           type: String,
-          value: "Interpolator"
+          value: ""
+        },
+        horizontal: {
+          type: Boolean,
+          value: false
         }
+      },
+
+      listeners: {
+        "iron-select": "toggle"
+      },
+
+      toggle: function() {
+        if (this.$.arrow.icon === 'arrow-drop-down')
+          this.$.arrow.set('icon','arrow-drop-up');
+        else
+          this.$.arrow.set('icon','arrow-drop-down');
       }
 
     });

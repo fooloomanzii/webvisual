@@ -25,8 +25,9 @@ module.exports = function(app, passport, config) {
     res.end();
   });
 
-  app.get('/login', loggedIn, function(req, res) {
+  app.get('/login', function(req, res) {
     if (config.auth.required === true) {
+      console.log(true);
       res.render('login', {
         user: req.user,
         mobile: isMobile(req)
@@ -57,7 +58,9 @@ module.exports = function(app, passport, config) {
         successRedirect: '/',
         failureRedirect: '/'
       }),
-      function(req, res) {}
+      function(req, res) {
+        // console.log("no-auth login");
+      }
     );
   }
 

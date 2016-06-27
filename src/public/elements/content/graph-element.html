@@ -21,15 +21,15 @@
           value: '',
           observer: 'setColor'
         },
-        dots: {
+        noDots: {
           type: Boolean,
-          value: true,
+          value: false,
           observer: '_dotsChanged'
         },
-        line: {
+        noLine: {
           type: Boolean,
-          value: true,
-          observer: '_dotsChanged'
+          value: false,
+          observer: '_lineChanged'
         },
         dotRadius: {
           type: Number,
@@ -87,14 +87,14 @@
                                });
         this._line = this._node.append('svg:path')
                                .attr("class", "line")
-                               .attr('hidden', this.line ? null : true)
+                               .attr('hidden', this.noLine ? true : null)
                                .attr('fill', 'none').attr('stroke', this.color)
                                .attr('stroke-width', this.lineWidth)                              .datum([])
                                .attr("d", this._lineFunction);
         // group of dots
         this._dots = this._node.append("svg:g")
                                .attr("class", "dots")
-                               .attr("hidden", this.dots ? null : true);
+                               .attr("hidden", this.noDots ? true : null);
 
         Polymer.dom.flush();
         // set Values
@@ -126,7 +126,10 @@
               .attr('cx', (function(d,i) {
                 return this.chartElement._x(d.x)}).bind(this._self))
               .attr('cy', (function(d,i) {
-                return this.chartElement._y(d.y)}).bind(this._self));
+                return this.chartElement._y(d.y)}).bind(this._self))
+              .on('mouseenter', this.chartElement._showFocus.bind(this.chartElement))
+              .on('mousemove',  this.chartElement._drawFocus.bind(this.chartElement));
+              // .on('mouseleave', this.chartElement._hideFocus.bind(this._self));
         //  remove old dots
         dots.exit()
             .remove();
@@ -227,15 +230,15 @@
         }
       },
 
-      _dotsChanged: function(dots) {
+      _dotsChanged: function() {
         if (this._node && this._dots) {
-          this._dots.attr('hidden', dots ? null : true);
+          this._dots.attr('hidden', this.noDots ? true : null);
         }
       },
 
-      _lineChanged: function(line) {
+      _lineChanged: function() {
         if (this._node && this._line) {
-          this._line.attr('hidden', line ? null : true);
+          this._line.attr('hidden', this.noLine ? true : null);
         }
       },
 

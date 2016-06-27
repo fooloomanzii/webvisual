@@ -51,7 +51,7 @@ html
       function update() {
         var date = new Date();
         this.unshiftValues({x: +date, y: Math.random() * 1 });
-        if (this.values.length > 30)
+        if (this.values.length > 120)
           this.spliceValues(this.values.length - 1, 1); 
       }
       window.addEventListener('WebComponentsReady', function(e) {

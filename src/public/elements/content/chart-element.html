@@ -21,7 +21,11 @@
               user-select: none !important;
   }
   section#menu {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-content: stretch;
+    align-items: stretch;
+    justify-content: center;
     position: absolute;
     padding: 0.75em;
     background: white;
@@ -29,6 +33,10 @@
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
                 0 1px 5px 0 rgba(0, 0, 0, 0.12),
                 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+  }
+  button-element {
+    padding: 0.5em;
+    border-radius: 0px;
   }
   text {
     fill: currentColor !important;
@@ -44,7 +52,7 @@
     fill: currentColor;
     fill-opacity: 0.5;
     transition: fill-opacity 200ms ease;
-    shape-rendering: crispEdges;
+    /*shape-rendering: crispEdges;*/
   }
   svg.button rect {
     fill: white;
@@ -134,6 +142,8 @@
       <g id='focus'>
         <line class='focus line x' y1='0'></line>
         <line class='focus line y' x1='0'></line>
+        <text class='focus text x' y='4'></text>
+        <text class='focus text y' x='4'></text>
       </g>
       <g id='graphs'></g>
     </g>
@@ -146,7 +156,14 @@
   </svg>
 
   <section id='menu' hidden>
-    <dropdown-selector attr-for-selected="interpolate" selected="{{interpolation}}" horizontal-align="right" >
+    <dropdown-selector label="y-Skalierung" attr-for-selected="scale" selected="{{yScale}}">
+        <iron-icon icon="scale" class"left"></iron-icon>
+        <button-element scale='linear'>linear</button-element>
+        <button-element scale='ln'>ln</button-element>
+        <button-element scale='log'>log₁₀</button-element>
+    </dropdown-selector>
+    <dropdown-selector label="Interpolator" attr-for-selected="interpolate" selected="{{interpolation}}">
+        <iron-icon icon="interpolate" class"left"></iron-icon>
         <button-element interpolate='linear'>linear</button-element>
         <button-element interpolate='basis'>basis</button-element>
         <button-element interpolate='cardinal'>cardinal</button-element>
@@ -154,11 +171,8 @@
         <button-element interpolate='step-before'>step-before</button-element>
         <button-element interpolate='step-after'>step-after</button-element>
     </dropdown-selector>
-    <dropdown-selector attr-for-selected="scale" selected="{{yScale}}" horizontal-align="right">
-        <button-element scale='linear'>linear</button-element>
-        <button-element scale='ln'>ln</button-element>
-        <button-element scale='log'>log₁₀</button-element>
-    </dropdown-selector>
+    <toggle-button-element checked="[[noDots]]" on-change="changeDots"><iron-icon icon="dots"></iron-icon>Punkte</toggle-button-element>
+    <toggle-button-element checked="[[noLines]]" on-change="changeLines"><iron-icon icon="line"></iron-icon>Linien</toggle-button-element>
   </section>
 
   <content id='collector' select='graph-element'></content>
@@ -209,6 +223,14 @@
           type: String,
           value: 'cardinal',
           observer: 'changeInterpolation'
+        },
+        noDots: {
+          type: Boolean,
+          value: false
+        },
+        noLines: {
+          type: Boolean,
+          value: false
         },
 
         _width: Object,
@@ -304,17 +326,16 @@
         d3.select(this.$.svg).attr('preserveAspectRatio', 'xMinYMin meet')
                              .attr('height', null)
                              .attr('width', null);
-        console.log(this.yScale);
         this._y  = this._createNumberScale(this.yScale, this._y);
         this._y2 = this._createNumberScale(this.yScale, this._y2);
 
         this._xAxis = this._createTimeAxis(this._x, 'bottom');
         this._yAxis = this._createNumberAxis(this._y, 'left');
 
-        this._chart = d3.select(this.$.chart)
-                        .on('mouseenter', this._showFocus.bind(this))
-                        .on('mousemove',  this._drawFocus.bind(this))
-                        .on('mouseleave', this._hideFocus.bind(this));
+        this._chart = d3.select(this.$.chart);
+                        // .on('mouseenter', this._showFocus.bind(this))
+                        // .on('mousemove',  this._drawFocus.bind(this))
+                        // .on('mouseleave', this._hideFocus.bind(this));
 
         this._chart.select('g.x.axis')
                    .call(this._xAxis);
@@ -488,7 +509,7 @@
                  .scale(scale)
                  .orient(orient)
                  .ticks(this.ticks)
-                //  .tickFormat(this.numberFormat);
+                 .tickFormat(this.numberFormat);
       },
 
       redraw: function () {
@@ -582,8 +603,14 @@
         d3.select('g#focus').style('opacity', 1);
       },
       _drawFocus: function() {
-        this._focusX.attr('transform', 'translate(' + (d3.event.layerX - this.margin.left) + ',0)');
-        this._focusY.attr('transform', 'translate(0,' + (d3.event.layerY - this.margin.top - this.brushWidth) + ')');
+        var x = d3.event.layerX - this.margin.left;
+        var y = d3.event.layerY - this.margin.top - this.brushWidth;
+        this._focusX.attr('transform', 'translate(' + x + ',0)');
+        this._chart.select('text.x.focus.text').attr('transform', 'translate(' + (x + 4) + ',' + (this._height - 8) + ')')
+                   .text(this.timeFormat(this._x.invert(x)));
+        this._focusY.attr('transform', 'translate(0,' + (y) + ')');
+        this._chart.select('text.y.focus.text').attr('transform', 'translate(0,' + (y - 4) + ')')
+                   .text(this.numberFormat(this._y.invert(y)));
       },
       _hideFocus: function() {
         d3.select('g#focus').transition(2000).style('opacity', 0);
@@ -610,6 +637,18 @@
         this._buildLayout();
         this._sizeLayout();
         this.redraw();
+      },
+      changeDots: function(e) {
+        this._graphs.forEach(
+          function(g) {
+            g.set('noDots', e.target.checked)
+          });
+      },
+      changeLines: function(e) {
+        this._graphs.forEach(
+          function(g) {
+            g.set('noLine', e.target.checked)
+          });
       }
     });
 
