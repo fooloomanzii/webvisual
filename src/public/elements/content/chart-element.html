@@ -20,7 +20,7 @@
           -ms-user-select: none !important;
               user-select: none !important;
   }
-  section#menu {
+  section#menu, section#info, section#legend {
     display: flex;
     flex-direction: column;
     align-content: stretch;
@@ -105,6 +105,7 @@
       stroke: #345475;
       stroke-opacity: 0.4;
       stroke-width: 2px;
+      stroke-dasharray: 5;
   }
   g.brush rect.extent {
     stroke: #345475;
@@ -121,13 +122,11 @@
     <g id='brushX'>
       <rect class='background'></rect>
       <g class='axis'></g>
-      <!-- <g class='grid'></g> -->
       <g class='brush'></g>
     </g>
     <g id='brushY'>
       <rect class='background'></rect>
       <g class='axis'></g>
-      <!-- <g class='grid'></g> -->
       <g class='brush'></g>
     </g>
     <g id='chart'>
@@ -146,6 +145,7 @@
         <text class='focus text y' x='4'></text>
       </g>
       <g id='graphs'></g>
+      <g id='legend'></g>
     </g>
     <svg id='menubutton' class='button' preserveAspectRatio='xMidYMid meet' on-tap='toggleMenu'>
       <rect></rect>
@@ -155,10 +155,15 @@
     </svg>
   </svg>
 
+  <section id='info' on-tap='_toggleInfo' hidden>
+    <section id='infoX'></section>
+    <section id='infoY'></section>
+  </section>
   <section id='menu' hidden>
     <dropdown-selector label="y-Skalierung" attr-for-selected="scale" selected="{{yScale}}">
         <iron-icon icon="scale" class"left"></iron-icon>
         <button-element scale='linear'>linear</button-element>
+        <button-element scale='sqrt'>√</button-element>
         <button-element scale='ln'>ln</button-element>
         <button-element scale='log'>log₁₀</button-element>
     </dropdown-selector>
@@ -240,11 +245,11 @@
 
         _x: {
           type: Object,
-          value: function() { return d3.time.scale(); }
+          value: function() { return d3.scaleTime(); }
         },
         _x2: {
           type: Object,
-          value: function() { return d3.time.scale(); }
+          value: function() { return d3.scaleTime(); }
         },
         _y: Object,
         _y2: Object,
@@ -263,7 +268,12 @@
         _brushGridY: Object,
 
         _focusX: Object,
-        _focusY: Object
+        _focusTextX: Object,
+        _focusY: Object,
+        _focusTextY: Object,
+
+        _legend: Object,
+        _info: Object
       },
 
       get _self () {
@@ -286,11 +296,8 @@
       },
 
       created: function() {
-        this.locale = d3.locale({
-          'decimal': ',',
-          'thousands': '.',
-          'grouping': [3],
-          'dateTime': '%a %b %e %X %Y',
+        d3.timeFormatDefaultLocale({
+          'dateTime': '%x %X',
           'date': '%d.%m.%Y',
           'time': '%H:%M:%S',
           'periods': ['', ''],
@@ -299,19 +306,12 @@
           'months': ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
           'shortMonths': ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Dez']
         });
-
-        this.timeFormat = this.locale.timeFormat.multi([
-        	['.%L', function(d) { return d.getMilliseconds(); }],
-        	[':%S', function(d) { return d.getSeconds(); }],
-        	['%M', function(d) { return d.getMinutes(); }],
-        	['%_H:%M', function(d) { return d.getHours(); }],
-        	['%a %d', function(d) { return d.getDay() && d.getDate() != 1; }],
-        	['%b %d', function(d) { return d.getDate() != 1; }],
-        	['%B', function(d) { return d.getMonth(); }],
-        	['%Y', function() { return true; }]
-        ]);
-
-        this.numberFormat = this.locale.numberFormat();
+        d3.formatDefaultLocale({
+          "decimal": ",",
+          "thousands": ".",
+          "grouping": [3],
+          "currency": ["", "\u00a0€"]
+        });
       },
 
       ready: function() {
@@ -329,13 +329,13 @@
         this._y  = this._createNumberScale(this.yScale, this._y);
         this._y2 = this._createNumberScale(this.yScale, this._y2);
 
-        this._xAxis = this._createTimeAxis(this._x, 'bottom');
-        this._yAxis = this._createNumberAxis(this._y, 'left');
+        this._xAxis = this._createAxis(this._x, 'bottom', 'time');
+        this._yAxis = this._createAxis(this._y, 'left');
 
-        this._chart = d3.select(this.$.chart);
-                        // .on('mouseenter', this._showFocus.bind(this))
-                        // .on('mousemove',  this._drawFocus.bind(this))
-                        // .on('mouseleave', this._hideFocus.bind(this));
+        this._chart = d3.select(this.$.chart)
+                        .on('mouseenter', this._showFocus.bind(this))
+                        .on('mousemove',  this._drawFocus.bind(this))
+                        .on('mouseleave', this._hideFocus.bind(this));
 
         this._chart.select('g.x.axis')
                    .call(this._xAxis);
@@ -348,46 +348,43 @@
         this._focusY = this._chart.select('line.focus.line.y')
                                   .attr('clip-path', 'url(#clip)');
 
-        this._brushBehaviorX = d3.svg.brush()
-                                 .x(this._x2)
-                                 .on('brush', this._brushedX.bind(this._self));
-        this._brushX = d3.select(this.$.brushX);
-        this._brushAxisX = this._createTimeAxis(this._x2, 'top');
-        // this._brushGridX = d3.svg.axis().scale(this._x2).orient('top').tickFormat('');
-        this._brushX.select('g.axis')
-                    .call(this._brushAxisX);
-        // this._brushX.select('g.grid')
-        //              .call(this._brushGridX);
-        this._brushX.select('g.brush')
-                    .call(this._brushBehaviorX)
-                    .on('contextmenu', function() {
-                        d3.event.preventDefault();
-                        this._brushBehaviorX.clear();
-                        this._brushedX();
-                     }.bind(this._self));
+        // this._brushBehaviorX = d3.svg.brush()
+        //                          .x(this._x2)
+        //                          .on('brush', this._brushedX.bind(this._self));
+        // this._brushX = d3.select(this.$.brushX);
+        // this._brushAxisX = this._createAxis(this._x2, 'top');
+        // this._brushX.select('g.axis')
+        //             .call(this._brushAxisX);
+        // this._brushX.select('g.brush')
+        //             .call(this._brushBehaviorX)
+        //             .on('contextmenu', function() {
+        //                 d3.event.preventDefault();
+        //                 this._brushBehaviorX.clear();
+        //                 this._brushedX();
+        //              }.bind(this._self));
+        //
+        // this._brushBehaviorY = d3.svg.brush()
+        //                          .y(this._y2)
+        //                          .on('brush', this._brushedY.bind(this._self));
+        // this._brushY = d3.select(this.$.brushY);
+        // this._brushAxisY = this._createAxis(this._y2, 'right');
+        // this._brushY.select('g.axis')
+        //             .call(this._brushAxisY);
+        // this._brushY.select('g.brush')
+        //             .call(this._brushBehaviorY)
+        //             .on('contextmenu', function() {
+        //                 d3.event.preventDefault();
+        //                 this._brushBehaviorY.clear();
+        //                 this._brushedY();
+        //              }.bind(this._self))
+        //             .on('ondblclick', function() {
+        //                 d3.event.preventDefault();
+        //                 this._brushBehaviorY.clear();
+        //                 this._brushedY();
+        //              }.bind(this._self));
 
-        this._brushBehaviorY = d3.svg.brush()
-                                 .y(this._y2)
-                                 .on('brush', this._brushedY.bind(this._self));
-        this._brushY = d3.select(this.$.brushY);
-        this._brushAxisY = this._createNumberAxis(this._y2, 'right');
-        // this._brushGridY = d3.svg.axis().scale(this._y2).orient('right').tickFormat('');
-        this._brushY.select('g.axis')
-                    .call(this._brushAxisY);
-        // this._brushY.select('g.grid')
-        //             .call(this._brushGridY);
-        this._brushY.select('g.brush')
-                    .call(this._brushBehaviorY)
-                    .on('contextmenu', function() {
-                        d3.event.preventDefault();
-                        this._brushBehaviorY.clear();
-                        this._brushedY();
-                     }.bind(this._self))
-                    .on('ondblclick', function() {
-                        d3.event.preventDefault();
-                        this._brushBehaviorY.clear();
-                        this._brushedY();
-                     }.bind(this._self));
+        this._info = d3.select(this.$.info);
+        this._legend = d3.select(this.$.legend);
 
         d3.select(this.$.svg).selectAll('g.tick,g.tick line,g.tick text,g path.domain,rect,g.axis')
                              .classed('style-scope', true)
@@ -421,7 +418,7 @@
                                     .attr('transform', 'translate(8,0)')
                                     .select('svg')
                                     .attr('width', (this.brushWidth - 16)+'px' );
-        d3.select(this.$.menu).attr('style', 'right:'+(this.margin.right+this.brushWidth+2)+'px;top:'+(this.margin.top+this.brushWidth+2)+'px');
+        d3.select(this.$.menu).attr('style', 'right:'+(this.margin.right+this.brushWidth+2)+'px; top:'+(this.margin.top+this.brushWidth+2)+'px');
 
         this._chart.attr('transform', 'translate(' + this.margin.left + ',' + (this.brushWidth + this.margin.top) + ')');
 
@@ -439,44 +436,41 @@
 
         this._chart.select('g.x.grid')
                   .attr('transform', 'translate(0,' + this._height + ')')
-                  .call(this._createTimeAxis(this._x, 'bottom')
+                  .call(this._createAxis(this._x, 'bottom', 'time')
                             .tickSize(-this._height, 0, 0)
                             .tickFormat(''));
         this._chart.select('g.y.grid')
-                  .call(this._createNumberAxis(this._y, 'left')
+                  .call(this._createAxis(this._y, 'left')
                             .tickSize(-this._width, 0, 0)
                             .tickFormat(''));
 
         this._focusX.attr('y2', this._height);
         this._focusY.attr('x2', this._width);
 
-        this._brushX.attr('transform', 'translate(' + this.margin.left + ',' + (this.margin.top + this.brushWidth)+ ')');
-        this._brushX.select('rect.background')
-                      .attr('width', this._width)
-                      .attr('height', this.brushWidth)
-                      .attr('transform', 'translate(0,-' + this.brushWidth + ')');
-        // this._brushGridX.tickSize(this.brushWidth, 0, 0);
-        // this._brushX.select('.grid')
-        //             .attr('transform', 'translate(0,' + (0) + ')');
-        this._brushX.select('.brush')
-                    .selectAll('rect')
-                      .attr('y',  -this.brushWidth)
-                      .attr('width', this._width)
-                      .attr('height', this.brushWidth);
+        // this._brushX.attr('transform', 'translate(' + this.margin.left + ',' + (this.margin.top + this.brushWidth)+ ')');
+        // this._brushX.select('rect.background')
+        //               .attr('width', this._width)
+        //               .attr('height', this.brushWidth)
+        //               .attr('transform', 'translate(0,-' + this.brushWidth + ')');
+        // this._brushX.select('.brush')
+        //             .selectAll('rect')
+        //               .attr('y',  -this.brushWidth)
+        //               .attr('width', this._width)
+        //               .attr('height', this.brushWidth);
+        //
+        // this._brushY.attr('transform', 'translate(' + (this.margin.left + this._width) + ',' + (this.margin.top + this.brushWidth) + ')');
+        // this._brushY.select('rect.background')
+        //               .attr('width', this.brushWidth)
+        //               .attr('height', this._height)
+        //               .attr('transform', 'translate(0,0)');
+        // this._brushY.select('.brush')
+        //             .selectAll('rect')
+        //               .attr('x',  0)
+        //               .attr('width', this.brushWidth)
+        //               .attr('height', this._height);
 
-        this._brushY.attr('transform', 'translate(' + (this.margin.left + this._width) + ',' + (this.margin.top + this.brushWidth) + ')');
-        this._brushY.select('rect.background')
-                      .attr('width', this.brushWidth)
-                      .attr('height', this._height)
-                      .attr('transform', 'translate(0,0)');
-        // this._brushGridY.tickSize(this.brushWidth, 0, 0);
-        // this._brushY.select('.grid')
-        //             .attr('transform', 'translate(' + (0) + ',0)');
-        this._brushY.select('.brush')
-                    .selectAll('rect')
-                      .attr('x',  0)
-                      .attr('width', this.brushWidth)
-                      .attr('height', this._height);
+        this._info.attr('style', 'left:'+(this.margin.left+4)+'px; top:'+(this.margin.top+this.brushWidth+3)+'px');
+        this._legend.attr('style', 'right:'+(this.margin.right+this.brushWidth+2)+'px; top:'+(this.margin.top+this.brushWidth+2)+'px');
 
         d3.select(this.$.svg).selectAll('g.tick,g.tick line,g.tick text,g path.domain,rect,g.axis,text')
                              .classed('style-scope', true)
@@ -487,29 +481,72 @@
         var scale;
         switch (option) {
           case 'ln':
-            scale = d3.scale.log().base(Math.E); break;
+            scale = d3.scaleLog().base(Math.E); break;
           case 'log':
-            scale = d3.scale.log(); break;
+            scale = d3.scaleLog(); break;
+          case 'sqrt':
+            scale = d3.scaleSqrt(); break;
           default:
-            scale = d3.scale.linear();
+            scale = d3.scaleLinear();
         }
         return scale;
       },
 
-      _createTimeAxis: function(scale, orient) {
-        return d3.svg.axis()
-                 .scale(scale)
-                 .orient(orient)
-                 .ticks(this.ticks)
-                 .tickFormat(this.timeFormat);
+      _createAxis: function(scale, orient, kind) {
+        var axis;
+        switch (orient) {
+          case 'bottom':
+            axis = d3.axisBottom(); break;
+          case 'left':
+            axis = d3.axisLeft(); break;
+          case 'right':
+            axis = d3.axisRight(); break;
+          case 'top':
+            axis = d3.axisTop();
+        }
+        axis.scale(scale)
+            .ticks(this.ticks);
+        if (kind === "time")
+          axis.tickFormat(this.timeFormat);
+        return axis;
       },
 
-      _createNumberAxis: function(scale, orient) {
-        return d3.svg.axis()
-                 .scale(scale)
-                 .orient(orient)
-                 .ticks(this.ticks)
-                 .tickFormat(this.numberFormat);
+      timeFormat: function (date) {
+        var formatMillisecond = d3.timeFormat(".%L"),
+            formatSecond = d3.timeFormat(":%S"),
+            formatMinute = d3.timeFormat("%H:%M"),
+            formatHour = d3.timeFormat("%H:%M"),
+            formatDay = d3.timeFormat("%d.%a"),
+            formatWeek = d3.timeFormat("%d. %b"),
+            formatMonth = d3.timeFormat("%B"),
+            formatYear = d3.timeFormat("%Y");
+
+        return (d3.timeSecond(date) < date ? formatMillisecond
+              : d3.timeMinute(date) < date ? formatSecond
+              : d3.timeHour(date) < date ? formatMinute
+              : d3.timeDay(date) < date ? formatHour
+              : d3.timeMonth(date) < date ? (d3.timeWeek(date) < date ? formatDay : formatWeek)
+              : d3.timeYear(date) < date ? formatMonth
+              : formatYear)(date);
+      },
+      timeFormatRange: function (date, r) {
+        console.log(date);
+        var formatMillisecond = d3.timeFormat("%S.%L"),
+            formatSecond = d3.timeFormat("%M:%S.%L"),
+            formatMinute = d3.timeFormat("%X"),
+            formatHour = d3.timeFormat("%X"),
+            formatDay = d3.timeFormat("%d.%a %X"),
+            formatWeek = d3.timeFormat("%d. %b %X"),
+            formatMonth = d3.timeFormat("%B %H:%M"),
+            formatYear = d3.timeFormat("%Y");
+
+        return (d3.timeSecond(r[0]).valueOf() === d3.timeSecond(r[1]).valueOf() ? formatMillisecond
+              : d3.timeMinute(r[0]).valueOf() === d3.timeMinute(r[1]).valueOf() ? formatSecond
+              : d3.timeHour(r[0]).valueOf() === d3.timeHour(r[1]).valueOf() ? formatMinute
+              : d3.timeDay(r[0]).valueOf() === d3.timeDay(r[1]).valueOf() ? formatHour
+              : d3.timeMonth(r[0]).valueOf() === d3.timeMonth(r[1]).valueOf() ? (d3.timeWeek(r[0]).valueOf() === d3.timeWeek(r[1]).valueOf() ? formatDay : formatWeek)
+              : d3.timeYear(r[0]).valueOf() === d3.timeYear(r[1]).valueOf() ? formatMonth
+              : formatYear)(date);
       },
 
       redraw: function () {
@@ -520,41 +557,41 @@
         this._chart.select('.x.axis').transition(100).call(this._xAxis);
         this._chart.select('.y.axis').transition(100).call(this._yAxis);
         this._chart.select('.x.grid').transition(100)
-                   .call(this._createTimeAxis(this._x, 'bottom')
+                   .call(this._createAxis(this._x, 'bottom', 'time')
                              .tickSize(-this._height, 0, 0)
                              .tickFormat(''));
         this._chart.select('.y.grid').transition(100)
-                   .call(this._createNumberAxis(this._y, 'left')
+                   .call(this._createAxis(this._y, 'left')
                              .tickSize(-this._width, 0, 0)
                              .tickFormat(''));
-        this._brushBehaviorX.extent(this._brushBehaviorX.extent());
-        this._brushX.select('.axis').transition(100).call(this._brushAxisX);
-        // this._brushX.select('.grid').transition(100).call(this._brushGridX);
-        this._brushX.select('.brush').transition(100).call(this._brushBehaviorX)
-        this._brushBehaviorY.extent(this._brushBehaviorY.extent());
-        this._brushY.select('.axis').transition(100).call(this._brushAxisY);
-        // this._brushY.select('.grid').transition(100).call(this._brushGridY);
-        this._brushY.select('.brush').transition(100).call(this._brushBehaviorY)
-        d3.select(this.$.svg).selectAll('g.tick,g.tick line,g.tick text,g path.domain,rect,g.axis,text')
-                             .classed('style-scope', true)
-                             .classed('chart-element', true);
+        // this._brushBehaviorX.extent(this._brushBehaviorX.extent());
+        // this._brushX.select('.axis').transition(100).call(this._brushAxisX);
+        // // this._brushX.select('.grid').transition(100).call(this._brushGridX);
+        // this._brushX.select('.brush').transition(100).call(this._brushBehaviorX)
+        // this._brushBehaviorY.extent(this._brushBehaviorY.extent());
+        // this._brushY.select('.axis').transition(100).call(this._brushAxisY);
+        // // this._brushY.select('.grid').transition(100).call(this._brushGridY);
+        // this._brushY.select('.brush').transition(100).call(this._brushBehaviorY)
+        // d3.select(this.$.svg).selectAll('g.tick,g.tick line,g.tick text,g path.domain,rect,g.axis,text')
+        //                      .classed('style-scope', true)
+        //                      .classed('chart-element', true);
         this._graphs.forEach(function(g) { g.redraw(); });
       },
 
       _brushedX: function() {
-        this.isClamping = (this.clamp === true && this._brushBehaviorX.empty() === false && this._x2.domain()[1] - this._brushBehaviorX.extent()[1] < this.clampExtend);
-        if (this.isClamping) {
-          this._brushBehaviorX.extent( [ this._brushBehaviorX.extent()[0], this._x2.domain()[1] ] );
-          this._brushX.select('rect.extent').classed('clamp', true);
-        }
-        else
-          this._brushX.select('rect.extent').classed('clamp', false);
-        this._x.domain(this._brushBehaviorX.empty() ? this._x2.domain() : this._brushBehaviorX.extent());
-        this.redraw();
+        // this.isClamping = (this.clamp === true && this._brushBehaviorX.empty() === false && this._x2.domain()[1] - this._brushBehaviorX.extent()[1] < this.clampExtend);
+        // if (this.isClamping) {
+        //   this._brushBehaviorX.extent( [ this._brushBehaviorX.extent()[0], this._x2.domain()[1] ] );
+        //   this._brushX.select('rect.extent').classed('clamp', true);
+        // }
+        // else
+        //   this._brushX.select('rect.extent').classed('clamp', false);
+        // this._x.domain(this._brushBehaviorX.empty() ? this._x2.domain() : this._brushBehaviorX.extent());
+        // this.redraw();
       },
       _brushedY: function() {
-        this._y.domain(this._brushBehaviorY.empty() ? this._y2.domain() : this._brushBehaviorY.extent());
-        this.redraw();
+        // this._y.domain(this._brushBehaviorY.empty() ? this._y2.domain() : this._brushBehaviorY.extent());
+        // this.redraw();
       },
 
       setAllDomains: function () {
@@ -574,26 +611,26 @@
         v = (domainTmp[1]).toExponential().split('e');
         domainY[1] = (Math.ceil(v[0]) + 1) * Math.pow(10,parseInt(v[1],10));
 
-        this._x2.domain(domainX);
-        this._y2.domain(domainY);
-        if (!this._brushBehaviorX.empty()) {
-          domainTmp = this._brushBehaviorX.extent();
-          if ( domainTmp[0] <= domainX[0] ) {
-            this._brushBehaviorX.extent( [domainX[0], domainTmp[1]] );
-            domainTmp = this._brushBehaviorX.extent();
-            if (this.isClamping === true || domainTmp[1] <= domainX[0]) {
-              this._brushBehaviorX.clear();
-            }
-          }
-          else if (this.isClamping === true) {
-            this._brushBehaviorX.extent( [domainTmp[0], domainX[1]] );
-          }
-          domainX = this._brushBehaviorX.extent();
-
-        }
-        if (!this._brushBehaviorY.empty()) {
-          domainY = this._brushBehaviorY.extent();
-        }
+        // this._x2.domain(domainX);
+        // this._y2.domain(domainY);
+        // if (!this._brushBehaviorX.empty()) {
+        //   domainTmp = this._brushBehaviorX.extent();
+        //   if ( domainTmp[0] <= domainX[0] ) {
+        //     this._brushBehaviorX.extent( [domainX[0], domainTmp[1]] );
+        //     domainTmp = this._brushBehaviorX.extent();
+        //     if (this.isClamping === true || domainTmp[1] <= domainX[0]) {
+        //       this._brushBehaviorX.clear();
+        //     }
+        //   }
+        //   else if (this.isClamping === true) {
+        //     this._brushBehaviorX.extent( [domainTmp[0], domainX[1]] );
+        //   }
+        //   domainX = this._brushBehaviorX.extent();
+        //
+        // }
+        // if (!this._brushBehaviorY.empty()) {
+        //   domainY = this._brushBehaviorY.extent();
+        // }
         this._x.domain(domainX);
         this._y.domain(domainY);
         this.redraw();
@@ -605,15 +642,35 @@
       _drawFocus: function() {
         var x = d3.event.layerX - this.margin.left;
         var y = d3.event.layerY - this.margin.top - this.brushWidth;
+        var domain = this._y.domain(),
+            p = d3.precisionFixed((domain[1]-domain[0])/100),
+            fn = d3.format("." + p + "f")
+            ft = d3.timeFormat("%X.%L");
         this._focusX.attr('transform', 'translate(' + x + ',0)');
         this._chart.select('text.x.focus.text').attr('transform', 'translate(' + (x + 4) + ',' + (this._height - 8) + ')')
-                   .text(this.timeFormat(this._x.invert(x)));
+                   .text(ft(this._x.invert(x)));
         this._focusY.attr('transform', 'translate(0,' + (y) + ')');
         this._chart.select('text.y.focus.text').attr('transform', 'translate(0,' + (y - 4) + ')')
-                   .text(this.numberFormat(this._y.invert(y)));
+                   .text(fn(this._y.invert(y)));
       },
       _hideFocus: function() {
-        d3.select('g#focus').transition(2000).style('opacity', 0);
+        d3.select('g#focus').transition(1000).style('opacity', 0);
+      },
+      _updateInfo: function(d) {
+        this.$.info.removeAttribute('hidden');
+        var dY = this._y.domain(),
+            p = d3.precisionFixed((dY[1]-dY[0])/100),
+            fn = d3.format("." + p + "f");
+        this.$.infoX.innerText = 'x = ' + this.timeFormatRange(d.x, this._x.domain());
+        this.$.infoY.innerText = 'y = ' + fn(d.y);
+      },
+      _toggleInfo: function() {
+        if (this.$.info.hasAttribute('hidden')) {
+          this.$.info.removeAttribute('hidden');
+        }
+        else {
+          this.$.info.setAttribute('hidden', true);
+        }
       },
       toggleMenu: function() {
         if (this.$.menu.hasAttribute('hidden')) {

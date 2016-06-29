@@ -2,5 +2,5 @@
 
 title Messdatenvisualierung (Server)
 echo Server is launching. Please wait...
-electron .
+cmd /C "cd %~dp0/src & electron ."
 pause

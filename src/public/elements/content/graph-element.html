@@ -78,13 +78,10 @@
 
         var self = this;
         // node of line
-        this._lineFunction = d3.svg.line().interpolate('cardinal')
-                               .x( function (d) {
-                                 return self.chartElement._x(d.x);
-                               })
-                               .y( function (d) {
-                                 return self.chartElement._y(d.y);
-                               });
+        this._lineFunction = d3.line()
+                               .x( function (d) { return self.chartElement._x(d.x); })
+                               .y( function (d) { return self.chartElement._y(d.y); });
+                              //  .curveCatmullRom(1);
         this._line = this._node.append('svg:path')
                                .attr("class", "line")
                                .attr('hidden', this.noLine ? true : null)
@@ -108,6 +105,8 @@
       },
 
       redraw: function () {
+        if (this._hidden === true) return;
+
         var dots = this._dots.selectAll('circle.dot')
                              .data(this.values);
         // update current dots
@@ -127,8 +126,9 @@
                 return this.chartElement._x(d.x)}).bind(this._self))
               .attr('cy', (function(d,i) {
                 return this.chartElement._y(d.y)}).bind(this._self))
-              .on('mouseenter', this.chartElement._showFocus.bind(this.chartElement))
-              .on('mousemove',  this.chartElement._drawFocus.bind(this.chartElement));
+              .on('mouseenter', (function(d) {
+                this.chartElement._updateInfo(d)
+              }).bind(this._self));
               // .on('mouseleave', this.chartElement._hideFocus.bind(this._self));
         //  remove old dots
         dots.exit()
@@ -171,27 +171,27 @@
         var domainX, domainY = [0 ,0], domainTmp;
         // new values
 
-        if (this.chartElement._brushBehaviorX.empty()) {
+        // if (this.chartElement._brushBehaviorX.empty()) {
           domainX = this.chartElement._x.domain();
           domainX[0] = (value.x < domainX[0]) ? value.x : domainX[0];
           domainX[1] = (value.x > domainX[1]) ? value.x : domainX[1];
           this.chartElement._x2.domain(domainX);
-        }
-        else {
-          domainX = this.chartElement._x2.domain();
-          domainX[0] = (value.x < domainX[0]) ? value.x : domainX[0];
-          domainX[1] = (value.x > domainX[1]) ? value.x : domainX[1];
-          this.chartElement._x2.domain(domainX);
-          if (this.chartElement.isClamping === true) {
-            domainTmp = this.chartElement._brushBehaviorX.extent();
-            this.chartElement._brushBehaviorX.extent( [domainTmp[0], domainX[1]] );
-          }
-          domainX = this.chartElement._brushBehaviorX.extent();
-        }
-        if (this.chartElement._brushBehaviorY.empty())
+        // }
+        // else {
+        //   domainX = this.chartElement._x2.domain();
+        //   domainX[0] = (value.x < domainX[0]) ? value.x : domainX[0];
+        //   domainX[1] = (value.x > domainX[1]) ? value.x : domainX[1];
+        //   this.chartElement._x2.domain(domainX);
+        //   if (this.chartElement.isClamping === true) {
+        //     domainTmp = this.chartElement._brushBehaviorX.extent();
+        //     this.chartElement._brushBehaviorX.extent( [domainTmp[0], domainX[1]] );
+        //   }
+        //   domainX = this.chartElement._brushBehaviorX.extent();
+        // }
+        // if (this.chartElement._brushBehaviorY.empty())
           domainTmp = this.chartElement._y.domain();
-        else
-          domainTmp = this.chartElement._y2.domain();
+        // else
+        //   domainTmp = this.chartElement._y2.domain();
 
         if (value.y < domainTmp[0]) {
           var v = (value.y).toExponential().split('e');
@@ -206,7 +206,7 @@
 
         this.chartElement._x.domain(domainX);
         this.chartElement._y.domain(domainY);
-        this.chartElement._y2.domain(domainY);
+        // this.chartElement._y2.domain(domainY);
       },
 
       setColor: function(color) {

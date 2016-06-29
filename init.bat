@@ -22,9 +22,9 @@ cmd /C "cd %~dp0 & npm.cmd install -g bower"
 echo Install 'electron'. This can take a moment ...
 cmd /C "cd %~dp0 & npm.cmd install -g electron-prebuilt"
 echo Install node dependencies. This can take a moment ...
-cmd /C "cd %~dp0 & npm.cmd update"
+cmd /C "cd %~dp0/src & npm.cmd update"
 echo Install bower-components. This can take a moment ...
-start /WAIT cmd /C "cd %~dp0 & bower update"
+cmd /C "cd %~dp0/src & bower update"
 goto:eof
 
 :END

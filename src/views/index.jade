@@ -10,9 +10,8 @@ html
         lazyRegister: true
       };
     script(src='socket.io/socket.io.js')
-    script(src='scripts/data-socket-repeater.js')
+    script(src='js/data-socket-repeater.js')
     link(rel='import', href='components/polymer/polymer.html')
-    script(src='../components/d3/d3.min.js')
     link(rel="import", href="elements/style/app-theme.html")
     link(rel='import', href='elements/imports.html')
   style.
@@ -37,6 +36,8 @@ html
     }
     section.circles svg {
       height: calc((10vw + 5vh)/2);
+      stroke: rgba(255, 255, 255, 0.25);;
+      stroke-width: 0.5px;
     }
     section.circles {
       z-index: 0;

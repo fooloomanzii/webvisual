@@ -8,7 +8,12 @@
         "#path_folder": "examples/datafile",
         "path": "HNF_Datafile.txt",
         "relativePath": false,
-        "format": ""
+        "format": {
+          "dateFormat": "",
+          "numberFormat": "",
+          "seperator": ";"
+        },
+        "template": true
       }
     },
 

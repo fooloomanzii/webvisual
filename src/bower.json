@@ -12,6 +12,6 @@
     "paper-behaviors": "PolymerElements/paper-behaviors",
     "paper-material": "PolymerElements/paper-material",
     "neon-animation": "PolymerElements/neon-animation",
-    "d3": "*"
+    "d3": "v3.5.17"
   }
 }

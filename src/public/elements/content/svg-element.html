@@ -40,6 +40,9 @@
     height: auto;
   	overflow: hidden;
     visibility: visible;
+    font-family: inherit;
+    font-weight: inherit;
+    letter-spacing: normal;
     -webkit-touch-callout: none !important;
       -webkit-user-select: none !important;
        -khtml-user-select: none !important;
@@ -76,6 +79,9 @@
   svg#main {
     flex: 1;
     height: auto;
+    font-family: inherit;
+    font-weight: inherit;
+    letter-spacing: normal;
   }
   div#svgContainer {
     border-radius: inherit;
@@ -121,9 +127,10 @@
     background: rgba(255,255,255, 0.8);
     box-shadow: 0px 0px 6px 0px rgba(31,31,31,0.5);
   }
-  text.text {
-    fill: currentColor !important;
-    pointer-events: none;
+  svg text {
+    fill: var(--primary-text-color) !important;
+    pointer-events: none !important;
+    cursor: default !important;
     font-family: inherit !important;
     font-weight: inherit !important;
     letter-spacing: normal !important;
@@ -134,22 +141,34 @@
     -moz-transform-origin: 50% 50%;
   }
   .clicked {
-    stroke-width: 1px !important;
-    stroke: #183880 !important;
-    stroke-linecap: round !important;
-    stroke-linejoin: round !important;
+    animation-name: clicked-animation;
+    animation-duration: 600ms;
+    animation-timing-function: linear;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+    @apply(--clicked-svg-element);
+  }
+  @keyframes clicked-animation {
+    50% {
+      stroke-opacity: 0.25;
+    }
+    100% {
+      stroke-opacity: 1;
+      stroke: #111;
+    }
   }
   .selected {
-    stroke: #EB4949 !important;
-    stroke-width: 1.5px !important;
+    stroke: #EB4949;
+    stroke-width: 1.5px;
     stroke-linecap: round;
     stroke-linejoin: round;
     transform-origin: center center;
     will-change: transform;
     animation-name: selected-animation;
     animation-duration: 2s;
-    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    animation-timing-function: linear;
     animation-iteration-count: infinite;
+    @apply(--selected-svg-element);
   }
   @keyframes selected-animation {
     0% {
@@ -291,23 +310,23 @@
     /**
      * {private} inititial viewBox-height
      */
-    _height: {},
+    _height: 0,
     /**
      * {private} inititial viewBox-width
      */
-    _width: {},
+    _width: 0,
     /**
      * {private} mayor <g></g>-Node (that should be all sourounding group in the Svg-Graphic)
      */
-    _mainG: {},
+    _mainG: Object,
     /**
      * {private} svg-Node
      */
-    _svg: {},
+    _svg: Object,
     /**
      * {private} d3-zoom-behavior
      */
-    _d3Zoom: {},
+    _d3Zoom: Object,
 
     observers: [
       '_selectedChanged(selected.*)'
@@ -398,28 +417,26 @@
       var date = new Date();
       var svgNode = document.importNode(xml.cloneNode(true), true);
       // register zoom function
-      var self = this;
-      this._d3Zoom = d3.behavior.zoom()
+      this._d3Zoom = d3.zoom()
                        .scaleExtent([this.minZoom, this.maxZoom])
-                       .on('zoom', function() { self._zoom(); });
+                       .on('zoom', this._zoom.bind(this));
 
       // append imported svg to this element
       this.$.svgContainer.insertBefore(svgNode, this.$.svgContainer.firstChild);
       this._svg = d3.select(svgNode).attr('id', 'main')
-                                    .classed('svg-element', true)
-                                    .call(this._d3Zoom);
+                                    .classed('style-scope', true).classed('svg-element', true);
 
       // set style for resizing
       this._svg.attr('preserveAspectRatio', 'xMinYMin meet')
                .attr('height', null)
-               .attr('width', null);
+               .attr('width', null)
+               .call(this._d3Zoom);
 
       this._mainG = this._svg.select('g')
                              .attr('id', 'mainG');
 
       this._mainG.selectAll('text')
-                 .classed('text', true)  // for styling text
-                 .classed('svg-element', true); // style-scoping in polymer
+                 .classed('style-scope', true).classed('svg-element', true); // style-scoping in polymer
 
       // get original dimensions
       var viewBox = this._svg.attr('viewBox').split(' ');
@@ -459,7 +476,7 @@
       // previous selectable elements: remove 'svg-element-selectable' class and click listener
       this._mainG.selectAll('.svg-element-selectable')
                 .classed('svg-element-selectable', false)
-                .on('click', null);
+                .on('click dblclick', null);
       this._mainG.selectAll('.clicked')
                  .classed('clicked', false);
 
@@ -467,8 +484,8 @@
       for (var key in this.selectable)
         this._mainG.selectAll(this.selectable[key])
                   .classed('svg-element-selectable', true)  // for styling selectable
-                  .classed('svg-element', true) // for style-scoping in polymer
-                  .on('click',
+                  .classed('style-scope', true).classed('svg-element', true) // for style-scoping in polymer
+                  .on('click dblclick',
                     function() {
                       self._zoomToElement(this);
                       self._mainG.selectAll('.clicked')
@@ -482,13 +499,13 @@
       for (var key in SvgSource[this.source].selectable)
         this._mainG.selectAll(SvgSource[this.source].selectable[key])
                   .classed('svg-element-selectable', true)  // for styling selectable
-                  .classed('svg-element', true) // for style-scoping in polymer
-                  .on('click',
+                  .classed('style-scope', true).classed('svg-element', true) // for style-scoping in polymer
+                  .on('click dblclick',
                     function() {
                       self._zoomToElement(this);
                       self._mainG.selectAll('.clicked')
                                  .classed('clicked', false);
-                      self.classList.add('clicked');
+                      this.classList.add('clicked');
                     })
                   .append('title')
                   .text(function() {
@@ -497,14 +514,37 @@
     },
 
     _zoom: function () {
-      this._mainG.attr('transform', 'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')');
+      if (isNaN(d3.event.transform.x) || isNaN(d3.event.transform.y) || isNaN(d3.event.transform.k)) return;
+      this._mainG.attr('transform', d3.event.transform);
+    },
+
+    _zoomToElement: function(elem) {
+      if (elem === undefined) return;
+      // calc centered zoom coordinates
+      let transform = this._calcCenterZoom(elem);
+      let t = d3.zoomIdentity.translate(transform.x, transform.y).scale(transform.k)
+
+      if (isNaN(t.x) || isNaN(t.y) || isNaN(t.k)) return;
+
+      // Bug in Firefox in Transition for d3.interpolateZoom()
+      // this._svg.transition()
+      //          .duration(500)
+      //          .call(this._d3Zoom.transform, d3.zoomIdentity.translate(transform.x, transform.y).scale(transform.k));
+
+      // call transition to new translate and scale
+      this._mainG.transition()
+               .duration(500)
+               .attr('transform', t);
+
+      // save last transition
+      this._svg.node().__zoom = t;
     },
 
     _debounceSelect: function() {
       this.debounce('select',
         function() {
           this.select(this.selected, this.selectedClass);
-        }, 300);
+        }, 100);
     },
 
     select: function(selected, selectedClass) {
@@ -521,7 +561,7 @@
       var sel = sel.join(',');
       if (sel === '' ||
           (elems = this._mainG.selectAll(sel)
-                             .filter('.svg-element-selectable')).empty()) {
+                              .filter('.svg-element-selectable')).empty()) {
         if (this.opened)
           this._debounceResetZoom();
         return;
@@ -548,21 +588,11 @@
         this._zoomToElement(boundE);
     },
 
-    _zoomToElement: function(elem) {
-      if (elem === undefined) return;
-      // calc centered zoom coordinates
-      var transform = this._calcCenterZoom(elem);
-      // call zoom to translate and scale
-      this._svg.transition()
-               .duration(350)
-               .call(this._d3Zoom.translate(transform.translate).scale(transform.scale).event);
-    },
-
     _calcCenterZoom: function(elem) {
       // get view height and width
       var view = this.getClientRects()[0];
       if (view === undefined || elem === undefined || view.height === 0 || view.width === 0)
-        return {translate: [0,0], scale: 1};
+        return {x: 0, y: 0, k: 1};
 
       // calculate scale based on partioned view and dimensions of the element
       var boundE; var bboxE;
@@ -600,16 +630,16 @@
       }
 
       if (isNaN(x) || isNaN(y) || isNaN(scale))
-        return {translate: [0,0], scale: 1};
+        return {x: 0, y: 0, k: 1};
       else
-        return {translate: [x,y], scale: scale};
+        return {x: x, y: y, k: scale};
     },
 
     _debounceResetZoom: function() {
       this.debounce('resetZoom',
         function() {
           this._resetZoom()
-        }, 500);
+        }, 100);
     },
 
     _resetZoom: function() {
@@ -628,7 +658,7 @@
       if (this.initial !== '') {
         var initial;
         if (!(initial = this._mainG.selectAll(this.initial)
-                                  .filter('.svg-element-selectable')).empty()) {
+                                   .filter('.svg-element-selectable')).empty()) {
           this.select({initial: this.initial}, 'initial');
           return;
         }
