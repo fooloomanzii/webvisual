@@ -214,7 +214,7 @@
         if (!color) {
           color = '#';
           var perm = ['2C', 'F5'];
-          perm.push(Math.floor(Math.random()*256).toString(16));
+          perm.push((4*Math.floor(Math.random()*64)).toString(16));
           for (var i = 3; i > 0; i--) {
             var pos = Math.floor(Math.random()*i);
             color += ((perm[pos].length === 1) ? '0' : '') + perm[pos];

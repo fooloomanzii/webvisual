@@ -22,6 +22,7 @@
         color: currentColor;
         cursor: pointer;
         transition: background 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 0.75em 1.5em;
       }
       :host:hover {
         background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.10) 40%);
@@ -31,12 +32,6 @@
       }
       :host(:not([raised]).keyboard-focus) {
         font-weight: bold;
-      }
-      :host {
-        padding: 1.25em 0.75em 0.25em 0.75em;
-      }
-      :host[label=""] {
-        padding: 0.75em 1.5em;
       }
       :host([disabled]) {
         color: var(--disabled-text-color);
@@ -59,19 +54,6 @@
         margin-left: auto;
         @apply(--default-transition);
       }
-
-      label#label {
-        position: absolute;
-        top: 0;
-        right: 0;
-        left: 0;
-        width: 100%;
-        line-height: 4em;
-        opacity: 0.9;
-        font-size: 0.5em;
-        word-wrap: normal;
-        text-align: center;
-      }
       section#content {
         display: inline-flex;
         width: 100%;
@@ -84,7 +66,6 @@
         color: var(--ripple-color, currentColor);
       }
     </style>
-    <label id="label" hidden="[[!label]]" for="content">[[label]]</label>
     <section id="content">
       <content></content>
     </section>
@@ -104,11 +85,6 @@
           reflectToAttribute: true,
           value: false,
           observer: '_calculateElevation'
-        },
-        label: {
-          type: String,
-          value: "",
-          reflectToAttribute: true
         }
       },
 

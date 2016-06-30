@@ -49,9 +49,9 @@ html
 
     script.
       function update() {
-        var date = new Date();
+        var date = new Date((new Date()).valueOf()+20000000*(this.values.length));
         this.unshiftValues({x: +date, y: Math.random() * 1 });
-        if (this.values.length > 120)
+        if (this.values.length > 200)
           this.spliceValues(this.values.length - 1, 1); 
       }
       window.addEventListener('WebComponentsReady', function(e) {
@@ -59,6 +59,6 @@ html
         var elems = document.querySelectorAll('[updatable]');
         elems = Array.prototype.slice.call(elems);
         elems.forEach(function(el) {
-          setInterval(update.bind(el),1500);
+          setInterval(update.bind(el),500);
         });
       });

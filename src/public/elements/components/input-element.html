@@ -1,0 +1,212 @@
+<!-- Modification of polymers paper-button because of conflicts with paper-style -->
+
+<dom-module id="input-element">
+  <template strip-whitespace>
+    <style include="paper-material">
+      :host {
+        box-sizing: border-box;
+        position: relative;
+        display: block;
+        outline-width: 0;
+        background: linear-gradient(to bottom, rgba(255,255,255,0.01) 5%,rgba(255,255,255,0.05) 40%);
+        color: currentColor;
+        transition: background 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      :host:hover {
+        background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.10) 40%);
+      }
+
+      ::content .left {
+        margin-right: 0.5em;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        -webkit-tap-highlight-color: transparent;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      ::content .right {
+        margin-left: auto;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        -webkit-tap-highlight-color: transparent;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-select: none;
+        user-select: none;
+        @apply(--default-transition);
+      }
+
+      paper-ripple {
+        color: var(--ripple-color, currentColor);
+      }
+
+      section.input-container {
+        display: block;
+        margin-top: 0.75em;
+      }
+
+      input#input {
+      	display: block;
+      	width: auto;
+      	margin: 0;
+        font-family: inherit;
+        font-size: inherit;
+        font-style: normal;
+        font-weight: normal;
+        line-height: normal;
+        outline: none;
+        border: none;
+        border-bottom: 1px solid rgba(0,0,0, 0.12);
+        padding: 0.5em 0em;
+        background: transparent;
+      }
+
+      input#input[disabled] {
+        border-bottom: 1px dashed rgba(0,0,0, 0.12);
+        background-color: transparent;
+      }
+
+      label {
+        position: absolute;
+        pointer-events: none;
+        left: 0;
+        right: 0;
+        top: 0;
+        line-height: normal;
+        padding-top: 1.25em;
+        color: rgba(0, 0, 0, 0.26);
+        transition: 0.2s ease all;
+        -moz-transition: 0.2s ease all;
+        -webkit-transition: 0.2s ease all;
+      }
+
+      input#input:focus {
+        outline: none;
+      }
+
+      section.focusline {
+        background-color: var(--bright-primary-color);
+        height: 2px;
+        width: 5%;
+        bottom: 1em;
+        left: 45%;
+        visibility: hidden;
+        pointer-events: none;
+        position: absolute;
+        transition: 0.2s ease all;
+        -moz-transition: 0.2s ease all;
+        -webkit-transition: 0.2s ease
+      }
+
+      input#input:focus ~ section.focusline {
+        visibility: visible;
+        width: 100%;
+        left: 0;
+      }
+
+      input#input.set ~ label[noFloat] {
+        visibility: hidden;
+      }
+
+      input#input:focus ~ label:not([noFloat]),
+      input#input.set ~ label:not([noFloat]) {
+        visibility: visible;
+        top: -1em;
+        font-size: 0.75em;
+        color: var(--primary-color);
+      }
+
+      input#input:invalid ~ label:not([noFloat]) {
+        top: -1em;
+        font-size: 0.75em;
+        color: #d34336;
+      }
+
+      input#input:invalid ~ section.focusline {
+        background-color: #d34336;
+      }
+
+      input#input:invalid {
+        box-shadow: none;
+        border-color: #d34336;
+      }
+
+      span.error {
+      	float: left;
+        margin-top: 0.25em;
+        color: #d34336;
+        font-size: 0.75em;
+        visibility: hidden;
+        line-height: normal;
+      }
+
+      input#input:invalid ~ span.error {
+        visibility: visible;
+      }
+
+</style>
+
+<section class="input-container">
+  <input id="input" type="[[type]]" name="input" pattern="[[pattern]]" on-change="_float"/>
+  <label hidden="[[!label]]" for="input" noFloat$="[[noFloat]]">[[label]]</label>
+  <span class="error">[[errorMessage]]</span>
+  <section class="focusline"></section>
+</section>
+</template>
+
+  <script>
+    Polymer({
+      is: 'input-element',
+
+      properties: {
+        label: {
+          type: String,
+          value: "label",
+          reflectToAttribute: true
+        },
+        type: {
+          type: String,
+          value: "text",
+          reflectToAttribute: true
+        },
+        pattern: {
+          type: String,
+          value: "",
+          reflectToAttribute: true
+        },
+        value: {
+          type: String,
+          value: "",
+          reflectToAttribute: true
+        },
+        errorMessage: {
+          type: String,
+          value: "invalid input"
+        },
+        noFloat: {
+          type: Boolean,
+          value: true
+        }
+      },
+
+      hostAttributes: {
+        role: 'input',
+        tabindex: '0'
+      },
+
+      listeners: {
+        "keyup": "_float"
+      },
+
+      _float: function() {
+        this.value = this.$.input.value;
+        if (this.value === '') {
+          this.$.input.classList.remove('set')
+        } else {
+          this.$.input.classList.add('set')
+        }
+      }
+    });
+  </script>
+</dom-module>

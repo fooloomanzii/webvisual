@@ -161,14 +161,18 @@
   </section>
   <section id='menu' hidden>
     <dropdown-selector label="y-Skalierung" attr-for-selected="scale" selected="{{yScale}}">
-        <iron-icon icon="scale" class"left"></iron-icon>
+        <button-element scale='linear'>linear</button-element>
+        <button-element scale='sqrt'>√</button-element>
+        <button-element scale='ln'>ln</button-element>
+        <button-element scale='log'>log₁₀</button-element>
+    </dropdown-selector>
+    <dropdown-selector label="y-Skalierung" attr-for-selected="scale">
         <button-element scale='linear'>linear</button-element>
         <button-element scale='sqrt'>√</button-element>
         <button-element scale='ln'>ln</button-element>
         <button-element scale='log'>log₁₀</button-element>
     </dropdown-selector>
     <dropdown-selector label="Interpolator" attr-for-selected="interpolate" selected="{{interpolation}}">
-        <iron-icon icon="interpolate" class"left"></iron-icon>
         <button-element interpolate='linear'>linear</button-element>
         <button-element interpolate='basis'>basis</button-element>
         <button-element interpolate='cardinal'>cardinal</button-element>
@@ -176,6 +180,7 @@
         <button-element interpolate='step-before'>step-before</button-element>
         <button-element interpolate='step-after'>step-after</button-element>
     </dropdown-selector>
+    <input-element label='linear'></input-element>
     <toggle-button-element checked="[[noDots]]" on-change="changeDots"><iron-icon icon="dots"></iron-icon>Punkte</toggle-button-element>
     <toggle-button-element checked="[[noLines]]" on-change="changeLines"><iron-icon icon="line"></iron-icon>Linien</toggle-button-element>
   </section>
@@ -217,7 +222,11 @@
         },
         ticks: {
           type: Number,
-          value: 6
+          value: 5
+        },
+        gridMult: {
+          type: Number,
+          value: 2
         },
         yScale: {
           type: String,
@@ -244,15 +253,15 @@
         _chart: Object,
 
         _x: {
-          type: Object,
+          type: Function,
           value: function() { return d3.scaleTime(); }
         },
         _x2: {
-          type: Object,
+          type: Function,
           value: function() { return d3.scaleTime(); }
         },
-        _y: Object,
-        _y2: Object,
+        _y: Function,
+        _y2: Function,
 
         _xAxis: Object,
         _yAxis: Object,
@@ -267,13 +276,23 @@
         _brushAxisY: Object,
         _brushGridY: Object,
 
+        _focus: Object,
         _focusX: Object,
         _focusTextX: Object,
         _focusY: Object,
         _focusTextY: Object,
 
         _legend: Object,
-        _info: Object
+        _info: Object,
+
+        formatMillisecond: Function,
+        formatSecond: Function,
+        formatMinute: Function,
+        formatHour: Function,
+        formatDay: Function,
+        formatWeek: Function,
+        formatMonth: Function,
+        formatYear: Function
       },
 
       get _self () {
@@ -312,6 +331,14 @@
           "grouping": [3],
           "currency": ["", "\u00a0€"]
         });
+        this.formatMillisecond = d3.timeFormat(":%S.%L");
+        this.formatSecond = d3.timeFormat(":%S");
+        this.formatMinute = d3.timeFormat("%H:%M");
+        this.formatHour = d3.timeFormat("%X");
+        this.formatDay = d3.timeFormat("%d.%m");
+        this.formatWeek = d3.timeFormat("%d.%m");
+        this.formatMonth = d3.timeFormat("%d. %b");
+        this.formatYear = d3.timeFormat("%Y");
       },
 
       ready: function() {
@@ -329,24 +356,18 @@
         this._y  = this._createNumberScale(this.yScale, this._y);
         this._y2 = this._createNumberScale(this.yScale, this._y2);
 
-        this._xAxis = this._createAxis(this._x, 'bottom', 'time');
-        this._yAxis = this._createAxis(this._y, 'left');
-
         this._chart = d3.select(this.$.chart)
                         .on('mouseenter', this._showFocus.bind(this))
-                        .on('mousemove',  this._drawFocus.bind(this))
+                        .on('mousemove',  this._updateFocus.bind(this))
                         .on('mouseleave', this._hideFocus.bind(this));
 
-        this._chart.select('g.x.axis')
-                   .call(this._xAxis);
-
-        this._chart.select('g.y.axis')
-                   .call(this._yAxis);
-
-        this._focusX = this._chart.select('line.focus.line.x')
+        this._focus = d3.select(this.$.focus);
+        this._focusX = this._focus.select('line.focus.line.x')
                                   .attr('clip-path', 'url(#clip)');
-        this._focusY = this._chart.select('line.focus.line.y')
+        this._focusY = this._focus.select('line.focus.line.y')
                                   .attr('clip-path', 'url(#clip)');
+        this._focusTextX = this._focus.select('text.focus.text.x');
+        this._focusTextY = this._focus.select('text.focus.text.y');
 
         // this._brushBehaviorX = d3.svg.brush()
         //                          .x(this._x2)
@@ -406,7 +427,6 @@
 
         d3.select(this.$.svg).attr('viewBox', '0 0 ' + this._parent.offsetWidth + ' ' + this._parent.offsetHeight);
 
-
         d3.select(this.$.menubutton).attr('x', (this.margin.left + this._width + 1)+'px')
                                     .attr('y', (this.margin.top)+'px')
                                     .attr('height', this.brushWidth+'px')
@@ -431,16 +451,23 @@
                   .attr('width', this._width)
                   .attr('height', this._height);
 
+        this._xAxis = this._createAxis(this._x, 'bottom', 'time');
+        this._yAxis = this._createAxis(this._y, 'left');
+
         this._chart.select('g.x.axis')
-                  .attr('transform', 'translate(0,' + this._height + ')');
+                   .call(this._xAxis)
+                   .attr('transform', 'translate(0,' + this._height + ')');
+        this._chart.select('g.y.axis')
+
+                   .call(this._yAxis);
 
         this._chart.select('g.x.grid')
                   .attr('transform', 'translate(0,' + this._height + ')')
-                  .call(this._createAxis(this._x, 'bottom', 'time')
+                  .call(this._createAxis(this._x, 'bottom', 'time', this.gridMult)
                             .tickSize(-this._height, 0, 0)
                             .tickFormat(''));
         this._chart.select('g.y.grid')
-                  .call(this._createAxis(this._y, 'left')
+                  .call(this._createAxis(this._y, 'left', 'number', this.gridMult)
                             .tickSize(-this._width, 0, 0)
                             .tickFormat(''));
 
@@ -492,61 +519,53 @@
         return scale;
       },
 
-      _createAxis: function(scale, orient, kind) {
-        var axis;
+      _createAxis: function(scale, orient, kind, tickmult = 1) {
+        var axis, ticks, horTicks, verTicks;
+        if (this._width < this._height) {
+          verTicks = this.ticks;
+          horTicks = Math.ceil(this.ticks*this._width/this._height) || this.ticks;
+        }
+        else {
+          horTicks = this.ticks;
+          verTicks = Math.ceil(this.ticks*this._height/this._width) || this.ticks;
+        }
         switch (orient) {
-          case 'bottom':
-            axis = d3.axisBottom(); break;
-          case 'left':
-            axis = d3.axisLeft(); break;
-          case 'right':
-            axis = d3.axisRight(); break;
           case 'top':
-            axis = d3.axisTop();
+            axis = d3.axisTop(); ticks = horTicks; break;
+          case 'bottom':
+            axis = d3.axisBottom(); ticks = horTicks; break;
+          case 'left':
+            axis = d3.axisLeft(); ticks = verTicks; break;
+          case 'right':
+            axis = d3.axisRight(); ticks = verTicks; break;
         }
         axis.scale(scale)
-            .ticks(this.ticks);
+            .ticks(ticks*tickmult)
+            .tickSize(6);
         if (kind === "time")
-          axis.tickFormat(this.timeFormat);
+          axis.tickFormat(this.timeFormat.bind(this));
         return axis;
       },
 
       timeFormat: function (date) {
-        var formatMillisecond = d3.timeFormat(".%L"),
-            formatSecond = d3.timeFormat(":%S"),
-            formatMinute = d3.timeFormat("%H:%M"),
-            formatHour = d3.timeFormat("%H:%M"),
-            formatDay = d3.timeFormat("%d.%a"),
-            formatWeek = d3.timeFormat("%d. %b"),
-            formatMonth = d3.timeFormat("%B"),
-            formatYear = d3.timeFormat("%Y");
-
-        return (d3.timeSecond(date) < date ? formatMillisecond
-              : d3.timeMinute(date) < date ? formatSecond
-              : d3.timeHour(date) < date ? formatMinute
-              : d3.timeDay(date) < date ? formatHour
-              : d3.timeMonth(date) < date ? (d3.timeWeek(date) < date ? formatDay : formatWeek)
-              : d3.timeYear(date) < date ? formatMonth
-              : formatYear)(date);
+        return (d3.timeSecond(date) < date ? this.formatMillisecond
+              : d3.timeMinute(date) < date ? this.formatSecond
+              : d3.timeHour(date) < date ? this.formatMinute
+              : d3.timeDay(date) < date ? this.formatHour
+              : d3.timeMonth(date) < date ? (d3.timeWeek(date) < date ? this.formatDay : this.formatWeek)
+              : d3.timeYear(date) < date ? this.formatMonth
+              : this.formatYear)(date);
       },
-      timeFormatRange: function (date, r) {
-        console.log(date);
-        var formatMillisecond = d3.timeFormat("%S.%L"),
-            formatSecond = d3.timeFormat("%M:%S.%L"),
-            formatMinute = d3.timeFormat("%X"),
-            formatHour = d3.timeFormat("%X"),
-            formatDay = d3.timeFormat("%d.%a %X"),
-            formatWeek = d3.timeFormat("%d. %b %X"),
-            formatMonth = d3.timeFormat("%B %H:%M"),
-            formatYear = d3.timeFormat("%Y");
-
-        return (d3.timeSecond(r[0]).valueOf() === d3.timeSecond(r[1]).valueOf() ? formatMillisecond
-              : d3.timeMinute(r[0]).valueOf() === d3.timeMinute(r[1]).valueOf() ? formatSecond
-              : d3.timeHour(r[0]).valueOf() === d3.timeHour(r[1]).valueOf() ? formatMinute
-              : d3.timeDay(r[0]).valueOf() === d3.timeDay(r[1]).valueOf() ? formatHour
-              : d3.timeMonth(r[0]).valueOf() === d3.timeMonth(r[1]).valueOf() ? (d3.timeWeek(r[0]).valueOf() === d3.timeWeek(r[1]).valueOf() ? formatDay : formatWeek)
-              : d3.timeYear(r[0]).valueOf() === d3.timeYear(r[1]).valueOf() ? formatMonth
-              : formatYear)(date);
+      timeFormatRange: function (date, r, pixels) {
+        var msProPixel = (r[1] - r[0]).valueOf()/pixels;
+        return (msProPixel < 500 ? this.formatMillisecond
+              : msProPixel < 5000 ? this.formatSecond
+              : msProPixel < 60000 ? this.formatMinute
+              : msProPixel < 3600000 ? this.formatHour
+              : msProPixel < 86400000  ? this.formatDay
+              : msProPixel < 604800000 ? this.formatWeek
+              : msProPixel < 2419200000 ? this.formatMonth
+              : this.formatYear)(date);
       },
 
       redraw: function () {
@@ -557,11 +576,11 @@
         this._chart.select('.x.axis').transition(100).call(this._xAxis);
         this._chart.select('.y.axis').transition(100).call(this._yAxis);
         this._chart.select('.x.grid').transition(100)
-                   .call(this._createAxis(this._x, 'bottom', 'time')
+                   .call(this._createAxis(this._x, 'bottom', 'time', this.gridMult)
                              .tickSize(-this._height, 0, 0)
                              .tickFormat(''));
         this._chart.select('.y.grid').transition(100)
-                   .call(this._createAxis(this._y, 'left')
+                   .call(this._createAxis(this._y, 'left', 'number', this.gridMult)
                              .tickSize(-this._width, 0, 0)
                              .tickFormat(''));
         // this._brushBehaviorX.extent(this._brushBehaviorX.extent());
@@ -576,6 +595,7 @@
         //                      .classed('style-scope', true)
         //                      .classed('chart-element', true);
         this._graphs.forEach(function(g) { g.redraw(); });
+        this._updateFocusText();
       },
 
       _brushedX: function() {
@@ -638,31 +658,41 @@
 
       _showFocus: function() {
         d3.select('g#focus').style('opacity', 1);
+        this._focus.__shown = true;
       },
-      _drawFocus: function() {
+      _updateFocus: function() {
+        if (!this._focus.__shown) return;
         var x = d3.event.layerX - this.margin.left;
         var y = d3.event.layerY - this.margin.top - this.brushWidth;
-        var domain = this._y.domain(),
-            p = d3.precisionFixed((domain[1]-domain[0])/100),
-            fn = d3.format("." + p + "f")
-            ft = d3.timeFormat("%X.%L");
         this._focusX.attr('transform', 'translate(' + x + ',0)');
-        this._chart.select('text.x.focus.text').attr('transform', 'translate(' + (x + 4) + ',' + (this._height - 8) + ')')
-                   .text(ft(this._x.invert(x)));
+        this._focusTextX.attr('transform', 'translate(' + (x + 4) + ',' + (this._height - 8) + ')');
         this._focusY.attr('transform', 'translate(0,' + (y) + ')');
-        this._chart.select('text.y.focus.text').attr('transform', 'translate(0,' + (y - 4) + ')')
-                   .text(fn(this._y.invert(y)));
+        this._focusTextY.attr('transform', 'translate(0,' + (y - 4) + ')');
+        this._focus.__mouse = {x: x, y: y};
+        this._updateFocusText();
+      },
+      _updateFocusText: function() {
+        if (!this._focus.__shown) return;
+        var x = this._x.invert(this._focus.__mouse.x),
+            y = this._y.invert(this._focus.__mouse.y),
+            dy = this._y.domain(),
+            p = d3.precisionFixed((dy[1]-dy[0])/100/this.ticks),
+            fn = d3.format("." + p + "f");
+        this._focusTextX.text(this.timeFormatRange.call(this, x, this._x.domain(), this._width));
+        this._focusTextY.text(fn(y));
       },
       _hideFocus: function() {
         d3.select('g#focus').transition(1000).style('opacity', 0);
+        this._focus.__shown = false;
       },
       _updateInfo: function(d) {
         this.$.info.removeAttribute('hidden');
-        var dY = this._y.domain(),
-            p = d3.precisionFixed((dY[1]-dY[0])/100),
-            fn = d3.format("." + p + "f");
-        this.$.infoX.innerText = 'x = ' + this.timeFormatRange(d.x, this._x.domain());
-        this.$.infoY.innerText = 'y = ' + fn(d.y);
+        var dy = this._y.domain(),
+            p = d3.precisionFixed((dy[1]-dy[0])/100/this.ticks),
+            y = d3.format("." + p + "f")(d.y),
+            x = this.timeFormatRange.call(this, d.x, this._x.domain(), this._width);
+        this.$.infoX.innerText = 'x = ' + x;
+        this.$.infoY.innerText = 'y = ' + y;
       },
       _toggleInfo: function() {
         if (this.$.info.hasAttribute('hidden')) {
