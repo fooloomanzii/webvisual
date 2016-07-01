@@ -21,11 +21,6 @@
               user-select: none !important;
   }
   section#menu, section#info, section#legend {
-    display: flex;
-    flex-direction: column;
-    align-content: stretch;
-    align-items: stretch;
-    justify-content: center;
     position: absolute;
     padding: 0.75em;
     background: white;
@@ -160,29 +155,25 @@
     <section id='infoY'></section>
   </section>
   <section id='menu' hidden>
-    <dropdown-selector label="y-Skalierung" attr-for-selected="scale" selected="{{yScale}}">
-        <button-element scale='linear'>linear</button-element>
-        <button-element scale='sqrt'>√</button-element>
+    <dropdown-selector label="y" hide-selected attr-for-selected="scale" selected="{{yScale}}" fallback-selection="" toggles>
+        <button-element scale='√'>√</button-element>
         <button-element scale='ln'>ln</button-element>
-        <button-element scale='log'>log₁₀</button-element>
-    </dropdown-selector>
-    <dropdown-selector label="y-Skalierung" attr-for-selected="scale">
-        <button-element scale='linear'>linear</button-element>
-        <button-element scale='sqrt'>√</button-element>
-        <button-element scale='ln'>ln</button-element>
-        <button-element scale='log'>log₁₀</button-element>
+        <button-element scale='log₁₀'>log₁₀</button-element>
     </dropdown-selector>
     <dropdown-selector label="Interpolator" attr-for-selected="interpolate" selected="{{interpolation}}">
-        <button-element interpolate='linear'>linear</button-element>
-        <button-element interpolate='basis'>basis</button-element>
-        <button-element interpolate='cardinal'>cardinal</button-element>
-        <button-element interpolate='monotone'>monotone</button-element>
-        <button-element interpolate='step-before'>step-before</button-element>
-        <button-element interpolate='step-after'>step-after</button-element>
+        <button-element interpolate='Lineare Verbindung'>Lineare Verbindung</button-element>
+        <button-element interpolate='Basis Spline'>Basis Spline</button-element>
+        <button-element interpolate='Monotoner Spline'>Monotoner Spline</button-element>
+        <button-element interpolate='Kubischer Spline'>Kubischer Spline</button-element>
+        <button-element interpolate='Cardinaler Spline'>Cardinaler Spline</button-element>
+        <button-element interpolate='Catmull-Rom-Spline'>Catmull-Rom-Spline</button-element>
+        <button-element interpolate='Stufe (mitte)'>Stufe (mitte)</button-element>
+        <button-element interpolate='Stufe (davor)'>Stufe (davor)</button-element>
+        <button-element interpolate='Stufe (danach)'>Stufe (danach)</button-element>
     </dropdown-selector>
-    <input-element label='linear'></input-element>
-    <toggle-button-element checked="[[noDots]]" on-change="changeDots"><iron-icon icon="dots"></iron-icon>Punkte</toggle-button-element>
-    <toggle-button-element checked="[[noLines]]" on-change="changeLines"><iron-icon icon="line"></iron-icon>Linien</toggle-button-element>
+    <toggle-button-element checked="[[!noDots]]" on-change="changeDots"></iron-icon>Punkte</toggle-button-element>
+    <toggle-button-element checked="[[!noLines]]" on-change="changeLines"></iron-icon>Linien</toggle-button-element>
+    <toggle-button-element checked="[[!noAreas]]" on-change="changeAreas">Flächen</toggle-button-element>
   </section>
 
   <content id='collector' select='graph-element'></content>
@@ -230,12 +221,12 @@
         },
         yScale: {
           type: String,
-          value: 'linear',
+          value: '',
           observer: 'changeScale'
         },
         interpolation: {
           type: String,
-          value: 'cardinal',
+          value: 'Catmull-Rom-Spline',
           observer: 'changeInterpolation'
         },
         noDots: {
@@ -246,11 +237,16 @@
           type: Boolean,
           value: false
         },
+        noAreas: {
+          type: Boolean,
+          value: false
+        },
 
         _width: Object,
         _height: Object,
 
         _chart: Object,
+        _svg: Object,
 
         _x: {
           type: Function,
@@ -350,11 +346,11 @@
       },
 
       _buildLayout: function() {
-        d3.select(this.$.svg).attr('preserveAspectRatio', 'xMinYMin meet')
-                             .attr('height', null)
-                             .attr('width', null);
-        this._y  = this._createNumberScale(this.yScale, this._y);
-        this._y2 = this._createNumberScale(this.yScale, this._y2);
+        this._svg = d3.select(this.$.svg).attr('preserveAspectRatio', 'xMinYMin meet')
+                                         .attr('height', null)
+                                         .attr('width', null);
+        this._y  = this._createNumberScale(this.yScale);
+        this._y2 = this._createNumberScale(this.yScale);
 
         this._chart = d3.select(this.$.chart)
                         .on('mouseenter', this._showFocus.bind(this))
@@ -407,9 +403,9 @@
         this._info = d3.select(this.$.info);
         this._legend = d3.select(this.$.legend);
 
-        d3.select(this.$.svg).selectAll('g.tick,g.tick line,g.tick text,g path.domain,rect,g.axis')
-                             .classed('style-scope', true)
-                             .classed('chart-element', true);
+        this._svg.selectAll('g,line,text,path,rect')
+                 .classed('style-scope', true)
+                 .classed('chart-element', true);
       },
 
       _sizeLayout: function() {
@@ -425,7 +421,7 @@
         this._x2.range([0, this._width]),
         this._y2.range([this._height, 0]);
 
-        d3.select(this.$.svg).attr('viewBox', '0 0 ' + this._parent.offsetWidth + ' ' + this._parent.offsetHeight);
+        this._svg.attr('viewBox', '0 0 ' + this._parent.offsetWidth + ' ' + this._parent.offsetHeight);
 
         d3.select(this.$.menubutton).attr('x', (this.margin.left + this._width + 1)+'px')
                                     .attr('y', (this.margin.top)+'px')
@@ -499,24 +495,22 @@
         this._info.attr('style', 'left:'+(this.margin.left+4)+'px; top:'+(this.margin.top+this.brushWidth+3)+'px');
         this._legend.attr('style', 'right:'+(this.margin.right+this.brushWidth+2)+'px; top:'+(this.margin.top+this.brushWidth+2)+'px');
 
-        d3.select(this.$.svg).selectAll('g.tick,g.tick line,g.tick text,g path.domain,rect,g.axis,text')
-                             .classed('style-scope', true)
-                             .classed('chart-element', true);
+        this._svg.selectAll('g,line,text,path,rect')
+                 .classed('style-scope', true)
+                 .classed('chart-element', true);
       },
 
-      _createNumberScale: function(option, y) {
-        var scale;
+      _createNumberScale: function(option) {
         switch (option) {
           case 'ln':
-            scale = d3.scaleLog().base(Math.E); break;
-          case 'log':
-            scale = d3.scaleLog(); break;
-          case 'sqrt':
-            scale = d3.scaleSqrt(); break;
+            return d3.scaleLog().base(Math.E); break;
+          case 'log₁₀':
+            return d3.scaleLog(); break;
+          case '√':
+            return d3.scaleSqrt(); break;
           default:
-            scale = d3.scaleLinear();
+            return d3.scaleLinear();
         }
-        return scale;
       },
 
       _createAxis: function(scale, orient, kind, tickmult = 1) {
@@ -539,11 +533,13 @@
           case 'right':
             axis = d3.axisRight(); ticks = verTicks; break;
         }
-        axis.scale(scale)
-            .ticks(ticks*tickmult)
-            .tickSize(6);
+        axis.scale(scale).ticks(ticks*tickmult);
         if (kind === "time")
-          axis.tickFormat(this.timeFormat.bind(this));
+          axis.ticks(ticks*tickmult)
+              .tickFormat(this.timeFormat.bind(this));
+        else if (scale.base && scale.base() === Math.E)
+          axis.tickFormat(function(d) { return "ln(y) = " + Math.round(Math.log(d)); })
+
         return axis;
       },
 
@@ -569,17 +565,19 @@
       },
 
       redraw: function () {
-        this.debounce('redraw', function() { this._redraw() }, 100);
+        this.debounce('redraw', function() { this._redraw() }, 50);
       },
 
       _redraw: function () {
-        this._chart.select('.x.axis').transition(100).call(this._xAxis);
-        this._chart.select('.y.axis').transition(100).call(this._yAxis);
-        this._chart.select('.x.grid').transition(100)
+        this._setAllDomains();
+        this._graphs.forEach(function(g) { g.redraw(); });
+        this._chart.select('.x.axis').transition(50).call(this._xAxis);
+        this._chart.select('.y.axis').transition(50).call(this._yAxis);
+        this._chart.select('.x.grid').transition(50)
                    .call(this._createAxis(this._x, 'bottom', 'time', this.gridMult)
                              .tickSize(-this._height, 0, 0)
                              .tickFormat(''));
-        this._chart.select('.y.grid').transition(100)
+        this._chart.select('.y.grid').transition(50)
                    .call(this._createAxis(this._y, 'left', 'number', this.gridMult)
                              .tickSize(-this._width, 0, 0)
                              .tickFormat(''));
@@ -594,7 +592,9 @@
         // d3.select(this.$.svg).selectAll('g.tick,g.tick line,g.tick text,g path.domain,rect,g.axis,text')
         //                      .classed('style-scope', true)
         //                      .classed('chart-element', true);
-        this._graphs.forEach(function(g) { g.redraw(); });
+        this._svg.selectAll('g,line,text,path,rect')
+                 .classed('style-scope', true)
+                 .classed('chart-element', true);
         this._updateFocusText();
       },
 
@@ -618,18 +618,25 @@
         this.debounce('domains', function() { this._setAllDomains() }, 100);
       },
 
-      setAllDomains: function () {
+      _setAllDomains: function () {
         var graphs = this._graphs;
         var domainX, domainY = [0, 0], domainTmp, v;
-        domainX  = [ d3.min(graphs,function(g){ return d3.min(g.values,function(v){ return v.x; }) }) ,
-                     d3.max(graphs,function(g){ return d3.max(g.values,function(v){ return v.x; }) }) ];
-        domainTmp  = [ d3.min(graphs,function(g){ return d3.min(g.values,function(v){ return v.y; }) }),
-                     d3.max(graphs,function(g){ return d3.max(g.values,function(v){ return v.y;})}) ];
+
+        domainX  = [ d3.min(graphs,function(g){ return g._rangeX[0] }) ,
+                     d3.max(graphs,function(g){ return g._rangeX[1] }) ];
+        domainTmp= [ d3.min(graphs,function(g){ return g._rangeY[0] }) ,
+                     d3.max(graphs,function(g){ return g._rangeY[1] }) ];
 
         v = (domainTmp[0]).toExponential().split('e');
         domainY[0] = (Math.floor(v[0])) * Math.pow(10,parseInt(v[1],10));
         v = (domainTmp[1]).toExponential().split('e');
         domainY[1] = (Math.ceil(v[0]) + 1) * Math.pow(10,parseInt(v[1],10));
+        //
+        // // rounding y-domains to the according decimal exponent
+        // v = (domainTmp[0]).toExponential().split('e');
+        // domainY[0] = (Math.floor(v[0])) * Math.pow(10,parseInt(v[1],10));
+        // v = (domainTmp[1]).toExponential().split('e');
+        // domainY[1] = (Math.ceil(v[0]) + 1) * Math.pow(10,parseInt(v[1],10));
 
         // this._x2.domain(domainX);
         // this._y2.domain(domainY);
@@ -653,7 +660,7 @@
         // }
         this._x.domain(domainX);
         this._y.domain(domainY);
-        this.redraw();
+        // this.redraw();
       },
 
       _showFocus: function() {
@@ -710,14 +717,11 @@
           this.$.menu.setAttribute('hidden', true);
         }
       },
-      changeInterpolation: function(newValue, oldValue) {
-        if (oldValue === undefined) return;
+      changeInterpolation: function(interpolation, oldValue) {
         this._graphs.forEach(
           function(g) {
-            if (g._lineFunction)
-              g._lineFunction.interpolate(newValue);
+            g.interpolation = interpolation;
           });
-        this.redraw();
       },
       changeScale: function(newValue, oldValue) {
         if (oldValue === undefined) return;
@@ -728,13 +732,19 @@
       changeDots: function(e) {
         this._graphs.forEach(
           function(g) {
-            g.set('noDots', e.target.checked)
+            g.set('noDots', !e.target.checked)
           });
       },
       changeLines: function(e) {
         this._graphs.forEach(
           function(g) {
-            g.set('noLine', e.target.checked)
+            g.set('noLine', !e.target.checked)
+          });
+      },
+      changeAreas: function(e) {
+        this._graphs.forEach(
+          function(g) {
+            g.set('noFill', !e.target.checked)
           });
       }
     });

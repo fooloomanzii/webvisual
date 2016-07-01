@@ -3,29 +3,30 @@
 
   <style>
     :host {
-      box-sizing: border-box;
+      box-sizing: content-box;
       position: relative;
-      display: block;
+      display: inline-block;
+      clear: both;
+      float: left;
       outline: none;
+      margin: 0.25em 0;
     }
-    section.container {
-      display: block;
+    section#container {
+      display: inline-flex;
+      align-items: center;
+      align-content: center;
+      justify-content: flex-start;
+      box-sizing: content-box;
+      cursor: pointer;
       outline: none;
-    }
-    button-element#button {
       border-bottom: 1px solid rgba(0,0,0, 0.12);
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-      width: 100%;
-      outline: none;
-      padding: 0.5em 0.5em;
-      --ripple-color: var(--bright-primary-color);
+      padding: 0.75em 0.5em 0.25em;
     }
 
     label {
       position: absolute;
       pointer-events: none;
-      left: 1em;
+      left: 0.5em;
       top: 1.25em;
       line-height: normal;
       color: rgba(0, 0, 0, 0.26);
@@ -38,7 +39,7 @@
       background-color: var(--bright-primary-color);
       height: 2px;
       width: 5%;
-      bottom: 0;
+      bottom: 0px;
       left: 45%;
       visibility: hidden;
       pointer-events: none;
@@ -48,32 +49,41 @@
       -webkit-transition: 0.2s ease
     }
 
-    button-element#button:focus ~ section.focusline {
+    section#container:focus section.focusline {
       visibility: visible;
       width: 100%;
       left: 0;
     }
 
-    button-element#button.set ~ label {
+    label:not([float]) {
+      color: currentColor;
+      position: relative;
+      float: left;
+      left: auto;
+      top: auto;
+    }
+
+    section#container.set label[float] {
       visibility: visible;
-      left: 0.67em;
-      top: 0.05em;
-      font-size: 0.75em;
+      left: 0.75em;
+      top: 0.25em;
+      font-size: 0.67em;
       color: var(--primary-color);
     }
 
+    paper-ripple {
+      color: var(--ripple-color, currentColor);
+    }
   </style>
 
-    <section class="container">
-      <button-element id="button" on-tap="toggleIcon" name="button">
-        <content select="iron-icon"></content>
-        <section>[[selected]]</section>
-        <iron-icon id="arrow" class="right" icon="arrow-drop-down"></iron-icon>
-      </button-element>
-      <label hidden="[[!label]]" for="button">[[label]]</label>
+    <section id="container" on-tap="toggleIcon" tabindex='0'>
+      <paper-ripple></paper-ripple>
+      <label hidden="[[!label]]" float$="[[!hideSelected]]" for="container">[[label]]</label>
+      <section hidden$="[[hideSelected]]">[[selected]]</section>
+      <iron-icon id="arrow" class="right" icon="arrow-drop-down"></iron-icon>
       <section class="focusline"></section>
     </section>
-    <dropdown-element id="dropdown" for="button" horizontal="[[horizontal]]">
+    <dropdown-element id="dropdown" for="container" horizontal="[[horizontal]]">
       <content></content>
     </dropdown-element>
   </template>
@@ -97,6 +107,16 @@
           type: String,
           value: "",
           reflectToAttribute: true
+        },
+        toggles: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        hideSelected: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
         }
       },
 
@@ -111,12 +131,21 @@
 
       _onSelect: function() {
         this.value = this.selected;
+        if (this.toggles === true) {
+          this.listen(this.selectedItem, 'tap', 'deselect');
+        }
         if (this.value === '') {
-          this.$.button.classList.remove('set')
+          this.$.container.classList.remove('set')
         } else {
-          this.$.button.classList.add('set')
+          this.$.container.classList.add('set')
         }
         this.toggleIcon();
+      },
+      deselect: function(e) {
+        this.unlisten(this.selectedItem, 'tap', 'deselect');
+        this.selected = this.fallbackSelection;
+        e.stopImmediatePropagation();
+        this.$.dropdown.hide();
       },
       toggleIcon: function() {
         if (this.$.arrow.icon === 'arrow-drop-down')
@@ -124,7 +153,6 @@
         else
           this.$.arrow.set('icon','arrow-drop-down');
       }
-
     });
   </script>
 </dom-module>

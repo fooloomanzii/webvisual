@@ -21,6 +21,11 @@
           value: '',
           observer: 'setColor'
         },
+        interpolation: {
+          type: String,
+          value: 'cardinal',
+          observer: '_interpolationChanged'
+        },
         noDots: {
           type: Boolean,
           value: false,
@@ -30,6 +35,11 @@
           type: Boolean,
           value: false,
           observer: '_lineChanged'
+        },
+        noFill: {
+          type: Boolean,
+          value: false,
+          observer: '_fillChanged'
         },
         dotRadius: {
           type: Number,
@@ -41,10 +51,25 @@
           value: 1.5,
           observer: '_lineWidthChanged'
         },
+        fillOpacity: {
+          type: Number,
+          value: 0.25,
+          observer: '_fillOpacityChanged'
+        },
+        _rangeX: {
+          type: Array,
+          value: function() { return []; }
+        },
+        _rangeY: {
+          type: Array,
+          value: function() { return []; }
+        },
         _node: Object,
-        _line: Object,
         _dots: Object,
-        _lineFunction: Object
+        _line: Object,
+        _lineFunction: Object,
+        _area: Object,
+        _areaFunction: Object
       },
 
       get chartElement () {
@@ -63,37 +88,49 @@
         return this.values;
       },
 
+      created: function() {
+        this._lineFunction = d3.area()
+                               .x( (function (d) { return this.chartElement._x(d.x); }).bind(this))
+                               .y( (function (d) { return this.chartElement._y(d.y); }).bind(this));
+        this._areaFunction = d3.area()
+                               .x( this._lineFunction.x() )
+                               .y0( (function (d) { return this.chartElement._y(1e-15); }).bind(this) )
+                               .y1( this._lineFunction.y() );
+      },
+
       attached: function () {
         if (this.chartElement.nodeName !== 'CHART-ELEMENT') {
           console.warn(this.id, 'Graph is not attached to a container');
-          return;
         }
-        if (!this.color) this.setColor();
         // clippath for this graph
         this._node = this.chartElement._chart.select('g#graphs')
                                              .append('svg:g')
                                              .attr('clip-path', 'url(#clip)')
                                              .attr('id', this.id)
                                              .attr('label', this.label);
-
-        var self = this;
         // node of line
-        this._lineFunction = d3.line()
-                               .x( function (d) { return self.chartElement._x(d.x); })
-                               .y( function (d) { return self.chartElement._y(d.y); });
-                              //  .curveCatmullRom(1);
         this._line = this._node.append('svg:path')
                                .attr("class", "line")
                                .attr('hidden', this.noLine ? true : null)
-                               .attr('fill', 'none').attr('stroke', this.color)
-                               .attr('stroke-width', this.lineWidth)                              .datum([])
+                               .attr('fill', 'none')
+                               .attr('stroke', this.color)
+                               .attr('stroke-width', this.lineWidth)
+                               .datum([])
                                .attr("d", this._lineFunction);
+        // fill area
+        this._area = this._node.append('svg:path')
+                               .attr("class", "area")
+                               .attr('hidden', this.noFill ? true : null)
+                               .attr('fill', this.color)
+                               .attr('fill-opacity', this.fillOpacity)
+                               .attr('stroke', 'none')
+                               .datum([])
+                               .attr("d", this._areaFunction);
         // group of dots
         this._dots = this._node.append("svg:g")
                                .attr("class", "dots")
                                .attr("hidden", this.noDots ? true : null);
 
-        Polymer.dom.flush();
         // set Values
         if (this.values.length > 0) this.setValues(this.values);
       },
@@ -113,8 +150,6 @@
         dots.attr('cx', (function(d,i) {
               return this.chartElement._x(d.x)}).bind(this._self))
             .attr('cy', (function(d,i) {
-              if (isNaN(this.chartElement._y(d.y)))
-                console.log(d.y, this.chartElement._y.domain());
               return this.chartElement._y(d.y)}).bind(this._self))
         // enter new dots
         dots.enter()
@@ -129,12 +164,12 @@
               .on('mouseenter', (function(d) {
                 this.chartElement._updateInfo(d)
               }).bind(this._self));
-              // .on('mouseleave', this.chartElement._hideFocus.bind(this._self));
         //  remove old dots
         dots.exit()
             .remove();
-        // updata line
+        // update line
         this._line.attr('d', this._lineFunction(this.values));
+        this._area.attr('d', this._areaFunction(this.values));
       },
 
       setValues: function (values, newestDataLast) {
@@ -152,61 +187,30 @@
       },
 
       _updateView: function (value, splices) {
-        if (value !== undefined) {
-          if ( value.y < 0 &&
-              (this.chartElement.yScale === "ln" ||
-               this.chartElement.yScale === "log")) {
-            console.warn("ValueError: value in logarithmic scale below 0");
-            return;
-          }
-          this._setDomains(value);
-          this.chartElement.redraw();
+        if ( value !== undefined && value.y < 0 &&
+            (this.chartElement.yScale === "ln" ||
+             this.chartElement.yScale === "log")) {
+          console.warn("ValueError: value in logarithmic scale below 0");
+          return;
         }
-        else
-          this.chartElement.setAllDomains();
-
+        this._setRange(value);
+        this.chartElement.redraw();
       },
 
-      _setDomains: function(value, splice) {
-        var domainX, domainY = [0 ,0], domainTmp;
-        // new values
-
-        // if (this.chartElement._brushBehaviorX.empty()) {
-          domainX = this.chartElement._x.domain();
-          domainX[0] = (value.x < domainX[0]) ? value.x : domainX[0];
-          domainX[1] = (value.x > domainX[1]) ? value.x : domainX[1];
-          this.chartElement._x2.domain(domainX);
-        // }
-        // else {
-        //   domainX = this.chartElement._x2.domain();
-        //   domainX[0] = (value.x < domainX[0]) ? value.x : domainX[0];
-        //   domainX[1] = (value.x > domainX[1]) ? value.x : domainX[1];
-        //   this.chartElement._x2.domain(domainX);
-        //   if (this.chartElement.isClamping === true) {
-        //     domainTmp = this.chartElement._brushBehaviorX.extent();
-        //     this.chartElement._brushBehaviorX.extent( [domainTmp[0], domainX[1]] );
-        //   }
-        //   domainX = this.chartElement._brushBehaviorX.extent();
-        // }
-        // if (this.chartElement._brushBehaviorY.empty())
-          domainTmp = this.chartElement._y.domain();
-        // else
-        //   domainTmp = this.chartElement._y2.domain();
-
-        if (value.y < domainTmp[0]) {
-          var v = (value.y).toExponential().split('e');
-          domainY[0] = (Math.floor(v[0])) * Math.pow(10,parseInt(v[1],10));
+      _setRange: function(value) {
+        if (value !== undefined && this._rangeX.length === 2 && this._rangeY.length === 2) {
+          this._rangeX[0] = (value.x < this._rangeX[0]) ? value.x : this._rangeX[0];
+          this._rangeX[1] = (this._rangeX[1] < value.x) ? value.x : this._rangeX[1];
+          this._rangeY[0] = (value.y < this._rangeY[0]) ? value.y : this._rangeY[0];
+          this._rangeY[1] = (this._rangeY[1] < value.y) ? value.y : this._rangeY[1];
         }
-        else domainY[0] = domainTmp[0];
-        if (value.y > domainTmp[1]) {
-          var v = (value.y).toExponential().split('e');
-          domainY[1] = (Math.ceil(v[0]) + 1) * Math.pow(10,parseInt(v[1],10));
+        else {
+          this._rangeX = []; this._rangeY = [];
+          this._rangeX.push(d3.min(this.values, function(v){ return v.x; }));
+          this._rangeX.push(d3.max(this.values, function(v){ return v.x; }));
+          this._rangeY.push(d3.min(this.values, function(v){ return v.y; }));
+          this._rangeY.push(d3.max(this.values, function(v){ return v.y; }));
         }
-        else domainY[1] = domainTmp[1];
-
-        this.chartElement._x.domain(domainX);
-        this.chartElement._y.domain(domainY);
-        // this.chartElement._y2.domain(domainY);
       },
 
       setColor: function(color) {
@@ -224,6 +228,7 @@
         }
         if (this._node) {
           if (this._line) this._line.attr('stroke', this.color);
+          if (this._area) this._line.attr('fill', this.color);
           if (this._dots)
             this._dots.selectAll('circle.dot')
                       .attr('stroke', this.color);
@@ -242,6 +247,18 @@
         }
       },
 
+      _fillOpacityChanged: function() {
+        if (this._node && this._area) {
+          this._area.attr('fill-opacity', this.fillOpacity);
+        }
+      },
+
+      _fillChanged: function() {
+        if (this._node && this._area) {
+          this._area.attr('hidden', this.noFill ? true : null);
+        }
+      },
+
       _dotRadiusChanged: function(dotRadius) {
         if (this._node && this._dots) {
           this._dots.selectAll('circle.dot').attr('r', dotRadius);
@@ -255,6 +272,25 @@
             this._dots.selectAll('circle.dot')
                       .attr('stroke-width', this.lineWidth);
         }
+      },
+
+      _interpolationChanged: function(interpolation) {
+        var curve;
+        switch (interpolation) {
+          case 'Basis Spline': curve = d3.curveBasis; break;
+          case 'Monotoner Spline': curve = d3.curveMonotoneX; break;
+          case 'Kubischer Spline': curve = d3.curveNatural; break;
+          case 'Cardinaler Spline': curve = d3.curveCardinal; break;
+          case 'Catmull-Rom-Spline': curve = d3.curveCatmullRom; break;
+          case 'Stufe (mitte)': curve = d3.curveStep; break;
+          case 'Stufe (davor)': curve = d3.curveStepAfter; break;
+          case 'Stufe (danach)': curve = d3.curveStepBefore; break;
+          default: curve = d3.curveLinear; break;
+        }
+        this._lineFunction.curve(curve);
+        this._areaFunction.curve(curve);
+        if (this._node && this._area)
+          this.redraw();
       }
     });
 

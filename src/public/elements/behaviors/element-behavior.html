@@ -130,8 +130,8 @@
     },
 
     spliceValues: function(start, length) {
-      this.splice("values", start, length);
-      this._updateView(undefined, {start: start, length: length});
+      var value = this.splice("values", start, length);
+      this._updateView(undefined, {start: start, length: length, value: value});
     },
 
     setExceedingState: function(isExceeding, state) {
