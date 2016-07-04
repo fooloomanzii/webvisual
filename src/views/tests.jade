@@ -30,27 +30,38 @@ html
       //- background: radial-gradient(rgba(0,91,130,1) 80%, rgba(0,91,130,0.8));
     }
     .page {
+      background: #BBB;
+      color: #1f1f1f;
       height: 100%;
       width: 100%;
       top: 0;
       left: 0;
       position: absolute;
+      display: flex;
+      flex-direction: column;
     }
     chart-element {
+    }
+    sign-element {
+      max-width: 6em;
+      min-width: 6em;
     }
 
   body.page
     //- START-ANIMATION
     template#mainTemplate(is="dom-bind")
       section.page
-        chart-element
-          each I in [1, 2]
-            graph-element.content(label= "tests", id!= I)
+        group-card
+          sign-element
+          chart-element
+            each I in [1, 2]
+              graph-element.content(label= "tests", id!= I)
 
     script.
       function update() {
         var date = new Date();
-        this.unshiftValues({x: +date, y: Math.random() * 1 });
+        if (!this) return;
+        this.unshiftValues({x: +date, y: +(Math.random() * 1).toFixed(5) });
         if (this.values.length > 100)
           this.spliceValues(this.values.length - 1, 1); 
       }
@@ -59,6 +70,11 @@ html
         var elems = document.querySelectorAll('[updatable]');
         elems = Array.prototype.slice.call(elems);
         elems.forEach(function(el) {
-          setInterval(update.bind(el),1000);
+          el.__interval_id = setInterval(update.bind(el),1000);
         });
+        setTimeout(function() {
+          clearInterval(elems[1].__interval_id);
+          Polymer.dom(elems[1].parentElement).removeChild(elems[1]);
+          elems.splice(1,1);
+        },5000)
       });

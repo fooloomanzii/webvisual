@@ -49,18 +49,26 @@
     --iron-icon-height: 24px;
     --iron-icon-width: 24px;
 
-    --toggle-button-element-unchecked-bar-color: var(--dark-primary-color);
-    --toggle-button-element-unchecked-button-color: var(--bright-text-color);
-    --toggle-button-element-unchecked-ink-color: var(--bright-text-color);
-    --toggle-button-element-checked-bar-color:	#FCA135;
-    --toggle-button-element-checked-button-color:	#FCA135;
-    --toggle-button-element-checked-ink-color:	#FCA135;
+    --toggle-button-unchecked-bar-color: var(--primary-color);
+    --toggle-button-unchecked-button-color: var(--bright-text-color);
+    --toggle-button-unchecked-ink-color: var(--primary-color);
+    --toggle-button-checked-bar-color:	#F9643D;
+    --toggle-button-checked-button-color:	#F9643D;
+    --toggle-button-checked-ink-color:	#F9643D;
 
-    --radio-button-element-checked-color: var(--select-color);
-    --radio-button-element-checked-ink-color: var(--highlight-color);
-    --radio-button-element-unchecked-color: var(--highlight-color);
-    --radio-button-element-unchecked-ink-color: var(--highlight-color);
-    --radio-button-element-label-color: currentColor;
+    --radio-button-checked-color: var(--select-color);
+    --radio-button-unchecked-color: var(--highlight-color);
+    --radio-button-unchecked-background-color: tranparent;
+    --radio-button-label-color: currentColor;
+
+    --element-color: #7CEC6E;
+    --element-exceeds-undefined-color: #c3ab12;
+    --element-exceeds-false-color: #920bad;
+    --element-exceeds-true-color: #D91B1B;
+    --element-text-color: var(--primary-text-color);
+    --element-exceeds-undefined-text-color: var(--primary-text-color);
+    --element-exceeds-false-text-color: var(--bright-text-color);
+    --element-exceeds-true-text-color: var(--bright-text-color);
 
     /* Mixins */
     --background: {
@@ -156,10 +164,8 @@
   }
 
   radio-button-element.lightcontext {
-    --radio-button-element-checked-color: var(--primary-color);
-    --radio-button-element-checked-ink-color: var(--primary-color);
-    --radio-button-element-unchecked-color: var(--primary-text-color);
-    --radio-button-element-unchecked-ink-color: var(--primary-text-color);
+    --radio-button-checked-color: var(--primary-color);
+    --radio-button-unchecked-color: var(--primary-text-color);
   }
 
   iron-collapse {

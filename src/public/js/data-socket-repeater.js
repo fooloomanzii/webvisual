@@ -1,7 +1,7 @@
 // globals
 var socketName = "/data";
 var Selector = "[updatable]";
-var Nodes = {};
+var UpdatableNodes = {};
 var Elements = {};
 var SvgSource = {};
 var Labels = [];
@@ -89,12 +89,12 @@ function disconnect() {
 }
 
 function _init() {
-  _getNodes();
+  _getUpdatableNodes();
 }
 
-function _getNodes() {
-  // grouping updatable Nodes in one Object
-  Nodes = {};
+function _getUpdatableNodes() {
+  // grouping updatable UpdatableNodes in one Object
+  UpdatableNodes = {};
   var updatable = document.querySelectorAll(Selector);
   var label = '',
     id = '';
@@ -102,11 +102,12 @@ function _getNodes() {
     label = updatable[i].getAttribute('label');
     id = updatable[i].getAttribute('id');
     if (label && id) {
-      if (!Nodes[label])
-        Nodes[label] = {};
-      if (!Nodes[label][id])
-        Nodes[label][id] = [];
-      Nodes[label][id].push(updatable[i]);
+      if (!UpdatableNodes[label])
+        UpdatableNodes[label] = {};
+      if (!UpdatableNodes[label][id])
+        UpdatableNodes[label][id] = [];
+      if (UpdatableNodes[label][id].indexOf(updatable[i]) === -1)
+        UpdatableNodes[label][id].push(updatable[i]);
     }
   }
   updatable.length = 0;
@@ -136,16 +137,16 @@ function _loadSvgSources(sources) {
 function _update(message) {
   if (Array.isArray(message)) // if message is an Array
     for (var mesId = 0; mesId < message.length; mesId++)
-      this._updateNodes(message[mesId]);
+      this._updateUpdatableNodes(message[mesId]);
   else // if message is a single Object
-    this._updateNodes(message);
+    this._updateUpdatableNodes(message);
   if (!this.opened) {
     // this.fire("loaded");
     this.opened = true;
   }
 }
 
-function _updateNodes(message) {
+function _updateUpdatableNodes(message) {
   if (!message.content)
     return;
 
@@ -159,24 +160,24 @@ function _updateNodes(message) {
     message.content[i].values.forEach(function(d) {
       d.x = Date.parse(d.x); // parse Date in Standard Date Object
     });
-    if (Nodes[label][id]) {
-      for (var j = 0; j < Nodes[label][id].length; j++) {
+    if (UpdatableNodes[label][id]) {
+      for (var j = 0; j < UpdatableNodes[label][id].length; j++) {
         if (!doAppend)
-          Nodes[label][id][j].spliceValues(0, message.content[i].values.length);
+          UpdatableNodes[label][id][j].spliceValues(0, message.content[i].values.length);
         if (newestDataLast) {
           for (var k = 0; k < message.content[i].values.length; k++) {
-            Nodes[label][id][j].unshiftValues(message.content[i].values[k]);
+            UpdatableNodes[label][id][j].unshiftValues(message.content[i].values[k]);
           }
         } else {
           for (var k = message.content[i].values.length - 1; k >= 0; k--) {
-            Nodes[label][id][j].unshiftValues(message.content[i].values[k]);
+            UpdatableNodes[label][id][j].unshiftValues(message.content[i].values[k]);
           }
         }
-        if (Nodes[label][id][j].values.length > maxValues)
-          Nodes[label][id][j].spliceValues(maxValues, Nodes[label][id][j].values.length - maxValues);
+        if (UpdatableNodes[label][id][j].values.length > maxValues)
+          UpdatableNodes[label][id][j].spliceValues(maxValues, UpdatableNodes[label][id][j].values.length - maxValues);
       }
     } else {
-      console.warn("no Nodes for", label, id);
+      console.warn("no UpdatableNodes for", label, id);
     }
   }
 }

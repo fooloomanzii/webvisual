@@ -1,7 +1,7 @@
 <!-- Modification of polymers paper-radio-button because of conflicts with paper-style -->
 
 <dom-module id="radio-button-element">
-  <template>
+  <template strip-whitespace>
     <style>
       :host {
         display: inline-block;
@@ -20,8 +20,9 @@
       }
 
       #radioContainer {
-        @apply(--layout-inline);
-        @apply(--layout-center-center);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         position: relative;
         width: 1.25em;
         height: 1.25em;
@@ -35,7 +36,7 @@
         right: auto;
         width: calc(3 * 1.25em);
         height: calc(3 * 1.25em);
-        color: var(--radio-button-element-unchecked-ink-color, --primary-text-color);
+        color: var(--radio-button-unchecked-color, --primary-text-color);
         opacity: 0.8;
         pointer-events: none;
         -webkit-transform: translate(-50%, -50%);
@@ -43,7 +44,7 @@
       }
 
       #ink[checked] {
-        color: var(--radio-button-element-checked-ink-color, --primary-color);
+        color: var(--radio-button-checked-color, --primary-color);
       }
 
       #offRadio, #onRadio {
@@ -57,13 +58,13 @@
       }
 
       #offRadio {
-        border: 2px solid var(--radio-button-element-unchecked-color, --primary-text-color);
-        background-color: var(--radio-button-element-unchecked-background-color, transparent);
+        border: 2px solid var(--radio-button-unchecked-color, --primary-text-color);
+        background-color: var(--radio-button-unchecked-background-color);
         transition: border-color linear 0.28s;
       }
 
       #onRadio {
-        background-color: var(--radio-button-element-checked-color, --primary-color);
+        background-color: var(--radio-button-checked-color, --primary-color);
         -webkit-transform: scale(0);
         transform: scale(0);
         transition: -webkit-transform ease 0.28s;
@@ -72,7 +73,7 @@
       }
 
       :host([checked]) #offRadio {
-        border-color: var(--radio-button-element-checked-color, --primary-color);
+        border-color: var(--radio-button-checked-color, --primary-color);
       }
 
       :host([checked]) #onRadio {
@@ -88,21 +89,16 @@
         margin-left: 0.75em;
         font-size: 0.9em;
         white-space: nowrap;
-        color: var(--radio-button-element-label-color, --primary-text-color);
-      }
-
-      :host-context([dir="rtl"]) #radioLabel {
-        margin-left: 0;
-        margin-right: var(--radio-button-element-label-spacing, 10px);
+        color: var(--radio-button-label-color, --primary-text-color);
       }
 
       :host([disabled]) #offRadio {
-        border-color: var(--radio-button-element-unchecked-color, --primary-text-color);
+        border-color: var(--radio-button-unchecked-color, --primary-text-color);
         opacity: 0.5;
       }
 
       :host([disabled][checked]) #onRadio {
-        background-color: var(--radio-button-element-unchecked-color, --primary-text-color);
+        background-color: var(--radio-button-unchecked-color, --primary-text-color);
         opacity: 0.5;
       }
 
@@ -123,7 +119,7 @@
       <section id="onRadio"></section>
     </section>
 
-    <section id="radioLabel"><content></content></section>
+    <section id="radioLabel" hidden$="[[noLabel]]"><content></content></section>
   </template>
 
   <script>
@@ -144,6 +140,10 @@
         ariaActiveAttribute: {
           type: String,
           value: 'aria-checked'
+        },
+        noLabel: {
+          type: Boolean,
+          value: false
         }
       },
 

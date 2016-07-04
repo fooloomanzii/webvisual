@@ -29,9 +29,9 @@
         pointer-events: none;
         opacity: 0.75;
         transition: background-color linear 100ms;
-        background-color: var(--toggle-button-element-unchecked-bar-color, #000000);
+        background-color: var(--toggle-button-unchecked-bar-color, #000000);
 
-        @apply(--toggle-button-element-unchecked-bar);
+        @apply(--toggle-button-unchecked-bar);
       }
 
       section.toggle-button {
@@ -45,9 +45,9 @@
         transition: -webkit-transform linear 100ms, background-color linear 100ms;
         transition: transform linear 100ms, background-color linear 100ms;
         will-change: transform;
-        background-color: var(--toggle-button-element-unchecked-button-color, --paper-grey-50);
+        background-color: var(--toggle-button-unchecked-button-color, --paper-grey-50);
 
-        @apply(--toggle-button-element-unchecked-button);
+        @apply(--toggle-button-unchecked-button);
       }
 
       section.toggle-button.dragging {
@@ -57,9 +57,9 @@
 
       :host([checked]:not([disabled])) section.toggle-bar {
         opacity: 0.5;
-        background-color: var(--toggle-button-element-checked-bar-color, --primary-color);
+        background-color: var(--toggle-button-checked-bar-color, --primary-color);
 
-        @apply(--toggle-button-element-checked-bar);
+        @apply(--toggle-button-checked-bar);
       }
 
       :host([disabled]) section.toggle-bar {
@@ -73,9 +73,9 @@
       }
 
       :host([checked]:not([disabled])) section.toggle-button {
-        background-color: var(--toggle-button-element-checked-button-color, --primary-color);
+        background-color: var(--toggle-button-checked-button-color, --primary-color);
 
-        @apply(--toggle-button-element-checked-button);
+        @apply(--toggle-button-checked-button);
       }
 
       :host([disabled]) section.toggle-button {
@@ -93,11 +93,11 @@
         height: 3.5em;
         opacity: 0.8;
         pointer-events: none;
-        color: var(--toggle-button-element-unchecked-ink-color, --primary-text-color);
+        color: var(--toggle-button-unchecked-ink-color, --primary-text-color);
       }
 
       :host([checked]) .toggle-ink {
-        color: var(--toggle-button-element-checked-ink-color, --primary-color);
+        color: var(--toggle-button-checked-ink-color, --primary-color);
       }
 
       section.toggle-container {
@@ -116,7 +116,7 @@
         padding-left: 0.75em;
         pointer-events: none;
         white-space: nowrap;
-        color: var(--toggle-button-element-label-color, --primary-text-color);
+        color: var(--toggle-button-label-color, --primary-text-color);
       }
 
       ::content iron-icon {

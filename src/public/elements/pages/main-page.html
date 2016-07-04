@@ -500,15 +500,15 @@
             if (Object.keys(this.selectedElement).length !== 0) {
               var id = this.selectedElement.id;
               var label = this.selectedElement.label;
-              var pos = Nodes[label][id].indexOf(this.$.selectedElementSign);
+              var pos = UpdatableNodes[label][id].indexOf(this.$.selectedElementSign);
               if (pos !== -1)
-                Nodes[label][id].splice(pos, 1);
-              pos = Nodes[label][id].indexOf(this.$.selectedElementTable);
+                UpdatableNodes[label][id].splice(pos, 1);
+              pos = UpdatableNodes[label][id].indexOf(this.$.selectedElementTable);
               if (pos !== -1)
-                Nodes[label][id].splice(pos, 1);
+                UpdatableNodes[label][id].splice(pos, 1);
             }
-            Nodes[element.label][element.id].push(this.$.selectedElementSign);
-            Nodes[element.label][element.id].push(this.$.selectedElementTable);
+            UpdatableNodes[element.label][element.id].push(this.$.selectedElementSign);
+            UpdatableNodes[element.label][element.id].push(this.$.selectedElementTable);
 
             this.set("selectedElement", {id: element.id, label: element.label});
             this.$.selectedElementSign.setElement(element);
@@ -544,12 +544,12 @@
           try {
             var id = this.selectedElement.id;
             var label = this.selectedElement.label;
-            var pos = Nodes[label][id].indexOf(this.$.selectedElementSign);
+            var pos = UpdatableNodes[label][id].indexOf(this.$.selectedElementSign);
             if (pos !== -1)
-              Nodes[label][id].splice(pos, 1);
-            pos = Nodes[label][id].indexOf(this.$.selectedElementTable);
+              UpdatableNodes[label][id].splice(pos, 1);
+            pos = UpdatableNodes[label][id].indexOf(this.$.selectedElementTable);
             if (pos !== -1)
-              Nodes[label][id].splice(pos, 1);
+              UpdatableNodes[label][id].splice(pos, 1);
           }
           catch (err) {}
           this.set("selectedElement", {});
@@ -559,8 +559,7 @@
       _setExceedingElement: function(e) {
         var element = JSON.parse(JSON.stringify(e.detail)); // bug: references are mixing in each other
         if (Polymer.dom(this.$.exceedingElementsList).querySelectorAll('#'+element.id+'[label='+element.label+']').length === 0) {
-          var node = new ListElement(element, false, this.showDate, this.dark);
-          Nodes[element.label][element.id].push(node);
+          var node = new ListElement(element, true, false, true, this.showDate, this.dark);
           Polymer.dom(this.$.exceedingElementsList).appendChild(node);
           Polymer.dom(node).classList.add('exceedingElement');
         }
@@ -618,8 +617,8 @@
         if(e.detail.target) {
           var id = e.detail.target.id;
           var label = e.detail.target.label;
-          var pos = Nodes[label][id].indexOf(e.detail.target);
-          Nodes[label][id].splice(pos, 1);
+          var pos = UpdatableNodes[label][id].indexOf(e.detail.target);
+          UpdatableNodes[label][id].splice(pos, 1);
           Polymer.dom(this.$.exceedingElementsList).removeChild(e.detail.target);
         }
         if (this.$.exceedingElementsList.children.length === 0) {
@@ -630,11 +629,11 @@
       _removeAllExceedingElementFromList: function() {
         var id, label, pos;
         var nodes = Polymer.dom(this.$.exceedingElementsList).querySelectorAll('.exceedingElement');
-        for (var i = 0; i < nodes.length; i++) {
+        for (var i = 0; i < UpdatableNodes.length; i++) {
           id = nodes[i].id;
           label = nodes[i].label;
-          pos = Nodes[label][id].indexOf(nodes[i].target);
-          Nodes[label][id].splice(pos, 1);
+          pos = nodes[label][id].indexOf(nodes[i].target);
+          nodes[label][id].splice(pos, 1);
           Polymer.dom(this.$.exceedingElementsList).removeChild(nodes[i]);
         }
         this.set("isExceeding", false);

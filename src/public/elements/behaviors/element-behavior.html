@@ -14,13 +14,11 @@
         },
         keys: {
           type: Object,
-          value: function() { return {}; },
-          reflectToAttribute: true
+          value: function() { return {}; }
         },
         captionKeys: {
           type: Array,
-          value: function() { return []; },
-          reflectToAttribute: true
+          value: function() { return []; }
         },
         values: {
           type: Array,
@@ -36,18 +34,17 @@
         },
         isBoolean: {
           type: Boolean,
-          value: false,
-          reflectToAttribute: true
+          value: false
         },
+
         svg: {
           type: Object,
-          value: function() { return {}; },
-          reflectToAttribute: true
+          value: function() { return {}; }
         },
-        exceedable: {
+
+        notExceedable: {
           type: Boolean,
-          value: true,
-          reflectToAttribute: true
+          value: false
         },
         isExceeding: {
           type: Boolean,
@@ -61,18 +58,32 @@
         },
         bubbles: {
           type: Boolean,
-          value: false,
-          reflectToAttribute: true
+          value: false
         },
-        updatable: {
+
+        notUpdatable: {
           type: Boolean,
-          value: true,
-          readOnly: true,
-          reflectToAttribute: true
+          value: false,
+          observer: "_updatableChanged"
         },
+
         selectable: {
           type: Boolean,
+          value: false
+        },
+        isSelected: {
+          type: Boolean,
+          value: false
+        },
+        toggles: {
+          type: Boolean,
           value: true
+        },
+
+        color: {
+          type: String,
+          value: "",
+          observer: "setColor"
         }
     },
 
@@ -94,7 +105,10 @@
       this.set('firstExceeds', element.firstExceeds);
       this.set('lastExceeds', element.lastExceeds);
       this.set('svg', element.svg);
+      this.set('notExceedable', element.notExceedable);
+      this.set('color', element.color);
       this.setValues(element.values);
+      this._updatableChanged();
     },
 
     getElement: function() {
@@ -106,7 +120,9 @@
               'svg': this.svg,
               'firstExceeds': this.firstExceeds,
               'lastExceeds': this.lastExceeds,
-              'values': this.values};
+              'values': this.values,
+              'notExceedable': this.notExceedable,
+              'color': this.color};
     },
 
     unshiftValues: function(value) {
@@ -135,7 +151,8 @@
     },
 
     setExceedingState: function(isExceeding, state) {
-      this.set('isExceeding', isExceeding);
+      if (this.notExceedable === false)
+        this.set('isExceeding', isExceeding);
     },
 
     _setFirstExceeds: function(value) {
@@ -166,17 +183,104 @@
     },
 
     _handleExceeding: function(isExceeding) {
+      if(this.notExceedable === false && this.bubbles === true) {
+        if (isExceeding)
+          this.fire('element-is-exceeding', this.getElement());
+        else
+          this.fire('element-is-not-exceeding', this.getElement());
+      }
     },
 
     _hasExceededChanged: function() {
     },
 
+    setColor: function(color) {
+      // random color if color is not set
+      if (!color && this.notExceedable === false) {
+        this.color = this.customStyle['--element-color'];
+      }
+      if (!color) {
+        if (this.notExceedable === false) {
+          this.color = this.customStyle['--element-color'];
+        }
+        else {
+          color = '#';
+          var perm = ['2C', 'F5'];
+          perm.push((4*Math.floor(Math.random()*64)).toString(16));
+          for (var i = 3; i > 0; i--) {
+            var pos = Math.floor(Math.random()*i);
+            color += ((perm[pos].length === 1) ? '0' : '') + perm[pos];
+            perm.splice(pos, 1);
+          }
+          this.color = color;
+        }
+      }
+      else {
+        this.customStyle['--element-color'] = this.color;
+        if (this.notExceedable === true) {
+          this.customStyle['--element-exceeds-undefined-color'] = this.color;
+          this.customStyle['--element-exceeds-true-color'] = this.color;
+          this.customStyle['--element-exceeds-false-color'] = this.color;
+        }
+        this.updateStyles();
+      }
+    },
+
     reset: function() {
       this.set('hasExceeded', false);
-    }
+    },
 
-    // TODO: eventuell durch vorhandene obere Funktionen zu lösen
-    // selector: name of the predicted element's values
-    // e.g.: 'lastExceeds', 'firstExceeds'
+    _updatableChanged: function() {
+      // sets a global Object 'UpdatableNodes', for updating the values of the elements
+      if (this.notUpdatable === false && this.label && this.id) {
+        this.setAttribute("updatable", true);
+        if (window.UpdatableNodes === undefined)
+          UpdatableNodes = {};
+        if (!UpdatableNodes[this.label])
+          UpdatableNodes[this.label] = {};
+        if (!UpdatableNodes[this.label][this.id])
+          UpdatableNodes[this.label][this.id] = [];
+        if (UpdatableNodes[this.label][this.id].indexOf(this) === -1)
+          UpdatableNodes[this.label][this.id].push(this);
+      }
+      else {
+        this.removeAttribute("updatable");
+        var pos;
+        if (window.UpdatableNodes !== undefined &&
+            UpdatableNodes[this.label] &&
+            UpdatableNodes[this.label][this.id] &&
+            (pos = UpdatableNodes[this.label][this.id].indexOf(this)) !== -1)
+          UpdatableNodes[this.label][this.id].splice(pos,1);
+      }
+    },
+
+    detached: function() {
+      if (this.notUpdatable === false &&
+          window.UpdatableNodes !== undefined &&
+          UpdatableNodes[this.label] &&
+          UpdatableNodes[this.label][this.id] &&
+          (pos = UpdatableNodes[this.label][this.id].indexOf(this)) !== -1)
+        UpdatableNodes[this.label][this.id].splice(pos,1);
+    },
+
+    _select: function() {
+      if (this.selectable === true) {
+        if (this.toggles && this.isSelected === true) {
+          this.isSelected = false;
+          this.fire('element-deselect', this.getElement());
+        }
+        else {
+          this.isSelected = true;
+          this.fire('element-select', this.getElement());
+        }
+      }
+    },
+
+    _deselect: function() {
+      if (this.selectable === true && this.isSelected === true) {
+        this.isSelected = false;
+        this.fire('element-deselect', this.getElement());
+      }
+    }
   };
 </script>

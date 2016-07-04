@@ -43,19 +43,22 @@
       border-right-color: #777;
     }
     section#sign.null {
-      background: #1BD939; color: #1f1f1f;
+      background: var(--element-color);
+      color: var(--element-text-color);
     }
     section#sign.true {
-      background: #D91B1B; color: #f1f1f1;
+      background: var(--element-exceeds-true-color);
+      color: var(--element-exceeds-true-text-color);
     }
     section#sign.false {
-      background: #920bad; color: #f1f1f1;
+      background: var(--element-exceeds-false-color);
+      color: var(--element-exceeds-false-text-color);
     }
     section#sign.undefined {
-      background: #c3ab12; color: #1f1f1f;
+      background: var(--element-exceeds-undefined-color);
+      color: var(--element-exceeds-undefined-text-color);
     }
     section#actualValueSection {
-      text-shadow: 0px 0px 1px #1f1f1f;
       display: flex;
       flex: 1;
       background: linear-gradient(180deg,rgba(255,255,255,0),rgba(230,230,230,0.2),rgba(255,255,255,0));
@@ -226,7 +229,7 @@
   <template>
       <section id='sign' horizontal$='[[horizontal]]' class='null'>
 
-        <section id='actualValueSection' on-tap='_fireSelect'>
+        <section id='actualValueSection' on-tap='_select'>
           <paper-ripple hidden$='[[!selectable]]' id='ripple'></paper-ripple>
           <section hidden$='[[isBoolean]]'>
             <section id='valueSection'></section><section id='unitSection'>[[keys.unit]]</section>
@@ -255,8 +258,8 @@
       <section id='tooltip' hidden$='[[_hasTooltip(hasExceeded)]]' on-tap='_hideTooltip' on-mouseleave='_hideTooltip' role='tooltip' tabindex='-1'>
         <div class='title'>Alarmphasen</div>
         <section id='tooltipContent'>
-          <table-element id='firstExceedsTable' caption='Start' hide-header show-full-date hide-overflow is-boolean='[[isBoolean]]'></table-element>
-          <table-element id='lastExceedsTable' caption='Ende' hide-header show-full-date hide-overflow is-boolean='[[isBoolean]]'></table-element>
+          <table-element id='firstExceedsTable' caption='Start' hide-header not-updatable show-full-date hide-overflow is-boolean='[[isBoolean]]'></table-element>
+          <table-element id='lastExceedsTable' caption='Ende' hide-header not-updatable show-full-date hide-overflow is-boolean='[[isBoolean]]'></table-element>
         </section>
       </section>
 
@@ -272,8 +275,7 @@
       properties: {
         showDate: {
           type: Boolean,
-          value: false,
-          reflectToAttribute: true
+          value: false
         },
         horizontal: {
           type: Boolean,
@@ -282,23 +284,27 @@
         },
         showCaption: {
           type: Boolean,
-          value: true,
-          reflectToAttribute: true
+          value: true
         },
         tooltip: {
           type: Boolean,
-          value: true,
-          reflectToAttribute: true
+          value: true
+        },
+        selectable: {
+          type: Boolean,
+          value: true
         }
       },
 
-      factoryImpl: function(element, bubbles, showDate) {
+      factoryImpl: function(element, selectable, bubbles, showDate, dark) {
         this.setElement(element);
+        if (selectable === false)
+          this.selectable = false;
         if (showDate === false)
           this.showDate = false;
         if (bubbles === true)
           this.bubbles = true;
-        if (dark) {
+        if (dark === true) {
           this.setAttribute('dark', true);
           this.$.caption.setAttribute('dark', true);
           this.$.sign.setAttribute('dark', true);
@@ -342,16 +348,7 @@
         this.$.lastExceedsTable._updateView(value);
       },
 
-      _handleExceeding: function(isExceeding) {
-        if(this.bubbles) {
-          if (isExceeding)
-            this.fire('element-is-exceeding', this.getElement());
-          else
-            this.fire('element-is-not-exceeding', this.getElement());
-        }
-      },
-
-      _fireSelect: function(e) {
+      _select: function(e) {
         if(this.selectable === true) {
           this.fire('element-select', this.getElement());
           if (this.hasExceeded) this._hideTooltip();

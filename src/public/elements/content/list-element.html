@@ -12,7 +12,7 @@
       -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
       -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
       align-self: stretch;
-      display: flex;
+      display: inline-flex;
       flex-direction: row;
       justify-content: space-between;
       border-radius: inherit;
@@ -25,23 +25,26 @@
       border-color: #606060;
     }
     section#sign {
-      color: var(--bright-text-color);
       min-width: 48px;
       display: flex;
       justify-content: center;
       align-items: stretch;
     }
     section#sign.null {
-      background: #1BD939; color: #f1f1f1;
+      background: var(--element-color);
+      color: var(--element-text-color);
     }
     section#sign.true {
-      background: #D91B1B; color: #f1f1f1;
+      background: var(--element-exceeds-true-color);
+      color: var(--element-exceeds-true-text-color);
     }
     section#sign.false {
-      background: #920bad; color: #f1f1f1;
+      background: var(--element-exceeds-false-color);
+      color: var(--element-exceeds-false-text-color);
     }
     section#sign.undefined {
-      background: #c3ab12; color: #1f1f1f;
+      background: var(--element-exceeds-undefined-color);
+      color: var(--element-exceeds-undefined-text-color);
     }
     section#sign[dark]{
       color: #d3d3d3;
@@ -68,7 +71,7 @@
       color: #333333;
       transform: rotate(-90deg);
       transform-origin: center;
-      border-bottom: thin solid currentColor;
+      /*border-bottom: thin solid currentColor;*/
       align-self: center;
       line-height: normal;
       font-size: 0.6em;
@@ -127,9 +130,11 @@
       padding: 0.5em;
       box-sizing: border-box;
     }
+    radio-button-element {
+      --radio-button-checked-color: var(--element-color);
+      --radio-button-unchecked-color: var(--element-color);
+    }
   </style>
-
-    <section id='label'>[[label]]</section>
     <section id='caption'>
       <template id='captiontemplate' is='dom-repeat' items='[[captionKeys]]' as='captionKey'>
         <span id='captions' hidden$='[[isEmptyCaption(captionKey)]]'>[[getKey(captionKey, keys.*)]]</span>
@@ -137,7 +142,7 @@
     </section>
 
     <section id='sign' class='null'>
-      <section id='actualValueSection'>
+      <section id='actualValueSection' hidden$="[[showValues]]">
         <section hidden$='[[isBoolean]]'>
           <section id='valueSection'></section><section id='unitSection'>[[keys.unit]]</section>
         </section>
@@ -148,9 +153,8 @@
         </section>
       </section>
     </section>
-
     <section id='dateSection' hidden$='[[!showDate]]'></section>
-
+    <section id='label'>[[label]]</section>
   </template>
 
   <script>
@@ -163,19 +167,31 @@
       properties: {
         showDate: {
           type: Boolean,
-          value: true,
-          reflectToAttribute: true
+          value: true
+        },
+        showValues: {
+          type: Boolean,
+          value: true
+        },
+        selectable: {
+          type: Boolean,
+          value: true
         }
       },
 
-      factoryImpl: function(element, bubbles, showDate, dark) {
+      factoryImpl: function(element, selectable, bubbles, showValues, showDate, dark) {
         this.setElement(element);
+        if (selectable === false)
+          this.selectable = false;
         if (showDate === false)
           this.showDate = false;
         if (bubbles === true)
           this.bubbles = true;
         if (dark === true) {
           this.dark = true;
+        }
+        if (showValues === false) {
+          this.showValues = true;
         }
       },
 
@@ -187,7 +203,7 @@
       },
 
       listeners: {
-        'tap': '_onTap'
+        'tap': '_select'
       },
 
       setExceedingState: function(isExceeding, state) {
@@ -205,27 +221,13 @@
           return;
 
         // set value
-        if (!this.isBoolean)
+        if (!this.isBoolean && this.showValues === true)
           this.$.valueSection.textContent = value.y || ' ';
 
         // set date
-        if (this.showDate)
+        if (this.showDate === true)
           this.$.dateSection.textContent = new Date(value.x).toLocaleTimeString() || ' ';
-      },
-
-      _handleExceeding: function(isExceeding) {
-        if(this.bubbles) {
-          if (isExceeding)
-            this.fire('element-is-exceeding', this.getElement());
-          else
-            this.fire('element-is-not-exceeding', this.getElement());
-        }
-      },
-
-      _onTap: function(e) {
-        this.fire('element-select', this.getElement());
       }
-
     });
   </script>
 

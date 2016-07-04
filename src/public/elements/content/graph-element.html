@@ -26,6 +26,11 @@
           value: 'Catmull-Rom-Spline',
           observer: '_interpolationChanged'
         },
+        hidden: {
+          type: Boolean,
+          value: false,
+          observer: '_hiddenChanged'
+        },
         noDots: {
           type: Boolean,
           value: false,
@@ -131,8 +136,21 @@
                                .attr("class", "dots")
                                .attr("hidden", this.noDots ? true : null);
 
+        // this.chartElement._addLegendEntry(this.getElement);
+
         // set Values
         if (this.values.length > 0) this.setValues(this.values);
+      },
+
+      detached: function() {
+        this._node.node().parentElement.removeChild(this._node.node());
+
+        if (this.notUpdatable === false &&
+            window.UpdatableNodes !== undefined &&
+            UpdatableNodes[this.label] &&
+            UpdatableNodes[this.label][this.id] &&
+            (pos = UpdatableNodes[this.label][this.id].indexOf(this)) !== -1)
+          UpdatableNodes[this.label][this.id].splice(pos,1);
       },
 
       factoryImpl: function (element, bubbles) {
@@ -242,6 +260,12 @@
           if (this._dots)
             this._dots.selectAll('circle.dot')
                       .attr('stroke', this.color);
+        }
+      },
+
+      _hiddenChanged: function() {
+        if (this._node) {
+          this._node.attr('hidden', this.hidden ? true : null);
         }
       },
 

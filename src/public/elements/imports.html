@@ -1,12 +1,5 @@
 <!--  D3 -->
-<script type="text/javascript" src='../js/d3.js'></script>
-<!-- <script type="text/javascript" src='../components/d3/d3.js'></script> -->
-<!-- <script type="text/javascript" src='../components/d3-selection/d3-selection.min.js'></script>
-<script type="text/javascript" src='../components/d3-dispatch/d3-dispatch.min.js'></script>
-<script type="text/javascript" src='../components/d3-timer/d3-timer.min.js'></script>
-<script type="text/javascript" src='../components/d3-interpolate/d3-interpolate.min.js'></script>
-<script type="text/javascript" src='../components/d3-transition/d3-transition.js'></script>
-<script type="text/javascript" src='../components/d3-zoom/d3-zoom.js'></script> -->
+<script type="text/javascript" src='../js/d3.min.js'></script>
 
 <!-- ANIMATIONS -->
 <link rel="import" href="../components/neon-animation/neon-animation.html"/>
@@ -27,12 +20,15 @@
 <link rel="import" href="pages/select-page.html"/>
 <link rel="import" href="pages/main-page.html"/>
 
+<!-- Container Elements -->
+<link rel="import" href="container/group-card.html"/>
+<link rel="import" href="container/chart-element.html"/>
+<link rel="import" href="container/svg-element.html"/>
+
 <!-- Content-Elements -->
-<link rel="import" href="content/svg-element.html"/>
 <link rel="import" href="content/sign-element.html"/>
 <link rel="import" href="content/list-element.html"/>
 <link rel="import" href="content/table-element.html"/>
-<link rel="import" href="content/chart-element.html"/>
 <link rel="import" href="content/graph-element.html"/>
 
 <!-- Application Elements -->
@@ -44,12 +40,9 @@
 <link rel="import" href="components/icon-button-element.html"/>
 <link rel="import" href="components/toggle-button-element.html"/>
 <link rel="import" href="components/radio-button-element.html"/>
-<!-- <link rel="import" href="components/circle-element.html"/> -->
 <link rel="import" href="components/juelich-icon.html"/>
-<link rel="import" href="components/group-card.html"/>
 <link rel="import" href="components/dropdown-element.html"/>
 <link rel="import" href="components/dropdown-selector.html"/>
-
 
 <!-- POLYMER Elements  -->
 <link rel="import" href="../components/iron-selector/iron-selector.html">

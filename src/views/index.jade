@@ -117,7 +117,7 @@ html
               each Subgroup, Name in config.groups[Label][config.preferedGroupingKeys[Label]]
                 group-card(title= Name, svg= JSON.stringify(Subgroup.svg))
                   each Id, i in Subgroup.ids
-                    sign-element.content(label!= Label, id!= Id, is-boolean!= config.elements[Label][Id].isBoolean, keys= JSON.stringify(config.elements[Label][Id].keys), svg= JSON.stringify(config.elements[Label][Id].svg), caption-keys= JSON.stringify(config.groupingKeys[Label]), show-date!= (!mobile), bubbles)
+                    sign-element(label!= Label, id!= Id, is-boolean!= config.elements[Label][Id].isBoolean, keys= JSON.stringify(config.elements[Label][Id].keys), svg= JSON.stringify(config.elements[Label][Id].svg), caption-keys= JSON.stringify(config.groupingKeys[Label]), show-date!= (!mobile), bubbles)
           //- FULLSCREEN-SVG-ELEMENT
           svg-element.overlay(is-fullscreen, zoom-partition='3', max-zoom='3', min-zoom='0.75', initially-zoom-to-selected)
 

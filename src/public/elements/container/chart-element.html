@@ -4,6 +4,12 @@
   <template>
 <style>
   :host {
+    display: inline-flex;
+    width: auto;
+    height: auto;
+    flex: 1;
+    position: relative;
+    align-self: stretch;
     box-sizing: border-box;
     font-family: inherit;
     font-size: 0.75em;
@@ -12,7 +18,7 @@
     border-radius: inherit;
     -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
     -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
-  	overflow: visible;
+  	overflow: hidden;
     visibility: visible;
     -webkit-touch-callout: none !important;
       -webkit-user-select: none !important;
@@ -20,6 +26,10 @@
          -moz-user-select: none !important;
           -ms-user-select: none !important;
               user-select: none !important;
+  }
+  div#svgContainer {
+    display: inline-flex;
+    position: relative;
   }
   button-element {
     padding: 0.5em;
@@ -32,6 +42,14 @@
   }
   .icon-button:hover, section#info:hover {
     opacity: 1;
+    border-radius: 0;
+  }
+  section#info {
+    padding: 0.75em;
+    line-height: 1;
+  }
+  section.infotext {
+    margin-bottom: 0.5em;
   }
   text {
     fill: currentColor !important;
@@ -39,9 +57,6 @@
     font-family: inherit !important;
     font-weight: inherit !important;
     letter-spacing: normal !important;
-  }
-  svg#svg {
-    position: absolute;
   }
   g#chart text{
     font-size: 1em;
@@ -51,54 +66,54 @@
   }
   g#chart rect.plot {
     fill: #BDE2F1;
-    fill-opacity: 0.25;
-    stroke: #345475;
-    stroke-opacity: 0.5;
+    fill-opacity: 0.5;
+    stroke: currentColor;
+    stroke-opacity: 0.25;
     shape-rendering: crispEdges;
     stroke-width: 1px;
   }
   g#brushX rect.background, g#brushY rect.background {
     fill: white;
-    fill-opacity: 0.5;
-    stroke: #345475;
-    stroke-opacity: 0.2;
-    shape-rendering: crispEdges;
+    fill-opacity: 0.25;
+    stroke: currentColor;
+    stroke-opacity: 0.25;
     stroke-width: 1px;
   }
-  g.grid .tick {
-    stroke: #345475;
-    stroke-opacity: 0.2;
+  g.grid g.tick line {
+    stroke: currentColor;
+    stroke-opacity: 0.15;
   }
   g.grid path {
     stroke-width: 0;
   }
   g.axis path, g.axis line {
     fill: none;
-    stroke: #345475;
-    stroke-opacity: 0.1;
-    shape-rendering: crispEdges;
+    stroke: currentColor;
+    stroke-opacity: 0.25;
     stroke-width: 1.5px;
   }
   g#chart g.axis path, g#chart g.axis line {
-    stroke-opacity: 0.3;
+    stroke-opacity: 0.5;
   }
   g#focus line.focus.line {
       fill: none;
-      stroke: #345475;
-      stroke-opacity: 0.4;
+      stroke: currentColor;
+      stroke-opacity: 0.3;
       stroke-width: 2px;
       stroke-dasharray: 5;
   }
   g.brush rect.selection {
     stroke: #345475;
     fill: #005B82;
+    stroke-opacity: 0.5;
     fill-opacity: 0.25;
   }
   g.brush rect.selection.clamp {
-    fill-opacity: 0.5;
+    fill-opacity: 0.3;
+    stroke-opacity: 0.6;
   }
 </style>
-
+<div id="svgContainer">
   <svg id='svg' version='1.1' xmlns='http://www.w3.org/2000/svg'>
     <g id='brushX'>
       <rect class='background'></rect>
@@ -119,24 +134,23 @@
       <g class='y axis'></g>
       <g class='x grid'></g>
       <g class='y grid'></g>
+      <g id='graphs'></g>
       <g id='focus'>
         <line class='focus line x' y1='0'></line>
         <line class='focus line y' x1='0'></line>
         <text class='focus text x' y='4'></text>
         <text class='focus text y' x='4'></text>
       </g>
-      <g id='graphs'></g>
-      <g id='legend'></g>
     </g>
   </svg>
 
   <section id='info' on-tap='_toggleInfo' hidden>
-    <section id='infoX'></section>
-    <section id='infoY'></section>
+    <section id='infoX' class="infotext"></section>
+    <section id='infoY' class="infotext"></section>
   </section>
 
-  <icon-button-element id="menubutton" class="icon-button" icon="menu"></icon-button-element>
-  <dropdown-element for="menubutton" target-toggle-event="tap" position="bottom" align="outer-start">
+  <icon-button-element id="menubutton" class="icon-button" icon="timeline"></icon-button-element>
+  <dropdown-element id="legend" for="menubutton" target-toggle-event="tap" position="bottom" align="outer-start">
     <toggle-button-element checked="[[!noDots]]" on-change="changeDots"></iron-icon>mit Punkten</toggle-button-element>
     <toggle-button-element checked="[[!noLines]]" on-change="changeLines"></iron-icon>mit Linien</toggle-button-element>
     <toggle-button-element checked="[[!noAreas]]" on-change="changeAreas">mit Flächen</toggle-button-element>
@@ -160,6 +174,8 @@
       <button-element interpolate='Stufe (davor)'>Stufe (davor)</button-element>
       <button-element interpolate='Stufe (danach)'>Stufe (danach)</button-element>
   </dropdown-selector>
+
+</div>
 
   <content id='collector' select='graph-element'></content>
 </template>
@@ -237,6 +253,7 @@
 
         _chart: Object,
         _svg: Object,
+        _graphs: [],
 
         _x: Function,
         _x2: Function,
@@ -281,10 +298,6 @@
         return this;
       },
 
-      get _graphs () {
-        return this.getEffectiveChildren();
-      },
-
       get _parent () {
         if (this.parentNode.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
           return this.parentNode.host;
@@ -325,6 +338,22 @@
 
       ready: function() {
         this._buildLayout();
+      },
+
+      attached: function() {
+        this._observer =
+            Polymer.dom(this.$.collector).observeNodes((function(info) {
+          this.processNewNodes(info.addedNodes);
+          this.processRemovedNodes(info.removedNodes);
+        }).bind(this));
+      },
+
+      processNewNodes: function(nodes) {
+        this._graphs = nodes.concat(this._graphs || []);
+      },
+
+      processRemovedNodes: function(nodes) {
+        this._graphs = this.getEffectiveChildren();
       },
 
       _sizeChanged: function(e) {
@@ -375,8 +404,11 @@
       },
 
       _sizeLayout: function() {
-        this._height = Math.max(this._parent.offsetHeight, 200);
-        this._width = Math.max(this._parent.offsetWidth, 300);
+        this._height = Math.max(this.offsetHeight, 200);
+        this._width = Math.max(this.offsetWidth, 300);
+
+        this._svg.attr('height', this._height)
+                 .attr('width', this._width);
 
         this._width = this._width - this.margin.left - this.margin.right - this.brushWidth;
         this._height = this._height - this.margin.bottom - this.margin.top - this.brushWidth;
@@ -386,8 +418,6 @@
 
         this._x2.range([0, this._width]),
         this._y2.range([this._height, 0]);
-
-        this._svg.attr('viewBox', '0 0 ' + this._parent.offsetWidth + ' ' + this._parent.offsetHeight);
 
         this.$.menubutton.style.left = 'auto';
         this.$.menubutton.style.right = this.margin.right + 'px';
@@ -479,7 +509,7 @@
                         this._brushedY();
                      }.bind(this._self));
 
-        this._info.attr('style', 'left:'+(this.margin.left+4)+'px; top:'+(this.margin.top+this.brushWidth+3)+'px');
+        this._info.attr('style', 'left:'+(this.margin.left)+'px; top:'+(this.margin.top+this.brushWidth)+'px');
         this._legend.attr('style', 'right:'+(this.margin.right+this.brushWidth+2)+'px; top:'+(this.margin.top+this.brushWidth+2)+'px');
 
         this._svg.selectAll('g,line,text,path,rect')
@@ -559,7 +589,10 @@
 
       _redraw: function () {
         this._setAllDomains();
-        this._graphs.forEach(function(g) { g.redraw(); });
+
+        if (this._graphs !== undefined)
+          this._graphs.forEach(function(g) { g.redraw(); });
+
         this._chart.select('g.x.axis').transition(50).call(this._xAxis);
         this._chart.select('g.y.axis').transition(50).call(this._yAxis);
         this._chart.select('g.x.grid').transition(50).call(this._xGrid);
@@ -580,15 +613,15 @@
           if (this._width - d3.event.selection[1] < this.clampExtend) {
             if (this._isClamping === false) {
               this._isClamping = true;
-              this._brushBehaviorX.move(                this._brushX.select('g.brush'), [d3.event.selection[0], this._width]);
-              console.log(domain);
-              // return;
+              this._brushX.select('rect.selection').classed('clamp', true);
+              this._brushBehaviorX.move( this._brushX.select('g.brush'), [d3.event.selection[0], this._width]);
             }
             domain = [ this._x2.invert(d3.event.selection[0]),
                        this._x2.invert(this._width) ];
           }
           else {
             this._isClamping = false;
+            this._brushX.select('rect.selection').classed('clamp', false);
             domain = [ this._x2.invert(d3.event.selection[0]),
                        this._x2.invert(d3.event.selection[1]) ];
           }
@@ -598,15 +631,13 @@
         }
         else {
           this._isClamping = false;
+          this._brushX.select('rect.selection').classed('clamp', false);
           this._x.domain(this._x2.domain());
         }
         this._graphs.forEach(function(g) { g.redraw(); });
-        this._chart.select('g.x.axis').call(this._xAxis);
-        this._chart.select('g.x.grid')
-                   .call(this._createAxis(this._x, 'bottom', this.xScale, this.gridMult)
-                             .tickSize(-this._height, 0, 0)
-                             .tickFormat(''));
-        this._brushX.select('g.axis').call(this._brushAxisX);
+        this._chart.select('g.x.axis').transition(50).call(this._xAxis);
+        this._chart.select('g.x.grid').transition(50).call(this._xGrid);
+        this._brushX.select('g.axis').transition(50).call(this._brushAxisX);
         this._svg.selectAll('g,line,text,path,rect')
                  .classed('style-scope', true)
                  .classed('chart-element', true);
@@ -622,12 +653,9 @@
         else
           this._y.domain(this._y2.domain());
         this._graphs.forEach(function(g) { g.redraw(); });
-        this._chart.select('g.y.axis').call(this._yAxis);
-        this._chart.select('g.y.grid')
-                   .call(this._createAxis(this._y, 'left', this.yScale, this.gridMult)
-                             .tickSize(-this._width, 0, 0)
-                             .tickFormat(''));
-        this._brushY.select('g.axis').call(this._brushAxisY);
+        this._chart.select('g.y.axis').transition(50).call(this._yAxis);
+        this._chart.select('g.y.grid').transition(50).call(this._yGrid);
+        this._brushY.select('g.axis').transition(50).call(this._brushAxisY);
         this._svg.selectAll('g,line,text,path,rect')
                  .classed('style-scope', true)
                  .classed('chart-element', true);
@@ -751,7 +779,7 @@
             x = this.timeFormatRange.call(this, d.x, this._x.domain(), this._width);
         this.$.infoX.innerText = 'x = ' + x;
         this.$.infoY.innerText = 'y = ' + y;
-        setTimeout((function(){ this.setAttribute('hidden', true) }).bind(this.$.info) , 3000);
+        setTimeout((function(){ this.setAttribute('hidden', true) }).bind(this.$.info) , 10000);
       },
       _toggleInfo: function() {
         if (this.$.info.hasAttribute('hidden')) {
@@ -770,6 +798,7 @@
         }
       },
       changeInterpolation: function(interpolation, oldValue) {
+        if (this._graphs === undefined) return;
         this._graphs.forEach(
           function(g) {
             g.interpolation = interpolation;
@@ -782,18 +811,21 @@
         this.redraw();
       },
       changeDots: function(e) {
+        if (this._graphs === undefined) return;
         this._graphs.forEach(
           function(g) {
             g.set('noDots', !e.target.checked)
           });
       },
       changeLines: function(e) {
+        if (this._graphs === undefined) return;
         this._graphs.forEach(
           function(g) {
             g.set('noLine', !e.target.checked)
           });
       },
       changeAreas: function(e) {
+        if (this._graphs === undefined) return;
         this._graphs.forEach(
           function(g) {
             g.set('noFill', !e.target.checked)
