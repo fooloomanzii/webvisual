@@ -9,8 +9,9 @@
       clear: both;
       float: left;
       outline: none;
-      margin: 0.25em 0;
+      margin: 0;
     }
+
     section#container {
       display: inline-flex;
       align-items: center;
@@ -19,10 +20,23 @@
       box-sizing: content-box;
       cursor: pointer;
       outline: none;
-      border-bottom: 1px solid rgba(0,0,0, 0.12);
-      padding: 0.75em 0.5em 0.25em;
+      padding: 0.5em 0.5em 0.25em;
     }
-
+    section#container[float] {
+      padding-top: 0.75em;
+    }
+    section#container[position="bottom"] {
+      border-bottom: 1px solid rgba(0,0,0, 0.12);
+    }
+    section#container[position="left"] {
+      border-left: 1px solid rgba(0,0,0, 0.12);
+    }
+    section#container[position="top"] {
+      border-top: 1px solid rgba(0,0,0, 0.12);
+    }
+    section#container[position="right"] {
+      border-right: 1px solid rgba(0,0,0, 0.12);
+    }
     label {
       position: absolute;
       pointer-events: none;
@@ -30,29 +44,54 @@
       top: 1.25em;
       line-height: normal;
       color: rgba(0, 0, 0, 0.26);
-      transition: 0.2s ease all;
-      -moz-transition: 0.2s ease all;
-      -webkit-transition: 0.2s ease all;
+      transition: 0.25s ease all;
+      -moz-transition: 0.25s ease all;
+      -webkit-transition: 0.25s ease all;
     }
 
     section.focusline {
       background-color: var(--bright-primary-color);
-      height: 2px;
-      width: 5%;
-      bottom: 0px;
-      left: 45%;
       visibility: hidden;
       pointer-events: none;
       position: absolute;
-      transition: 0.2s ease all;
-      -moz-transition: 0.2s ease all;
-      -webkit-transition: 0.2s ease
+      transition: 0.25s ease all;
+      -moz-transition: 0.25s ease all;
+      -webkit-transition: 0.25s ease
+    }
+    section.focusline[position="bottom"] {
+      height: 2px;
+      width: 5%;
+      bottom: 0;
+      left: 45%;
+    }
+    section.focusline[position="top"] {
+      height: 2px;
+      width: 5%;
+      top: 0;
+      left: 45%;
+    }
+    section.focusline[position="left"] {
+      width: 2px;
+      height: 5%;
+      left: 0;
+      top: 45%;
+    }
+    section.focusline[position="right"] {
+      width: 2px;
+      height: 5%;
+      right: 0;
+      top: 45%;
     }
 
-    section#container:focus section.focusline {
+    :host:focus section.focusline[position="bottom"], :host:focus section.focusline[position="top"], :host[active] section.focusline[position="bottom"], :host[active] section.focusline[position="top"] {
       visibility: visible;
       width: 100%;
       left: 0;
+    }
+    :host:focus section.focusline[position="left"], :host:focus section.focusline[position="right"], :host[active] section.focusline[position="left"], :host[active] section.focusline[position="right"] {
+      visibility: visible;
+      height: 100%;
+      top: 0;
     }
 
     label:not([float]) {
@@ -71,23 +110,32 @@
       color: var(--primary-color);
     }
 
+    iron-icon#icon {
+      margin-bottom: 0.25em;
+    }
+    label[float] ~ iron-icon {
+      margin-bottom: 0;
+    }
+    iron-icon#icon ~ section.selected, iron-icon#arrow {
+      margin-left: 0.5em;
+    }
     paper-ripple {
       color: var(--ripple-color, currentColor);
     }
   </style>
-
-    <section id="container" on-tap="toggleIcon" tabindex='0'>
+    <section id="container" on-tap="toggle" position$="[[position]]" float$="[[!hideSelected]]">
       <paper-ripple></paper-ripple>
       <label hidden="[[!label]]" float$="[[!hideSelected]]" for="container">[[label]]</label>
-      <section hidden$="[[hideSelected]]">[[selected]]</section>
-      <iron-icon id="arrow" class="right" icon="arrow-drop-down"></iron-icon>
-      <section class="focusline"></section>
+      <iron-icon hidden$="[[!icon]]" id="icon" icon="[[icon]]"></iron-icon>
+      <section hidden$="[[hideSelected]]" class="selected">[[selected]]</section>
+      <iron-icon hidden$="[[hideArrow]]" id="arrow" icon="arrow-drop-down"></iron-icon>
     </section>
-    <dropdown-element id="dropdown" for="container" horizontal="[[horizontal]]">
+    <section class="focusline" position$="[[position]]"></section>
+    <dropdown-element id="dropdown" position$="[[position]]" horizontal="[[horizontal]]" align="[[align]]" on-blur="hide" tabindex="1">
       <content></content>
     </dropdown-element>
-  </template>
 
+  </template>
   <script>
     Polymer({
       is: 'dropdown-selector',
@@ -98,6 +146,18 @@
         label: {
           type: String,
           value: ""
+        },
+        icon: {
+          type: String,
+          value: ""
+        },
+        position: {
+          type: String,
+          value: "bottom"
+        },
+        align: {
+          type: String,
+          value: "start"
         },
         horizontal: {
           type: Boolean,
@@ -110,10 +170,22 @@
         },
         toggles: {
           type: Boolean,
-          value: false,
-          reflectToAttribute: true
+          value: false
         },
         hideSelected: {
+          type: Boolean,
+          value: false
+        },
+        hideArrow: {
+          type: Boolean,
+          value: false
+        },
+        ariaPressed: {
+          type: String,
+          value: "false",
+          reflectToAttribute: true
+        },
+        active: {
           type: Boolean,
           value: false,
           reflectToAttribute: true
@@ -126,7 +198,8 @@
       },
 
       listeners: {
-        "iron-select": "_onSelect"
+        "iron-select": "_onSelect",
+        "keyup": "_keyHandler"
       },
 
       _onSelect: function() {
@@ -139,19 +212,43 @@
         } else {
           this.$.container.classList.add('set')
         }
-        this.toggleIcon();
+        this.fire("select", this.value);
       },
       deselect: function(e) {
         this.unlisten(this.selectedItem, 'tap', 'deselect');
         this.selected = this.fallbackSelection;
         e.stopImmediatePropagation();
+        this.hide();
+        this.fire("select", this.value);
+      },
+      show: function() {
+        this.active = true;
+        this.$.arrow.set('icon','arrow-drop-up');
+        this.setAttribute("aria-pressed", true);
+        this.$.dropdown.show();
+      },
+      hide: function() {
+        this.active = false;
+        this.$.arrow.set('icon','arrow-drop-down');
+        this.setAttribute("aria-pressed", false);
         this.$.dropdown.hide();
       },
-      toggleIcon: function() {
-        if (this.$.arrow.icon === 'arrow-drop-down')
-          this.$.arrow.set('icon','arrow-drop-up');
-        else
-          this.$.arrow.set('icon','arrow-drop-down');
+      toggle: function() {
+        if (this.active === false) {
+          this.show();
+        }
+        else {
+          this.hide();
+        }
+      },
+      _keyHandler: function(e) {
+        switch (e.which) {
+          case 27: this.hide(); break;
+          case 13:
+          case 32: this.toggle(); break;
+          case 38: this.selectPrevious(); break;
+          case 40: this.selectNext(); break;
+        }
       }
     });
   </script>

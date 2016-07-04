@@ -4,6 +4,7 @@
   <template>
 <style>
   :host {
+    box-sizing: border-box;
     font-family: inherit;
     font-size: 0.75em;
     color: currentColor;
@@ -20,18 +21,17 @@
           -ms-user-select: none !important;
               user-select: none !important;
   }
-  section#menu, section#info, section#legend {
-    position: absolute;
-    padding: 0.75em;
-    background: white;
-    border-radius: 4px;
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-                0 1px 5px 0 rgba(0, 0, 0, 0.12),
-                0 3px 1px -2px rgba(0, 0, 0, 0.2);
-  }
   button-element {
     padding: 0.5em;
     border-radius: 0px;
+  }
+  .icon-button, section#info {
+    position: absolute;
+    opacity: 0.75;
+    transition: opacity 250ms ease;
+  }
+  .icon-button:hover, section#info:hover {
+    opacity: 1;
   }
   text {
     fill: currentColor !important;
@@ -42,19 +42,6 @@
   }
   svg#svg {
     position: absolute;
-  }
-  svg.button {
-    fill: currentColor;
-    fill-opacity: 0.5;
-    transition: fill-opacity 200ms ease;
-    /*shape-rendering: crispEdges;*/
-  }
-  svg.button rect {
-    fill: white;
-    fill-opacity: inherit;
-  }
-  svg.button:hover {
-    fill-opacity: 1;
   }
   g#chart text{
     font-size: 1em;
@@ -102,13 +89,12 @@
       stroke-width: 2px;
       stroke-dasharray: 5;
   }
-  g.brush rect.extent {
+  g.brush rect.selection {
     stroke: #345475;
     fill: #005B82;
     fill-opacity: 0.25;
-    shape-rendering: crispEdges;
   }
-  g.brush rect.extent.clamp {
+  g.brush rect.selection.clamp {
     fill-opacity: 0.5;
   }
 </style>
@@ -142,39 +128,38 @@
       <g id='graphs'></g>
       <g id='legend'></g>
     </g>
-    <svg id='menubutton' class='button' preserveAspectRatio='xMidYMid meet' on-tap='toggleMenu'>
-      <rect></rect>
-      <g><svg viewBox='0 0 24 24'>
-        <path d='M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z'/>
-         </svg></g>
-    </svg>
   </svg>
 
   <section id='info' on-tap='_toggleInfo' hidden>
     <section id='infoX'></section>
     <section id='infoY'></section>
   </section>
-  <section id='menu' hidden>
-    <dropdown-selector label="y" hide-selected attr-for-selected="scale" selected="{{yScale}}" fallback-selection="" toggles>
-        <button-element scale='√'>√</button-element>
-        <button-element scale='ln'>ln</button-element>
-        <button-element scale='log₁₀'>log₁₀</button-element>
-    </dropdown-selector>
-    <dropdown-selector label="Interpolator" attr-for-selected="interpolate" selected="{{interpolation}}">
-        <button-element interpolate='Lineare Verbindung'>Lineare Verbindung</button-element>
-        <button-element interpolate='Basis Spline'>Basis Spline</button-element>
-        <button-element interpolate='Monotoner Spline'>Monotoner Spline</button-element>
-        <button-element interpolate='Kubischer Spline'>Kubischer Spline</button-element>
-        <button-element interpolate='Cardinaler Spline'>Cardinaler Spline</button-element>
-        <button-element interpolate='Catmull-Rom-Spline'>Catmull-Rom-Spline</button-element>
-        <button-element interpolate='Stufe (mitte)'>Stufe (mitte)</button-element>
-        <button-element interpolate='Stufe (davor)'>Stufe (davor)</button-element>
-        <button-element interpolate='Stufe (danach)'>Stufe (danach)</button-element>
-    </dropdown-selector>
-    <toggle-button-element checked="[[!noDots]]" on-change="changeDots"></iron-icon>Punkte</toggle-button-element>
-    <toggle-button-element checked="[[!noLines]]" on-change="changeLines"></iron-icon>Linien</toggle-button-element>
-    <toggle-button-element checked="[[!noAreas]]" on-change="changeAreas">Flächen</toggle-button-element>
-  </section>
+
+  <icon-button-element id="menubutton" class="icon-button" icon="menu"></icon-button-element>
+  <dropdown-element for="menubutton" target-toggle-event="tap" position="bottom" align="outer-start">
+    <toggle-button-element checked="[[!noDots]]" on-change="changeDots"></iron-icon>mit Punkten</toggle-button-element>
+    <toggle-button-element checked="[[!noLines]]" on-change="changeLines"></iron-icon>mit Linien</toggle-button-element>
+    <toggle-button-element checked="[[!noAreas]]" on-change="changeAreas">mit Flächen</toggle-button-element>
+  </dropdown-element>
+
+  <dropdown-selector id="ybutton" class="icon-button" icon="y" hide-selected attr-for-selected="scale" selected="{{yScale}}" fallback-selection="linear" toggles hide-arrow position="bottom" align="outer-end">
+      <button-element scale='linear'>linear</button-element>
+      <button-element scale='√'>√</button-element>
+      <button-element scale='ln'>ln</button-element>
+      <button-element scale='log₁₀'>log₁₀</button-element>
+  </dropdown-selector>
+
+  <dropdown-selector id="xbutton" class="icon-button" icon="x" hide-selected attr-for-selected="interpolate" selected="{{interpolation}}" fallback-selection="Lineare Verbindung" toggles hide-arrow position="left" align="outer-start">
+      <button-element interpolate='Lineare Verbindung'>Lineare Verbindung</button-element>
+      <button-element interpolate='Basis Spline'>Basis Spline</button-element>
+      <button-element interpolate='Monotoner Spline'>Monotoner Spline</button-element>
+      <button-element interpolate='Kubischer Spline'>Kubischer Spline</button-element>
+      <button-element interpolate='Cardinaler Spline'>Cardinaler Spline</button-element>
+      <button-element interpolate='Catmull-Rom-Spline'>Catmull-Rom-Spline</button-element>
+      <button-element interpolate='Stufe (mitte)'>Stufe (mitte)</button-element>
+      <button-element interpolate='Stufe (davor)'>Stufe (davor)</button-element>
+      <button-element interpolate='Stufe (danach)'>Stufe (danach)</button-element>
+  </dropdown-selector>
 
   <content id='collector' select='graph-element'></content>
 </template>
@@ -189,10 +174,10 @@
         margin: {
           type: Object,
           value: function() {
-            return {  top: 12,
-                      right: 24,
-                      bottom: 36,
-                      left: 60 };
+            return {  top: 6,
+                      right: 6,
+                      bottom: 42,
+                      left: 54 };
           }
         },
         brushWidth: {
@@ -205,9 +190,9 @@
         },
         clampExtend: {
           type: Number,
-          value: 1000
+          value: 16
         },
-        isClamping: {
+        _isClamping: {
           type: Boolean,
           value: false
         },
@@ -219,9 +204,14 @@
           type: Number,
           value: 2
         },
+        xScale: {
+          type: String,
+          value: 'time',
+          observer: 'changeScale'
+        },
         yScale: {
           type: String,
-          value: '',
+          value: 'linear',
           observer: 'changeScale'
         },
         interpolation: {
@@ -248,19 +238,15 @@
         _chart: Object,
         _svg: Object,
 
-        _x: {
-          type: Function,
-          value: function() { return d3.scaleTime(); }
-        },
-        _x2: {
-          type: Function,
-          value: function() { return d3.scaleTime(); }
-        },
+        _x: Function,
+        _x2: Function,
         _y: Function,
         _y2: Function,
 
         _xAxis: Object,
         _yAxis: Object,
+        _xGrid: Object,
+        _yGrid: Object,
 
         _brushBehaviorX: Object,
         _brushX: Object,
@@ -349,8 +335,10 @@
         this._svg = d3.select(this.$.svg).attr('preserveAspectRatio', 'xMinYMin meet')
                                          .attr('height', null)
                                          .attr('width', null);
-        this._y  = this._createNumberScale(this.yScale);
-        this._y2 = this._createNumberScale(this.yScale);
+        this._x  = this._createScale(this.xScale);
+        this._x2 = this._createScale(this.xScale);
+        this._y  = this._createScale(this.yScale);
+        this._y2 = this._createScale(this.yScale);
 
         this._chart = d3.select(this.$.chart)
                         .on('mouseenter', this._showFocus.bind(this))
@@ -365,43 +353,21 @@
         this._focusTextX = this._focus.select('text.focus.text.x');
         this._focusTextY = this._focus.select('text.focus.text.y');
 
-        // this._brushBehaviorX = d3.svg.brush()
-        //                          .x(this._x2)
-        //                          .on('brush', this._brushedX.bind(this._self));
-        // this._brushX = d3.select(this.$.brushX);
-        // this._brushAxisX = this._createAxis(this._x2, 'top');
-        // this._brushX.select('g.axis')
-        //             .call(this._brushAxisX);
-        // this._brushX.select('g.brush')
-        //             .call(this._brushBehaviorX)
-        //             .on('contextmenu', function() {
-        //                 d3.event.preventDefault();
-        //                 this._brushBehaviorX.clear();
-        //                 this._brushedX();
-        //              }.bind(this._self));
-        //
-        // this._brushBehaviorY = d3.svg.brush()
-        //                          .y(this._y2)
-        //                          .on('brush', this._brushedY.bind(this._self));
-        // this._brushY = d3.select(this.$.brushY);
-        // this._brushAxisY = this._createAxis(this._y2, 'right');
-        // this._brushY.select('g.axis')
-        //             .call(this._brushAxisY);
-        // this._brushY.select('g.brush')
-        //             .call(this._brushBehaviorY)
-        //             .on('contextmenu', function() {
-        //                 d3.event.preventDefault();
-        //                 this._brushBehaviorY.clear();
-        //                 this._brushedY();
-        //              }.bind(this._self))
-        //             .on('ondblclick', function() {
-        //                 d3.event.preventDefault();
-        //                 this._brushBehaviorY.clear();
-        //                 this._brushedY();
-        //              }.bind(this._self));
+        this._brushBehaviorX = d3.brushX()
+                                 .on('brush', this._brushedX.bind(this._self))
+        this._brushBehaviorY = d3.brushY()
+                                 .on('brush', this._brushedY.bind(this._self))
+        this._brushX = d3.select(this.$.brushX);
+        this._brushY = d3.select(this.$.brushY);
 
         this._info = d3.select(this.$.info);
         this._legend = d3.select(this.$.legend);
+
+        if (this.xScale === 'time') this.$.xbutton.set('icon', 't');
+        else this.$.xbutton.set('icon', 'x');
+
+        if (this.yScale === 'time') this.$.ybutton.icon = 't';
+        else this.$.ybutton.set('icon', 'y');
 
         this._svg.selectAll('g,line,text,path,rect')
                  .classed('style-scope', true)
@@ -423,18 +389,20 @@
 
         this._svg.attr('viewBox', '0 0 ' + this._parent.offsetWidth + ' ' + this._parent.offsetHeight);
 
-        d3.select(this.$.menubutton).attr('x', (this.margin.left + this._width + 1)+'px')
-                                    .attr('y', (this.margin.top)+'px')
-                                    .attr('height', this.brushWidth+'px')
-                                    .attr('width', this.brushWidth+'px')
-                                    .select('rect')
-                                    .attr('height', this.brushWidth+'px')
-                                    .attr('width', this.brushWidth+'px');
-        d3.select(this.$.menubutton).select('g')
-                                    .attr('transform', 'translate(8,0)')
-                                    .select('svg')
-                                    .attr('width', (this.brushWidth - 16)+'px' );
-        d3.select(this.$.menu).attr('style', 'right:'+(this.margin.right+this.brushWidth+2)+'px; top:'+(this.margin.top+this.brushWidth+2)+'px');
+        this.$.menubutton.style.left = 'auto';
+        this.$.menubutton.style.right = this.margin.right + 'px';
+        this.$.menubutton.style.top = this.margin.top + 'px';
+        this.$.menubutton.style.bottom = 'auto';
+
+        this.$.ybutton.style.left = (this.margin.left - this.brushWidth) + 'px';
+        this.$.ybutton.style.right = 'auto';
+        this.$.ybutton.style.top = this.margin.top + 'px';
+        this.$.ybutton.style.bottom = 'auto';
+
+        this.$.xbutton.style.left = 'auto';
+        this.$.xbutton.style.right = this.margin.right + 'px';
+        this.$.xbutton.style.top = 'auto';
+        this.$.xbutton.style.bottom = (this.margin.bottom - this.brushWidth) + 'px';
 
         this._chart.attr('transform', 'translate(' + this.margin.left + ',' + (this.brushWidth + this.margin.top) + ')');
 
@@ -447,50 +415,69 @@
                   .attr('width', this._width)
                   .attr('height', this._height);
 
-        this._xAxis = this._createAxis(this._x, 'bottom', 'time');
-        this._yAxis = this._createAxis(this._y, 'left');
+        this._xAxis = this._createAxis(this._x, 'bottom', this.xScale);
+        this._yAxis = this._createAxis(this._y, 'left', this.yScale);
+
+        this._xGrid = this._createAxis(this._x, 'bottom', this.xScale, this.gridMult)
+                          .tickSize(-this._height, 0, 0)
+                          .tickFormat('');
+        this._yGrid = this._createAxis(this._y, 'left', this.yScale, this.gridMult)
+                          .tickSize(-this._width, 0, 0)
+                          .tickFormat('');
 
         this._chart.select('g.x.axis')
                    .call(this._xAxis)
                    .attr('transform', 'translate(0,' + this._height + ')');
         this._chart.select('g.y.axis')
-
                    .call(this._yAxis);
-
         this._chart.select('g.x.grid')
                   .attr('transform', 'translate(0,' + this._height + ')')
-                  .call(this._createAxis(this._x, 'bottom', 'time', this.gridMult)
-                            .tickSize(-this._height, 0, 0)
-                            .tickFormat(''));
+                  .call(this._xGrid);
         this._chart.select('g.y.grid')
-                  .call(this._createAxis(this._y, 'left', 'number', this.gridMult)
-                            .tickSize(-this._width, 0, 0)
-                            .tickFormat(''));
+                  .call(this._yGrid);
 
         this._focusX.attr('y2', this._height);
         this._focusY.attr('x2', this._width);
 
-        // this._brushX.attr('transform', 'translate(' + this.margin.left + ',' + (this.margin.top + this.brushWidth)+ ')');
-        // this._brushX.select('rect.background')
-        //               .attr('width', this._width)
-        //               .attr('height', this.brushWidth)
-        //               .attr('transform', 'translate(0,-' + this.brushWidth + ')');
-        // this._brushX.select('.brush')
-        //             .selectAll('rect')
-        //               .attr('y',  -this.brushWidth)
-        //               .attr('width', this._width)
-        //               .attr('height', this.brushWidth);
-        //
-        // this._brushY.attr('transform', 'translate(' + (this.margin.left + this._width) + ',' + (this.margin.top + this.brushWidth) + ')');
-        // this._brushY.select('rect.background')
-        //               .attr('width', this.brushWidth)
-        //               .attr('height', this._height)
-        //               .attr('transform', 'translate(0,0)');
-        // this._brushY.select('.brush')
-        //             .selectAll('rect')
-        //               .attr('x',  0)
-        //               .attr('width', this.brushWidth)
-        //               .attr('height', this._height);
+        this._brushBehaviorX = d3.brushX()
+                                 .handleSize(8)
+                                 .extent([[0,0],[this._width,this.brushWidth]])
+                                 .on('end', this._brushedX.bind(this._self))
+        this._brushAxisX = this._createAxis(this._x2, 'top', this.xScale);
+        this._brushX.attr('transform', 'translate(' + this.margin.left + ',' + (this.margin.top + this.brushWidth)+ ')');
+        this._brushX.select('rect.background')
+                    .attr('width', this._width).attr('height', this.brushWidth)
+                    .attr('transform', 'translate(0,-' + this.brushWidth + ')');
+        this._brushX.select('g.axis')
+                    .call( this._brushAxisX );
+        this._brushX.select('g.brush')
+                    .attr('transform', 'translate(0,-' + this.brushWidth + ')')
+                    .call(this._brushBehaviorX)
+                    .on('contextmenu', function() {
+                        d3.event.preventDefault();
+                        this._clearBrush(this._brushBehaviorX, this._brushX);
+                        this._brushedX();
+                     }.bind(this._self));
+
+        this._brushBehaviorY = d3.brushY()
+                                 .handleSize(8)
+                                 .extent([[0,0],[this.brushWidth,this._height]])
+                                 .on('end', this._brushedY.bind(this._self));
+        this._brushAxisY = this._createAxis(this._y2, 'right', this.yScale);
+        this._brushY.attr('transform', 'translate(' + (this.margin.left + this._width) + ',' + (this.margin.top + this.brushWidth) + ')');
+        this._brushY.select('rect.background')
+                    .attr('width', this.brushWidth).attr('height', this._height)
+                    .attr('transform', 'translate(0,0)');
+        this._brushY.select('g.axis')
+                    .call( this._brushAxisY );
+        this._brushY.select('g.brush')
+                    .attr('transform', 'translate(0,0)')
+                    .call(this._brushBehaviorY)
+                    .on('contextmenu', function() {
+                        d3.event.preventDefault();
+                        this._clearBrush(this._brushBehaviorY, this._brushY);
+                        this._brushedY();
+                     }.bind(this._self));
 
         this._info.attr('style', 'left:'+(this.margin.left+4)+'px; top:'+(this.margin.top+this.brushWidth+3)+'px');
         this._legend.attr('style', 'right:'+(this.margin.right+this.brushWidth+2)+'px; top:'+(this.margin.top+this.brushWidth+2)+'px');
@@ -500,8 +487,10 @@
                  .classed('chart-element', true);
       },
 
-      _createNumberScale: function(option) {
+      _createScale: function(option) {
         switch (option) {
+          case 'time':
+            return d3.scaleTime(); break;
           case 'ln':
             return d3.scaleLog().base(Math.E); break;
           case 'log₁₀':
@@ -571,27 +560,14 @@
       _redraw: function () {
         this._setAllDomains();
         this._graphs.forEach(function(g) { g.redraw(); });
-        this._chart.select('.x.axis').transition(50).call(this._xAxis);
-        this._chart.select('.y.axis').transition(50).call(this._yAxis);
-        this._chart.select('.x.grid').transition(50)
-                   .call(this._createAxis(this._x, 'bottom', 'time', this.gridMult)
-                             .tickSize(-this._height, 0, 0)
-                             .tickFormat(''));
-        this._chart.select('.y.grid').transition(50)
-                   .call(this._createAxis(this._y, 'left', 'number', this.gridMult)
-                             .tickSize(-this._width, 0, 0)
-                             .tickFormat(''));
-        // this._brushBehaviorX.extent(this._brushBehaviorX.extent());
-        // this._brushX.select('.axis').transition(100).call(this._brushAxisX);
-        // // this._brushX.select('.grid').transition(100).call(this._brushGridX);
-        // this._brushX.select('.brush').transition(100).call(this._brushBehaviorX)
-        // this._brushBehaviorY.extent(this._brushBehaviorY.extent());
-        // this._brushY.select('.axis').transition(100).call(this._brushAxisY);
-        // // this._brushY.select('.grid').transition(100).call(this._brushGridY);
-        // this._brushY.select('.brush').transition(100).call(this._brushBehaviorY)
-        // d3.select(this.$.svg).selectAll('g.tick,g.tick line,g.tick text,g path.domain,rect,g.axis,text')
-        //                      .classed('style-scope', true)
-        //                      .classed('chart-element', true);
+        this._chart.select('g.x.axis').transition(50).call(this._xAxis);
+        this._chart.select('g.y.axis').transition(50).call(this._yAxis);
+        this._chart.select('g.x.grid').transition(50).call(this._xGrid);
+        this._chart.select('g.y.grid').transition(50).call(this._yGrid);
+
+        this._brushX.select('g.axis').transition(50).call(this._brushAxisX);
+        this._brushY.select('g.axis').transition(50).call(this._brushAxisY);
+
         this._svg.selectAll('g,line,text,path,rect')
                  .classed('style-scope', true)
                  .classed('chart-element', true);
@@ -599,19 +575,91 @@
       },
 
       _brushedX: function() {
-        // this.isClamping = (this.clamp === true && this._brushBehaviorX.empty() === false && this._x2.domain()[1] - this._brushBehaviorX.extent()[1] < this.clampExtend);
-        // if (this.isClamping) {
-        //   this._brushBehaviorX.extent( [ this._brushBehaviorX.extent()[0], this._x2.domain()[1] ] );
-        //   this._brushX.select('rect.extent').classed('clamp', true);
-        // }
-        // else
-        //   this._brushX.select('rect.extent').classed('clamp', false);
-        // this._x.domain(this._brushBehaviorX.empty() ? this._x2.domain() : this._brushBehaviorX.extent());
-        // this.redraw();
+        if (d3.event.selection) {
+          var domain;
+          if (this._width - d3.event.selection[1] < this.clampExtend) {
+            if (this._isClamping === false) {
+              this._isClamping = true;
+              this._brushBehaviorX.move(                this._brushX.select('g.brush'), [d3.event.selection[0], this._width]);
+              console.log(domain);
+              // return;
+            }
+            domain = [ this._x2.invert(d3.event.selection[0]),
+                       this._x2.invert(this._width) ];
+          }
+          else {
+            this._isClamping = false;
+            domain = [ this._x2.invert(d3.event.selection[0]),
+                       this._x2.invert(d3.event.selection[1]) ];
+          }
+          if (domain[0] > domain[1])
+            domain.reverse();
+          this._x.domain(domain);
+        }
+        else {
+          this._isClamping = false;
+          this._x.domain(this._x2.domain());
+        }
+        this._graphs.forEach(function(g) { g.redraw(); });
+        this._chart.select('g.x.axis').call(this._xAxis);
+        this._chart.select('g.x.grid')
+                   .call(this._createAxis(this._x, 'bottom', this.xScale, this.gridMult)
+                             .tickSize(-this._height, 0, 0)
+                             .tickFormat(''));
+        this._brushX.select('g.axis').call(this._brushAxisX);
+        this._svg.selectAll('g,line,text,path,rect')
+                 .classed('style-scope', true)
+                 .classed('chart-element', true);
       },
       _brushedY: function() {
-        // this._y.domain(this._brushBehaviorY.empty() ? this._y2.domain() : this._brushBehaviorY.extent());
-        // this.redraw();
+        if (d3.event.selection) {
+          var domain = [ this._y2.invert(d3.event.selection[0]),
+                         this._y2.invert(d3.event.selection[1]) ];
+          if (domain[0] > domain[1])
+            domain.reverse();
+          this._y.domain(domain);
+        }
+        else
+          this._y.domain(this._y2.domain());
+        this._graphs.forEach(function(g) { g.redraw(); });
+        this._chart.select('g.y.axis').call(this._yAxis);
+        this._chart.select('g.y.grid')
+                   .call(this._createAxis(this._y, 'left', this.yScale, this.gridMult)
+                             .tickSize(-this._width, 0, 0)
+                             .tickFormat(''));
+        this._brushY.select('g.axis').call(this._brushAxisY);
+        this._svg.selectAll('g,line,text,path,rect')
+                 .classed('style-scope', true)
+                 .classed('chart-element', true);
+      },
+
+      _clearBrush: function(behavior, selection) {
+        behavior.move(selection.select('g.brush'),[0,0]);
+      },
+      _brushMoveX: function(extent) {
+        if (Array.isArray(extent) === false) return;
+        this._brushBehaviorX.move(
+          this._brushX.select('g.brush'),
+          [this._x2(extent[0]),this._x2(extent[1])]);
+      },
+      _brushMoveY: function(extent) {
+        if (Array.isArray(extent) === false) return;
+        var domain = [this._y2(extent[1]),this._y2(extent[0])];
+        this._brushBehaviorY.move(this._brushY.select('g.brush'), domain);
+      },
+      _brushIsEmpty: function(selection) {
+        var domain = d3.brushSelection(selection.select('g.brush').node());
+        if (domain === null) return undefined;
+        else if (Math.abs(domain[1]-domain[0]) < 1) return true;
+        else return false;
+      },
+      _brushDomain: function(selection, scale) {
+        var domain = d3.brushSelection(selection.select('g.brush').node());
+        if (domain === null) return undefined;
+        domain = [scale.invert(domain[0]), scale.invert(domain[1])];
+        if (domain[0] > domain[1])
+          domain.reverse();
+        return domain;
       },
 
       setAllDomains: function () {
@@ -620,47 +668,50 @@
 
       _setAllDomains: function () {
         var graphs = this._graphs;
-        var domainX, domainY = [0, 0], domainTmp, v;
+        var domainX, domainY = [0, 0], domainBrushX, domainBrushY, v;
 
-        domainX  = [ d3.min(graphs,function(g){ return g._rangeX[0] }) ,
-                     d3.max(graphs,function(g){ return g._rangeX[1] }) ];
-        domainTmp= [ d3.min(graphs,function(g){ return g._rangeY[0] }) ,
-                     d3.max(graphs,function(g){ return g._rangeY[1] }) ];
+        domainBrushX = this._brushDomain(this._brushX, this._x2);
+        domainBrushY = this._brushDomain(this._brushY, this._y2);
+        domainX = [ d3.min(graphs,function(g){ return g._rangeX[0] }) ,
+                    d3.max(graphs,function(g){ return g._rangeX[1] }) ];
+        domainY = [ d3.min(graphs,function(g){ return g._rangeY[0] }) ,
+                    d3.max(graphs,function(g){ return g._rangeY[1] }) ];
 
-        v = (domainTmp[0]).toExponential().split('e');
+        // rounding y-domains to the according decimal exponent
+        v = (domainY[0]).toExponential().split('e');
         domainY[0] = (Math.floor(v[0])) * Math.pow(10,parseInt(v[1],10));
-        v = (domainTmp[1]).toExponential().split('e');
+        v = (domainY[1]).toExponential().split('e');
         domainY[1] = (Math.ceil(v[0]) + 1) * Math.pow(10,parseInt(v[1],10));
-        //
-        // // rounding y-domains to the according decimal exponent
-        // v = (domainTmp[0]).toExponential().split('e');
-        // domainY[0] = (Math.floor(v[0])) * Math.pow(10,parseInt(v[1],10));
-        // v = (domainTmp[1]).toExponential().split('e');
-        // domainY[1] = (Math.ceil(v[0]) + 1) * Math.pow(10,parseInt(v[1],10));
 
-        // this._x2.domain(domainX);
-        // this._y2.domain(domainY);
-        // if (!this._brushBehaviorX.empty()) {
-        //   domainTmp = this._brushBehaviorX.extent();
-        //   if ( domainTmp[0] <= domainX[0] ) {
-        //     this._brushBehaviorX.extent( [domainX[0], domainTmp[1]] );
-        //     domainTmp = this._brushBehaviorX.extent();
-        //     if (this.isClamping === true || domainTmp[1] <= domainX[0]) {
-        //       this._brushBehaviorX.clear();
-        //     }
-        //   }
-        //   else if (this.isClamping === true) {
-        //     this._brushBehaviorX.extent( [domainTmp[0], domainX[1]] );
-        //   }
-        //   domainX = this._brushBehaviorX.extent();
-        //
-        // }
-        // if (!this._brushBehaviorY.empty()) {
-        //   domainY = this._brushBehaviorY.extent();
-        // }
+        this._x2.domain(domainX);
+        this._y2.domain(domainY);
+
+        if (domainBrushX !== undefined) {
+          if ( domainBrushX[0] <= domainX[0] ) {
+            if (this._isClamping === true || domainBrushX[1] <= domainX[0]) {
+              this._clearBrush(this._brushBehaviorX, this._brushX);
+              domainBrushX = domainX;
+            }
+            else {
+              domainBrushX = [domainX[0], domainBrushX[1]];
+              this._brushMoveX( domainBrushX );
+            }
+          }
+          else if (this._isClamping === true) {
+            domainBrushX = [domainBrushX[0], domainX[1]];
+            this._brushMoveX( domainBrushX );
+          }
+          else {
+            this._brushMoveX( domainBrushX );
+          }
+          domainX = domainBrushX;
+        }
+        if (domainBrushY !== undefined) {
+          this._brushMoveY( domainBrushY );
+          domainY = domainBrushY;
+        }
         this._x.domain(domainX);
         this._y.domain(domainY);
-        // this.redraw();
       },
 
       _showFocus: function() {
@@ -700,6 +751,7 @@
             x = this.timeFormatRange.call(this, d.x, this._x.domain(), this._width);
         this.$.infoX.innerText = 'x = ' + x;
         this.$.infoY.innerText = 'y = ' + y;
+        setTimeout((function(){ this.setAttribute('hidden', true) }).bind(this.$.info) , 3000);
       },
       _toggleInfo: function() {
         if (this.$.info.hasAttribute('hidden')) {

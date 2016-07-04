@@ -23,7 +23,7 @@
         },
         interpolation: {
           type: String,
-          value: 'cardinal',
+          value: 'Catmull-Rom-Spline',
           observer: '_interpolationChanged'
         },
         noDots: {
@@ -167,8 +167,18 @@
         //  remove old dots
         dots.exit()
             .remove();
-        // update line
-        this._line.attr('d', this._lineFunction(this.values));
+        // update line, animated http://bl.ocks.org/benjchristensen/1148374
+        // var dx = 1;
+        // if (this.values.length > 1)
+        //   dx = this.chartElement._x(this.values[this.values.length - 1].x) -this.chartElement._x(this.values[this.values.length - 2].x);
+        this._line
+            .attr('d', this._lineFunction(this.values));
+        // .data([this.values]) // set the new data
+				// 	.attr("transform", "translate(" + dx + ")") // set the transform to the right by x(1) pixels (6 for the scale we've set) to hide the new value
+				// 	.attr("d", this._lineFunction) // apply the new data values ... but the new value is hidden at this point off the right of the canvas
+				// 	.transition() // start a transition to bring the new value into view
+				// 	.duration(1000) // for this demo we want a continual slide so set this to the same as the setInterval amount below
+				// 	.attr("transform", "translate(" + 0 + ")");
         this._area.attr('d', this._areaFunction(this.values));
       },
 

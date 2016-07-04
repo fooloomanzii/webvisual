@@ -18,11 +18,10 @@
       section#dropdown {
         display: flex;
         flex-direction: column;
-        overflow-x: hidden;
-        overflow-y: auto;
+        overflow: hidden;
         position: absolute;
-        transition-delay: 150ms;
-        transition: all 300ms ease;
+        transition-delay: 250ms;
+        transition: all 250ms ease;
         opacity: 1;
         visibility: visible;
         background: var(--background-0);
@@ -33,13 +32,11 @@
         align-items: stretch;
         align-content: stretch;
         justify-content: center;
-        transform: scaleX(1);
       }
       section#dropdown[horizontal] {
         flex-direction: row;
       }
       section#dropdown:not(.opened) {
-        transform: scaleX(0);
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
@@ -67,10 +64,16 @@
           type: String,
           observer: '_forChanged'
         },
-
+        // options: 'left', 'right', 'bottom', 'top'
         position: {
           type: String,
           value: 'bottom'
+        },
+
+        // options: 'start', 'center', 'end'
+        align: {
+          type: String,
+          value: 'start'
         },
 
         offset: {
@@ -78,29 +81,41 @@
           value: 0
         },
 
-        centered: {
-          type: Boolean,
-          value: false
-        },
-
         horizontal: {
           type: Boolean,
           value: false
         },
-
-        parentHidingEvent: {
+        // e.g. tap
+        targetToggleEvent: {
           type: String,
-          value: "iron-select"
+          value: ""
+        },
+        // e.g. tap
+        targetShowingEvent: {
+          type: String,
+          value: ""
+        },
+        // e.g. iron-select
+        targetHidingEvent: {
+          type: String,
+          value: ""
         },
 
-        _opened: {
+        opened: {
           type: Boolean,
-          value: false
+          value: false,
+          observer: "_openedChanged"
         }
       },
 
+      hostAttributes: {
+        tabindex: '0'
+      },
+
       listeners: {
-        'iron-resize': 'updatePosition'
+        'iron-resize': 'updatePosition',
+        'focus': 'show',
+        "keyup": "_keyHandler"
       },
 
       get target () {
@@ -119,32 +134,41 @@
 
       attached: function() {
         this._target = this.target;
-        this.listen(this._target, 'tap', 'toggle');
-        if (this.parentHidingEvent !== "")
-          this.listen(this.parentElement, this.parentHidingEvent, 'hide');
+        if (this.targetToggleEvent !== "")
+          this.listen(this._target, this.targetToggleEvent, 'toggle');
+        if (this.targetShowingEvent !== "")
+          this.listen(this._target, this.targetShowingEvent, 'show');
+        if (this.targetHidingEvent !== "")
+          this.listen(this._target, this.targetHidingEvent, 'hide');
       },
 
       detached: function() {
         if (this._target) {
-          this.unlisten(this._target, 'tap', 'toggle');
-          if (this.parentHidingEvent !== "")
-            this.unlisten(this.parentElement, this.parentHidingEvent, 'hide');
+          if (this.targetShowingEvent !== "")
+            this.unlisten(this._target, this.targetShowingEvent, 'toggle');
+          if (this.targetToggleEvent !== "")
+            this.unlisten(this._target, this.targetToggleEvent, 'show');
+          if (this.targetHidingEvent !== "")
+            this.unlisten(this._target, this.targetHidingEvent, 'hide');
         }
       },
 
       show: function() {
-        this._opened = true;
         this.$.dropdown.classList.add('opened');
         this.updatePosition();
       },
 
       hide: function() {
-        this._opened = false;
         this.$.dropdown.classList.remove('opened');
       },
 
       toggle: function() {
-        if (this._opened === false) this.show();
+        if (this.$.dropdown.classList.contains('opened')) this.hide();
+        else this.show();
+      },
+
+      _openedChanged: function() {
+        if (this.opened === true) this.show();
         else this.hide();
       },
 
@@ -153,7 +177,7 @@
       },
 
       updatePosition: function() {
-        this.debounce("update-position", this._updatePosition, 25);
+        this.debounce("update-position", this._updatePosition, 15);
       },
 
       _updatePosition: function() {
@@ -161,56 +185,93 @@
           return;
 
         var offset = this.offset;
-
         var parentRect = this.offsetParent.getBoundingClientRect();
         var targetRect = this._target.getBoundingClientRect();
         var thisRect = this.$.dropdown.getBoundingClientRect();
+        var horizontalOffset, verticalOffset;
 
-        var horizontalCenterOffset = (this.centered) ? (targetRect.width - thisRect.width) / 2 : 0;
-        var verticalCenterOffset = (this.centered) ?  (targetRect.height - thisRect.height) / 2 : 0;
+        switch (this.align) {
+          case 'start':
+          default:
+            horizontalOffset = 0;
+            verticalOffset = 0;
+            break;
+          case 'end':
+            horizontalOffset = targetRect.width - thisRect.width;
+            verticalOffset = targetRect.height - thisRect.height;
+            break;
+          case 'center':
+            horizontalOffset = (targetRect.width - thisRect.width) / 2;
+            verticalOffset = (targetRect.height - thisRect.height) / 2;
+            break;
+          case 'outer-start':
+            horizontalOffset = -thisRect.width;
+            verticalOffset = -thisRect.height;
+            break;
+          case 'outer-end':
+            horizontalOffset = targetRect.width;
+            verticalOffset = targetRect.height;
+            break;
+          case 'outer-center':
+            horizontalOffset = targetRect.width / 2;
+            verticalOffset = targetRect.height / 2;
+            break;
+        }
 
         var targetLeft = targetRect.left - parentRect.left;
         var targetTop = targetRect.top - parentRect.top;
-
         var dropdownLeft, dropdownTop;
 
         switch (this.position) {
           case 'top':
-            dropdownLeft = targetLeft + horizontalCenterOffset;
+            dropdownLeft = targetLeft + horizontalOffset;
             dropdownTop = targetTop - thisRect.height - offset;
             break;
           case 'bottom':
-            dropdownLeft = targetLeft + horizontalCenterOffset;
+            dropdownLeft = targetLeft + horizontalOffset;
             dropdownTop = targetTop + targetRect.height + offset;
             break;
           case 'left':
             dropdownLeft = targetLeft - thisRect.width - offset;
-            dropdownTop = targetTop + verticalCenterOffset;
+            dropdownTop = targetTop + verticalOffset;
             break;
           case 'right':
             dropdownLeft = targetLeft + targetRect.width + offset;
-            dropdownTop = targetTop + verticalCenterOffset;
+            dropdownTop = targetTop + verticalOffset;
             break;
         }
 
         // Clip the left/right side.
-        if (dropdownLeft + thisRect.width + targetRect.left + 8 > window.innerWidth) {
-          this.style.right = '0px';
-          this.style.left = (window.innerWidth - (targetRect.left + dropdownLeft + thisRect.width)) + 'px';
+        if (dropdownLeft + parentRect.left + thisRect.width + 8 > window.innerWidth) {
+          this.style.right = 'auto';
+          this.style.left = (window.innerWidth - (parentRect.left + thisRect.width + offset + 8)) + 'px';
+        } else if (dropdownLeft + targetRect.left < 0) {
+          this.style.left = (-targetRect.left) + 'px';
+          this.style.right = 'auto';
         } else {
-          this.style.left = Math.max(0, dropdownLeft) + 'px';
+          this.style.left = dropdownLeft + 'px';
           this.style.right = 'auto';
         }
 
         // Clip the top/bottom side.
-        if (dropdownTop + thisRect.height + parentRect.top + 8 > window.innerHeight) {
-          this.style.bottom = '0px';
-          this.style.top = (window.innerHeight - (thisRect.height + targetRect.height + 8 )) + "px";
+        if (dropdownTop + thisRect.height + targetRect.top + 8 > window.innerHeight) {
+          this.style.bottom = 'auto';
+          this.style.top = (window.innerHeight - (thisRect.height + targetRect.top + offset + 8 )) + "px";
+        } else if (dropdownTop + targetRect.top < 0) {
+          this.style.top = (-targetRect.top) + 'px';
+          this.style.bottom = 'auto';
         } else {
-          this.style.top = Math.max(0, dropdownTop) + 'px';
+          this.style.top = dropdownTop + 'px';
           this.style.bottom = 'auto';
         }
+      },
 
+      _keyHandler: function(e) {
+        switch (e.which) {
+          case 37:
+          case 39:
+          case 27: this.hide(); break;
+        }
       }
     });
   </script>
