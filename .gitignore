@@ -10,8 +10,8 @@ src/config/config.json
 
 # Bower Components #
 node_modules/*
-src/public/components/*
-!src/public/components/README.md
+src/public/www/components/*
+!src/public/www/components/README.md
 
 # Node Modules #
 node_modules/*
@@ -26,7 +26,7 @@ data/db/*
 src/public/maps
 src/**/test/
 !src/tests/
-!src/public/test/
+!src/public/www/test/
 
 # Logs #
 *.log

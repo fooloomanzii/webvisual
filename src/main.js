@@ -65,7 +65,7 @@ app.on('ready', function() {
     mainWindow = new BrowserWindow(appConfig.options);
 
     // load server GUI
-    mainWindow.loadURL('file://' + __dirname + '/index.html');
+    mainWindow.loadURL('file://' + __dirname + '/public/app.html');
 
     mainWindow.webContents.on('dom-ready', () => {
       // Log to main process

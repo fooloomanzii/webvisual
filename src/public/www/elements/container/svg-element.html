@@ -1,0 +1,683 @@
+<!--
+`svg-element` provides rendering a svg in a container.
+
+#the svg has to have following specifications:
+- all tranistions of the included paths must be relative
+- there doesn't have to be a ''matrix'' transformation on the top element (very important), else zoom transitions won't work corviewly
+- 'view-box'-attribute has to be set
+- the to top element of the svg has to be a plain g-element (look up grouping in svg) with no transformations on it
+
+#how to achive this in Inkscape:
+> 1. Double click the group in Inkscape, to enter it.
+> 2. Select all the contents of the group by pressing Ctrl+A, and copy them with Ctrl+C.
+> 3. Double click outside the group to leave the group.
+> 4. Edit > Paste In Place (Ctrl+Alt+V) – at this point, group transformations are applied to the obects you paste.
+> 5. Group the objects again (Ctrl+G)
+> 6. Move the new group to the same depth as the original, and delete the original group. (This is probably easier with the XML editor, Ctrl+Shift+X.)
+<http://stackoverflow.com/a/22629215/5077914>
+
+#about absolut positioning
+<http://stackoverflow.com/a/26053262>
+
+#reference and inspiration
+<http://bl.ocks.org/mbostock/9656675>
+
+@element svg-element
+-->
+<!-- <script src='../../../components/d3/d3.min.js'></script> -->
+
+<dom-module id='svg-element'>
+<template>
+<style>
+  :host {
+    color: var(--primary-text-color);
+    border-radius: inherit;
+    -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+    -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
+    flex: 1;
+    display: flex;
+    width: auto;
+    height: auto;
+  	overflow: hidden;
+    visibility: visible;
+    font-family: inherit;
+    font-weight: inherit;
+    letter-spacing: normal;
+    -webkit-touch-callout: none !important;
+      -webkit-user-select: none !important;
+       -khtml-user-select: none !important;
+         -moz-user-select: none !important;
+          -ms-user-select: none !important;
+              user-select: none !important;
+  }
+  :host[is-fullscreen] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1500;
+    transform-origin: center;
+    transform: scale(0);
+    opacity: 0;
+    transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1),
+                transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  :host[is-fullscreen][opened] {
+    background: rgba(52,84,117,0.8);
+    opacity: 1;
+    transform: scale(1);
+  }
+  svg {
+    -webkit-touch-callout: none !important;
+      -webkit-user-select: none !important;
+       -khtml-user-select: none !important;
+         -moz-user-select: none !important;
+          -ms-user-select: none !important;
+              user-select: none !important;
+  }
+  svg#main {
+    flex: 1;
+    height: auto;
+    font-family: inherit;
+    font-weight: inherit;
+    letter-spacing: normal;
+  }
+  div#svgContainer {
+    border-radius: inherit;
+    display: flex;
+    width: 100%;
+    height: auto;
+    background: linear-gradient(to right top, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.2));
+  }
+
+  div#control {
+    position: absolute;
+    bottom: 4px;
+    right: 8px;
+  }
+  div#control[top] {
+    top: 16px;
+    right: 12px;
+    bottom: auto;
+  }
+  svg.icon {
+    box-sizing: border-box;
+    margin-right: 4px;
+    padding: 4px;
+    cursor: pointer;
+    outline: none;
+    height: 32px;
+    width: 32px;
+    fill: #444;
+    background: rgba(255,255,255, 0.2);
+    border-radius: 50%;
+    opacity: 0.8;
+    transform-origin: center;
+    transition: opacity 280ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  svg.icon:hover {
+    opacity: 0.9;
+    background: rgba(255,255,255, 0.4);
+  }
+  div#control[top] svg.icon {
+    box-shadow: 0px 0px 3px 0px rgba(31,31,31,0.5);
+  }
+  div#control[top] svg.icon:hover {
+    background: rgba(255,255,255, 0.8);
+    box-shadow: 0px 0px 6px 0px rgba(31,31,31,0.5);
+  }
+  svg text {
+    fill: var(--primary-text-color) !important;
+    pointer-events: none !important;
+    cursor: default !important;
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    letter-spacing: normal !important;
+  }
+  .svg-element-selectable {
+    cursor: pointer;
+    transform-origin: center center;
+    -moz-transform-origin: 50% 50%;
+  }
+  .clicked {
+    animation-name: clicked-animation;
+    animation-duration: 600ms;
+    animation-timing-function: linear;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+    @apply(--clicked-svg-element);
+  }
+  @keyframes clicked-animation {
+    50% {
+      stroke-opacity: 0.25;
+    }
+    100% {
+      stroke-opacity: 1;
+      stroke: #111;
+    }
+  }
+  .selected {
+    stroke: #EB4949;
+    stroke-width: 1.5px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transform-origin: center center;
+    will-change: transform;
+    animation-name: selected-animation;
+    animation-duration: 2s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    @apply(--selected-svg-element);
+  }
+  @keyframes selected-animation {
+    0% {
+      -webkit-transform: scale(1.0);
+    }
+    50% {
+      -webkit-transform: scale(0.8);
+      fill: #D91B1B;
+    }
+    100% {
+      -webkit-transform: scale(1.0);
+    }
+  }
+
+</style>
+
+  <div id='svgContainer'>
+  </div>
+  <div id='control' top$='{{isFullscreen}}'>
+    <svg class='icon' viewBox='0 -4 16 24' on-tap='_debounceResetZoom'><title>focus</title><g id='focus'> <path d='M 16,5.5 13,8 16,10.5 Z' /> <path d='M 10.5,16 8,13 5.5,16 Z' /> <path d='M 0,10.5 3,7.9999999 0,5.5 Z' /><path d='M 5.5,0 8,3 10.5,0 Z'/><circle r='1.5' cx='8' cy='8' /></g></svg>
+      <svg class='icon' viewBox='0 0 24 24' hidden$='{{isFullscreen}}' on-tap='_fireOpenFullscreen'><title>fullscreen</title><g id='fullscreen'><path d='M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z'/></g></svg>
+      <svg class='icon' viewBox='0 0 24 24' hidden$='{{!isFullscreen}}' on-tap='close'><title>close</title><g id='fullscreen-exit'><path d='M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z'/></g></svg>
+  </div>
+</template>
+
+<script>
+  if (!SvgSource)
+    var SvgSource = {};
+
+  SvgElement = Polymer({
+    is: 'svg-element',
+
+    properties: {
+      /**
+       * Object key of a global 'SvgSource'-Element that stores SVG-Nodes (so that their are no unesseccary reloads)
+       */
+      source: {
+        type: String,
+        observer: '_sourceChanged'
+      },
+      recentSource: {
+        type: String,
+        value: ''
+      },
+      /**
+       * If true, on Svg-Element's Nodes can be attached (and removed) a unique class, so that it can be styled via css
+       */
+      selectable: {
+        type: Object,
+        observer: '_selectableChanged'
+      },
+      /**
+       * Object of unique Identifiers (an ID or a Title) and the related (css-like) selector of selected Nodes
+       */
+      selected: {
+        type: Object,
+        value: function() { return {}; }
+      },
+      /**
+       * class-attribute to add a selected Node
+       */
+      selectedClass: {
+        type: String,
+        value: 'selected'
+      },
+      /**
+       * (css-like) selector of a initially zoomed Nodes
+       */
+      initial: {
+        type: String,
+        value: '',
+        observer: '_initialChanged'
+      },
+      /**
+       * If true, initially it is not zoomed to 'initial' if there are selected Nodes
+       */
+      initiallyZoomToSelected: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
+      },
+      /**
+       * If true, Svg-Element is shown
+       */
+      opened: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true,
+        observer: '_openedChanged'
+      },
+      /**
+       * If true, Svg-Element can be in fullscreen-presentation.
+       * The Element sends an Event, that would being catched by another Svg-Element (that is marked 'isFullscreen')
+       */
+      fullscreen: {
+        type: Boolean,
+        value: true
+      },
+      /**
+       * Marks the element, that triggers, when an another Svg-Element requests fullscreen-presentation.
+       * This Element should be in Polymer-DOM's Top Level, to catch the events.
+       */
+      isFullscreen: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
+      },
+      /**
+       * If true, Element is zoomable
+       */
+      isZoomable: {
+        type: Boolean,
+        value: true
+      },
+      /**
+       * If true, Element is zoomable
+       */
+      minZoom: {
+        type: Number,
+        value: 0.9
+      },
+      /**
+       * If true, Element is zoomable
+       */
+      maxZoom: {
+        type: Number,
+        value: 5
+      },
+      /**
+       * a clicked or selected Node will be centered and zoomed, depending how many times a zoomed Node,
+       * would fit in the actual view
+       */
+      zoomPartition: {
+        type: Number,
+        value: 3
+      },
+      /**
+       * property of ElementBehavior
+       */
+      notUpdatable: {
+        type: Boolean,
+        value: true
+      }
+    },
+
+    /**
+     * {private} inititial viewBox-height
+     */
+    _height: 0,
+    /**
+     * {private} inititial viewBox-width
+     */
+    _width: 0,
+    /**
+     * {private} mayor <g></g>-Node (that should be all sourounding group in the Svg-Graphic)
+     */
+    _mainG: Object,
+    /**
+     * {private} svg-Node
+     */
+    _svg: Object,
+    /**
+     * {private} d3-zoom-behavior
+     */
+    _d3Zoom: Object,
+
+    observers: [
+      '_selectedChanged(selected.*)'
+    ],
+
+    get rootElement () {
+      var rootNode = Polymer.dom(this).getOwnerRoot();
+      if (rootNode === null)
+        rootNode = Polymer.dom(this.parentNode).getOwnerRoot();
+      if (rootNode && rootNode.host)
+        return rootNode.host;
+      else
+        return this.parentNode;
+    },
+
+    attached: function() {
+      if (this.isFullscreen) {
+        this.listen(this.rootElement, 'svg-open-fullscreen', 'open');
+        this.listen(this.rootElement, 'svg-close-fullscreen', 'close');
+      }
+      // this.listen(this.rootElement, 'svg-open', 'open');
+      // this.listen(this.rootElement, 'svg-close', 'close');
+      // this.listen(this.rootElement, 'svg-select', 'select');
+      // this.listen(this.rootElement, 'svg-deselect', 'select');
+    },
+
+    detached: function() {
+      if (this.isFullscreen) {
+        this.unlisten(this.rootElement, 'svg-open-fullscreen', 'open');
+        this.unlisten(this.rootElement, 'svg-close-fullscreen', 'close');
+      }
+      // this.unlisten(this.rootElement, 'svg-open', 'open');
+      // this.unlisten(this.rootElement, 'svg-close', 'close');
+      // this.unlisten(this.rootElement, 'svg-select', 'select');
+      // this.unlisten(this.rootElement, 'svg-deselect', 'select');
+    },
+
+    open: function(e) {
+      this.setSvg(e.detail);
+      this.set('opened', true);
+    },
+    close: function() {
+      this.set('opened', false);
+    },
+
+    factoryImpl: function(svg, opened) {
+      this.setSvg(svg);
+      if (opened)
+        this.toggleAttribute('opened', true)
+    },
+
+    getSvg: function() {
+      return {source: this.source,
+              initial: this.initial,
+              selected: this.selected,
+              selectable: this.selectable};
+    },
+
+    setSvg: function(svg) {
+      this.async(function(){
+        if (svg.source)
+          this.set('source', svg.source);
+        if (svg.selectable)
+          this.set('selectable', svg.selectable);
+        if (svg.initial)
+          this.set('initial', svg.initial);
+        if (svg.selected)
+          this.set('selected', svg.selected);
+      });
+    },
+
+    _sourceChanged: function(source) {
+      if (this.opened === true && source !== '' && this.recentSource !== source) {
+        if (!SvgSource[source]) return;
+        if (!SvgSource[source].node) return;
+        this.recentSource = source;
+        this._svg = d3.select(this.$.svgContainer).select('svg#main');
+        if (this._svg && !this._svg.empty()) {
+          this.$.svgContainer.removeChild(this._svg.node());
+        }
+        // import svg (came by data-socket-repeater)
+        this._registerXML(SvgSource[source].node, source);
+      }
+    },
+
+    _registerXML: function(xml, source) {
+      // import svg to document
+      var date = new Date();
+      var svgNode = document.importNode(xml.cloneNode(true), true);
+      // register zoom function
+      this._d3Zoom = d3.zoom()
+                       .scaleExtent([this.minZoom, this.maxZoom])
+                       .on('zoom', this._zoom.bind(this));
+
+      // append imported svg to this element
+      this.$.svgContainer.insertBefore(svgNode, this.$.svgContainer.firstChild);
+      this._svg = d3.select(svgNode).attr('id', 'main')
+                                    .classed('style-scope', true).classed('svg-element', true);
+
+      // set style for resizing
+      this._svg.attr('preserveAspectRatio', 'xMinYMin meet')
+               .attr('height', null)
+               .attr('width', null)
+               .call(this._d3Zoom);
+
+      this._mainG = this._svg.select('g')
+                             .attr('id', 'mainG');
+
+      this._mainG.selectAll('text')
+                 .classed('style-scope', true).classed('svg-element', true); // style-scoping in polymer
+
+      // get original dimensions
+      var viewBox = this._svg.attr('viewBox').split(' ');
+      this._width  = viewBox[2] - viewBox[0];
+      this._height = viewBox[3] - viewBox[1];
+
+      this._selectableChanged(this.selectable);
+      this._debounceSelect();
+    },
+
+    _openedChanged: function(opened) {
+      if (this.source === '' || !opened) return;
+      this._sourceChanged(this.source);
+      this._debounceResetZoom();
+    },
+
+    _selectedChanged: function(change) {
+      if (Object.keys(this._mainG).length === 0 || change === undefined || Object.keys(change).length === 0) return;
+      this._debounceSelect();
+    },
+
+    _initialChanged: function(initial) {
+      if (this.source === '' || initial === '') return;
+      this._debounceResetZoom();
+    },
+
+    _selectableChanged: function(change) {
+      if (Object.keys(this._mainG).length === 0 || change === undefined || Object.keys(change).length === 0) return;
+
+      var self = this;
+      this._svg.on('contextmenu',
+        (function () {
+          d3.event.preventDefault();
+          this._debounceResetZoom();
+        }).bind(self));
+
+      // previous selectable elements: remove 'svg-element-selectable' class and click listener
+      this._mainG.selectAll('.svg-element-selectable')
+                .classed('svg-element-selectable', false)
+                .on('click dblclick', null);
+      this._mainG.selectAll('.clicked')
+                 .classed('clicked', false);
+
+      // add 'svg-element-selectable' class and click listener
+      for (var key in this.selectable)
+        this._mainG.selectAll(this.selectable[key])
+                  .classed('svg-element-selectable', true)  // for styling selectable
+                  .classed('style-scope', true).classed('svg-element', true) // for style-scoping in polymer
+                  .on('click dblclick',
+                    function() {
+                      self._zoomToElement(this);
+                      self._mainG.selectAll('.clicked')
+                                 .classed('clicked', false);
+                      this.classList.add('clicked');
+                    })
+                  .append('title')
+                  .text(function() {
+                      return key;
+                   });
+      for (var key in SvgSource[this.source].selectable)
+        this._mainG.selectAll(SvgSource[this.source].selectable[key])
+                  .classed('svg-element-selectable', true)  // for styling selectable
+                  .classed('style-scope', true).classed('svg-element', true) // for style-scoping in polymer
+                  .on('click dblclick',
+                    function() {
+                      self._zoomToElement(this);
+                      self._mainG.selectAll('.clicked')
+                                 .classed('clicked', false);
+                      this.classList.add('clicked');
+                    })
+                  .append('title')
+                  .text(function() {
+                      return key;
+                   });
+    },
+
+    _zoom: function () {
+      if (isNaN(d3.event.transform.x) || isNaN(d3.event.transform.y) || isNaN(d3.event.transform.k)) return;
+      this._mainG.attr('transform', d3.event.transform);
+    },
+
+    _zoomToElement: function(elem) {
+      if (elem === undefined) return;
+      // calc centered zoom coordinates
+      let transform = this._calcCenterZoom(elem);
+      let t = d3.zoomIdentity.translate(transform.x, transform.y).scale(transform.k)
+
+      if (isNaN(t.x) || isNaN(t.y) || isNaN(t.k)) return;
+
+      // Bug in Firefox in Transition for d3.interpolateZoom()
+      // this._svg.transition()
+      //          .duration(500)
+      //          .call(this._d3Zoom.transform, d3.zoomIdentity.translate(transform.x, transform.y).scale(transform.k));
+
+      // call transition to new translate and scale
+      this._mainG.transition()
+               .duration(500)
+               .attr('transform', t);
+
+      // save last transition
+      this._svg.node().__zoom = t;
+    },
+
+    _debounceSelect: function() {
+      this.debounce('select',
+        function() {
+          this.select(this.selected, this.selectedClass);
+        }, 100);
+    },
+
+    select: function(selected, selectedClass) {
+      // previous selected elements: remove class for selected elements
+      this._mainG.selectAll('.' + selectedClass)
+                .classed(selectedClass, false);
+
+      var elems;
+      var sel = [];
+      for (var key in selected) {
+        if (selected[key] !== '')
+          sel.push(selected[key]);
+      }
+      var sel = sel.join(',');
+      if (sel === '' ||
+          (elems = this._mainG.selectAll(sel)
+                              .filter('.svg-element-selectable')).empty()) {
+        if (this.opened)
+          this._debounceResetZoom();
+        return;
+      }
+
+      var boundE, bounds = [];
+      var self = this;
+      elems.each(
+             function() {
+               boundE = this.getBoundingClientRect();
+               bounds[0] = (bounds[0] > boundE.left ? boundE.left : bounds[0]) || boundE.left;
+               bounds[1] = (bounds[1] > boundE.top ? boundE.top : bounds[1]) || boundE.top;
+               bounds[2] = (bounds[2] < boundE.right ? boundE.right : bounds[2]) || boundE.right;
+               bounds[3] = (bounds[3] < boundE.bottom ? boundE.bottom : bounds[3]) || boundE.bottom;
+               this.classList.add(selectedClass);
+             });
+
+      boundE = { left: bounds[0],
+                 top: bounds[1],
+                 height: bounds[3] - bounds[1],
+                 width: bounds[2] - bounds[0] };
+
+      if (this.opened)
+        this._zoomToElement(boundE);
+    },
+
+    _calcCenterZoom: function(elem) {
+      // get view height and width
+      var view = this.getClientRects()[0];
+      if (view === undefined || elem === undefined || view.height === 0 || view.width === 0)
+        return {x: 0, y: 0, k: 1};
+
+      // calculate scale based on partioned view and dimensions of the element
+      var boundE; var bboxE;
+      if (elem.nodeType !== undefined)
+        boundE = elem.getBoundingClientRect();
+      else boundE = elem;
+
+      var bboxG = this._mainG.node().getBBox();
+      var boundG = this._mainG.node().getBoundingClientRect();
+
+      // absolute position (for angled or transioned element)
+      var vs = bboxG.width/boundG.width || 1; // view scale
+      var x = (boundE.left - boundG.left)*vs + bboxG.x;
+      var y = (boundE.top - boundG.top)*vs + bboxG.y;
+
+      // calculate zoom based on partions or minZoom or maxZoom
+      // scaling and centering
+      // view height/width in comparison tho viewboxheight/-width is important because of resizing by the browser
+      // difference in calculation by firefox in comparison to chromium based browsers
+      if (view.width > view.height)
+        var scale = Math.min(this._width/(this.zoomPartition*vs*boundE.width), this._height/(this.zoomPartition*vs*boundE.height));
+      else
+        var scale = Math.max(this._width/(this.zoomPartition*vs*boundE.width), this._height/(this.zoomPartition*vs*boundE.height));
+
+      if (scale < this.minZoom) scale = this.minZoom;
+      else if (scale > this.maxZoom) scale = this.maxZoom;
+
+      if (view.width/view.height > this._width/this._height) {
+        x = -scale*x + (this._height*view.width/view.height - scale*boundE.width*vs)/2;
+        y = -scale*y + (this._height - scale*boundE.height*vs)/2;
+      }
+      else {
+        x = -scale*x + (this._width - scale*boundE.width*vs)/2;
+        y = -scale*y + (this._width*view.height/view.width - scale*boundE.height*vs)/2;
+      }
+
+      if (isNaN(x) || isNaN(y) || isNaN(scale))
+        return {x: 0, y: 0, k: 1};
+      else
+        return {x: x, y: y, k: scale};
+    },
+
+    _debounceResetZoom: function() {
+      this.debounce('resetZoom',
+        function() {
+          this._resetZoom()
+        }, 100);
+    },
+
+    _resetZoom: function() {
+      if (this._mainG === undefined || this.opened === false) return;
+      // zoom to selectedItems
+      if (this.initiallyZoomToSelected === true && this.selected) {
+        for (var key in this.selected) {
+          if (this.selected[key] !== '' && !(this._mainG.selectAll(this.selected[key])
+                                    .filter('.svg-element-selectable')).empty()) {
+            this._debounceSelect();
+            return;
+          }
+        }
+      }
+      // zoom to initial
+      if (this.initial !== '') {
+        var initial;
+        if (!(initial = this._mainG.selectAll(this.initial)
+                                   .filter('.svg-element-selectable')).empty()) {
+          this.select({initial: this.initial}, 'initial');
+          return;
+        }
+      }
+      // zomm to _mainG
+      this._zoomToElement(this._mainG.node());
+    },
+
+    _fireOpenFullscreen: function() {
+      this.fire('svg-open-fullscreen', this.getSvg());
+    }
+  });
+</script>
+
+<dom-module>

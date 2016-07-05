@@ -1,0 +1,734 @@
+<dom-module id="main-page">
+  <link rel="import" type="css" href="../style/main-page.css"/>
+  <template>
+  <style>
+    :host {
+      font-size: 1em;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      left: 0;
+      top: 0;
+      position: absolute;
+      pointer-events: all !important;
+    }
+    section#mainContent ::content .panel {
+      position: absolute;
+      left: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      box-sizing: border-box;
+      background: linear-gradient(rgba(255, 255, 255, 0),rgba(255,255,255,0.15));
+      color: currentColor;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      -webkit-overflow-scrolling: touch;
+      -ms-flex: 1 1 0.000000001px; -webkit-flex: 1; flex: 1;
+      flex-basis: 0.000000001px; -webkit-flex-basis: 0.000000001px;
+      padding: 0.5em;
+      height: 100%;
+      width: 100%;
+      opacity: 1;
+    }
+    section#mainContent ::content .panel.foreground {
+      display: flex;
+    }
+    section#mainContent ::content .panel:not(.foreground) {
+      display: none;
+    }
+    section#mainContent ::content .panel.selected[animated] {
+      transition: opacity 150ms ease, transform 300ms ease;
+    }
+    section#mainContent ::content .panel:not(.selected)[animated] {
+      transition: opacity 300ms ease, transform 150ms ease;
+      opacity: 0;
+      transform: translateY(25%);
+      pointer-events: none;
+      z-index: 51;
+    }
+    section#groupingKeysLabelSelector {
+      display: flex;
+      flex-direction: column;
+    }
+    section#groupingKeysLabelSelector ::content iron-selector.groupingKeySelector {
+      display: flex;
+      flex-direction: column;
+    }
+    section#groupingKeysLabelSelector ::content iron-selector.groupingKeySelector:not(.foreground){
+      display: none;
+    }
+    section#groupingKeysLabelSelector ::content radio-button-element {
+      font-size: 0.9em;
+    }
+    section#labelsTabs {
+      margin-left: 36px;
+      height: 62%;
+      align-self: flex-end;
+      flex: 2;
+      font-family: Fira Sans Light;
+      font-size: 0.85em;
+    }
+    section#labelsTabs ::content tab-element.label.iron-selected {
+      background: linear-gradient(to top, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.15));
+      color: #f1f1f1;
+    }
+    section#labelsTabs ::content tab-element.label:hover:not(.iron-selected){
+      background: linear-gradient(to top, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+    }
+    section#labelsTabs ::content tab-element.label.iron-selected[dark]{
+      background: linear-gradient(to top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
+      color: #A8CCDB;
+    }
+    @media all and (max-width: 520px) {
+      .panel {
+        display: block;
+        padding: 0em;
+      }
+      group-card {
+        padding: 0em;
+        border-radius: 0em;
+        width: 100%;
+      }
+      section#toolbarHeader icon-button-element.menu-icon {
+        margin-right: 12px;
+        margin-left: 12px;
+      }
+      section#toolbarHeader section.logo-element-placeholder {
+        min-width: 44px !important;
+        flex: 0;
+      }
+      logo-element#logo {
+        width: 44px !important;
+        left: 64px !important;
+      }
+      section#labelsTabs {
+        margin-left: 12px !important;
+      }
+    }
+    @media all and (max-width: 419px) {
+      section#toolbarHeader icon-button-element.expand-icon {
+        display: none;
+      }
+    }
+    @media all and (max-height: 519px)  {
+      section#toolbarHeader icon-button-element.expand-icon {
+        display: none;
+      }
+    }
+    @media all and (min-width: 520px) and (max-width: 600px){
+      section#toolbarHeader icon-button-element.menu-icon {
+        margin-right: 16px;
+        margin-left: 16px;
+      }
+      logo-element#logo {
+        left: 72px !important;
+      }
+      section#toolbarHeader section#labelsTabs {
+        margin-left: 20px !important;
+      }
+    }
+    @media all and (max-width: 600px) {
+      section#toolbarFooter[opened] {
+        max-height: 32vh;
+      }
+      :host {
+        font-size: 0.9em;
+      }
+    }
+    @media all and (max-height: 690px) {
+      section#toolbarFooter[opened] {
+        max-height: 32vh;
+      }
+    }
+    @media all and (min-width: 601px) {
+      section#toolbarFooter[dark] .caption {
+        border-top: none;
+      }
+      section#toolbarFooter .caption {
+        border-top: none;
+      }
+    }
+  </style>
+
+    <logo-element id="logo" on-tap="backToMainMenu"></logo-element>
+    <!-- TOOLBAR -->
+    <section id="toolbar">
+      <section id="toolbarBackground"></section>
+      <section id="toolbarHeader">
+        <icon-button-element icon="menu" class="menu-icon" on-tap="toggleDrawer"></icon-button-element>
+
+        <section class="logo-element-placeholder"></section>
+
+        <section id="labelsTabs">
+          <iron-selector id="labelSelector" selected="{{selectedLabel}}" attr-for-selected="label">
+            <content select="tab-element.label"></content>
+          </iron-selector>
+        </section>
+
+        <section id="control">
+          <icon-button-element icon="error-outline" class="error control" on-tap="toggleExceedsPanel" hidden$="[[!isExceeding]]"></icon-button-element>
+          <section hidden$="[[!opened]]" style="display: flex;">
+            <icon-button-element icon="[[_computeExpandIcon(expanded)]]" class="expand-icon" on-tap="_toolbarExpand"></icon-button-element>
+            <icon-button-element icon="remove" class="toggle-icon control" on-tap="deselectElement"></icon-button-element>
+          </section>
+        </section>
+      </section>
+      <section id="toolbarFooter" opened$="[[opened]]" expanded$="[[expanded]]">
+        <section id="toolbarSelectedElement">
+          <sign-element id="selectedElementSign" class="selectedElement" hidden$="[[!opened]]" horizontal="[[!expanded]]" on-tap="deselectElement"></sign-element>
+          <section style="display: flex;">
+            <table-element id="selectedElementTable" hidden$="[[!opened]]" class="selectedElement" highlight-exceeding></table-element>
+          </section>
+          <svg-element id="selectedElementSVG" class="selectedElement" opened="[[opened]]">
+          </svg-element>
+        </section>
+      </section>
+    </section>
+
+    <section id="mainView">
+        <!-- Content -->
+        <section id="mainContent">
+          <content select=".panel"></content>
+        </section>
+
+        <section id="backdrop" on-tap="tapBackdrop"></section>
+        <section id="dropShadow" class="has-shadow"></section>
+
+      <!-- EXCEEDING -->
+      <section id="exceedsPanel">
+        <section id="exceedsHeader" on-tap="toggleExceedsPanel">
+          <button-element class="title"><iron-icon icon="warning" class="left"></iron-icon><section class="content">Alarme</section></button-element>
+        </section>
+        <iron-swipeable-container id="exceedingElementsList" on-iron-swipe="_removeSingleExceedingElementFromList"></iron-swipeable-container>
+        <section style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_removeAllExceedingElementFromList">Liste leeren</a></section>
+      </section>
+
+      <!-- SIDEMENU -->
+      <section id="drawerPanel">
+        <button-element collapse-id="settings" class="sidemenu collapsable" on-tap="toggleCollapse">
+          <iron-icon icon="settings" class="left"></iron-icon>
+          <section class="content">Einstellungen</section>
+          <iron-icon icon="arrow-drop-up" class="right" id="settings"></iron-icon>
+        </button-element>
+
+          <iron-collapse class="sidemenu collapse settings" opened>
+            <section class="indention collapse-content">
+              <button-element collapse-id="grouping" class="sidemenu" on-tap="toggleCollapse">
+                <iron-icon icon="reorder" class="left"></iron-icon>
+                <section class="content">Gruppierung</section>
+                <iron-icon icon="arrow-drop-down" class="right" id="grouping"></iron-icon>
+              </button-element>
+                <iron-collapse class="sidemenu collapse grouping">
+                  <section id="groupingKeysButtons" class="indention">
+                    <section id="groupingKeysLabelSelector">
+                      <content select="iron-selector.groupingKeySelector"></content>
+                    </section>
+                  </section>
+                </iron-collapse>
+
+              <toggle-button-element on-change="toggleDateView"><iron-icon icon="date-range"></iron-icon>Zeit anzeigen</toggle-button-element>
+              <toggle-button-element on-change="toggleWindowStyle" checked="{{withoutWindow}}"><iron-icon icon="editor:border-style"></iron-icon>Fensterstil</toggle-button-element>
+              <toggle-button-element id="colorschema" on-change="toggleTheme"><iron-icon icon="settings-brightness"></iron-icon>Farbschema</toggle-button-element>
+            </section>
+          </iron-collapse>
+
+        <button-element class="sidemenu" on-tap="backToMainMenu">
+          <iron-icon icon="arrow-back" class="left"></iron-icon>
+          <section class="content">Auswahl</section>
+        </button-element>
+
+      </section>
+    </section>
+
+    <section id="overlay">
+      <content select=".overlay"></content>
+    </section>
+
+  </template>
+
+  <script>
+    var ExceedingSvgPaths = {};
+    Polymer({
+      is: 'main-page',
+
+      behaviors: [Polymer.NeonSharedElementAnimatableBehavior],
+
+      properties: {
+        sharedElements: {
+          value: function() {
+            return {
+              'herologo': this.$.logo
+            }
+          }
+        },
+        animationConfig: {
+          value: function() {
+            return {
+              'entry': [
+                {
+                  name: 'hero-animation',
+                  id: 'herologo',
+                  toPage: this,
+                },
+                {
+                  animatable: this.$.logo,
+                  type: 'loading'
+                }
+              ],
+              'exit': [
+                {
+                  name: 'scale-down-animation',
+                  node: this
+                }
+              ]
+            }
+          }
+        },
+        withoutWindow: {
+          type: Boolean,
+          value: false
+        },
+        dark: {
+          type: Boolean,
+          value: false
+        },
+        maxTotalLines: {
+          type: Number,
+          value: 100
+        },
+        // Attribute for toolbar is opened
+        opened: {
+          type: Boolean,
+          value: false
+        },
+        expanded: {
+          type: Boolean,
+          value: false
+        },
+        showDate: {
+          type: Boolean,
+          value: false
+        },
+        selectedElement: {
+          type: Object,
+          value: function() { return {}; }
+        },
+        selectedLabel: {
+          type: Number,
+          value: 0,
+          observer: "_selectedLabelChanged"
+        },
+        exceedingElements: {
+          type: Object,
+          value: function() { return {}; }
+        },
+        isExceeding: {
+          type: Boolean,
+          value: false,
+          observer: "_checkExceedsPanel"
+        },
+        animated: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        }
+      },
+
+      attached: function() {
+        var self = this;
+        Polymer.dom(this.$.groupingKeysLabelSelector)
+               .observeNodes(function(info) {
+                 for (var i in info.addedNodes)
+                  if (info.addedNodes[i].nodeName === "IRON-SELECTOR")
+                    info.addedNodes[i].addEventListener("iron-select", function(e){
+                      self._regroup(e.currentTarget.selected);
+                    });
+               });
+        Polymer.dom(this.$.mainContent)
+               .observeNodes( function(info) {
+                 if (info.addedNodes.length > 0) {
+                    self.set("selectedLabel", Labels[0]);
+                 }
+               });
+        // Notifications
+        if (!("Notification" in window)) {
+          console.warn("This browser does not support desktop notification");
+        }
+        //  ask the user for permission
+        else if (Notification.permission !== 'denied') {
+          Notification.requestPermission(function (permission) {
+            // If the user accepts, let's create a notification
+            if (permission === "granted") {
+              var notification = new Notification("Notifikationen aktiv", {icon: '../../img/icons/webicon.png', body: '', tag: ''});
+            }
+          });
+        }
+      },
+
+      listeners: {
+        "element-select": "setSelectedElement",
+        "element-is-exceeding": "_setExceedingElement",
+        "element-is-not-exceeding": "_unsetExceedingElement"
+      },
+
+      // app Control
+      backToMainMenu: function() {
+        this.closeDrawer();
+        PageSelector.select("0");
+      },
+      // Panel Control
+      _selectedLabelChanged: function(newLabel, oldLabel) {
+        this._selectPanel(newLabel, oldLabel);
+        this.deselectElement();
+      },
+      _selectPanel: function(newLabel, oldLabel) {
+        var newIndex = 0, oldIndex;
+        var content = this.$.mainContent.children;
+        var groupingkeys = this.$.groupingKeysLabelSelector.children;
+
+        for (var i = 0; i < content.length; i++) {
+          if (content[i].getAttribute('label') === newLabel)
+            newIndex = i;
+          else if (oldLabel && content[i].getAttribute('label') === oldLabel)
+            oldIndex = i;
+        }
+
+        groupingkeys[newIndex].classList.add("foreground");
+        content[newIndex].classList.add("foreground");
+        if (oldIndex !== undefined && content[oldIndex].getAttribute('hidden') === "true") {
+          content[newIndex].classList.add("selected");
+          content[oldIndex].classList.remove("foreground");
+          content[oldIndex].classList.remove("selected");
+          groupingkeys[oldIndex].classList.remove("foreground");
+        }
+        else if (this.animated) {
+          if (oldIndex !== undefined) {
+              content[oldIndex].addEventListener("transitionend", function(e) {
+                content[newIndex].classList.add("selected");
+                content[oldIndex].classList.remove("foreground");
+                content[oldIndex].removeEventListener(e.type, arguments.callee);
+              });
+            content[oldIndex].classList.remove("selected");
+            groupingkeys[oldIndex].classList.remove("foreground");
+          }
+          else
+            content[newIndex].classList.add("selected");
+        }
+        else {
+          content[newIndex].classList.add("selected");
+          if (oldIndex !== undefined) {
+            content[oldIndex].classList.remove("foreground");
+            content[oldIndex].classList.remove("selected");
+            groupingkeys[oldIndex].classList.remove("foreground");
+          }
+        }
+      },
+      dissemblePanels: function(labels) {
+        var content = this.$.mainContent.children;
+        var tabs = this.$.labelSelector.children;
+        var groupingkeys = this.$.groupingKeysLabelSelector.children;
+        var newLabel;
+
+        if (labels.length > 1)
+          this.$.labelsTabs.style.visibility = "visible";
+        else
+          this.$.labelsTabs.style.visibility = "hidden";
+
+        for (var i = 0; i < content.length; i++) {
+          if (labels.indexOf(content[i].getAttribute('label')) === -1) {
+            content[i].setAttribute("hidden", true);
+            tabs[i].setAttribute("hidden", true);
+            groupingkeys[i].setAttribute("hidden", true);
+          }
+          else {
+            if (!newLabel)
+              newLabel = content[i].getAttribute('label');
+            content[i].removeAttribute("hidden");
+            tabs[i].removeAttribute("hidden");
+            groupingkeys[i].removeAttribute("hidden");
+          }
+        }
+        this.set("selectedLabel", newLabel);
+      },
+      // Grouping Options
+      _regroup: function(key) {
+        var label = this.selectedLabel;
+        if (!label || !key || !Groups[label][key] || PreferedGroupingKeys[label] == key)
+          return;
+
+        PreferedGroupingKeys[label] = key;
+        var panel = this.queryEffectiveChildren('.panel[label="'+label+'"]');
+        var oldgroupcards = Polymer.dom(panel).getEffectiveChildNodes();
+
+        var elements = [];
+        for (var i = 0; i < oldgroupcards.length; i++) {
+          elements = elements.concat([].slice.call(oldgroupcards[i].querySelectorAll('.content')));
+        }
+
+        var newgroupcards = {};
+        for (var subgroup in Groups[label][key]) {
+          newgroupcards[subgroup] = new GroupCard(subgroup, Groups[label][key][subgroup].svg, this.dark);
+          Polymer.dom(panel).appendChild(newgroupcards[subgroup]);
+          for (var i in Groups[label][key][subgroup].ids) {
+            for (var j = 0; j < elements.length; j++) {
+              if (elements[j].id === Groups[label][key][subgroup].ids[i])
+                break;
+            }
+            if (j !== elements.length) {
+               Polymer.dom(newgroupcards[subgroup]).node.querySelector("section#mainContent").appendChild(elements[j]);
+            }
+          }
+        }
+        for (var i=0; i < oldgroupcards.length; i++) {
+           Polymer.dom(panel).removeChild(oldgroupcards[i]);
+        }
+        Polymer.dom.flush();
+      },
+      // Selecting Element
+      setSelectedElement: function(e) {
+        if(e && e.detail) {
+          var element = e.detail;
+          if (this.selectedElement.id && this.selectedElement.id === element.id &&
+              this.selectedElement.label && this.selectedElement.label === element.label){
+            this.deselectElement();
+            return;
+          }
+          else {
+            if (Object.keys(this.selectedElement).length !== 0) {
+              var id = this.selectedElement.id;
+              var label = this.selectedElement.label;
+              var pos = UpdatableNodes[label][id].indexOf(this.$.selectedElementSign);
+              if (pos !== -1)
+                UpdatableNodes[label][id].splice(pos, 1);
+              pos = UpdatableNodes[label][id].indexOf(this.$.selectedElementTable);
+              if (pos !== -1)
+                UpdatableNodes[label][id].splice(pos, 1);
+            }
+            UpdatableNodes[element.label][element.id].push(this.$.selectedElementSign);
+            UpdatableNodes[element.label][element.id].push(this.$.selectedElementTable);
+
+            this.set("selectedElement", {id: element.id, label: element.label});
+            this.$.selectedElementSign.setElement(element);
+            this.$.selectedElementTable.setElement(element);
+
+            if (element.svg && element.svg.source) {
+              this.$.selectedElementSVG.removeAttribute('hidden');
+              var selected = {};
+              if (ExceedingSvgPaths[element.label] && ExceedingSvgPaths[element.label][element.svg.source]) {
+                selected = JSON.parse(JSON.stringify(ExceedingSvgPaths[element.label][element.svg.source]));
+              }
+
+              this.$.selectedElementSVG.setSvg(
+                { source: element.svg.source,
+                  initial: element.svg.path || "",
+                  selectable: SvgSource[element.svg.source].selectable,
+                  selected: selected } );
+            }
+            else {
+              this.$.selectedElementSVG.toggleAttribute('hidden', true);
+            }
+
+            if (!this.opened){
+              this.toggleAttribute('opened', true);
+            }
+          }
+        }
+      },
+      deselectElement: function() {
+        if (this.opened) {
+          this.closeDrawer();
+          this.toggleAttribute('opened', false);
+          try {
+            var id = this.selectedElement.id;
+            var label = this.selectedElement.label;
+            var pos = UpdatableNodes[label][id].indexOf(this.$.selectedElementSign);
+            if (pos !== -1)
+              UpdatableNodes[label][id].splice(pos, 1);
+            pos = UpdatableNodes[label][id].indexOf(this.$.selectedElementTable);
+            if (pos !== -1)
+              UpdatableNodes[label][id].splice(pos, 1);
+          }
+          catch (err) {}
+          this.set("selectedElement", {});
+        }
+      },
+      // Exceeding Elements
+      _setExceedingElement: function(e) {
+        var element = JSON.parse(JSON.stringify(e.detail)); // bug: references are mixing in each other
+        if (Polymer.dom(this.$.exceedingElementsList).querySelectorAll('#'+element.id+'[label='+element.label+']').length === 0) {
+          var node = new ListElement(element, true, false, true, this.showDate, this.dark);
+          Polymer.dom(this.$.exceedingElementsList).appendChild(node);
+          Polymer.dom(node).classList.add('exceedingElement');
+        }
+        if (element.svg && element.svg.source && element.svg.path) {
+          if (!ExceedingSvgPaths[element.label])
+            ExceedingSvgPaths[element.label] = {};
+          if (!ExceedingSvgPaths[element.label][element.svg.source])
+            ExceedingSvgPaths[element.label][element.svg.source] = {};
+          ExceedingSvgPaths[element.label][element.svg.source][element.id] = element.svg.path;
+        }
+        if (!this.isExceeding)
+          this.isExceeding = true;
+        if (!this.exceedingElements[element.label])
+          this.set("exceedingElements."+element.label, []);
+        this.push("exceedingElements."+element.label, element.id);
+        this.debounceExceedsNotification();
+      },
+
+      _unsetExceedingElement: function(e) {
+        var element = JSON.parse(JSON.stringify(e.detail)); // bug: references are mixing in each other
+        if (this.exceedingElements[element.label]) {
+          var pos = this.exceedingElements[element.label].indexOf(element.id);
+          if (pos !== -1) {
+            this.splice('exceedingElements.' + element.label, pos, 1);
+          }
+        }
+      },
+
+      debounceExceedsNotification: function() {
+        this.debounce('exceesNotification',
+          function() {
+            this.createExceedsNotification();
+          }, 2000);
+      },
+
+      createExceedsNotification: function() {
+        if (Notification.permission !== 'denied') {
+          var count = 0;
+          var msg = '';
+          for (var i in Labels) {
+            if (this.exceedingElements[Labels[i]]) {
+              count += this.exceedingElements[Labels[i]].length;
+              msg += Labels[i] + ': ' + '\n' + this.exceedingElements[Labels[i]].join(', ') + '\n\n';
+            }
+          }
+
+          var notification = new Notification(count + ' Elemente im Alarmzustand',
+            { icon: '../../img/icons/warning.png',
+              body: msg,
+              tag: msg });
+        }
+      },
+
+      _removeSingleExceedingElementFromList: function(e) {
+        if(e.detail.target) {
+          var id = e.detail.target.id;
+          var label = e.detail.target.label;
+          var pos = UpdatableNodes[label][id].indexOf(e.detail.target);
+          UpdatableNodes[label][id].splice(pos, 1);
+          Polymer.dom(this.$.exceedingElementsList).removeChild(e.detail.target);
+        }
+        if (this.$.exceedingElementsList.children.length === 0) {
+          this.set("isExceeding", false);
+          this.closeExceedsPanel();
+        }
+      },
+      _removeAllExceedingElementFromList: function() {
+        var id, label, pos;
+        var nodes = Polymer.dom(this.$.exceedingElementsList).querySelectorAll('.exceedingElement');
+        for (var i = 0; i < UpdatableNodes.length; i++) {
+          id = nodes[i].id;
+          label = nodes[i].label;
+          pos = nodes[label][id].indexOf(nodes[i].target);
+          nodes[label][id].splice(pos, 1);
+          Polymer.dom(this.$.exceedingElementsList).removeChild(nodes[i]);
+        }
+        this.set("isExceeding", false);
+        this.closeExceedsPanel();
+      },
+      toggleTheme: function(){
+        var elems = document.querySelectorAll('*');
+        if(this.dark === true) {
+          for (i = 0; i < elems.length; ++i) {
+            elems[i].removeAttribute("dark");
+          }
+          this.set("dark", false);
+        }
+        else {
+          for (i = 0; i < elems.length; ++i) {
+            elems[i].setAttribute("dark", true);
+          }
+          this.set("dark", true);
+        }
+        this.updateStyles();
+      },
+      toggleWindowStyle: function(){
+        var elems = document.querySelectorAll('group-card');
+        for (i = 0; i < elems.length; ++i) {
+          elems[i].toggleAttribute("without-window");
+        }
+      },
+      toggleDateView: function(){
+        var elems = document.querySelectorAll('[updatable]');
+        for (i = 0; i < elems.length; ++i) {
+          elems[i].toggleAttribute("show-date");
+        }
+      },
+      toggleCollapse: function(e){
+        var button = e.currentTarget;
+        if (!button.hasAttribute('collapse-id')) {
+          return;
+        }
+        var id = button.getAttribute('collapse-id');
+        var collapse = Polymer.dom(this.root).querySelector('iron-collapse.'+id);
+        var iconbutton = Polymer.dom(button).querySelector('iron-icon.right');
+        if (collapse) {
+          collapse.toggle();
+          if (iconbutton) {
+            if (iconbutton.icon === 'arrow-drop-down')
+              iconbutton.set('icon','arrow-drop-up');
+            else
+              iconbutton.set('icon','arrow-drop-down');
+          }
+        }
+      },
+      // Toolbar Actions
+      _toolbarExpand: function() {
+        if (this.opened) {
+          this.set('expanded', !this.expanded);
+          this.toggleAttribute('expanded', this.expanded, this.$.toolbarFooter);
+          this.$.selectedElementSVG._debounceResetZoom();
+        }
+      },
+      _computeExpandIcon: function() {
+        if (this.expanded)
+          return 'expand-less';
+        else
+          return 'expand-more';
+      },
+      // Panel Control
+      _checkExceedsPanel: function(value) {
+        if(value && !(this.$.exceedsPanel.classList.contains("exceeds-panel-opened"))) {
+          this.openExceedsPanel();
+        }
+        else if (this.$.exceedingElementsList.children.length === 0)
+          this.closeExceedsPanel();
+      },
+      openExceedsPanel: function() {
+        this.$.exceedsPanel.classList.add("exceeds-panel-opened");
+      },
+      closeExceedsPanel: function() {
+        this.$.exceedsPanel.classList.remove("exceeds-panel-opened");
+      },
+      toggleExceedsPanel: function() {
+        this.$.exceedsPanel.classList.toggle("exceeds-panel-opened");
+      },
+      toggleDrawer: function(){
+        this.$.drawerPanel.classList.toggle("drawer-opened");
+        this.$.backdrop.classList.toggle("backdrop-opened");
+      },
+      closeDrawer: function(){
+        this.$.drawerPanel.classList.remove("drawer-opened");
+        this.$.backdrop.classList.remove("backdrop-opened");
+      },
+      tapBackdrop: function(){
+        // this.$.exceedsPanel.classList.remove("exceeds-panel-opened");
+        this.$.drawerPanel.classList.remove("drawer-opened");
+        this.$.backdrop.classList.remove("backdrop-opened");
+      }
+    });
+  </script>
+</dom-module>
