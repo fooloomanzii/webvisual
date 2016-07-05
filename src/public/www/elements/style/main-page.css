@@ -113,6 +113,9 @@ section#exceedsPanel iron-swipeable-container#exceedingElementsList {
 }
 section#exceedsPanel iron-swipeable-container#exceedingElementsList list-element {
   margin-bottom: 0.25em;
+  float: left;
+  clear: both;
+  width: 100%;
   border-radius: 12px;
 }
 section#backdrop {

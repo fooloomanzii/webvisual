@@ -69,13 +69,13 @@
     }
     section#label {
       color: #333333;
-      transform: rotate(-90deg);
+      transform: rotate(180deg);
+      writing-mode: vertical-lr;
       transform-origin: center;
-      /*border-bottom: thin solid currentColor;*/
-      align-self: center;
-      line-height: normal;
       font-size: 0.6em;
-      font-weight: normal
+      text-align: center;
+      padding: 0.25em 0;
+      font-weight: normal;
     }
     section#caption {
       border-top-left-radius: 0;
@@ -84,7 +84,7 @@
       border-bottom-right-radius: inherit;
       color: #1f1f1f;
       line-height: 1.5;
-      padding: 0.5em;
+      padding: 0.5em 0.5em 0.5em 0em;
       display: flex;
       flex-direction: row;
       flex: 1 1 auto;
@@ -135,6 +135,8 @@
       --radio-button-unchecked-color: var(--element-color);
     }
   </style>
+    <section id='label'>[[label]]</section>
+
     <section id='caption'>
       <template id='captiontemplate' is='dom-repeat' items='[[captionKeys]]' as='captionKey'>
         <span id='captions' hidden$='[[isEmptyCaption(captionKey)]]'>[[getKey(captionKey, keys.*)]]</span>
@@ -154,7 +156,6 @@
       </section>
     </section>
     <section id='dateSection' hidden$='[[!showDate]]'></section>
-    <section id='label'>[[label]]</section>
   </template>
 
   <script>
