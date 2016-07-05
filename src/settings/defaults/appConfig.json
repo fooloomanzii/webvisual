@@ -1,8 +1,5 @@
 {
-  "userPath": "",
-  "userConfigFileName": "",
-  "recentPath": "",
-  "options": {
+  "app": {
     "width": 300,
     "height": 400,
     "autoHideMenuBar": true,
@@ -10,5 +7,40 @@
     "webPreferences": {
       "webSecurity": true
     }
-  }
+  },
+
+  "session": {
+    "userPath": "",
+    "recentPath": ""
+  },
+
+  "userConfigFiles": [{
+    "pathFolder": "settings/defaults",
+    "path": "HNF_GDS.json",
+    "relativePath": true
+  }, {
+    "pathFolder": "settings/defaults",
+    "path": "Plasmadetect.json",
+    "relativePath": true
+  }],
+
+  "server": {
+    "port": {
+      "http": 80,
+      "https": 443
+    },
+    "auth": {
+      "required": true,
+      "ldap": {
+        "url": "ibn-net.kfa-juelich.de",
+        "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de"
+      }
+    },
+    "logs": {
+      "http_server_log": "./logs/http-error.log",
+      "server_log": "./logs/server-error.log"
+    }
+  },
+
+  "database": {}
 }

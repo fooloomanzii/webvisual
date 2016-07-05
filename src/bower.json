@@ -11,7 +11,8 @@
     "iron-elements": "PolymerElements/iron-elements",
     "paper-behaviors": "PolymerElements/paper-behaviors",
     "paper-material": "PolymerElements/paper-material",
+    "app-layout": "PolymerElements/app-layout",
     "neon-animation": "PolymerElements/neon-animation",
-    "d3": "v3.5.17"
+    "d3": "v4.1.0"
   }
 }
