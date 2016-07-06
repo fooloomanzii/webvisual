@@ -340,6 +340,7 @@ The function returns a watcher instance or a array of watcher if multiple paths 
       // Are there any errors?
       if (errorData.length === 0) errorData = null;
 
+      console.log(path);
       if (callback) callback(errorData, processedData);
     });
   }
@@ -507,7 +508,6 @@ The function returns a watcher instance or a array of watcher if multiple paths 
             if (watcherInstance.children) {
               for (var file in watcherInstance.children)
                 console.log("Started watching " + watcherInstance.children[file].path);
-
             } else {
               console.log("Started watching " + watcherInstance.path);
             }
@@ -630,7 +630,7 @@ The function returns a watcher instance or a array of watcher if multiple paths 
   */
   function watch(mode, file, options, callback) {
     // Define variables
-    var i, listenersObj, nextObj,
+    let i, listenersObj, nextObj,
       // Other stuff
       maybeError, baseName, resFile, fileDir;
 

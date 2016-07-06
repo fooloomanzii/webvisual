@@ -13,38 +13,9 @@ var fs = require('fs'),
   path = require('path');
 
 var WebvisualServer = require('./server.js');
+var webvisualserver;
 var Settings = require('./settings');
-var config = {},
-  appConfig = {};
-
-// check User Data and folder
-var appConfigFilePath = path.join(app.getPath('userData'), 'config', 'appConfig.json');
-fs.access(appConfigFilePath, fs.F_OK, function(err) {
-  if (!err) {
-    try {
-      appConfig = JSON.parse(fs.readFileSync(appConfigFilePath));
-    } catch (e) {
-      err = true;
-    }
-  }
-  if (err) {
-    mkdirp(path.join(app.getPath('userData'), 'config'));
-    copyFile(path.join(__dirname, 'settings', 'defaults', 'appConfig.json'), appConfigFilePath, function(err) {});
-    appConfig =
-      JSON.parse(fs.readFileSync(path.join(__dirname, 'settings', 'defaults', 'appConfig.json')));
-  }
-  console.log(appConfig.options);
-});
-
-  config = new Settings(path.join(__dirname, 'settings', 'defaults', 'userConfig.json'), app);
-  config.on('error', function(err) {
-    console.log('Error in Config', err);
-  });
-
-  var webvisualserver = new WebvisualServer(config);
-  webvisualserver.on('error', function(err) {
-    console.log('Error in WebvisualServer', err);
-  });
+var appConfigLoader = {};
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -60,28 +31,50 @@ app.on('window-all-closed', function() {
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
+
 app.on('ready', function() {
     // Create the browser window.
-    mainWindow = new BrowserWindow(appConfig.options);
-
-    // load server GUI
-    mainWindow.loadURL('file://' + __dirname + '/public/app.html');
-
-    mainWindow.webContents.on('dom-ready', () => {
-      // Log to main process
-      console.log = function () {
-        mainWindow.webContents.send("log", util.format.apply(null, arguments) + '\n');
-        process.stdout.write(util.format.apply(null, arguments) + '\n');
-      }
-      console.error = console.log;
+    appConfigLoader = new Settings(app);
+    appConfigLoader.on('error', function(err) {
+      console.log('Error in Config', err);
     });
+    appConfigLoader.on('ready', function(msg, settings) {
+      console.log(msg);
 
-    // Open the DevTools.
-    // mainWindow.webContents.openDevTools();
+      mainWindow = new BrowserWindow(settings.app);
 
-    // Emitted when the window is closed.
-    mainWindow.on('closed', function() {
-      mainWindow = null;
+      // load server GUI
+      mainWindow.loadURL('file://' + __dirname + '/public/app.html');
+
+      mainWindow.webContents.on('dom-ready', () => {
+        // Log to main process
+        console.log = function () {
+          mainWindow.webContents.send("log", util.format.apply(null, arguments) + '\n');
+          process.stdout.write(util.format.apply(null, arguments) + '\n');
+        }
+        console.error = console.log;
+      });
+
+      webvisualserver = new WebvisualServer(settings);
+      webvisualserver.on('error', function(err) {
+        console.log('Error in WebvisualServer', err);
+      });
+      // Open the DevTools.
+      // mainWindow.webContents.openDevTools();
+
+      // Emitted when the window is going to be closed.
+      mainWindow.on('close', function() {
+        let bounds = mainWindow.getBounds();
+        settings.app.width = bounds.width;
+        settings.app.height = bounds.height;
+        settings.app.x = bounds.x;
+        settings.app.y = bounds.y;
+        appConfigLoader.save(settings);
+      });
+      // Emitted when the window is closed.
+      mainWindow.on('closed', function() {
+        mainWindow = null;
+      });
     });
 
   // app quit
@@ -112,59 +105,22 @@ app.on('ready', function() {
 
   process.on('uncaughtException', function(err) {
     console.log('uncaughtException', err);
-    webvisualserver.reconnect();
+    // webvisualserver.reconnect();
   });
 
   process.on('ECONNRESET', function(err) {
     console.log('connection reset (ECONNRESET)', err);
-    webvisualserver.reconnect();
+    // webvisualserver.reconnect();
   });
 
   process.on('SIGINT', function(err) {
-    console.log('close server (SIGINT)');
-    webvisualserver.disconnect();
+    console.log('close webvisual (SIGINT)');
+    // webvisualserver.disconnect();
     process.exit(0);
   });
 
   process.on('exit', function(err) {
-    console.log('close server (EXIT)');
-    webvisualserver.disconnect();
+    console.log('close webvisual (EXIT)');
+    // webvisualserver.disconnect();
   });
 });
-
-function checkFolder(path_folder, callback) {
-  fs.access(path, fs.F_OK, function(err) {
-    if (!err) {
-      // Do something
-    } else {
-      // It isn't accessible
-    }
-  });
-}
-
-var mkdirp = function(path, callback) {
-  fs.mkdir(path, "0o777", function(err) {
-    if (callback) callback(err);
-  });
-}
-
-function copyFile(source, target, callback) {
-  var callbackCalled = false;
-
-  var rd = fs.createReadStream(source);
-  rd.on("error", done);
-
-  var wr = fs.createWriteStream(target);
-  wr.on("error", done);
-  wr.on("close", function(ex) {
-    done();
-  });
-  rd.pipe(wr);
-
-  function done(err) {
-    if (!callbackCalled) {
-      callback(err);
-      callbackCalled = true;
-    }
-  }
-}

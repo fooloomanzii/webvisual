@@ -14,15 +14,16 @@
     "recentPath": ""
   },
 
-  "userConfigFiles": [{
-    "pathFolder": "settings/defaults",
-    "path": "HNF_GDS.json",
-    "relativePath": true
-  }, {
-    "pathFolder": "settings/defaults",
-    "path": "Plasmadetect.json",
-    "relativePath": true
-  }],
+  "userConfigFiles": {
+    "HNF-GDS": {
+      "pathFolder": "./defaults",
+      "path": "HNF_GDS.json"
+    },
+    "Plasmadetect": {
+      "pathFolder": "./defaults",
+      "path": "defaults.json"
+    }
+  },
 
   "server": {
     "port": {

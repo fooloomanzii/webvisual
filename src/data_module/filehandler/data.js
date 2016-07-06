@@ -59,9 +59,7 @@ var
       // The watching mode ('all', 'append', 'prepend', 'json')
       mode: 'all',
       // Default file: Same dir as the "master" script,
-      path_folder: "//",
       path: 'data.txt',
-      relativePath: false,
       // Default log file
       copy_path: __dirname + "/../../../logs/",
       // The default parse function from the data_parser module
@@ -203,15 +201,8 @@ connectionFn.file = {
    * @param  {Function} callback A callback function which recieves a potential error.
    */
   close: function(config, callback) {
-    let path_folder;
-
-    if (config.relativePath)
-      path_folder = path.join(process.cwd(), config.path_folder);
-    else
-      path_folder = config.path_folder;
-
     // End the watching
-    copywatch.unwatch(path.join(path_folder, config.path), config.remove, callback);
+    copywatch.unwatch(config.path, config.remove, callback);
   },
   /**
    * The file watch connect function. Enables the watching and processing of a file.
@@ -222,19 +213,12 @@ connectionFn.file = {
     // Add the function which recieves the parsed data; calls the emitter
     config.content = emitter;
 
-    let path_folder;
-
-    if (config.relativePath)
-      path_folder = path.join(process.cwd(), config.path_folder);
-    else
-      path_folder = config.path_folder;
-
     // Start watching the file
-    copywatch.watch(config.mode, path.join(path_folder, config.path), config);
+    copywatch.watch(config.mode, config.path, config);
 
     // Return the necessary data to end the watcher
     return {
-      path: path.join(path_folder, config.path),
+      path: config.path,
       remove: config.copy
     };
   }
@@ -283,11 +267,11 @@ dataFileHandler = (function() {
   // jshint validthis:true
   var defaults = {
     listener: {
-      error: function(type, err) {
+      error: function(type, err, label, path) {
         //here is the space for reactions on the mistaken data
         throw new Error(messages.functions.DataErrorMsgFn(type, err));
       },
-      data: function(type, data) {}
+      data: function(type, data, label, path) {}
     }
   };
 
@@ -310,7 +294,7 @@ dataFileHandler = (function() {
     this._addListener(config.listener);
 
     // Save current label
-    this.label = (config.label == undefined) ? "test" : config.label;
+    this.label = config.label || 'test';
   }
 
   // Extend with properties; null values are just place holder for instantiated properties
@@ -370,9 +354,9 @@ dataFileHandler = (function() {
     return function(error, data) {
       // TODO: Array or not array?
       if (error) {
-        self._emitter.emit('error', type, error, self.label);
+        self._emitter.emit('error', type, error, self.label, self._path);
       } else {
-        self._emitter.emit('data', type, data, self.label);
+        self._emitter.emit('data', type, data, self.label, self._path);
       }
     };
   };
