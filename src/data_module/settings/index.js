@@ -33,109 +33,34 @@ class fileConfigLoader extends EventEmitter {
 
     for (var name in userConfigFiles) {
       this.files[name] = {};
-      this.files[name]._path = path.join(userConfigFiles[name].pathFolder, userConfigFiles[name].path);
+      this.files[name]._path = path.resolve(userConfigFiles[name].path);
 
       this.files[name]._rawConfig = {};
 
-      this.files[name]._filehandler = {};
-
-      // this.files[name]._filehandler.connect();
-    }
-
-    for (var name in this.files) {
-      let _path = this.files[name]._path;
       this.files[name]._filehandler = new dataFileHandler({
-        label: name,
+        id: name,
         connection: {
           file: {
             "mode": "json",
-            "path": _path,
+            "path": this.files[name]._path,
             "process": JSON.parse
           }
         },
         listener: {
-            error: function(type, errors, label, path) {
+            error: function(type, errors, name, path) {
               // console.log(errors);
               // this.emit('error', 'Error parsing ConfigFile... ', errors, path, name);
             },
-            data: function(type, data, label, path) {
+            data: function(type, data, name, path) {
               self.files[name]._rawConfig = data;
-              // console.log(type, data, label, path);
+              // console.log(type, data, name, path);
             }
         }
       });
+
+      this.files[name]._filehandler.connect();
     }
 
-    this.files["test1"] = {};
-    this.files["test1"]._path = path.join(process.cwd(), "examples/datafile/HNF_Datafile.txt");
-    this.files["test1"]._filehandler = new dataFileHandler({
-      label: "test1",
-      connection: {
-        file: {
-          "mode": "all",
-          "path": this.files["test1"]._path
-        }
-      },
-      listener: {
-          error: function(type, errors, label, path) {
-            // console.log(errors);
-            // this.emit('error', 'Error parsing ConfigFile... ', errors, path, name);
-          },
-          data: function(type, data, label, path) {
-            self.files[name]._rawConfig = data;
-            // console.log(type, data, label, path);
-          }
-      }
-    });
-
-    this.files["test2"] = {};
-    this.files["test2"]._path = path.join(process.cwd(), "examples/datafile/mK_Smt.txt");
-    this.files["test2"]._filehandler = new dataFileHandler({
-      label: "test2",
-      connection: {
-        file: {
-          "mode": "all",
-          "path": this.files["test2"]._path
-        }
-      },
-      listener: {
-          error: function(type, errors, label, path) {
-            // console.log(errors);
-            // this.emit('error', 'Error parsing ConfigFile... ', errors, path, name);
-          },
-          data: function(type, data, label, path) {
-            self.files[name]._rawConfig = data;
-            // console.log(type, data, label, path);
-          }
-      }
-    });
-
-    this.files["test3"] = {};
-    this.files["test3"]._path = path.join(process.cwd(), "examples/datafile/mK_Smt.txt");
-    this.files["test3"]._filehandler = new dataFileHandler({
-      label: "test3",
-      connection: {
-        file: {
-          "mode": "all",
-          "path": this.files["test3"]._path
-        }
-      },
-      listener: {
-          error: function(type, errors, label, path) {
-            // console.log(errors);
-            // this.emit('error', 'Error parsing ConfigFile... ', errors, path, name);
-          },
-          data: function(type, data, label, path) {
-            self.files[name]._rawConfig = data;
-            // console.log(type, data, label, path);
-          }
-      }
-    });
-
-    for (name in this.files) {
-        this.files[name]._filehandler.connect();
-        console.log(name);
-    }
     //   readFromFile
     //
     // }

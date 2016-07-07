@@ -9,19 +9,12 @@
     }
   },
 
-  "session": {
-    "userPath": "",
-    "recentPath": ""
-  },
-
   "userConfigFiles": {
     "HNF-GDS": {
-      "pathFolder": "./defaults",
-      "path": "HNF_GDS.json"
+      "path": "./defaults/HNF/HNF_GDS.json"
     },
-    "Plasmadetect": {
-      "pathFolder": "./defaults",
-      "path": "defaults.json"
+    "mK_Smt": {
+      "path": "./defaults/mK_Smt/mK_Smt.json"
     }
   },
 

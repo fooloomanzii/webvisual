@@ -267,11 +267,11 @@ dataFileHandler = (function() {
   // jshint validthis:true
   var defaults = {
     listener: {
-      error: function(type, err, label, path) {
+      error: function(type, err, id) {
         //here is the space for reactions on the mistaken data
         throw new Error(messages.functions.DataErrorMsgFn(type, err));
       },
-      data: function(type, data, label, path) {}
+      data: function(type, data, id) {}
     }
   };
 
@@ -293,8 +293,8 @@ dataFileHandler = (function() {
     // Process the given listener
     this._addListener(config.listener);
 
-    // Save current label
-    this.label = config.label || 'test';
+    // Save current id
+    this.id = config.id || 'test';
   }
 
   // Extend with properties; null values are just place holder for instantiated properties
@@ -354,9 +354,9 @@ dataFileHandler = (function() {
     return function(error, data) {
       // TODO: Array or not array?
       if (error) {
-        self._emitter.emit('error', type, error, self.label, self._path);
+        self._emitter.emit('error', type, error, self.id);
       } else {
-        self._emitter.emit('data', type, data, self.label, self._path);
+        self._emitter.emit('data', type, data, self.id);
       }
     };
   };

@@ -340,7 +340,6 @@ The function returns a watcher instance or a array of watcher if multiple paths 
       // Are there any errors?
       if (errorData.length === 0) errorData = null;
 
-      console.log(path);
       if (callback) callback(errorData, processedData);
     });
   }
@@ -630,7 +629,7 @@ The function returns a watcher instance or a array of watcher if multiple paths 
   */
   function watch(mode, file, options, callback) {
     // Define variables
-    let i, listenersObj, nextObj,
+    let listenersObj, nextObj,
       // Other stuff
       maybeError, baseName, resFile, fileDir;
 
@@ -673,6 +672,9 @@ The function returns a watcher instance or a array of watcher if multiple paths 
       It's a bit ugly but won't mean performance descrease while running, since watchr
       still just watches just the one file. If it's a big directory the startup speed
       can  suffer a bit, but it shoudln't be too bad. */
+    // TODO(fooloomanzii):
+    // This "Hack" causes that there can only be watched one file per directory
+    // rewrite this
 
     // Gets the basename of the file ("/c/node/script.js" would result in "script.js")
     baseName = path_util.basename(file);
@@ -704,7 +706,6 @@ The function returns a watcher instance or a array of watcher if multiple paths 
         catchupDelay: options.catchupDelay
       };
       _watchers[resFile] = watchr.watch(_watcher_options[resFile]);
-
       callback();
     }
 

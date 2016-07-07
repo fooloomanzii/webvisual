@@ -9,8 +9,7 @@
   "dependencies": {
     "polymer": "Polymer/polymer",
     "iron-elements": "PolymerElements/iron-elements",
-    "paper-behaviors": "PolymerElements/paper-behaviors",
-    "paper-material": "PolymerElements/paper-material",
+    "paper-elements": "PolymerElements/paper-elements",
     "app-layout": "PolymerElements/app-layout",
     "neon-animation": "PolymerElements/neon-animation",
     "d3": "v4.1.0"

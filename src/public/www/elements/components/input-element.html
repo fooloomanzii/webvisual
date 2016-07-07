@@ -89,7 +89,7 @@
         background-color: var(--bright-primary-color);
         height: 2px;
         width: 5%;
-        bottom: 1em;
+        bottom: 0em;
         left: 45%;
         visibility: hidden;
         pointer-events: none;
@@ -148,9 +148,9 @@
 </style>
 
 <section class="input-container">
-  <input id="input" type="[[type]]" name="input" pattern="[[pattern]]" on-change="_float"/>
+  <input id="input" type="[[type]]" name="input" pattern="[[pattern]]" on-change="_float" value="{{value}}" required/>
   <label hidden="[[!label]]" for="input" noFloat$="[[noFloat]]">[[label]]</label>
-  <span class="error">[[errorMessage]]</span>
+  <span class="error" hidden="[[!errorMessage]]">[[errorMessage]]</span>
   <section class="focusline"></section>
 </section>
 </template>
@@ -172,7 +172,7 @@
         },
         pattern: {
           type: String,
-          value: "",
+          value: "*",
           reflectToAttribute: true
         },
         value: {
@@ -182,11 +182,11 @@
         },
         errorMessage: {
           type: String,
-          value: "invalid input"
+          value: ""
         },
         noFloat: {
           type: Boolean,
-          value: true
+          value: false
         }
       },
 

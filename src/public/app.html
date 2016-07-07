@@ -5,22 +5,151 @@
     <title>Webvisual Server</title>
     <script type="text/javascript" src='./app/index.js'></script>
     <link rel='import' href='./www/components/polymer/polymer.html'/>
-    <link rel='import' href='./www/elements/imports.html'/>
     <link rel="import" href="./www/elements/style/app-theme.html"/>
+    <link rel='import' href='./www/elements/imports.html'/>
+    <link rel="import" href="./www/components/paper-dialog/paper-dialog.html"/>
   </head>
+
   <body>
-    <section id="toolbar">
-      <section id="toolbarHeader">
-        <button-element onclick="startServer()">start server</button-element>
-        <button-element onclick="stopServer()">stop server</button-element>
-        <button-element onclick="restartServer()">restart server</button-element>
-      </section>
-    </section>
-    <section id="mainContent">
-      <section id="log">
-        <section id="head"></section>
-        <section id="body"></section>
-      </section>
-    </section>
+
+    <dom-module id="webvisual-app">
+      <template>
+        <style>
+          section#toolbar {
+            background: #005B82;
+            color: #f1f1f1;
+            float: left;
+            clear: both;
+            width: 100%;
+          }
+          section#configFiles {
+            background: #bbb;
+            float: left;
+            clear: both;
+            width: 100%;
+          }
+          section.inline {
+            display: inline-flex;
+            align-items: center;
+            float: left;
+            clear: both;
+            width: 100%;
+          }
+          section.flex {
+            flex: 1;
+            margin: auto 0.5em;
+          }
+          section.spread {
+            flex: 1;
+            margin: 0.5em;
+            text-align: center;
+          }
+          input-element {
+            width: auto;
+          }
+          button-element {
+            border: thin solid rgba(0, 0, 0, 0.12);
+            margin: 0.5em;
+          }
+          paper-dialog {
+            @apply(--paper-font-common-base);
+          }
+        </style>
+        <div>
+          <section id="toolbar" class="inline">
+            <section id="toolbarHeader">
+              <button-element ipc-event="server-start" on-tap="sendEvent">start server</button-element>
+              <button-element ipc-event="server-stop" on-tap="sendEvent">stop server</button-element>
+              <button-element ipc-event="server-restart" on-tap="sendEvent">restart server</button-element>
+              <button-element selector="add-config" on-tap="openDialog">add config</button-element>
+            </section>
+          </section>
+          <section id="configFiles">
+            <template is="dom-repeat" items="{{configFiles}}">
+              <section class="inline flex">
+                <section class="spread">{{item.name}}</section>
+                <section class="spread">{{item.path}}</section>
+              </section>
+            </template>
+          </section>
+          <section id="mainContent">
+            <section id="log">
+              <section id="head"></section>
+              <section id="body"></section>
+            </section>
+          </section>
+        </div>
+
+        <paper-dialog id="add-config" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+          <h2>Neue Konfiguration</h2>
+          <div>
+            <section class="flex">
+              <input-element id="fileName" class="add" label="Bezeichner" pattern="*"></input-element>
+              <button-element on-tap="openFileSelector">Datei auswählen</button-element>
+            </section>
+            <section class="inline">
+              <section id="filePath" class="flex"></section>
+            </section>
+          </div>
+          <div class="buttons">
+            <button-element dialog-dismiss>Abbrechen</button-element>
+            <button-element dialog-confirm on-tap="commitConfigFile">Hinzufügen</button-element>
+          </div>
+        </paper-dialog>
+      </template>
+
+      <script>
+        Polymer({
+          is: "webvisual-app",
+
+          properties: {
+            configFiles: {
+              type: Array,
+              value: function() {
+                return [];
+              }
+            }
+          },
+
+          sendEvent: function(e) {
+            var ipcEvent = e.currentTarget.getAttribute('ipc-event');
+            if (ipcEvent)
+              ipcRenderer.send('event', ipcEvent);
+          },
+          eventHandler: function(event, arg) {
+            switch (event) {
+              case 'open-config':
+                this.$.filePath.textContent = arg;
+                break;
+              case 'set-configs':
+                var values = [];
+                for (var c in arg) {
+                  values.push({name: c, path: arg[c].path});
+                }
+                this.set("configFiles", values);
+                break;
+            }
+          },
+          openFileSelector: function(e) {
+            ipcRenderer.send('event', 'open-config');
+          },
+          commitConfigFile: function() {
+            var name = this.$.fileName.value;
+            var path = this.$.filePath.textContent;
+            ipcRenderer.send('event', 'add-config', {name: name, file: path});
+          },
+          openDialog: function(e) {
+            var selector = e.currentTarget.getAttribute('selector');
+            var dialog = this.$$('paper-dialog#'+selector);
+            if (dialog)
+              dialog.open();
+          }
+        });
+      </script>
+
+    </dom-module>
+
+    <webvisual-app></webvisual-app>
+
   </body>
 </html>

@@ -76,30 +76,30 @@ function connect(config, server, err) {
   // for (var label of configuration.labels) {
   //
   //   var listeners = {
-  //     error: function(type, err, label) {
+  //     error: function(type, err, id) {
   //       // dataSocket.emit('mistake', { error: err, time: new Date() });
-  //       handleErrors(err, "dataFileHandler label: " + label);
+  //       handleErrors(err, "dataFileHandler id: " + id);
   //     },
-  //     data: function(type, data, label) {
+  //     data: function(type, data, id) {
   //       if (!data || data.length == 0)
   //         return; // Don't handle empty data
   //       // temporary save data
-  //       if (dataConfig[label]) {
+  //       if (dataConfig[id]) {
   //         // process data
-  //         mergedData = mergeData(dataConfig[label], data);
+  //         mergedData = mergeData(dataConfig[id], data);
   //         // serve clients in rooms for labels
   //         // only newer data is send
   //         // TODO: handle this optional by config
-  //         if (currentData[label] && mergedData.date > currentData[label].date) {
-  //           dataSocket.to(label).emit("update", mergedData);
+  //         if (currentData[id] && mergedData.date > currentData[id].date) {
+  //           dataSocket.to(id).emit("update", mergedData);
   //         }
-  //         currentData[label] = mergedData;
+  //         currentData[id] = mergedData;
   //       }
   //     }
   //   };
   //
   //   dataFile[label] = new dataFileHandler({
-  //     label: label,
+  //     id: label,
   //     connection: connection[label],
   //     listener: listeners
   //   });

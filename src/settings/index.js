@@ -14,6 +14,7 @@ var EventEmitter = require('events').EventEmitter;
 var appConfigFilePath;
 var appUserDataFolder;
 var app;
+var mergeDeep = require('merge-defaults');
 
 var defaults = {
   values: [{
@@ -83,6 +84,13 @@ class configLoader extends EventEmitter {
     }
     this.settings = config;
     this.emit('changed', config);
+    this.save(this.settings);
+  }
+
+  setEntry(config) {
+    this.settings = mergeDeep(this.settings, config);
+    this.emit('changed', this.settings);
+    this.save(this.settings);
   }
 
   save(config) {

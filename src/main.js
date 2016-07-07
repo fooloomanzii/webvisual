@@ -8,6 +8,7 @@ var util = require('util');
 
 var app = electron.app; // Module to control application life.
 var BrowserWindow = electron.BrowserWindow; // Module to create native browser window.
+const {dialog} = require('electron');
 
 var fs = require('fs'),
   path = require('path');
@@ -20,6 +21,7 @@ var appConfigLoader = {};
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
+var config;
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
@@ -33,66 +35,101 @@ app.on('window-all-closed', function() {
 // initialization and is ready to create browser windows.
 
 app.on('ready', function() {
-    // Create the browser window.
-    appConfigLoader = new Settings(app);
-    appConfigLoader.on('error', function(err) {
-      console.log('Error in Config', err);
+  // Create the browser window.
+  appConfigLoader = new Settings(app);
+
+  appConfigLoader.on('error', function(err) {
+    console.log('Error in Config', err);
+  });
+
+  appConfigLoader.on('ready', function(msg, settings) {
+    console.log(msg);
+
+    config = settings;
+
+    mainWindow = new BrowserWindow(config.app);
+
+    // load server GUI
+    mainWindow.loadURL('file://' + __dirname + '/public/app.html');
+
+    mainWindow.webContents.on('dom-ready', () => {
+      // Log to main process
+      console.log = function () {
+        mainWindow.webContents.send("log", util.format.apply(null, arguments) + '\n');
+        process.stdout.write(util.format.apply(null, arguments) + '\n');
+      }
+      console.error = console.log;
+
+      mainWindow.webContents.send("event", "set-configs", config.userConfigFiles);
     });
-    appConfigLoader.on('ready', function(msg, settings) {
-      console.log(msg);
 
-      mainWindow = new BrowserWindow(settings.app);
-
-      // load server GUI
-      mainWindow.loadURL('file://' + __dirname + '/public/app.html');
-
-      mainWindow.webContents.on('dom-ready', () => {
-        // Log to main process
-        console.log = function () {
-          mainWindow.webContents.send("log", util.format.apply(null, arguments) + '\n');
-          process.stdout.write(util.format.apply(null, arguments) + '\n');
-        }
-        console.error = console.log;
-      });
-
-      webvisualserver = new WebvisualServer(settings);
-      webvisualserver.on('error', function(err) {
-        console.log('Error in WebvisualServer', err);
-      });
-      // Open the DevTools.
-      // mainWindow.webContents.openDevTools();
-
-      // Emitted when the window is going to be closed.
-      mainWindow.on('close', function() {
-        let bounds = mainWindow.getBounds();
-        settings.app.width = bounds.width;
-        settings.app.height = bounds.height;
-        settings.app.x = bounds.x;
-        settings.app.y = bounds.y;
-        appConfigLoader.save(settings);
-      });
-      // Emitted when the window is closed.
-      mainWindow.on('closed', function() {
-        mainWindow = null;
-      });
+    webvisualserver = new WebvisualServer(config);
+    webvisualserver.on('error', function(err) {
+      console.log('Error in WebvisualServer', err);
     });
+    // Open the DevTools.
+    mainWindow.webContents.openDevTools();
+
+    // Emitted when the window is going to be closed.
+    mainWindow.on('close', function() {
+      let bounds = mainWindow.getBounds();
+      config.app.width = bounds.width;
+      config.app.height = bounds.height;
+      config.app.x = bounds.x;
+      config.app.y = bounds.y;
+      appConfigLoader.save(config);
+    });
+    // Emitted when the window is closed.
+    mainWindow.on('closed', function() {
+      mainWindow = null;
+    });
+  });
+
+  appConfigLoader.on('change', function(settings) {
+    console.log('AppConfig changed:', settings);
+  });
 
   // app quit
-  ipcMain.on('app-quit', (event, arg) => {
-    app.quit()
+  ipcMain.on('event', (e, event, arg) => {
+    switch (event) {
+      case 'server-start':
+        webvisualserver.connect();
+        break;
+      case 'server-restart':
+        webvisualserver.reconnect();
+        break;
+      case 'server-stop':
+        webvisualserver.disconnect();
+        break;
+      case 'open-config':
+        dialog.showOpenDialog({
+          properties: ['openFile'],
+          filters: [
+            {name: 'JSON', extensions: ['json']}
+          ]
+        }, openConfigFile);
+        break;
+      case 'add-config':
+        addConfigFile(arg);
+        break;
+    }
   });
-  // start server
-  ipcMain.on('server-start', (event, arg) => {
-    webvisualserver.connect();
-  });
-  // restart server
-  ipcMain.on('server-restart', (event, arg) => {
-    webvisualserver.reconnect();
-  });
-  // stop server
-  ipcMain.on('server-stop', (event, arg) => {
-    webvisualserver.disconnect();
-  });
+
+  // addConfigFile
+  function openConfigFile(files) {
+    mainWindow.webContents.send('event', 'open-config', files[0]);
+  }
+
+  function addConfigFile(arg) {
+    console.log(arg);
+    if (!arg.name)
+      arg.name = 'test';
+    if (arg.file) {
+      config.userConfigFiles[arg.name] = { path: arg.file };
+      appConfigLoader.set(config);
+    }
+  }
+
   // clientView
   // ipcMain.on('open-client-view', function() {
   //   clientView = new BrowserWindow(appConfig.options);
