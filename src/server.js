@@ -13,14 +13,17 @@ const express = require('express'),
   session = require('express-session'),
   passport = require('passport'),
   bodyParser = require('body-parser'),
-  cookieParser = require('cookie-parser');
+  cookieParser = require('cookie-parser'),
+  Router = require('./routes/index.js');
 
 // Config Object
 var config = {},
   isRunning = false,
   httpsServer,
   httpServer,
-  router;
+  router,
+  configurations,
+  dataHandler;
 
 // *** Routing ***
 const app = express(),
@@ -57,7 +60,7 @@ class WebvisualServer extends EventEmitter {
 
     config = settings;
 
-    router = require('./routes/index.js')(app, passport, config.server); // load our routes and pass in our app and fully configured passport
+    router = new Router(app, passport, config.server, configurations); // load our routes and pass in our app and fully configured passport
 
     // Routing to https if http is requested
     httpApp.get('*', function(req, res, next) {
@@ -126,6 +129,13 @@ class WebvisualServer extends EventEmitter {
         console.log('HTTPS Server is listening on port %d in %s mode', config.server.port.https,
           app.settings.env);
       });
+    dataHandler = new dataModule(httpsServer);
+    dataHandler.on('change', function(configurations) {
+      if(configurations['HNF-GDS']) {
+        console.log(JSON.stringify(configurations['HNF-GDS'].labels, null, 2));
+        Router(app, passport, config.server, configurations['HNF-GDS'].configuration); // load our routes and pass in our app and fully configured passport
+      }
+    });
   }
 
   connect(settings) {
@@ -136,7 +146,7 @@ class WebvisualServer extends EventEmitter {
       this.reconnect();
     else {
       console.log('WebvisualServer is starting');
-      dataModule.connect(config.userConfigFiles, httpsServer);
+      dataHandler.connect(config.userConfigFiles);
       httpServer.listen(config.server.port.http);
       httpsServer.listen(config.server.port.https);
       isRunning = true;
@@ -147,7 +157,7 @@ class WebvisualServer extends EventEmitter {
     console.log('WebvisualServer is closing');
     httpServer.close();
     httpsServer.close();
-    dataModule.disconnect();
+    dataHandler.disconnect();
     isRunning = false;
   }
 

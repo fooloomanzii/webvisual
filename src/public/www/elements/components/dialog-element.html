@@ -1,0 +1,105 @@
+<!--
+modification of polymer dialog-element (styling, fonts)
+-->
+
+<link rel="import" href="../../components/paper-dialog-behavior/paper-dialog-behavior.html">
+
+
+<dom-module id="dialog-element">
+  <template>
+    <style>
+    :host {
+      display: block;
+      margin: 1.5em;
+
+      background: var(--primary-background-color);
+      color: var(--primary-text-color);
+
+      @apply(--shadow-elevation-2dp);
+    }
+
+    :host > ::content > * {
+      margin-top: 1em;
+      padding: 0 1em;
+    }
+
+    :host > ::content > .no-padding {
+      padding: 0;
+    }
+
+    :host > ::content > *:first-child {
+      margin-top: 1em;
+      margin-bottom: 1em;
+    }
+
+    :host > ::content > *:last-child {
+      margin-bottom: 1em;
+    }
+
+    :host > ::content [title] {
+      position: relative;
+    }
+
+    :host > ::content .buttons {
+      position: relative;
+      padding: 0.5em 0.5em 0.5em 2em;
+      margin: 0;
+
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+    }
+    :host > ::content .buttons > * {
+      margin: 0.25em;
+    }
+    </style>
+    <content></content>
+  </template>
+</dom-module>
+
+<script>
+
+(function() {
+
+  Polymer({
+
+    is: 'dialog-element',
+
+    behaviors: [
+      Polymer.PaperDialogBehavior,
+      Polymer.NeonAnimationRunnerBehavior
+    ],
+
+    listeners: {
+      'neon-animation-finish': '_onNeonAnimationFinish'
+    },
+
+    _renderOpened: function() {
+      this.cancelAnimation();
+      if (this.withBackdrop) {
+        this.backdropElement.open();
+      }
+      this.playAnimation('entry');
+    },
+
+    _renderClosed: function() {
+      this.cancelAnimation();
+      if (this.withBackdrop) {
+        this.backdropElement.close();
+      }
+      this.playAnimation('exit');
+    },
+
+    _onNeonAnimationFinish: function() {
+      if (this.opened) {
+        this._finishRenderOpened();
+      } else {
+        this._finishRenderClosed();
+      }
+    }
+
+  });
+
+})();
+
+</script>

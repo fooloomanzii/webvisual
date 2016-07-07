@@ -174,12 +174,12 @@ toggle-button-element#colorschema{
 
 logo-element#logo {
   position: fixed;
-  height: 44px;
+  height: 48px;
   top: 10px;
   bottom: auto;
   left: 80px;
   z-index: 200;
-  width: 140px;
+  width: 148px;
 }
 
 section#toolbar {

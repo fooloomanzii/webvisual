@@ -9,6 +9,8 @@ var body;
        body = document.querySelector('section#log section#body');
     let row = document.createElement('section');
     row.id = "tr";
+    row.classList.add("style-scope");
+    row.classList.add("webvisual-app");
     let date = document.createElement('section');
     date.id = "td"; date.className = "date";
     let timestamp = new Date();

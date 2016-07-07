@@ -8,19 +8,47 @@
     <link rel="import" href="./www/elements/style/app-theme.html"/>
     <link rel='import' href='./www/elements/imports.html'/>
     <link rel="import" href="./www/components/paper-dialog/paper-dialog.html"/>
+    <link rel="import" href="./www/components/app-layout/app-layout.html"/>
   </head>
-
+  <style>
+    body {
+      height: 100%;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+      background: #669DB4;
+      font-family: Fira Sans Light;
+      font-weight: normal;
+    }
+    app-drawer-layout {
+      height: 100%;
+      width: 100%;
+      top: 0;
+      left: 0;
+      position: absolute;
+    }
+  </style>
   <body>
 
     <dom-module id="webvisual-app">
       <template>
         <style>
-          section#toolbar {
+          app-toolbar {
             background: #005B82;
             color: #f1f1f1;
-            float: left;
-            clear: both;
+          }
+          button-element {
+            border: thin solid rgba(0, 0, 0, 0.12);
+            margin: 0.5em 0em;
+          }
+          section#drawer {
+            display: flex;
+            flex-direction: column;;
+            align-items: stretch;
+          }
+          section#drawer > button-element {
             width: 100%;
+            margin: 0.25em 0em;
           }
           section#configFiles {
             background: #ddd;
@@ -46,45 +74,73 @@
           input-element {
             width: auto;
           }
-          button-element {
-            border: thin solid rgba(0, 0, 0, 0.12);
-            margin: 0.5em;
+          dropdown-element button-element {
+            /*color: #444;*/
+            margin: 0;
+            border: none;
+            border-bottom: thin solid rgba(0, 0, 0, 0.12);
           }
-          paper-dialog {
-            @apply(--paper-font-common-base);
+          logo-element#logo {
+            margin-left: 0.75em;
+            height: 54px;
+          }
+          section#log {
+            padding: 0.5em;
+          }
+          section#tr {
+            padding: 0.5em;
+            margin-bottom: 0.25em;
+            border: thin solid rgba(0, 0, 0, 0.25);
+            background: #f1f1f1;
+            border-radius: 8px;
           }
         </style>
         <div>
-          <section id="toolbar" class="inline">
-            <section id="toolbarHeader">
-              <button-element ipc-event="server-start" on-tap="sendEvent">start server</button-element>
-              <button-element ipc-event="server-stop" on-tap="sendEvent">stop server</button-element>
-              <button-element ipc-event="server-restart" on-tap="sendEvent">restart server</button-element>
-              <button-element selector="add-config" on-tap="openDialog">add config</button-element>
-            </section>
-          </section>
-          <section id="configFiles">
-            <template is="dom-repeat" items="{{configFiles}}">
-              <section class="inline flex">
-                <section class="spread">{{item.name}}</section>
-                <section class="spread">{{item.file}}</section>
+          <app-drawer-layout force-narrow>
+            <app-drawer>
+              <section id="drawer">
+                <button-element ipc-event="server-start" on-tap="sendEvent">start server</button-element>
+                <button-element ipc-event="server-stop" on-tap="sendEvent">stop server</button-element>
+                <button-element ipc-event="server-restart" on-tap="sendEvent">restart server</button-element>
               </section>
-            </template>
-          </section>
-          <section id="mainContent">
-            <section id="log">
-              <section id="head"></section>
-              <section id="body"></section>
+            </app-drawer>
+            <app-toolbar>
+              <icon-button-element icon="menu" drawer-toggle></icon-button-element>
+              <logo-element id="logo" show-always></logo-element>
+              <section class="flex"></section>
+              <icon-button-element id="files" icon="description"></icon-button-element>
+              <dropdown-element id="dropdown" for="files" position="bottom" align="end" offset="8" target-toggle-event="tap">
+                <template is="dom-repeat" items="{{configFiles}}">
+                  <button-element class="inline flex" disabled>
+                    <iron-icon class="left" icon="description"></iron-icon>
+                    <section class="spread">{{item.name}}</section>
+                    <section class="spread">{{item.file}}</section>
+                  </button-element>
+                </template>
+                <button-element for="add-config" on-tap="openDialog">
+                  <iron-icon class="left" icon="note-add"></iron-icon>
+                  <section class="spread">Konfiguration hinzufügen...</section>
+                </button-element>
+              </dropdown-element>
+            </app-toolbar>
+            <section id="mainContent">
+              <section id="log">
+                <section id="body"></section>
+              </section>
             </section>
-          </section>
+          </app-drawer-layout>
+
         </div>
 
-        <paper-dialog id="add-config" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-          <h2>Neue Konfiguration</h2>
+        <dialog-element id="add-config" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+          <h3>Neue Konfiguration</h3>
           <div>
             <section class="flex">
-              <input-element id="fileName" class="add" label="Bezeichner" pattern="*" required></input-element>
-              <button-element on-tap="openFileSelector">Datei auswählen</button-element>
+              <input-element id="fileName" class="add" label="Bezeichner" pattern="*" required error-message="erforderlich"></input-element>
+              <button-element for="add-config" on-tap="openFileSelector">
+                <iron-icon class="left" icon="note-add"></iron-icon>
+                <section>Datei öffnen...</section>
+              </button-element>
             </section>
             <section class="inline">
               <section id="filePath" class="flex"></section>
@@ -94,7 +150,7 @@
             <button-element dialog-dismiss>Abbrechen</button-element>
             <button-element dialog-confirm on-tap="commitConfigFile">Hinzufügen</button-element>
           </div>
-        </paper-dialog>
+        </dialog-element>
       </template>
 
       <script>
@@ -139,8 +195,9 @@
             this.push("configFiles", {name: name, file: path});
           },
           openDialog: function(e) {
-            var selector = e.currentTarget.getAttribute('selector');
-            var dialog = this.$$('paper-dialog#'+selector);
+            this.$.dropdown.hide();
+            var For = e.currentTarget.getAttribute('for');
+            var dialog = this.$$('dialog-element#'+For);
             if (dialog)
               dialog.open();
           }

@@ -1,15 +1,19 @@
 // Routing
 
-module.exports = function(app, passport, config) {
+module.exports = route;
+var configuration;
 
-  require('./passport_strategies/activedirectory.js')(passport, config.auth.ldap); // register custom ldap-passport-stategy
+
+function route(app, passport, serverConfig, config) {
+  configuration = config;
+  require('./passport_strategies/activedirectory.js')(passport, serverConfig.auth.ldap); // register custom ldap-passport-stategy
   require('./passport_strategies/dummy.js')(passport); // register dummy-stategy
 
   app.get('/', loggedIn, function(req, res) {
     res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
     res.render('index', {
       user: req.user,
-      config: config.configuration,
+      config: configuration,
       mobile: isMobile(req)
     });
     res.end();
@@ -19,15 +23,14 @@ module.exports = function(app, passport, config) {
     res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
     res.render('tests', {
       user: req.user,
-      config: config.configuration,
+      config: configuration,
       mobile: isMobile(req)
     });
     res.end();
   });
 
   app.get('/login', function(req, res) {
-    if (config.auth.required === true) {
-      console.log(true);
+    if (serverConfig.auth.required === true) {
       res.render('login', {
         user: req.user,
         mobile: isMobile(req)
@@ -36,13 +39,13 @@ module.exports = function(app, passport, config) {
     else {
       res.render('index', {
         user: req.user,
-        config: config.configuration,
+        config: configuration,
         mobile: isMobile(req)
       });
     }
   });
 
-  if (config.auth.required === true) {
+  if (serverConfig.auth.required === true) {
     app.post('/login',
       passport.authenticate('activedirectory-login', {
         successRedirect: '/',
@@ -74,7 +77,7 @@ module.exports = function(app, passport, config) {
   });
 
   function loggedIn(req, res, next) {
-    if (config.auth.required === false || req.user) {
+    if (serverConfig.auth.required === false || req.user) {
       next();
     } else {
       res.redirect('/login');

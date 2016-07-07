@@ -29,10 +29,10 @@
       -ms-flex: 1 0.5 100%;
     }
     @media all and (max-width: 520px) {
-      #script {
+      :host:not([show-always]) svg#script {
         display: none;
       }
-      #logo {
+      :host:not([show-always]) svg#logo {
         margin-right: 0;
       }
     }
@@ -104,6 +104,11 @@
     behaviors: [Polymer.NeonAnimationRunnerBehavior],
 
     properties: {
+      showAlways: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
+      },
       animationConfig: {
         value: function() {
           var logo = this.$.logo;

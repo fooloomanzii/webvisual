@@ -4,14 +4,12 @@
     "connections": {
       "file": {
         "mode": "all",
-        "path_folder": "examples/datafile",
-        "path": "HNF_Datafile.txt",
+        "path": "./examples/datafile/mK_Smt/mK_Smt.txt",
         "format": {
           "dateFormat": "",
-          "numberFormat": "",
+          "numberFormat": " ",
           "seperator": ";"
-        },
-        "template": true
+        }
       }
     },
 

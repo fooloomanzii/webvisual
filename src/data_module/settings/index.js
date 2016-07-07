@@ -27,22 +27,21 @@ class fileConfigLoader extends EventEmitter {
   constructor(userConfigFiles) {
 
     super();
-    this.files = {};
+    this.settings = {};
+    this.names = [];
     // check User Data and folder
     var self = this;
 
     for (var name in userConfigFiles) {
-      this.files[name] = {};
-      this.files[name]._path = path.resolve(userConfigFiles[name].path);
-
-      this.files[name]._rawConfig = {};
-
-      this.files[name]._filehandler = new dataFileHandler({
+      this.settings[name] = {};
+      this.settings[name]._path = path.resolve(userConfigFiles[name].path);
+      this.settings[name]._rawConfig = {};
+      this.settings[name]._filehandler = new dataFileHandler({
         id: name,
         connection: {
           file: {
             "mode": "json",
-            "path": this.files[name]._path,
+            "path": this.settings[name]._path,
             "process": JSON.parse
           }
         },
@@ -52,201 +51,65 @@ class fileConfigLoader extends EventEmitter {
               // this.emit('error', 'Error parsing ConfigFile... ', errors, path, name);
             },
             data: function(type, data, name, path) {
-              self.files[name]._rawConfig = data;
-              // console.log(type, data, name, path);
+              if (data && name){
+                self.access(name, data)
+              }
             }
         }
       });
-
-      this.files[name]._filehandler.connect();
+      this.settings[name]._filehandler.connect();
     }
-
-    //   readFromFile
-    //
-    // }
-    // filePath = path.join(appUserDataFolder, 'config', 'appConfig.json');
-    //
-    // this.load(filePath);
-    //
-    // var filePath = path.join(app.getPath('userData'), 'config', 'appConfig.json');
-    //
-    // this.loadAppConfig(filePath, this.loadAppConfig);
-    //
-    // this.on("error", function(err) {
-    //   console.log('Error in Config', err);
-    // })
-    //
-    // this._test(filepath);
-    // if (!filepath) {
-    //   this.emit('error', "No Filepath given");
-    //   return;
-    // }
-    //
-    // let rawConfig = this._readFromFile(filepath);
-    //
-    // let configuration = {
-    //   elements: {},
-    //   groups: {},
-    //   groupingKeys: {},
-    //   preferedGroupingKeys: {},
-    //   labels: [],
-    //   valueType: {},
-    //   svg: rawConfig.svg
-    // };
-    //
-    // let dataConfig = {};
-    // let connection = {};
-    //
-    // for (let label in rawConfig.configurations) {
-    //   configuration.labels.push(label);
-    //   configuration.valueType[label] = rawConfig.configurations[label].valueType || defaults.value;
-    //
-    //   dataConfig[label] = this._arrange(label, rawConfig.configurations[label].locals, configuration.valueType[label],
-    //     configuration.svg);
-    //
-    //   configuration.groupingKeys[label] = dataConfig[label].groupingKeys;
-    //   configuration.preferedGroupingKeys[label] = dataConfig[label].preferedGroupingKey;
-    //   configuration.groups[label] = dataConfig[label].groups;
-    //   configuration.elements[label] = dataConfig[label].elements;
-    //   configuration.valueType[label] = dataConfig[label].valueType;
-    //   configuration.svg = dataConfig[label].svg;
-    //
-    //   connection[label] = rawConfig.configurations[label].connections;
-    // }
-    //
-    // this.configuration = configuration;
-    // this.dataConfig = dataConfig;
-    // this.connection = connection;
   }
 
-  load(filePath) {
-    return this.testAccess(filePath, this.readFromFile.bind(this));
-
-            this.loadDefaults(this.ready);
-  }
-
-  testAccess(filePath, callback) {
-    return fs.access(filePath, fs.F_OK, (function(err) {
-      if (!err) {
-        try {
-          this.testRead(filePath);
-        } catch (e) {
-          this.emit('error', 'Error parsing ConfigFile... ', e);
-          return false;
-        }
-      }
-      if (err) {
-        return false;
-      }
-      else if (callback) {
-        callback.call(this, filePath, this.ready);
-      }
-      return true;
-    }).bind(this));
-  };
-
-  testRead(filePath) {
-    JSON.parse(fs.readFileSync(filePath));
-  }
-
-  testConfig(config, callback) {
-    JSON.parse(JSON.stringify(config));
-    if (callback)
-      callback(config);
-  }
-
-  set(config) {
+  access(name, data, callback) {
+    let err;
     try {
-      this.testConfig(config);
-    } catch (err) {
-      this.emit('error', 'Error in AppConfig', err);
-      return;
-    }
-    this.settings = config;
-    this.emit('changed', config);
-  }
+      let configuration = {
+        elements: {},
+        groups: {},
+        groupingKeys: {},
+        preferedGroupingKeys: {},
+        labels: [],
+        valueType: {},
+        svg: {}
+      };
 
-  save(config) {
-    let data = config || this.settings;
-    try {
-      this.testConfig(data);
-    } catch (err) {
-      this.emit('error', 'Error in AppConfig', err);
-      return;
-    }
-    fs.writeFile(filePath, JSON.stringify(data, null, 2), (err) => {
-      if (err) {
-        console.log('Error saving AppConfig:', err);
-        this.emit('error', 'Error saving AppConfig:', err);
-        return;
+      if (this.settings[name].configuration)
+        configuration.labels = this.settings[name].configuration.labels || {};
+
+      let dataConfig = {};
+      let connection = {};
+
+      for (let label in data) {
+        if (configuration.labels.indexOf(label) === -1)
+          configuration.labels.push(label);
+        configuration.valueType[label] = data[label].valueType || defaults.value;
+
+        dataConfig[label] = this._arrange(
+          label, data[label].locals, configuration.valueType[label], data[label].svg);
+
+        configuration.groupingKeys[label] = dataConfig[label].groupingKeys;
+        configuration.preferedGroupingKeys[label] = dataConfig[label].preferedGroupingKey;
+        configuration.groups[label] = dataConfig[label].groups;
+        configuration.elements[label] = dataConfig[label].elements;
+        configuration.valueType[label] = dataConfig[label].valueType;
+        configuration.svg[label] = dataConfig[label].svg;
+
+        connection[label] = data[label].connections;
       }
-    });
-    console.log('AppConfig saved to file:', filePath);
-    this.emit('saved', 'AppConfig saved to file:', filePath);
-  }
+      console.log(configuration.labels);
 
-  loadDefaults(callback) {
-    this.mkdirp(path.join(appUserDataFolder, 'config'));
-    this.copyFile(path.join(__dirname, 'defaults', 'appConfig.json'),
-                  filePath,
-                  function(err) {
-                    if (err) this.emit('error', 'Error copying Defaults', err);
-                  });
-    this.readFromFile.call(this, path.join(__dirname, 'defaults', 'appConfig.json'), callback);
-  }
-
-  checkFolder(path_folder, callback) {
-    fs.access(path, fs.F_OK, function(err) {
-      if (!err) {
-        // Do something
-      } else {
-        // It isn't accessible
-      }
-    });
-  }
-
-  mkdirp(path, callback) {
-    fs.mkdir(path, '0o777', function(err) {
-      if (callback) callback(err);
-    });
-  }
-
-  copyFile(source, target, callback) {
-    var callbackCalled = false;
-
-    var rd = fs.createReadStream(source);
-    rd.on('error', done);
-
-    var wr = fs.createWriteStream(target);
-    wr.on('error', done);
-    wr.on('close', function(ex) {
-      done();
-    });
-    rd.pipe(wr);
-
-    function done(err) {
-      if (!callbackCalled) {
-        callback(err);
-        callbackCalled = true;
-      }
+      this.settings[name].configuration = configuration;
+      this.settings[name].dataConfig = dataConfig;
+      this.settings[name].connection = connection;
+    } catch (e) {
+      console.log(e);
     }
-  }
+    if (!err){
+      this.emit('ready', name);
+    }
 
-  readFromFile(filepath, callback) {
-    var obj;
-    try {
-      var file = fs.readFileSync(filepath)
-      obj = JSON.parse(file);
-    } catch (err) {
-      this.emit('Read Error:', err)
-      return {};
-    }
-    if (callback) {
-      return callback.call(this, obj)
-    }
-    else
-      return obj || {};
-  };
+  }
 
   _arrange(label, locals, valueType, svg) {
 

@@ -1,6 +1,7 @@
 // globals
 var socketName = "/data";
-var Selector = "[updatable]";
+var name = "name=" + "HNF-GDS";
+var Selector = '[updatable]';
 var UpdatableNodes = {};
 var Elements = {};
 var SvgSource = {};
@@ -17,7 +18,8 @@ var opened = false;
 // SOCKET
 var socket = io.connect('https://' + window.location.host + socketName, {
   secure: true,
-  multiplex: false
+  multiplex: false,
+  query: "name=HNF-GDS"
 });
 
 // Connect

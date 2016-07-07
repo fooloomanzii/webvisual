@@ -1,7 +1,7 @@
 {
   "app": {
-    "width": 300,
-    "height": 400,
+    "width": 400,
+    "height": 500,
     "autoHideMenuBar": true,
     "acceptFirstMouse": true,
     "webPreferences": {
@@ -24,7 +24,7 @@
       "https": 443
     },
     "auth": {
-      "required": true,
+      "required": false,
       "ldap": {
         "url": "ibn-net.kfa-juelich.de",
         "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de"

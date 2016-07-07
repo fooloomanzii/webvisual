@@ -11,6 +11,7 @@
         background: linear-gradient(to bottom, rgba(255,255,255,0.01) 5%,rgba(255,255,255,0.05) 40%);
         color: currentColor;
         transition: background 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+        padding-top: 1em;
       }
       :host:hover {
         background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.10) 40%);
@@ -42,13 +43,13 @@
       }
 
       section.input-container {
-        display: block;
-        margin-top: 0.75em;
+        display: flex;
+        border-bottom: 1px solid rgba(0,0,0, 0.12);
       }
 
       input#input {
-      	display: block;
-      	width: auto;
+      	display: inline-flex;
+      	width: 100%;
       	margin: 0;
         font-family: inherit;
         font-size: inherit;
@@ -57,7 +58,6 @@
         line-height: normal;
         outline: none;
         border: none;
-        border-bottom: 1px solid rgba(0,0,0, 0.12);
         padding: 0.5em 0em;
         background: transparent;
       }
@@ -74,7 +74,7 @@
         right: 0;
         top: 0;
         line-height: normal;
-        padding-top: 0.75em;
+        padding-top: 1.5em;
         color: rgba(0, 0, 0, 0.26);
         transition: 0.2s ease all;
         -moz-transition: 0.2s ease all;
@@ -112,14 +112,14 @@
       input#input:focus ~ label:not([noFloat]),
       input#input.set ~ label:not([noFloat]) {
         visibility: visible;
-        top: -0.75em;
+        top: 0;
         font-size: 0.75em;
         padding-top: 0;
         color: var(--primary-color);
       }
 
       input#input:invalid ~ label:not([noFloat]) {
-        top: -0.75em;
+        top: 0;
         font-size: 0.75em;
         padding-top: 0;
         color: #d34336;
@@ -135,12 +135,21 @@
       }
 
       span.error {
-      	float: left;
-        margin-top: 0.25em;
-        color: #d34336;
+        position: absolute;
         font-size: 0.75em;
+        color: #d34336;
         visibility: hidden;
         line-height: normal;
+        text-align: right;
+        pointer-events: none;
+        padding: 0;
+        left: 0;
+        right: 0;
+        top: 0;
+        line-height: normal;
+        transition: 0.2s ease all;
+        -moz-transition: 0.2s ease all;
+        -webkit-transition: 0.2s ease all;
       }
 
       input#input:invalid ~ span.error {
