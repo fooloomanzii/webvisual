@@ -74,7 +74,7 @@
         right: 0;
         top: 0;
         line-height: normal;
-        padding-top: 1.25em;
+        padding-top: 0.75em;
         color: rgba(0, 0, 0, 0.26);
         transition: 0.2s ease all;
         -moz-transition: 0.2s ease all;
@@ -112,14 +112,16 @@
       input#input:focus ~ label:not([noFloat]),
       input#input.set ~ label:not([noFloat]) {
         visibility: visible;
-        top: -1em;
+        top: -0.75em;
         font-size: 0.75em;
+        padding-top: 0;
         color: var(--primary-color);
       }
 
       input#input:invalid ~ label:not([noFloat]) {
-        top: -1em;
+        top: -0.75em;
         font-size: 0.75em;
+        padding-top: 0;
         color: #d34336;
       }
 
@@ -148,7 +150,7 @@
 </style>
 
 <section class="input-container">
-  <input id="input" type="[[type]]" name="input" pattern="[[pattern]]" on-change="_float" value="{{value}}" required/>
+  <input id="input" type="[[type]]" name="input" pattern="[[pattern]]" on-change="_float" value="{{value}}" required$="[[required]]"/>
   <label hidden="[[!label]]" for="input" noFloat$="[[noFloat]]">[[label]]</label>
   <span class="error" hidden="[[!errorMessage]]">[[errorMessage]]</span>
   <section class="focusline"></section>
@@ -179,6 +181,10 @@
           type: String,
           value: "",
           reflectToAttribute: true
+        },
+        required: {
+          type: Boolean,
+          value: false
         },
         errorMessage: {
           type: String,

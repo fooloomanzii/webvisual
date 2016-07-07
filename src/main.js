@@ -68,7 +68,7 @@ app.on('ready', function() {
       console.log('Error in WebvisualServer', err);
     });
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 
     // Emitted when the window is going to be closed.
     mainWindow.on('close', function() {
@@ -121,7 +121,6 @@ app.on('ready', function() {
   }
 
   function addConfigFile(arg) {
-    console.log(arg);
     if (!arg.name)
       arg.name = 'test';
     if (arg.file) {

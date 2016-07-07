@@ -23,7 +23,7 @@
             width: 100%;
           }
           section#configFiles {
-            background: #bbb;
+            background: #ddd;
             float: left;
             clear: both;
             width: 100%;
@@ -67,7 +67,7 @@
             <template is="dom-repeat" items="{{configFiles}}">
               <section class="inline flex">
                 <section class="spread">{{item.name}}</section>
-                <section class="spread">{{item.path}}</section>
+                <section class="spread">{{item.file}}</section>
               </section>
             </template>
           </section>
@@ -83,7 +83,7 @@
           <h2>Neue Konfiguration</h2>
           <div>
             <section class="flex">
-              <input-element id="fileName" class="add" label="Bezeichner" pattern="*"></input-element>
+              <input-element id="fileName" class="add" label="Bezeichner" pattern="*" required></input-element>
               <button-element on-tap="openFileSelector">Datei auswählen</button-element>
             </section>
             <section class="inline">
@@ -123,7 +123,7 @@
               case 'set-configs':
                 var values = [];
                 for (var c in arg) {
-                  values.push({name: c, path: arg[c].path});
+                  values.push({name: c, file: arg[c].path});
                 }
                 this.set("configFiles", values);
                 break;
@@ -136,6 +136,7 @@
             var name = this.$.fileName.value;
             var path = this.$.filePath.textContent;
             ipcRenderer.send('event', 'add-config', {name: name, file: path});
+            this.push("configFiles", {name: name, file: path});
           },
           openDialog: function(e) {
             var selector = e.currentTarget.getAttribute('selector');
