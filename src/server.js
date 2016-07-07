@@ -132,7 +132,6 @@ class WebvisualServer extends EventEmitter {
     dataHandler = new dataModule(httpsServer);
     dataHandler.on('change', function(configurations) {
       if(configurations['HNF-GDS']) {
-        console.log(JSON.stringify(configurations['HNF-GDS'].labels, null, 2));
         Router(app, passport, config.server, configurations['HNF-GDS'].configuration); // load our routes and pass in our app and fully configured passport
       }
     });

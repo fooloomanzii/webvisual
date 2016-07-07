@@ -45,13 +45,16 @@
         background: linear-gradient(to bottom, rgba(173,173,173,0.1) 5%,rgba(173,173,173,0.25) 40%);
         font-weight: bold;
       }
-
+      ::content iron-icon {
+        color: currentColor;
+      }
       ::content .left {
         margin-right: 0.5em;
       }
 
       ::content .right {
-        margin-left: auto;
+        margin-left: 0.5em;
+        align-self: flex-end;
         @apply(--default-transition);
       }
       section#content {

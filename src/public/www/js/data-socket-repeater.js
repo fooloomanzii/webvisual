@@ -118,21 +118,27 @@ function _getUpdatableNodes() {
 function _loadSvgSources(sources) {
   var xhttp = [];
   var req;
-  for (var id in sources) {
-    // import svg
-    // prevents multible reloading after creation time
-    SvgSource[id] = {
-      selectable: sources[id].selectable
-    };
-    req = new XMLHttpRequest();
-    req.onreadystatechange = function(name) {
-      if (this.readyState === 4 && this.status === 200) {
-        SvgSource[name].node = this.responseXML.documentElement;
-      }
-    }.bind(req, id);
-    req.open("GET", sources[id].src, true);
-    req.send();
-    xhttp.push(req);
+  for (var label in sources) {
+    for (var id in sources[label]) {
+      // import svg
+      // prevents multible reloading after creation time
+      if (!sources[label][id].src || (SvgSource[id] && SvgSource[id].src && SvgSource[id].src === sources[label][id].src))
+        continue;
+      SvgSource[id] = {
+        selectable: sources[label][id].selectable,
+        src: sources[label][id].src
+      };
+      req = new XMLHttpRequest();
+      req.onreadystatechange = function(name) {
+        if (this.readyState === 4 && this.status === 200) {
+          console.log(name);
+          SvgSource[name].node = this.responseXML.documentElement;
+        }
+      }.bind(req, id);
+      req.open("GET", sources[label][id].src, true);
+      req.send();
+      xhttp.push(req);
+    }
   }
 }
 

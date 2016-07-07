@@ -24,7 +24,7 @@
       "https": 443
     },
     "auth": {
-      "required": false,
+      "required": true,
       "ldap": {
         "url": "ibn-net.kfa-juelich.de",
         "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de"

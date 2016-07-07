@@ -64,8 +64,15 @@
             width: 100%;
           }
           section.flex {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: center;
             flex: 1;
             margin: auto 0.5em;
+          }
+          section.flex > * {
+            margin-bottom: 0.5em;
           }
           section.spread {
             margin: 0.5em;
@@ -88,55 +95,104 @@
             padding: 0.5em;
           }
           section#tr {
-            padding: 0.5em;
             margin-bottom: 0.25em;
             border: thin solid rgba(0, 0, 0, 0.25);
             background: #f1f1f1;
             border-radius: 8px;
+            display: inline-flex;
+            width: 100%;
+            align-items: stretch;
+          }
+          section#td.date {
+            border-bottom-left-radius: inherit;
+            border-top-left-radius: inherit;
+            background: #DDDDDD;
+            padding: 0.5em;
+            border-right: thin solid rgba(0, 0, 0, 0.08);
+            font-size: 0.7em;
+          }
+          section#td.msg {
+            border-radius: inherit;
+            padding: 0.5em;
+            font-size: 0.9em;
+          }
+          button-element.running {
+            color: #4CC43C;
+          }
+          icon-button-element.running {
+            color: #D5F4D1;
           }
         </style>
         <div>
-          <app-drawer-layout force-narrow>
-            <app-drawer>
+          <app-drawer-layout force-narrow fullbleed>
+            <app-drawer id="mainDrawer">
               <section id="drawer">
-                <button-element ipc-event="server-start" on-tap="sendEvent">start server</button-element>
-                <button-element ipc-event="server-stop" on-tap="sendEvent">stop server</button-element>
-                <button-element ipc-event="server-restart" on-tap="sendEvent">restart server</button-element>
+                <app-toolbar>
+                  <iron-icon icon="juelich"></iron-icon>
+                  <section title>
+                    Webvisual Server
+                  </section>
+                </app-toolbar>
+                <br>
+                <button-element id="startButton" ipc-event="server-start" on-tap="sendEvent" aria-label="Server starten"><iron-icon class="left" icon="cast"></iron-icon>Start</button-element>
+                <button-element ipc-event="server-stop" on-tap="sendEvent"><iron-icon class="left" icon="stop" aria-label="Server anhalten"></iron-icon>Stopp</button-element>
+                <button-element ipc-event="server-restart" on-tap="sendEvent"><iron-icon class="left" icon="refresh" aria-label="Server neustarten"></iron-icon>Neustart</button-element>
+                <br>
+                <button-element for="server-config" on-tap="openDialog" aria-label="Einstellungen"><iron-icon class="left" icon="settings"></iron-icon>Einstellungen</button-element>
               </section>
             </app-drawer>
-            <app-toolbar>
-              <icon-button-element icon="menu" drawer-toggle></icon-button-element>
-              <logo-element id="logo" show-always></logo-element>
-              <section class="flex"></section>
-              <icon-button-element id="files" icon="description"></icon-button-element>
-              <dropdown-element id="dropdown" for="files" position="bottom" align="end" offset="8" target-toggle-event="tap">
-                <template is="dom-repeat" items="{{configFiles}}">
-                  <button-element class="inline flex" disabled>
-                    <iron-icon class="left" icon="description"></iron-icon>
-                    <section class="spread">{{item.name}}</section>
-                    <section class="spread">{{item.file}}</section>
-                  </button-element>
-                </template>
-                <button-element for="add-config" on-tap="openDialog">
-                  <iron-icon class="left" icon="note-add"></iron-icon>
-                  <section class="spread">Konfiguration hinzufügen...</section>
-                </button-element>
-              </dropdown-element>
-            </app-toolbar>
-            <section id="mainContent">
-              <section id="log">
-                <section id="body"></section>
+            <app-header-layout>
+              <app-header fixed effects="waterfall">
+                <app-toolbar>
+                  <icon-button-element id="menuButton" icon="menu" drawer-toggle></icon-button-element>
+                  <logo-element id="logo" show-always></logo-element>
+                  <section class="flex"></section>
+                  <icon-button-element id="files" icon="description" aria-label="Konfigurationsdateien"></icon-button-element>
+                  <dropdown-element id="dropdown" for="files" position="bottom" align="end" offset="12" target-toggle-event="tap">
+                    <template is="dom-repeat" items="{{configFiles}}">
+                      <button-element class="inline" disabled>
+                        <iron-icon class="left" icon="description"></iron-icon>
+                        <section class="spread">{{item.name}}</section>
+                        <section class="spread">{{item.file}}</section>
+                      </button-element>
+                    </template>
+                    <button-element for="add-config" on-tap="openDialog">
+                      <iron-icon class="left" icon="note-add"></iron-icon>
+                      <section class="spread">Konfiguration hinzufügen...</section>
+                    </button-element>
+                  </dropdown-element>
+                </app-toolbar>
+              </app-header>
+              <section id="mainContent">
+                <section id="log">
+                  <section id="body"></section>
+                </section>
               </section>
-            </section>
+            </app-header-layout>
           </app-drawer-layout>
 
         </div>
+
+        <dialog-element id="server-config" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+          <h3>Servereinstellungen</h3>
+          <div>
+            <section class="flex">
+              <input-element id="httpPort" label="http-Port" type="number" min="32" step="1" value="{{serverConfig.port.http}}" required error-message="erforderlich"></input-element>
+              <input-element id="httpsPort" label="https-Port" type="number" min="32" step="1" value="{{serverConfig.port.https}}" required error-message="erforderlich"></input-element>
+              <toggle-button-element id="authRequired" checked="{{serverConfig.auth.required}}"><iron-icon icon="lock-outline"></iron-icon>mit Authentifizierung</toggle-button-element>
+            </section>
+          </div>
+          <div class="buttons">
+            <button-element dialog-dismiss>Abbrechen<iron-icon class="right" icon="close"></iron-icon></button-element>
+            <button-element dialog-confirm on-tap="commitServerFile">Senden<iron-icon class="right" icon="send"></iron-icon></button-element>
+          </div>
+        </dialog-element>
 
         <dialog-element id="add-config" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
           <h3>Neue Konfiguration</h3>
           <div>
             <section class="flex">
-              <input-element id="fileName" class="add" label="Bezeichner" pattern="*" required error-message="erforderlich"></input-element>
+              <input-element id="fileName" label="Bezeichner" pattern="*" required error-message="erforderlich"></input-element>
               <button-element for="add-config" on-tap="openFileSelector">
                 <iron-icon class="left" icon="note-add"></iron-icon>
                 <section>Datei öffnen...</section>
@@ -147,8 +203,8 @@
             </section>
           </div>
           <div class="buttons">
-            <button-element dialog-dismiss>Abbrechen</button-element>
-            <button-element dialog-confirm on-tap="commitConfigFile">Hinzufügen</button-element>
+            <button-element dialog-dismiss>Abbrechen<iron-icon class="right" icon="close"></iron-icon></button-element>
+            <button-element dialog-confirm on-tap="commitConfigFile">Hinzufügen<iron-icon class="right" icon="add"></iron-icon></button-element>
           </div>
         </dialog-element>
       </template>
@@ -163,13 +219,29 @@
               value: function() {
                 return [];
               }
+            },
+            serverConfig: {
+              type: Object,
+              value: function() {
+                return {};
+              }
             }
           },
 
           sendEvent: function(e) {
             var ipcEvent = e.currentTarget.getAttribute('ipc-event');
-            if (ipcEvent)
+            if (ipcEvent) {
               ipcRenderer.send('event', ipcEvent);
+              this.$.mainDrawer.close();
+            }
+            if (ipcEvent === 'server-start' || ipcEvent === 'server-restart') {
+              this.$.menuButton.classList.add('running');
+              this.$.startButton.classList.add('running');
+            }
+            if (ipcEvent === 'server-stop') {
+              this.$.menuButton.classList.remove('running');
+              this.$.startButton.classList.remove('running');
+            }
           },
           eventHandler: function(event, arg) {
             switch (event) {
@@ -183,6 +255,19 @@
                 }
                 this.set("configFiles", values);
                 break;
+              case 'server-configs':
+                this.set("serverConfig", arg);
+                console.log(arg);
+                break;
+              case 'server-start':
+              case 'server-restart':
+                this.$.menuButton.classList.add('running');
+                this.$.startButton.classList.add('running');
+                break;
+              case 'server-stop':
+                this.$.menuButton.classList.remove('running');
+                this.$.startButton.classList.remove('running');
+                break;
             }
           },
           openFileSelector: function(e) {
@@ -194,8 +279,14 @@
             ipcRenderer.send('event', 'add-config', {name: name, file: path});
             this.push("configFiles", {name: name, file: path});
           },
+          commitServerFile: function() {
+            var req = this.$.authRequired.checked;
+            var http = +this.$.httpPort.value;
+            var https = +this.$.httpsPort.value;
+            ipcRenderer.send('event', 'server-configs', this.serverConfig);
+          },
           openDialog: function(e) {
-            this.$.dropdown.hide();
+            this.$.mainDrawer.close();
             var For = e.currentTarget.getAttribute('for');
             var dialog = this.$$('dialog-element#'+For);
             if (dialog)

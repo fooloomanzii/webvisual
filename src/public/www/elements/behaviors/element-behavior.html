@@ -66,6 +66,11 @@
           value: false,
           observer: "_updatableChanged"
         },
+        updatable: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
 
         selectable: {
           type: Boolean,
@@ -82,7 +87,6 @@
 
         color: {
           type: String,
-          value: "",
           observer: "setColor"
         }
     },
@@ -233,7 +237,7 @@
     _updatableChanged: function() {
       // sets a global Object 'UpdatableNodes', for updating the values of the elements
       if (this.notUpdatable === false && this.label && this.id) {
-        this.setAttribute("updatable", true);
+        this.set("updatable", true);
         if (window.UpdatableNodes === undefined)
           UpdatableNodes = {};
         if (!UpdatableNodes[this.label])

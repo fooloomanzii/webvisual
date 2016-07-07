@@ -140,7 +140,9 @@
     Polymer({
       is: 'dropdown-selector',
 
-      behaviors: [Polymer.IronSelectableBehavior],
+      behaviors: [
+        Polymer.IronFormElementBehavior, Polymer.IronSelectableBehavior
+      ],
 
       properties: {
         label: {
@@ -193,7 +195,7 @@
       },
 
       hostAttributes: {
-        role: 'select',
+        role: 'combobox',
         tabindex: '0'
       },
 

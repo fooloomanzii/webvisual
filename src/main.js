@@ -61,6 +61,7 @@ app.on('ready', function() {
       console.error = console.log;
 
       mainWindow.webContents.send("event", "set-configs", config.userConfigFiles);
+      mainWindow.webContents.send("event", "server-configs", config.server);
     });
 
     webvisualserver = new WebvisualServer(config);
@@ -111,6 +112,9 @@ app.on('ready', function() {
         break;
       case 'add-config':
         addConfigFile(arg);
+        break;
+      case 'server-configs':
+        appConfigLoader.set(arg);
         break;
     }
   });

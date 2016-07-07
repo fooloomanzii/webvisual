@@ -3,10 +3,10 @@
   <template>
     <style>
       :host {
-        @apply(--layout-inline);
-        @apply(--layout-center);
-        @apply(--layout-center-justified);
-        @apply(--layout-flex-auto);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1 1 auto;
         position: relative;
         border-radius: 6px 6px 0px 0px;
         overflow: hidden;
@@ -25,12 +25,14 @@
         padding: 0;
       }
       .tab-content {
+        display: flex;
         height: 100%;
         transform: translateZ(0);
           -webkit-transform: translateZ(0);
-        @apply(--layout-horizontal);
-        @apply(--layout-center-center);
-        @apply(--layout-flex-auto);
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        flex: 1 1 auto;
         transition: opacity 0.1s cubic-bezier(0.4, 0.0, 1, 1);
       }
       :host(:not(.iron-selected)) > .tab-content {

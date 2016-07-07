@@ -159,7 +159,7 @@
 </style>
 
 <section class="input-container">
-  <input id="input" type="[[type]]" name="input" pattern="[[pattern]]" on-change="_float" value="{{value}}" required$="[[required]]"/>
+  <input id="input" type="[[type]]" name="input" pattern="[[pattern]]" on-change="_float" value="{{value}}" min="{{min}}" max="{{max}}" step="{{step}}" required$="[[required]]"/>
   <label hidden="[[!label]]" for="input" noFloat$="[[noFloat]]">[[label]]</label>
   <span class="error" hidden="[[!errorMessage]]">[[errorMessage]]</span>
   <section class="focusline"></section>
@@ -169,6 +169,10 @@
   <script>
     Polymer({
       is: 'input-element',
+
+      behaviors: [
+        Polymer.IronFormElementBehavior
+      ],
 
       properties: {
         label: {
@@ -189,7 +193,8 @@
         value: {
           type: String,
           value: "",
-          reflectToAttribute: true
+          reflectToAttribute: true,
+          observer: "_float"
         },
         required: {
           type: Boolean,
@@ -198,6 +203,15 @@
         errorMessage: {
           type: String,
           value: ""
+        },
+        min: {
+          type: Number
+        },
+        max: {
+          type: Number
+        },
+        step: {
+          type: Number
         },
         noFloat: {
           type: Boolean,

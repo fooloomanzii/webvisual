@@ -76,24 +76,24 @@ class dataModule extends EventEmitter {
       for (var label of configHandler.settings[name].configuration.labels) {
 
         var listeners = {
-          error: function(type, err, id) {
+          error: function(type, err, label) {
             // dataSocket.emit('mistake', { error: err, time: new Date() });
-            this.handleErrors(err, "dataFileHandler id: " + id);
+            this.handleErrors(err, "dataFileHandler id: " + label);
           },
-          data: function(type, data, id) {
+          data: function(type, data, label) {
             if (!data || data.length == 0)
               return; // Don't handle empty data
             // temporary save data
-            if (configHandler.settings[name].dataConfig[id]) {
+            if (configHandler.settings[name].dataConfig[label]) {
               // process data
-              mergedData = mergeData(configHandler.settings[name].dataConfig[id], data);
+              mergedData = mergeData(configHandler.settings[name].dataConfig[label], data);
               // serve clients in rooms for labels
               // only newer data is send
               // TODO: handle this optional by config
-              if (currentData[name][id] && mergedData.date > currentData[name][id].date) {
-                dataSocket.to(name+'__'+id).emit("update", mergedData);
+              if (currentData[name][label] && mergedData.date > currentData[name][label].date) {
+                dataSocket.to(name + '__' + label).emit("update", mergedData);
               }
-              currentData[name][id] = mergedData;
+              currentData[name][label] = mergedData;
             }
           }
         };
@@ -116,14 +116,14 @@ class dataModule extends EventEmitter {
       dataSocket.on('connection', function(socket) {
 
         var name = socket.handshake.query.name;
-        console.log(socket.handshake.query);
+        // console.log(socket.handshake.query);
 
         socket.emit('init', configHandler.settings[name].configuration);
 
         socket.on('init', function(config) {
           for (var label of config.labels) {
-            socket.join(config.name+'__'+label); // client joins room for selected label
-            socket.emit('update', currentData[config.name][label]);
+            socket.join(name + '__' + label); // client joins room for selected label
+            socket.emit('update', currentData[name][label]);
           }
         });
 

@@ -97,15 +97,14 @@ class fileConfigLoader extends EventEmitter {
 
         connection[label] = data[label].connections;
       }
-      console.log(configuration.labels);
-
       this.settings[name].configuration = configuration;
       this.settings[name].dataConfig = dataConfig;
       this.settings[name].connection = connection;
     } catch (e) {
+      err = e;
       console.log(e);
-    }
-    if (!err){
+    } finally {
+    if(!err)
       this.emit('ready', name);
     }
 
@@ -145,7 +144,7 @@ class fileConfigLoader extends EventEmitter {
         // lastExceeds
         type.firstExceeds = [];
         // id has to be different from unnamedType
-        if (type.id == locals.unnamedType.id)
+        if (type.id === locals.unnamedType.id)
           type.id += i;
         // for Element structure
         elements[type.id] = type;
@@ -209,7 +208,7 @@ class fileConfigLoader extends EventEmitter {
             }
           }
         }
-        if (sameSource && svg[source]) {
+        if (sameSource && svg && svg[source]) {
           var initial = '';
           for (var id in selectable) {
             initial += selectable[id] + ',';
@@ -225,17 +224,18 @@ class fileConfigLoader extends EventEmitter {
     }
 
     // Setting Global SVG-Selectables
-    for (var id in elements) {
-      if (elements[id] && elements[id].svg && elements[id].svg.source) {
-        source = elements[id].svg.source
-        if (svg[source]) {
-          if (!svg[source].selectable)
-            svg[source].selectable = {};
-          if (elements[id].svg.path)
-            svg[source].selectable[id] = elements[id].svg.path;
+    if (svg)
+      for (var id in elements) {
+        if (elements[id] && elements[id].svg && elements[id].svg.source) {
+          source = elements[id].svg.source
+          if (svg[source]) {
+            if (!svg[source].selectable)
+              svg[source].selectable = {};
+            if (elements[id].svg.path)
+              svg[source].selectable[id] = elements[id].svg.path;
+          }
         }
       }
-    }
 
     return {
       label: label,
