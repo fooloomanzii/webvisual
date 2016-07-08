@@ -9,37 +9,67 @@
     <link rel='import' href='./www/elements/imports.html'/>
     <link rel="import" href="./www/components/paper-dialog/paper-dialog.html"/>
     <link rel="import" href="./www/components/app-layout/app-layout.html"/>
+    <link rel="import" href="./www/components/app-layout/app-scroll-effects/effects/waterfall.html"/>
   </head>
-  <style>
+  <style is="custom-style" include="app-theme">
     body {
       height: 100%;
       width: 100%;
       padding: 0;
       margin: 0;
-      background: #669DB4;
+      background: var(--bright-primary-color);
       font-family: Fira Sans Light;
       font-weight: normal;
-    }
-    app-drawer-layout {
-      height: 100%;
-      width: 100%;
-      top: 0;
-      left: 0;
-      position: absolute;
     }
   </style>
   <body>
 
     <dom-module id="webvisual-app">
       <template>
-        <style>
-          app-toolbar {
-            background: #005B82;
-            color: #f1f1f1;
+        <style include="app-theme">
+          :host {
+            position: relative;
+            display: flex;
+            height: 100%;
+            overflow: hidden;
+            width: 100%;
           }
-          button-element {
+          app-drawer {
+            --app-drawer-scrim-background: rgba(0,0,0, 0.25);
+            color: var(--primary-text-color);
+          }
+          app-header-layout {
+            position: relative;
+            height: 100%;
+            display: flex;
+          }
+          app-header-layout > div#contentContainer {
+            width: 100%;
+          }
+          app-toolbar {
+            background: var(--primary-color);
+            color: var(--bright-text-color);
+          }
+          app-toolbar#toolbar {
+            height: 54px;
+            box-sizing: border-box;
+            width: 100vw;
+          }
+          section#mainContent {
+            height: calc(100% - 54px);
+            overflow: auto;
+            position: relative;
+          }
+          button-element, input-element, dropdown-selector {
             border: thin solid rgba(0, 0, 0, 0.12);
             margin: 0.5em 0em;
+            border-radius: 4px;
+            font-size: 0.9em;
+          }
+          input-element, dropdown-selector {
+            padding: 0.5em;
+            width: auto;
+            flex: 1;
           }
           section#drawer {
             display: flex;
@@ -56,14 +86,14 @@
             clear: both;
             width: 100%;
           }
-          section.inline {
+          .inline {
             display: inline-flex;
             align-items: center;
             float: left;
             clear: both;
-            width: 100%;
+            width: auto;
           }
-          section.flex {
+          .flex {
             display: flex;
             flex-direction: column;
             align-items: stretch;
@@ -71,21 +101,26 @@
             flex: 1;
             margin: auto 0.5em;
           }
-          section.flex > * {
+          .flex > * {
             margin-bottom: 0.5em;
           }
-          section.spread {
+          .spread {
             margin: 0.5em;
-            text-align: center;
           }
-          input-element {
-            width: auto;
+          .dialog-content {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.9em;
           }
-          dropdown-element button-element {
+          dropdown-element button-element, dropdown-selector button-element {
             /*color: #444;*/
+            font-size: 0.6em;
             margin: 0;
             border: none;
             border-bottom: thin solid rgba(0, 0, 0, 0.12);
+          }
+          dropdown-selector button-element {
+            font-size: 0.8em;
           }
           logo-element#logo {
             margin-left: 0.75em;
@@ -115,92 +150,111 @@
             border-radius: inherit;
             padding: 0.5em;
             font-size: 0.9em;
+            white-space: pre-wrap;
+            word-break: break-all;
           }
-          button-element.running {
-            color: #4CC43C;
+          [isRunning] {
+            color: #80D16E;
           }
-          icon-button-element.running {
-            color: #D5F4D1;
+          icon-button-element {
+            opacity: 0.9;
+          }
+          icon-button-element:hover {
+            opacity: 1;
           }
         </style>
-        <div>
-          <app-drawer-layout force-narrow fullbleed>
-            <app-drawer id="mainDrawer">
-              <section id="drawer">
-                <app-toolbar>
-                  <iron-icon icon="juelich"></iron-icon>
-                  <section title>
-                    Webvisual Server
-                  </section>
-                </app-toolbar>
-                <br>
-                <button-element id="startButton" ipc-event="server-start" on-tap="sendEvent" aria-label="Server starten"><iron-icon class="left" icon="cast"></iron-icon>Start</button-element>
-                <button-element ipc-event="server-stop" on-tap="sendEvent"><iron-icon class="left" icon="stop" aria-label="Server anhalten"></iron-icon>Stopp</button-element>
-                <button-element ipc-event="server-restart" on-tap="sendEvent"><iron-icon class="left" icon="refresh" aria-label="Server neustarten"></iron-icon>Neustart</button-element>
-                <br>
-                <button-element for="server-config" on-tap="openDialog" aria-label="Einstellungen"><iron-icon class="left" icon="settings"></iron-icon>Einstellungen</button-element>
-              </section>
-            </app-drawer>
-            <app-header-layout>
-              <app-header fixed effects="waterfall">
-                <app-toolbar>
-                  <icon-button-element id="menuButton" icon="menu" drawer-toggle></icon-button-element>
-                  <logo-element id="logo" show-always></logo-element>
-                  <section class="flex"></section>
-                  <icon-button-element id="files" icon="description" aria-label="Konfigurationsdateien"></icon-button-element>
-                  <dropdown-element id="dropdown" for="files" position="bottom" align="end" offset="12" target-toggle-event="tap">
-                    <template is="dom-repeat" items="{{configFiles}}">
-                      <button-element class="inline" disabled>
-                        <iron-icon class="left" icon="description"></iron-icon>
-                        <section class="spread">{{item.name}}</section>
-                        <section class="spread">{{item.file}}</section>
-                      </button-element>
-                    </template>
-                    <button-element for="add-config" on-tap="openDialog">
-                      <iron-icon class="left" icon="note-add"></iron-icon>
-                      <section class="spread">Konfiguration hinzufügen...</section>
-                    </button-element>
-                  </dropdown-element>
-                </app-toolbar>
-              </app-header>
-              <section id="mainContent">
-                <section id="log">
-                  <section id="body"></section>
-                </section>
-              </section>
-            </app-header-layout>
-          </app-drawer-layout>
 
-        </div>
+        <app-drawer-layout force-narrow fullbleed>
+          <app-drawer id="mainDrawer">
+            <section id="drawer">
+              <app-toolbar>
+                <iron-icon icon="juelich"></iron-icon>
+                <section title>
+                  Webvisual Server
+                </section>
+              </app-toolbar>
+              <br>
+              <button-element id="startButton" ipc-event="server-start" on-tap="sendEvent" isRunning$="[[isRunning]]" aria-label="Server starten"><iron-icon class="left" icon="play-arrow"></iron-icon>Start</button-element>
+              <button-element ipc-event="server-stop" on-tap="sendEvent"><iron-icon class="left" icon="stop" aria-label="Server anhalten"></iron-icon>Stopp</button-element>
+              <button-element ipc-event="server-restart" on-tap="sendEvent"><iron-icon class="left" icon="replay" aria-label="Server neustarten"></iron-icon>Neustart</button-element>
+              <br>
+              <button-element for="server-config" on-tap="openDialog" aria-label="Einstellungen"><iron-icon class="left" icon="settings"></iron-icon>Einstellungen</button-element>
+            </section>
+          </app-drawer>
+          <app-header-layout>
+            <app-header fixed>
+              <app-toolbar>
+                <icon-button-element id="menuButton" icon="menu" drawer-toggle></icon-button-element>
+                <logo-element id="logo" show-always></logo-element>
+                <section class="flex"></section>
+                <dropdown-selector id="renderer" hide-selected hide-arrow label="Rendereinheit" icon="view-agenda" class="inline spread" attr-for-selected="renderer" toggles position="bottom" align="start" required>
+                  <template is="dom-repeat" items="{{renderer}}">
+                    <button-element class="inline" renderer="[[item]]">
+                      <iron-icon class="left" icon="view-module"></iron-icon>
+                      <section class="spread">[[item]]</section>
+                    </button-element>
+                  </template>
+                </dropdown-selector>
+              </app-toolbar>
+            </app-header>
+            <section id="mainContent">
+              <section id="log">
+                <section id="body"></section>
+              </section>
+            </section>
+            <app-toolbar id="toolbar">
+              <icon-button-element id="clear" icon="delete" aria-label="löschen" on-tap="clearHistory"></icon-button-element>
+              <section class="flex"></section>
+              <icon-button-element id="toggleStartButton" ipc-event="server-toggle" on-tap="sendEvent" icon="play-arrow" isRunning$="[[isRunning]]" aria-label="Server"></icon-button-element>
+              <icon-button-element id="files" icon="description" aria-label="Konfigurationsdateien"></icon-button-element>
+              <dropdown-element id="dropdown" for="files" position="top" align="end" offset="6" target-toggle-event="tap">
+                <template is="dom-repeat" items="{{configFiles}}">
+                  <button-element class="inline" disabled>
+                    <iron-icon class="left" icon="description"></iron-icon>
+                    <section class="spread">{{item.name}}</section>
+                    <section class="spread">{{item.file}}</section>
+                  </button-element>
+                </template>
+                <button-element for="add-config" on-tap="openDialog">
+                  <iron-icon class="left" icon="note-add"></iron-icon>
+                  <section class="spread">Konfigurationsdatei hinzufügen...</section>
+                </button-element>
+              </dropdown-element>
+            </app-toolbar>
+          </app-header-layout>
+        </app-drawer-layout>
 
         <dialog-element id="server-config" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
           <h3>Servereinstellungen</h3>
-          <div>
+          <div class="dialog-content">
             <section class="flex">
-              <input-element id="httpPort" label="http-Port" type="number" min="32" step="1" value="{{serverConfig.port.http}}" required error-message="erforderlich"></input-element>
-              <input-element id="httpsPort" label="https-Port" type="number" min="32" step="1" value="{{serverConfig.port.https}}" required error-message="erforderlich"></input-element>
+              <input-element id="httpPort" label="http-Port" type="number" min="32" step="1" value="{{serverConfig.port.http}}" required></input-element>
+              <input-element id="httpsPort" label="https-Port" type="number" min="32" step="1" value="{{serverConfig.port.https}}" required></input-element>
               <toggle-button-element id="authRequired" checked="{{serverConfig.auth.required}}"><iron-icon icon="lock-outline"></iron-icon>mit Authentifizierung</toggle-button-element>
             </section>
           </div>
           <div class="buttons">
             <button-element dialog-dismiss>Abbrechen<iron-icon class="right" icon="close"></iron-icon></button-element>
-            <button-element dialog-confirm on-tap="commitServerFile">Senden<iron-icon class="right" icon="send"></iron-icon></button-element>
+            <button-element dialog-confirm on-tap="commitServerFile">Speichen<iron-icon class="right" icon="save"></iron-icon></button-element>
           </div>
         </dialog-element>
 
         <dialog-element id="add-config" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-          <h3>Neue Konfiguration</h3>
-          <div>
-            <section class="flex">
-              <input-element id="fileName" label="Bezeichner" pattern="*" required error-message="erforderlich"></input-element>
-              <button-element for="add-config" on-tap="openFileSelector">
-                <iron-icon class="left" icon="note-add"></iron-icon>
-                <section>Datei öffnen...</section>
-              </button-element>
+          <h3>Neue Konfigurationsdatei</h3>
+          <div class="dialog-content">
+            <input-element id="fileName" class="spread" label="Anzeigename" pattern="*" required></input-element>
+            <section class="inline spread">
+              <input-element id="filePath" label="Pfad" pattern="*" required></input-element>
+              <icon-button-element icon="note-add" class="spread" on-tap="openFileSelector" aria-label="Datei öffnen..."></icon-button-element>
             </section>
-            <section class="inline">
-              <section id="filePath" class="flex"></section>
-            </section>
+            <dropdown-selector id="renderer" label="Rendereinheit" icon="view-agenda" class="inline spread" attr-for-selected="renderer" toggles position="bottom" align="start" required>
+              <template is="dom-repeat" items="{{renderer}}">
+                <button-element class="inline" renderer="[[item]]">
+                  <iron-icon class="left" icon="view-module"></iron-icon>
+                  <section class="spread">[[item]]</section>
+                </button-element>
+              </template>
+            </dropdown-selector>
           </div>
           <div class="buttons">
             <button-element dialog-dismiss>Abbrechen<iron-icon class="right" icon="close"></iron-icon></button-element>
@@ -225,6 +279,16 @@
               value: function() {
                 return {};
               }
+            },
+            renderer: {
+              type: Array,
+              value: function() {
+                return [];
+              }
+            },
+            isRunning: {
+              type: Boolean,
+              value: false
             }
           },
 
@@ -234,19 +298,11 @@
               ipcRenderer.send('event', ipcEvent);
               this.$.mainDrawer.close();
             }
-            if (ipcEvent === 'server-start' || ipcEvent === 'server-restart') {
-              this.$.menuButton.classList.add('running');
-              this.$.startButton.classList.add('running');
-            }
-            if (ipcEvent === 'server-stop') {
-              this.$.menuButton.classList.remove('running');
-              this.$.startButton.classList.remove('running');
-            }
           },
           eventHandler: function(event, arg) {
             switch (event) {
               case 'open-config':
-                this.$.filePath.textContent = arg;
+                this.$.filePath.value = arg;
                 break;
               case 'set-configs':
                 var values = [];
@@ -255,18 +311,18 @@
                 }
                 this.set("configFiles", values);
                 break;
+              case 'set-renderer':
+                for (var r in arg)
+                  this.push("renderer", r);
+                break;
               case 'server-configs':
                 this.set("serverConfig", arg);
-                console.log(arg);
                 break;
               case 'server-start':
-              case 'server-restart':
-                this.$.menuButton.classList.add('running');
-                this.$.startButton.classList.add('running');
+                this.isRunning = true;
                 break;
               case 'server-stop':
-                this.$.menuButton.classList.remove('running');
-                this.$.startButton.classList.remove('running');
+                this.isRunning = false;
                 break;
             }
           },
@@ -275,9 +331,10 @@
           },
           commitConfigFile: function() {
             var name = this.$.fileName.value;
-            var path = this.$.filePath.textContent;
-            ipcRenderer.send('event', 'add-config', {name: name, file: path});
-            this.push("configFiles", {name: name, file: path});
+            var path = this.$.filePath.value;
+            var renderer = this.$.filePath.selected;
+            ipcRenderer.send('event', 'add-config', {name: name, file: path, renderer: renderer});
+            this.push("configFiles", {name: name, file: path, renderer: renderer});
           },
           commitServerFile: function() {
             var req = this.$.authRequired.checked;
@@ -287,10 +344,17 @@
           },
           openDialog: function(e) {
             this.$.mainDrawer.close();
+            this.$.dropdown.hide();
             var For = e.currentTarget.getAttribute('for');
             var dialog = this.$$('dialog-element#'+For);
             if (dialog)
               dialog.open();
+          },
+          clearHistory: function() {
+            var body = this.$.body;
+            while (body.lastChild) {
+              body.removeChild(body.lastChild);
+            }
           }
         });
       </script>

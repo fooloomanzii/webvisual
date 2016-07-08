@@ -61,12 +61,19 @@ app.on('ready', function() {
       console.error = console.log;
 
       mainWindow.webContents.send("event", "set-configs", config.userConfigFiles);
+      mainWindow.webContents.send("event", "set-renderer", config.renderer);
       mainWindow.webContents.send("event", "server-configs", config.server);
     });
 
     webvisualserver = new WebvisualServer(config);
     webvisualserver.on('error', function(err) {
       console.log('Error in WebvisualServer', err);
+    });
+    webvisualserver.on('server-start', function(err) {
+      mainWindow.webContents.send("event", "server-start");
+    });
+    webvisualserver.on('server-stop', function(err) {
+      mainWindow.webContents.send("event", "server-stop");
     });
     // Open the DevTools.
     // mainWindow.webContents.openDevTools();
@@ -87,7 +94,7 @@ app.on('ready', function() {
   });
 
   appConfigLoader.on('change', function(settings) {
-    console.log('AppConfig changed:', settings);
+    webvisualserver.setConfig(settings);
   });
 
   // app quit
@@ -102,6 +109,9 @@ app.on('ready', function() {
       case 'server-stop':
         webvisualserver.disconnect();
         break;
+      case 'server-toggle':
+        webvisualserver.toggle();
+        break;
       case 'open-config':
         dialog.showOpenDialog({
           properties: ['openFile'],
@@ -114,21 +124,21 @@ app.on('ready', function() {
         addConfigFile(arg);
         break;
       case 'server-configs':
-        appConfigLoader.set(arg);
+        appConfigLoader.setEntry({server: arg});
         break;
     }
   });
 
   // addConfigFile
   function openConfigFile(files) {
-    mainWindow.webContents.send('event', 'open-config', files[0]);
+    mainWindow.webContents.send('event', 'open-config', (files && files.length > 0) ? files[0] : "");
   }
 
   function addConfigFile(arg) {
     if (!arg.name)
       arg.name = 'test';
     if (arg.file) {
-      config.userConfigFiles[arg.name] = { path: arg.file };
+      config.userConfigFiles[arg.name] = { path: arg.file, renderer: arg.renderer };
       appConfigLoader.set(config);
     }
   }

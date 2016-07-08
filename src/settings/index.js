@@ -16,12 +16,31 @@ var appUserDataFolder;
 var app;
 var mergeDeep = require('merge-defaults');
 
-var defaults = {
-  values: [{
-    x: new Date(),
-    y: 0,
-    exceeds: null
-  }]
+const defaults = {
+    app: {
+      width: 400,
+      height: 500,
+      autoHideMenuBar: true,
+      acceptFirstMouse: true,
+      webPreferences: {
+        webSecurity: true
+      }
+    },
+    userConfigFiles: {},
+    server: {
+      port: {
+        http: 80,
+        https: 443
+      },
+      auth: {
+        required: true,
+        ldap: {
+          url: "ibn-net.kfa-juelich.de",
+          baseDN: "dc=ibn-net,dc=kfa-juelich,dc=de"
+        }
+      }
+    },
+    database: {}
 };
 
 class configLoader extends EventEmitter {
@@ -41,9 +60,19 @@ class configLoader extends EventEmitter {
   }
 
   ready(settings) {
-    this.settings = settings;
-    if (settings)
-      this.emit('ready', 'AppConfigFile loaded: ' + appConfigFilePath, this.settings);
+    var err;
+    try {
+      this.testConfig(settings);
+    } catch(e) {
+      err = true
+    } finally {
+      if (err)
+        this.loadBackup(this.ready);
+      else {
+        this.settings = settings;
+        this.emit('ready', 'AppConfigFile loaded: ' + appConfigFilePath, this.settings);
+      }
+    }
   }
 
   testAccess(appConfigFilePath, callback) {
@@ -52,12 +81,12 @@ class configLoader extends EventEmitter {
         try {
           this.testRead(appConfigFilePath);
         } catch (e) {
-          this.emit('error', 'Error parsing AppConfigFile. Copying Default Settings ... ', e);
+          this.emit('error', '\nError parsing AppConfigFile. Loading Backup Settings ... \n' + e);
           err = true;
         }
       }
       if (err) {
-        this.loadAppDefaults(this.ready);
+        this.loadBackup(this.ready);
       }
       else if (callback) {
         callback.call(this, appConfigFilePath, this.ready);
@@ -71,7 +100,22 @@ class configLoader extends EventEmitter {
 
   testConfig(config, callback) {
     JSON.parse(JSON.stringify(config));
-    if (callback)
+    let missing = [];
+    if(!config.app)
+      missing.push("app")
+    if(!config.server)
+      missing.push("server")
+    if(!config.app)
+      missing.push("userConfigFiles")
+    // if(!config.database)
+    //   missing.push("database")
+    if (missing.length > 0)
+      throw {
+        name: "MissingArgumentsError",
+        message: "\nIn config are missing entries: " + missing.toString(),
+        toString: function() { return this.name + ": " + this.message; }
+      };
+    else if (callback)
       callback(config);
   }
 
@@ -79,18 +123,19 @@ class configLoader extends EventEmitter {
     try {
       this.testConfig(config);
     } catch (err) {
-      this.emit('error', 'Error in AppConfig', err);
+      this.emit('error', '\nError in AppConfig:\n' + err);
       return;
     }
     this.settings = config;
-    this.emit('changed', config);
-    this.save(this.settings);
+    this.emit('change', config);
+    this.saveBackup(this.settings);
   }
 
   setEntry(config) {
-    this.settings = mergeDeep(this.settings, config);
-    this.emit('changed', this.settings);
+    this.settings = mergeDeep(config, this.settings);
+    this.emit('change', this.settings);
     this.save(this.settings);
+    this.saveBackup(this.settings);
   }
 
   save(config) {
@@ -98,28 +143,50 @@ class configLoader extends EventEmitter {
     try {
       this.testConfig(data);
     } catch (err) {
-      this.emit('error', 'Error in AppConfig', err);
+      this.emit('error', '\nError in AppConfig:\n' + err);
       return;
     }
     fs.writeFile(appConfigFilePath, JSON.stringify(data, null, 2), (err) => {
       if (err) {
-        console.log('Error saving AppConfig:', err);
-        this.emit('error', 'Error saving AppConfig:', err);
+        console.log('\nError saving AppConfig:', err);
+        this.emit('error', '\nError saving AppConfig:\n' + err);
         return;
       }
     });
-    console.log('AppConfig saved to file:', appConfigFilePath);
-    this.emit('saved', 'AppConfig saved to file:', appConfigFilePath);
+    console.log('\nAppConfig saved to file:', appConfigFilePath);
+    this.emit('saved', '\nAppConfig saved to file:', appConfigFilePath);
   }
 
-  loadAppDefaults(callback) {
+  saveBackup(config) {
+    let data = config || this.settings;
+
+    try {
+      this.testConfig(data);
+    } catch (err) {
+      this.emit('error', '\nError saving AppConfig:\n' + err);
+      return;
+    }
+    fs.writeFile(path.join(process.cwd(), 'defaults', 'appConfig.backup.json'), JSON.stringify(data, null, 2), (err) => {
+      if (err) {
+        console.log('Error saving DefaultAppConfig:', err);
+        this.emit('error', 'Error saving DefaultAppConfig:', err);
+        return;
+      }
+    });
+  }
+
+  loadBackup(callback) {
     this.mkdirp(path.join(appUserDataFolder, 'config'));
-    this.copyFile(path.join(process.cwd(), 'defaults', 'appConfig.json'),
+    this.copyFile(path.join(process.cwd(), 'defaults', 'appConfig.backup.json'),
                   appConfigFilePath,
-                  function(err) {
-                    if (err) this.emit('error', 'Error copying Defaults', err);
-                  });
-    this.readFromFile.call(this, path.join(process.cwd(), 'defaults', 'appConfig.json'), callback);
+                  (function(err) {
+                    if (err) {
+                      this.emit('error', '\nError copying Backup', err);
+                      callback.call(this, defaults);
+                      return;
+                    }
+                  }).bind(this));
+    this.readFromFile.call(this, path.join(process.cwd(), 'defaults', 'appConfig.backup.json'), callback);
   }
 
   checkFolder(path_folder, callback) {
@@ -165,7 +232,7 @@ class configLoader extends EventEmitter {
       var file = fs.readFileSync(filepath)
       obj = JSON.parse(file);
     } catch (err) {
-      this.emit('Read Error:', err)
+      this.emit('error', '\nReading File Failed: ', filepath,'\n', err)
       return {};
     }
     if (callback) {

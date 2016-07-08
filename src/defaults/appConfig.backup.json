@@ -1,0 +1,45 @@
+{
+  "server": {
+    "auth": {
+      "ldap": {
+        "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
+        "url": "ibn-net.kfa-juelich.de"
+      },
+      "required": true
+    },
+    "logs": {
+      "http_server_log": "./logs/http-error.log",
+      "server_log": "./logs/server-error.log"
+    },
+    "port": {
+      "http": "80",
+      "https": 443
+    }
+  },
+  "app": {
+    "width": 400,
+    "height": 500,
+    "autoHideMenuBar": true,
+    "acceptFirstMouse": true,
+    "webPreferences": {
+      "webSecurity": true
+    },
+    "x": 640,
+    "y": 255
+  },
+  "userConfigFiles": {
+    "HNF-GDS": {
+      "path": "./defaults/HNF/HNF_GDS.json",
+      "renderer": "alarm"
+    },
+    "mK_Smt": {
+      "path": "./defaults/mK_Smt/mK_Smt.json",
+      "renderer": "graph"
+    }
+  },
+  "renderer": {
+    "alarm": "alarm-view.jade",
+    "graph": "chart-view.jade"
+  },
+  "database": {}
+}

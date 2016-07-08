@@ -177,11 +177,17 @@
         this.$.dropdown.classList.add('opened');
         this.updatePosition();
       },
-
+      open: function() {
+        this.$.dropdown.removeAttribute("hidden");
+        this.$.dropdown.classList.add('opened');
+        this.updatePosition();
+      },
       hide: function() {
         this.$.dropdown.classList.remove('opened');
       },
-
+      close: function() {
+        this.$.dropdown.classList.remove('opened');
+      },
       toggle: function() {
         if (this.$.dropdown.classList.contains('opened')) this.hide();
         else this.show();

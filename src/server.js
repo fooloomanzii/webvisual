@@ -55,10 +55,15 @@ class WebvisualServer extends EventEmitter {
 
   constructor(settings) {
     super();
-
+    this.setConfig(settings);
+  }
+  setConfig(settings) {
     if (!settings) return;
 
     config = settings;
+
+    if (isRunning)
+      this.disconnect();
 
     router = new Router(app, passport, config.server, configurations); // load our routes and pass in our app and fully configured passport
 
@@ -141,14 +146,13 @@ class WebvisualServer extends EventEmitter {
     if (settings)
       config = settings;
     // connect the DATA-Module
-    if (isRunning)
-      this.reconnect();
-    else {
+    if (!isRunning) {
       console.log('WebvisualServer is starting');
       dataHandler.connect(config.userConfigFiles);
       httpServer.listen(config.server.port.http);
       httpsServer.listen(config.server.port.https);
       isRunning = true;
+      this.emit("server-start");
     }
   }
 
@@ -158,18 +162,26 @@ class WebvisualServer extends EventEmitter {
     httpsServer.close();
     dataHandler.disconnect();
     isRunning = false;
+    this.emit("server-stop");
   }
 
   reconnect(settings) {
     if (settings)
       config = settings;
-    console.log('WebvisualServer is restarting');
     if (isRunning)
       this.disconnect();
-    var self = this;
-    setTimeout(function() {
-      self.connect();
-    }, 3000);
+    setTimeout((function() {
+      this.connect();
+    }).bind(this), 3000);
+  }
+
+  toggle(settings) {
+    if (settings)
+      config = settings;
+    if (isRunning)
+      this.disconnect();
+    else
+      this.connect();
   }
 };
 

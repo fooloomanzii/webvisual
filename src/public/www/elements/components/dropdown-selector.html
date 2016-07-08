@@ -3,9 +3,10 @@
 
   <style>
     :host {
-      box-sizing: content-box;
+      box-sizing: border-box;
       position: relative;
-      display: inline-block;
+      display: block;
+      outline-width: 0;
       clear: both;
       float: left;
       outline: none;
@@ -13,40 +14,38 @@
     }
 
     section#container {
-      display: inline-flex;
+      display: flex;
+      position: relative;
+      flex-direction: row;
+      width: 100%;
       align-items: center;
-      align-content: center;
-      justify-content: flex-start;
-      box-sizing: content-box;
-      cursor: pointer;
-      outline: none;
-      padding: 0.5em 0.5em 0.25em;
+      box-sizing: border-box;
     }
-    section#container[float] {
-      padding-top: 0.75em;
-    }
-    section#container[position="bottom"] {
+    :host[position="bottom"] {
       border-bottom: 1px solid rgba(0,0,0, 0.12);
     }
-    section#container[position="left"] {
+    :host[position="left"] {
       border-left: 1px solid rgba(0,0,0, 0.12);
     }
-    section#container[position="top"] {
+    :host[position="top"] {
       border-top: 1px solid rgba(0,0,0, 0.12);
     }
-    section#container[position="right"] {
+    :host[position="right"] {
       border-right: 1px solid rgba(0,0,0, 0.12);
     }
     label {
       position: absolute;
       pointer-events: none;
-      left: 0.5em;
-      top: 1.25em;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding-bottom: 1em;
       line-height: normal;
       color: rgba(0, 0, 0, 0.26);
-      transition: 0.25s ease all;
-      -moz-transition: 0.25s ease all;
-      -webkit-transition: 0.25s ease all;
+      transition: 0.2s ease all;
+      -moz-transition: 0.2s ease all;
+      -webkit-transition: 0.2s ease all;
+      text-align: center;
     }
 
     section.focusline {
@@ -104,30 +103,41 @@
 
     section#container.set label[float] {
       visibility: visible;
-      left: 0.75em;
-      top: 0.25em;
-      font-size: 0.67em;
-      color: var(--primary-color);
+      top: 0;
+      font-size: 0.75em;
+      /*color: var(--primary-color);*/
     }
-
     iron-icon#icon {
+      padding: 0.5em;
+    }
+    /*iron-icon#icon {
       margin-bottom: 0.25em;
     }
     label[float] ~ iron-icon {
       margin-bottom: 0;
-    }
-    iron-icon#icon ~ section.selected, iron-icon#arrow {
+    }*/
+    iron-icon#arrow {
       margin-left: 0.5em;
     }
     paper-ripple {
       color: var(--ripple-color, currentColor);
     }
+    section#selected {
+      display: inline-flex;
+      position: relative;
+      padding: 0.5em;
+      align-items: center;
+      flex: 1;
+      min-height: 2em;
+    }
   </style>
-    <section id="container" on-tap="toggle" position$="[[position]]" float$="[[!hideSelected]]">
-      <paper-ripple></paper-ripple>
-      <label hidden="[[!label]]" float$="[[!hideSelected]]" for="container">[[label]]</label>
+    <paper-ripple></paper-ripple>
+    <section id="container" on-tap="toggle" float$="[[!hideSelected]]">
       <iron-icon hidden$="[[!icon]]" id="icon" icon="[[icon]]"></iron-icon>
-      <section hidden$="[[hideSelected]]" class="selected">[[selected]]</section>
+      <section hidden$="[[hideSelected]]" hidden$="[[selected]]" id="selected">
+        [[selected]]
+        <label hidden="[[!label]]" float$="[[!hideSelected]]" for="container">[[label]]</label>
+      </section>
       <iron-icon hidden$="[[hideArrow]]" id="arrow" icon="arrow-drop-down"></iron-icon>
     </section>
     <section class="focusline" position$="[[position]]"></section>
@@ -155,7 +165,8 @@
         },
         position: {
           type: String,
-          value: "bottom"
+          value: "bottom",
+          reflectToAttribute: true
         },
         align: {
           type: String,
@@ -169,10 +180,6 @@
           type: String,
           value: "",
           reflectToAttribute: true
-        },
-        toggles: {
-          type: Boolean,
-          value: false
         },
         hideSelected: {
           type: Boolean,
@@ -206,21 +213,11 @@
 
       _onSelect: function() {
         this.value = this.selected;
-        if (this.toggles === true) {
-          this.listen(this.selectedItem, 'tap', 'deselect');
-        }
         if (this.value === '') {
           this.$.container.classList.remove('set')
         } else {
           this.$.container.classList.add('set')
         }
-        this.fire("select", this.value);
-      },
-      deselect: function(e) {
-        this.unlisten(this.selectedItem, 'tap', 'deselect');
-        this.selected = this.fallbackSelection;
-        e.stopImmediatePropagation();
-        this.hide();
         this.fire("select", this.value);
       },
       show: function() {
