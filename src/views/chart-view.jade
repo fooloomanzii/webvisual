@@ -14,7 +14,7 @@ html
     link(rel='import', href='components/polymer/polymer.html')
     link(rel="import", href="elements/style/app-theme.html")
     link(rel='import', href='elements/imports.html')
-  style.
+  style(is="custom-style", include="app-theme")
     body {
       height: 100%;
       width: 100%;
@@ -95,7 +95,7 @@ html
     template#mainTemplate(is="dom-bind")
       neon-animated-pages#PageSelector.page(selected="0", animate-initial-selection)
         //- LABEL SELECTION PAGE
-        select-page.page(available-labels='[[availableLabels]]', labels='{{labels}}')
+        select-page.page()
           each Label in config.labels
             radio-button-element.labelButton(label!= Label)
               != Label

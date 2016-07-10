@@ -26,9 +26,7 @@
     }
     section#sign {
       min-width: 48px;
-      display: flex;
-      justify-content: center;
-      align-items: stretch;
+      position: relative;
     }
     section#sign.null {
       background: var(--element-color);
@@ -52,6 +50,9 @@
     section#actualValueSection {
       display: flex;
       flex: 1;
+      height: 100%;
+      box-sizing: border-box;
+      position: relative;
       background: linear-gradient(180deg,rgba(255,255,255,0),rgba(230,230,230,0.2),rgba(255,255,255,0));
       padding: 0.25em;
       line-height: 1.5em;
@@ -86,7 +87,7 @@
       padding: 0.5em 0.5em 0.5em 0em;
       display: flex;
       flex-direction: row;
-      flex: 1 1 auto;
+      flex: 1 0 auto;
       align-items: center;
       margin: 0;
     }
@@ -143,9 +144,10 @@
     </section>
 
     <section id='sign' class='null'>
-      <section id='actualValueSection' hidden$="[[showValues]]">
+      <section id='actualValueSection'>
         <section hidden$='[[isBoolean]]'>
-          <section id='valueSection'></section><section id='unitSection'>[[keys.unit]]</section>
+          <section id='valueSection'></section>
+          <section id='unitSection'>[[keys.unit]]</section>
         </section>
         <section hidden$='[[!isBoolean]]'>
           <svg id='icon' hidden$='[[!isExceeding]]' viewBox='0 0 24 24'>
@@ -169,10 +171,6 @@
           type: Boolean,
           value: true
         },
-        showValues: {
-          type: Boolean,
-          value: true
-        },
         selectable: {
           type: Boolean,
           value: true
@@ -189,9 +187,6 @@
           this.bubbles = true;
         if (dark === true) {
           this.dark = true;
-        }
-        if (showValues === false) {
-          this.showValues = true;
         }
       },
 
@@ -221,12 +216,12 @@
           return;
 
         // set value
-        if (!this.isBoolean && this.showValues === true)
-          this.$.valueSection.textContent = value.y || ' ';
+        if (!this.isBoolean === true)
+          this.$.valueSection.textContent = value.y;
 
         // set date
         if (this.showDate === true)
-          this.$.dateSection.textContent = new Date(value.x).toLocaleTimeString() || ' ';
+          this.$.dateSection.textContent = new Date(value.x).toLocaleTimeString();
       }
     });
   </script>

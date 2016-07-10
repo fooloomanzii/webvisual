@@ -60,9 +60,9 @@ app.on('ready', function() {
       }
       console.error = console.log;
 
-      mainWindow.webContents.send("event", "set-configs", config.userConfigFiles);
+      mainWindow.webContents.send("event", "set-user-config", config.userConfigFiles);
       mainWindow.webContents.send("event", "set-renderer", config.renderer);
-      mainWindow.webContents.send("event", "server-configs", config.server);
+      mainWindow.webContents.send("event", "set-server-config", config.server);
     });
 
     webvisualserver = new WebvisualServer(config);
@@ -112,7 +112,7 @@ app.on('ready', function() {
       case 'server-toggle':
         webvisualserver.toggle();
         break;
-      case 'open-config':
+      case 'config-filepath':
         dialog.showOpenDialog({
           properties: ['openFile'],
           filters: [
@@ -120,10 +120,13 @@ app.on('ready', function() {
           ]
         }, openConfigFile);
         break;
-      case 'add-config':
+      case 'add-user-config':
         addConfigFile(arg);
         break;
-      case 'server-configs':
+      case 'remove-user-config':
+        removeConfigFile(arg);
+        break;
+      case 'set-server-config':
         appConfigLoader.setEntry({server: arg});
         break;
     }
@@ -131,15 +134,24 @@ app.on('ready', function() {
 
   // addConfigFile
   function openConfigFile(files) {
-    mainWindow.webContents.send('event', 'open-config', (files && files.length > 0) ? files[0] : "");
+    mainWindow.webContents.send('event', 'config-filepath', (files && files.length > 0) ? files[0] : "");
   }
 
   function addConfigFile(arg) {
     if (!arg.name)
       arg.name = 'test';
-    if (arg.file) {
-      config.userConfigFiles[arg.name] = { path: arg.file, renderer: arg.renderer };
+    if (arg.path) {
+      config.userConfigFiles[arg.name] = { path: arg.path, renderer: arg.renderer };
       appConfigLoader.set(config);
+      mainWindow.webContents.send("event", "set-user-config", config.userConfigFiles);
+    }
+  }
+
+  function removeConfigFile(arg) {
+    if (arg.name) {
+      delete config.userConfigFiles[arg.name];
+      appConfigLoader.set(config);
+      mainWindow.webContents.send("event", "set-user-config", config.userConfigFiles);
     }
   }
 

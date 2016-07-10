@@ -1,6 +1,6 @@
 // globals
 var socketName = "/data";
-var name = "name=" + "HNF-GDS";
+var Request = "name=" + Name;
 var Selector = '[updatable]';
 var UpdatableNodes = {};
 var Elements = {};
@@ -19,7 +19,7 @@ var opened = false;
 var socket = io.connect('https://' + window.location.host + socketName, {
   secure: true,
   multiplex: false,
-  query: "name=HNF-GDS"
+  query: Request
 });
 
 // Connect
@@ -131,7 +131,6 @@ function _loadSvgSources(sources) {
       req = new XMLHttpRequest();
       req.onreadystatechange = function(name) {
         if (this.readyState === 4 && this.status === 200) {
-          console.log(name);
           SvgSource[name].node = this.responseXML.documentElement;
         }
       }.bind(req, id);

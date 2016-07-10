@@ -11,6 +11,7 @@
       float: left;
       outline: none;
       margin: 0;
+      letter-spacing: 0.2px;
     }
 
     section#container {
@@ -49,7 +50,7 @@
     }
 
     section.focusline {
-      background-color: var(--bright-primary-color);
+      background-color: var(--form-valid);
       visibility: hidden;
       pointer-events: none;
       position: absolute;
@@ -141,7 +142,7 @@
       <iron-icon hidden$="[[hideArrow]]" id="arrow" icon="arrow-drop-down"></iron-icon>
     </section>
     <section class="focusline" position$="[[position]]"></section>
-    <dropdown-element id="dropdown" position$="[[position]]" horizontal="[[horizontal]]" align="[[align]]" on-blur="hide" tabindex="1">
+    <dropdown-element id="dropdown" position$="[[position]]" horizontal="[[horizontal]]" align="[[align]]" tabindex="1">
       <content></content>
     </dropdown-element>
 
@@ -189,15 +190,9 @@
           type: Boolean,
           value: false
         },
-        ariaPressed: {
-          type: String,
-          value: "false",
-          reflectToAttribute: true
-        },
         active: {
           type: Boolean,
-          value: false,
-          reflectToAttribute: true
+          value: false
         }
       },
 
@@ -219,6 +214,8 @@
           this.$.container.classList.add('set')
         }
         this.fire("select", this.value);
+        this.active = false;
+        this.$.dropdown.hide();
       },
       show: function() {
         this.active = true;

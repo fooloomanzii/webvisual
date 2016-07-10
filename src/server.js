@@ -55,8 +55,11 @@ class WebvisualServer extends EventEmitter {
 
   constructor(settings) {
     super();
+    router = new Router(app, passport);
+    dataHandler = new dataModule();
     this.setConfig(settings);
   }
+
   setConfig(settings) {
     if (!settings) return;
 
@@ -65,7 +68,7 @@ class WebvisualServer extends EventEmitter {
     if (isRunning)
       this.disconnect();
 
-    router = new Router(app, passport, config.server, configurations); // load our routes and pass in our app and fully configured passport
+    router.setSettings(config);
 
     // Routing to https if http is requested
     httpApp.get('*', function(req, res, next) {
@@ -97,6 +100,11 @@ class WebvisualServer extends EventEmitter {
     /*
      * Server
      */
+
+    if(httpServer)
+      httpServer.close();
+    if(httpsServer)
+      httpsServer.close();
 
     httpsServer = require('https').createServer(sslOptions, app);
     httpServer = require('http').createServer(httpApp);
@@ -134,11 +142,10 @@ class WebvisualServer extends EventEmitter {
         console.log('HTTPS Server is listening on port %d in %s mode', config.server.port.https,
           app.settings.env);
       });
-    dataHandler = new dataModule(httpsServer);
-    dataHandler.on('change', function(configurations) {
-      if(configurations['HNF-GDS']) {
-        Router(app, passport, config.server, configurations['HNF-GDS'].configuration); // load our routes and pass in our app and fully configured passport
-      }
+
+    dataHandler.setServer(httpsServer);
+    dataHandler.on('change', function(configuration, name) {
+      router.setConfiguration(configuration, name); // load Settings to Routen them to requests
     });
   }
 

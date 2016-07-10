@@ -1,7 +1,9 @@
+<link rel="import" href="../style/main-page-style.html"/>
+
 <dom-module id="main-page">
-  <link rel="import" type="css" href="../style/main-page.css"/>
+
   <template>
-  <style>
+  <style include="main-page-style">
     :host {
       font-size: 1em;
       display: flex;
@@ -14,8 +16,11 @@
       pointer-events: all !important;
     }
     section#mainContent ::content .panel {
-      position: absolute;
+      height: 100%;
+      width: 100%;
+      top: 0;
       left: 0;
+      position: absolute;
       overflow-y: auto;
       overflow-x: hidden;
       box-sizing: border-box;
@@ -29,8 +34,6 @@
       -ms-flex: 1 1 0.000000001px; -webkit-flex: 1; flex: 1;
       flex-basis: 0.000000001px; -webkit-flex-basis: 0.000000001px;
       padding: 0.5em;
-      height: 100%;
-      width: 100%;
       opacity: 1;
     }
     section#mainContent ::content .panel.foreground {
@@ -559,7 +562,7 @@
       _setExceedingElement: function(e) {
         var element = JSON.parse(JSON.stringify(e.detail)); // bug: references are mixing in each other
         if (Polymer.dom(this.$.exceedingElementsList).querySelectorAll('#'+element.id+'[label='+element.label+']').length === 0) {
-          var node = new ListElement(element, true, false, true, this.showDate, this.dark);
+          var node = new ListElement(element, true, false, this.showDate, this.dark);
           Polymer.dom(this.$.exceedingElementsList).appendChild(node);
           Polymer.dom(node).classList.add('exceedingElement');
         }

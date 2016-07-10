@@ -1,90 +1,145 @@
 // Routing
+const
+  EventEmitter = require('events').EventEmitter,
+  fs = require('fs'),
+  path = require('path');
 
-module.exports = route;
-var configuration;
+class router extends EventEmitter {
 
+  constructor(app, passport, config) {
+    super();
+    this.app = app;
+    this.passport = passport;
+    this.settings = {};
+    this.configuration = {};
 
-function route(app, passport, serverConfig, config) {
-  configuration = config;
-  require('./passport_strategies/activedirectory.js')(passport, serverConfig.auth.ldap); // register custom ldap-passport-stategy
-  require('./passport_strategies/dummy.js')(passport); // register dummy-stategy
+    this.app.get('/', (function(req, res) {
+      if (this.settings.server.auth.required === true) {
+        res.redirect('/login');
+      }
+      else {
+        res.redirect('/index');
+      }
+    }).bind(this));
 
-  app.get('/', loggedIn, function(req, res) {
-    res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
-    res.render('index', {
-      user: req.user,
-      config: configuration,
-      mobile: isMobile(req)
-    });
-    res.end();
-  });
-
-  app.get('/tests', loggedIn, function(req, res) {
-    res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
-    res.render('tests', {
-      user: req.user,
-      config: configuration,
-      mobile: isMobile(req)
-    });
-    res.end();
-  });
-
-  app.get('/login', function(req, res) {
-    if (serverConfig.auth.required === true) {
-      res.render('login', {
+    this.app.get('/tests', this.loggedIn.bind(this), (function(req, res) {
+      res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
+      res.render('tests', {
         user: req.user,
-        mobile: isMobile(req)
+        config: this.configuration,
+        mobile: this.isMobile(req)
       });
-    }
-    else {
+      res.end();
+    }).bind(this));
+
+    this.app.get('/index', this.loggedIn.bind(this), (function(req, res) {
+      res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
       res.render('index', {
         user: req.user,
-        config: configuration,
-        mobile: isMobile(req)
+        userConfigFiles: this.settings.userConfigFiles,
+        renderer: this.settings.renderer,
+        mobile: this.isMobile(req)
       });
-    }
-  });
+      res.end();
+    }).bind(this));
 
-  if (serverConfig.auth.required === true) {
-    app.post('/login',
-      passport.authenticate('activedirectory-login', {
-        successRedirect: '/',
-        failureRedirect: '/login'
-      }),
-      function(req, res) {
-        // console.log("auth login");
+    this.app.get('/login', (function(req, res) {
+      if (this.settings.server.auth.required === true) {
+        res.render('login', {
+          user: req.user,
+          mobile: this.isMobile(req)
+        });
       }
-    );
-  } else {
-    app.post('/login',
-      passport.authenticate('dummy', {
-        successRedirect: '/',
-        failureRedirect: '/'
-      }),
-      function(req, res) {
-        // console.log("no-auth login");
+      else {
+        res.redirect('/index');
       }
-    );
+    }).bind(this));
+
+    this.app.get('/logout', function(req, res) {
+      req.logout();
+      res.redirect('/login');
+    });
   }
 
-  app.get('/404', function(req, res) {
-    res.render('404');
-  });
+  setSettings(options) {
+    for (let key in options) {
+      if (key == 'server')
+        this.setServer(options.server)
+      else if (key == 'userConfigFiles')
+        this.setUserConfig(options.userConfigFiles)
+      else {
+        this.settings[key] = options[key];
+      }
+    }
+  }
 
-  app.get('/logout', function(req, res) {
-    req.logout();
-    res.redirect('/');
-  });
+  setServer(opt) {
+    this.settings.server = opt;
 
-  function loggedIn(req, res, next) {
-    if (serverConfig.auth.required === false || req.user) {
+    require('./passport_strategies/activedirectory.js')(this.passport, this.settings.server.auth.ldap); // register custom ldap-passport-stategy
+    require('./passport_strategies/dummy.js')(this.passport); // register dummy-stategy
+
+    if (this.settings.server.auth.required === true) {
+      this.app.post('/login',
+        this.passport.authenticate('activedirectory-login', {
+          successRedirect: '/index',
+          failureRedirect: '/login'
+        }),
+        function(req, res) {
+          // console.log("auth login");
+        }
+      );
+    } else {
+      this.app.post('/login',
+        this.passport.authenticate('dummy', {
+          successRedirect: '/index',
+          failureRedirect: '/index'
+        }),
+        function(req, res) {
+          // console.log("no-auth login");
+        }
+      );
+    }
+  }
+
+  setUserConfig(userConfigFiles) {
+    this.settings.userConfigFiles = userConfigFiles;
+
+    for (let name in userConfigFiles) {
+      this.app.get('/' + name, this.loggedIn.bind(this), (function(req, res) {
+        let name = req.url.substr(1);
+        let rendererName = this.settings.userConfigFiles[name].renderer;
+        let rendererPath = this.settings.renderer[rendererName].path;
+
+        res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
+        res.render(rendererPath, {
+          user: req.user,
+          name: name,
+          config: this.configuration[name],
+          mobile: this.isMobile(req)
+        });
+        res.end();
+      }).bind(this));
+    }
+    this.app.use(function(req, res) {
+      res.redirect('/login');
+    });
+  }
+
+  setConfiguration(opt, name) {
+    this.configuration[name] = opt;
+    // console.log(this.configuration);
+  }
+
+  loggedIn(req, res, next) {
+    if (this.settings.server.auth.required === false || req.user) {
       next();
     } else {
       res.redirect('/login');
     }
   }
 
-  function isMobile(req) {
+  isMobile(req) {
     var ua = req.header('user-agent');
     // console.log(ua);
     if (/mobile/i.test(ua) || /tablet/i.test(ua) || /android/i.test(ua))
@@ -93,3 +148,5 @@ function route(app, passport, serverConfig, config) {
       return false;
   }
 }
+
+module.exports = router;

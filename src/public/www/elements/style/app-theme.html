@@ -8,14 +8,7 @@
     width: 100%;
     margin: 0em;
     padding: 0em;
-    font-family: Fira Sans Light;
-    font-size: 1em;
-    text-align: left;
-    line-height: 1.4em;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    word-wrap: break-word;
+    @apply(--text);
     color: var(--primary-text-color);
 
     /* Costum Colors*/
@@ -47,6 +40,9 @@
     --hover-background: rgba(255,255,255,0.2);
 
     --warning-color: #FF9D9D;
+
+    --form-valid: var(--bright-primary-color);
+    --form-invalid: #d34336;
 
     --iron-icon-height: 24px;
     --iron-icon-width: 24px;
@@ -80,6 +76,18 @@
       left: 0;
       top: 0;
       transition: background 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    };
+
+    --text: {
+      font-family: Fira Sans Light;
+      font-size: 1em;
+      text-align: left;
+      line-height: 1.4em;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      word-wrap: break-word;
+      color: var(--primary-text-color);
     };
 
     --default-transition: {
@@ -144,15 +152,8 @@
   }
 
   /* General styles */
-  input {
-    padding: 0 !important;
-    margin: 0 !important;
-    line-height: inherit !important;
-    font: 0.8em 'Fira Sans Light';
-    font-style: normal !important;
-    font-weight: normal !important;
-    border: none !important;
-    outline: none !important;
+  input, textarea, keygen, select, button {
+    @apply(--text);
   }
 
   paper-ripple {

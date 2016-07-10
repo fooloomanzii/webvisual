@@ -17,12 +17,14 @@
         border-radius: 5px;
         border: none;
         border-color: var(--highlight-color);
-        margin: 0em;
         background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.06) 40%);
         color: currentColor;
         cursor: pointer;
         transition: background 0.14s cubic-bezier(0.4, 0, 0.2, 1);
         padding: 0.75em 1.5em;
+        margin: 0em;
+        letter-spacing: 0.2px;
+        @apply(--button-element);
       }
       :host:hover {
         background: linear-gradient(to bottom, rgba(255,255,255,0.04) 5%,rgba(255,255,255,0.12) 40%);
@@ -54,7 +56,6 @@
 
       ::content .right {
         margin-left: 0.5em;
-        align-self: flex-end;
         @apply(--default-transition);
       }
       section#content {
@@ -80,6 +81,7 @@
       is: 'button-element',
 
       behaviors: [
+        Polymer.IronFormElementBehavior,
         Polymer.PaperButtonBehavior
       ],
 

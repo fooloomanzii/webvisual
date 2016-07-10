@@ -25,17 +25,32 @@ var defaults = {
 class fileConfigLoader extends EventEmitter {
 
   constructor(userConfigFiles) {
-
     super();
     this.settings = {};
-    this.names = [];
-    // check User Data and folder
-    var self = this;
+    if (userConfigFiles)
+      this.watch(userConfigFiles);
+  }
 
+  watch(userConfigFiles) {
+    // check User Data and folder
+    let listener;
     for (var name in userConfigFiles) {
       this.settings[name] = {};
       this.settings[name]._path = path.resolve(userConfigFiles[name].path);
       this.settings[name]._rawConfig = {};
+      if(this.settings[name]._filehandler)
+        this.settings[name]._filehandler.disconnect();
+      listener = {
+        error: (function(type, errors, name, path) {
+          // console.log(errors);
+          // this.emit('error', 'Error parsing ConfigFile... ', errors, path, name);
+        }).bind(this),
+        data: (function(type, data, name, path) {
+          if (data && name) {
+            this.access(name, data);
+          }
+        }).bind(this)
+      }
       this.settings[name]._filehandler = new dataFileHandler({
         id: name,
         connection: {
@@ -45,17 +60,7 @@ class fileConfigLoader extends EventEmitter {
             "process": JSON.parse
           }
         },
-        listener: {
-            error: function(type, errors, name, path) {
-              // console.log(errors);
-              // this.emit('error', 'Error parsing ConfigFile... ', errors, path, name);
-            },
-            data: function(type, data, name, path) {
-              if (data && name){
-                self.access(name, data)
-              }
-            }
-        }
+        listener: listener
       });
       this.settings[name]._filehandler.connect();
     }

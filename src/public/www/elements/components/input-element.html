@@ -6,11 +6,11 @@
       :host {
         box-sizing: border-box;
         position: relative;
-        display: block;
         outline-width: 0;
         background: linear-gradient(to bottom, rgba(255,255,255,0.01) 5%,rgba(255,255,255,0.05) 40%);
         color: currentColor;
         transition: background 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+        letter-spacing: 0.2px;
       }
       :host:hover {
         background: linear-gradient(to bottom, rgba(255,255,255,0.02) 5%,rgba(255,255,255,0.10) 40%);
@@ -48,8 +48,18 @@
         border-bottom: 1px solid rgba(0,0,0, 0.12);
       }
 
+      input:-webkit-autofill,
+      input:-webkit-autofill:hover,
+      input:-webkit-autofill:focus,
+      input:-webkit-autofill:active {
+          -webkit-transition: "color 9999s ease-out, background-color 9999s ease-out";
+          -webkit-transition-delay: 9999s;
+      }
+
       input#input {
       	display: inline-flex;
+        letter-spacing: inherit;
+        color: currentColor;
       	width: 100%;
         position: relative;
         font-family: inherit;
@@ -61,6 +71,7 @@
         border: none;
         padding: 0.75em 0.25em 0.5em 0.25em;
         background: transparent;
+        @apply(--input-inner);
       }
 
       input#input[disabled] {
@@ -81,6 +92,7 @@
         transition: 0.2s ease all;
         -moz-transition: 0.2s ease all;
         -webkit-transition: 0.2s ease all;
+        @apply(--input-label);
       }
 
       input#input:focus {
@@ -88,7 +100,7 @@
       }
 
       section.focusline {
-        background-color: var(--bright-primary-color);
+        background-color: var(--form-valid);
         height: 2px;
         width: 5%;
         bottom: 0em;
@@ -117,29 +129,29 @@
         top: -0.75em;
         font-size: 0.75em;
         padding-top: 0;
-        color: var(--primary-color);
+        color: var(--form-valid);
       }
 
       input#input:invalid ~ label:not([noFloat]) {
         top: -0.75em;
         font-size: 0.75em;
         padding-top: 0;
-        color: #d34336;
+        color: var(--form-invalid);
       }
 
       input#input:invalid ~ section.focusline {
-        background-color: #d34336;
+        background-color: var(--form-invalid);
       }
 
       input#input:invalid {
         box-shadow: none;
-        border-color: #d34336;
+        border-color: var(--form-invalid);
       }
 
       span.error {
         position: absolute;
         font-size: 0.75em;
-        color: #d34336;
+        color: var(--form-invalid);
         visibility: hidden;
         line-height: normal;
         text-align: right;
@@ -158,10 +170,24 @@
         visibility: visible;
       }
 
+      ::content [prefix], ::content [suffix] {
+        font-weight: bold;
+        padding: 0.75em 0.25em 0.5em 0.25em;
+        letter-spacing: normal;
+      }
+      ::content [prefix] {
+        @apply(--input-prefix);
+      }
+      ::content [suffix] {
+        @apply(--input-suffix);
+      }
+
 </style>
 
 <section class="input-container">
-  <input id="input" type="[[type]]" name="input" pattern="[[pattern]]" on-change="_float" value="{{value}}" min="{{min}}" max="{{max}}" step="{{step}}" required$="[[required]]"/>
+  <content select="[prefix]"></content>
+  <input id="input" type="[[type]]" name="input" pattern="[[pattern]]" on-change="_float" value="{{value}}" min="{{min}}" max="{{max}}" step="{{step}}" required$="[[required]]" readonly$="[[readonly]]"/>
+  <content select="[suffix]"></content>
   <label hidden="[[!label]]" for="input" noFloat$="[[noFloat]]">[[label]]</label>
   <span class="error" hidden="[[!errorMessage]]">[[errorMessage]]</span>
   <section class="focusline"></section>
@@ -199,6 +225,10 @@
           observer: "_float"
         },
         required: {
+          type: Boolean,
+          value: false
+        },
+        readonly: {
           type: Boolean,
           value: false
         },

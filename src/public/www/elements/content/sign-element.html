@@ -326,11 +326,11 @@
 
         // set value
         if (!this.isBoolean)
-          this.$.valueSection.textContent = value.y || ' ';
+          this.$.valueSection.textContent = value.y;
 
         // set date
         if (this.showDate)
-          this.$.dateSection.textContent = new Date(value.x).toLocaleTimeString() || ' ';
+          this.$.dateSection.textContent = new Date(value.x).toLocaleTimeString();
       },
 
       _setTooltip: function() {
