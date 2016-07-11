@@ -1,7 +1,7 @@
 doctype html
 html
   head
-    title Webvisual Login
+    title Webvisual Select
     meta(name='viewport', content='width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes')
     script(src='components/webcomponentsjs/webcomponents-lite.js')
     script.
@@ -10,7 +10,7 @@ html
         lazyRegister: true
       };
     link(rel='import', href='components/polymer/polymer.html')
-    link(rel="import", href="elements/style/app-theme.html")
+    link(rel="import", href="style/app-theme.html")
     link(rel='import', href='elements/imports.html')
     
   style(is="custom-style", include="app-theme").
@@ -44,17 +44,10 @@ html
             margin: 0.5em 0em;
             text-align: center;
           }
-          circle-element {
-            left: 0;
-            right: 0;
-            position: absolute;
-            bottom: -3em;
-            justify-content: center;
-          }
           button-element {
             border: thin solid var(--highlight-color);
             color: var(--highlight-color);
-            margin-bottom: 0.5em;
+            margin-bottom: 1em;
           }
           button-element:hover {
             color: var(--bright-text-color);
@@ -93,7 +86,6 @@ html
               this.$.select.submit();
             },
             _response: function(e) {
-              console.log(e.detail.url);
               window.location = e.detail.url;  
             }
           });

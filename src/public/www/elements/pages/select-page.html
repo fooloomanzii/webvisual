@@ -160,6 +160,10 @@
         }
       },
 
+      observers: [
+          "_one(labels)"
+      ],
+
       attached: function() {
         this._setSelected(this.$.labelsCookie.load());
       },

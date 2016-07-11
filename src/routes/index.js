@@ -47,7 +47,8 @@ class router extends EventEmitter {
       if (this.settings.server.auth.required === true) {
         res.render('login', {
           user: req.user,
-          mobile: this.isMobile(req)
+          mobile: this.isMobile(req),
+          server: this.settings.server
         });
       }
       else {

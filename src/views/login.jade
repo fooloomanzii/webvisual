@@ -10,8 +10,9 @@ html
         lazyRegister: true
       };
     link(rel='import', href='components/polymer/polymer.html')
-    link(rel="import", href="elements/style/app-theme.html")
+    link(rel="import", href="style/app-theme.html")
     link(rel='import', href='elements/imports.html')
+    
   style(is="custom-style", include="app-theme").
     body {
       height: 100%;
@@ -71,6 +72,7 @@ html
           section.input {
             background: var(--bright-text-color);
             border-radius: 8px;
+            border: thin solid rgba(0,0,0,0.4);
           }
           circle-element {
             left: 0;
@@ -82,53 +84,49 @@ html
           button-element {
             float: right;
             clear: both;
+            border: thin solid rgba(0,0,0,0.12);
           }
         h1
           | Webvisual Login
         br
-        form#login(is='iron-form', method='get', action='/login/')
+        form#login(is='iron-form')
           section.input
-            input-element#username(name='username', type='text', label='Username', required)
+            input-element#username(type='text', name='username', label='Username', required, tabindex="1")
               section(suffix)
-                != config.server.auth.suffix
+                != server.auth.suffix
           br
           section.input
-            input-element#password(name='password', type='password', label='Password', required)
+            input-element#password(type='password', name='password', label='Password', required, tabindex="2")
           br
-          button-element#submit(raised, name='submit', type='submit', on-tap="_submit")
+          button-element#submit(raised, on-tap="_submit", tabindex="0")
             iron-icon.left(icon='juelich:logo')
             | Login
           br
-          section.output
-          br
-          circle-element#spinner()
+        form#native(action='/login', method='post')
       script.
         window.addEventListener('WebComponentsReady', function(e) {
           Polymer({
             is: 'login-form',
             listeners: {
-              'keydown': '_keyHandler',
-              'iron-form-presubmit': '_play',
-              'iron-form-error': '_stop',
-              'iron-form-response': '_response'
+              'keydown': '_keyHandler'
             },
             _keyHandler: function(e) {
               switch (e.which) {
                 case 13: this._submit(); break;
               }
             },
-            _play: function() {
-              this.$.spinner.play();
-            },
-            _stop: function() {
-              this.$.spinner.cancel();
-            },
             _submit: function() {
-              this.$.login.submit();
-            },
-            _response: function(e) {
-              this._stop();
-              window.location = e.detail.url;  
+              if (this.$.login.validate()) {
+                var serializedItems = this.$.login.serialize();
+                for (var name in serializedItems) {
+                  var input = document.createElement('input');
+                  input.hidden = true;
+                  input.name = name;
+                  input.value = serializedItems[name];
+                  this.$.native.appendChild(input);
+                }
+                this.$.native.submit();
+              }
             }
           });
         });
