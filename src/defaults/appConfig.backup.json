@@ -31,11 +31,11 @@
   "userConfigFiles": {
     "HNF-GDS": {
       "path": "\\\\ibn-vsrv\\HNF-GDS$\\Config\\HNF_GDS.json",
-      "#path": ".\\defaults\\HNF\\HNF_GDS.json",      
+      "#path": ".\\defaults\\HNF\\HNF_GDS.json",
       "renderer": "Alarmzustände"
     },
     "mK_Smt": {
-      "path": "./defaults/mK_Smt/mK_Smt.json",
+      "path": "./defaults/cryostat_visu/cryostat_visu.json",
       "renderer": "Diagrammansicht"
     }
   },

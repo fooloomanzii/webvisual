@@ -1,10 +1,10 @@
 {
-  "test": {
+  "cryostat": {
 
     "connections": {
       "file": {
         "mode": "all",
-        "path": "./examples/datafile/mK_Smt/mK_Smt.txt"
+        "path": "./examples/datafile/cryostat_visu/cryostat_visu.txt"
       }
     },
 
@@ -109,7 +109,7 @@
       }
     }
   },
-  "test2": {
+  "test": {
 
     "connections": {
       "file": {
