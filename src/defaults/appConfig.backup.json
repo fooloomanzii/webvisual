@@ -16,7 +16,7 @@
       "https": 443
     },
     "auth": {
-      "required": false,
+      "required": true,
       "suffix": "@fz-juelich.de",
       "ldap": {
         "url": "ibn-net.kfa-juelich.de",
