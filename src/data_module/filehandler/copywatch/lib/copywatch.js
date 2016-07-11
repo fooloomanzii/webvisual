@@ -705,7 +705,7 @@ The function returns a watcher instance or a array of watcher if multiple paths 
         interval: options.interval,
         catchupDelay: options.catchupDelay
       };
-      _watchers[resFile] = watchr.watch(_watcher_options[resFile]);
+      _watchers[resFile] = new watchr.watch(_watcher_options[resFile]);
       callback();
     }
 
