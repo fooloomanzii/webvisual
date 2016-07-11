@@ -94,7 +94,7 @@ class WebvisualServer extends EventEmitter {
       });
       sslOptions.ca = cert_chain;
     } catch (err) {
-      console.warn('Cannot open "/ssl/cert_chain" to read Certification chain');
+      this.emit("error", 'Cannot open "/ssl/cert_chain" to read Certification chain');
     }
 
     /*
@@ -111,42 +111,43 @@ class WebvisualServer extends EventEmitter {
 
     // if Error: EADDRINUSE --> log in console
     httpServer.on('error',
-        function(e) {
+        (function(e) {
           if (e.code == 'EADDRINUSE') {
-            console.log('Port ' + config.server.port.http + ' in use, retrying...');
-            console.log(
+            this.emit("log", 'Port ' + config.server.port.http + ' in use, retrying...');
+            this.emit("log",
               'Please check if \'node.exe\' is not already running on this port.');
             httpServer.close();
             setTimeout(function() {
               httpServer.listen(config.server.port.http);
             }, 5000);
           }
-        })
-      .once('listening', function() {
-        console.log('HTTP Server is listening for redirecting to https on port %d in %s mode', config.server.port.http,
-          app.settings.env);
-      });
+        }).bind(this))
+      .once('listening', (function() {
+        this.emit("log", 'HTTP Server is listening for redirecting to https on port', config.server.port.http);
+      }).bind(this));
     httpsServer.on('error',
-        function(e) {
+        (function(e) {
           if (e.code == 'EADDRINUSE') {
-            console.log('Port ' + config.server.port.https + ' in use, retrying...');
-            console.log(
+            this.emit("error", 'Port ' + config.server.port.https + ' in use, retrying...');
+            this.emit("error",
               'Please check if \'node.exe\' is not already running on this port.');
             httpsServer.close();
             setTimeout(function() {
               httpsServer.listen(config.server.port.https);
             }, 5000);
           }
-        })
-      .once('listening', function() {
-        console.log('HTTPS Server is listening on port %d in %s mode', config.server.port.https,
-          app.settings.env);
-      });
+        }).bind(this))
+      .once('listening', (function() {
+        this.emit("log", 'HTTPS Server is listening on port', config.server.port.https);
+      }).bind(this));
 
     dataHandler.setServer(httpsServer);
-    dataHandler.on('change', function(configuration, name) {
+    dataHandler.on('changed', function(configuration, name) {
       router.setConfiguration(configuration, name); // load Settings to Routen them to requests
     });
+    dataHandler.on('error', (function(err) {
+      this.emit('error', err);
+    }).bind(this));
   }
 
   connect(settings) {
@@ -154,7 +155,7 @@ class WebvisualServer extends EventEmitter {
       config = settings;
     // connect the DATA-Module
     if (!isRunning) {
-      console.log('WebvisualServer is starting');
+      this.emit("log", 'WebvisualServer is starting');
       dataHandler.connect(config.userConfigFiles);
       httpServer.listen(config.server.port.http);
       httpsServer.listen(config.server.port.https);
@@ -164,7 +165,7 @@ class WebvisualServer extends EventEmitter {
   }
 
   disconnect() {
-    console.log('WebvisualServer is closing');
+    this.emit("log", 'WebvisualServer is closing');
     httpServer.close();
     httpsServer.close();
     dataHandler.disconnect();

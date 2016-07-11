@@ -158,19 +158,22 @@
     }
   }
   .selected {
+    stroke: #111;
+  }
+  .exceeding {
     stroke: #EB4949;
     stroke-width: 1.5px;
     stroke-linecap: round;
     stroke-linejoin: round;
     transform-origin: center center;
     will-change: transform;
-    animation-name: selected-animation;
+    animation-name: exceeding-animation;
     animation-duration: 2s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
-    @apply(--selected-svg-element);
+    @apply(--exceeding-svg-element);
   }
-  @keyframes selected-animation {
+  @keyframes exceeding-animation {
     0% {
       -webkit-transform: scale(1.0);
     }
@@ -185,12 +188,12 @@
 
 </style>
 
-  <div id='svgContainer'>
+  <div id='svgContainer' hidden$="[[!opened]]">
   </div>
-  <div id='control' top$='{{isFullscreen}}'>
+  <div id='control' top$='{{isFullscreen}}' hidden$="[[!opened]]">
     <svg class='icon' viewBox='0 -4 16 24' on-tap='_debounceResetZoom'><title>focus</title><g id='focus'> <path d='M 16,5.5 13,8 16,10.5 Z' /> <path d='M 10.5,16 8,13 5.5,16 Z' /> <path d='M 0,10.5 3,7.9999999 0,5.5 Z' /><path d='M 5.5,0 8,3 10.5,0 Z'/><circle r='1.5' cx='8' cy='8' /></g></svg>
-      <svg class='icon' viewBox='0 0 24 24' hidden$='{{isFullscreen}}' on-tap='_fireOpenFullscreen'><title>fullscreen</title><g id='fullscreen'><path d='M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z'/></g></svg>
-      <svg class='icon' viewBox='0 0 24 24' hidden$='{{!isFullscreen}}' on-tap='close'><title>close</title><g id='fullscreen-exit'><path d='M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z'/></g></svg>
+    <svg class='icon' viewBox='0 0 24 24' hidden$='{{isFullscreen}}' on-tap='_fireOpenFullscreen'><title>fullscreen</title><g id='fullscreen'><path d='M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z'/></g></svg>
+    <svg class='icon' viewBox='0 0 24 24' hidden$='{{!isFullscreen}}' on-tap='close'><title>close</title><g id='fullscreen-exit'><path d='M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z'/></g></svg>
   </div>
 </template>
 
@@ -213,26 +216,20 @@
         type: String,
         value: ''
       },
-      /**
-       * If true, on Svg-Element's Nodes can be attached (and removed) a unique class, so that it can be styled via css
-       */
-      selectable: {
-        type: Object,
-        observer: '_selectableChanged'
-      },
-      /**
-       * Object of unique Identifiers (an ID or a Title) and the related (css-like) selector of selected Nodes
-       */
-      selected: {
-        type: Object,
-        value: function() { return {}; }
-      },
+
       /**
        * class-attribute to add a selected Node
        */
       selectedClass: {
         type: String,
         value: 'selected'
+      },
+      /**
+       * class-attribute to add a exceeding Node
+       */
+      exceedingClass: {
+        type: String,
+        value: 'exceeding'
       },
       /**
        * (css-like) selector of a initially zoomed Nodes
@@ -304,13 +301,6 @@
       zoomPartition: {
         type: Number,
         value: 3
-      },
-      /**
-       * property of ElementBehavior
-       */
-      notUpdatable: {
-        type: Boolean,
-        value: true
       }
     },
 
@@ -336,7 +326,12 @@
     _d3Zoom: Object,
 
     observers: [
-      '_selectedChanged(selected.*)'
+      '_selectedChanged(selectedElements.splices)',
+      '_exceedingChanged(exceedingElements.splices)'
+    ],
+
+    behaviors: [
+      ContainerBehavior
     ],
 
     get rootElement () {
@@ -351,6 +346,7 @@
 
     attached: function() {
       if (this.isFullscreen) {
+        this.notSelectable = true;
         this.listen(this.rootElement, 'svg-open-fullscreen', 'open');
         this.listen(this.rootElement, 'svg-close-fullscreen', 'close');
       }
@@ -388,25 +384,21 @@
     getSvg: function() {
       return {source: this.source,
               initial: this.initial,
-              selected: this.selected,
-              selectable: this.selectable};
+              selectedElements: this.selectedElements,
+              exceedingElements: this.exceedingElements,
+              selectedClass: this.selectedClass,
+              exceedingClass: this.exceedingClass };
     },
 
     setSvg: function(svg) {
       this.async(function(){
-        if (svg.source)
-          this.set('source', svg.source);
-        if (svg.selectable)
-          this.set('selectable', svg.selectable);
-        if (svg.initial)
-          this.set('initial', svg.initial);
-        if (svg.selected)
-          this.set('selected', svg.selected);
+        for (key in svg)
+          this.set(key, svg[key]);
       });
     },
 
     _sourceChanged: function(source) {
-      if (this.opened === true && source !== '' && this.recentSource !== source) {
+      if (source && this.recentSource !== source) {
         if (!SvgSource[source]) return;
         if (!SvgSource[source].node) return;
         this.recentSource = source;
@@ -450,19 +442,41 @@
       this._width  = viewBox[2] - viewBox[0];
       this._height = viewBox[3] - viewBox[1];
 
-      this._selectableChanged(this.selectable);
-      this._debounceSelect();
+      this._selectableChanged();
+      this._resetZoom();
     },
 
     _openedChanged: function(opened) {
-      if (this.source === '' || !opened) return;
+      if (opened === true)
+        this.removeAttribute('hidden')
+      else
+        this.setAttribute('hidden', true);
+      if (!this.source) return;
       this._sourceChanged(this.source);
       this._debounceResetZoom();
     },
 
-    _selectedChanged: function(change) {
-      if (Object.keys(this._mainG).length === 0 || change === undefined || Object.keys(change).length === 0) return;
-      this._debounceSelect();
+    _selectedChanged: function(changeRecord) {
+      if (changeRecord && changeRecord.indexSplices) {
+        if (this.selectedElements.length > 0) {
+          this.source = this.selectedElements[0].svg.source;
+        }
+        if (!this.source) this.opened = false;
+        this._sourceChanged(this.source);
+        this._selectableChanged();
+        this._debounceSelect();
+      }
+    },
+
+    _exceedingChanged: function(changeRecord) {
+      if (changeRecord && changeRecord.indexSplices) {
+        if (!this.source && this.exceedingElements.length > 0) {
+          this.source = this.exceedingElements[0].svg.source;
+        }
+        this._sourceChanged(this.source);
+        this._selectableChanged();
+        this._debounceSelectExceeds();
+      }
     },
 
     _initialChanged: function(initial) {
@@ -470,8 +484,8 @@
       this._debounceResetZoom();
     },
 
-    _selectableChanged: function(change) {
-      if (Object.keys(this._mainG).length === 0 || change === undefined || Object.keys(change).length === 0) return;
+    _selectableChanged: function() {
+      if (Object.keys(this._mainG).length === 0 || !this.source) return;
 
       var self = this;
       this._svg.on('contextmenu',
@@ -488,20 +502,37 @@
                  .classed('clicked', false);
 
       // add 'svg-element-selectable' class and click listener
-      for (var key in this.selectable)
-        this._mainG.selectAll(this.selectable[key])
-                  .classed('svg-element-selectable', true)  // for styling selectable
-                  .classed('style-scope', true).classed('svg-element', true) // for style-scoping in polymer
-                  .on('click dblclick',
-                    function() {
-                      self._zoomToElement(this);
-                      self._mainG.selectAll('.clicked')
-                                 .classed('clicked', false);
-                      this.classList.add('clicked');
-                    })
-                  .append('title')
-                  .text(function() {
-                      return key;
+      for (var element in this.selectedElements)
+        if(element.svg && element.svg.path && element.svg.source === this.source )
+          this._mainG.selectAll(element.svg.path)
+                    .classed('svg-element-selectable', true)  // for styling selectable
+                    .classed('style-scope', true).classed('svg-element', true) // for style-scoping in polymer
+                    .on('click dblclick',
+                      function() {
+                        self._zoomToElement(this);
+                        self._mainG.selectAll('.clicked')
+                                   .classed('clicked', false);
+                        this.classList.add('clicked');
+                      })
+                    .append('title')
+                    .text(function() {
+                        return element.id;
+                   });
+      for (var element in this.exceedingElements)
+        if(element.svg && element.svg.path && element.svg.source === this.source)
+          this._mainG.selectAll(element.svg.path)
+                    .classed('svg-element-selectable', true)  // for styling selectable
+                    .classed('style-scope', true).classed('svg-element', true) // for style-scoping in polymer
+                    .on('click dblclick',
+                      function() {
+                        self._zoomToElement(this);
+                        self._mainG.selectAll('.clicked')
+                                   .classed('clicked', false);
+                        this.classList.add('clicked');
+                      })
+                    .append('title')
+                    .text(function() {
+                        return element.id;
                    });
       for (var key in SvgSource[this.source].selectable)
         this._mainG.selectAll(SvgSource[this.source].selectable[key])
@@ -550,20 +581,27 @@
     _debounceSelect: function() {
       this.debounce('select',
         function() {
-          this.select(this.selected, this.selectedClass);
+          this.select(this.selectedElements, this.selectedClass);
+        }, 100);
+    },
+    _debounceSelectExceeds: function() {
+      this.debounce('select',
+        function() {
+          this.select(this.exceedingElements, this.exceedingClass);
         }, 100);
     },
 
     select: function(selected, selectedClass) {
+      if (Object.keys(this._mainG).length === 0 || !this.source) return;
       // previous selected elements: remove class for selected elements
       this._mainG.selectAll('.' + selectedClass)
                 .classed(selectedClass, false);
 
       var elems;
       var sel = [];
-      for (var key in selected) {
-        if (selected[key] !== '')
-          sel.push(selected[key]);
+      for (var i in selected) {
+        if (selected[i].svg && selected[i].svg.path && selected[i].svg.path !== '')
+          sel.push(selected[i].svg.path);
       }
       var sel = sel.join(',');
       if (sel === '' ||
@@ -650,15 +688,16 @@
     },
 
     _resetZoom: function() {
-      if (this._mainG === undefined || this.opened === false) return;
+      if (Object.keys(this._mainG).length === 0 || this.opened === false) return;
       // zoom to selectedItems
-      if (this.initiallyZoomToSelected === true && this.selected) {
-        for (var key in this.selected) {
-          if (this.selected[key] !== '' && !(this._mainG.selectAll(this.selected[key])
-                                    .filter('.svg-element-selectable')).empty()) {
-            this._debounceSelect();
-            return;
-          }
+      if(this.initiallyZoomToSelected === true) {
+        if (this.selectedElements.length > 0) {
+          this._debounceSelect();
+          return;
+        }
+        if (this.exceedingElements.length > 0) {
+          this._debounceSelectExceeds();
+          return;
         }
       }
       // zoom to initial
@@ -666,7 +705,7 @@
         var initial;
         if (!(initial = this._mainG.selectAll(this.initial)
                                    .filter('.svg-element-selectable')).empty()) {
-          this.select({initial: this.initial}, 'initial');
+          this.select([{svg: { path: this.initial }}], 'initial');
           return;
         }
       }

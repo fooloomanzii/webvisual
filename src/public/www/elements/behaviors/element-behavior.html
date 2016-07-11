@@ -5,12 +5,14 @@
         label: {
           type: String,
           value: '',
-          reflectToAttribute: true
+          reflectToAttribute: true,
+          observer: '__hide'
         },
         id: {
           type: String,
           value: '',
-          reflectToAttribute: true
+          reflectToAttribute: true,
+          observer: '__hide'
         },
         keys: {
           type: Object,
@@ -56,39 +58,29 @@
           value: false,
           observer: '_hasExceededChanged'
         },
+
         bubbles: {
           type: Boolean,
           value: false
         },
-
         notUpdatable: {
           type: Boolean,
           value: false,
           observer: "_updatableChanged"
         },
-        updatable: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true
-        },
-
         selectable: {
           type: Boolean,
           value: false
-        },
-        isSelected: {
-          type: Boolean,
-          value: false
-        },
-        toggles: {
-          type: Boolean,
-          value: true
         },
 
         color: {
           type: String,
           observer: "setColor"
         }
+    },
+
+    hostAttributes: {
+      element: true
     },
 
     getKey: function(key) {
@@ -101,11 +93,21 @@
     },
 
     setElement: function(element) {
+      var pos;
+      if (this.notUpdatable === false && this.label && this.id &&
+          window.UpdatableNodes !== undefined &&
+          UpdatableNodes[this.label] &&
+          UpdatableNodes[this.label][this.id] &&
+          (pos = UpdatableNodes[this.label][this.id].indexOf(this)) !== -1) {
+        UpdatableNodes[this.label][this.id].splice(pos,1); // remove from UpdatableNodes
+        this.removeAttribute('updatable');
+      }
       this.set('id', element.id);
       this.set('label', element.label);
       this.set('keys', element.keys);
       this.set('captionKeys', element.captionKeys);
       this.set('isBoolean', element.isBoolean);
+      this.set('unit', element.unit);
       this.set('firstExceeds', element.firstExceeds);
       this.set('lastExceeds', element.lastExceeds);
       this.set('svg', element.svg);
@@ -115,12 +117,27 @@
       this._updatableChanged();
     },
 
+    unsetElement: function(element) {
+      var pos;
+      if (this.notUpdatable === false && this.label && this.id &&
+          window.UpdatableNodes !== undefined &&
+          UpdatableNodes[this.label] &&
+          UpdatableNodes[this.label][this.id] &&
+          (pos = UpdatableNodes[this.label][this.id].indexOf(this)) !== -1) {
+        UpdatableNodes[this.label][this.id].splice(pos,1); // remove from UpdatableNodes
+        this.removeAttribute('updatable');
+      }
+      this.set('id', '');
+      this.set('label', '');
+    },
+
     getElement: function() {
       return {'id': this.id,
               'label': this.label,
               'keys': this.keys,
               'captionKeys': this.captionKeys,
               'isBoolean': this.isBoolean,
+              'unit': this.unit,
               'svg': this.svg,
               'firstExceeds': this.firstExceeds,
               'lastExceeds': this.lastExceeds,
@@ -147,6 +164,14 @@
         }
       }
       this._updateView(value);
+    },
+
+    __hide: function() {
+      if (this.id && this.label)
+        this.removeAttribute('hidden');
+      else {
+        this.setAttribute('hidden', true);
+      }
     },
 
     spliceValues: function(start, length) {
@@ -237,7 +262,7 @@
     _updatableChanged: function() {
       // sets a global Object 'UpdatableNodes', for updating the values of the elements
       if (this.notUpdatable === false && this.label && this.id) {
-        this.set("updatable", true);
+        this.setAttribute("updatable", true);
         if (window.UpdatableNodes === undefined)
           UpdatableNodes = {};
         if (!UpdatableNodes[this.label])
@@ -268,22 +293,9 @@
     },
 
     _select: function() {
+      console.log(this.selectable);
       if (this.selectable === true) {
-        if (this.toggles && this.isSelected === true) {
-          this.isSelected = false;
-          this.fire('element-deselect', this.getElement());
-        }
-        else {
-          this.isSelected = true;
-          this.fire('element-select', this.getElement());
-        }
-      }
-    },
-
-    _deselect: function() {
-      if (this.selectable === true && this.isSelected === true) {
-        this.isSelected = false;
-        this.fire('element-deselect', this.getElement());
+        this.fire('element-select', this.getElement());
       }
     }
   };

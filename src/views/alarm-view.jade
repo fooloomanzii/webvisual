@@ -105,21 +105,42 @@ html
         each Label in config.labels
           tab-element.label(label!= Label)
             != Label
+
+        //- Elements for TOOLBAR 
+        sign-element.toolbar-footer(horizontal)
+        table-element.toolbar-footer(highlight-exceeding)
+        svg-element.toolbar-footer(initially-zoom-to-selected)
+
         //- GROUPINGKEY SELECTORS
         each Label in config.labels
           iron-selector.groupingKeySelector(attr-for-selected= "groupingkey", selected-attribute= "checked", selected!= config.preferedGroupingKeys[Label], fallback-selection!= config.preferedGroupingKeys[Label], activate-event="change")
             each GroupingKey in config.groupingKeys[Label]
               radio-button-element.lightcontext.groupingKey(groupingkey!= GroupingKey)
                 != GroupingKey
+                
         //- PANELS
         each Label, I in config.labels
           section.panel(label!= Label, animated!= (!mobile))
             each Subgroup, Name in config.groups[Label][config.preferedGroupingKeys[Label]]
-              group-card(title= Name, svg= JSON.stringify(Subgroup.svg))
+              group-card(title= Name, 
+                         svg= JSON.stringify(Subgroup.svg))
                 each Id, i in Subgroup.ids
-                  sign-element(label!= Label, id!= Id, is-boolean!= config.elements[Label][Id].isBoolean, keys= JSON.stringify(config.elements[Label][Id].keys), svg= JSON.stringify(config.elements[Label][Id].svg), caption-keys= JSON.stringify(config.groupingKeys[Label]), show-date!= (!mobile), bubbles)
+                  sign-element(label!= Label, 
+                               id!= Id, 
+                               is-boolean!= config.elements[Label][Id].isBoolean, 
+                               is-boolean!= config.elements[Label][Id].unit, 
+                               keys= JSON.stringify(config.elements[Label][Id].keys), 
+                               svg= JSON.stringify(config.elements[Label][Id].svg), 
+                               caption-keys= JSON.stringify(config.groupingKeys[Label]), 
+                               show-date!= (!mobile),
+                               color!= config.elements[Label][Id].color,
+                               bubbles, 
+                               selectable)
         //- FULLSCREEN-SVG-ELEMENT
-        svg-element.overlay(is-fullscreen, zoom-partition='3', max-zoom='3', min-zoom='0.75', initially-zoom-to-selected)
+        svg-element.overlay(is-fullscreen, 
+                            zoom-partition='3',
+                            max-zoom='3',
+                            min-zoom='0.75')
 
     script.
     

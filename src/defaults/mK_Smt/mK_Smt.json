@@ -4,26 +4,12 @@
     "connections": {
       "file": {
         "mode": "all",
-        "path": "./examples/datafile/mK_Smt/mK_Smt.txt",
-        "format": {
-          "dateFormat": "",
-          "numberFormat": " ",
-          "seperator": ";"
-        }
-      }
-    },
-
-    "svg": {
-      "testSvg": {
-        "src": "",
-        "selectable": {
-          "Cabinets": "g#Cabinets path"
-        }
+        "path": "./examples/datafile/mK_Smt/mK_Smt.txt"
       }
     },
 
     "locals": {
-      "ignore": [0],
+      "ignore": [],
       "types": [{
           "id": "Binary",
           "keys": {
@@ -33,10 +19,6 @@
             "property": "Binärzahl",
             "system": "intern",
             "alarmlevel": ""
-          },
-          "svg": {
-            "path": "",
-            "source": ""
           },
           "isBoolean": false,
           "threshold": {
@@ -54,15 +36,28 @@
             "system": "H₂-Gasüberwachung",
             "alarmlevel": "Alarm 1"
           },
-          "svg": {
-            "path": "path#path4514,path#path4512",
-            "source": "E0"
+          "isBoolean": false,
+          "threshold": {
+            "from": -5,
+            "to": 5
           },
-          "isBoolean": true,
+          "unit": "K"
+        }, {
+          "id": "DI2-1",
+          "keys": {
+            "roomNr": "2032",
+            "room": "Gaslager",
+            "kind": "H₂",
+            "property": "brennbar",
+            "system": "H₂-Gasüberwachung",
+            "alarmlevel": "Alarm 1"
+          },
+          "isBoolean": false,
           "threshold": {
             "from": 0,
-            "to": 0
-          }
+            "to": 10
+          },
+          "unit": "mBar"
         }
       ],
 
@@ -100,19 +95,14 @@
         "roomNr": {
           "test1": {
             "ids": [
-              "DI0-2"
-            ]
-          },
-          "test2": {
-            "ids": [
-              "DI2-2"
+              "DI0-1"
             ]
           }
         },
         "alarmlevel": {
           "test3": {
             "ids": [
-              "DI6-1"
+              "DI0-1"
             ]
           }
         }

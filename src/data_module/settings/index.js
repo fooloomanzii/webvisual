@@ -1,7 +1,7 @@
 "use strict";
 
 // EventEmitter types
-//    "ready"
+//    "changed"
 //    "saved"
 //    "test-error"
 //    "file-error"
@@ -110,7 +110,7 @@ class fileConfigLoader extends EventEmitter {
       console.log(e);
     } finally {
     if(!err)
-      this.emit('ready', name);
+      this.emit('changed', name);
     }
 
   }
@@ -137,9 +137,15 @@ class fileConfigLoader extends EventEmitter {
         for (var j = 0; j < keys.length; j++) {
           type.keys[keys[j]] = type.keys[keys[j]] || locals.unnamedType.keys[keys[j]];
         }
+        // Unit
+        if (type.unit === undefined)
+          type.unit = '';
         // isBoolean
         if (type.isBoolean === undefined)
           type.isBoolean = false;
+        // color
+        if (type.color === undefined)
+          type.color = '';
         // label
         type.label = label;
         // isExceeding
@@ -199,7 +205,6 @@ class fileConfigLoader extends EventEmitter {
     for (var group in groups) {
       for (var subgroup in groups[group]) {
         source = '';
-        selectable = {};
         sameSource = true;
         for (var id of groups[group][subgroup].ids) {
           if (elements[id] && elements[id].svg && elements[id].svg.source) {
@@ -208,21 +213,12 @@ class fileConfigLoader extends EventEmitter {
               break;
             } else {
               source = elements[id].svg.source;
-              if (elements[id].svg.path)
-                selectable[id] = elements[id].svg.path;
             }
           }
         }
         if (sameSource && svg && svg[source]) {
-          var initial = '';
-          for (var id in selectable) {
-            initial += selectable[id] + ',';
-          }
-          initial = initial.slice(0, -1);
           groups[group][subgroup].svg = {
-            source: source,
-            selectable: selectable,
-            initial: initial
+            source: source
           }
         }
       }

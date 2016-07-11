@@ -36,8 +36,8 @@ class dataModule extends EventEmitter {
   connect(config) {
     this.configHandler.watch(config);
 
-    this.configHandler.on('ready', (function(name) {
-      this.emit('change', this.configHandler.settings[name].configuration, name);
+    this.configHandler.on('changed', (function(name) {
+      this.emit('changed', this.configHandler.settings[name].configuration, name);
 
       if (!this.currentData[name])
         this.currentData[name] = {};
@@ -48,11 +48,16 @@ class dataModule extends EventEmitter {
       // dataFileHandler - established the data connections
 
       for (let label of this.configHandler.settings[name].configuration.labels) {
+        
+        if (this.dataFile[name][label]) {
+          this.dataFile[name][label].close();
+          delete dataFile[name][label];
+        }
 
         let listeners = {
           error: (function(type, err, label) {
             // dataSocket.emit('mistake', { error: err, time: new Date() });
-            this.handleErrors(err, "dataFileHandler id: " + label);
+            this.emit("error", name, label, err);
           }).bind(this),
           data: (function(type, data, label) {
             if (!data || data.length == 0)
@@ -71,11 +76,6 @@ class dataModule extends EventEmitter {
             }
           }).bind(this)
         };
-
-        if (this.dataFile[name][label]) {
-          this.dataFile[name][label].close();
-          // delete dataFile[name][label];
-        }
 
         this.dataFile[name][label] = new dataFileHandler({
           id: label,
@@ -110,12 +110,10 @@ class dataModule extends EventEmitter {
         // });
       }).bind(this));
 
-      this.io.of('/data').clients(function(error, clients) {
-        if (error) {
-          throw error;
-          console.log('data-socket clients error', clients); // => [PZDoMHjiu8PYfRiKAAAF, Anw2LatarvGVVXEIAAAD]
-        }
-      });
+      this.io.of('/data').clients(
+        (function(err, clients) {
+          if (err) this.emit("error", "socket.io", err) // => [PZDoMHjiu8PYfRiKAAAF, Anw2LatarvGVVXEIAAAD]
+          }).bind(this));
     }).bind(this))
   }
 
@@ -128,28 +126,6 @@ class dataModule extends EventEmitter {
     }
     this.io = null;
     this.dataFile = {};
-  }
-
-  // private function to handle the errors
-  handleErrors(errors, id_message) {
-    console.log("error");
-    if (errors === undefined)
-      return;
-    if (Array.isArray(errors)) {
-      errors.forEach(function(err) {
-        handleErrors(err, id_message)
-      });
-      return;
-    }
-    if (id_message === undefined)
-      id_message = "";
-    else
-      id_message += ": ";
-    // similar to JSON.stringify(), but shows more information
-    var output = id_message + require('util').inspect(errors) + "\n";
-    if (errors.stack !== undefined)
-      output += errors.stack + "\n";
-    console.warn(output);
   }
 
   // function initMailer(config) {

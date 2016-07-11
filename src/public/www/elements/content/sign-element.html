@@ -1,6 +1,3 @@
-<link rel='import' href='../behaviors/element-behavior.html'>
-<link rel='import' href='../../components/paper-ripple/paper-ripple.html'/>
-
 <dom-module id='sign-element'>
   <style>
     :host {
@@ -70,10 +67,12 @@
     }
     section#valueSection {
       font-size: 1.5em;
+      float: left;
     }
     section#unitSection {
       margin-left: 0.25em;
       font-size: 0.8em;
+      float: right;
     }
     section#dateSection {
       font-size: 0.6em;
@@ -81,6 +80,7 @@
       position: absolute;
       left: 0; right: 0; bottom: 0;
       padding: 0.5em;
+      pointer-events: none;
     }
     section#caption {
       cursor: default;
@@ -232,7 +232,7 @@
         <section id='actualValueSection' on-tap='_select'>
           <paper-ripple hidden$='[[!selectable]]' id='ripple'></paper-ripple>
           <section hidden$='[[isBoolean]]'>
-            <section id='valueSection'></section><section id='unitSection'>[[keys.unit]]</section>
+            <section id='valueSection'></section><section id='unitSection'>[[unit]]</section>
           </section>
           <section hidden$='[[!isBoolean]]'>
             <svg id='exceeding' hidden$='[[!isExceeding]]' viewBox='0 0 24 24'>
@@ -287,10 +287,6 @@
           value: true
         },
         tooltip: {
-          type: Boolean,
-          value: true
-        },
-        selectable: {
           type: Boolean,
           value: true
         }

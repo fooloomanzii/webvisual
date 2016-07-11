@@ -1,0 +1,170 @@
+<script>
+  ContainerBehavior = {
+
+    properties: {
+        opened: {
+          type: Boolean,
+          value: false
+        },
+        isExceeding: {
+          type: Boolean,
+          value: false,
+          observer: "_handleExceeding"
+        },
+        notify: {
+          type: Boolean,
+          observer: 'notifyParent'
+        },
+        notSelectable: {
+          type: Boolean,
+          value: false
+        },
+        multiSelect: {
+          type: Boolean,
+          value: false
+        },
+        toggles: {
+          type: Boolean,
+          value: false
+        },
+        selectedElements: {
+          type: Array,
+          value: function() { return []; }
+        },
+        exceedingElements: {
+          type: Array,
+          value: function() { return []; }
+        },
+        _elements: []
+    },
+
+    hostAttributes: {
+      container: true
+    },
+
+    get rootElement () {
+      var rootNode = Polymer.dom(this).getOwnerRoot();
+      if (rootNode === null)
+        rootNode = Polymer.dom(this.parentNode).getOwnerRoot();
+      if (rootNode && rootNode.host)
+        return rootNode.host;
+      else
+        return this.parentNode;
+    },
+
+    listeners: {
+      "element-select": "__setSelectedElement",
+      "element-is-exceeding": "__setExceedingElement",
+      "element-is-not-exceeding": "__unsetExceedingElement"
+    },
+
+    attached: function() {
+      this._observer =
+          Polymer.dom(this.$.collector).observeNodes((function(info) {
+        this.__processNewNodes(info.addedNodes);
+        this.__processRemovedNodes(info.removedNodes);
+      }).bind(this));
+    },
+
+    __processNewNodes: function(nodes) {
+      this._elements = nodes.concat(this._elements || []);
+    },
+
+    __processRemovedNodes: function(nodes) {
+      this._elements = this.getEffectiveChildren();
+    },
+
+    notifyParent: function(){
+      if (this.notify === true) {
+        this.listen(this.rootElement, 'element-select', '__setSelectedElement');
+        this.listen(this.rootElement, 'element-is-exceeding', '__setExceedingElement');
+        this.listen(this.rootElement, 'element-is-not-exceeding', '__unsetExceedingElement');
+      }
+      else if (this.notify === false) {
+        this.unlisten(this.rootElement, 'element-select', '__setSelectedElement');
+        this.unlisten(this.rootElement, 'element-is-exceeding', '__setExceedingElement');
+        this.unlisten(this.rootElement, 'element-is-not-exceeding', '__unsetExceedingElement');
+      }
+    },
+
+    __setSelectedElement: function(e) {
+      if (e && e.detail) this.setSelectedElement(e.detail);
+      else return;
+    },
+
+    setSelectedElement: function(element) {
+      if (this.notSelectable === true) return;
+      if (this.multiSelect === true) {
+        if (this.indexOf(this.selectedElements, element) === -1)
+          this.push("selectedElements", element);
+        else if (this.toggles === true)
+          this.unsetSelectedElement(element);
+      }
+      else {
+        this.splice('selectedElements', 0, this.selectedElements.length);
+        this.push('selectedElements', element);
+      }
+    },
+
+    unsetSelectedElement: function(element) {
+      if (this.notSelectable === true) return;
+      if (this.multiSelect === true) {
+        var pos = this.indexOf(this.selectedElements, element);
+        if (pos !== -1)
+          this.splice("selectedElements", pos, 1);
+      }
+      else {
+        this.splice('selectedElements', 0, this.selectedElements.length);
+      }
+    },
+
+    clearSelectedElements: function() {
+      this.splice("selectedElements", 0, this.selectedElements.length);
+    },
+
+    __setExceedingElement: function(e) {
+      if (e && e.detail) this.setExceedingElement(e.detail);
+      else return;
+    },
+
+    setExceedingElement: function(element) {
+      var pos = this.indexOf(this.exceedingElements, element);
+      if (pos === -1)
+        this.push("exceedingElements", element);
+
+      this.isExceeding = (this.exceedingElements.length > 0) ? true : false;
+    },
+
+    __unsetExceedingElement: function(e) {
+      if (e && e.detail) this.unsetExceedingElement(e.detail);
+      else return;
+    },
+
+    unsetExceedingElement: function(element) {
+      var pos = this.indexOf(this.exceedingElements, element);
+      if (pos !== -1)
+        this.splice("exceedingElements", pos, 1);
+
+      this.isExceeding = (this.exceedingElements.length > 0) ? true : false;
+    },
+
+    clearExceedingElements: function() {
+      this.splice("exceedingElements", 0, this.exceedingElements.length);
+      this.isExceeding = false;
+    },
+
+    _handleExceeding: function(value) {
+    },
+
+    indexOf: function(elements, item) {
+      var id = item.id;
+      var label = item.label;
+
+      for (var i in elements) {
+        if (elements[i].id === id && elements[i].label === label)
+          return i;
+      }
+      return -1;
+    }
+  };
+</script>

@@ -52,11 +52,11 @@
     margin-bottom: 0.5em;
   }
   text {
-    fill: currentColor !important;
+    fill: currentColor;
     pointer-events: none;
-    font-family: inherit !important;
-    font-weight: inherit !important;
+    font-weight: normal; !important;
     letter-spacing: normal !important;
+    @apply(--text);
   }
   g#chart text{
     font-size: 1em;
@@ -184,16 +184,19 @@
     ChartElement = Polymer({
       is: 'chart-element',
 
-      behaviors: [Polymer.IronResizableBehavior],
+      behaviors: [
+        ContainerBehavior,
+        Polymer.IronResizableBehavior
+      ],
 
       properties: {
         margin: {
           type: Object,
           value: function() {
-            return {  top: 6,
-                      right: 6,
+            return {  top: 12,
+                      right: 12,
                       bottom: 42,
-                      left: 54 };
+                      left: 48 };
           }
         },
         brushWidth: {
@@ -253,7 +256,6 @@
 
         _chart: Object,
         _svg: Object,
-        _graphs: [],
 
         _x: Function,
         _x2: Function,
@@ -340,22 +342,6 @@
         this._buildLayout();
       },
 
-      attached: function() {
-        this._observer =
-            Polymer.dom(this.$.collector).observeNodes((function(info) {
-          this.processNewNodes(info.addedNodes);
-          this.processRemovedNodes(info.removedNodes);
-        }).bind(this));
-      },
-
-      processNewNodes: function(nodes) {
-        this._graphs = nodes.concat(this._graphs || []);
-      },
-
-      processRemovedNodes: function(nodes) {
-        this._graphs = this.getEffectiveChildren();
-      },
-
       _sizeChanged: function(e) {
         this.debounce('resize', this._sizeLayout, 50);
       },
@@ -402,11 +388,14 @@
         this._svg.selectAll('g,line,text,path,rect')
                  .classed('style-scope', true)
                  .classed('chart-element', true);
+        this.assignParentResizable(this.rootElement);
       },
 
       _sizeLayout: function() {
-        this._height = Math.max(this.offsetHeight, 200);
-        this._width = Math.max(this.offsetWidth, 300);
+        var bRect = this.getBoundingClientRect();
+
+        this._height = Math.max(bRect.height, 150);
+        this._width = Math.max(bRect.width, 150);
 
         this._svg.attr('height', this._height)
                  .attr('width', this._width);
@@ -516,6 +505,7 @@
         this._svg.selectAll('g,line,text,path,rect')
                  .classed('style-scope', true)
                  .classed('chart-element', true);
+        this.redraw();
       },
 
       _createScale: function(option) {
@@ -591,8 +581,8 @@
       _redraw: function () {
         this._setAllDomains();
 
-        if (this._graphs !== undefined)
-          this._graphs.forEach(function(g) { g.redraw(); });
+        if (this._elements !== undefined)
+          this._elements.forEach(function(g) { g.redraw(); });
 
         this._chart.select('g.x.axis').transition(50).call(this._xAxis);
         this._chart.select('g.y.axis').transition(50).call(this._yAxis);
@@ -635,7 +625,7 @@
           this._brushX.select('rect.selection').classed('clamp', false);
           this._x.domain(this._x2.domain());
         }
-        this._graphs.forEach(function(g) { g.redraw(); });
+        this._elements.forEach(function(g) { g.redraw(); });
         this._chart.select('g.x.axis').transition(50).call(this._xAxis);
         this._chart.select('g.x.grid').transition(50).call(this._xGrid);
         this._brushX.select('g.axis').transition(50).call(this._brushAxisX);
@@ -653,7 +643,7 @@
         }
         else
           this._y.domain(this._y2.domain());
-        this._graphs.forEach(function(g) { g.redraw(); });
+        this._elements.forEach(function(g) { g.redraw(); });
         this._chart.select('g.y.axis').transition(50).call(this._yAxis);
         this._chart.select('g.y.grid').transition(50).call(this._yGrid);
         this._brushY.select('g.axis').transition(50).call(this._brushAxisY);
@@ -696,7 +686,7 @@
       },
 
       _setAllDomains: function () {
-        var graphs = this._graphs;
+        var graphs = this._elements;
         var domainX, domainY = [0, 0], domainBrushX, domainBrushY, v;
 
         domainBrushX = this._brushDomain(this._brushX, this._x2);
@@ -707,10 +697,14 @@
                     d3.max(graphs,function(g){ return g._rangeY[1] }) ];
 
         // rounding y-domains to the according decimal exponent
-        v = (domainY[0]).toExponential().split('e');
-        domainY[0] = (Math.floor(v[0])) * Math.pow(10,parseInt(v[1],10));
-        v = (domainY[1]).toExponential().split('e');
-        domainY[1] = (Math.ceil(v[0]) + 1) * Math.pow(10,parseInt(v[1],10));
+        if (domainY[0] !== undefined) {
+          v = (domainY[0]).toExponential().split('e');
+          domainY[0] = (Math.floor(v[0])) * Math.pow(10,parseInt(v[1],10));
+        }
+        if (domainY[1] !== undefined) {
+          v = (domainY[1]).toExponential().split('e');
+          domainY[1] = (Math.ceil(v[0]) + 1) * Math.pow(10,parseInt(v[1],10));
+        }
 
         this._x2.domain(domainX);
         this._y2.domain(domainY);
@@ -800,8 +794,8 @@
         }
       },
       changeInterpolation: function(interpolation, oldValue) {
-        if (this._graphs === undefined) return;
-        this._graphs.forEach(
+        if (this._elements === undefined) return;
+        this._elements.forEach(
           function(g) {
             g.interpolation = interpolation;
           });
@@ -813,22 +807,22 @@
         this.redraw();
       },
       changeDots: function(e) {
-        if (this._graphs === undefined) return;
-        this._graphs.forEach(
+        if (this._elements === undefined) return;
+        this._elements.forEach(
           function(g) {
             g.set('noDots', !e.target.checked)
           });
       },
       changeLines: function(e) {
-        if (this._graphs === undefined) return;
-        this._graphs.forEach(
+        if (this._elements === undefined) return;
+        this._elements.forEach(
           function(g) {
             g.set('noLine', !e.target.checked)
           });
       },
       changeAreas: function(e) {
-        if (this._graphs === undefined) return;
-        this._graphs.forEach(
+        if (this._elements === undefined) return;
+        this._elements.forEach(
           function(g) {
             g.set('noFill', !e.target.checked)
           });

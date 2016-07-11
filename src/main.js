@@ -66,8 +66,11 @@ app.on('ready', function() {
     });
 
     webvisualserver = new WebvisualServer(config);
-    webvisualserver.on('error', function(err) {
-      console.log('Error in WebvisualServer', err);
+    webvisualserver.on('error', function(err, msg) {
+      console.log('Error', err, msg || "");
+    });
+    webvisualserver.on('log', function(arg, msg) {
+      console.log(arg, msg || "");
     });
     webvisualserver.on('server-start', function(err) {
       mainWindow.webContents.send("event", "server-start");

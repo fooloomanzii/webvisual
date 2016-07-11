@@ -15,6 +15,34 @@
       position: absolute;
       pointer-events: all !important;
     }
+    section#toolbarFooter ::content sign-element {
+      border: none;
+    }
+    section#toolbarFooter ::content .toolbar-footer {
+      /*display: flex;*/
+      border-right: thin solid #BBBBBB;
+      border-radius: 8px;
+      z-index: 100;
+      position: relative;
+    }
+    /*section#toolbarFooter ::content .toolbar-footer:last-child {
+      border-right: none;
+    }*/
+    section#toolbarFooter ::content [element] {
+      flex-shrink: 0;
+    }
+    section#toolbarFooter ::content [dark] {
+      border-color: #808080;
+    }
+    section#toolbarFooter ::content svg-element {
+      background: rgba(255,255,255,0.2);
+      border-top: thin solid #669DB4;
+      border-bottom: thin solid #669DB4;
+    }
+    section#toolbarFooter ::content svg-element[dark] {
+      border-top: thin solid #005B82 !important;
+      border-bottom: thin solid #005B82 !important;
+    }
     section#mainContent ::content .panel {
       height: 100%;
       width: 100%;
@@ -35,6 +63,9 @@
       flex-basis: 0.000000001px; -webkit-flex-basis: 0.000000001px;
       padding: 0.5em;
       opacity: 1;
+    }
+    section#mainContent ::content .panel > * {
+      padding: 0.4em;
     }
     section#mainContent ::content .panel.foreground {
       display: flex;
@@ -166,28 +197,22 @@
         <section class="logo-element-placeholder"></section>
 
         <section id="labelsTabs">
-          <iron-selector id="labelSelector" selected="{{selectedLabel}}" attr-for-selected="label">
+          <iron-selector id="labelSelector" selected="{{currentLabel}}" attr-for-selected="label">
             <content select="tab-element.label"></content>
           </iron-selector>
         </section>
 
         <section id="control">
           <icon-button-element icon="error-outline" class="error control" on-tap="toggleExceedsPanel" hidden$="[[!isExceeding]]"></icon-button-element>
-          <section hidden$="[[!opened]]" style="display: flex;">
+          <section hidden$="[[!_computeOpened(opened, forceOpened)]]" style="display: flex;">
             <icon-button-element icon="[[_computeExpandIcon(expanded)]]" class="expand-icon" on-tap="_toolbarExpand"></icon-button-element>
-            <icon-button-element icon="remove" class="toggle-icon control" on-tap="deselectElement"></icon-button-element>
+            <icon-button-element icon="remove" hidden$="[[forceOpened]]" class="toggle-icon control" on-tap="_unsetToolbarElement"></icon-button-element>
           </section>
         </section>
       </section>
-      <section id="toolbarFooter" opened$="[[opened]]" expanded$="[[expanded]]">
-        <section id="toolbarSelectedElement">
-          <sign-element id="selectedElementSign" class="selectedElement" hidden$="[[!opened]]" horizontal="[[!expanded]]" on-tap="deselectElement"></sign-element>
-          <section style="display: flex;">
-            <table-element id="selectedElementTable" hidden$="[[!opened]]" class="selectedElement" highlight-exceeding></table-element>
-          </section>
-          <svg-element id="selectedElementSVG" class="selectedElement" opened="[[opened]]">
-          </svg-element>
-        </section>
+
+      <section id="toolbarFooter" opened$="[[_computeOpened(opened, forceOpened)]]" expanded$="[[expanded]]">
+        <content select=".toolbar-footer"></content>
       </section>
     </section>
 
@@ -197,7 +222,7 @@
           <content select=".panel"></content>
         </section>
 
-        <section id="backdrop" on-tap="tapBackdrop"></section>
+        <section id="backdrop" on-tap="closeDrawer"></section>
         <section id="dropShadow" class="has-shadow"></section>
 
       <!-- EXCEEDING -->
@@ -205,7 +230,8 @@
         <section id="exceedsHeader" on-tap="toggleExceedsPanel">
           <button-element class="title"><iron-icon icon="warning" class="left"></iron-icon><section class="content">Alarme</section></button-element>
         </section>
-        <iron-swipeable-container id="exceedingElementsList" on-iron-swipe="_removeSingleExceedingElementFromList"></iron-swipeable-container>
+        <iron-swipeable-container id="exceedingElementsList" on-iron-swipe="_removeSingleExceedingElementFromList">
+        </iron-swipeable-container>
         <section style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_removeAllExceedingElementFromList">Liste leeren</a></section>
       </section>
 
@@ -257,7 +283,11 @@
     Polymer({
       is: 'main-page',
 
-      behaviors: [Polymer.NeonSharedElementAnimatableBehavior],
+      behaviors: [
+        ContainerBehavior,
+        Polymer.IronResizableBehavior,
+        Polymer.NeonSharedElementAnimatableBehavior
+      ],
 
       properties: {
         sharedElements: {
@@ -290,6 +320,25 @@
             }
           }
         },
+        // Attribute for toolbar is opened
+        opened: {
+          type: Boolean,
+          value: false
+        },
+        forceOpened: {
+          type: Boolean,
+          value: false
+        },
+        expanded: {
+          type: Boolean,
+          value: false
+        },
+        currentLabel: {
+          type: Number,
+          value: 0,
+          observer: "_currentLabelChanged"
+        },
+        // Element Appearance
         withoutWindow: {
           type: Boolean,
           value: false
@@ -298,47 +347,26 @@
           type: Boolean,
           value: false
         },
-        maxTotalLines: {
-          type: Number,
-          value: 100
-        },
-        // Attribute for toolbar is opened
-        opened: {
-          type: Boolean,
-          value: false
-        },
-        expanded: {
-          type: Boolean,
-          value: false
-        },
         showDate: {
           type: Boolean,
           value: false
         },
-        selectedElement: {
-          type: Object,
-          value: function() { return {}; }
-        },
-        selectedLabel: {
-          type: Number,
-          value: 0,
-          observer: "_selectedLabelChanged"
-        },
-        exceedingElements: {
-          type: Object,
-          value: function() { return {}; }
-        },
-        isExceeding: {
+        noGrouping: {
           type: Boolean,
-          value: false,
-          observer: "_checkExceedsPanel"
+          value: false
         },
+
         animated: {
           type: Boolean,
           value: false,
           reflectToAttribute: true
         }
       },
+
+      observers: [
+        '_setToolbarElement(selectedElements.splices)',
+        '_setExceedingElementList(exceedingElements.splices)'
+      ],
 
       attached: function() {
         var self = this;
@@ -353,7 +381,7 @@
         Polymer.dom(this.$.mainContent)
                .observeNodes( function(info) {
                  if (info.addedNodes.length > 0) {
-                    self.set("selectedLabel", Labels[0]);
+                    self.set("currentLabel", Labels[0]);
                  }
                });
         // Notifications
@@ -369,23 +397,25 @@
             }
           });
         }
+        this.fire('resize');
       },
 
-      listeners: {
-        "element-select": "setSelectedElement",
-        "element-is-exceeding": "_setExceedingElement",
-        "element-is-not-exceeding": "_unsetExceedingElement"
+      _handleExceeding: function(value) {
+        if(value && !(this.$.exceedsPanel.classList.contains("exceeds-panel-opened"))) {
+          this.openExceedsPanel();
+        }
+        else if (this.$.exceedingElementsList.children.length === 0)
+          this.closeExceedsPanel();
       },
-
       // app Control
       backToMainMenu: function() {
         this.closeDrawer();
         PageSelector.select("0");
       },
       // Panel Control
-      _selectedLabelChanged: function(newLabel, oldLabel) {
+      _currentLabelChanged: function(newLabel, oldLabel) {
         this._selectPanel(newLabel, oldLabel);
-        this.deselectElement();
+        this._unsetToolbarElement();
       },
       _selectPanel: function(newLabel, oldLabel) {
         var newIndex = 0, oldIndex;
@@ -399,13 +429,15 @@
             oldIndex = i;
         }
 
-        groupingkeys[newIndex].classList.add("foreground");
+        if (groupingkeys[newIndex])
+          groupingkeys[newIndex].classList.add("foreground");
         content[newIndex].classList.add("foreground");
         if (oldIndex !== undefined && content[oldIndex].getAttribute('hidden') === "true") {
           content[newIndex].classList.add("selected");
           content[oldIndex].classList.remove("foreground");
           content[oldIndex].classList.remove("selected");
-          groupingkeys[oldIndex].classList.remove("foreground");
+          if (groupingkeys[oldIndex])
+            groupingkeys[oldIndex].classList.remove("foreground");
         }
         else if (this.animated) {
           if (oldIndex !== undefined) {
@@ -415,7 +447,8 @@
                 content[oldIndex].removeEventListener(e.type, arguments.callee);
               });
             content[oldIndex].classList.remove("selected");
-            groupingkeys[oldIndex].classList.remove("foreground");
+            if (groupingkeys[oldIndex])
+              groupingkeys[oldIndex].classList.remove("foreground");
           }
           else
             content[newIndex].classList.add("selected");
@@ -425,7 +458,8 @@
           if (oldIndex !== undefined) {
             content[oldIndex].classList.remove("foreground");
             content[oldIndex].classList.remove("selected");
-            groupingkeys[oldIndex].classList.remove("foreground");
+            if (groupingkeys[oldIndex])
+              groupingkeys[oldIndex].classList.remove("foreground");
           }
         }
       },
@@ -444,21 +478,23 @@
           if (labels.indexOf(content[i].getAttribute('label')) === -1) {
             content[i].setAttribute("hidden", true);
             tabs[i].setAttribute("hidden", true);
-            groupingkeys[i].setAttribute("hidden", true);
+            if (groupingkeys[i])
+              groupingkeys[i].setAttribute("hidden", true);
           }
           else {
             if (!newLabel)
               newLabel = content[i].getAttribute('label');
             content[i].removeAttribute("hidden");
             tabs[i].removeAttribute("hidden");
-            groupingkeys[i].removeAttribute("hidden");
+            if (groupingkeys[i])
+              groupingkeys[i].removeAttribute("hidden");
           }
         }
-        this.set("selectedLabel", newLabel);
+        this.set("currentLabel", newLabel);
       },
       // Grouping Options
       _regroup: function(key) {
-        var label = this.selectedLabel;
+        var label = this.currentLabel;
         if (!label || !key || !Groups[label][key] || PreferedGroupingKeys[label] == key)
           return;
 
@@ -468,7 +504,7 @@
 
         var elements = [];
         for (var i = 0; i < oldgroupcards.length; i++) {
-          elements = elements.concat([].slice.call(oldgroupcards[i].querySelectorAll('.content')));
+          elements = elements.concat([].slice.call(oldgroupcards[i].querySelectorAll('[element]')));
         }
 
         var newgroupcards = {};
@@ -491,123 +527,86 @@
         Polymer.dom.flush();
       },
       // Selecting Element
-      setSelectedElement: function(e) {
-        if(e && e.detail) {
-          var element = e.detail;
-          if (this.selectedElement.id && this.selectedElement.id === element.id &&
-              this.selectedElement.label && this.selectedElement.label === element.label){
-            this.deselectElement();
-            return;
+      _setToolbarElement: function(changeRecord) {
+        if (changeRecord && changeRecord.indexSplices) {
+          var toolbarElements = this.queryAllEffectiveChildren('.toolbar-footer[element]');
+          var toolbarContainers = this.queryAllEffectiveChildren('.toolbar-footer[container]');
+          for (var i=0; i < changeRecord.indexSplices.length; i++) {
+            if (changeRecord.indexSplices[i].removed.length > 0) {
+              this._unsetToolbarElement();
+            }
+            var index, item;
+            for (var j = 0; j < changeRecord.indexSplices[i].addedCount; j++) {
+              index = changeRecord.indexSplices[i].index + j;
+              item = changeRecord.indexSplices[i].object[index];
+              toolbarElements.forEach( function(el) {
+                el.setElement(item);
+              }, this);
+              toolbarContainers.forEach( function(c) {
+                c.setSelectedElement(item);
+              }, this);
+            }
+            toolbarContainers.forEach( function(c) {
+              c.clearExceedingElements();
+              this.exceedingElements.forEach( function(el) {
+                if (el.label === this.currentLabel)
+                  c.setExceedingElement(el);
+              }, this);
+              c.opened = true;
+            }, this);
           }
-          else {
-            if (Object.keys(this.selectedElement).length !== 0) {
-              var id = this.selectedElement.id;
-              var label = this.selectedElement.label;
-              var pos = UpdatableNodes[label][id].indexOf(this.$.selectedElementSign);
-              if (pos !== -1)
-                UpdatableNodes[label][id].splice(pos, 1);
-              pos = UpdatableNodes[label][id].indexOf(this.$.selectedElementTable);
-              if (pos !== -1)
-                UpdatableNodes[label][id].splice(pos, 1);
-            }
-            UpdatableNodes[element.label][element.id].push(this.$.selectedElementSign);
-            UpdatableNodes[element.label][element.id].push(this.$.selectedElementTable);
-
-            this.set("selectedElement", {id: element.id, label: element.label});
-            this.$.selectedElementSign.setElement(element);
-            this.$.selectedElementTable.setElement(element);
-
-            if (element.svg && element.svg.source) {
-              this.$.selectedElementSVG.removeAttribute('hidden');
-              var selected = {};
-              if (ExceedingSvgPaths[element.label] && ExceedingSvgPaths[element.label][element.svg.source]) {
-                selected = JSON.parse(JSON.stringify(ExceedingSvgPaths[element.label][element.svg.source]));
-              }
-
-              this.$.selectedElementSVG.setSvg(
-                { source: element.svg.source,
-                  initial: element.svg.path || "",
-                  selectable: SvgSource[element.svg.source].selectable,
-                  selected: selected } );
-            }
-            else {
-              this.$.selectedElementSVG.toggleAttribute('hidden', true);
-            }
-
-            if (!this.opened){
-              this.toggleAttribute('opened', true);
-            }
+          this.fire('resize');
+          if (!this.opened){
+            this.opened = true;
           }
         }
       },
-      deselectElement: function() {
-        if (this.opened) {
-          this.closeDrawer();
-          this.toggleAttribute('opened', false);
-          try {
-            var id = this.selectedElement.id;
-            var label = this.selectedElement.label;
-            var pos = UpdatableNodes[label][id].indexOf(this.$.selectedElementSign);
-            if (pos !== -1)
-              UpdatableNodes[label][id].splice(pos, 1);
-            pos = UpdatableNodes[label][id].indexOf(this.$.selectedElementTable);
-            if (pos !== -1)
-              UpdatableNodes[label][id].splice(pos, 1);
-          }
-          catch (err) {}
-          this.set("selectedElement", {});
-        }
+      _unsetToolbarElement: function() {
+        var toolbarElements = this.queryAllEffectiveChildren('.toolbar-footer[element]');
+        var toolbarContainers = this.queryAllEffectiveChildren('.toolbar-footer[container]');
+
+        toolbarElements.forEach( function(el) {
+          el.unsetElement();
+        }, this);
+        toolbarContainers.forEach( function(c) {
+          c.clearSelectedElements();
+          c.clearExceedingElements();
+          c.opened = false;
+        }, this);
+
+        this.opened = false;
       },
       // Exceeding Elements
-      _setExceedingElement: function(e) {
-        var element = JSON.parse(JSON.stringify(e.detail)); // bug: references are mixing in each other
-        if (Polymer.dom(this.$.exceedingElementsList).querySelectorAll('#'+element.id+'[label='+element.label+']').length === 0) {
-          var node = new ListElement(element, true, false, this.showDate, this.dark);
-          Polymer.dom(this.$.exceedingElementsList).appendChild(node);
-          Polymer.dom(node).classList.add('exceedingElement');
-        }
-        if (element.svg && element.svg.source && element.svg.path) {
-          if (!ExceedingSvgPaths[element.label])
-            ExceedingSvgPaths[element.label] = {};
-          if (!ExceedingSvgPaths[element.label][element.svg.source])
-            ExceedingSvgPaths[element.label][element.svg.source] = {};
-          ExceedingSvgPaths[element.label][element.svg.source][element.id] = element.svg.path;
-        }
-        if (!this.isExceeding)
-          this.isExceeding = true;
-        if (!this.exceedingElements[element.label])
-          this.set("exceedingElements."+element.label, []);
-        this.push("exceedingElements."+element.label, element.id);
-        this.debounceExceedsNotification();
-      },
-
-      _unsetExceedingElement: function(e) {
-        var element = JSON.parse(JSON.stringify(e.detail)); // bug: references are mixing in each other
-        if (this.exceedingElements[element.label]) {
-          var pos = this.exceedingElements[element.label].indexOf(element.id);
-          if (pos !== -1) {
-            this.splice('exceedingElements.' + element.label, pos, 1);
+      _setExceedingElementList: function(changeRecord) {
+        if (changeRecord && changeRecord.indexSplices) {
+          var list = Polymer.dom(this.$.exceedingElementsList);
+          for (var i=0; i < changeRecord.indexSplices.length; i++) {
+            var index, item;
+            for (var j = 0; j < changeRecord.indexSplices[i].addedCount; j++) {
+              index = changeRecord.indexSplices[i].index + j;
+              item = changeRecord.indexSplices[i].object[index];
+              if (list.querySelectorAll('#'+item.id+'[label='+item.label+']').length === 0) {
+                var node = new ListElement(item, true, false, this.showDate, this.dark);
+                list.appendChild(node);
+              }
+            }
           }
+          if (this.exceedingElements.length > 0)
+            this.debounceExceedsNotification();
         }
       },
 
       debounceExceedsNotification: function() {
-        this.debounce('exceesNotification',
+        this.debounce('exceedsNotification',
           function() {
             this.createExceedsNotification();
-          }, 2000);
+          }, 500);
       },
 
       createExceedsNotification: function() {
         if (Notification.permission !== 'denied') {
-          var count = 0;
+          var count = this.exceedingElements.length;
           var msg = '';
-          for (var i in Labels) {
-            if (this.exceedingElements[Labels[i]]) {
-              count += this.exceedingElements[Labels[i]].length;
-              msg += Labels[i] + ': ' + '\n' + this.exceedingElements[Labels[i]].join(', ') + '\n\n';
-            }
-          }
 
           var notification = new Notification(count + ' Elemente im Alarmzustand',
             { icon: '../../img/icons/warning.png',
@@ -618,28 +617,26 @@
 
       _removeSingleExceedingElementFromList: function(e) {
         if(e.detail.target) {
-          var id = e.detail.target.id;
-          var label = e.detail.target.label;
-          var pos = UpdatableNodes[label][id].indexOf(e.detail.target);
-          UpdatableNodes[label][id].splice(pos, 1);
-          Polymer.dom(this.$.exceedingElementsList).removeChild(e.detail.target);
+          var node = e.detail.target;
+          var item = node.getElement();
+          var pos = UpdatableNodes[item.label][item.id].indexOf(node);
+          UpdatableNodes[item.label][item.id].splice(pos, 1);
+          Polymer.dom(this.$.exceedingElementsList).removeChild(node);
+          this.unsetExceedingElement(item);
         }
-        if (this.$.exceedingElementsList.children.length === 0) {
-          this.set("isExceeding", false);
+        if (this.exceedingElements.length === 0) {
           this.closeExceedsPanel();
         }
       },
       _removeAllExceedingElementFromList: function() {
-        var id, label, pos;
-        var nodes = Polymer.dom(this.$.exceedingElementsList).querySelectorAll('.exceedingElement');
-        for (var i = 0; i < UpdatableNodes.length; i++) {
-          id = nodes[i].id;
-          label = nodes[i].label;
-          pos = nodes[label][id].indexOf(nodes[i].target);
-          nodes[label][id].splice(pos, 1);
+        var pos;
+        var nodes = Polymer.dom(this.$.exceedingElementsList).querySelectorAll('list-element');
+        for (var i = 0; i < nodes.length; i++) {
+          pos = UpdatableNodes[nodes[i].label][nodes[i].id].indexOf(nodes[i]);
+          UpdatableNodes[nodes[i].label][nodes[i].id].splice(pos, 1);
           Polymer.dom(this.$.exceedingElementsList).removeChild(nodes[i]);
         }
-        this.set("isExceeding", false);
+        this.clearExceedingElements();
         this.closeExceedsPanel();
       },
       toggleTheme: function(){
@@ -690,11 +687,23 @@
       },
       // Toolbar Actions
       _toolbarExpand: function() {
-        if (this.opened) {
+        if (this.opened || this.forceOpened) {
           this.set('expanded', !this.expanded);
           this.toggleAttribute('expanded', this.expanded, this.$.toolbarFooter);
-          this.$.selectedElementSVG._debounceResetZoom();
+          // this.$.elementForToolbarSVG._debounceResetZoom();
+
+          var elements = this.queryAllEffectiveChildren('sign-element.toolbar-footer');
+          elements.forEach(function(el) {
+            if (this.expanded === true)
+              el.removeAttribute('horizontal');
+            else
+              el.setAttribute('horizontal', true);
+          }, this);
+          this.async(function(){this.fire('resize')}, 150);
         }
+      },
+      _computeOpened: function(opened, forceOpened) {
+        return opened || forceOpened;
       },
       _computeExpandIcon: function() {
         if (this.expanded)
@@ -703,13 +712,6 @@
           return 'expand-more';
       },
       // Panel Control
-      _checkExceedsPanel: function(value) {
-        if(value && !(this.$.exceedsPanel.classList.contains("exceeds-panel-opened"))) {
-          this.openExceedsPanel();
-        }
-        else if (this.$.exceedingElementsList.children.length === 0)
-          this.closeExceedsPanel();
-      },
       openExceedsPanel: function() {
         this.$.exceedsPanel.classList.add("exceeds-panel-opened");
       },
@@ -724,11 +726,6 @@
         this.$.backdrop.classList.toggle("backdrop-opened");
       },
       closeDrawer: function(){
-        this.$.drawerPanel.classList.remove("drawer-opened");
-        this.$.backdrop.classList.remove("backdrop-opened");
-      },
-      tapBackdrop: function(){
-        // this.$.exceedsPanel.classList.remove("exceeds-panel-opened");
         this.$.drawerPanel.classList.remove("drawer-opened");
         this.$.backdrop.classList.remove("backdrop-opened");
       }

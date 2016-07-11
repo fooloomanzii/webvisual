@@ -83,7 +83,7 @@
       <section id='caption'>[[caption]]</section>
       <section id='head' hidden$='[[hideHeader]]' on-tap='switchOrder'>
         <section id='td' class='x'>Datum</section>
-        <section id='td' class='y'>Wert</section>
+        <section id='td' class='y'>[[unit]]</section>
       </section>
       <section id='body'>
       </section>
@@ -101,6 +101,10 @@
         caption: {
           type: String,
           value: ''
+        },
+        unit: {
+          type: String,
+          value: 'Wert'
         },
         descendingOrder: {
           type: Boolean,

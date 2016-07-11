@@ -8,7 +8,6 @@
         /*padding: 0.4em;*/
         font-family: Fira Sans Light;
         font-weight: normal;
-        padding: 0.4em;
         /*z-index: auto;*/
       }
       section#main {
@@ -120,27 +119,28 @@
           max-width: 39.5em;
         }
       }
-      section#mainContent ::content sign-element {
+      section#mainContent ::content > * {
         margin: 0 0.5em 0.5em 0;
         border-radius: 12px;
       }
-      svg-element {
+
+      section#header ::content .header {
+        display: flex;
         flex: 1;
-        transition: opacity ease-in-out 0.3s;
+        position: relative;
       }
-      svg-element[opened] {
-        opacity: 1;
+      section#header svg-element {
+        display: flex;
+        flex: 1;
+        position: relative;
       }
-      svg-element:not([opened]) {
-        opacity: 0;
-        max-height: 0px;
-      }
+
     </style>
     <section id='main' name$='[[title]]' nowindow$='[[withoutWindow]]'>
 
       <section id='header' hidden$='[[_hideTitle(title,withoutWindow)]]'>
-        <!-- <content select='.header'></content> -->
-        <svg-element id='svgElement' hidden selected='{{exceedingElements}}' initially-zoom-to-selected max-zoom='5' min-zoom='1.2'></svg-element>
+        <content select='.header'></content>
+        <svg-element id='svgElement' hidden$='[[!svg.source]]' source="[[svg.source]]" exceeding-elements='{{exceedingElements}}' initially-zoom-to-selected max-zoom='5' min-zoom='1.2' opened="[[opened]]"></svg-element>
         <section id='title' on-tap='toggle'>[[title]]</section>
       </section>
 
@@ -154,6 +154,11 @@
     GroupCard = Polymer({
       is: 'group-card',
 
+      behaviors: [
+        ContainerBehavior,
+        Polymer.IronResizableBehavior
+      ],
+
       properties: {
         title: {
           type: String,
@@ -163,7 +168,7 @@
         },
         placeholder: {
           type: String,
-          value: 'Diverse'
+          value: ''
         },
         withoutWindow: {
           type: Boolean,
@@ -175,20 +180,12 @@
           value: false
         },
         svg: {
-          type: Object,
-          value: function() { return {}; },
-          reflectToAttribute: true,
-          observer: '_svgChanged'
-        },
-        exceedingElements: {
-          type: Object,
-          value: function() { return {}; }
+          type: Object
         }
       },
 
       factoryImpl: function(title, svg, dark, withoutWindow) {
         this.set('title', title || '');
-        this.set('svg', svg || {});
         if (dark) {
           this.$.mainContent.setAttribute('dark', true);
           this.$.header.setAttribute('dark', true);
@@ -199,15 +196,12 @@
           this.setAttribute('withoutWindow', true);
       },
 
-      listeners: {
-        'element-is-exceeding': '_setExceedingElement',
-        'element-is-not-exceeding': '_unsetExceedingElement',
-        'element-select': '_onSelected'
-      },
+      observers: [
+        '_selectedChanged(selectedElements.splices)',
+        '_exceedingChanged(exceedingElements.splices)'
+      ],
 
       toggle: function() {
-        if (!this.svg.source) return;
-
         if (!this.opened) {
           this.open();
         }
@@ -217,25 +211,36 @@
       },
 
       open: function() {
+        var headerContainers = this.queryAllEffectiveChildren('.header[container]');
+
+        if (headerContainers.length === 0 && (this.svg === undefined || this.svg.source === undefined))
+          return;
+
         this.$.title.classList.add('over-image');
         this.$.header.setAttribute('opened', true);
-        this.$.svgElement.removeAttribute('hidden')
-        this.$.svgElement.set('opened', true);
+
+        headerContainers.forEach( function(c) {
+          c.opened = true;
+        }, this);
+
         this.opened = true;
       },
 
       close: function() {
         this.$.title.classList.remove('over-image');
         this.$.header.removeAttribute('opened');
-        this.$.svgElement.setAttribute('hidden', true)
-        this.$.svgElement.set('opened', false);
+
+        var headerContainers = this.queryAllEffectiveChildren('.header[container]');
+        headerContainers.forEach( function(c) {
+          c.opened = false;
+        }, this);
+
         this.opened = false;
       },
 
       _titleChanged: function(text) {
         if (!text || text === 'undefined')
           this.set('title', this.placeholder);
-        // var label = this.getAttribute('aria-label');
         this.$.header.setAttribute('aria-label', this.title);
       },
 
@@ -246,32 +251,39 @@
           return false;
       },
 
-      _svgChanged: function(svg) {
-        if (svg && svg.source) {
-          this.$.svgElement.setSvg(svg);
-        }
-        else {
-          this.$.svgElement.setAttribute('hidden', true);
-        }
-      },
-
-      _onSelected: function(e) {
+      _selectedChanged: function(e) {
         this.close();
       },
 
-      _setExceedingElement: function(e) {
-        if(e.detail.svg &&
-           e.detail.svg.path) {
-          this.set('exceedingElements.' + e.detail.id, e.detail.svg.path);
-          if (!this.opened) {
-            this.toggle();
+      _exceedingChanged: function(changeRecord) {
+        if (changeRecord && changeRecord.indexSplices) {
+          var headerElements = this.queryAllEffectiveChildren('.header[element]');
+          var headerContainers = this.queryAllEffectiveChildren('.header[container]');
+          for (var i=0; i < changeRecord.indexSplices.length; i++) {
+            changeRecord.indexSplices[i].removed.forEach( function(item) {
+              headerElements.forEach( function(el) {
+                el.unsetElement(item);
+              }, this);
+              headerContainers.forEach( function(c) {
+                c.unsetExceedingElement(item);
+              }, this);
+            })
+            var index, item;
+            for (var j = 0; j < changeRecord.indexSplices[i].addedCount; j++) {
+              index = changeRecord.indexSplices[i].index + j;
+              item = changeRecord.indexSplices[i].object[index];
+              headerElements.forEach( function(el) {
+                el.setElement(item);
+              }, this);
+              headerContainers.forEach( function(c) {
+                c.setExceedingElement(item);
+              }, this);
+            }
+            headerContainers.forEach( function(c) {
+              c.opened = true;
+            }, this);
+            this.open();
           }
-        }
-      },
-      _unsetExceedingElement: function(e) {
-        if(e.detail.svg &&
-           e.detail.svg.path) {
-          this.set('exceedingElements.' + e.detail.id, '');
         }
       }
     });
