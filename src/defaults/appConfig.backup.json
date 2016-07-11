@@ -34,7 +34,7 @@
       "#path": ".\\defaults\\HNF\\HNF_GDS.json",
       "renderer": "Alarmzustände"
     },
-    "mK_Smt": {
+    "cryostat": {
       "path": "./defaults/cryostat_visu/cryostat_visu.json",
       "renderer": "Diagrammansicht"
     }
