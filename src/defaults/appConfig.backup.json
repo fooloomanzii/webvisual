@@ -30,7 +30,8 @@
   },
   "userConfigFiles": {
     "HNF-GDS": {
-      "path": ".\\defaults\\HNF\\HNF_GDS.json",
+      "path": "\\\\ibn-vsrv\\HNF-GDS$\\Config\\HNF_GDS.json",
+      "#path": ".\\defaults\\HNF\\HNF_GDS.json",      
       "renderer": "Alarmzustände"
     },
     "mK_Smt": {
