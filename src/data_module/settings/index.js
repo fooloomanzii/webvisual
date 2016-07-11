@@ -37,9 +37,8 @@ class fileConfigLoader extends EventEmitter {
     for (var name in userConfigFiles) {
       this.settings[name] = {};
       this.settings[name]._path = path.resolve(userConfigFiles[name].path);
-      this.settings[name]._rawConfig = {};
       if(this.settings[name]._filehandler)
-        this.settings[name]._filehandler.disconnect();
+        this.settings[name]._filehandler.close();
       listener = {
         error: (function(type, errors, name, path) {
           // console.log(errors);
@@ -63,6 +62,17 @@ class fileConfigLoader extends EventEmitter {
         listener: listener
       });
       this.settings[name]._filehandler.connect();
+    }
+  }
+
+  unwatch() {
+    for (var name in this.settings) {
+      this.settings[name]._filehandler.close();
+      delete this.settings[name]._filehandler;
+      delete this.settings[name]._path;
+      delete this.settings[name].configuration;
+      delete this.settings[name].dataConfig;
+      delete this.settings[name].connection;
     }
   }
 

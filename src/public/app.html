@@ -319,7 +319,8 @@
           eventHandler: function(event, arg) {
             switch (event) {
               case 'config-filepath':
-                this.$.filePath.value = arg;
+                if(arg)
+                  this.$.filePath.value = arg;
                 break;
               case 'set-user-config':
                 var values = [];

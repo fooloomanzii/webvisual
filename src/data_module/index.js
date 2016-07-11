@@ -18,8 +18,6 @@ class dataModule extends EventEmitter {
     super();
     this.configHandler = new Settings();
     this.io = new ioServer();
-    this.dataSocket = this.io.of('/data');
-
     this.currentData = {};
     this.dataFile = {};
 
@@ -36,6 +34,8 @@ class dataModule extends EventEmitter {
   connect(config) {
     this.configHandler.watch(config);
 
+    this.dataSocket = this.io.of('/data');
+
     this.configHandler.on('changed', (function(name) {
       this.emit('changed', this.configHandler.settings[name].configuration, name);
 
@@ -48,10 +48,10 @@ class dataModule extends EventEmitter {
       // dataFileHandler - established the data connections
 
       for (let label of this.configHandler.settings[name].configuration.labels) {
-        
+
         if (this.dataFile[name][label]) {
           this.dataFile[name][label].close();
-          delete dataFile[name][label];
+          delete this.dataFile[name][label];
         }
 
         let listeners = {
@@ -124,8 +124,7 @@ class dataModule extends EventEmitter {
         delete this.dataFile[name][label];
       }
     }
-    this.io = null;
-    this.dataFile = {};
+    this.configHandler.unwatch();
   }
 
   // function initMailer(config) {
