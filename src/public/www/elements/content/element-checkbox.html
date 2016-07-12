@@ -164,8 +164,8 @@
       is: 'checkbox',
 
       behaviors: [
-        ElementBehaviour,
-        Polymer.PaperCheckedElementBehavior
+        Polymer.PaperCheckedElementBehavior,
+        ElementBehaviour
       ],
 
       hostAttributes: {
@@ -175,6 +175,18 @@
       },
 
       properties: {
+        preferedKey: {
+          type: String,
+          value: 'roomNr'
+        },
+        showCaption: {
+          type: Boolean,
+          value: true
+        },
+        tooltip: {
+          type: Boolean,
+          value: true
+        },
         ariaActiveAttribute: {
           type: String,
           value: 'aria-checked'
