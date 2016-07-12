@@ -248,7 +248,6 @@
       is: 'sign-element',
 
       behaviors: [
-        Polymer.PaperRippleBehavior,
         ElementBehavior
       ],
 
@@ -330,13 +329,6 @@
 
       _handleChecked: function() {
         if (this.hasExceeded) this._hideTooltip();
-        if (this.hasRipple()) {
-          if (this.checked) {
-            this._ripple.setAttribute('checked', '');
-          } else {
-            this._ripple.removeAttribute('checked');
-          }
-        }
       },
 
       _hasTooltip: function(hasExceeded) {
@@ -389,22 +381,6 @@
         } else {
           this.$.tooltip.style.top = Math.max(0, tooltipTop) + 'px';
           this.$.tooltip.style.bottom = 'auto';
-        }
-      },
-
-      // create ripple inside the valueSign
-      _createRipple: function() {
-        this._rippleContainer = this.$.sign;
-        return Polymer.PaperInkyFocusBehaviorImpl._createRipple.call(this);
-      },
-
-      _buttonStateChanged: function() {
-        Polymer.PaperRippleBehavior._buttonStateChanged.call(this);
-        if (this.disabled) {
-          return;
-        }
-        if (this.isAttached) {
-          this.checked = this.active;
         }
       }
     });
