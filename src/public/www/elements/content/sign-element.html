@@ -13,7 +13,14 @@
       line-height: 1;
       align-self: stretch;
       border-radius: 2px 2px 2px 3px;
-      border: none !important;
+      border: thin solid rgba(0,0,0,.12);
+      transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    :host[checked] {
+      @apply(--shadow-elevation-2dp);
+    }
+    :host:focus {
+      border-color: rgba(0,0,0,.06);
     }
     section#sign {
       border-top-left-radius: inherit; border-top-right-radius: inherit; border-bottom-left-radius: 0; border-bottom-right-radius: 0;
@@ -26,18 +33,14 @@
       min-width: 5em;
       padding-bottom: 0.25em;
       box-sizing: border-box;
-      border-style: solid; border-width: thin;
-      border-top-color: #B0B0B0;
-      border-left-color: #B0B0B0;
-      border-right-color: #B0B0B0;
-      border-bottom-color: #BBB;
+      border-color: rgba(0,0,0,.12);
+      border-right-width: 0;
+      border-right-style: solid;
+      border-bottom-width: thin;
+      border-bottom-style: solid;
     }
     section#sign[dark]{
       color: #d3d3d3;
-      border-bottom-color: #888;
-      border-top-color: #777;
-      border-left-color: #777;
-      border-right-color: #777;
     }
     section#sign.null {
       background: var(--element-color);
@@ -84,6 +87,7 @@
     }
     section#caption {
       cursor: default;
+      position: relative;
       border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: inherit; border-bottom-right-radius: inherit;
       background: white;
       color: var(--primary-text-color);
@@ -92,18 +96,11 @@
       display: inline-block;
       flex: 1 0 auto;
       margin: 0;
-      border-style: solid; border-width: thin;
-      border-left-color: #B0B0B0;
-      border-right-color: #B0B0B0;
-      border-bottom-color: #B0B0B0;
-      border-top-color: transparent;
+      border: none;
     }
     section#caption[dark] {
       background: #B0B0B0;
       color: #1d1d1d;
-      border-left-color: #777;
-      border-right-color: #777;
-      border-bottom-color: #777;
     }
     section#caption span#captions {
       float: left;
@@ -140,35 +137,15 @@
       :host[horizontal] {
         flex-direction: row;
       }
-      section#sign[horizontal] {
+      :host[horizontal] section#sign {
         border-top-left-radius: inherit; border-top-right-radius: 0; border-bottom-left-radius: inherit; border-bottom-right-radius: 0;
-        border-bottom-color: #B0B0B0;
-        border-top-color: #B0B0B0;
-        border-left-color: #B0B0B0;
-        border-right-color: #BBB;
+        border-bottom-width: 0;
+        border-right-width: thin;
       }
-      section#sign[dark][horizontal]{
-        border-bottom-color: #777;
-        border-top-color: #777;
-        border-left-color: #777;
-        border-right-color: #888;
-      }
-      section#caption[horizontal]{
+      :host[horizontal] section#caption {
         border-top-left-radius: 0; border-top-right-radius: inherit; border-bottom-left-radius: 0; border-bottom-right-radius: inherit;
-        border-left-color: transparent;
-        border-right-color: #B0B0B0;
-        border-bottom-color: #B0B0B0;
-        border-top-color: #B0B0B0;
-      }
-      section#caption[dark][horizontal] {
-        border-right-color: #777;
-        border-bottom-color: #777;
-        border-top-color: #777;
       }
     }
-    /*svg {
-      shape-rendering: crispEdges;
-    }*/
     svg#bookmark {
       padding: 4px;
       cursor: pointer;
@@ -227,7 +204,7 @@
     }
   </style>
   <template>
-      <section id='sign' horizontal$='[[horizontal]]' class='null'>
+      <section id='sign' class='null'>
 
         <section id='actualValueSection' on-tap='_select'>
           <paper-ripple hidden$='[[!selectable]]' id='ripple'></paper-ripple>
@@ -249,7 +226,7 @@
         </svg>
       </section>
 
-      <section id='caption' horizontal$='[[horizontal]]' hidden$='[[!showCaption]]'>
+      <section id='caption' hidden$='[[!showCaption]]'>
         <template id='captiontemplate' is='dom-repeat' items='[[captionKeys]]' as='captionKey'>
           <span id='captions' hidden$='[[isEmptyCaption(captionKey)]]'>[[getKey(captionKey, keys.*)]]</span>
         </template>
@@ -258,8 +235,8 @@
       <section id='tooltip' hidden$='[[_hasTooltip(hasExceeded)]]' on-tap='_hideTooltip' on-mouseleave='_hideTooltip' role='tooltip' tabindex='-1'>
         <div class='title'>Alarmphasen</div>
         <section id='tooltipContent'>
-          <table-element id='firstExceedsTable' caption='Start' hide-header not-updatable show-full-date hide-overflow is-boolean='[[isBoolean]]'></table-element>
-          <table-element id='lastExceedsTable' caption='Ende' hide-header not-updatable show-full-date hide-overflow is-boolean='[[isBoolean]]'></table-element>
+          <table-element id='firstExceedsTable' caption='Start' hide-header not-updatable show-full-date hide-overflow is-boolean='[[isBoolean]]' id="[[id]]" label="[[label]]"></table-element>
+          <table-element id='lastExceedsTable' caption='Ende' hide-header not-updatable show-full-date hide-overflow is-boolean='[[isBoolean]]' id="[[id]]" label="[[label]]"></table-element>
         </section>
       </section>
 
@@ -270,7 +247,10 @@
     SignElement = Polymer({
       is: 'sign-element',
 
-      behaviors: [ElementBehavior],
+      behaviors: [
+        Polymer.PaperRippleBehavior,
+        ElementBehavior
+      ],
 
       properties: {
         showDate: {
@@ -290,6 +270,10 @@
           type: Boolean,
           value: true
         }
+      },
+
+      hostAttributes: {
+        tabindex: '0'
       },
 
       factoryImpl: function(element, selectable, bubbles, showDate, dark) {
@@ -344,10 +328,14 @@
         this.$.lastExceedsTable._updateView(value);
       },
 
-      _select: function(e) {
-        if(this.selectable === true) {
-          this.fire('element-select', this.getElement());
-          if (this.hasExceeded) this._hideTooltip();
+      _handleChecked: function() {
+        if (this.hasExceeded) this._hideTooltip();
+        if (this.hasRipple()) {
+          if (this.checked) {
+            this._ripple.setAttribute('checked', '');
+          } else {
+            this._ripple.removeAttribute('checked');
+          }
         }
       },
 
@@ -401,6 +389,22 @@
         } else {
           this.$.tooltip.style.top = Math.max(0, tooltipTop) + 'px';
           this.$.tooltip.style.bottom = 'auto';
+        }
+      },
+
+      // create ripple inside the valueSign
+      _createRipple: function() {
+        this._rippleContainer = this.$.sign;
+        return Polymer.PaperInkyFocusBehaviorImpl._createRipple.call(this);
+      },
+
+      _buttonStateChanged: function() {
+        Polymer.PaperRippleBehavior._buttonStateChanged.call(this);
+        if (this.disabled) {
+          return;
+        }
+        if (this.isAttached) {
+          this.checked = this.active;
         }
       }
     });

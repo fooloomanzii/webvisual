@@ -2,8 +2,7 @@
 *.exe
 dist/*
 
-# Config files
-src/config/config.json
+# Config files #
 .settings/*
 .jshintrc
 .project

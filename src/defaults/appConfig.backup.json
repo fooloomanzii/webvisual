@@ -16,7 +16,7 @@
       "https": 443
     },
     "auth": {
-      "required": true,
+      "required": false,
       "suffix": "@fz-juelich.de",
       "ldap": {
         "url": "ibn-net.kfa-juelich.de",
@@ -30,8 +30,8 @@
   },
   "userConfigFiles": {
     "HNF-GDS": {
-      "path": "\\\\ibn-vsrv\\HNF-GDS$\\Config\\HNF_GDS.json",
-      "#path": ".\\defaults\\HNF\\HNF_GDS.json",
+      "#path": "\\\\ibn-vsrv\\HNF-GDS$\\Config\\HNF_GDS.json",
+      "path": ".\\defaults\\HNF\\HNF_GDS.json",
       "renderer": "Alarmzustände"
     },
     "cryostat": {

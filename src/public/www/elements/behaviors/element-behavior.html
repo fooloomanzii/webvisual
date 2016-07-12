@@ -68,10 +68,24 @@
           value: false,
           observer: "_updatableChanged"
         },
+
         selectable: {
           type: Boolean,
           value: false
         },
+        checked: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          notify: true,
+          observer: 'checkedChanged'
+        },
+        toggles: {
+          type: Boolean,
+          value: true,
+          reflectToAttribute: true
+        },
+
 
         color: {
           type: String,
@@ -214,9 +228,9 @@
     _handleExceeding: function(isExceeding) {
       if(this.notExceedable === false && this.bubbles === true) {
         if (isExceeding)
-          this.fire('element-is-exceeding', this.getElement());
+          this.fire('element-is-exceeding', {target: this});
         else
-          this.fire('element-is-not-exceeding', this.getElement());
+          this.fire('element-is-not-exceeding', {target: this});
       }
     },
 
@@ -225,10 +239,10 @@
 
     setColor: function(color) {
       // random color if color is not set
-      if (!color && this.notExceedable === false) {
+      if (color === undefined && this.notExceedable === false) {
         this.color = this.customStyle['--element-color'];
       }
-      if (!color) {
+      if (color === '') {
         if (this.notExceedable === false) {
           this.color = this.customStyle['--element-color'];
         }
@@ -292,10 +306,32 @@
         UpdatableNodes[this.label][this.id].splice(pos,1);
     },
 
-    _select: function() {
-      console.log(this.selectable);
+    checkedChanged: function() {
       if (this.selectable === true) {
-        this.fire('element-select', this.getElement());
+        if (this.checked === false) {
+          this.fire('element-deselect', {target: this});
+        }
+        else {
+          this.fire('element-select', {target: this});
+        }
+        if (this._handleChecked)
+          this._handleChecked();
+      }
+    },
+
+    _select: function() {
+      if (this.selectable === true) {
+        if (this.toggles) {
+            if (this.checked) {
+              this.checked = false;
+            }
+            else {
+              this.checked = true;
+            }
+        }
+        else {
+          this.checked = true;
+        }
       }
     }
   };
