@@ -496,7 +496,6 @@
 
     _exceedingChanged: function(changeRecord) {
       if (changeRecord && changeRecord.indexSplices) {
-        console.log(this);
         if (!this.source && this.exceedingElements.length > 0) {
           // setting source to last exceeding element
           this.source = this.exceedingElements[this.exceedingElements.length-1].svg.source;

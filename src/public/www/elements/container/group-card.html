@@ -249,6 +249,7 @@
       },
 
       open: function() {
+        if (this.svg === undefined || this.svg.source === undefined) return;
         this.opened = true;
       },
 
@@ -259,8 +260,10 @@
       _openedChanged: function() {
         if (this.opened === true) {
           var headerContainers = this.queryAllEffectiveChildren('.header[container]');
-          if (headerContainers.length === 0 && (this.svg === undefined || this.svg.source === undefined))
+          if (headerContainers.length === 0 && (this.svg === undefined || this.svg.source === undefined)) {
+            this.opened = false;
             return;
+          }
           this.$.title.classList.add('over-image');
           this.$.header.setAttribute('opened', true);
         } else {
