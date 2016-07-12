@@ -19,7 +19,7 @@
                     0 1px 10px 0 rgba(0, 0, 0, 0.12),
                     0 2px 4px -1px rgba(0, 0, 0, 0.4);
       }
-      section#main[dark] {
+      :host[dark] section#main {
         background: #959595;
         border-color: #444;
       }
@@ -43,7 +43,7 @@
         transition: max-height linear 180ms, min-height linear 180ms;
         min-height: 2.6em;
       }
-      section#header[dark] {
+      :host[dark] section#header {
         background: var(--dark-primary-color);
         color: var(--highlight-color);
       }
@@ -78,7 +78,7 @@
         background: none !important;
         text-shadow: -1px 0px 1px #1f1f1f;
       }
-      section#title[dark] {
+      :host[dark] section#title {
         color: var(--highlight-color);
       }
       section#mainContent {
@@ -100,9 +100,6 @@
         height: auto;
         width: auto;
         overflow: visible;
-      }
-      section#mainContent[dark] {
-        background: none;
       }
       @media all and (min-width: 750px) and (max-width: 1280px) and (orientation: portrait) {
         section#main:not([name='*']) {
@@ -140,7 +137,7 @@
 
       <section id='header' hidden$='[[_hideTitle(title,withoutWindow)]]'>
         <content select='.header'></content>
-        <svg-element id='svgElement' hidden$='[[!svg.source]]' source="[[svg.source]]" exceeding-elements='{{exceedingElements}}' initially-zoom-to-selected max-zoom='5' min-zoom='1.2' opened="[[opened]]"></svg-element>
+        <svg-element id='svgElement' hidden$='[[!svg.source]]' source="[[svg.source]]" open-on-exceed="[[openOnExceed]]" notify-parent no-select-notify initially-zoom-to-selected max-zoom='5' min-zoom='1.2' opened="[[opened]]"></svg-element>
         <section id='title' on-tap='toggle'>[[title]]</section>
       </section>
 
@@ -166,6 +163,12 @@
           observer: '_titleChanged',
           reflectToAttribute: true
         },
+        opened: {
+          type: Boolean,
+          value: false,
+          observer: '_openedChanged',
+          reflectToAttribute: true
+        },
         placeholder: {
           type: String,
           value: ''
@@ -175,29 +178,64 @@
           value: false,
           reflectToAttribute: true,
         },
-        opened: {
+        svg: {
+          type: Object
+        },
+
+        openOnSelect: {
           type: Boolean,
           value: false
         },
-        svg: {
-          type: Object
+        openOnExceed: {
+          type: Boolean,
+          value: true
+        },
+
+        notify: {
+          type: Boolean,
+          value: true
+        },
+        notifyParent: {
+          type: Boolean,
+          value: false
+        },
+        noSelectNotify: {
+          type: Boolean,
+          value: true
+        },
+        noExceedNotify: {
+          type: Boolean,
+          value: false
+        },
+
+        reproduceSelected: {
+          type: Boolean,
+          value: false
+        },
+        reproduceExceeded: {
+          type: Boolean,
+          value: false
+        },
+        reproductionTagName: {
+          type: String,
+          value: ''
+        },
+        reproductionContainer: {
+          type: String,
+          value: 'header'
         }
       },
 
       factoryImpl: function(title, svg, dark, withoutWindow) {
         this.set('title', title || '');
         if (dark) {
-          this.$.mainContent.setAttribute('dark', true);
-          this.$.header.setAttribute('dark', true);
-          this.$.main.setAttribute('dark', true);
-          this.$.title.setAttribute('dark', true);
+          this.setAttribute('dark', true);
         }
         if (withoutWindow)
           this.setAttribute('withoutWindow', true);
       },
 
       observers: [
-        '_selectedChanged(selectedElements.splices)',
         '_exceedingChanged(exceedingElements.splices)'
       ],
 
@@ -211,31 +249,24 @@
       },
 
       open: function() {
-        var headerContainers = this.queryAllEffectiveChildren('.header[container]');
-
-        if (headerContainers.length === 0 && (this.svg === undefined || this.svg.source === undefined))
-          return;
-
-        this.$.title.classList.add('over-image');
-        this.$.header.setAttribute('opened', true);
-
-        headerContainers.forEach( function(c) {
-          c.opened = true;
-        }, this);
-
         this.opened = true;
       },
 
       close: function() {
-        this.$.title.classList.remove('over-image');
-        this.$.header.removeAttribute('opened');
-
-        var headerContainers = this.queryAllEffectiveChildren('.header[container]');
-        headerContainers.forEach( function(c) {
-          c.opened = false;
-        }, this);
-
         this.opened = false;
+      },
+
+      _openedChanged: function() {
+        if (this.opened === true) {
+          var headerContainers = this.queryAllEffectiveChildren('.header[container]');
+          if (headerContainers.length === 0 && (this.svg === undefined || this.svg.source === undefined))
+            return;
+          this.$.title.classList.add('over-image');
+          this.$.header.setAttribute('opened', true);
+        } else {
+          this.$.title.classList.remove('over-image');
+          this.$.header.removeAttribute('opened');
+        }
       },
 
       _titleChanged: function(text) {
@@ -251,40 +282,11 @@
           return false;
       },
 
-      _selectedChanged: function(e) {
-        this.close();
-      },
-
       _exceedingChanged: function(changeRecord) {
-        if (changeRecord && changeRecord.indexSplices) {
-          var headerElements = this.queryAllEffectiveChildren('.header[element]');
-          var headerContainers = this.queryAllEffectiveChildren('.header[container]');
-          for (var i=0; i < changeRecord.indexSplices.length; i++) {
-            changeRecord.indexSplices[i].removed.forEach( function(item) {
-              headerElements.forEach( function(el) {
-                el.unsetElement(item);
-              }, this);
-              headerContainers.forEach( function(c) {
-                c.unsetExceedingElement(item);
-              }, this);
-            })
-            var index, item;
-            for (var j = 0; j < changeRecord.indexSplices[i].addedCount; j++) {
-              index = changeRecord.indexSplices[i].index + j;
-              item = changeRecord.indexSplices[i].object[index];
-              headerElements.forEach( function(el) {
-                el.setElement(item);
-              }, this);
-              headerContainers.forEach( function(c) {
-                c.setExceedingElement(item);
-              }, this);
-            }
-            headerContainers.forEach( function(c) {
-              c.opened = true;
-            }, this);
-            this.open();
-          }
-        }
+        if(this.exceedingElements > 0)
+          this.open()
+        else
+          this.close();
       }
     });
   </script>

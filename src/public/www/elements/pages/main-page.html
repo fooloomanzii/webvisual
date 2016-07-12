@@ -43,6 +43,9 @@
       border-top: thin solid #005B82 !important;
       border-bottom: thin solid #005B82 !important;
     }
+    section#toolbarFooter:not([opened]) ::content > * {
+      display: none;
+    }
     section#mainContent ::content .panel {
       height: 100%;
       width: 100%;
@@ -206,13 +209,14 @@
           <icon-button-element icon="error-outline" class="error control" on-tap="toggleExceedsPanel" hidden$="[[!isExceeding]]"></icon-button-element>
           <section hidden$="[[!_computeOpened(opened, forceOpened)]]" style="display: flex;">
             <icon-button-element icon="[[_computeExpandIcon(expanded)]]" class="expand-icon" on-tap="_toolbarExpand"></icon-button-element>
-            <icon-button-element icon="remove" hidden$="[[forceOpened]]" class="toggle-icon control" on-tap="_unsetToolbarElement"></icon-button-element>
+            <icon-button-element icon="remove" hidden$="[[forceOpened]]" class="toggle-icon control" on-tap="clearSelectedElements"></icon-button-element>
           </section>
         </section>
       </section>
 
       <section id="toolbarFooter" opened$="[[_computeOpened(opened, forceOpened)]]" expanded$="[[expanded]]">
         <content select=".toolbar-footer"></content>
+        </section>
       </section>
     </section>
 
@@ -230,9 +234,15 @@
         <section id="exceedsHeader" on-tap="toggleExceedsPanel">
           <button-element class="title"><iron-icon icon="warning" class="left"></iron-icon><section class="content">Alarme</section></button-element>
         </section>
-        <iron-swipeable-container id="exceedingElementsList" on-iron-swipe="_removeSingleExceedingElementFromList">
-        </iron-swipeable-container>
-        <section style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_removeAllExceedingElementFromList">Liste leeren</a></section>
+
+        <swipeable-container id="exceedingElementsList"
+                         is-exceeding="{{isExceeding}}"
+                         notify-parent
+                         no-select-notify
+                         reproduce-exceeded>
+        </swipeable-container>
+
+        <section style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_clearExceedingElementsFromList">Liste leeren</a></section>
       </section>
 
       <!-- SIDEMENU -->
@@ -320,11 +330,9 @@
             }
           }
         },
+
         // Attribute for toolbar is opened
-        opened: {
-          type: Boolean,
-          value: false
-        },
+
         forceOpened: {
           type: Boolean,
           value: false
@@ -360,12 +368,60 @@
           type: Boolean,
           value: false,
           reflectToAttribute: true
+        },
+
+        openOnSelect: {
+          type: Boolean,
+          value: true
+        },
+        openOnExceed: {
+          type: Boolean,
+          value: false
+        },
+
+        notify: {
+          type: Boolean,
+          value: true
+        },
+        notifyParent: {
+          type: Boolean,
+          value: false
+        },
+        noSelectNotify: {
+          type: Boolean,
+          value: false
+        },
+        noExceedNotify: {
+          type: Boolean,
+          value: false
+        },
+
+        reproduceSelected: {
+          type: Boolean,
+          value: true
+        },
+        reproduceExceeded: {
+          type: Boolean,
+          value: true
+        },
+        reproductionTagName: {
+          type: String
+        },
+        reproductionContainer: {
+          type: String,
+          value: 'toolbarFooter'
+        },
+
+        isExceeding: {
+          type: Boolean,
+          value: false,
+          observer: '_handleExceeding'
         }
       },
 
       observers: [
-        '_setToolbarElement(selectedElements.splices)',
-        '_setExceedingElementList(exceedingElements.splices)'
+        // '_setToolbarElement(selectedElements.splices)',
+        // '_handleExceeding(exceedingElements.splices)'
       ],
 
       attached: function() {
@@ -403,9 +459,11 @@
       _handleExceeding: function(value) {
         if(value && !(this.$.exceedsPanel.classList.contains("exceeds-panel-opened"))) {
           this.openExceedsPanel();
+          this.debounceExceedsNotification();
         }
-        else if (this.$.exceedingElementsList.children.length === 0)
+        else if (this.$.exceedingElementsList.exceedingElements.length === 0) {
           this.closeExceedsPanel();
+        }
       },
       // app Control
       backToMainMenu: function() {
@@ -415,7 +473,7 @@
       // Panel Control
       _currentLabelChanged: function(newLabel, oldLabel) {
         this._selectPanel(newLabel, oldLabel);
-        this._unsetToolbarElement();
+        this.clearSelectedElements();
       },
       _selectPanel: function(newLabel, oldLabel) {
         var newIndex = 0, oldIndex;
@@ -526,74 +584,10 @@
         }
         Polymer.dom.flush();
       },
-      // Selecting Element
-      _setToolbarElement: function(changeRecord) {
-        if (changeRecord && changeRecord.indexSplices) {
-          var toolbarElements = this.queryAllEffectiveChildren('.toolbar-footer[element]');
-          var toolbarContainers = this.queryAllEffectiveChildren('.toolbar-footer[container]');
-          for (var i=0; i < changeRecord.indexSplices.length; i++) {
-            if (changeRecord.indexSplices[i].removed.length > 0) {
-              this._unsetToolbarElement();
-            }
-            var index, item;
-            for (var j = 0; j < changeRecord.indexSplices[i].addedCount; j++) {
-              index = changeRecord.indexSplices[i].index + j;
-              item = changeRecord.indexSplices[i].object[index];
-              toolbarElements.forEach( function(el) {
-                el.setElement(item);
-              }, this);
-              toolbarContainers.forEach( function(c) {
-                c.setSelectedElement(item);
-              }, this);
-            }
-            toolbarContainers.forEach( function(c) {
-              c.clearExceedingElements();
-              this.exceedingElements.forEach( function(el) {
-                if (el.label === this.currentLabel)
-                  c.setExceedingElement(el);
-              }, this);
-              c.opened = true;
-            }, this);
-          }
-          this.fire('resize');
-          if (!this.opened){
-            this.opened = true;
-          }
-        }
-      },
-      _unsetToolbarElement: function() {
-        var toolbarElements = this.queryAllEffectiveChildren('.toolbar-footer[element]');
-        var toolbarContainers = this.queryAllEffectiveChildren('.toolbar-footer[container]');
 
-        toolbarElements.forEach( function(el) {
-          el.unsetElement();
-        }, this);
-        toolbarContainers.forEach( function(c) {
-          c.clearSelectedElements();
-          c.clearExceedingElements();
-          c.opened = false;
-        }, this);
-
-        this.opened = false;
-      },
-      // Exceeding Elements
-      _setExceedingElementList: function(changeRecord) {
-        if (changeRecord && changeRecord.indexSplices) {
-          var list = Polymer.dom(this.$.exceedingElementsList);
-          for (var i=0; i < changeRecord.indexSplices.length; i++) {
-            var index, item;
-            for (var j = 0; j < changeRecord.indexSplices[i].addedCount; j++) {
-              index = changeRecord.indexSplices[i].index + j;
-              item = changeRecord.indexSplices[i].object[index];
-              if (list.querySelectorAll('#'+item.id+'[label='+item.label+']').length === 0) {
-                var node = new ListElement(item, true, false, this.showDate, this.dark);
-                list.appendChild(node);
-              }
-            }
-          }
-          if (this.exceedingElements.length > 0)
-            this.debounceExceedsNotification();
-        }
+      _clearExceedingElementsFromList: function() {
+        this.$.exceedingElementsList.clearExceedingElements();
+        this.closeExceedsPanel();
       },
 
       debounceExceedsNotification: function() {
@@ -615,30 +609,6 @@
         }
       },
 
-      _removeSingleExceedingElementFromList: function(e) {
-        if(e.detail.target) {
-          var node = e.detail.target;
-          var item = node.getElement();
-          var pos = UpdatableNodes[item.label][item.id].indexOf(node);
-          UpdatableNodes[item.label][item.id].splice(pos, 1);
-          Polymer.dom(this.$.exceedingElementsList).removeChild(node);
-          this.unsetExceedingElement(item);
-        }
-        if (this.exceedingElements.length === 0) {
-          this.closeExceedsPanel();
-        }
-      },
-      _removeAllExceedingElementFromList: function() {
-        var pos;
-        var nodes = Polymer.dom(this.$.exceedingElementsList).querySelectorAll('list-element');
-        for (var i = 0; i < nodes.length; i++) {
-          pos = UpdatableNodes[nodes[i].label][nodes[i].id].indexOf(nodes[i]);
-          UpdatableNodes[nodes[i].label][nodes[i].id].splice(pos, 1);
-          Polymer.dom(this.$.exceedingElementsList).removeChild(nodes[i]);
-        }
-        this.clearExceedingElements();
-        this.closeExceedsPanel();
-      },
       toggleTheme: function(){
         var elems = document.querySelectorAll('*');
         if(this.dark === true) {
@@ -701,6 +671,10 @@
           }, this);
           this.async(function(){this.fire('resize')}, 150);
         }
+      },
+      _closeToolbar: function(newLabel, oldLabel) {
+        this.clearSelectedElements();
+        this.opened = false;
       },
       _computeOpened: function(opened, forceOpened) {
         return opened || forceOpened;

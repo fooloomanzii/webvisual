@@ -153,12 +153,6 @@
           UpdatableNodes[this.label][this.id].splice(pos,1);
       },
 
-      factoryImpl: function (element, bubbles) {
-        this.setElement(element);
-        if (bubbles === true)
-          this.bubbles = true;
-      },
-
       redraw: function () {
         if (this._hidden === true) return;
 

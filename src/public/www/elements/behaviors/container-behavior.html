@@ -4,21 +4,46 @@
     properties: {
         opened: {
           type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        openOnSelect: {
+          type: Boolean,
           value: false
         },
+        openOnExceed: {
+          type: Boolean,
+          value: false
+        },
+        forceOpened: {
+          type: Boolean,
+          value: false
+        },
+
         isExceeding: {
           type: Boolean,
           value: false,
+          notify: true,
           observer: "_handleExceeding"
         },
+
         notify: {
           type: Boolean,
-          observer: 'notifyParent'
+          value: true
         },
-        notSelectable: {
+        notifyParent: {
           type: Boolean,
           value: false
         },
+        noSelectNotify: {
+          type: Boolean,
+          value: false
+        },
+        noExceedNotify: {
+          type: Boolean,
+          value: false
+        },
+
         multiSelect: {
           type: Boolean,
           value: false
@@ -27,6 +52,26 @@
           type: Boolean,
           value: false
         },
+
+        reproduceSelected: {
+          type: Boolean,
+          value: false
+        },
+        reproduceExceeded: {
+          type: Boolean,
+          value: false
+        },
+        reproductionTagName: {
+          type: String
+        },
+        reproductionElementOptions: {
+          type: Object,
+          value: function() { return {} }
+        },
+        reproductionContainer: {
+          type: String
+        },
+
         selectedElements: {
           type: Array,
           value: function() { return []; }
@@ -34,8 +79,7 @@
         exceedingElements: {
           type: Array,
           value: function() { return []; }
-        },
-        _elements: []
+        }
     },
 
     hostAttributes: {
@@ -52,25 +96,31 @@
         return this.parentNode;
     },
 
-    listeners: {
-      "element-select": "__setSelectedElement",
-      "element-deselect": "__unsetSelectedElement",
-      "element-is-exceeding": "__setExceedingElement",
-      "element-is-not-exceeding": "__unsetExceedingElement"
-    },
+    observers: [
+      '_reproductionRepeat(selectedElements.splices)',
+      '_reproductionRepeat(exceedingElements.splices)',
+    ],
 
-    notifyParent: function(){
+    attached: function(){
       if (this.notify === true) {
-        this.listen(this.rootElement, 'element-select', '__setSelectedElement');
-        this.listen(this.rootElement, 'element-deselect', '__unsetSelectedElement');
-        this.listen(this.rootElement, 'element-is-exceeding', '__setExceedingElement');
-        this.listen(this.rootElement, 'element-is-not-exceeding', '__unsetExceedingElement');
+        if (this.noSelectNotify === false) {
+          this.listen(this, 'element-select', '__setSelectedElement');
+          this.listen(this, 'element-deselect', '__unsetSelectedElement');
+        }
+        if (this.noExceedNotify === false) {
+          this.listen(this, 'element-is-exceeding', '__setExceedingElement');
+          this.listen(this, 'element-is-not-exceeding', '__unsetExceedingElement');
+        }
       }
-      else if (this.notify === false) {
-        this.unlisten(this.rootElement, 'element-select', '__setSelectedElement');
-        this.unlisten(this.rootElement, 'element-deselect', '__unsetSelectedElement');
-        this.unlisten(this.rootElement, 'element-is-exceeding', '__setExceedingElement');
-        this.unlisten(this.rootElement, 'element-is-not-exceeding', '__unsetExceedingElement');
+      if (this.notifyParent === true) {
+        if (this.noSelectNotify === false) {
+          this.listen(this.rootElement, 'element-select', '__setSelectedElement');
+          this.listen(this.rootElement, 'element-deselect', '__unsetSelectedElement');
+        }
+        if (this.noExceedNotify === false) {
+          this.listen(this.rootElement, 'element-is-exceeding', '__setExceedingElement');
+          this.listen(this.rootElement, 'element-is-not-exceeding', '__unsetExceedingElement');
+        }
       }
     },
 
@@ -80,7 +130,7 @@
     },
 
     setSelectedElement: function(element) {
-      if (this.notSelectable === true) return;
+      if (this.noSelectNotify === true) return;
       if (this.multiSelect === true) {
         if (this.indexOf(this.selectedElements, element) === -1) {
           this.push("selectedElements", element);
@@ -89,11 +139,15 @@
           this.unsetSelectedElement(element);
       }
       else {
-        this.selectedElements.forEach(function(item) {
-          if (item !== element) item.checked = false;
-        });
+        this.splice("selectedElements", 0, this.selectedElements.length);
         this.push('selectedElements', element);
       }
+
+      if(this.noExceedNotify === false && element.isExceeding) {
+        this.setExceedingElement(element);
+      }
+
+      this.opened = this.forceOpened || (this.openOnSelect === true && this.selectedElements.length > 0) ? true : false;
     },
 
     __unsetSelectedElement: function(e) {
@@ -102,20 +156,23 @@
     },
 
     unsetSelectedElement: function(element) {
-      if (this.notSelectable === true) return;
+      if (this.noSelectNotify === true) return;
 
       var pos = this.indexOf(this.selectedElements, element);
       if (pos !== -1) {
-        this.splice("selectedElements", pos, 1);
         element.checked = false;
+        this.splice("selectedElements", pos, 1);
       }
 
       if (this.multiSelect === false) {
         this.selectedElements.forEach(function(item) { item.checked = false });
       }
+
+      this.opened = this.forceOpened || (this.openOnSelect === true && this.selectedElements.length > 0) ? true : false;
     },
 
     clearSelectedElements: function() {
+      if (!this.selectedElements) return;
       this.selectedElements.forEach(function(item) { item.checked = false });
       this.splice("selectedElements", 0, this.selectedElements.length);
     },
@@ -131,6 +188,7 @@
         this.push("exceedingElements", element);
 
       this.isExceeding = (this.exceedingElements.length > 0) ? true : false;
+      this.opened = this.forceOpened || (this.openOnExceed === true && this.isExceeding);
     },
 
     __unsetExceedingElement: function(e) {
@@ -144,9 +202,11 @@
         this.splice("exceedingElements", pos, 1);
 
       this.isExceeding = (this.exceedingElements.length > 0) ? true : false;
+      this.opened = this.forceOpened || (this.openOnExceed === true && this.isExceeding);
     },
 
     clearExceedingElements: function() {
+      if (!this.exceedingElements) return;
       this.splice("exceedingElements", 0, this.exceedingElements.length);
       this.isExceeding = false;
     },
@@ -154,13 +214,77 @@
     _handleExceeding: function(value) {
     },
 
+    _reproductionRepeat: function(changeRecord) {
+      if (this.reproduceSelected === false && this.reproduceExceeded === false) return;
+
+      if (changeRecord && changeRecord.indexSplices) {
+
+        var container = (this.reproductionContainer) ? Polymer.dom(this.root).querySelector('#'+this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);
+
+        var index, items, item;
+        var items = Polymer.dom(container).getEffectiveChildNodes().filter( function(el) {
+                      return el.nodeType === Node.ELEMENT_NODE;
+                    });
+
+        var elements = items.filter( function(el) {
+                         return el.hasAttribute('element');
+                       });
+        var containers = items.filter( function(el) {
+                          return el.hasAttribute('container');
+                        });
+
+        for (var i=0; i < changeRecord.indexSplices.length; i++) {
+          for (var j = 0; j < changeRecord.indexSplices[i].removed.length; j++) {
+            item = changeRecord.indexSplices[i].removed[j];
+            elements.filter( function(el) {
+                      return el.id === item.id && el.label === item.label;
+                    })
+                   .forEach( function(el) {
+                       el.unsetElement();
+                     }, this);
+            containers.forEach( function(el) {
+                        // containers should notify themselfes? "item.unsetSelectedElement(del);"
+                        el.unsetSelectedElement(item);
+                      }, this);
+          }
+
+          for (var j = 0; j < changeRecord.indexSplices[i].addedCount; j++) {
+            index = changeRecord.indexSplices[i].index + j;
+            item = changeRecord.indexSplices[i].object[index];
+            var element = item.getElement();
+
+            elements.forEach( function(el) {
+                      el.setElement(element);
+                    });
+            containers.forEach(function(el) {
+                        el.setSelectedElement(item);
+                      }, this);
+
+            var tagName = this.reproductionTagName || "";
+            if (tagName && items.filter( function(el) { return el.tagName.toLowerCase() === tagName.toLowerCase()}).length === 0) {
+              var node = document.createElement(tagName.toLowerCase());
+              if (node.setElement)
+                node.setElement(element, this.reproductionElementOptions || {});
+              else if (node.setSelectedElement)
+                node.setSelectedElement(item);
+              Polymer.dom(container).appendChild(node);
+            }
+          }
+        }
+      }
+    },
+
+    _openedChanged: function() {
+      this.fire('resize');
+    },
+
     indexOf: function(elements, item) {
       var id = item.id;
       var label = item.label;
-
       for (var i in elements) {
-        if (elements[i].id === id && elements[i].label === label)
+        if (elements[i].id === id && elements[i].label === label) {
           return i;
+        }
       }
       return -1;
     }

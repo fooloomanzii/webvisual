@@ -44,7 +44,7 @@
       background: var(--element-exceeds-undefined-color);
       color: var(--element-exceeds-undefined-text-color);
     }
-    section#sign[dark]{
+    :host[dark] section#sign {
       color: #d3d3d3;
     }
     section#actualValueSection {
@@ -93,7 +93,7 @@
       align-items: center;
       margin: 0;
     }
-    section#caption[dark] {
+    :host[dark] section#caption {
       color: #1d1d1d;
     }
     section#caption span#captions {
@@ -176,26 +176,6 @@
         selectable: {
           type: Boolean,
           value: true
-        }
-      },
-
-      factoryImpl: function(element, selectable, bubbles, showValues, showDate, dark) {
-        this.setElement(element);
-        if (selectable === false)
-          this.selectable = false;
-        if (showDate === false)
-          this.showDate = false;
-        if (bubbles === true)
-          this.bubbles = true;
-        if (dark === true) {
-          this.dark = true;
-        }
-      },
-
-      attached: function() {
-        if (this.dark === true) {
-          this.$.caption.setAttribute('dark', true);
-          this.$.sign.setAttribute('dark', true);
         }
       },
 

@@ -106,7 +106,7 @@
       else return false;
     },
 
-    setElement: function(element) {
+    setElement: function(obj, options) {
       var pos;
       if (this.notUpdatable === false && this.label && this.id &&
           window.UpdatableNodes !== undefined &&
@@ -116,22 +116,25 @@
         UpdatableNodes[this.label][this.id].splice(pos,1); // remove from UpdatableNodes
         this.removeAttribute('updatable');
       }
-      this.set('id', element.id);
-      this.set('label', element.label);
-      this.set('keys', element.keys);
-      this.set('captionKeys', element.captionKeys);
-      this.set('isBoolean', element.isBoolean);
-      this.set('unit', element.unit);
-      this.set('firstExceeds', element.firstExceeds);
-      this.set('lastExceeds', element.lastExceeds);
-      this.set('svg', element.svg);
-      this.set('notExceedable', element.notExceedable);
-      this.set('color', element.color);
-      this.setValues(element.values);
+      for (var key in obj.element) {
+        if (key !== 'values')
+          this.set(key, obj.element[key]);
+      }
+      for (var key in obj.properties) {
+        this.set(key, obj.properties[key].value);
+      }
+      for (var key in options) {
+        this.set(key, options[key]);
+      }
+      this.setValues(obj.element.values);
       this._updatableChanged();
     },
 
-    unsetElement: function(element) {
+    factoryImpl: function(obj) {
+      this.setElement(obj);
+    },
+
+    unsetElement: function() {
       var pos;
       if (this.notUpdatable === false && this.label && this.id &&
           window.UpdatableNodes !== undefined &&
@@ -146,18 +149,23 @@
     },
 
     getElement: function() {
-      return {'id': this.id,
-              'label': this.label,
-              'keys': this.keys,
-              'captionKeys': this.captionKeys,
-              'isBoolean': this.isBoolean,
-              'unit': this.unit,
-              'svg': this.svg,
-              'firstExceeds': this.firstExceeds,
-              'lastExceeds': this.lastExceeds,
-              'values': this.values,
-              'notExceedable': this.notExceedable,
-              'color': this.color};
+      return { element: {
+                'id': this.id,
+                'label': this.label,
+                'keys': this.keys,
+                'captionKeys': this.captionKeys,
+                'isBoolean': this.isBoolean,
+                'unit': this.unit,
+                'svg': this.svg,
+                'firstExceeds': this.firstExceeds,
+                'lastExceeds': this.lastExceeds,
+                'values': this.values,
+                'notExceedable': this.notExceedable,
+                'color': this.color,
+                'values': this.values
+              },
+              properties: this.properties
+            };
     },
 
     unshiftValues: function(value) {
@@ -217,9 +225,6 @@
         this.setExceedingState(values[values.length - 1].exceeds !== null, values[0].exceeds);
         this._updateView(values[0]);
       }
-
-      if (this.tooltip)
-        this._setTooltip();
     },
 
     _updateView: function(value, splices) {

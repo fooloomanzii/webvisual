@@ -1,0 +1,83 @@
+<dom-module id='swipeable-container'>
+  <template>
+    <style>
+      iron-swipeable-container#content {
+        padding: 0.5em 0.5em 0.25em 0.5em;
+      }
+      iron-swipeable-container#content ::content > * {
+        margin-bottom: 0.25em;
+        float: left;
+        clear: both;
+        width: 100%;
+      }
+    </style>
+
+    <iron-swipeable-container id='content' on-iron-swipe="_onSwipe">
+      <content></content>
+    </iron-swipeable-container>
+
+  </template>
+  <script>
+    SwipeableContainer = Polymer({
+      is: 'swipeable-container',
+
+      behaviors: [
+        ContainerBehavior
+      ],
+
+      properties: {
+
+        notify: {
+          type: Boolean,
+          value: false
+        },
+        notifyParent: {
+          type: Boolean,
+          value: false
+        },
+        noSelectNotify: {
+          type: Boolean,
+          value: false
+        },
+        noExceedNotify: {
+          type: Boolean,
+          value: false
+        },
+
+        reproduceSelected: {
+          type: Boolean,
+          value: false
+        },
+        reproduceExceeded: {
+          type: Boolean,
+          value: false
+        },
+        reproductionTagName: {
+          type: String,
+          value: "list-element"
+        },
+        reproductionElementOptions: {
+          type: Object,
+          value: function() { return {
+            selectable: true,
+            bubbles: false,
+            showDate: true} }
+        },
+        reproductionContainer: {
+          type: String,
+          value: 'content'
+        }
+      },
+
+      _onSwipe: function(e) {
+        this.unsetExceedingElement(e)
+        this.async(function(){
+          if(this.$.content.children.length === 0) {
+            this.clearExceedingElements();
+          }
+        },15)
+      }
+
+    });
+  </script>
+</dom-module>

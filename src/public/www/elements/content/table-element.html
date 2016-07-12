@@ -83,7 +83,7 @@
       <section id='caption'>[[caption]]</section>
       <section id='head' hidden$='[[hideHeader]]' on-tap='switchOrder'>
         <section id='td' class='x'>Datum</section>
-        <section id='td' class='y'>[[unit]]</section>
+        <section id='td' class='y'>Wert <span hidden$="[[!unit]]" style="font-style:italic;">([[unit]])</span></section>
       </section>
       <section id='body'>
       </section>
@@ -132,22 +132,6 @@
           value: function() {
             return Polymer.dom(this.$.body);
           }
-        }
-      },
-
-      factoryImpl: function(element, highlightExceeding, hideHeader, hideOverflow, bubbles, dark) {
-        this.setElement(element);
-        if (highlightExceeding === true)
-          this.set('hideHeader', hideHeader);
-        if (hideHeader === true)
-          this.set('highlightExceeding', highlightExceeding);
-        if (hideOverflow === true)
-          this.set('hideOverflow', hideOverflow);
-        if (bubbles === true)
-          this.bubbles = true;
-        if (dark) {
-          this.setAttribute('dark', true);
-          this.$.body.setAttribute('dark', true);
         }
       },
 
