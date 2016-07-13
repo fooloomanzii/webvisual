@@ -1,5 +1,5 @@
 {
-  "test": {
+  "Temperatur (Testvisualisierung)": {
 
     "connections": {
       "file": {
@@ -9,68 +9,88 @@
     },
 
     "locals": {
-      "ignore": [],
+      "ignore": [5],
       "types": [{
-          "id": "Binary",
+          "id": "id1",
           "keys": {
-            "roomNr": "test",
-            "room": "test",
-            "kind": "Test",
-            "property": "Binärzahl",
-            "system": "intern",
-            "alarmlevel": ""
+            "Molekül": "SmFeAsO≈ 0.85",
+            "Sprungtemperatur": "<20K",
+            "Druck": "100 kPa",
+            "Gefahrenklasse": "reizend"
           },
           "isBoolean": false,
           "threshold": {
             "from": 0,
-            "to": 10000000
-          },
-          "unit": "₍₂₎"
-        }, {
-          "id": "DI0-1",
-          "keys": {
-            "roomNr": "2032",
-            "room": "Gaslager",
-            "kind": "H₂",
-            "property": "brennbar",
-            "system": "H₂-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "isBoolean": false,
-          "threshold": {
-            "from": -5,
-            "to": 5
+            "to": 30
           },
           "unit": "K"
         }, {
-          "id": "DI2-1",
+          "id": "id2",
           "keys": {
-            "roomNr": "2032",
-            "room": "Gaslager",
-            "kind": "H₂",
-            "property": "brennbar",
-            "system": "H₂-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
+            "Molekül": "CeFeAsO0.84F0.16",
+            "Sprungtemperatur": "<40K",
+            "Druck": "300 kPa",
+            "Gefahrenklasse": "reizend"
           },
           "isBoolean": false,
           "threshold": {
             "from": 0,
-            "to": 10
+            "to": 15
           },
-          "unit": "mBar"
+          "unit": "K",
+          "color": "#14AFB6"
+        }, {
+          "id": "id3",
+          "keys": {
+            "Molekül": "YBa2Cu3O7",
+            "Sprungtemperatur": "<150K",
+            "Druck": "400 kPa"
+          },
+          "isBoolean": false,
+          "threshold": {
+            "from": 0,
+            "to": 60
+          },
+          "unit": "K",
+          "color": "#1464B6"
+        }, {
+          "id": "id4",
+          "keys": {
+            "Molekül": "NdFeAsO0.89F0.11",
+            "Sprungtemperatur": "<150K",
+            "Druck": "100 kPa"
+          },
+          "isBoolean": false,
+          "threshold": {
+            "from": 0,
+            "to": 50
+          },
+          "unit": "K",
+          "color": "#14B638"
+        }, {
+          "id": "id5",
+          "keys": {
+            "Molekül": "Hg0.8Tl0.2Ba2Ca2Cu3O8.33",
+            "Sprungtemperatur": "<150K",
+            "Druck": "200 kPa"
+          },
+          "isBoolean": false,
+          "threshold": {
+            "from": 0,
+            "to": 50
+          },
+          "unit": "K",
+          "color": "#6A14B6"
         }
       ],
 
       "unnamedType": {
         "id": "id",
         "keys": {
-          "room": "",
-          "roomNr": "",
-          "kind": "",
-          "property": "",
-          "unit": "",
-          "system": "intern",
-          "alarmlevel": ""
+          "Molekül": "Molekül",
+          "Sprungtemperatur": "verschiedene Sprungtemperatur",
+          "Druck": "verschiedener Druck",
+          "Gefahrenklasse": "keine Gefahrenklasse"
         },
         "threshold": {
           "from": null,
@@ -85,34 +105,31 @@
           "x": 0,
           "y": 0,
           "exceeds": null
-        }]
+        }],
+        "color": "#B63614"
       },
 
-      "groupingKeys": ["kind", "room", "property", "roomNr", "system", "alarmlevel", "*"],
-      "preferedGroupingKey": "roomNr",
+      "groupingKeys": ["Molekül", "Gefahrenklasse", "Sprungtemperatur", "Druck", "*"],
+      "preferedGroupingKey": "Molekül",
 
       "exclusiveGroups": {
-        "roomNr": {
-          "test1": {
+        "Sprungtemperatur": {
+          "<50K": {
             "ids": [
-              "DI0-1"
-            ]
-          }
-        },
-        "alarmlevel": {
-          "test3": {
-            "ids": [
-              "DI0-1"
+              "id1",
+              "id2"
             ]
           }
         }
       }
     }
   },
-  "test": {
+
+  "Druckmessung (Testvisualisierung)": {
 
     "connections": {
       "file": {
+        "mode": "all",
         "path": "./examples/datafile/tests/test.txt"
       }
     },
@@ -127,749 +144,88 @@
     },
 
     "locals": {
-      "ignore": [8, 16, 17, 21, 22],
+      "ignore": [],
       "types": [{
-          "id": "Binary",
+          "id": "id1",
           "keys": {
-            "roomNr": "test",
-            "room": "test",
-            "kind": "Test",
-            "property": "Binärzahl",
-            "system": "intern",
-            "alarmlevel": ""
-          },
-          "svg": {
-            "path": "",
-            "source": ""
-          },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 10000000
-          },
-          "unit": "₍₂₎"
-        }, {
-          "id": "DI0-1",
-          "keys": {
-            "roomNr": "2032",
-            "room": "Gaslager",
-            "kind": "H₂",
-            "property": "brennbar",
-            "system": "H₂-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "path#path4514,path#path4512",
-            "source": "E0"
-          },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 20
-          },
-          "unit": "mBar",
-          "color": "#4476fc"
-        }, {
-          "id": "DI1-1",
-          "keys": {
-            "roomNr": "2032",
-            "room": "Gaslager",
-            "kind": "H₂",
-            "property": "brennbar",
-            "system": "H₂-Gasüberwachung",
-            "alarmlevel": "Alarm 2"
-          },
-          "svg": {
-            "path": "path#path4514,path#path4512",
-            "source": "E0"
-          },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 20
-          },
-          "unit": "°C",
-          "color": "#4476fc"
-        }, {
-          "id": "DI2-1",
-          "keys": {
-            "roomNr": "3005",
-            "room": "Bypack",
-            "kind": "H₂",
-            "system": "H₂-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "path#path5110-0,path#path5112-1,path#path5114-4",
-            "source": "E1"
-          },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 20
-          },
-          "unit": "°C",
-          "color": "#d2a43d"
-        }, {
-          "id": "DI3-1",
-          "keys": {
-            "roomNr": "3005",
-            "room": "Bypack",
-            "kind": "H₂",
-            "system": "H₂-Gasüberwachung",
-            "alarmlevel": "Alarm 2"
-          },
-          "svg": {
-            "path": "path#path5110-0,path#path5112-1,path#path5114-4",
-            "source": "E1"
+            "Molekül": "SmFeAsO≈ 0.85",
+            "Sprungtemperatur": "<20K",
+            "Temperatur": "120K",
+            "Gefahrenklasse": "reizend"
           },
           "isBoolean": false,
           "threshold": {
             "from": 0,
             "to": 30
           },
-          "unit": "°C",
-          "color": "#e83479"
+          "unit": "kPa",
+          "color": "#14AFB6"
         }, {
-          "id": "DI4-1",
+          "id": "id2",
           "keys": {
-            "roomNr": "4006",
-            "room": "Reinraum",
-            "kind": "H₂",
-            "system": "H₂-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
+            "Molekül": "GdFeAsO0.85",
+            "Sprungtemperatur": "<40K",
+            "Temperatur": "130K",
+            "Gefahrenklasse": "reizend"
           },
-          "svg": {
-            "path": "g#H2 path",
-            "source": "E2"
-          },
-          "isBoolean": true,
+          "isBoolean": false,
           "threshold": {
             "from": 0,
-            "to": 0
-          }
+            "to": 15
+          },
+          "unit": "MPa",
+          "color": "#1416B6"
         }, {
-          "id": "DI5-1",
+          "id": "id3",
           "keys": {
-            "roomNr": "4006",
-            "room": "Reinraum",
-            "kind": "H₂",
-            "system": "H₂-Gasüberwachung",
-            "alarmlevel": "Alarm 2"
+            "Molekül": "Tantal",
+            "Sprungtemperatur": "<150K",
+            "Temperatur": "170K"
           },
-          "svg": {
-            "path": "g#H2 path",
-            "source": "E2"
-          },
-          "isBoolean": true,
+          "isBoolean": false,
           "threshold": {
             "from": 0,
-            "to": 0
-          }
+            "to": 60
+          },
+          "unit": "MPa",
+          "color": "#14B655"
         }, {
-          "id": "DI6-1",
+          "id": "id4",
           "keys": {
-            "kind": "H₂",
-            "system": "H₂-Gasüberwachung",
-            "alarmlevel": "Störung"
+            "Molekül": "Technetium",
+            "Sprungtemperatur": "<150K",
+            "Temperatur": "170K"
           },
-          "svg": {
-            "path": "g#H2 path",
-            "source": "E2"
-          },
-          "isBoolean": true,
+          "isBoolean": false,
           "threshold": {
             "from": 0,
-            "to": 0
-          }
+            "to": 50
+          },
+          "unit": "kPa",
+          "color": "#A9B614"
         }, {
-          "id": "DI7-1",
+          "id": "id5",
           "keys": {
-            "property": "Reserve",
-            "system": "intern",
-            "alarmlevel": ""
+            "Molekül": "PbMo6S8",
+            "Sprungtemperatur": "<150K",
+            "Temperatur": "170K"
           },
-          "svg": {
-            "path": "",
-            "source": ""
-          },
-          "isBoolean": true
-        },
-
-        {
-          "id": "DI0-2",
-          "keys": {
-            "kind": "Verschiedene",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Störung"
-          },
-          "svg": {
-            "path": "",
-            "source": ""
-          },
-          "isBoolean": true,
+          "isBoolean": false,
           "threshold": {
             "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI1-2",
-          "keys": {
-            "kind": "Verschiedene",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Wartung"
+            "to": 50
           },
-          "svg": {
-            "path": "",
-            "source": ""
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI2-2",
-          "keys": {
-            "roomNr": "2030",
-            "room": "Gaslager",
-            "kind": "Verschiedene",
-            "property": "korrosiv",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 2"
-          },
-          "svg": {
-            "path": "g#HBR path, g#CL2 path",
-            "source": "E0"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI3-2",
-          "keys": {
-            "roomNr": "2032",
-            "room": "Gaslager",
-            "kind": "Verschiedene",
-            "property": "brennbar",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 2"
-          },
-          "svg": {
-            "path": "g#NH3 path, g#SIH4 path",
-            "source": "E0"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI4-2",
-          "keys": {
-            "roomNr": "3005",
-            "room": "Bypack",
-            "kind": "Verschiedene",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 2"
-          },
-          "svg": {
-            "path": "g#CL2 path,g#HBR path, g#HCL path,g#NH3 path, g#SIH4 path",
-            "source": "E1"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI5-2",
-          "keys": {
-            "roomNr": "4006",
-            "room": "Reinraum",
-            "kind": "Verschiedene",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 2"
-          },
-          "svg": {
-            "path": "g#CL2 path,g#HBR path, g#HCL path,g#NH3 path, g#SIH4 path",
-            "source": "E2"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI6-2",
-          "keys": {
-            "roomNr": "4006",
-            "room": "Reinraum",
-            "kind": "HBr/BCl₃",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "g#HBR path",
-            "source": "E2"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI7-2",
-          "keys": {
-            "property": "Reserve",
-            "system": "intern",
-            "alarmlevel": ""
-          },
-          "svg": {
-            "path": "",
-            "source": ""
-          },
-          "isBoolean": true
-        },
-
-        {
-          "id": "DI0-3",
-          "property": "Reserve",
-          "system": "intern",
-          "alarmlevel": "",
-          "svg": {
-            "path": "",
-            "source": ""
-          },
-          "isBoolean": true
-        }, {
-          "id": "DI1-3",
-          "keys": {
-            "roomNr": "3005",
-            "room": "Bypack",
-            "kind": "Cl₂",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "g#CL2 path",
-            "source": "E1"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI2-3",
-          "keys": {
-            "roomNr": "2030",
-            "room": "Gaslager",
-            "kind": "Cl₂",
-            "property": "korrosiv",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "path#path4476,path#path4478",
-            "source": "E0"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI3-3",
-          "keys": {
-            "roomNr": "2030",
-            "room": "Gaslager",
-            "kind": "HBr",
-            "property": "korrosiv",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "path#path4472,path#path4470",
-            "source": "E0"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI4-3",
-          "keys": {
-            "property": "Reserve",
-            "system": "intern",
-            "alarmlevel": ""
-          },
-          "svg": {
-            "path": "",
-            "source": ""
-          },
-          "isBoolean": true
-        }, {
-          "id": "DI5-3",
-          "keys": {
-            "property": "Reserve",
-            "system": "intern",
-            "alarmlevel": ""
-          },
-          "svg": {
-            "path": "",
-            "source": ""
-          },
-          "isBoolean": true
-        }, {
-          "id": "DI6-3",
-          "keys": {
-            "roomNr": "4006",
-            "room": "Reinraum",
-            "kind": "NH₃",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "g#NH3 path",
-            "source": "E2"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI7-3",
-          "keys": {
-            "roomNr": "3005",
-            "room": "Bypack",
-            "kind": "NH₃",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "",
-            "source": "E1"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        },
-
-        {
-          "id": "DI0-4",
-          "keys": {
-            "roomNr": "2032",
-            "room": "Gaslager",
-            "kind": "NH₃",
-            "property": "brennbar",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "path#path4508,path#path4510",
-            "source": "E0"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI1-4",
-          "keys": {
-            "roomNr": "4006",
-            "room": "Reinraum",
-            "kind": "HCl",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "g#BCL3 path",
-            "source": "E2"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI2-4",
-          "keys": {
-            "roomNr": "4006",
-            "room": "Reinraum",
-            "kind": "HCl",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "g#BCL3 path",
-            "source": "E2"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI3-4",
-          "keys": {
-            "roomNr": "3005",
-            "room": "Bypack",
-            "kind": "HCl",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "g#HBR path",
-            "source": "E1"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI4-4",
-          "keys": {
-            "roomNr": "4006",
-            "room": "Reinraum",
-            "kind": "SiH₄",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "g#SIH4 path",
-            "source": "E2"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI5-4",
-          "keys": {
-            "roomNr": "3005",
-            "room": "Bypack",
-            "kind": "SiH₄",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "g#SIH4 path",
-            "source": "E1"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI6-4",
-          "keys": {
-            "roomNr": "2032",
-            "room": "Gaslager",
-            "kind": "SiH₄",
-            "property": "brennbar",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "path#path4504,path#path4506",
-            "source": "E0"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI7-4",
-          "keys": {
-            "roomNr": "4006",
-            "room": "Reinraum",
-            "kind": "Cl₂",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "g#CL2 path",
-            "source": "E2"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        },
-
-        {
-          "id": "DI0-5",
-          "keys": {
-            "roomNr": "4006",
-            "room": "Reinraum",
-            "kind": "Cl₂",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "g#CL2 path",
-            "source": "E2"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI1-5",
-          "keys": {
-            "roomNr": "3005",
-            "room": "Bypack",
-            "kind": "HBr/BCl₃",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "g#HBR path",
-            "source": "E1"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI2-5",
-          "keys": {
-            "roomNr": "2030",
-            "room": "Gaslager",
-            "kind": "BCl₃",
-            "property": "korrosiv",
-            "system": "TOX-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "path#path4474,path#path4470",
-            "source": "E0"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI3-5",
-          "keys": {
-            "roomNr": "4006-21",
-            "room": "Reinraum",
-            "kind": "O₂",
-            "property": "Mangel 19%",
-            "system": "O₂-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "g#O2 path",
-            "source": "E2"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI4-5",
-          "keys": {
-            "roomNr": "4006-21",
-            "room": "Reinraum",
-            "kind": "O₂",
-            "property": "Mangel 17%",
-            "system": "O₂-Gasüberwachung",
-            "alarmlevel": "Alarm 2"
-          },
-          "svg": {
-            "path": "g#O2 path",
-            "source": "E2"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI5-5",
-          "keys": {
-            "roomNr": "4006-23",
-            "room": "Reinraum",
-            "kind": "O₂",
-            "property": "Mangel 19%",
-            "system": "O₂-Gasüberwachung",
-            "alarmlevel": "Alarm 1"
-          },
-          "svg": {
-            "path": "g#O2 path",
-            "source": "E2"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI6-5",
-          "keys": {
-            "roomNr": "4006-23",
-            "room": "Reinraum",
-            "kind": "O₂",
-            "property": "Mangel 17%",
-            "system": "O₂-Gasüberwachung",
-            "alarmlevel": "Alarm 2"
-          },
-          "svg": {
-            "path": "g#O2 path",
-            "source": "E2"
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
-        }, {
-          "id": "DI7-5",
-          "keys": {
-            "kind": "O₂",
-            "system": "O₂-Gasüberwachung",
-            "alarmlevel": "Störung"
-          },
-          "svg": {
-            "path": "",
-            "source": ""
-          },
-          "isBoolean": true,
-          "threshold": {
-            "from": 0,
-            "to": 0
-          }
+          "unit": "kPa"
         }
       ],
 
       "unnamedType": {
         "id": "id",
         "keys": {
-          "room": "",
-          "roomNr": "",
-          "kind": "",
-          "property": "",
-          "unit": "",
-          "system": "intern",
-          "alarmlevel": ""
+          "Molekül": "Molekül",
+          "Sprungtemperatur": "verschiedene Sprungtemperatur",
+          "Temperatur": "Temperatur nicht exakt festgelegt",
+          "Gefahrenklasse": "keine Gefahrenklasse"
         },
         "threshold": {
           "from": null,
@@ -884,46 +240,27 @@
           "x": 0,
           "y": 0,
           "exceeds": null
-        }]
+        }],
+        "unit": "K",
+        "color": "#B61462"
       },
 
-      "groupingKeys": ["kind", "room", "property", "roomNr", "system", "alarmlevel", "*"],
-      "preferedGroupingKey": "roomNr",
+      "groupingKeys": ["Molekül", "Gefahrenklasse", "Sprungtemperatur", "Temperatur", "*"],
+      "preferedGroupingKey": "Molekül",
 
       "exclusiveGroups": {
-        "roomNr": {
-          "Wartung und Störungen": {
+        "Molekül": {
+          "metallische Supraleiter": {
             "ids": [
-              "DI0-2",
-              "DI7-5",
-              "DI1-2",
-              "DI6-1"
+              "id3",
+              "id4",
+              "id5"
             ]
           },
-          "kombinierte Alarme": {
+          "eisenhaltige Hochtemperatursupraleiter": {
             "ids": [
-              "DI2-2",
-              "DI3-2",
-              "DI4-2",
-              "DI5-2"
-            ]
-          },
-          "4006": {
-            "ids": [
-              "DI3-5",
-              "DI4-5",
-              "DI5-5",
-              "DI6-5"
-            ]
-          }
-        },
-        "alarmlevel": {
-          "Wartung und Störungen": {
-            "ids": [
-              "DI6-1",
-              "DI0-2",
-              "DI1-2",
-              "DI7-5"
+              "id1",
+              "id2"
             ]
           }
         }

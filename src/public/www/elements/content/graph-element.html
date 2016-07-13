@@ -27,7 +27,7 @@
         },
         interpolation: {
           type: String,
-          value: 'Catmull-Rom-Spline',
+          value: 'Monotoner Spline',
           observer: '_interpolationChanged'
         },
         hidden: {
@@ -210,7 +210,11 @@
         this.set('values', values);
 
         if (this.chartElement)
-          this._updateView(undefined, Object);
+          values.forEach(function(v) {
+            this._updateView(v);
+          }, this);
+
+          // this._updateView(undefined, Object);
       },
 
       unshiftValues: function(value) {

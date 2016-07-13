@@ -148,13 +148,13 @@ class fileConfigLoader extends EventEmitter {
           type.keys[keys[j]] = type.keys[keys[j]] || locals.unnamedType.keys[keys[j]];
         }
         // Unit
-        if (type.unit === undefined)
+        if (!type.unit)
           type.unit = '';
         // isBoolean
-        if (type.isBoolean === undefined)
+        if (!type.isBoolean)
           type.isBoolean = false;
         // color
-        if (type.color === undefined)
+        if (!type.color)
           type.color = '';
         // label
         type.label = label;
@@ -191,6 +191,9 @@ class fileConfigLoader extends EventEmitter {
       for (var key of groupingKeys) {
         if (!groups[key])
           groups[key] = {};
+        else if (groups[key].ids)
+          groups[key].ids = groups[key].ids.filter(function(el) { el in ids } );
+
 
         needToSet = true;
         where = (key === "*" ? "*" : elements[id].keys[key] || "");

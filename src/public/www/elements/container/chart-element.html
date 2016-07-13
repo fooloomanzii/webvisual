@@ -177,7 +177,13 @@
 
 </div>
 <section id="content">
-  <content id='collector'  select='graph-element'></content>
+  <content id='collector' select='graph-element'></content>
+
+  <template is="dom-repeat" items="{{selectedElements}}">
+    <graph-element id="[[item.id]]" label="[[item.label]]" caption-keys="[[item.captionKeys]]" color="[[item.color]]"
+      values="[[item.values]]" no-dots="[[noDots]]" no-line="[[noLine]]" interpolation="[[interpolation]]" no-areas="[[noAreas]]">
+    </graph-element>
+  </template>
 </section>
 
 </template>
@@ -198,7 +204,7 @@
         },
         notifyParent: {
           type: Boolean,
-          value: true
+          value: false
         },
         noSelectNotify: {
           type: Boolean,
@@ -206,7 +212,7 @@
         },
         noExceedNotify: {
           type: Boolean,
-          value: true
+          value: false
         },
 
         multiSelect: {
@@ -215,25 +221,12 @@
         },
         toggles: {
           type: Boolean,
-          value: false
-        },
-
-        reproduceSelected: {
-          type: Boolean,
           value: true
         },
-        reproduceExceeded: {
+
+        reproduce: {
           type: Boolean,
-          value: false
-        },
-        reproductionTagName: {
-          type: String,
-          value: 'graph-element',
-          readOnly: true
-        },
-        reproductionElementOptions: {
-          type: Object,
-          value: function() { return {} }
+          value: true
         },
         reproductionContainer: {
           type: String,
@@ -286,7 +279,7 @@
         },
         interpolation: {
           type: String,
-          value: 'Catmull-Rom-Spline',
+          value: 'Monotoner Spline',
           observer: 'changeInterpolation'
         },
         noDots: {
@@ -415,6 +408,8 @@
       },
 
       _buildLayout: function() {
+        this.assignParentResizable(this.rootElement);
+
         this._svg = d3.select(this.$.svg).attr('preserveAspectRatio', 'xMinYMin meet')
                                          .attr('height', null)
                                          .attr('width', null);
@@ -456,7 +451,7 @@
         this._svg.selectAll('g,line,text,path,rect')
                  .classed('style-scope', true)
                  .classed('chart-element', true);
-        this.assignParentResizable(this.rootElement);
+        this._sizeLayout();
       },
 
       _sizeLayout: function() {
@@ -573,7 +568,7 @@
         this._svg.selectAll('g,line,text,path,rect')
                  .classed('style-scope', true)
                  .classed('chart-element', true);
-        this.redraw();
+        this._redraw();
       },
 
       _createScale: function(option) {
@@ -643,7 +638,7 @@
       },
 
       redraw: function () {
-        this.debounce('redraw', function() { this._redraw() }, 50);
+        this.debounce('redraw', function() { this._redraw() }, 15);
       },
 
       _redraw: function () {

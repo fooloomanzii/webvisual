@@ -148,8 +148,7 @@
         UpdatableNodes[this.label][this.id].splice(pos,1); // remove from UpdatableNodes
         this.removeAttribute('updatable');
       }
-      this.set('id', '');
-      this.set('label', '');
+      // this.spliceValues(0, this.values.length);
     },
 
     getElement: function() {
@@ -313,12 +312,12 @@
         UpdatableNodes[this.label][this.id].splice(pos,1);
     },
 
-    checkedChanged: function() {
-      if (this.selectable === true) {
+    checkedChanged: function(checked, old) {
+      if (old !== undefined && this.selectable === true) {
         if (this.checked === false) {
           this.fire('element-deselect', {target: this});
         }
-        else {
+        else if (this.checked === true){
           this.fire('element-select', {target: this});
         }
         if (this._handleChecked)

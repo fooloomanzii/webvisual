@@ -100,7 +100,7 @@ html
           radio-button-element.labelButton(label!= Label)
             != Label
       //- MAIN-PAGE
-      main-page.fullbleed(animated!= (!mobile))
+      main-page.fullbleed(animated!= (!mobile), reproduce, notify)
         //- TABS
         each Label in config.labels
           tab-element.label(label!= Label)
@@ -118,7 +118,8 @@ html
           section.panel(label!= Label, animated!= (!mobile))
             each Subgroup, Name in config.groups[Label][config.preferedGroupingKeys[Label]]
               group-card(title= Name, 
-                         svg= JSON.stringify(Subgroup.svg))
+                         svg= JSON.stringify(Subgroup.svg),
+                         no-select-notify, notify, open-onexceed, reproduce)
                 each Id, i in Subgroup.ids
                   sign-element(label!= Label, 
                                id!= Id, 

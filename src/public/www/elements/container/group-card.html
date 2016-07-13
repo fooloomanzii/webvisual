@@ -143,7 +143,7 @@
       <section id='header' hidden$='[[_hideTitle(title,withoutWindow,hideHeader)]]'>
         <content select='.header'></content>
         <template is="dom-if" if="svg.source">
-          <svg-element id='svgElement' source="[[svg.source]]" open-on-exceed="[[openOnExceed]]" notify-parent no-select-notify initially-zoom-to-selected max-zoom='5' min-zoom='1.2' opened="[[opened]]"></svg-element>
+          <svg-element id='svgElement' source="[[svg.source]]" initially-zoom-to-selected max-zoom='5' min-zoom='1.2' opened="[[opened]]"></svg-element>
         </template>
         <section id='title' on-tap='toggle'>[[title]]</section>
       </section>
@@ -199,7 +199,7 @@
         },
         openOnExceed: {
           type: Boolean,
-          value: true
+          value: false
         },
 
         notify: {
@@ -216,24 +216,16 @@
         },
         noExceedNotify: {
           type: Boolean,
-          value: true
+          value: false
         },
 
-        reproduceSelected: {
-          type: Boolean,
-          value: true
-        },
-        reproduceExceeded: {
+        reproduce: {
           type: Boolean,
           value: false
         },
-        reproductionTagName: {
-          type: String,
-          value: 'graph-element'
-        },
         reproductionContainer: {
           type: String,
-          value: 'mainContent'
+          value: 'header'
         }
       },
 

@@ -23,6 +23,7 @@
       border-right: thin solid #BBBBBB;
       border-radius: 8px;
       z-index: 100;
+      height: 100%;
       position: relative;
     }
     /*section#toolbarFooter ::content .toolbar-footer:last-child {
@@ -237,9 +238,8 @@
 
         <swipeable-container id="exceedingElementsList"
                          is-exceeding="{{isExceeding}}"
-                         notify-parent
-                         no-select-notify
-                         reproduce-exceeded>
+                         notify-parent="{{!noExceedNotify}}"
+                         no-select-notify>
         </swipeable-container>
 
         <section style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_clearExceedingElementsFromList">Liste leeren</a></section>
@@ -386,7 +386,7 @@
 
         notify: {
           type: Boolean,
-          value: true
+          value: false
         },
         notifyParent: {
           type: Boolean,
@@ -401,16 +401,9 @@
           value: false
         },
 
-        reproduceSelected: {
+        reproduce: {
           type: Boolean,
-          value: true
-        },
-        reproduceExceeded: {
-          type: Boolean,
-          value: true
-        },
-        reproductionTagName: {
-          type: String
+          value: false
         },
         reproductionContainer: {
           type: String,
@@ -430,6 +423,7 @@
       ],
 
       attached: function() {
+        this.fire('resize');
         var self = this;
         Polymer.dom(this.$.groupingKeysLabelSelector)
                .observeNodes(function(info) {
@@ -458,7 +452,6 @@
             }
           });
         }
-        this.fire('resize');
       },
 
       _handleExceeding: function(value) {
@@ -683,7 +676,8 @@
             else
               el.setAttribute('horizontal', true);
           }, this);
-          this.async(function(){this.fire('resize')}, 150);
+
+          this.async(function() {this.fire('resize')}, 150);
         }
       },
       _closeToolbar: function(newLabel, oldLabel) {
