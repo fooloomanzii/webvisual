@@ -113,7 +113,7 @@
 
     "connections": {
       "file": {
-        "path": "./examples/datafile/tests/test.txt",
+        "path": "./examples/datafile/tests/test.txt"
       }
     },
 

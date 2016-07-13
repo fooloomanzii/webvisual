@@ -65,8 +65,8 @@
     font-size: 0.5em;
   }
   g#chart rect.plot {
-    fill: #BDE2F1;
-    fill-opacity: 0.5;
+    fill: white;
+    fill-opacity: 0.7;
     stroke: currentColor;
     stroke-opacity: 0.25;
     shape-rendering: crispEdges;
@@ -74,7 +74,7 @@
   }
   g#brushX rect.background, g#brushY rect.background {
     fill: white;
-    fill-opacity: 0.25;
+    fill-opacity: 0.8;
     stroke: currentColor;
     stroke-opacity: 0.25;
     stroke-width: 1px;
@@ -244,10 +244,10 @@
         margin: {
           type: Object,
           value: function() {
-            return {  top: 12,
-                      right: 12,
-                      bottom: 42,
-                      left: 48 };
+            return {  top: 0,
+                      right: 0,
+                      bottom: 36,
+                      left: 36 };
           }
         },
         brushWidth: {
