@@ -44,6 +44,11 @@
           value: function() { return {}; }
         },
 
+        preferedKey: {
+          type: String,
+          value: ''
+        },
+
         notExceedable: {
           type: Boolean,
           value: false
@@ -85,7 +90,6 @@
           value: true,
           reflectToAttribute: true
         },
-
 
         color: {
           type: String,
@@ -161,6 +165,7 @@
                 'lastExceeds': this.lastExceeds,
                 'values': this.values,
                 'notExceedable': this.notExceedable,
+                'preferedKey': this.preferedKey,
                 'color': this.color,
                 'values': this.values
               },
@@ -244,12 +249,9 @@
 
     setColor: function(color) {
       // random color if color is not set
-      if (color === undefined && this.notExceedable === false) {
-        this.color = this.customStyle['--element-color'];
-      }
-      if (color === '') {
+      if (!color) {
         if (this.notExceedable === false) {
-          this.color = this.customStyle['--element-color'];
+          this.color = "#51cc41";
         }
         else {
           color = '#';

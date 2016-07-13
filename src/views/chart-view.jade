@@ -82,8 +82,18 @@ html
       100% {transform: rotate(-360deg)}
     }
     chart-element {
-      background: rgba(255, 255, 255, 0.9);
+      background: var(--background-1);
       color: var(--primary-text-color);
+      width: 100%;
+    }
+    chart-element[dark] {
+      background: var(--background-4);
+      color: var(--primary-text-color);
+    }
+    main-page {
+      --app-content-background: var(--background-3);
+      --dark-app-content-background: var(--bright-primary-color);
+      --app-toolbar-max-height: 35vh;
     }
 
   body.fullbleed
@@ -104,20 +114,21 @@ html
           radio-button-element.labelButton(label!= Label)
             != Label
       //- MAIN-PAGE
-      main-page.fullbleed(animated!= (!mobile), force-opened)
+      main-page.fullbleed(animated!= (!mobile), force-opened, multi-select, toggles)
         //- TABS
         each Label in config.labels
           tab-element.label(label!= Label)
             != Label
 
         //- Elements for TOOLBAR 
-        sign-element.toolbar-footer(horizontal)
-        table-element.toolbar-footer(highlight-exceeding)
+        //- sign-element.toolbar-footer(horizontal)
+        //- table-element.toolbar-footer(highlight-exceeding)
         chart-element.toolbar-footer()
           each Label in config.labels
             each Elements, Id in config.elements[Label]
               graph-element(label!= Label, 
-                            id!= Id)
+                            id!= Id,
+                            color!= config.elements[Label][Id].color)
 
         //- GROUPINGKEY SELECTORS
         each Label in config.labels
@@ -129,19 +140,21 @@ html
         //- PANELS
         each Label in config.labels
           section.panel(label!= Label, animated!= (!mobile))
-            each Subgroup, Name in config.groups[Label][config.preferedGroupingKeys[Label]]
-              group-card(title= Name)
+            each Subgroup, Titel in config.groups[Label][config.preferedGroupingKeys[Label]]
+              group-card(title= Titel)
                 each Id, i in Subgroup.ids
-                  sign-element(label!= Label, 
+                  element-checkbox(label!= Label,
                                id!= Id, 
                                is-boolean!= config.elements[Label][Id].isBoolean, 
                                unit!= config.elements[Label][Id].unit, 
                                keys= JSON.stringify(config.elements[Label][Id].keys),
-                               caption-keys= JSON.stringify(config.groupingKeys[Label]), 
+                               prefered-key!= config.preferedGroupingKeys[Label]
+                               caption-keys= JSON.stringify(config.groupingKeys[Label]),
                                show-date!= (!mobile),
                                color!= config.elements[Label][Id].color,
                                bubbles, 
-                               selectable)
+                               selectable, 
+                               checked)
 
     script.
     

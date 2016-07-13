@@ -85,7 +85,7 @@
         flex-direction: row;
         display: flex;
         flex-wrap: wrap;
-        justify-content: center;
+        justify-content: flex-start;;
         align-items: flex-start;
         border-top-width: thin;
         border-top-style: solid;
@@ -100,6 +100,7 @@
         height: auto;
         width: auto;
         overflow: visible;
+        max-width: calc(50vw - 2em);
       }
       @media all and (min-width: 750px) and (max-width: 1280px) and (orientation: portrait) {
         section#main:not([name='*']) {
@@ -131,13 +132,19 @@
         flex: 1;
         position: relative;
       }
+      section#header[hidden] ~ section#mainContent {
+        border-top-left-radius: inherit;
+        border-top-right-radius: inherit;
+      }
 
     </style>
     <section id='main' name$='[[title]]' nowindow$='[[withoutWindow]]'>
 
-      <section id='header' hidden$='[[_hideTitle(title,withoutWindow)]]'>
+      <section id='header' hidden$='[[_hideTitle(title,withoutWindow,hideHeader)]]'>
         <content select='.header'></content>
-        <svg-element id='svgElement' hidden$='[[!svg.source]]' source="[[svg.source]]" open-on-exceed="[[openOnExceed]]" notify-parent no-select-notify initially-zoom-to-selected max-zoom='5' min-zoom='1.2' opened="[[opened]]"></svg-element>
+        <template is="dom-if" if="svg.source">
+          <svg-element id='svgElement' source="[[svg.source]]" open-on-exceed="[[openOnExceed]]" notify-parent no-select-notify initially-zoom-to-selected max-zoom='5' min-zoom='1.2' opened="[[opened]]"></svg-element>
+        </template>
         <section id='title' on-tap='toggle'>[[title]]</section>
       </section>
 
@@ -160,8 +167,7 @@
         title: {
           type: String,
           value: '',
-          observer: '_titleChanged',
-          reflectToAttribute: true
+          observer: '_titleChanged'
         },
         opened: {
           type: Boolean,
@@ -176,7 +182,12 @@
         withoutWindow: {
           type: Boolean,
           value: false,
-          reflectToAttribute: true,
+          reflectToAttribute: true
+        },
+        hideHeader: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
         },
         svg: {
           type: Object
@@ -193,7 +204,7 @@
 
         notify: {
           type: Boolean,
-          value: true
+          value: false
         },
         notifyParent: {
           type: Boolean,
@@ -201,16 +212,16 @@
         },
         noSelectNotify: {
           type: Boolean,
-          value: true
+          value: false
         },
         noExceedNotify: {
           type: Boolean,
-          value: false
+          value: true
         },
 
         reproduceSelected: {
           type: Boolean,
-          value: false
+          value: true
         },
         reproduceExceeded: {
           type: Boolean,
@@ -218,21 +229,23 @@
         },
         reproductionTagName: {
           type: String,
-          value: ''
+          value: 'graph-element'
         },
         reproductionContainer: {
           type: String,
-          value: 'header'
+          value: 'mainContent'
         }
       },
 
-      factoryImpl: function(title, svg, dark, withoutWindow) {
+      factoryImpl: function(title, svg, dark, withoutWindow, hideHeader) {
         this.set('title', title || '');
         if (dark) {
           this.setAttribute('dark', true);
         }
         if (withoutWindow)
-          this.setAttribute('withoutWindow', true);
+          this.swithoutWindow = true;
+        if (hideHeader)
+          this.hideHeader = true;
       },
 
       observers: [
@@ -273,13 +286,12 @@
       },
 
       _titleChanged: function(text) {
-        if (!text || text === 'undefined')
-          this.set('title', this.placeholder);
+
         this.$.header.setAttribute('aria-label', this.title);
       },
 
-      _hideTitle: function(title,withoutWindow) {
-        if(title === '*' || withoutWindow)
+      _hideTitle: function(title,withoutWindow, hideHeader) {
+        if(title === '*' || withoutWindow || hideHeader)
           return true;
         else
           return false;

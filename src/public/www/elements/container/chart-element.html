@@ -18,7 +18,7 @@
     border-radius: inherit;
     -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
     -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
-  	overflow: hidden;
+  	/*overflow: hidden;*/
     visibility: visible;
     -webkit-touch-callout: none !important;
       -webkit-user-select: none !important;
@@ -163,7 +163,7 @@
       <button-element scale='log₁₀'>log₁₀</button-element>
   </dropdown-selector>
 
-  <dropdown-selector id="xbutton" class="icon-button" icon="x" hide-selected attr-for-selected="interpolate" selected="{{interpolation}}" fallback-selection="Lineare Verbindung" toggles hide-arrow position="left" align="outer-start">
+  <dropdown-selector id="xbutton" class="icon-button" icon="x" hide-selected attr-for-selected="interpolate" selected="{{interpolation}}" fallback-selection="Lineare Verbindung" toggles hide-arrow position="left" align="end">
       <button-element interpolate='Lineare Verbindung'>Lineare Verbindung</button-element>
       <button-element interpolate='Basis Spline'>Basis Spline</button-element>
       <button-element interpolate='Monotoner Spline'>Monotoner Spline</button-element>
@@ -176,8 +176,10 @@
   </dropdown-selector>
 
 </div>
+<section id="content">
+  <content id='collector'  select='graph-element'></content>
+</section>
 
-  <content id='collector' select='graph-element'></content>
 </template>
 
   <script>
@@ -190,6 +192,55 @@
       ],
 
       properties: {
+        notify: {
+          type: Boolean,
+          value: false
+        },
+        notifyParent: {
+          type: Boolean,
+          value: true
+        },
+        noSelectNotify: {
+          type: Boolean,
+          value: false
+        },
+        noExceedNotify: {
+          type: Boolean,
+          value: true
+        },
+
+        multiSelect: {
+          type: Boolean,
+          value: true
+        },
+        toggles: {
+          type: Boolean,
+          value: false
+        },
+
+        reproduceSelected: {
+          type: Boolean,
+          value: true
+        },
+        reproduceExceeded: {
+          type: Boolean,
+          value: false
+        },
+        reproductionTagName: {
+          type: String,
+          value: 'graph-element',
+          readOnly: true
+        },
+        reproductionElementOptions: {
+          type: Object,
+          value: function() { return {} }
+        },
+        reproductionContainer: {
+          type: String,
+          value: 'content',
+          readOnly: true
+        },
+
         margin: {
           type: Object,
           value: function() {
@@ -250,51 +301,52 @@
           type: Boolean,
           value: false
         },
-
-        _width: Object,
-        _height: Object,
-
-        _chart: Object,
-        _svg: Object,
-
-        _x: Function,
-        _x2: Function,
-        _y: Function,
-        _y2: Function,
-
-        _xAxis: Object,
-        _yAxis: Object,
-        _xGrid: Object,
-        _yGrid: Object,
-
-        _brushBehaviorX: Object,
-        _brushX: Object,
-        _brushAxisX: Object,
-        _brushGridX: Object,
-
-        _brushBehaviorY: Object,
-        _brushY: Object,
-        _brushAxisY: Object,
-        _brushGridY: Object,
-
-        _focus: Object,
-        _focusX: Object,
-        _focusTextX: Object,
-        _focusY: Object,
-        _focusTextY: Object,
-
-        _legend: Object,
-        _info: Object,
-
-        formatMillisecond: Function,
-        formatSecond: Function,
-        formatMinute: Function,
-        formatHour: Function,
-        formatDay: Function,
-        formatWeek: Function,
-        formatMonth: Function,
-        formatYear: Function
       },
+
+      _width: 0,
+      _height: 0,
+
+      _chart: Object,
+      _svg: Object,
+
+      _x: Function,
+      _x2: Function,
+      _y: Function,
+      _y2: Function,
+
+      _xAxis: Object,
+      _yAxis: Object,
+      _xGrid: Object,
+      _yGrid: Object,
+
+      _brushBehaviorX: Object,
+      _brushX: Object,
+      _brushAxisX: Object,
+      _brushGridX: Object,
+
+      _brushBehaviorY: Object,
+      _brushY: Object,
+      _brushAxisY: Object,
+      _brushGridY: Object,
+
+      _focus: Object,
+      _focusX: Object,
+      _focusTextX: Object,
+      _focusY: Object,
+      _focusTextY: Object,
+
+      _legend: Object,
+      _info: Object,
+
+      formatMillisecond: Function,
+      formatSecond: Function,
+      formatMinute: Function,
+      formatHour: Function,
+      formatDay: Function,
+      formatWeek: Function,
+      formatMonth: Function,
+      formatYear: Function,
+      _elements: [],
 
       get _self () {
         return this;
@@ -340,6 +392,22 @@
 
       ready: function() {
         this._buildLayout();
+      },
+
+      attached: function() {
+        this._observer =
+            Polymer.dom(this.$.collector).observeNodes((function(info) {
+          this.__processNewNodes(info.addedNodes);
+          this.__processRemovedNodes(info.removedNodes);
+        }).bind(this));
+      },
+
+      __processNewNodes: function(nodes) {
+        this._elements = nodes.concat(this._elements || []);
+      },
+
+      __processRemovedNodes: function(nodes) {
+        this._elements = this.getEffectiveChildren();
       },
 
       _sizeChanged: function(e) {
@@ -581,7 +649,7 @@
       _redraw: function () {
         this._setAllDomains();
 
-        if (this._elements !== undefined)
+        if (this._elements.length > 0)
           this._elements.forEach(function(g) { g.redraw(); });
 
         this._chart.select('g.x.axis').transition(50).call(this._xAxis);
@@ -686,6 +754,8 @@
       },
 
       _setAllDomains: function () {
+        if (this._elements.length === 0) return;
+
         var graphs = this._elements;
         var domainX, domainY = [0, 0], domainBrushX, domainBrushY, v;
 

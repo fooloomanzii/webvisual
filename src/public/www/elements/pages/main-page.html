@@ -269,7 +269,8 @@
                 </iron-collapse>
 
               <toggle-button-element on-change="toggleDateView"><iron-icon icon="date-range"></iron-icon>Zeit anzeigen</toggle-button-element>
-              <toggle-button-element on-change="toggleWindowStyle" checked="{{withoutWindow}}"><iron-icon icon="editor:border-style"></iron-icon>Fensterstil</toggle-button-element>
+              <toggle-button-element on-change="toggleWindowDecoration" checked="{{withoutWindow}}"><iron-icon icon="editor:border-style"></iron-icon>Fensterrahmen</toggle-button-element>
+              <toggle-button-element on-change="toggleWindowHeader" checked="{{hideHeader}}"><iron-icon icon="editor:drag-handle"></iron-icon>Fenstertitel</toggle-button-element>
               <toggle-button-element id="colorschema" on-change="toggleTheme"><iron-icon icon="settings-brightness"></iron-icon>Farbschema</toggle-button-element>
             </section>
           </iron-collapse>
@@ -348,6 +349,10 @@
         },
         // Element Appearance
         withoutWindow: {
+          type: Boolean,
+          value: false
+        },
+        hideHeader: {
           type: Boolean,
           value: false
         },
@@ -564,13 +569,16 @@
         for (var i = 0; i < oldgroupcards.length; i++) {
           elements = elements.concat([].slice.call(oldgroupcards[i].querySelectorAll('[element]')));
         }
+        var hideHeader = oldgroupcards[0].hideHeader;
+        var withoutWindow = oldgroupcards[0].withoutWindow;
 
         var newgroupcards = {};
         for (var subgroup in Groups[label][key]) {
-          newgroupcards[subgroup] = new GroupCard(subgroup, Groups[label][key][subgroup].svg, this.dark);
+          newgroupcards[subgroup] = new GroupCard(subgroup, Groups[label][key][subgroup].svg, this.dark, withoutWindow, hideHeader);
           Polymer.dom(panel).appendChild(newgroupcards[subgroup]);
           for (var i in Groups[label][key][subgroup].ids) {
             for (var j = 0; j < elements.length; j++) {
+              elements[j].preferedKey = key;
               if (elements[j].id === Groups[label][key][subgroup].ids[i])
                 break;
             }
@@ -625,10 +633,16 @@
         }
         this.updateStyles();
       },
-      toggleWindowStyle: function(){
+      toggleWindowDecoration: function(){
         var elems = document.querySelectorAll('group-card');
         for (i = 0; i < elems.length; ++i) {
           elems[i].toggleAttribute("without-window");
+        }
+      },
+      toggleWindowHeader: function(){
+        var elems = document.querySelectorAll('group-card');
+        for (i = 0; i < elems.length; ++i) {
+          elems[i].toggleAttribute("hide-header");
         }
       },
       toggleDateView: function(){

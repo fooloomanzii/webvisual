@@ -81,6 +81,7 @@
           value: function() { return []; }
         }
     },
+    _elements: [],
 
     hostAttributes: {
       container: true
@@ -238,10 +239,10 @@
             item = changeRecord.indexSplices[i].removed[j];
             elements.filter( function(el) {
                       return el.id === item.id && el.label === item.label;
-                    })
-                   .forEach( function(el) {
+                     })
+                    .forEach( function(el) {
                        el.unsetElement();
-                     }, this);
+                      }, this);
             containers.forEach( function(el) {
                         // containers should notify themselfes? "item.unsetSelectedElement(del);"
                         el.unsetSelectedElement(item);
@@ -253,21 +254,29 @@
             item = changeRecord.indexSplices[i].object[index];
             var element = item.getElement();
 
-            elements.forEach( function(el) {
-                      el.setElement(element);
-                    });
+            if (this.multiSelect === false)
+              elements.forEach( function(el) {
+                        el.setElement(element);
+                      });
             containers.forEach(function(el) {
                         el.setSelectedElement(item);
                       }, this);
 
             var tagName = this.reproductionTagName || "";
-            if (tagName && items.filter( function(el) { return el.tagName.toLowerCase() === tagName.toLowerCase()}).length === 0) {
-              var node = document.createElement(tagName.toLowerCase());
+            if (tagName !== "" && (
+                  items.filter( function(el) {
+                    return el.tagName.toLowerCase() === tagName.toLowerCase()}).length === 0 ||
+                (this.multiSelect === true &&
+                  items.filter( function(el) {
+                    return el.id === item.id && el.label === item.label &&
+                    el.tagName.toLowerCase() === tagName.toLowerCase()}).length === 0))) {
+                var node = document.createElement(tagName.toLowerCase());
               if (node.setElement)
                 node.setElement(element, this.reproductionElementOptions || {});
               else if (node.setSelectedElement)
                 node.setSelectedElement(item);
               Polymer.dom(container).appendChild(node);
+              this._elements.push(node);
             }
           }
         }

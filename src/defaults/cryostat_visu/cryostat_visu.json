@@ -113,13 +113,7 @@
 
     "connections": {
       "file": {
-        "mode": "all",
         "path": "./examples/datafile/tests/test.txt",
-        "format": {
-          "dateFormat": "",
-          "numberFormat": "",
-          "seperator": ";"
-        }
       }
     },
 
@@ -133,7 +127,7 @@
     },
 
     "locals": {
-      "ignore": [0, 8, 16, 17, 21, 22],
+      "ignore": [8, 16, 17, 21, 22],
       "types": [{
           "id": "Binary",
           "keys": {
@@ -168,11 +162,13 @@
             "path": "path#path4514,path#path4512",
             "source": "E0"
           },
-          "isBoolean": true,
+          "isBoolean": false,
           "threshold": {
             "from": 0,
-            "to": 0
-          }
+            "to": 20
+          },
+          "unit": "mBar",
+          "color": "#4476fc"
         }, {
           "id": "DI1-1",
           "keys": {
@@ -187,11 +183,13 @@
             "path": "path#path4514,path#path4512",
             "source": "E0"
           },
-          "isBoolean": true,
+          "isBoolean": false,
           "threshold": {
             "from": 0,
-            "to": 0
-          }
+            "to": 20
+          },
+          "unit": "°C",
+          "color": "#4476fc"
         }, {
           "id": "DI2-1",
           "keys": {
@@ -205,11 +203,13 @@
             "path": "path#path5110-0,path#path5112-1,path#path5114-4",
             "source": "E1"
           },
-          "isBoolean": true,
+          "isBoolean": false,
           "threshold": {
             "from": 0,
-            "to": 0
-          }
+            "to": 20
+          },
+          "unit": "°C",
+          "color": "#d2a43d"
         }, {
           "id": "DI3-1",
           "keys": {
@@ -223,11 +223,13 @@
             "path": "path#path5110-0,path#path5112-1,path#path5114-4",
             "source": "E1"
           },
-          "isBoolean": true,
+          "isBoolean": false,
           "threshold": {
             "from": 0,
-            "to": 0
-          }
+            "to": 30
+          },
+          "unit": "°C",
+          "color": "#e83479"
         }, {
           "id": "DI4-1",
           "keys": {

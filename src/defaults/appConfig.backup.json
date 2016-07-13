@@ -1,14 +1,14 @@
 {
   "app": {
-    "width": 400,
-    "height": 500,
+    "width": 604,
+    "height": 692,
     "autoHideMenuBar": true,
     "acceptFirstMouse": true,
     "webPreferences": {
       "webSecurity": true
     },
-    "x": 50,
-    "y": 50
+    "x": 76,
+    "y": 212
   },
   "server": {
     "port": {
@@ -30,12 +30,11 @@
   },
   "userConfigFiles": {
     "HNF-GDS": {
-      "#path": "\\\\ibn-vsrv\\HNF-GDS$\\Config\\HNF_GDS.json",
       "path": ".\\defaults\\HNF\\HNF_GDS.json",
       "renderer": "Alarmzustände"
     },
     "cryostat": {
-      "path": "./defaults/cryostat_visu/cryostat_visu.json",
+      "path": ".\\defaults\\cryostat_visu\\cryostat_visu.json",
       "renderer": "Diagrammansicht"
     }
   },
