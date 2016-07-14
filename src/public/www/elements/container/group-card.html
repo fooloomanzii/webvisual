@@ -2,36 +2,61 @@
   <template>
     <style>
       :host {
+        display: block;
+        position: relative;
+        box-sizing: border-box;
         border-radius: 6px;
         -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
         -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
         /*padding: 0.4em;*/
-        font-family: Fira Sans Light;
         font-weight: normal;
         /*z-index: auto;*/
-      }
-      section#main {
         background: #f1f1f1;
         border: none;
         border-color: #AAA;
-        border-radius: inherit;
         box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
                     0 1px 10px 0 rgba(0, 0, 0, 0.12),
                     0 2px 4px -1px rgba(0, 0, 0, 0.4);
+        max-width: calc(50vw - 2em);
       }
-      :host[dark] section#main {
+      :host[dark] {
         background: #959595;
         border-color: #444;
       }
-      section#main[name='*'], section#main[nowindow] {
+      :host([headline='*']), :host([without-window]) {
         background: transparent;
         border-radius: inherit;
         box-shadow: none;
         border-color: transparent;
       }
+      @media all and (min-width: 750px) and (max-width: 1280px) and (orientation: portrait) {
+        :host {
+          max-width: 31.5em;
+        }
+      }
+      @media all and (min-width: 600px) and (max-width: 1280px) and (orientation: landscape) {
+        :host {
+          max-width: 31.5em;
+        }
+      }
+      @media all and (min-width: 1280px) {
+        :host {
+          max-width: 39.5em;
+        }
+      }
+      @media all and (max-width: 520px) {
+        :host {
+          max-width: none;
+        }
+      }
+      :host([headline='*']) {
+        max-width: none;
+      }
+
       section#header {
         display: flex;
         position: relative;
+        box-sizing: border-box;
         border-top-left-radius: inherit;
         border-top-right-radius: inherit;
         overflow: hidden;
@@ -43,7 +68,7 @@
         transition: max-height linear 180ms, min-height linear 180ms;
         min-height: 2.6em;
       }
-      :host[dark] section#header {
+      :host[dark] > section#header {
         background: var(--dark-primary-color);
         color: var(--highlight-color);
       }
@@ -51,7 +76,7 @@
         min-height: calc(15vh + 120px);
         max-height: 40vh;
       }
-      section#title {
+      section#headline {
         cursor: pointer;
         position: relative;
         bottom: 0;
@@ -69,7 +94,7 @@
         background: linear-gradient(to top, rgba(255,255,255,0.05) 10%,rgba(255,255,255,0.15) 60%);
         text-transform: none;
       }
-      section#header section#title.over-image {
+      section#header section#headline.over-image {
         position: absolute;
         height: auto;
         width: auto;
@@ -78,12 +103,14 @@
         background: none !important;
         text-shadow: -1px 0px 1px #1f1f1f;
       }
-      :host[dark] section#title {
+      :host[dark] section#headline {
         color: var(--highlight-color);
       }
       section#mainContent {
         flex-direction: row;
         display: flex;
+        position: relative;
+        box-sizing: border-box;
         flex-wrap: wrap;
         justify-content: flex-start;;
         align-items: flex-start;
@@ -94,34 +121,16 @@
         border-top-right-radius: 0px;
         border-bottom-left-radius: inherit;
         border-bottom-right-radius: inherit;
-        padding: 0.5em 0em 0em 0.5em;
+        padding: 0.4em 0em 0em 0.5em;
         background: none;
-        box-sizing: border-box;
         height: auto;
         width: auto;
         overflow: visible;
-        max-width: calc(50vw - 2em);
-      }
-      @media all and (min-width: 750px) and (max-width: 1280px) and (orientation: portrait) {
-        section#main:not([name='*']) {
-          max-width: 31.5em;
-        }
-      }
-      @media all and (min-width: 600px) and (max-width: 1280px) and (orientation: landscape) {
-        section#main:not([name='*']) {
-          max-width: 31.5em;
-        }
-      }
-      @media all and (min-width: 1280px) {
-        section#main:not([name='*']) {
-          max-width: 39.5em;
-        }
       }
       section#mainContent ::content > * {
         margin: 0 0.5em 0.5em 0;
         border-radius: 12px;
       }
-
       section#header ::content .header {
         display: flex;
         flex: 1;
@@ -138,20 +147,18 @@
       }
 
     </style>
-    <section id='main' name$='[[title]]' nowindow$='[[withoutWindow]]'>
 
-      <section id='header' hidden$='[[_hideTitle(title,withoutWindow,hideHeader)]]'>
+      <section id='header' hidden$='[[_hideheadline(headline,withoutWindow,hideHeader)]]'>
         <content select='.header'></content>
-        <template is="dom-if" if="svg.source">
+        <template is="dom-if" if="[[svg.source]]">
           <svg-element id='svgElement' source="[[svg.source]]" initially-zoom-to-selected max-zoom='5' min-zoom='1.2' opened="[[opened]]"></svg-element>
         </template>
-        <section id='title' on-tap='toggle'>[[title]]</section>
+        <section id='headline' on-tap='toggle'>[[headline]]</section>
       </section>
 
       <section id='mainContent'>
         <content></content>
       </section>
-    </section>
 
   </template>
   <script>
@@ -164,10 +171,10 @@
       ],
 
       properties: {
-        title: {
+        headline: {
           type: String,
           value: '',
-          observer: '_titleChanged'
+          observer: '_headlineChanged'
         },
         opened: {
           type: Boolean,
@@ -193,15 +200,6 @@
           type: Object
         },
 
-        openOnSelect: {
-          type: Boolean,
-          value: false
-        },
-        openOnExceed: {
-          type: Boolean,
-          value: false
-        },
-
         notify: {
           type: Boolean,
           value: false
@@ -219,6 +217,15 @@
           value: false
         },
 
+        openOnSelect: {
+          type: Boolean,
+          value: false
+        },
+        openOnExceed: {
+          type: Boolean,
+          value: false
+        },
+
         reproduce: {
           type: Boolean,
           value: false
@@ -229,8 +236,8 @@
         }
       },
 
-      factoryImpl: function(title, svg, dark, withoutWindow, hideHeader) {
-        this.set('title', title || '');
+      factoryImpl: function(headline, svg, dark, withoutWindow, hideHeader) {
+        this.set('headline', headline || '');
         if (dark) {
           this.setAttribute('dark', true);
         }
@@ -269,21 +276,20 @@
             this.opened = false;
             return;
           }
-          this.$.title.classList.add('over-image');
+          this.$.headline.classList.add('over-image');
           this.$.header.setAttribute('opened', true);
         } else {
-          this.$.title.classList.remove('over-image');
+          this.$.headline.classList.remove('over-image');
           this.$.header.removeAttribute('opened');
         }
       },
 
-      _titleChanged: function(text) {
-
-        this.$.header.setAttribute('aria-label', this.title);
+      _headlineChanged: function(text) {
+        // this.$.header.setAttribute('aria-label', this.headline);
       },
 
-      _hideTitle: function(title,withoutWindow, hideHeader) {
-        if(title === '*' || withoutWindow || hideHeader)
+      _hideheadline: function(headline,withoutWindow, hideHeader) {
+        if(headline === '*' || withoutWindow || hideHeader)
           return true;
         else
           return false;

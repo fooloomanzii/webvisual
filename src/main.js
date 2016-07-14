@@ -1,5 +1,6 @@
 'use strict';
 
+require('events').EventEmitter.prototype._maxListeners = 0;
 var electron = require('electron');
 var remote = require('electron').remote;
 const {ipcMain} = require('electron');

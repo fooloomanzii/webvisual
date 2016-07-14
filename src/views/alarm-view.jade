@@ -117,7 +117,7 @@ html
         each Label, I in config.labels
           section.panel(label!= Label, animated!= (!mobile))
             each Subgroup, Name in config.groups[Label][config.preferedGroupingKeys[Label]]
-              group-card(title= Name, 
+              group-card(headline= Name, 
                          svg= JSON.stringify(Subgroup.svg),
                          no-select-notify, notify, open-onexceed, reproduce)
                 each Id, i in Subgroup.ids

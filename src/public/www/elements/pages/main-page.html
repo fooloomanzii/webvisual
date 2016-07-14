@@ -69,7 +69,7 @@
       opacity: 1;
     }
     section#mainContent ::content .panel > * {
-      padding: 0.4em;
+      margin: 0.4em;
     }
     section#mainContent ::content .panel.foreground {
       display: flex;
@@ -121,7 +121,7 @@
       color: #A8CCDB;
     }
     @media all and (max-width: 520px) {
-      .panel {
+      section#mainContent ::content .panel {
         display: block;
         padding: 0em;
       }
@@ -576,7 +576,7 @@
                 break;
             }
             if (j !== elements.length) {
-               Polymer.dom(newgroupcards[subgroup]).node.querySelector("section#mainContent").appendChild(elements[j]);
+               Polymer.dom(newgroupcards[subgroup]).appendChild(elements[j]);
             }
           }
         }

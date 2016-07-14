@@ -42,7 +42,7 @@ class fileConfigLoader extends EventEmitter {
       listener = {
         error: (function(type, errors, name, path) {
           // console.log(errors);
-          // this.emit('error', 'Error parsing ConfigFile... ', errors, path, name);
+          this.emit('error', errors, {path, name});
         }).bind(this),
         data: (function(type, data, name, path) {
           if (data && name) {

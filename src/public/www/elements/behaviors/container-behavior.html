@@ -29,7 +29,7 @@
 
         notify: {
           type: Boolean,
-          value: true
+          value: false
         },
         notifyParent: {
           type: Boolean,
@@ -90,6 +90,13 @@
       '_reproductionRepeat(selectedElements.splices)',
       '_reproductionRepeat(exceedingElements.splices)'
     ],
+
+    detached: function(){
+      this.unlisten(this, 'element-select', '__setSelectedElement');
+      this.unlisten(this, 'element-deselect', '__unsetSelectedElement');
+      this.unlisten(this.rootElement, 'element-select', '__setSelectedElement');
+      this.unlisten(this.rootElement, 'element-deselect', '__unsetSelectedElement');
+    },
 
     attached: function(){
       if (this.notify === true) {

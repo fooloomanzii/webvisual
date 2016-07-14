@@ -7,13 +7,14 @@ html
     script(type='text/javascript').
       // actual measuring system
       var Name = !{JSON.stringify(name)};
+      var Labels = ["Temperatur (Testvisualisierung)"];
       // performance
       window.Polymer = {
         dom: 'shady',
         lazyRegister: true
       };
-    script(src='socket.io/socket.io.js')
-    script(src='js/data-socket-repeater.js')
+    //- script(src='socket.io/socket.io.js')
+    //- script(src='js/data-socket-repeater.js')
     link(rel='import', href='components/polymer/polymer.html')
     link(rel="import", href="style/app-theme.html")
     link(rel='import', href='elements/imports.html')
@@ -82,16 +83,16 @@ html
       100% {transform: rotate(-360deg)}
     }
     chart-element {
-      background: var(--bright-primary-color);
+      background: var(--background-1);
       color: var(--primary-text-color);
       width: 100%;
     }
     chart-element[dark] {
-      background: var(--background-4);
+      background: var(--background-2);
       color: var(--primary-text-color);
     }
     main-page {
-      --app-content-background: var(--background-3);
+      --app-content-background: var(--background-2);
       --dark-app-content-background: var(--bright-primary-color);
       --app-toolbar-max-height: 35vh;
     }
@@ -141,7 +142,7 @@ html
         each Label in config.labels
           section.panel(label!= Label, animated!= (!mobile))
             each Subgroup, Titel in config.groups[Label][config.preferedGroupingKeys[Label]]
-              group-card(title= Titel)
+              group-card(headline= Titel)
                 each Id, i in Subgroup.ids
                   element-checkbox(label!= Label,
                                id!= Id, 
@@ -153,7 +154,7 @@ html
                                show-date!= (!mobile),
                                color!= config.elements[Label][Id].color,
                                bubbles, 
-                               selectable, vertical)
+                               selectable)
 
     script.
     
@@ -169,22 +170,23 @@ html
         PageSelector = document.querySelector('neon-animated-pages#PageSelector');
         PageSelector.removeAttribute('hidden');
         MainPage = document.querySelector('main-page');
-        
-        //- tests
-        
-        //- function update() {
-        //-   var date = new Date();
-        //-   if (!this) return;
-        //-   this.unshiftValues({x: +date, y: +(Math.random() * 1).toFixed(5) });
-        //-   if (this.values.length > 100)
-        //-     this.spliceValues(this.values.length - 1, 1); 
-        //- }
-        //- setInterval( function() {
-        //-   var elems = document.querySelectorAll('[element]');
-        //-   elems = Array.prototype.slice.call(elems);
-        //-   elems.forEach(function(el) {
-        //-     update.call(el);
-        //-   });
-        //- },1000);
-        
       });
+      
+      //- tests
+      function connect(){
+        function update() {
+          var date = new Date();
+          if (!this) return;
+          this.unshiftValues({x: +date, y: +(Math.random() * 1).toFixed(5) });
+          if (this.values.length > 15)
+            this.spliceValues(15, 1); 
+        }
+        setInterval( function() {
+          
+          for (var label in UpdatableNodes)
+            for (var id in UpdatableNodes[label])
+              UpdatableNodes[label][id].forEach(function(el) {
+                update.call(el);
+              });
+        },1000);
+      }

@@ -110,7 +110,7 @@
       },
 
       "groupingKeys": ["Molekül", "Gefahrenklasse", "Sprungtemperatur", "Druck", "*"],
-      "preferedGroupingKey": "Molekül",
+      "preferedGroupingKey": "*",
 
       "exclusiveGroups": {
         "Sprungtemperatur": {

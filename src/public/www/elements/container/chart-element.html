@@ -72,12 +72,18 @@
     shape-rendering: crispEdges;
     stroke-width: 1px;
   }
-  g#brushX rect.background, g#brushY rect.background {
-    fill: white;
-    fill-opacity: 0.8;
-    stroke: currentColor;
-    stroke-opacity: 0.25;
-    stroke-width: 1px;
+  g#brush > rect.overlay {
+    cursor: default;
+  }
+  g#brush > rect.selection {
+    stroke: #345475;
+    fill: #005B82;
+    stroke-opacity: 0.5;
+    fill-opacity: 0.25;
+  }
+  g#brush > rect.selection.clamp {
+    fill-opacity: 0.3;
+    stroke-opacity: 0.6;
   }
   g.grid g.tick line {
     stroke: currentColor;
@@ -101,16 +107,6 @@
       stroke-opacity: 0.3;
       stroke-width: 2px;
       stroke-dasharray: 5;
-  }
-  g.brush rect.selection {
-    stroke: #345475;
-    fill: #005B82;
-    stroke-opacity: 0.5;
-    fill-opacity: 0.25;
-  }
-  g.brush rect.selection.clamp {
-    fill-opacity: 0.3;
-    stroke-opacity: 0.6;
   }
 </style>
 <div id="svgContainer">
@@ -141,6 +137,7 @@
         <text class='focus text x' y='4'></text>
         <text class='focus text y' x='4'></text>
       </g> -->
+      <g id='brush'></g>
     </g>
   </svg>
 
@@ -312,6 +309,10 @@
       _xGrid: Object,
       _yGrid: Object,
 
+      _brush: Object,
+      _brushBehavior: Object,
+      _isBrushed: false,
+
       _brushBehaviorX: Object,
       _brushX: Object,
       _brushAxisX: Object,
@@ -432,10 +433,13 @@
         this._focusTextX = this._focus.select('text.focus.text.x');
         this._focusTextY = this._focus.select('text.focus.text.y');
 
+        this._brushBehavior = d3.brush()
+                                .on('end', this._brushed.bind(this._self));
         this._brushBehaviorX = d3.brushX()
-                                 .on('brush', this._brushedX.bind(this._self))
+                                 .on('end', this._brushedX.bind(this._self));
         this._brushBehaviorY = d3.brushY()
-                                 .on('brush', this._brushedY.bind(this._self))
+                                 .on('end', this._brushedY.bind(this._self));
+        this._brush  = d3.select(this.$.brush);
         this._brushX = d3.select(this.$.brushX);
         this._brushY = d3.select(this.$.brushY);
 
@@ -522,10 +526,11 @@
         this._focusX.attr('y2', this._height);
         this._focusY.attr('x2', this._width);
 
-        this._brushBehaviorX = d3.brushX()
-                                 .handleSize(8)
-                                 .extent([[0,0],[this._width,this.brushWidth]])
-                                 .on('end', this._brushedX.bind(this._self))
+        this._brush.call(this._brushBehavior);
+        // this._brushBehaviorX = d3.brushX()
+        //                          .handleSize(8)
+        //                          .extent([[0,0],[this._width,this.brushWidth]])
+        //                          .on('end', this._brushedX.bind(this._self))
         this._brushAxisX = this._createAxis(this._x2, 'top', this.xScale);
         this._brushX.attr('transform', 'translate(' + this.margin.left + ',' + (this.margin.top + this.brushWidth)+ ')');
         this._brushX.select('rect.background')
@@ -542,10 +547,10 @@
                         this._brushedX();
                      }.bind(this._self));
 
-        this._brushBehaviorY = d3.brushY()
-                                 .handleSize(8)
-                                 .extent([[0,0],[this.brushWidth,this._height]])
-                                 .on('end', this._brushedY.bind(this._self));
+        // this._brushBehaviorY = d3.brushY()
+        //                          .handleSize(8)
+        //                          .extent([[0,0],[this.brushWidth,this._height]])
+        //                          .on('end', this._brushedY.bind(this._self));
         this._brushAxisY = this._createAxis(this._y2, 'right', this.yScale);
         this._brushY.attr('transform', 'translate(' + (this.margin.left + this._width) + ',' + (this.margin.top + this.brushWidth) + ')');
         this._brushY.select('rect.background')
@@ -642,7 +647,8 @@
       },
 
       _redraw: function () {
-        this._setAllDomains();
+        if (this._isBrushed === true) return;
+          this._setDomains();
 
         if (this._elements.length > 0)
           this._elements.forEach(function(g) { g.redraw(); });
@@ -652,110 +658,55 @@
         this._chart.select('g.x.grid').transition(50).call(this._xGrid);
         this._chart.select('g.y.grid').transition(50).call(this._yGrid);
 
-        this._brushX.select('g.axis').transition(50).call(this._brushAxisX);
-        this._brushY.select('g.axis').transition(50).call(this._brushAxisY);
-
         this._svg.selectAll('g,line,text,path,rect')
                  .classed('style-scope', true)
                  .classed('chart-element', true);
         this._updateFocusText();
       },
 
-      _brushedX: function() {
-        if (d3.event.selection) {
-          var domain;
-          if (this._width - d3.event.selection[1] < this.clampExtend) {
-            if (this._isClamping === false) {
-              this._isClamping = true;
-              this._brushX.select('rect.selection').classed('clamp', true);
-              this._brushBehaviorX.move( this._brushX.select('g.brush'), [d3.event.selection[0], this._width]);
-            }
-            domain = [ this._x2.invert(d3.event.selection[0]),
-                       this._x2.invert(this._width) ];
-          }
-          else {
-            this._isClamping = false;
-            this._brushX.select('rect.selection').classed('clamp', false);
-            domain = [ this._x2.invert(d3.event.selection[0]),
-                       this._x2.invert(d3.event.selection[1]) ];
-          }
-          if (domain[0] > domain[1])
-            domain.reverse();
-          this._x.domain(domain);
-        }
-        else {
-          this._isClamping = false;
-          this._brushX.select('rect.selection').classed('clamp', false);
-          this._x.domain(this._x2.domain());
+      _brushed: function() {
+        var s = d3.event.selection;
+        if (!s) {
+          var k = this._height / this._width;
+          var domainX = this._x.domain();
+          var diff = domainX[1] - domainX[0];
+          console.log([domainX[0]-4.5*diff, domainX[0] + 4.5*diff]);
+          this._x.domain([domainX[0]-4.5*diff, domainX[0] + 4.5*diff]);
+
+          this._y.domain([-4.5 * k, 4.5 * k]);
+          // this._setZoomedDomains();
+          this._isBrushed = false;
+        } else {
+          var t = d3.event.transform;
+          this._x = t.rescaleX(this._x);
+          this._x.domain([s[0][0], s[1][0]].map(this._x.invert, this._x));
+          this._y.domain([s[1][1], s[0][1]].map(this._y.invert, this._y));
+          this._brush.call(this._brushBehavior.move, this._x.range().map(t.invertX, t));
+          this._isBrushed = true;
         }
         this._elements.forEach(function(g) { g.redraw(); });
         this._chart.select('g.x.axis').transition(50).call(this._xAxis);
         this._chart.select('g.x.grid').transition(50).call(this._xGrid);
-        this._brushX.select('g.axis').transition(50).call(this._brushAxisX);
-        this._svg.selectAll('g,line,text,path,rect')
-                 .classed('style-scope', true)
-                 .classed('chart-element', true);
-      },
-      _brushedY: function() {
-        if (d3.event.selection) {
-          var domain = [ this._y2.invert(d3.event.selection[0]),
-                         this._y2.invert(d3.event.selection[1]) ];
-          if (domain[0] > domain[1])
-            domain.reverse();
-          this._y.domain(domain);
-        }
-        else
-          this._y.domain(this._y2.domain());
-        this._elements.forEach(function(g) { g.redraw(); });
         this._chart.select('g.y.axis').transition(50).call(this._yAxis);
         this._chart.select('g.y.grid').transition(50).call(this._yGrid);
-        this._brushY.select('g.axis').transition(50).call(this._brushAxisY);
         this._svg.selectAll('g,line,text,path,rect')
                  .classed('style-scope', true)
                  .classed('chart-element', true);
       },
 
-      _clearBrush: function(behavior, selection) {
-        behavior.move(selection.select('g.brush'),[0,0]);
-      },
-      _brushMoveX: function(extent) {
-        if (Array.isArray(extent) === false) return;
-        this._brushBehaviorX.move(
-          this._brushX.select('g.brush'),
-          [this._x2(extent[0]),this._x2(extent[1])]);
-      },
-      _brushMoveY: function(extent) {
-        if (Array.isArray(extent) === false) return;
-        var domain = [this._y2(extent[1]),this._y2(extent[0])];
-        this._brushBehaviorY.move(this._brushY.select('g.brush'), domain);
-      },
-      _brushIsEmpty: function(selection) {
-        var domain = d3.brushSelection(selection.select('g.brush').node());
-        if (domain === null) return undefined;
-        else if (Math.abs(domain[1]-domain[0]) < 1) return true;
-        else return false;
-      },
-      _brushDomain: function(selection, scale) {
-        var domain = d3.brushSelection(selection.select('g.brush').node());
-        if (domain === null) return undefined;
-        domain = [scale.invert(domain[0]), scale.invert(domain[1])];
-        if (domain[0] > domain[1])
-          domain.reverse();
-        return domain;
+      _zoomed: function () {
       },
 
-      setAllDomains: function () {
-        this.debounce('domains', function() { this._setAllDomains() }, 100);
+      setDomains: function () {
+        this.debounce('domains', function() { this._setDomains() }, 15);
       },
 
-      _setAllDomains: function () {
+      _setDomains: function () {
         if (this._elements.length === 0) return;
 
         var graphs = this._elements;
-        var domainX, domainY = [0, 0], domainBrushX, domainBrushY, v;
+        var domainX, domainY = [0, 0], v;
 
-        domainBrushX = this._brushDomain(this._brushX, this._x2);
-        domainBrushY = this._brushDomain(this._brushY, this._y2);
         domainX = [ d3.min(graphs,function(g){ return g._rangeX[0] }) ,
                     d3.max(graphs,function(g){ return g._rangeX[1] }) ];
         domainY = [ d3.min(graphs,function(g){ return g._rangeY[0] }) ,
@@ -769,34 +720,6 @@
         if (domainY[1] !== undefined) {
           v = (domainY[1]).toExponential().split('e');
           domainY[1] = (Math.ceil(v[0]) + 1) * Math.pow(10,parseInt(v[1],10));
-        }
-
-        this._x2.domain(domainX);
-        this._y2.domain(domainY);
-
-        if (domainBrushX !== undefined) {
-          if ( domainBrushX[0] <= domainX[0] ) {
-            if (this._isClamping === true || domainBrushX[1] <= domainX[0]) {
-              this._clearBrush(this._brushBehaviorX, this._brushX);
-              domainBrushX = domainX;
-            }
-            else {
-              domainBrushX = [domainX[0], domainBrushX[1]];
-              this._brushMoveX( domainBrushX );
-            }
-          }
-          else if (this._isClamping === true) {
-            domainBrushX = [domainBrushX[0], domainX[1]];
-            this._brushMoveX( domainBrushX );
-          }
-          else {
-            this._brushMoveX( domainBrushX );
-          }
-          domainX = domainBrushX;
-        }
-        if (domainBrushY !== undefined) {
-          this._brushMoveY( domainBrushY );
-          domainY = domainBrushY;
         }
         this._x.domain(domainX);
         this._y.domain(domainY);
