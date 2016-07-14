@@ -16,7 +16,7 @@ var body;
     date.classList.add("style-scope");
     date.classList.add("webvisual-app");
     let timestamp = new Date();
-    date.textContent = timestamp.toLocaleString() + "." + timestamp.getMilliseconds();
+    date.innerHTML = timestamp.toLocaleDateString() + '<br/>' + timestamp.toLocaleTimeString() + "." + timestamp.getMilliseconds();
     let message = document.createElement('section');
     message.id = "td"; message.className = "msg";
     message.classList.add("style-scope");
