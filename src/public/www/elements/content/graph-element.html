@@ -210,11 +210,9 @@
         this.set('values', values);
 
         if (this.chartElement)
-          values.forEach(function(v) {
-            this._updateView(v);
-          }, this);
-
-          // this._updateView(undefined, Object);
+          // for (i= values.length-1; i>= 0; i)
+          //   this._updateView(values[i]);
+          this._updateView(undefined, Object);
       },
 
       unshiftValues: function(value) {
@@ -230,7 +228,7 @@
       _updateView: function (value, splices) {
         if ( value !== undefined && value.y < 0 &&
             (this.chartElement.yScale === "ln" ||
-             this.chartElement.yScale === "log")) {
+             this.chartElement.yScale === "log₁₀")) {
           console.warn("ValueError: value in logarithmic scale below 0");
           return;
         }
@@ -240,7 +238,7 @@
 
       _setRange: function(value) {
         if (value !== undefined && this._rangeX.length === 2 && this._rangeY.length === 2) {
-          this._rangeX[0] = (value.x < this._rangeX[0]) ? value.x : this._rangeX[0];
+          this._rangeX[0] = (value.x < this._rangeX[0]) ? value.x : (this.values[this.values.length-1].x > this._rangeX[0]) ? this.values[this.values.length-1].x : this._rangeX[0];
           this._rangeX[1] = (this._rangeX[1] < value.x) ? value.x : this._rangeX[1];
           this._rangeY[0] = (value.y < this._rangeY[0]) ? value.y : this._rangeY[0];
           this._rangeY[1] = (this._rangeY[1] < value.y) ? value.y : this._rangeY[1];

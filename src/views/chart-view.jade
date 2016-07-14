@@ -153,7 +153,7 @@ html
                                show-date!= (!mobile),
                                color!= config.elements[Label][Id].color,
                                bubbles, 
-                               selectable)
+                               selectable, vertical)
 
     script.
     
@@ -169,4 +169,22 @@ html
         PageSelector = document.querySelector('neon-animated-pages#PageSelector');
         PageSelector.removeAttribute('hidden');
         MainPage = document.querySelector('main-page');
+        
+        //- tests
+        
+        //- function update() {
+        //-   var date = new Date();
+        //-   if (!this) return;
+        //-   this.unshiftValues({x: +date, y: +(Math.random() * 1).toFixed(5) });
+        //-   if (this.values.length > 100)
+        //-     this.spliceValues(this.values.length - 1, 1); 
+        //- }
+        //- setInterval( function() {
+        //-   var elems = document.querySelectorAll('[element]');
+        //-   elems = Array.prototype.slice.call(elems);
+        //-   elems.forEach(function(el) {
+        //-     update.call(el);
+        //-   });
+        //- },1000);
+        
       });

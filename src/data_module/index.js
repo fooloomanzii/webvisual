@@ -98,7 +98,7 @@ class dataModule extends EventEmitter {
           for (var label of config.labels) {
             socket.join(name + '__' + label); // client joins room for selected label
             socket.emit('update', this.currentData[name][label]);
-            console.log(this.currentData[name][label]).length);
+            // console.log(this.currentData[name][label].length);
           }
         }).bind(this));
 

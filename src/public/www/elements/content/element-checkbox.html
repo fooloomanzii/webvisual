@@ -6,17 +6,12 @@
         position: relative;
         line-height: 0;
         --calculated-checkbox-size: var(--checkbox-size, 20px);
-        --checkbox-checked-color: var(--element-color);
+        padding: 0.25em 0.5em;
+        transition: background-color 150ms ease;
       }
 
-      section#container {
-        display: inline-block;
-        white-space: nowrap;
-        position: relative;
-        cursor: pointer;
-        @apply(--font-common-base);
-        line-height: 0;
-        -webkit-tap-highlight-color: transparent;
+      :host[checked] {
+        background-color: var(--checkbox-checked-background, white);
       }
 
       :host(:focus) {
@@ -25,6 +20,15 @@
 
       .hidden {
         display: none;
+      }
+      section#container {
+        display: inline-block;
+        white-space: nowrap;
+        position: relative;
+        cursor: pointer;
+        @apply(--font-common-base);
+        line-height: 0;
+        -webkit-tap-highlight-color: transparent;
       }
 
       section#checkboxContainer {
@@ -47,7 +51,7 @@
         left: calc(0px - (2.66 * var(--calculated-checkbox-size) - var(--calculated-checkbox-size)) / 2);
         width: calc(2.66 * var(--calculated-checkbox-size));
         height: calc(2.66 * var(--calculated-checkbox-size));
-        color: var(--checkbox-unchecked-ink-color, --primary-text-color);
+        color: var(--checkbox-unchecked-ink-color, --bright-text-color);
         opacity: 0.25;
         pointer-events: none;
       }
@@ -61,14 +65,14 @@
         border-radius: 2px;
         background: rgba(255, 255, 255, 0.25);
         pointer-events: none;
-        -webkit-transition: background-color 140ms, border-color 140ms;
-        transition: background-color 140ms, border-color 140ms;
+        -webkit-transition: background-color 150ms, border-color 150ms;
+        transition: background-color 150ms, border-color 150ms;
       }
 
       /* checkbox checked animations */
       section#checkbox.checked section#checkmark {
-        -webkit-animation: checkmark-expand 140ms ease-out forwards;
-        animation: checkmark-expand 140ms ease-out forwards;
+        -webkit-animation: checkmark-expand 150ms ease-out forwards;
+        animation: checkmark-expand 150ms ease-out forwards;
       }
 
       @-webkit-keyframes checkmark-expand {
@@ -109,7 +113,7 @@
         position: relative;
         display: inline-block;
         vertical-align: middle;
-        padding: 0.25em 0.5em;
+        padding: 0.25em 0.25em 0.25em 0.5em;
         white-space: normal;
         line-height: 1.2;
         color: currentColor;
@@ -120,9 +124,13 @@
         font-weight: normal;
         width: 100%;
         font-size: 0.5em;
+      }
+
+      :host([vertical]) span.captions {
         float: left;
         clear: both;
       }
+
       section.caption > span.captions.prefered {
         font-size: 0.8em;
       }
@@ -299,6 +307,11 @@
       },
 
       properties: {
+        vertical: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
         showDate: {
           type: Boolean,
           value: true
