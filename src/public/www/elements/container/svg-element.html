@@ -189,9 +189,9 @@
 
 </style>
 
-  <div id='svgContainer' hidden$="[[!_computeOpened(opened, forceOpened)]]">
+  <div id='svgContainer' hidden$="[[_computeHidden(opened, forceOpened)]]">
   </div>
-  <div id='control' top$='{{isFullscreen}}' hidden$="[[!_computeOpened(opened, forceOpened)]]">
+  <div id='control' top$='{{isFullscreen}}' hidden$="[[_computeHidden(opened, forceOpened)]]">
     <svg class='icon' viewBox='0 -4 16 24' on-tap='_debounceResetZoom'><title>focus</title><g id='focus'> <path d='M 16,5.5 13,8 16,10.5 Z' /> <path d='M 10.5,16 8,13 5.5,16 Z' /> <path d='M 0,10.5 3,7.9999999 0,5.5 Z' /><path d='M 5.5,0 8,3 10.5,0 Z'/><circle r='1.5' cx='8' cy='8' /></g></svg>
     <svg class='icon' viewBox='0 0 24 24' hidden$='{{isFullscreen}}' on-tap='_fireOpenFullscreen'><title>fullscreen</title><g id='fullscreen'><path d='M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z'/></g></svg>
     <svg class='icon' viewBox='0 0 24 24' hidden$='{{!isFullscreen}}' on-tap='close'><title>close</title><g id='fullscreen-exit'><path d='M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z'/></g></svg>
@@ -480,6 +480,8 @@
       if (changeRecord && changeRecord.indexSplices) {
         if (this.selectedElements.length > 0) {
           this.source = this.selectedElements[this.selectedElements.length-1].svg.source;
+          if (this.openOnSelect)
+            this.opened = true;
         }
         if (!this.source) this.opened = false;
         this._sourceChanged(this.source);
@@ -490,9 +492,12 @@
 
     _exceedingChanged: function(changeRecord) {
       if (changeRecord && changeRecord.indexSplices) {
-        if (!this.source && this.exceedingElements.length > 0) {
+        if (this.exceedingElements.length > 0) {
           // setting source to last exceeding element
-          this.source = this.exceedingElements[this.exceedingElements.length-1].svg.source;
+          if (!this.source)
+            this.source = this.exceedingElements[this.exceedingElements.length-1].svg.source;
+          if (this.openOnExceed)
+            this.opened = true;
         }
         this._sourceChanged(this.source);
         this._debounceSelectable();
@@ -740,8 +745,8 @@
       this._zoomToElement(this._mainG.node());
     },
 
-    _computeOpened: function(opened, forceOpened) {
-      return opened || forceOpened;
+    _computeHidden: function(opened, forceOpened) {
+      return !(opened || forceOpened);
     },
 
     _fireOpenFullscreen: function() {

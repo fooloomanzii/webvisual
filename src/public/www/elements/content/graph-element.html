@@ -123,6 +123,7 @@
         this._node = this.chartElement._chart.select('g#graphs')
                                              .append('svg:g')
                                              .attr('clip-path', 'url(#clip)')
+                                             .attr('class', 'graph')
                                              .attr('id', this.id)
                                              .attr('label', this.label);
         // node of line

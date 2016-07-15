@@ -119,7 +119,7 @@ html
             each Subgroup, Name in config.groups[Label][config.preferedGroupingKeys[Label]]
               group-card(headline= Name, 
                          svg= JSON.stringify(Subgroup.svg),
-                         no-select-notify, notify, open-onexceed, reproduce)
+                         no-select-notify, notify, open-on-exceed)
                 each Id, i in Subgroup.ids
                   sign-element(label!= Label, 
                                id!= Id, 
@@ -131,7 +131,8 @@ html
                                show-date!= (!mobile),
                                color!= config.elements[Label][Id].color,
                                bubbles, 
-                               selectable)
+                               selectable,
+                               tooltip)
                                
         //- Elements for TOOLBAR 
         sign-element.toolbar-footer(horizontal)

@@ -151,7 +151,7 @@
       <section id='header' hidden$='[[_hideheadline(headline,withoutWindow,hideHeader)]]'>
         <content select='.header'></content>
         <template is="dom-if" if="[[svg.source]]">
-          <svg-element id='svgElement' source="[[svg.source]]" initially-zoom-to-selected max-zoom='5' min-zoom='1.2' opened="[[opened]]"></svg-element>
+          <svg-element id='svgElement' source="[[svg.source]]" initially-zoom-to-selected max-zoom='5' min-zoom='1.2' opened="[[opened]]" exceeding-elements="[[exceedingElements]]" open-on-exceed></svg-element>
         </template>
         <section id='headline' on-tap='toggle'>[[headline]]</section>
       </section>

@@ -37,11 +37,13 @@
   }
   .icon-button, section#info {
     position: absolute;
-    opacity: 0.75;
-    transition: opacity 250ms ease;
+    opacity: 0.6;
+    transform: scale(0.9);
+    transition: opacity 150ms ease, transform 150ms ease;
   }
   .icon-button:hover, section#info:hover {
     opacity: 1;
+    transform: scale(1);
     border-radius: 0;
   }
   section#info {
@@ -61,9 +63,6 @@
   g#chart text{
     font-size: 1em;
   }
-  g#brush text{
-    font-size: 0.5em;
-  }
   g#chart rect.plot {
     fill: white;
     fill-opacity: 0.7;
@@ -77,13 +76,9 @@
   }
   g#brush > rect.selection {
     stroke: #345475;
-    fill: #005B82;
+    fill: #111;
     stroke-opacity: 0.5;
-    fill-opacity: 0.25;
-  }
-  g#brush > rect.selection.clamp {
-    fill-opacity: 0.3;
-    stroke-opacity: 0.6;
+    fill-opacity: 0.05;
   }
   g.grid g.tick line {
     stroke: currentColor;
@@ -101,8 +96,12 @@
   g#chart g.axis path, g#chart g.axis line {
     stroke-opacity: 0.5;
   }
+  g#graphs path.line {
+    pointer-events: stroke;
+  }
   g#focus line.focus.line {
       fill: none;
+      pointer-events: none;
       stroke: currentColor;
       stroke-opacity: 0.3;
       stroke-width: 2px;
@@ -111,16 +110,6 @@
 </style>
 <div id="svgContainer">
   <svg id='svg' version='1.1' xmlns='http://www.w3.org/2000/svg'>
-    <g id='brushX'>
-      <rect class='background'></rect>
-      <g class='axis'></g>
-      <g class='brush'></g>
-    </g>
-    <g id='brushY'>
-      <rect class='background'></rect>
-      <g class='axis'></g>
-      <g class='brush'></g>
-    </g>
     <g id='chart'>
       <clipPath id='clip'>
         <rect x='0' y='0'></rect>
@@ -130,14 +119,15 @@
       <g class='y axis'></g>
       <g class='x grid'></g>
       <g class='y grid'></g>
+      <g id='brush'></g>
       <g id='graphs'></g>
-      <!-- <g id='focus'>
+      <g id='focus'>
+        <rect class="overlay" x='0' y='0'></rect>
         <line class='focus line x' y1='0'></line>
         <line class='focus line y' x1='0'></line>
         <text class='focus text x' y='4'></text>
         <text class='focus text y' x='4'></text>
-      </g> -->
-      <g id='brush'></g>
+      </g>
     </g>
   </svg>
 
@@ -147,20 +137,20 @@
   </section>
 
   <icon-button-element id="menubutton" class="icon-button" icon="timeline"></icon-button-element>
-  <dropdown-element id="legend" for="menubutton" target-toggle-event="tap" position="bottom" align="outer-start">
+  <dropdown-element id="legend" for="menubutton" target-toggle-event="tap" position="bottom" align="end" offset="4">
     <toggle-button-element checked="[[!noDots]]" on-change="changeDots"></iron-icon>mit Punkten</toggle-button-element>
     <toggle-button-element checked="[[!noLines]]" on-change="changeLines"></iron-icon>mit Linien</toggle-button-element>
     <toggle-button-element checked="[[!noAreas]]" on-change="changeAreas">mit Flächen</toggle-button-element>
   </dropdown-element>
 
-  <dropdown-selector id="ybutton" class="icon-button" icon="y" hide-selected attr-for-selected="scale" selected="{{yScale}}" fallback-selection="linear" toggles hide-arrow position="bottom" align="outer-end">
+  <dropdown-selector id="ybutton" class="icon-button" icon="y" hide-selected attr-for-selected="scale" selected="{{yScale}}" fallback-selection="linear" offset="16" toggles hide-arrow position="right" align="start" no-focusLine>
       <button-element scale='linear'>linear</button-element>
       <button-element scale='√'>√</button-element>
       <button-element scale='ln'>ln</button-element>
       <button-element scale='log₁₀'>log₁₀</button-element>
   </dropdown-selector>
 
-  <dropdown-selector id="xbutton" class="icon-button" icon="x" hide-selected attr-for-selected="interpolate" selected="{{interpolation}}" fallback-selection="Lineare Verbindung" toggles hide-arrow position="left" align="end">
+  <dropdown-selector id="xbutton" class="icon-button" icon="x" hide-selected attr-for-selected="interpolate" selected="{{interpolation}}" fallback-selection="Lineare Verbindung" toggles no-focusLine hide-arrow offset="4" position="top" align="end">
       <button-element interpolate='Lineare Verbindung'>Lineare Verbindung</button-element>
       <button-element interpolate='Basis Spline'>Basis Spline</button-element>
       <button-element interpolate='Monotoner Spline'>Monotoner Spline</button-element>
@@ -237,10 +227,10 @@
             return {  top: 0,
                       right: 0,
                       bottom: 36,
-                      left: 36 };
+                      left: 48 };
           }
         },
-        brushWidth: {
+        iconWidth: {
           type: Number,
             value: 36
         },
@@ -300,9 +290,7 @@
       _svg: Object,
 
       _x: Function,
-      _x2: Function,
       _y: Function,
-      _y2: Function,
 
       _xAxis: Object,
       _yAxis: Object,
@@ -313,23 +301,12 @@
       _brushBehavior: Object,
       _isBrushed: false,
 
-      _brushBehaviorX: Object,
-      _brushX: Object,
-      _brushAxisX: Object,
-      _brushGridX: Object,
-
-      _brushBehaviorY: Object,
-      _brushY: Object,
-      _brushAxisY: Object,
-      _brushGridY: Object,
-
       _focus: Object,
       _focusX: Object,
       _focusTextX: Object,
       _focusY: Object,
       _focusTextY: Object,
 
-      _legend: Object,
       _info: Object,
 
       formatMillisecond: Function,
@@ -389,6 +366,7 @@
       },
 
       attached: function() {
+        this._sizeLayout();
         this._observer =
             Polymer.dom(this.$.collector).observeNodes((function(info) {
           this.__processNewNodes(info.addedNodes);
@@ -415,17 +393,13 @@
                                          .attr('height', null)
                                          .attr('width', null);
         this._x  = this._createScale(this.xScale);
-        this._x2 = this._createScale(this.xScale);
         this._y  = this._createScale(this.yScale);
-        this._y2 = this._createScale(this.yScale);
 
         this._chart = d3.select(this.$.chart);
-                        // .on('mouseenter', this._showFocus.bind(this))
-                        // .on('mousemove',  this._updateFocus.bind(this))
-                        // .on('mouseleave', this._hideFocus.bind(this));
 
         this._focus = d3.select(this.$.focus)
                         .attr('clip-path', 'url(#clip)');
+
         this._focusX = this._focus.select('line.focus.line.x')
                                   .attr('clip-path', 'url(#clip)');
         this._focusY = this._focus.select('line.focus.line.y')
@@ -435,16 +409,10 @@
 
         this._brushBehavior = d3.brush()
                                 .on('end', this._brushed.bind(this._self));
-        this._brushBehaviorX = d3.brushX()
-                                 .on('end', this._brushedX.bind(this._self));
-        this._brushBehaviorY = d3.brushY()
-                                 .on('end', this._brushedY.bind(this._self));
-        this._brush  = d3.select(this.$.brush);
-        this._brushX = d3.select(this.$.brushX);
-        this._brushY = d3.select(this.$.brushY);
+        this._brush = d3.select(this.$.brush)
+                        .attr('clip-path', 'url(#clip)');
 
         this._info = d3.select(this.$.info);
-        this._legend = d3.select(this.$.legend);
 
         if (this.xScale === 'time') this.$.xbutton.set('icon', 't');
         else this.$.xbutton.set('icon', 'x');
@@ -467,38 +435,35 @@
         this._svg.attr('height', this._height)
                  .attr('width', this._width);
 
-        this._width = this._width - this.margin.left - this.margin.right - this.brushWidth;
-        this._height = this._height - this.margin.bottom - this.margin.top - this.brushWidth;
+        this._width = this._width - this.margin.left - this.margin.right;
+        this._height = this._height - this.margin.bottom - this.margin.top;
 
         this._x.range([0, this._width]);
         this._y.range([this._height, 0]);
 
-        this._x2.range([0, this._width]),
-        this._y2.range([this._height, 0]);
-
         this.$.menubutton.style.left = 'auto';
-        this.$.menubutton.style.right = this.margin.right + 'px';
-        this.$.menubutton.style.top = this.margin.top + 'px';
+        this.$.menubutton.style.right = (this.margin.right + 4) + 'px';
+        this.$.menubutton.style.top = (this.margin.top + 4) + 'px';
         this.$.menubutton.style.bottom = 'auto';
 
-        this.$.ybutton.style.left = (this.margin.left - this.brushWidth) + 'px';
+        this.$.ybutton.style.left = (this.margin.left - this.iconWidth - 12) + 'px';
         this.$.ybutton.style.right = 'auto';
-        this.$.ybutton.style.top = this.margin.top + 'px';
+        this.$.ybutton.style.top = (this.margin.top + 20) + 'px';
         this.$.ybutton.style.bottom = 'auto';
 
         this.$.xbutton.style.left = 'auto';
-        this.$.xbutton.style.right = this.margin.right + 'px';
+        this.$.xbutton.style.right = (this.margin.right + 16) + 'px';
         this.$.xbutton.style.top = 'auto';
-        this.$.xbutton.style.bottom = (this.margin.bottom - this.brushWidth) + 'px';
+        this.$.xbutton.style.bottom = (this.margin.bottom - this.iconWidth) + 'px';
 
-        this._chart.attr('transform', 'translate(' + this.margin.left + ',' + (this.brushWidth + this.margin.top) + ')');
+        this._chart.attr('transform', 'translate(' + this.margin.left + ',' + (this.margin.top) + ')');
 
         // Limiting Projection to Margin
         this._chart.selectAll('clipPath#clip rect')
                    .attr('width', this._width)
                    .attr('height', this._height);
 
-        this._chart.select('rect.plot')
+        this._chart.selectAll('rect.plot, rect.overlay')
                   .attr('width', this._width)
                   .attr('height', this._height);
 
@@ -516,59 +481,25 @@
                    .call(this._xAxis)
                    .attr('transform', 'translate(0,' + this._height + ')');
         this._chart.select('g.y.axis')
-                   .call(this._yAxis);
+                   .call(this._yAxis)
+                   .attr('transform', 'translate(0,' + 0 + ')');
         this._chart.select('g.x.grid')
                   .attr('transform', 'translate(0,' + this._height + ')')
                   .call(this._xGrid);
         this._chart.select('g.y.grid')
-                  .call(this._yGrid);
+                  .call(this._yGrid)
+                  .attr('transform', 'translate(0,' + 0 + ')');;
 
         this._focusX.attr('y2', this._height);
         this._focusY.attr('x2', this._width);
 
         this._brush.call(this._brushBehavior);
-        // this._brushBehaviorX = d3.brushX()
-        //                          .handleSize(8)
-        //                          .extent([[0,0],[this._width,this.brushWidth]])
-        //                          .on('end', this._brushedX.bind(this._self))
-        this._brushAxisX = this._createAxis(this._x2, 'top', this.xScale);
-        this._brushX.attr('transform', 'translate(' + this.margin.left + ',' + (this.margin.top + this.brushWidth)+ ')');
-        this._brushX.select('rect.background')
-                    .attr('width', this._width).attr('height', this.brushWidth)
-                    .attr('transform', 'translate(0,-' + this.brushWidth + ')');
-        this._brushX.select('g.axis')
-                    .call( this._brushAxisX );
-        this._brushX.select('g.brush')
-                    .attr('transform', 'translate(0,-' + this.brushWidth + ')')
-                    .call(this._brushBehaviorX)
-                    .on('contextmenu', function() {
-                        d3.event.preventDefault();
-                        this._clearBrush(this._brushBehaviorX, this._brushX);
-                        this._brushedX();
-                     }.bind(this._self));
 
-        // this._brushBehaviorY = d3.brushY()
-        //                          .handleSize(8)
-        //                          .extent([[0,0],[this.brushWidth,this._height]])
-        //                          .on('end', this._brushedY.bind(this._self));
-        this._brushAxisY = this._createAxis(this._y2, 'right', this.yScale);
-        this._brushY.attr('transform', 'translate(' + (this.margin.left + this._width) + ',' + (this.margin.top + this.brushWidth) + ')');
-        this._brushY.select('rect.background')
-                    .attr('width', this.brushWidth).attr('height', this._height)
-                    .attr('transform', 'translate(0,0)');
-        this._brushY.select('g.axis')
-                    .call( this._brushAxisY );
-        this._brushY.select('g.brush')
-                    .attr('transform', 'translate(0,0)')
-                    .call(this._brushBehaviorY)
-                    .on('contextmenu', function() {
-                        d3.event.preventDefault();
-                        this._clearBrush(this._brushBehaviorY, this._brushY);
-                        this._brushedY();
-                     }.bind(this._self));
+        this._focus.on('mouseenter', this._showFocus.bind(this))
+                   .on('mousemove',  this._updateFocus.bind(this))
+                   .on('mouseleave', this._hideFocus.bind(this));
 
-        this._info.attr('style', 'left:'+(this.margin.left)+'px; top:'+(this.margin.top+this.brushWidth)+'px');
-        this._legend.attr('style', 'right:'+(this.margin.right+this.brushWidth+2)+'px; top:'+(this.margin.top+this.brushWidth+2)+'px');
+        this._info.attr('style', 'left:'+(this.margin.left)+'px; top:'+(this.margin.top)+'px');
 
         this._svg.selectAll('g,line,text,path,rect')
                  .classed('style-scope', true)
@@ -648,8 +579,8 @@
 
       _redraw: function () {
         if (this._isBrushed === true) return;
-          this._setDomains();
 
+        this._setDomains();
         if (this._elements.length > 0)
           this._elements.forEach(function(g) { g.redraw(); });
 
@@ -667,21 +598,11 @@
       _brushed: function() {
         var s = d3.event.selection;
         if (!s) {
-          var k = this._height / this._width;
-          var domainX = this._x.domain();
-          var diff = domainX[1] - domainX[0];
-          console.log([domainX[0]-4.5*diff, domainX[0] + 4.5*diff]);
-          this._x.domain([domainX[0]-4.5*diff, domainX[0] + 4.5*diff]);
-
-          this._y.domain([-4.5 * k, 4.5 * k]);
-          // this._setZoomedDomains();
           this._isBrushed = false;
         } else {
-          var t = d3.event.transform;
-          this._x = t.rescaleX(this._x);
           this._x.domain([s[0][0], s[1][0]].map(this._x.invert, this._x));
           this._y.domain([s[1][1], s[0][1]].map(this._y.invert, this._y));
-          this._brush.call(this._brushBehavior.move, this._x.range().map(t.invertX, t));
+          this._brush.call(this._brushBehavior.move, null);
           this._isBrushed = true;
         }
         this._elements.forEach(function(g) { g.redraw(); });

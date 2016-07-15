@@ -14,6 +14,10 @@
           reflectToAttribute: true,
           observer: '__hide'
         },
+        newestDataLast: {
+          type: Boolean,
+          value: false
+        },
         keys: {
           type: Object,
           value: function() { return {}; }
@@ -97,6 +101,11 @@
         }
     },
 
+    attached: function(){
+      if (this.values.length > 0)
+        this.setValues(this.values, this.newestDataLast);
+    },
+
     hostAttributes: {
       element: true
     },
@@ -164,11 +173,11 @@
                 'lastExceeds': this.lastExceeds,
                 'values': this.values,
                 'notExceedable': this.notExceedable,
+                'isExceeding': this.isExceeding,
                 'preferedKey': this.preferedKey,
                 'color': this.color,
                 'values': this.values
-              },
-              properties: this.properties
+              }
             };
     },
 
@@ -220,13 +229,13 @@
 
     setValues: function(values, newestDataLast) {
       this.set('values', values);
-
+      this.newestDataLast = newestDataLast;
       if (newestDataLast) {
-        this.setExceedingState(values[values.length - 1].exceeds !== null, values[values.length - 1].exceeds);
+        this.setExceedingState((values[values.length - 1].exceeds === true) || (values[values.length - 1].exceeds === false), values[values.length - 1].exceeds);
         this._updateView(values[values.length - 1]);
       }
       else {
-        this.setExceedingState(values[values.length - 1].exceeds !== null, values[0].exceeds);
+        this.setExceedingState((values[0].exceeds === true) || (values[0].exceeds === false), values[0].exceeds);
         this._updateView(values[0]);
       }
     },
