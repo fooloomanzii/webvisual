@@ -185,10 +185,10 @@
               .attr('cx', (function(d,i) {
                 return this.chartElement._x(d.x)}).bind(this._self))
               .attr('cy', (function(d,i) {
-                return this.chartElement._y(d.y)}).bind(this._self))
-              .on('mouseenter', (function(d) {
-                this.chartElement._updateInfo(d)
-              }).bind(this._self));
+                return this.chartElement._y(d.y)}).bind(this._self));
+              // .on('mouseenter', (function(d) {
+              //   this.chartElement._updateInfo(d)
+              // }).bind(this._self));
         //  remove old dots
         dots.exit()
             .remove();

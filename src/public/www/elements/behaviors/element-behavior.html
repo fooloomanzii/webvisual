@@ -102,8 +102,14 @@
     },
 
     attached: function(){
-      if (this.values.length > 0)
+      if (this.values.length > 0) {
         this.setValues(this.values, this.newestDataLast);
+        this.setExceedingState(this.values[0].exceeds === true || this.values[0].exceeds === false, this.values[0].exceeds);
+      }
+    },
+
+    factoryImpl: function(obj) {
+      this.setElement(obj);
     },
 
     hostAttributes: {
@@ -140,11 +146,8 @@
         this.set(key, options[key]);
       }
       this.setValues(obj.element.values);
+      this.setExceedingState(obj.element.values[0].exceeds === true || obj.element.values[0].exceeds === false, obj.element.values[0].exceeds);
       this._updatableChanged();
-    },
-
-    factoryImpl: function(obj) {
-      this.setElement(obj);
     },
 
     unsetElement: function() {
@@ -183,30 +186,21 @@
 
     unshiftValues: function(value) {
       this.unshift('values', value);
+      this.checkExceedingState(value);
+      this._updateView(value);
+    },
 
-      if (value.exceeds === null) {
-        if(this.isExceeding !== false) {
-          this.setExceedingState(false, value.exceeds);
-          this._setLastExceeds(this.values[1]);
-        }
-      }
-      else if (value.exceeds === true || value.exceeds === false) {
-        if(this.isExceeding === false) {
-          this.setExceedingState(true, value.exceeds);
-          this._setFirstExceeds(this.values[0]);
-          if (this.hasExceeded === false)
-            this.set('hasExceeded', true);
-        }
-      }
+    pushValues: function(value) {
+      this.push('values', value);
+      this.checkExceedingState(value);
       this._updateView(value);
     },
 
     __hide: function() {
       if (this.id && this.label)
         this.removeAttribute('hidden');
-      else {
+      else
         this.setAttribute('hidden', true);
-      }
     },
 
     spliceValues: function(start, length) {
@@ -214,9 +208,27 @@
       this._updateView(undefined, {start: start, length: length, value: value});
     },
 
+    checkExceedingState: function(value) {
+      if (this.notExceedable === true) return;
+
+      if (value.exceeds === null) {
+        if(this.isExceeding !== false) {
+          this.setExceedingState(false, value.exceeds);
+          this._setLastExceeds(value);
+        }
+      }
+      else if (value.exceeds === true || value.exceeds === false) {
+        if(this.isExceeding === false) {
+          this.setExceedingState(true, value.exceeds);
+          this._setFirstExceeds(value);
+          if (this.hasExceeded === false)
+            this.set('hasExceeded', true);
+        }
+      }
+    },
+
     setExceedingState: function(isExceeding, state) {
-      if (this.notExceedable === false)
-        this.set('isExceeding', isExceeding);
+      this.set('isExceeding', isExceeding);
     },
 
     _setFirstExceeds: function(value) {
@@ -228,24 +240,27 @@
     },
 
     setValues: function(values, newestDataLast) {
-      this.set('values', values);
-      this.newestDataLast = newestDataLast;
+      if (newestDataLast === true || newestDataLast === false)
+        this.newestDataLast = newestDataLast;
+
       if (newestDataLast) {
-        this.setExceedingState((values[values.length - 1].exceeds === true) || (values[values.length - 1].exceeds === false), values[values.length - 1].exceeds);
+        for (var i = 0; i < values.length; i++) {
+          this.checkExceedingState(values[i]);
+        }
         this._updateView(values[values.length - 1]);
       }
       else {
-        this.setExceedingState((values[0].exceeds === true) || (values[0].exceeds === false), values[0].exceeds);
+        for (var i = values.length - 1; i >= 0; i--) {
+          this.checkExceedingState(values[i]);
+        }
         this._updateView(values[0]);
       }
-    },
-
-    _updateView: function(value, splices) {
+      this.set("values", values);
     },
 
     _handleExceeding: function(isExceeding) {
       if(this.notExceedable === false && this.bubbles === true) {
-        if (isExceeding)
+        if (isExceeding === true)
           this.fire('element-is-exceeding', {target: this});
         else
           this.fire('element-is-not-exceeding', {target: this});

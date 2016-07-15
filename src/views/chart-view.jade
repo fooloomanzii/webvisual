@@ -88,12 +88,11 @@ html
       width: 100%;
     }
     chart-element[dark] {
-      background: var(--background-2);
-      color: var(--primary-text-color);
+      background: #a9a9a9;
     }
-    main-page {
-      --app-content-background: var(--background-2);
-      --dark-app-content-background: var(--bright-primary-color);
+    main-page.chartview {
+      --app-content-background: #a9a9a9;
+      --dark-app-content-background: #708090;
       --app-toolbar-max-height: 35vh;
     }
 
@@ -115,7 +114,7 @@ html
           radio-button-element.labelButton(label!= Label)
             != Label
       //- MAIN-PAGE
-      main-page.fullbleed(animated!= (!mobile), force-opened, no-exceed-notify, no-select-notify)
+      main-page.fullbleed.chartview(animated!= (!mobile), force-opened, no-exceed-notify, no-select-notify)
         //- TABS
         each Label in config.labels
           tab-element.label(label!= Label)

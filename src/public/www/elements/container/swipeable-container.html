@@ -16,14 +16,15 @@
       <template is="dom-if" if="[[!noExceedNotify]]">
         <template is="dom-repeat" items="{{exceedingElements}}">
           <list-element id="[[item.id]]" label="[[item.label]]" caption-keys="{{item.captionKeys}}" keys="{{item.keys}}"
-                        color="[[item.color]]" values="[[item.values]]" is-boolean="[[item.isBoolean]]" is-exceeding="[[item.isExceeding]]"selectable show-date>
+                        color="[[item.color]]" values="[[item.values]]" is-boolean="[[item.isBoolean]]"  selectable show-date>
           </list-element>
         </template>
       </template>
       <template is="dom-if" if="[[!noSelectNotify]]">
         <template is="dom-repeat" items="{{selectedElements}}">
           <list-element id="[[item.id]]" label="[[item.label]]" caption-keys="[[item.captionKeys]]" keys="{{item.keys}}"
-                        color="[[item.color]]" values="[[item.values]]" is-boolean="[[item.isBoolean]]" selectable show-date>
+                        color="[[item.color]]" values="[[item.values]]" is-boolean="[[item.isBoolean]]"
+                        is-exceeding="[[item.isExceeding]]" selectable show-date>
           </list-element>
         </template>
       </template>
