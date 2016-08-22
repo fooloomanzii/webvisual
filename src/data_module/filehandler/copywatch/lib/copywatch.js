@@ -1,50 +1,10 @@
-// WATCHR DOKU
-/*
-user watcher with watchr.watch(config). Available configurations are:
-  path - a single path to watch
-  paths - an array of paths to watch
-  listener - a single change listener to fire when a change occurs
-  listeners - an array of listeners to fire when a change occurs, overloaded to accept the following values:
-    changeListener a single change listener
-    [changeListener] - an array of change listeners
-    {eventName:eventListener} - an object keyed with the event names and valued with a single event listener
-    {eventName:[eventListener]} - an object keyed with the event names and valued with an array of event listeners
-  next - (optional, defaults to null) a completion callback to fire once the watcher have been setup, arguments are:
-    when using the path configuration option: err, watcherInstance
-    when using the paths configuration option: err, [watcherInstance,...]
-  stat - (optional, defaults to null) a file stat object to use for the path, instead of fetching a new one
-  interval - (optional, defaults to 5007) for systems that poll to detect file changes, how often should it poll in millseconds
-  persistent - (optional, defaults to true) whether or not we should keep the node process alive for as long as files are still being watched
-  duplicateDelay - (optional, defaults to 1000) sometimes events will fire really fast, this delay is set in place so we don't fire the same event within the timespan. Set to falsey to perform no duplicate detection.
-  preferredMethods - (optional, defaults to ['watch','watchFile']) which order should we prefer our watching methods to be tried?
-  ignorePaths - (optional, defaults to false) an array of full paths to ignore
-  ignoreHiddenFiles - (optional, defaults to false) whether or not to ignored files which filename starts with a .
-  ignoreCommonPatterns - (optional, defaults to true) whether or not to ignore common undesirable file patterns (e.g. .svn, .git, .DS_Store, thumbs.db, etc)
-  ignoreCustomPatterns - (optional, defaults to null) any custom ignore patterns that you would also like to ignore along with the common patterns
-
-The following events are available to your via the listeners:
-
-  log - for debugging, receives the arguments logLevel ,args...
-  error - for gracefully listening to error events, receives the arguments err
-    you should always have an error listener, otherwise node.js's behavior is to throw the error and possibly crash your application, see #40
-  watching - for when watching of the path has completed, receives the arguments err, isWatching
-  change - for listening to change events, receives the arguments changeType, fullPath, currentStat, previousStat, received arguments will be:
-    for updated files: 'update', fullPath, currentStat, previousStat
-    for created files: 'create', fullPath, currentStat, null
-    for deleted files: 'delete', fullPath, null, previousStat
-
-The function returns a watcher instance or a array of watcher if multiple paths were given
-*/
-
-// Make the library strict
-// Strict mode, pretty similar to C's -Wall compile option
 (function() {
   'use strict';
 
   // Require
   var fs = require('fs'),
     path_util = require('path'),
-    watchr = require('watchr'),
+    chokidar = require('chokidar'),
     _ = require('underscore'),
 
     // "Global" variables
@@ -403,9 +363,9 @@ The function returns a watcher instance or a array of watcher if multiple paths 
   */
   function _handle_change(event, path, currStat, prevStat, options) {
     // Test/create event - process the changes
-    console.log(event);
-    if (event === 'update' || event === 'create') {
-      if (event === 'create')
+    // console.log(event);
+    if (event === 'change' || event === 'ready') || event === 'add') {
+      if (event === 'add')
         console.log('"' + path_util.basename(path) + '" was created.');
       if (options.mode === 'append') {
         options.work_function(path, prevStat.size, undefined, options.process, options.content, options.copy_path);
@@ -416,7 +376,7 @@ The function returns a watcher instance or a array of watcher if multiple paths 
       }
     }
     //  Delete event
-    else if (event === 'delete') {
+    else if (event === 'unlink' || event === 'unlinkDir' || event === 'error') {
       var fileDir = path_util.dirname(path);
       var starttime = new Date();
 
@@ -438,11 +398,11 @@ The function returns a watcher instance or a array of watcher if multiple paths 
               } else {
                 // directory was restored -> continue watching
                 if (_watcher_options[path] !== undefined)
-                  _watchers[path] = new watchr.watch(_watcher_options[path]);
+                  _watchers[path] = new chokidar.watch(path, _watcher_options[path]);
                 // Remove directory from _wait_to_restore list
                 _wait_to_restore.splice(_wait_to_restore.indexOf(fileDir), 1);
                 console.log('Directory "' + fileDir + '" was restored after ' +
-                  (new Date() - starttime) / 1000. + ' seconds.');
+                  (new Date() - starttime) + ' milliseconds.');
               }
             });
           }
@@ -450,8 +410,8 @@ The function returns a watcher instance or a array of watcher if multiple paths 
         } else {
           if (new Date() - starttime > 500) {
             //if directory is remote one, may be connection was broken and quickly restored.
-            //but deletion has caused watchr to stop, so we start the watchr again.
-            _watchers[path] = new watchr.watch(_watcher_options[path]);
+            //but deletion has caused chokidar to stop, so we start the chokidar again.
+            _watchers[path] = new chokidar.watch(path, _watcher_options[path]);
             console.warn('Connection to "' + path +
               '" was broken and quickly restored, so it\'s not a problem.');
           } else {
@@ -487,12 +447,12 @@ The function returns a watcher instance or a array of watcher if multiple paths 
           // UNKNOWN can be thrown by file-side ECONNRESET (disconnection)
           // ECONNRESET is thrown by server-side disconnection
           // ENOENT and EPERM are thrown by renamed/removed/moved directory
-          // All these errors can cause 'delete' event but not every time (lies on watchr)
+          // All these errors can cause 'delete' event but not every time (lies on chokidar)
           // Lets call 'delete' event, so it will try to reconnect to missing file/directory
           if (err.code === 'UNKNOWN' || err.code === 'ECONNRESET' || err.code === 'ENOENT' || err.code === 'EPERM') {
             if (watcherInstance.children) {
               for (var file in watcherInstance.children)
-                _handle_change('delete', watcherInstance.children[file].path, null, null, options);
+                _handle_change('unlink', watcherInstance.children[file].path, null, null, options);
             }
             return;
           }
@@ -666,20 +626,18 @@ The function returns a watcher instance or a array of watcher if multiple paths 
     };
 
     // HACK!
-    /*  Since we don't want the watchr to stop watching when the file is deleted,
+    /*  Since we don't want the chokidar to stop watching when the file is deleted,
       we watch the whole directory while ignoring all the files we don't want to watch.
-      It's a bit ugly but won't mean performance descrease while running, since watchr
+      It's a bit ugly but won't mean performance descrease while running, since chokidar
       still just watches just the one file. If it's a big directory the startup speed
       can  suffer a bit, but it shoudln't be too bad. */
+
+
     // TODO(fooloomanzii):
     // This "Hack" causes that there can only be watched one file per directory
     // rewrite this
 
-    // Gets the basename of the file ("/c/node/script.js" would result in "script.js")
-    baseName = path_util.basename(file);
-    // Creates an absolute path ("../../node/script.js" could result in "/c/node/script.js")
     resFile = path_util.resolve(file);
-    // The directory of the file ("/c/node/script.js" would result in "/c/node")
     fileDir = path_util.dirname(resFile);
 
     // function to start the file watching
@@ -697,14 +655,12 @@ The function returns a watcher instance or a array of watcher if multiple paths 
 
       // Finally watch the file
       _watcher_options[resFile] = {
-        path: fileDir, // We need to watch the directory in order to not stop watching on delete
-        ignoreCustomPatterns: new RegExp('^(?!.*' + baseName + '$)'), // The RegExp which ensures that just our file is watched and nothing else
         listeners: listenersObj,
         next: nextObj,
         interval: options.interval,
         catchupDelay: options.catchupDelay
       };
-      _watchers[resFile] = new watchr.watch(_watcher_options[resFile]);
+      _watchers[resFile] = new chokidar.watch(resFile, _watcher_options[resFile]);
       callback();
     }
 
