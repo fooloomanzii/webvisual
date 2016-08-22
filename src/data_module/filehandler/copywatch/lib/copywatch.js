@@ -403,6 +403,7 @@ The function returns a watcher instance or a array of watcher if multiple paths 
   */
   function _handle_change(event, path, currStat, prevStat, options) {
     // Test/create event - process the changes
+    console.log(event);
     if (event === 'update' || event === 'create') {
       if (event === 'create')
         console.log('"' + path_util.basename(path) + '" was created.');
@@ -410,9 +411,7 @@ The function returns a watcher instance or a array of watcher if multiple paths 
         options.work_function(path, prevStat.size, undefined, options.process, options.content, options.copy_path);
       } else if (options.mode === 'prepend') {
         options.work_function(path, 0, (currStat.size - prevStat.size), options.process, options.content, options.copy_path);
-      } else if (options.mode === 'all') {
-        options.work_function(path, undefined, undefined, options.process, options.content, options.copy_path);
-      } else if (options.mode === 'json') {
+      } else if (options.mode === 'all' || options.mode === 'json') {
         options.work_function(path, undefined, undefined, options.process, options.content, options.copy_path);
       }
     }
@@ -434,12 +433,12 @@ The function returns a watcher instance or a array of watcher if multiple paths 
           var wait_until_restored = function() {
             fs.exists(fileDir, function(exists) {
               if (exists === false) {
-                // check for directory every 100 ms.
-                setTimeout(wait_until_restored, 100);
+                // check for directory every 500 ms.
+                setTimeout(wait_until_restored, 500);
               } else {
                 // directory was restored -> continue watching
                 if (_watcher_options[path] !== undefined)
-                  _watchers[path] = watchr.watch(_watcher_options[path]);
+                  _watchers[path] = new watchr.watch(_watcher_options[path]);
                 // Remove directory from _wait_to_restore list
                 _wait_to_restore.splice(_wait_to_restore.indexOf(fileDir), 1);
                 console.log('Directory "' + fileDir + '" was restored after ' +
@@ -449,10 +448,10 @@ The function returns a watcher instance or a array of watcher if multiple paths 
           }
           wait_until_restored();
         } else {
-          if (new Date() - starttime > 300) {
+          if (new Date() - starttime > 500) {
             //if directory is remote one, may be connection was broken and quickly restored.
             //but deletion has caused watchr to stop, so we start the watchr again.
-            _watchers[path] = watchr.watch(_watcher_options[path]);
+            _watchers[path] = new watchr.watch(_watcher_options[path]);
             console.warn('Connection to "' + path +
               '" was broken and quickly restored, so it\'s not a problem.');
           } else {
