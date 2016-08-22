@@ -403,7 +403,7 @@ The function returns a watcher instance or a array of watcher if multiple paths 
   */
   function _handle_change(event, path, currStat, prevStat, options) {
     // Test/create event - process the changes
-    console.log(event);
+    // console.log(event);
     if (event === 'update' || event === 'create') {
       if (event === 'create')
         console.log('"' + path_util.basename(path) + '" was created.');
