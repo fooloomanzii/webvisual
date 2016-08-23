@@ -15,8 +15,17 @@
       },
       work_function: _copy,
       watch_error: _error_handler,
-      interval: 400,
-      catchupDelay: 400 // according Nyquist-Theorem
+      watch_settings: {
+        persistent: true,
+        ignoreInitial: false,
+        followSymlinks: true,
+        usePolling: true,
+        interval: 100,
+        binaryInterval: 300,
+        alwaysStat: true,
+        ignorePermissionErrors: false,
+        atomic: false
+      }
     },
     _watchers = {},
     _watcher_options = {},
@@ -316,8 +325,7 @@
       process: options.process || _default.process,
       content: options.content,
       copy_path: path_util.join(options.copy_path, options.path),
-      interval: options.interval || _default.interval,
-      catchupDelay: options.catchupDelay || _default.catchupDelay
+      watch_settings: options.watch_settings || _default.watch_settings
     };
 
     // Helpfunction
@@ -332,6 +340,9 @@
     if (options.content && !isFunction(options.content)) {
       return new TypeError('The content-function needs to be an function.');
     }
+
+    if (mode === 'append' || mode === 'prepend')
+      nOptions.watch_settings.alwaysStat = true;
 
     // copy option; a boolean
     if (options.copy === false) {
@@ -361,69 +372,13 @@
   /*
     Handles a valid change event.
   */
-  function _handle_change(event, path, currStat, prevStat, options) {
-    // Test/create event - process the changes
-    // console.log(event);
-    if (event === 'change' || event === 'ready') || event === 'add') {
-      if (event === 'add')
-        console.log('"' + path_util.basename(path) + '" was created.');
-      if (options.mode === 'append') {
-        options.work_function(path, prevStat.size, undefined, options.process, options.content, options.copy_path);
-      } else if (options.mode === 'prepend') {
-        options.work_function(path, 0, (currStat.size - prevStat.size), options.process, options.content, options.copy_path);
-      } else if (options.mode === 'all' || options.mode === 'json') {
-        options.work_function(path, undefined, undefined, options.process, options.content, options.copy_path);
-      }
-    }
-    //  Delete event
-    else if (event === 'unlink' || event === 'unlinkDir' || event === 'error') {
-      var fileDir = path_util.dirname(path);
-      var starttime = new Date();
-
-      //Check for existence of directory
-      fs.exists(fileDir, function(exists) {
-        if (exists === false) { // If directory doesn't exists -> need to wait until it's restored
-          // Check if already waiting
-          if (_wait_to_restore.indexOf(fileDir) >= 0) return;
-          _wait_to_restore.push(fileDir);
-
-          console.warn('Directory "' + fileDir + '" was deleted.\n' +
-            'After restoring the directory, the file will be watched as earlier.');
-          //wait until directory is restored
-          var wait_until_restored = function() {
-            fs.exists(fileDir, function(exists) {
-              if (exists === false) {
-                // check for directory every 500 ms.
-                setTimeout(wait_until_restored, 500);
-              } else {
-                // directory was restored -> continue watching
-                if (_watcher_options[path] !== undefined)
-                  _watchers[path] = new chokidar.watch(path, _watcher_options[path]);
-                // Remove directory from _wait_to_restore list
-                _wait_to_restore.splice(_wait_to_restore.indexOf(fileDir), 1);
-                console.log('Directory "' + fileDir + '" was restored after ' +
-                  (new Date() - starttime) + ' milliseconds.');
-              }
-            });
-          }
-          wait_until_restored();
-        } else {
-          if (new Date() - starttime > 500) {
-            //if directory is remote one, may be connection was broken and quickly restored.
-            //but deletion has caused chokidar to stop, so we start the chokidar again.
-            _watchers[path] = new chokidar.watch(path, _watcher_options[path]);
-            console.warn('Connection to "' + path +
-              '" was broken and quickly restored, so it\'s not a problem.');
-          } else {
-            console.warn('"' + path + '" was deleted.\n' +
-              "copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
-          }
-          // We don't need to delete the copied file if there is no copied file
-          fs.exists(path_util.join(options.copy_path, _extension), function(exists) {
-            if (exists) fs.unlink(path_util.join(options.copy_path, _extension), options.watch_error);
-          });
-        }
-      });
+  function _handle_change(path, currStat, prevStat, options) {
+    if (options.mode === 'append') {
+      options.work_function(path, prevStat.size, undefined, options.process, options.content, options.copy_path);
+    } else if (options.mode === 'prepend') {
+      options.work_function(path, 0, (currStat.size - prevStat.size), options.process, options.content, options.copy_path);
+    } else if (options.mode === 'all' || options.mode === 'json') {
+      options.work_function(path, undefined, undefined, options.process, options.content, options.copy_path);
     }
   }
 
@@ -492,19 +447,21 @@
     // Make the path an absolute path
     path = path_util.resolve(path);
     if (_watchers[path] !== undefined) {
-      console.log("Stoped watching file '" + path + "'.");
+      console.log("Stoped watching file '" + path + "'.", JSON.stringify(_watchers[path]));
       _watchers[path].close();
       _watcherCount--;
 
       delete _watchers[path];
-      delete _watcher_options[path];
+      // delete _watcher_options[path];
 
       if (remove) {
         return fs.unlink(path, (callback || _error_handler));
       } else if (callback) return callback();
     } else {
-      if (callback)
+      if (callback) {
+        console.log("No such file is watched:", path);
         return callback(new Error("No such file is watched."));
+      }
     }
   }
 
@@ -592,6 +549,8 @@
       // Other stuff
       maybeError, baseName, resFile, fileDir;
 
+    let log = console.log.bind(console);
+
     // Check if the given mode is a valid one; if not throw an error
     maybeError = _check_mode(mode);
     if (maybeError) throw maybeError;
@@ -642,41 +601,47 @@
 
     // function to start the file watching
     var watch_the_file = function() {
-      // Check for existence and make a first copy/parse; if firstCopy == true
-      fs.exists(resFile, function(exists) {
-        if (exists === false) {
-          console.warn('"' + resFile + '"', "was not found.\n" +
-            "copywatch now listens for the \"create\"-event and will watch as specified afterwards.");
-        } else if (options.firstCopy) {
-          // Make a first copy/parse
-          options.work_function(resFile, undefined, undefined, options.process, options.content);
-        }
-      });
+      if (options.firstCopy) {
+        // Make a first copy/parse
+        options.work_function(resFile, undefined, undefined, options.process, options.content);
+      }
 
       // Finally watch the file
       _watcher_options[resFile] = {
         listeners: listenersObj,
-        next: nextObj,
-        interval: options.interval,
-        catchupDelay: options.catchupDelay
+        next: nextObj
       };
-      _watchers[resFile] = new chokidar.watch(resFile, _watcher_options[resFile]);
+      _watchers[resFile] = new chokidar.watch(resFile, options.watch_settings);
+      _watchers[resFile]
+        .on('add', (path, stats) => {
+          log(`File ${path} is being added to watch`);
+          _handle_change(path, stats.size, 0, options);
+        })
+        .on('change', (path, stats) => {
+          if (stats)
+            log(`File ${path} changed size to ${stats.size}`);
+          // if (_watchers[path] === undefined)
+          //   return;
+          _handle_change(path, stats.size, _watchers[path].prevStat, options);
+          _watchers[path].prevStat = stats.size;
+        })
+        .on('unlink', path => log(`File ${path} has been removed`))
+        .on('error', error => log(`Watcher error: ${error}`));
       callback();
     }
 
     //Check for existence of directory
-    fs.exists(fileDir, function(exists) {
-      if (exists === false) { // If directory doesn't exists -> no reason to start the watcher
-        console.warn('Directory "' + fileDir + '" was not found. Waiting on creation...');
+    fs.exists(resFile, function(exists) {
+      if (exists === false) { // If file doesn't exists -> no reason to start the watcher
+        log(resFile, "was not found.\ncopywatch now listens for creation.");
         var wait_until_created = function() {
-          fs.exists(fileDir, function(exists) {
+          fs.exists(resFile, function(exists) {
             if (exists === false) {
-              // check for directory every 100 ms.
-              setTimeout(wait_until_created, 100);
+              // check for file every 200ms.
+              setTimeout(wait_until_created, 200);
             } else {
-              // directory was created -> start watching
+              // file was created -> start watching
               watch_the_file();
-              console.log('Directory "' + fileDir + '" was created.');
             }
           });
         }

@@ -58,7 +58,11 @@
     pointer-events: none;
     font-weight: normal; !important;
     letter-spacing: normal !important;
-    @apply(--font-common-base);
+    /*@apply(--font-common-base);*/
+    font-family: sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   g#chart text{
     font-size: 1em;

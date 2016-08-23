@@ -130,7 +130,7 @@
     "connections": {
       "file": {
         "mode": "all",
-        "path": "./examples/datafile/tests/test.txt"
+        "path": "//ibn3-vsrv/CryostatVisu$/201608011541_Lakeshore.txt"
       }
     },
 

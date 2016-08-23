@@ -210,11 +210,15 @@ connectionFn.file = {
    * @return {Object}        Contains the necessary data to end the watcher
    */
   connect: function(config, emitter) {
-    // Add the function which recieves the parsed data; calls the emitter
+    // Add the function which receives the parsed data; calls the emitter
     config.content = emitter;
 
     // Start watching the file
-    copywatch.watch(config.mode, config.path, config);
+    try {
+      copywatch.watch(config.mode, config.path, config);
+    } catch (e) {
+      EventEmitter.emit('error', e);
+    }
 
     // Return the necessary data to end the watcher
     return {
