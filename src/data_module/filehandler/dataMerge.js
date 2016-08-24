@@ -19,16 +19,13 @@ module.exports = processData;
 
 function processData(settings, data) {
 
-  if (settings === undefined ||
-    data === undefined)
-    return; // Check the Existence
+  if (!Array.isArray(data) || settings === undefined) return; // Check for Existence
+  console.log(data);
 
   // each Function Call new Variables
   var processedData = [],
     exceeds,
     maxDate = 0;
-
-  if (!data || data.length == 0) return; // Check for Existence
 
   // Join Data to the Object, which is used by the website
   var element;

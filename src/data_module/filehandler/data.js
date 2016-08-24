@@ -38,7 +38,8 @@ var
 // Own modules
   udpwatch = require('./udpwatch'),
   filewatch = require('./filewatch/'),
-  data_parser = require('./dataParser'),
+  DataParser = require('./dataparser'),
+  dataparser = new DataParser(),
   path = require('path'),
   // Node modules
   _ = require('underscore'),
@@ -62,8 +63,8 @@ var
       path: 'data.txt',
       // Default log file
       log_path: __dirname + "/../../../logs/",
-      // The default parse function from the data_parser module
-      process: data_parser.parse
+      // The default parse function from the dataparser module
+      process: dataparser.parse
     },
     "udp": {
       // We don't need to make a log of the data
@@ -74,8 +75,8 @@ var
       mode: 'append',
       // Default port for receiving the data from the source
       port: 4000,
-      // The default parse function from the data_parser module
-      process: data_parser.parse
+      // The default parse function from the dataparser module
+      process: dataparser.parse
     }
   },
   // All connect and close functions for the different connection types; the functions are added at a later point
