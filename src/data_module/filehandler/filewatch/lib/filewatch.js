@@ -211,6 +211,7 @@
 
     // Create the readstream
     read = fs.createReadStream(path, readOptions);
+    console.log(start, end);
 
     read.on('error', function(err) {
       console.warn("An error occured while reading the file '" + path + "'.\nDetails: " + err.details);
@@ -227,6 +228,7 @@
         });
       } else {
         processedData.push(data);
+        console.log(JSON.stringify(data));
       }
     }
 
@@ -367,9 +369,9 @@
   */
   function _handle_change(path, currStat, prevStat, options) {
     if (options.mode === 'append') {
-      options.work_function(path, prevStat.size, undefined, options.process, options.content, options.log_path);
+      options.work_function(path, prevStat, currStat, options.process, options.content, options.log_path);
     } else if (options.mode === 'prepend') {
-      options.work_function(path, 0, (currStat.size - prevStat.size), options.process, options.content, options.log_path);
+      options.work_function(path, 0, (currStat - prevStat), options.process, options.content, options.log_path);
     } else if (options.mode === 'all') {
       options.work_function(path, undefined, undefined, options.process, options.content, options.log_path);
     } else if (options.mode === 'json'){
@@ -460,7 +462,7 @@
     // Define variables
     let listenersObj, nextObj,
       // Other stuff
-      maybeError, baseName, resFile, fileDir;
+      maybeError, resFile;
 
     // Check if the given mode is a valid one; if not throw an error
     maybeError = _check_mode(mode);
@@ -501,10 +503,11 @@
         .on('add', (path, stats) => {
           console.log(`File ${path} is being added to watch`);
           _handle_change(path, stats.size, 0, options);
+          _watchers[path].prevStat = stats.size;
         })
         .on('change', (path, stats) => {
-          // if (stats)
-          //   console.log(`File ${path} changed size to ${stats.size}`);
+          if (stats)
+            console.log(`File ${path} changed size from ${_watchers[path].prevStat} to ${stats.size}`);
           _handle_change(path, stats.size, _watchers[path].prevStat, options);
           _watchers[path].prevStat = stats.size;
         })
