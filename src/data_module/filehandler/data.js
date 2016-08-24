@@ -54,19 +54,19 @@ var
       // TODO: Default DB configuration
     },
     "file": {
-      // We don't need to make a copy of the file
-      copy: false,
+      // We don't need to make a log of the file
+      log: false,
       // The watching mode ('all', 'append', 'prepend', 'json')
       mode: 'all',
       // Default file: Same dir as the "master" script,
       path: 'data.txt',
       // Default log file
-      copy_path: __dirname + "/../../../logs/",
+      log_path: __dirname + "/../../../logs/",
       // The default parse function from the data_parser module
       process: data_parser.parse
     },
     "udp": {
-      // We don't need to make a copy of the data
+      // We don't need to make a log of the data
       log: false,
       // TODO: use log_file, if logging
       log_path: '/../../../data/udp/',
@@ -220,7 +220,7 @@ connectionFn.file = {
     // Return the necessary data to end the watcher
     return {
       path: config.path,
-      remove: config.copy
+      remove: config.log
     };
   }
 };
@@ -253,7 +253,7 @@ connectionFn.udp = {
     // Return the necessary data to end the watcher
     return {
       port: config.port,
-      remove: config.copy
+      remove: config.log
     };
   }
 };

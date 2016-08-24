@@ -3,7 +3,7 @@
 
     "connections": {
       "file": {
-        "mode": "all",
+        "mode": "prepend",
         "path": "./examples/datafile/HNF/HNF_Datafile.txt",
         "#path": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\HNF_Datafile.txt",
         "format": {

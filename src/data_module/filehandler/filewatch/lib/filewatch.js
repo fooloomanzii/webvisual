@@ -1,20 +1,20 @@
 /*
   FileWatch (modification of copywatch on base of chokidar)
   *********************************************************
-  'mode' - mode influences the copy/parse mechanism which is used, when the file was updated:
-    'append' - copy the last bytes of the file (the difference between prevStat.size and currStat.size)
-    'prepend' - copy the first few bytes of the file (the difference between prevStat.size and currStat.size)
-    'all' - copy the whole file
+  'mode' - mode influences the log/parse mechanism which is used, when the file was updated:
+    'append' - log the last bytes of the file (the difference between prevStat.size and currStat.size)
+    'prepend' - log the first few bytes of the file (the difference between prevStat.size and currStat.size)
+    'all' - log the whole file
   'file' - the file which should be watched
   {options}
-    copy - a boolean which states if copywatch should make a copy
-      true - the default, copywatch makes a copy
+    log - a boolean which states if filewatch should make a log
+      true - the default, filewatch makes a log
       false - the file won't be copied.
-        You will have to give copywatch a content-function (a process-function is optional);
+        You will have to give filewatch a content-function (a process-function is optional);
         the content-function will recieve the file-data on change, so you can work with it.
-        If there is not content-function than copywatch will throw an error, since there is
+        If there is not content-function than filewatch will throw an error, since there is
         no point in watching a file and doing nothing on change.
-    firstCopy - a boolean which states if a first copy of the file should be made, before the watching starts
+    firstLog - a boolean which states if a first log of the file should be made, before the watching starts
     watch_error - a function that gets called, when an error occured during watching
     process - a function which processes each line which is read from the file when a change occures.
       The processed data will be saved as JSON in an array with every line, so it's easier to reread it from the file.
@@ -36,11 +36,11 @@
 
     // "Global" variables
     _default = {
-      firstCopy: false,
+      firstLog: false,
       process: function(string, callback) {
         callback(null, string);
       },
-      work_function: _copy,
+      work_function: _log,
       watch_error: _error_handler,
       watch_settings: {
         persistent: true,
@@ -107,7 +107,7 @@
 
     // Check if it exists and check if the file is actually a file; return an error if it isn't
     if (fs.existsSync(path) && !fs.statSync(path).isFile()) {
-      return_error = new Error("Expected path to an file but got something else. Copywatch just watches files.");
+      return_error = new Error("Expected path to an file but got something else. Logwatch just watches files.");
     }
 
     return return_error;
@@ -139,20 +139,20 @@
   }
 
   /*
-    Copy
+    Log
     Copies a file. Simple and plain.
   */
-  function _copy(path, start, end, process, content, copy_path) {
+  function _log(path, start, end, process, content, log_path) {
     var options = _file_options(start, end);
     // Copies the file
-    fs.createReadStream(copy_path, options.readOptions).pipe(fs.createWriteStream(copy_path + _extension, options.writeOptions));
+    fs.createReadStream(log_path, options.readOptions).pipe(fs.createWriteStream(log_path + _extension, options.writeOptions));
   }
 
   /*
-    Process copy
+    Process log
     Copies a file and processes it, if a process function is given.
   */
-  function _process_copy(path, start, end, process, callback, copy_path) {
+  function _process_log(path, start, end, process, callback, log_path) {
     // Define Variables
     // Create the read/write options
     var options = _file_options(start, end).writeOptions,
@@ -186,7 +186,7 @@
       _watchers[path].data = data;
 
       // Init the write stream
-      write = fs.createWriteStream(copy_path + _extension, options);
+      write = fs.createWriteStream(log_path + _extension, options);
 
       // Write the data and close the stream
       write.end(JSON.stringify(data));
@@ -312,12 +312,12 @@
   function _create_watch_options(mode, options) {
     var nOptions = {
       mode: mode,
-      firstCopy: ((options.firstCopy !== undefined) ? options.firstCopy : _default.firstCopy),
+      firstLog: ((options.firstLog !== undefined) ? options.firstLog : _default.firstLog),
       watch_error: options.content || _default.watch_error,
       work_function: _default.work_function,
       process: options.process || _default.process,
       content: options.content,
-      copy_path: path_util.join(options.copy_path, options.path),
+      log_path: path_util.join(options.log_path, options.path),
       watch_settings: options.watch_settings || _default.watch_settings
     };
 
@@ -337,8 +337,8 @@
     if (mode === 'append' || mode === 'prepend')
       nOptions.watch_settings.alwaysStat = true;
 
-    // copy option; a boolean
-    if (options.copy === false) {
+    // log option; a boolean
+    if (options.log === false) {
       // It was already checked if content is a valid function
       if (options.content) {
         // Just process the file and give the data to the specified callback
@@ -351,12 +351,12 @@
         /*  There is no point in doing nothing on a change.  This probably
         wasn't the users intention and failing quitly would just confuse. */
         return new Error("Configuration error.\n" +
-          "The options specify that copywatch should do nothing on a change," +
+          "The options specify that filewatch should do nothing on a change," +
           " then there is no point in watching the file. " +
           "This can't be your intention.");
       }
     } else if (options.process || options.content) {
-      nOptions.work_function = _process_copy;
+      nOptions.work_function = _process_log;
     }
 
     return nOptions;
@@ -367,13 +367,13 @@
   */
   function _handle_change(path, currStat, prevStat, options) {
     if (options.mode === 'append') {
-      options.work_function(path, prevStat.size, undefined, options.process, options.content, options.copy_path);
+      options.work_function(path, prevStat.size, undefined, options.process, options.content, options.log_path);
     } else if (options.mode === 'prepend') {
-      options.work_function(path, 0, (currStat.size - prevStat.size), options.process, options.content, options.copy_path);
+      options.work_function(path, 0, (currStat.size - prevStat.size), options.process, options.content, options.log_path);
     } else if (options.mode === 'all') {
-      options.work_function(path, undefined, undefined, options.process, options.content, options.copy_path);
+      options.work_function(path, undefined, undefined, options.process, options.content, options.log_path);
     } else if (options.mode === 'json'){
-      options.work_function(path, undefined, undefined, JSON.parse, options.content, options.copy_path);
+      options.work_function(path, undefined, undefined, JSON.parse, options.content, options.log_path);
     }
   }
 
@@ -407,7 +407,7 @@
 
   /*
     Unwatch for every watcher, when all _watchers are closed the callback is called with a array of potential errors
-      remove - bool value: delete the copy versions, or leave them?
+      remove - bool value: delete the log versions, or leave them?
       callback - callback function, gets an array of potential errors
   */
   function clear(remove, callback) {
@@ -445,7 +445,7 @@
     // Rename the old files
     for (path in _watchers) {
       if (_watchers.hasOwnProperty(path)) {
-        fs.renameSync(copy_path + _extension, copy_path + newExtension);
+        fs.renameSync(log_path + _extension, log_path + newExtension);
       }
     }
     _extension = newExtension;
@@ -461,8 +461,6 @@
     let listenersObj, nextObj,
       // Other stuff
       maybeError, baseName, resFile, fileDir;
-
-    let log = console.log.bind(console);
 
     // Check if the given mode is a valid one; if not throw an error
     maybeError = _check_mode(mode);
@@ -491,9 +489,9 @@
 
     // function to start the file watching
     var watch_the_file = function() {
-      if (options.firstCopy) {
-        // Make a first copy/parse
-        log(`File ${resFile} is being copied and processed first`);
+      if (options.firstLog) {
+        // Make a first log/parse
+        console.log(`File ${resFile} is being copied and processed first`);
         options.work_function(resFile, undefined, undefined, options.process, options.content);
       }
 
@@ -501,24 +499,24 @@
       _watchers[resFile] = new chokidar.watch(resFile, options.watch_settings);
       _watchers[resFile]
         .on('add', (path, stats) => {
-          log(`File ${path} is being added to watch`);
+          console.log(`File ${path} is being added to watch`);
           _handle_change(path, stats.size, 0, options);
         })
         .on('change', (path, stats) => {
           // if (stats)
-          //   log(`File ${path} changed size to ${stats.size}`);
+          //   console.log(`File ${path} changed size to ${stats.size}`);
           _handle_change(path, stats.size, _watchers[path].prevStat, options);
           _watchers[path].prevStat = stats.size;
         })
-        .on('unlink', path => log(`File ${path} has been removed`))
-        .on('error', error => log(`Watcher error: ${error}`));
+        .on('unlink', path => console.log(`File ${path} has been removed`))
+        .on('error', error => console.log(`Watcher error: ${error}`));
       callback();
     }
 
     //Check for existence of directory
     fs.exists(resFile, function(exists) {
       if (exists === false) { // If file doesn't exists -> no reason to start the watcher
-        log(resFile, "was not found.\ncopywatch now listens for creation.");
+        console.log(resFile, "was not found.\nfilewatch now listens for creation.");
         var wait_until_created = function() {
           fs.exists(resFile, function(exists) {
             if (exists === false) {
@@ -552,8 +550,8 @@
     _check_mode: _check_mode,
     _check_file: _check_file,
     _file_options: _file_options,
-    _copy: _copy,
-    _process_copy: _process_copy,
+    _log: _log,
+    _process_log: _process_log,
     _process_read: _process_read,
     _create_watch_options: _create_watch_options,
     _handle_change: _handle_change,
