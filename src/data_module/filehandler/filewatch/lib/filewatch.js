@@ -211,7 +211,6 @@
 
     // Create the readstream
     read = fs.createReadStream(path, readOptions);
-    console.log(start, end);
 
     read.on('error', function(err) {
       console.warn("An error occured while reading the file '" + path + "'.\nDetails: " + err.details);
@@ -228,7 +227,6 @@
         });
       } else {
         processedData.push(data);
-        console.log(JSON.stringify(data));
       }
     }
 
@@ -506,8 +504,8 @@
           _watchers[path].prevStat = stats.size;
         })
         .on('change', (path, stats) => {
-          if (stats)
-            console.log(`File ${path} changed size from ${_watchers[path].prevStat} to ${stats.size}`);
+          // if (stats)
+          //   console.log(`File ${path} changed size from ${_watchers[path].prevStat} to ${stats.size}`);
           _handle_change(path, stats.size, _watchers[path].prevStat, options);
           _watchers[path].prevStat = stats.size;
         })
@@ -519,7 +517,7 @@
     //Check for existence of directory
     fs.exists(resFile, function(exists) {
       if (exists === false) { // If file doesn't exists -> no reason to start the watcher
-        console.log(resFile, "was not found.\nfilewatch now listens for creation.");
+        console.log(resFile, "was not found.\n\"filewatch\" now listens for creation.");
         var wait_until_created = function() {
           fs.exists(resFile, function(exists) {
             if (exists === false) {
