@@ -1,1 +1,1 @@
-module.exports = require('./lib/copywatch.js');
+module.exports = require('./lib/filewatch.js');

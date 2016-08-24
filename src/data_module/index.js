@@ -48,11 +48,9 @@ class dataModule extends EventEmitter {
       // dataFileHandler - established the data connections
 
       for (let label of this.configHandler.settings[name].configuration.labels) {
-        console.log(name, label, this.configHandler.settings[name].configuration.labels);
         if (this.dataFile[name][label]) {
-
-          // this.dataFile[name][label].close();
-          // delete this.dataFile[name][label];
+          this.dataFile[name][label].close();
+          delete this.dataFile[name][label];
         }
 
         let listeners = {

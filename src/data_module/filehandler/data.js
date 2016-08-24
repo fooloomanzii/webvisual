@@ -37,7 +37,7 @@
 var
 // Own modules
   udpwatch = require('./udpwatch'),
-  copywatch = require('./copywatch/'),
+  filewatch = require('./filewatch/'),
   data_parser = require('./dataParser'),
   path = require('path'),
   // Node modules
@@ -63,10 +63,7 @@ var
       // Default log file
       copy_path: __dirname + "/../../../logs/",
       // The default parse function from the data_parser module
-      process: data_parser.parse,
-      // according Nyquist-Theorem
-      interval: 400,
-      catchupDelay: 400
+      process: data_parser.parse
     },
     "udp": {
       // We don't need to make a copy of the data
@@ -202,7 +199,7 @@ connectionFn.file = {
    */
   close: function(config, callback) {
     // End the watching
-    copywatch.unwatch(config.path, config.remove, callback);
+    filewatch.unwatch(config.path, config.remove, callback);
   },
   /**
    * The file watch connect function. Enables the watching and processing of a file.
@@ -215,7 +212,7 @@ connectionFn.file = {
 
     // Start watching the file
     try {
-      copywatch.watch(config.mode, config.path, config);
+      filewatch.watch(config.mode, config.path, config);
     } catch (e) {
       EventEmitter.emit('error', e);
     }

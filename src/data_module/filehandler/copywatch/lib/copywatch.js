@@ -1,3 +1,30 @@
+/*
+  FileWatch (modification of copywatch on base of chokidar)
+  *********************************************************
+  'mode' - mode influences the copy/parse mechanism which is used, when the file was updated:
+    'append' - copy the last bytes of the file (the difference between prevStat.size and currStat.size)
+    'prepend' - copy the first few bytes of the file (the difference between prevStat.size and currStat.size)
+    'all' - copy the whole file
+  'file' - the file which should be watched
+  {options}
+    copy - a boolean which states if copywatch should make a copy
+      true - the default, copywatch makes a copy
+      false - the file won't be copied.
+        You will have to give copywatch a content-function (a process-function is optional);
+        the content-function will recieve the file-data on change, so you can work with it.
+        If there is not content-function than copywatch will throw an error, since there is
+        no point in watching a file and doing nothing on change.
+    firstCopy - a boolean which states if a first copy of the file should be made, before the watching starts
+    watch_error - a function that gets called, when an error occured during watching
+    process - a function which processes each line which is read from the file when a change occures.
+      The processed data will be saved as JSON in an array with every line, so it's easier to reread it from the file.
+      It need to take the following argument: 'string' (the current line), 'callback' (optional - a function
+      that recieves the processed line. Otherwise it will be assumed, that the function returns the data.)
+    content - a function that recieves the whole content of the file, either parsed (if a process function was given) or in raw form,
+      every time a change happens.
+      Arguments are err (an potential array of errors) and data (an array of the (processed) lines).
+*/
+
 (function() {
   'use strict';
 
@@ -9,7 +36,7 @@
 
     // "Global" variables
     _default = {
-      firstCopy: true,
+      firstCopy: false,
       process: function(string, callback) {
         callback(null, string);
       },
@@ -19,25 +46,23 @@
         persistent: true,
         ignoreInitial: false,
         followSymlinks: true,
-        usePolling: true,
+        useFsEvents: true,
+        usePolling: false,
         interval: 100,
-        binaryInterval: 300,
+        binaryInterval: 100,
         alwaysStat: true,
         ignorePermissionErrors: false,
-        atomic: false
+        atomic: false,
+        awaitWriteFinish: false
       }
     },
     _watchers = {},
-    _watcher_options = {},
-    _wait_to_restore = [], // Files/directories currently waiting for restoration
     _watcherCount = 0,
     _extension = '.log',
     newline = /\r\n|\n\r|\n/, // Every possible newline character
-    errorFile = './copywatch.err';
+    errorFile = './filewatch.err';
 
   // Functions
-
-  // PRIVATE
 
   /*
     Default error_handler
@@ -259,57 +284,25 @@
 
   // Read a json file
   function _process_read_json_file(path, start, end, process, callback) {
-    // (starts same as _process_read)
-    // Define variables
-    var processedData = [],
-      errorData = [],
-      readOptions = _file_options(start, end).readOptions,
-      read;
+    var processedData = {},
+      errorData = [];
 
-    // Set the encoding
-    readOptions.encoding = 'utf8';
-
-    // Create the readstream
-    read = fs.createReadStream(path, readOptions);
-
-    read.on('error', function(err) {
-      console.warn("An error occured while reading the file '" + path + "'.\nDetails: " + err.details);
-    });
-
-    // Reading the stream
-    var tmpBuffer = "";
-
-    read.on('readable', function() {
-      var chunk;
-
-      // Read the data in the buffer
-      while (null !== (chunk = read.read())) {
-        tmpBuffer += chunk;
+    fs.readFile(path, (err, data) => {
+      if (err) {
+        throw err;
       }
-
-      // There is no data? Well, wtf but we can't work with no data
-      if (tmpBuffer === '') return;
-    });
-
-    // End the stream
-    read.on('end', function(chunk) {
-      // We still need to add the last stored line in tmpBuffer, if there is one
-      if (chunk) tmpBuffer += chunk;
-
-      // Try to parse the data-String in JSON
       try {
-        processedData = process(tmpBuffer);
+        processedData = JSON.parse(data);
       } catch (err) {
         console.warn("Invalid Format in file '" + path + "'.\n" + err);
         errorData.push({
           file: path,
           error: err
         });
+      } finally {
+        if (errorData.length === 0) errorData = null;
+        if (callback) callback(errorData, processedData);
       }
-      // Are there any errors?
-      if (errorData.length === 0) errorData = null;
-
-      if (callback) callback(errorData, processedData);
     });
   }
 
@@ -377,63 +370,11 @@
       options.work_function(path, prevStat.size, undefined, options.process, options.content, options.copy_path);
     } else if (options.mode === 'prepend') {
       options.work_function(path, 0, (currStat.size - prevStat.size), options.process, options.content, options.copy_path);
-    } else if (options.mode === 'all' || options.mode === 'json') {
+    } else if (options.mode === 'all') {
       options.work_function(path, undefined, undefined, options.process, options.content, options.copy_path);
+    } else if (options.mode === 'json'){
+      options.work_function(path, undefined, undefined, JSON.parse, options.content, options.copy_path);
     }
-  }
-
-  /*
-    Create the listeners object
-  */
-  function _create_listeners(options) {
-    return {
-      // The log listener; logs all given arguments except the logLevel on stdout
-      log: function(logLevel) {
-        if (logLevel === 'dev') {
-          // Arguments isn't a real array
-          console.log("Log:", Array.prototype.slice.call(arguments));
-        }
-      },
-      // The error_handler, it is specified in the options object
-      error: options.watch_error,
-      watching: function(err, watcherInstance, isWatching) {
-        if (err) {
-          // directory deletion errors are handled
-          // UNKNOWN can be thrown by file-side ECONNRESET (disconnection)
-          // ECONNRESET is thrown by server-side disconnection
-          // ENOENT and EPERM are thrown by renamed/removed/moved directory
-          // All these errors can cause 'delete' event but not every time (lies on chokidar)
-          // Lets call 'delete' event, so it will try to reconnect to missing file/directory
-          if (err.code === 'UNKNOWN' || err.code === 'ECONNRESET' || err.code === 'ENOENT' || err.code === 'EPERM') {
-            if (watcherInstance.children) {
-              for (var file in watcherInstance.children)
-                _handle_change('unlink', watcherInstance.children[file].path, null, null, options);
-            }
-            return;
-          }
-          // If it's some unknown error, trigger the error callback.
-          console.log("Watching the path " + watcherInstance.path + " failed with error");
-          options.content(err);
-        } else {
-          if (!isWatching) {
-            console.log("Finished Watching " + watcherInstance.path);
-          } else {
-            if (watcherInstance.children) {
-              for (var file in watcherInstance.children)
-                console.log("Started watching " + watcherInstance.children[file].path);
-            } else {
-              console.log("Started watching " + watcherInstance.path);
-            }
-          }
-        }
-      },
-      change: function(event, path, currStat, prevStat) {
-        // If its an event for a file we don't watch, there is no reason to process it; this should actually never happen it's just an extra ensurance
-        if (_watchers[path] === undefined) return;
-
-        _handle_change(event, path, currStat, prevStat, options);
-      }
-    };
   }
 
   // PUBLIC
@@ -447,12 +388,11 @@
     // Make the path an absolute path
     path = path_util.resolve(path);
     if (_watchers[path] !== undefined) {
-      console.log("Stoped watching file '" + path + "'.", JSON.stringify(_watchers[path]));
+      console.log("Stoped watching file '" + path);
       _watchers[path].close();
       _watcherCount--;
 
       delete _watchers[path];
-      // delete _watcher_options[path];
 
       if (remove) {
         return fs.unlink(path, (callback || _error_handler));
@@ -502,47 +442,20 @@
   /*  Set the _extension for the copied files */
   function setExtension(newExtension) {
     var path;
-
     // Rename the old files
     for (path in _watchers) {
       if (_watchers.hasOwnProperty(path)) {
         fs.renameSync(copy_path + _extension, copy_path + newExtension);
       }
     }
-
     _extension = newExtension;
   }
+
   /*  Get the current _extension */
   function getExtension() {
     return _extension;
   }
 
-  /*
-    Watch
-    'mode' - mode influences the copy/parse mechanism which is used, when the file was updated:
-      'append' - copy the last bytes of the file (the difference between prevStat.size and currStat.size)
-      'prepend' - copy the first few bytes of the file (the difference between prevStat.size and currStat.size)
-      'all' - copy the whole file
-    'file' - the file which should be watched
-    {options}
-      copy - a boolean which states if copywatch should make a copy
-        true - the default, copywatch makes a copy
-        false - the file won't be copied.
-          You will have to give copywatch a content-function (a process-function is optional);
-          the content-function will recieve the file-data on change, so you can work with it.
-          If there is not content-function than copywatch will throw an error, since there is
-          no point in watching a file and doing nothing on change.
-      firstCopy - a boolean which states if a first copy of the file should be made, before the watching starts
-      watch_error - a function that gets called, when an error occured during watching
-      process - a function which processes each line which is read from the file when a change occures.
-        The processed data will be saved as JSON in an array with every line, so it's easier to reread it from the file.
-        It need to take the following argument: 'string' (the current line), 'callback' (optional - a function
-        that recieves the processed line. Otherwise it will be assumed, that the function returns the data.)
-      content - a function that recieves the whole content of the file, either parsed (if a process function was given) or in raw form,
-        every time a change happens.
-        Arguments are err (an potential array of errors) and data (an array of the (processed) lines).
-    next - a callback function, that recieves an error, if one occured
-  */
   function watch(mode, file, options, callback) {
     // Define variables
     let listenersObj, nextObj,
@@ -574,43 +487,17 @@
       return callback(options);
     }
 
-    // Create listeners
-    listenersObj = _create_listeners(options);
-
-    // The object with the function that will be executed after the watcher was correctly configured
-    nextObj = function(err, watcherInstance) {
-      ++_watcherCount;
-      // Execute the next function
-      if (callback) return callback(err);
-    };
-
-    // HACK!
-    /*  Since we don't want the chokidar to stop watching when the file is deleted,
-      we watch the whole directory while ignoring all the files we don't want to watch.
-      It's a bit ugly but won't mean performance descrease while running, since chokidar
-      still just watches just the one file. If it's a big directory the startup speed
-      can  suffer a bit, but it shoudln't be too bad. */
-
-
-    // TODO(fooloomanzii):
-    // This "Hack" causes that there can only be watched one file per directory
-    // rewrite this
-
     resFile = path_util.resolve(file);
-    fileDir = path_util.dirname(resFile);
 
     // function to start the file watching
     var watch_the_file = function() {
       if (options.firstCopy) {
         // Make a first copy/parse
+        log(`File ${resFile} is being copied and processed first`);
         options.work_function(resFile, undefined, undefined, options.process, options.content);
       }
 
       // Finally watch the file
-      _watcher_options[resFile] = {
-        listeners: listenersObj,
-        next: nextObj
-      };
       _watchers[resFile] = new chokidar.watch(resFile, options.watch_settings);
       _watchers[resFile]
         .on('add', (path, stats) => {
@@ -618,10 +505,8 @@
           _handle_change(path, stats.size, 0, options);
         })
         .on('change', (path, stats) => {
-          if (stats)
-            log(`File ${path} changed size to ${stats.size}`);
-          // if (_watchers[path] === undefined)
-          //   return;
+          // if (stats)
+          //   log(`File ${path} changed size to ${stats.size}`);
           _handle_change(path, stats.size, _watchers[path].prevStat, options);
           _watchers[path].prevStat = stats.size;
         })
@@ -647,6 +532,9 @@
         }
         wait_until_created();
       } else {
+        if (_watchers[resFile] !== undefined) {
+          unwatch(resFile);
+        }
         watch_the_file();
       }
     });
@@ -669,15 +557,11 @@
     _process_read: _process_read,
     _create_watch_options: _create_watch_options,
     _handle_change: _handle_change,
-    _create_listeners: _create_listeners,
     // Public
     watch: watch,
-    // parsewatch   : parsewatch,
     unwatch: unwatch,
     clear: clear,
     setExtension: setExtension,
     getExtension: getExtension
   };
-
-  // 'use static'-end
 })();
