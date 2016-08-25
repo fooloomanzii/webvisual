@@ -30,11 +30,11 @@
   },
   "userConfigFiles": {
     "HNF-GDS": {
-      "path": ".\\defaults\\HNF\\HNF_GDS.json",
+      "path": ".\\examples\\config\\HNF_GDS.json",
       "renderer": "Alarmzustände"
     },
     "cryostat": {
-      "path": "D:\\Github\\webvisual\\src\\defaults\\cryostat_visu\\cryostat_visu.json",
+      "path": ".\\examples\\config\\cryostat_visu.json",
       "renderer": "Diagrammansicht"
     }
   },
