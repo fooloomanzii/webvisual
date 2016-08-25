@@ -7,9 +7,10 @@
         "path": "./examples/datafile/HNF/HNF_Datafile.txt",
         "#path": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\HNF_Datafile.txt",
         "format": {
-          "dateFormat": "",
-          "numberFormat": "",
-          "seperator": ";"
+          "dateFormat": "DD.MM.YYYY;hh:mm:ss",
+          "decimalSeparator": ".",
+          "valueSeparator": ";",
+          "dimensions": 1
         }
       }
     },

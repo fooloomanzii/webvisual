@@ -54,9 +54,12 @@ class dataModule extends EventEmitter {
         }
 
         let listeners = {
-          error: (function(type, err, label) {
-            // dataSocket.emit("mistake", { error: err, time: new Date() });
-            this.emit("error", "File-Error " + name + " " + label + "\n" + JSON.stringify(err));
+          error: (function(type, err) {
+            let errString = "";
+            err.forEach(function(msg){
+              errString += "path: " + msg.path + "\n" + msg.details + "\n";
+            })
+            this.emit("error", type + "\n" + errString);
           }).bind(this),
           data: (function(type, data, label) {
             if (!data || data.length == 0)

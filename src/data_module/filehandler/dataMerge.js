@@ -20,7 +20,6 @@ module.exports = processData;
 function processData(settings, data) {
 
   if (!Array.isArray(data) || settings === undefined) return; // Check for Existence
-  console.log(data);
 
   // each Function Call new Variables
   var processedData = [],

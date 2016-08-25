@@ -37,8 +37,10 @@
     // "Global" variables
     _default = {
       firstLog: false,
-      process: function(string, callback) {
-        callback(null, string);
+      processor: {
+        parse: function(string, callback) {
+          callback(null, string);
+        }
       },
       work_function: _log,
       watch_error: _error_handler,
@@ -142,7 +144,7 @@
     Log
     Copies a file. Simple and plain.
   */
-  function _log(path, start, end, process, content, log_path) {
+  function _log(path, start, end, processor, content, log_path) {
     var options = _file_options(start, end);
     // Copies the file
     fs.createReadStream(log_path, options.readOptions).pipe(fs.createWriteStream(log_path + _extension, options.writeOptions));
@@ -152,7 +154,7 @@
     Process log
     Copies a file and processes it, if a process function is given.
   */
-  function _process_log(path, start, end, process, callback, log_path) {
+  function _process_log(path, start, end, processor, callback, log_path) {
     // Define Variables
     // Create the read/write options
     var options = _file_options(start, end).writeOptions,
@@ -195,11 +197,11 @@
       if (callback) callback(errorData, processedData);
     }
 
-    _process_read(path, start, end, process, finish);
+    _process_read(path, start, end, processor, finish);
   }
 
   // Read Process
-  function _process_read(path, start, end, process, callback) {
+  function _process_read(path, start, end, processor, callback) {
     // Define variables
     var processedData = [],
       errorData = [],
@@ -213,7 +215,10 @@
     read = fs.createReadStream(path, readOptions);
 
     read.on('error', function(err) {
-      console.warn("An error occured while reading the file '" + path + "'.\nDetails: " + err.details);
+      errorData.push({
+        path: path,
+        details: err + ' '
+      });
     });
 
 
@@ -221,9 +226,8 @@
     function pushData(err, data) {
       if (err) { // null == undefined => true; this is used here
         errorData.push({
-          file: path,
-          lineNumber: linecount,
-          error: err
+          path: path,
+          details: err + ' '
         });
       } else {
         processedData.push(data);
@@ -231,8 +235,7 @@
     }
 
     // Reading the stream
-    var tmpBuffer = "",
-      linecount = 0;
+    var tmpBuffer = "";
 
     read.on('readable', function() {
       var data = '',
@@ -263,9 +266,7 @@
       // Process every line on their own
       for (var i = 0; i < tokens.length; ++i) {
         // Skip empty lines
-        if (tokens[i].length > 0) process(tokens[i], pushData);
-        // Increase the linecount
-        ++linecount;
+        if (tokens[i].length > 0) processor.parse(tokens[i], pushData);
       }
     });
 
@@ -273,7 +274,7 @@
     read.on('end', function(chunk) {
       // We still need to add the last stored line in tmpBuffer, if there is one
       if (tmpBuffer !== "") {
-        process(tmpBuffer, pushData);
+        processor.parse(tmpBuffer, pushData);
       }
       // Are there any errors?
       if (errorData.length === 0) errorData = null;
@@ -283,21 +284,24 @@
   }
 
   // Read a json file
-  function _process_read_json_file(path, start, end, process, callback) {
+  function _process_read_json_file(path, start, end, processor, callback) {
     var processedData = {},
       errorData = [];
 
     fs.readFile(path, (err, data) => {
       if (err) {
-        throw err;
+        errorData.push({
+          path: path,
+          details: err + ' '
+        });
       }
       try {
         processedData = JSON.parse(data);
       } catch (err) {
         console.warn("Invalid Format in file '" + path + "'.\n" + err);
         errorData.push({
-          file: path,
-          error: err
+          path: path,
+          details: err + ' '
         });
       } finally {
         if (errorData.length === 0) errorData = null;
@@ -315,7 +319,7 @@
       firstLog: ((options.firstLog !== undefined) ? options.firstLog : _default.firstLog),
       watch_error: options.content || _default.watch_error,
       work_function: _default.work_function,
-      process: options.process || _default.process,
+      processor: options.processor || _default.processor,
       content: options.content,
       log_path: path_util.join(options.log_path, options.path),
       watch_settings: options.watch_settings || _default.watch_settings
@@ -326,9 +330,9 @@
       return (typeof fn === 'function');
     }
 
-    // Check if process/content are valid
-    if (options.process && !isFunction(options.process)) {
-      return new TypeError('The process-option needs to be an function.');
+    // Check if processor/content are valid
+    if (options.processor && options.processor.parse && !isFunction(options.processor.parse)) {
+      return new TypeError('The processor.parse needs to be an function.');
     }
     if (options.content && !isFunction(options.content)) {
       return new TypeError('The content-function needs to be an function.');
@@ -355,7 +359,7 @@
           " then there is no point in watching the file. " +
           "This can't be your intention.");
       }
-    } else if (options.process || options.content) {
+    } else if (options.processor || options.content) {
       nOptions.work_function = _process_log;
     }
 
@@ -367,13 +371,13 @@
   */
   function _handle_change(path, currStat, prevStat, options) {
     if (options.mode === 'append') {
-      options.work_function(path, prevStat, currStat, options.process, options.content, options.log_path);
+      options.work_function(path, prevStat, currStat, options.processor, options.content, options.log_path);
     } else if (options.mode === 'prepend') {
-      options.work_function(path, 0, (currStat - prevStat), options.process, options.content, options.log_path);
+      options.work_function(path, 0, (currStat - prevStat), options.processor, options.content, options.log_path);
     } else if (options.mode === 'all') {
-      options.work_function(path, undefined, undefined, options.process, options.content, options.log_path);
+      options.work_function(path, undefined, undefined, options.processor, options.content, options.log_path);
     } else if (options.mode === 'json'){
-      options.work_function(path, undefined, undefined, JSON.parse, options.content, options.log_path);
+      options.work_function(path, undefined, undefined, options.processor, options.content, options.log_path);
     }
   }
 
@@ -399,7 +403,6 @@
       } else if (callback) return callback();
     } else {
       if (callback) {
-        console.log("No such file is watched:", path);
         return callback(new Error("No such file is watched."));
       }
     }
@@ -492,7 +495,7 @@
       if (options.firstLog) {
         // Make a first log/parse
         console.log(`File ${resFile} is being copied and processed first`);
-        options.work_function(resFile, undefined, undefined, options.process, options.content);
+        options.work_function(resFile, undefined, undefined, options.processor, options.content);
       }
 
       // Finally watch the file

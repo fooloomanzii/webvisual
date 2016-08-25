@@ -68,7 +68,7 @@ app.on("ready", function() {
 
     webvisualserver = new WebvisualServer(config);
     webvisualserver.on("error", function(err, msg) {
-      console.log("Error", err, msg || "");
+      console.log("Error in", err, msg || "");
     });
     webvisualserver.on("log", function(arg, msg) {
       console.log(arg, msg || "");
