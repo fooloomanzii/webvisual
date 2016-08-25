@@ -1,14 +1,14 @@
-'use strict';
+"use strict";
 
-var ioServer = require('socket.io'),
-  EventEmitter = require('events').EventEmitter,
+var ioServer = require("socket.io"),
+  EventEmitter = require("events").EventEmitter,
   // custom: DATAMODULE
-  filehandler = require('./filehandler'),
+  filehandler = require("./filehandler"),
   // custom: mailer
-  // mailer = new require('./mail')('exceeds'),
+  // mailer = new require("./mail")("exceeds"),
 
   /* Class variables */
-  Settings = require('./settings'),
+  Settings = require("./settings"),
   dataFileHandler = filehandler.dataFileHandler, // extension: of DATAMODULE
   mergeData = filehandler.dataMerge; // extension: of DATAMODULE
 
@@ -34,10 +34,10 @@ class dataModule extends EventEmitter {
   connect(config) {
     this.configHandler.watch(config);
 
-    this.dataSocket = this.io.of('/data');
+    this.dataSocket = this.io.of("/data");
 
-    this.configHandler.on('changed', (function(name) {
-      this.emit('changed', this.configHandler.settings[name].configuration, name);
+    this.configHandler.on("changed", (function(name) {
+      this.emit("changed", this.configHandler.settings[name].configuration, name);
 
       if (!this.currentData[name])
         this.currentData[name] = {};
@@ -48,20 +48,22 @@ class dataModule extends EventEmitter {
       // dataFileHandler - established the data connections
 
       for (let label of this.configHandler.settings[name].configuration.labels) {
-
         if (this.dataFile[name][label]) {
           this.dataFile[name][label].close();
           delete this.dataFile[name][label];
         }
 
         let listeners = {
-          error: (function(type, err, label) {
-            // dataSocket.emit('mistake', { error: err, time: new Date() });
-            this.emit("error", name, label, err);
+          error: (function(type, err) {
+            let errString = "";
+            err.forEach(function(msg){
+              errString += "path: " + msg.path + "\n" + msg.details + "\n";
+            })
+            this.emit("error", type + "\n" + errString);
           }).bind(this),
           data: (function(type, data, label) {
             if (!data || data.length == 0)
-              return; // Don't handle empty data
+              return; // Don"t handle empty data
             // temporary save data
             if (this.configHandler.settings[name].dataConfig[label]) {
               // process data
@@ -70,7 +72,7 @@ class dataModule extends EventEmitter {
               // only newer data is send
               // TODO: handle this optional by config
               if (this.currentData[name][label] && mergedData.date > this.currentData[name][label].date) {
-                this.dataSocket.to(name + '__' + label).emit("update", mergedData);
+                this.dataSocket.to(name + "__" + label).emit("update", mergedData);
               }
               this.currentData[name][label] = mergedData;
             }
@@ -87,22 +89,22 @@ class dataModule extends EventEmitter {
       }
 
       // Handle connections of new clients
-      this.dataSocket.on('connection', (function(socket) {
+      this.dataSocket.on("connection", (function(socket) {
 
         var name = socket.handshake.query.name;
         // console.log(socket.handshake.query);
 
-        socket.emit('init', this.configHandler.settings[name].configuration);
+        socket.emit("init", this.configHandler.settings[name].configuration);
 
-        socket.on('init', (function(config) {
+        socket.on("init", (function(config) {
           for (var label of config.labels) {
-            socket.join(name + '__' + label); // client joins room for selected label
-            socket.emit('update', this.currentData[name][label]);
+            socket.join(name + "__" + label); // client joins room for selected label
+            socket.emit("update", this.currentData[name][label]);
             // console.log(this.currentData[name][label].length);
           }
         }).bind(this));
 
-        // socket.on('disconnect', function() {
+        // socket.on("disconnect", function() {
         //   // leave rooms on disconnect
         //   var rooms = io.sockets.manager.roomClients[socket.id];
         //   for (var room in rooms) {
@@ -111,7 +113,7 @@ class dataModule extends EventEmitter {
         // });
       }).bind(this));
 
-      this.io.of('/data').clients(
+      this.io.of("/data").clients(
         (function(err, clients) {
           if (err) this.emit("error", "socket.io", err) // => [PZDoMHjiu8PYfRiKAAAF, Anw2LatarvGVVXEIAAAD]
           }).bind(this));
@@ -137,7 +139,7 @@ class dataModule extends EventEmitter {
   //     to: config.to, // list of receivers
   //     subject: config.subject
   //   });
-  //   mailer.setType('html');
+  //   mailer.setType("html");
   //   mailer.setDelay(1000);
   // }
 }

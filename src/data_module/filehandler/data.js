@@ -37,8 +37,8 @@
 var
 // Own modules
   udpwatch = require('./udpwatch'),
-  copywatch = require('./copywatch/'),
-  data_parser = require('./dataParser'),
+  filewatch = require('./filewatch/'),
+  DataParser = require('./dataparser'),
   path = require('path'),
   // Node modules
   _ = require('underscore'),
@@ -54,22 +54,26 @@ var
       // TODO: Default DB configuration
     },
     "file": {
-      // We don't need to make a copy of the file
-      copy: false,
+      // We don't need to make a log of the file
+      log: false,
       // The watching mode ('all', 'append', 'prepend', 'json')
       mode: 'all',
       // Default file: Same dir as the "master" script,
       path: 'data.txt',
       // Default log file
-      copy_path: __dirname + "/../../../logs/",
-      // The default parse function from the data_parser module
-      process: data_parser.parse,
-      // according Nyquist-Theorem
-      interval: 400,
-      catchupDelay: 400
+      log_path: __dirname + "/../../../logs/",
+      // The default parse function from the dataparser module
+      processor: null,
+      // default parseOptions
+      format: {
+        dateFormat: "DD.MM.YYYY hh:mm:ss",
+        decimalSeparator: ".",
+        valueSeparator: ";",
+        dimensions: 1
+      }
     },
     "udp": {
-      // We don't need to make a copy of the data
+      // We don't need to make a log of the data
       log: false,
       // TODO: use log_file, if logging
       log_path: '/../../../data/udp/',
@@ -77,8 +81,19 @@ var
       mode: 'append',
       // Default port for receiving the data from the source
       port: 4000,
-      // The default parse function from the data_parser module
-      process: data_parser.parse
+      // The default parse function from the dataparser module
+      processor: null,
+      // default parseOptions
+      parseOptions: {
+        format: ["date", "time"],
+        date: ["DD", "MM", "YYYY"],
+        dateSeparator: ".",
+        time: ["hh", "mm", "ss"],
+        timeSeparator: ":",
+        decimalSeparator: ".",
+        valueSeparator: ";",
+        dimensions: 1
+      }
     }
   },
   // All connect and close functions for the different connection types; the functions are added at a later point
@@ -202,24 +217,35 @@ connectionFn.file = {
    */
   close: function(config, callback) {
     // End the watching
-    copywatch.unwatch(config.path, config.remove, callback);
+    filewatch.unwatch(config.path, config.remove, callback);
   },
   /**
-   * The file watch connect function. Enables the watching and processing of a file.
+   * The file watch connect function. Enables the watching and processoring of a file.
    * @param  {Object} config The configuration for the watching
    * @return {Object}        Contains the necessary data to end the watcher
    */
   connect: function(config, emitter) {
-    // Add the function which recieves the parsed data; calls the emitter
+    // Add the function which receives the parsed data; calls the emitter
     config.content = emitter;
 
+    if (config.mode === "json") {
+      config.processor = JSON;
+    }
+    else if (!config.processor) {
+      config.processor = new DataParser(config.format, emitter);
+    }
+
     // Start watching the file
-    copywatch.watch(config.mode, config.path, config);
+    // try {
+      filewatch.watch(config.mode, config.path, config);
+    // } catch (e) {
+    //   this._emitter.emit('error', e);
+    // }
 
     // Return the necessary data to end the watcher
     return {
       path: config.path,
-      remove: config.copy
+      remove: config.log
     };
   }
 };
@@ -246,13 +272,20 @@ connectionFn.udp = {
     // Add the function which recieves the parsed data; calls the emitter
     config.content = emitter;
 
+    if (config.mode === "json") {
+      config.processor = JSON;
+    }
+    else if (!config.processor) {
+      config.processor = new DataParser(config.format, emitter);
+    }
+
     // Start watching the port
     udpwatch.watch(config.port, config);
 
     // Return the necessary data to end the watcher
     return {
       port: config.port,
-      remove: config.copy
+      remove: config.log
     };
   }
 };
@@ -287,10 +320,10 @@ dataFileHandler = (function() {
     // Add a instance of the EventEmitter
     this._emitter = new EventEmitter();
 
-    // Validate and process the connections
+    // Validate and processor the connections
     this._connect(config.connection);
 
-    // Process the given listener
+    // processor the given listener
     this._addListener(config.listener);
 
     // Save current id
@@ -397,7 +430,7 @@ dataFileHandler = (function() {
         }
       });
 
-      // Overwrite the connection variable to ensure it's a simple string array; necessary for further processing
+      // Overwrite the connection variable to ensure it's a simple string array; necessary for further processoring
       connection = _(connectionConfig).keys();
     }
     // Ensure it's an array, if it's not an object

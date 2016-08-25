@@ -7,8 +7,8 @@
     "webPreferences": {
       "webSecurity": true
     },
-    "x": 76,
-    "y": 212
+    "x": 247,
+    "y": 332
   },
   "server": {
     "port": {
@@ -30,11 +30,11 @@
   },
   "userConfigFiles": {
     "HNF-GDS": {
-      "path": ".\\defaults\\HNF\\HNF_GDS.json",
+      "path": ".\\examples\\config\\HNF_GDS.json",
       "renderer": "Alarmzustände"
     },
     "cryostat": {
-      "path": ".\\defaults\\cryostat_visu\\cryostat_visu.json",
+      "path": ".\\examples\\config\\cryostat_visu.json",
       "renderer": "Diagrammansicht"
     }
   },

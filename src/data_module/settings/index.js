@@ -42,7 +42,7 @@ class fileConfigLoader extends EventEmitter {
       listener = {
         error: (function(type, errors, name, path) {
           // console.log(errors);
-          this.emit('error', errors, {path, name});
+          this.emit('error', errors, {path: path, name: name});
         }).bind(this),
         data: (function(type, data, name, path) {
           if (data && name) {
@@ -55,8 +55,7 @@ class fileConfigLoader extends EventEmitter {
         connection: {
           file: {
             "mode": "json",
-            "path": this.settings[name]._path,
-            "process": JSON.parse
+            "path": this.settings[name]._path
           }
         },
         listener: listener
