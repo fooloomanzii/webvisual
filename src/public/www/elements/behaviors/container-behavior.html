@@ -244,6 +244,9 @@
                     .forEach( function(el) {
                       el.unsetElement();
                     }, this);
+            this._elements = this._elements.filter( function(el) {
+                                    return !(el.id === item.id && el.label === item.label);
+                                   })
             containers.forEach( function(el) {
                         // containers should notify themselfes? "item.unsetSelectedElement(del);"
                         el.unsetSelectedElement(item);

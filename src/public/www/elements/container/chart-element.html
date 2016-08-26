@@ -230,8 +230,8 @@
         margin: {
           type: Object,
           value: function() {
-            return {  top: 0,
-                      right: 0,
+            return {  top: 6,
+                      right: 12,
                       bottom: 36,
                       left: 48 };
           }
@@ -340,6 +340,10 @@
         'iron-resize': '_sizeChanged'
       },
 
+      observers: [
+        'redraw(selectedElements.splices)'
+      ],
+
       created: function() {
         d3.timeFormatDefaultLocale({
           'dateTime': '%x %X',
@@ -431,6 +435,13 @@
         this._svg.selectAll('g,line,text,path,rect')
                  .classed('style-scope', true)
                  .classed('chart-element', true);
+
+        this._svg.on('contextmenu',
+          (function () {
+            d3.event.preventDefault();
+            this._isBrushed = false;
+            this.redraw();
+          }).bind(this));
         this._sizeLayout();
       },
 
@@ -513,7 +524,7 @@
         this._svg.selectAll('g,line,text,path,rect')
                  .classed('style-scope', true)
                  .classed('chart-element', true);
-        this._redraw();
+        this.redraw();
       },
 
       _createScale: function(option) {
@@ -583,13 +594,13 @@
       },
 
       redraw: function () {
+        if (this._isBrushed === true) return;
+        this.setDomains();
+
         this.debounce('redraw', function() { this._redraw() }, 15);
       },
 
       _redraw: function () {
-        if (this._isBrushed === true) return;
-
-        this._setDomains();
         if (this._elements.length > 0)
           this._elements.forEach(function(g) { g.redraw(); });
 
@@ -609,19 +620,12 @@
         if (!s) {
           this._isBrushed = false;
         } else {
-          this._x.domain([s[0][0], s[1][0]].map(this._x.invert, this._x));
-          this._y.domain([s[1][1], s[0][1]].map(this._y.invert, this._y));
+          this._x.domain([s[0][0], s[1][0]].map(this._x.invert, this._x)).nice(this.ticks);
+          this._y.domain([s[1][1], s[0][1]].map(this._y.invert, this._y)).nice(this.ticks);
           this._brush.call(this._brushBehavior.move, null);
           this._isBrushed = true;
         }
-        this._elements.forEach(function(g) { g.redraw(); });
-        this._chart.select('g.x.axis').transition(50).call(this._xAxis);
-        this._chart.select('g.x.grid').transition(50).call(this._xGrid);
-        this._chart.select('g.y.axis').transition(50).call(this._yAxis);
-        this._chart.select('g.y.grid').transition(50).call(this._yGrid);
-        this._svg.selectAll('g,line,text,path,rect')
-                 .classed('style-scope', true)
-                 .classed('chart-element', true);
+        this._redraw();
       },
 
       _zoomed: function () {
@@ -634,25 +638,24 @@
       _setDomains: function () {
         if (this._elements.length === 0) return;
 
-        var graphs = this._elements;
         var domainX, domainY = [0, 0], v;
 
-        domainX = [ d3.min(graphs,function(g){ return g._rangeX[0] }) ,
-                    d3.max(graphs,function(g){ return g._rangeX[1] }) ];
-        domainY = [ d3.min(graphs,function(g){ return g._rangeY[0] }) ,
-                    d3.max(graphs,function(g){ return g._rangeY[1] }) ];
+        domainX = [ d3.min(this._elements, function(g){ if(g.hidden !== true) return g._rangeX[0] }) ,
+                    d3.max(this._elements, function(g){ if(g.hidden !== true) return g._rangeX[1] }) ];
+        domainY = [ d3.min(this._elements, function(g){ if(g.hidden !== true) return g._rangeY[0] }) ,
+                    d3.max(this._elements, function(g){ if(g.hidden !== true) return g._rangeY[1] }) ];
 
         // rounding y-domains to the according decimal exponent
-        if (domainY[0] !== undefined) {
-          v = (domainY[0]).toExponential().split('e');
-          domainY[0] = (Math.floor(v[0])) * Math.pow(10,parseInt(v[1],10));
-        }
-        if (domainY[1] !== undefined) {
-          v = (domainY[1]).toExponential().split('e');
-          domainY[1] = (Math.ceil(v[0]) + 1) * Math.pow(10,parseInt(v[1],10));
-        }
+        // if (domainY[0] !== undefined) {
+        //   v = (domainY[0]).toExponential().split('e');
+        //   domainY[0] = (Math.floor(v[0])) * Math.pow(10,parseInt(v[1],10));
+        // }
+        // if (domainY[1] !== undefined) {
+        //   v = (domainY[1]).toExponential().split('e');
+        //   domainY[1] = (Math.ceil(v[0])) * Math.pow(10,parseInt(v[1],10));
+        // }
         this._x.domain(domainX);
-        this._y.domain(domainY);
+        this._y.domain(domainY).nice(this.ticks);
       },
 
       _showFocus: function() {
@@ -719,9 +722,13 @@
       },
       changeScale: function(newValue, oldValue) {
         if (oldValue === undefined) return;
+        var domainX = this._x.domain();
+        var domainY = this._y.domain();
         this._buildLayout();
         this._sizeLayout();
-        this.redraw();
+        this._x.domain(domainX);
+        this._y.domain(domainY);
+        this._redraw();
       },
       changeDots: function(e) {
         if (this._elements === undefined) return;

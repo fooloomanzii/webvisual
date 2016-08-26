@@ -3,24 +3,24 @@
 
     "connections": {
       "file": {
-        "mode": "all",
-        "path": "./examples/datafile/cryostat_visu.txt",
+        "mode": "append",
+        "path": "//ibn3-vsrv/CryostatVisu$/Lakeshore/201608021350_Lakeshore.txt",
         "format": {
-          "dateFormat": "DD.MM.YYYY;hh:mm:ss",
-          "decimalSeparator": ".",
+          "dateFormat": "DD.MM.YYYY hh:mm:ss",
+          "decimalSeparator": ",",
           "valueSeparator": ";",
           "dimensions": 1
-        }
-
+        },
+        "ignoredFirstLines": 0
       }
     },
 
     "locals": {
-      "ignore": [5],
+      "ignore": [],
       "types": [{
           "id": "id1",
           "keys": {
-            "Molekül": "SmFeAsO≈ 0.85",
+            "Bezeichner": "Temperatur oben",
             "Sprungtemperatur": "<20K",
             "Druck": "100 kPa",
             "Gefahrenklasse": "reizend"
@@ -28,13 +28,13 @@
           "isBoolean": false,
           "threshold": {
             "from": 0,
-            "to": 30
+            "to": 400
           },
           "unit": "K"
         }, {
           "id": "id2",
           "keys": {
-            "Molekül": "CeFeAsO0.84F0.16",
+            "Bezeichner": "id2",
             "Sprungtemperatur": "<40K",
             "Druck": "300 kPa",
             "Gefahrenklasse": "reizend"
@@ -42,59 +42,99 @@
           "isBoolean": false,
           "threshold": {
             "from": 0,
-            "to": 15
+            "to": 400
           },
           "unit": "K",
           "color": "#14AFB6"
         }, {
           "id": "id3",
           "keys": {
-            "Molekül": "YBa2Cu3O7",
+            "Bezeichner": "id3",
             "Sprungtemperatur": "<150K",
             "Druck": "400 kPa"
           },
           "isBoolean": false,
           "threshold": {
             "from": 0,
-            "to": 60
+            "to": 400
           },
           "unit": "K",
           "color": "#1464B6"
         }, {
           "id": "id4",
           "keys": {
-            "Molekül": "NdFeAsO0.89F0.11",
+            "Bezeichner": "id4",
             "Sprungtemperatur": "<150K",
             "Druck": "100 kPa"
           },
           "isBoolean": false,
           "threshold": {
             "from": 0,
-            "to": 50
+            "to": 400
           },
           "unit": "K",
           "color": "#14B638"
         }, {
           "id": "id5",
           "keys": {
-            "Molekül": "Hg0.8Tl0.2Ba2Ca2Cu3O8.33",
+            "Bezeichner": "id5",
             "Sprungtemperatur": "<150K",
             "Druck": "200 kPa"
           },
           "isBoolean": false,
           "threshold": {
             "from": 0,
-            "to": 50
+            "to": 400
           },
           "unit": "K",
           "color": "#6A14B6"
+        }, {
+          "id": "id6",
+          "keys": {
+            "Bezeichner": "id6",
+            "Sprungtemperatur": "<150K",
+            "Druck": "200 kPa"
+          },
+          "isBoolean": false,
+          "threshold": {
+            "from": 0,
+            "to": 400
+          },
+          "unit": "K",
+          "color": "#6A14B6"
+        }, {
+          "id": "id7",
+          "keys": {
+            "Bezeichner": "id7",
+            "Sprungtemperatur": "<150K",
+            "Druck": "200 kPa"
+          },
+          "isBoolean": false,
+          "threshold": {
+            "from": 0,
+            "to": 400
+          },
+          "unit": "K"
+        }, {
+          "id": "id8",
+          "keys": {
+            "Bezeichner": "id8",
+            "Sprungtemperatur": "<150K",
+            "Druck": "200 kPa"
+          },
+          "isBoolean": false,
+          "threshold": {
+            "from": 0,
+            "to": 400
+          },
+          "unit": "K"
         }
       ],
 
       "unnamedType": {
         "id": "id",
         "keys": {
-          "Molekül": "Molekül",
+          "Bezeichner": "Bezeichner",
           "Sprungtemperatur": "verschiedene Sprungtemperatur",
           "Druck": "verschiedener Druck",
           "Gefahrenklasse": "keine Gefahrenklasse"
@@ -116,7 +156,7 @@
         "color": "#B63614"
       },
 
-      "groupingKeys": ["Molekül", "Gefahrenklasse", "Sprungtemperatur", "Druck", "*"],
+      "groupingKeys": ["Bezeichner", "Gefahrenklasse", "Sprungtemperatur", "Druck", "*"],
       "preferedGroupingKey": "*",
 
       "exclusiveGroups": {
@@ -136,14 +176,15 @@
 
     "connections": {
       "file": {
-        "mode": "all",
+        "mode": "append",
         "path": "./examples/datafile/cryostat_visu2.txt",
         "format": {
-          "dateFormat": "DD.MM.YYYY;hh:mm:ss",
+          "dateFormat": "DD.MM.YYYY hh:mm:ss",
           "decimalSeparator": ".",
-          "valueSeparator": ";",
+          "valueSeparator": ",",
           "dimensions": 1
-        }
+        },
+        "ignoredFirstLines": 3
       }
     },
 
@@ -161,7 +202,7 @@
       "types": [{
           "id": "id1",
           "keys": {
-            "Molekül": "SmFeAsO≈ 0.85",
+            "Bezeichner": "SmFeAsO≈ 0.85",
             "Sprungtemperatur": "<20K",
             "Temperatur": "120K",
             "Gefahrenklasse": "reizend"
@@ -176,7 +217,7 @@
         }, {
           "id": "id2",
           "keys": {
-            "Molekül": "GdFeAsO0.85",
+            "Bezeichner": "GdFeAsO0.85",
             "Sprungtemperatur": "<40K",
             "Temperatur": "130K",
             "Gefahrenklasse": "reizend"
@@ -191,7 +232,7 @@
         }, {
           "id": "id3",
           "keys": {
-            "Molekül": "Tantal",
+            "Bezeichner": "Tantal",
             "Sprungtemperatur": "<150K",
             "Temperatur": "170K"
           },
@@ -205,7 +246,7 @@
         }, {
           "id": "id4",
           "keys": {
-            "Molekül": "Technetium",
+            "Bezeichner": "Technetium",
             "Sprungtemperatur": "<150K",
             "Temperatur": "170K"
           },
@@ -219,7 +260,7 @@
         }, {
           "id": "id5",
           "keys": {
-            "Molekül": "PbMo6S8",
+            "Bezeichner": "PbMo6S8",
             "Sprungtemperatur": "<150K",
             "Temperatur": "170K"
           },
@@ -235,7 +276,7 @@
       "unnamedType": {
         "id": "id",
         "keys": {
-          "Molekül": "Molekül",
+          "Bezeichner": "Bezeichner",
           "Sprungtemperatur": "verschiedene Sprungtemperatur",
           "Temperatur": "Temperatur nicht exakt festgelegt",
           "Gefahrenklasse": "keine Gefahrenklasse"
@@ -258,11 +299,11 @@
         "color": "#B61462"
       },
 
-      "groupingKeys": ["Molekül", "Gefahrenklasse", "Sprungtemperatur", "Temperatur", "*"],
-      "preferedGroupingKey": "Molekül",
+      "groupingKeys": ["Bezeichner", "Gefahrenklasse", "Sprungtemperatur", "Temperatur", "*"],
+      "preferedGroupingKey": "Bezeichner",
 
       "exclusiveGroups": {
-        "Molekül": {
+        "Bezeichner": {
           "metallische Supraleiter": {
             "ids": [
               "id3",

@@ -56,7 +56,8 @@
         ignorePermissionErrors: false,
         atomic: false,
         awaitWriteFinish: false
-      }
+      },
+      ignoredFirstLines: 0
     },
     _watchers = {},
     _watcherCount = 0,
@@ -201,7 +202,7 @@
   }
 
   // Read Process
-  function _process_read(path, start, end, processor, callback) {
+  function _process_read(path, start, end, ignored, processor, callback) {
     // Define variables
     var processedData = [],
       errorData = [],
@@ -264,7 +265,7 @@
       tmpBuffer = tokens.pop();
 
       // Process every line on their own
-      for (var i = 0; i < tokens.length; ++i) {
+      for (var i = ignored; i < tokens.length; ++i) {
         // Skip empty lines
         if (tokens[i].length > 0) processor.parse(tokens[i], pushData);
       }
@@ -322,7 +323,8 @@
       processor: options.processor || _default.processor,
       content: options.content,
       log_path: path_util.join(options.log_path, options.path),
-      watch_settings: options.watch_settings || _default.watch_settings
+      watch_settings: options.watch_settings || _default.watch_settings,
+      ignoredFirstLines: options.ignoredFirstLines || _default.ignoredFirstLines
     };
 
     // Helpfunction
@@ -369,13 +371,39 @@
   /*
     Handles a valid change event.
   */
-  function _handle_change(path, currStat, prevStat, options) {
+  function _handle_change(event, path, currStat, prevStat, options) {
     if (options.mode === 'append') {
-      options.work_function(path, prevStat, currStat, options.processor, options.content, options.log_path);
+      if (currStat < prevStat) {
+        if (options.content) {
+          options.content([{
+            path: path,
+            details: 'new file size is smaller then previous'
+          }]);
+        }
+      }
+      else {
+        if (event === 'add')
+          options.work_function(path, prevStat, currStat, options.ignoredFirstLines, options.processor, options.content, options.log_path);
+        else
+          options.work_function(path, prevStat, currStat, 0, options.processor, options.content, options.log_path);
+      }
     } else if (options.mode === 'prepend') {
-      options.work_function(path, 0, (currStat - prevStat), options.processor, options.content, options.log_path);
+      if (currStat < prevStat) {
+        if (options.content) {
+          options.content([{
+            path: path,
+            details: 'new file size is smaller then previous'
+          }]);
+        }
+      }
+      else {
+        if (event === 'add')
+          options.work_function(path, 0, (currStat - prevStat), options.ignoredFirstLines, options.processor, options.content, options.log_path);
+        else
+          options.work_function(path, 0, (currStat - prevStat), 0, options.processor, options.content, options.log_path);
+      }
     } else if (options.mode === 'all') {
-      options.work_function(path, undefined, undefined, options.processor, options.content, options.log_path);
+      options.work_function(path, undefined, undefined, options.ignoredFirstLines, options.processor, options.content, options.log_path);
     } else if (options.mode === 'json'){
       options.work_function(path, undefined, undefined, options.processor, options.content, options.log_path);
     }
@@ -503,13 +531,13 @@
       _watchers[resFile]
         .on('add', (path, stats) => {
           console.log(`File ${path} is being added to watch`);
-          _handle_change(path, stats.size, 0, options);
+          _handle_change('add', path, stats.size, 0, options);
           _watchers[path].prevStat = stats.size;
         })
         .on('change', (path, stats) => {
           // if (stats)
           //   console.log(`File ${path} changed size from ${_watchers[path].prevStat} to ${stats.size}`);
-          _handle_change(path, stats.size, _watchers[path].prevStat, options);
+          _handle_change('change', path, stats.size, _watchers[path].prevStat, options);
           _watchers[path].prevStat = stats.size;
         })
         .on('unlink', path => console.log(`File ${path} has been removed`))

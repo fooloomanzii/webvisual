@@ -70,7 +70,9 @@ var
         decimalSeparator: ".",
         valueSeparator: ";",
         dimensions: 1
-      }
+      },
+      // ignored first Lines in File
+      ignoredFirstLines: 0
     },
     "udp": {
       // We don't need to make a log of the data
