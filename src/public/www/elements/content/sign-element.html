@@ -267,6 +267,11 @@
         tooltip: {
           type: Boolean,
           value: false
+        },
+        updateEveryValue: {
+          type: Boolean,
+          value: false,
+          readOnly: true
         }
       },
 
@@ -285,7 +290,8 @@
       },
 
       _updateView: function(value) {
-        if (value === undefined) return;
+        if (value === undefined)
+          value = this.values[0];
 
         // set value
         if (!this.isBoolean)

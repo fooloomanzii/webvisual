@@ -14,6 +14,7 @@
       cursor: default;
       z-index: auto;
       background: white;
+      border-radius: inherit;
       border-color: #BBBBBB;
     }
     :host[dark] {
@@ -22,11 +23,13 @@
     }
     section#table {
       display: flex;
+      position: relative;
       flex-direction: column;
       border-color: inherit;
     }
     section#caption {
       display: block;
+      position: relative;
       flex: 0;
       font-size: 0.9em;
       font-weight: bold;
@@ -34,6 +37,7 @@
     }
     section#head {
       display: flex;
+      position: relative;
       flex-direction: row;
       flex-shrink: 0;
       align-items: center;
@@ -41,11 +45,11 @@
       border-bottom-style: solid;
       border-bottom-width: thin;
       border-color: inherit;
+      cursor: pointer;
     }
     section#tr {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
+      position: relative;
+      display: inline-block;
       border: thin solid transparent;
     }
     section#tr.null {
@@ -64,18 +68,27 @@
       background: #c3ab12; color: inherit;
     }
     section#body {
+      display: flex;
+      flex-direction: column;
       width: 100%;
+      position: relative;
       flex: 1;
       overflow-x: auto;
       overflow-y: scroll;
     }
+    section#body.reverse {
+      flex-direction: column-reverse;
+    }
     section#td {
       font-size: 1em;
+      position: relative;
       padding: 0em 0.75em;
       white-space: nowrap;
     }
     section#td.x {
       min-width: 3.5em;
+      float: left;
+      clear: none;
     }
   </style>
 
@@ -109,7 +122,7 @@
         descendingOrder: {
           type: Boolean,
           value: false,
-          observer: '_reorder'
+          observer: 'setOrder'
         },
         highlightExceeding: {
           type: Boolean,
@@ -127,117 +140,95 @@
           type: Boolean,
           value: false
         },
+        updateEveryValue: {
+          type: Boolean,
+          value: true,
+          readOnly: true
+        },
         _body: {
           type: Object,
           value: function() {
             return Polymer.dom(this.$.body);
           }
+        },
+        _map: {
+          type: Object,
+          value: function() {
+            return {};
+          }
         }
       },
 
       attached: function() {
+        this._body = this.$.body;
         if (this.hideOverflow) {
-          this.$.body.style.overflow = 'hidden';
+          this._body.style.overflow = 'hidden';
         }
       },
 
       _updateView: function(value, splices) {
         var row, tdX, tdY, isExceeding, index, tdI;
-        if (value === undefined && splices.start !== undefined && splices.length !== undefined) {
-          if (this.descendingOrder === true) {
-            for (var i = 0; i < splices.length; i++) {
-              if (this._body.children[0])
-                this._body.removeChild(this._body.children[0]);
-            }
-          }
+        if (value === undefined) {
+          if (splices !== undefined)
+            splices.values.forEach(function(v){
+              if (this._map[v.x] && this._map[v.x].nodeType === 1)
+                this._body.removeChild(this._map[v.x]);
+              this._map[v.x] = null;
+            }, this)
           else {
-            for (var i = splices.length + splices.start; i > splices.start; i--) {
-              if (this._body.children[i])
-                this._body.removeChild(this._body.children[i]);
-            }
+            while (this._body.children[0])
+                this._body.removeChild(this._body.children[0]);
+          }
+          for (var i = 0; i < this.values.length; i++) {
+            this.createRow(this.values[i]);
           }
         }
-        else if (Array.isArray(value)) {
-          this.setValues(value);
-        }
-        else if (value) {
-          row = document.createElement('section');
-          row.id = 'tr';
-          tdX = document.createElement('section');
-          tdX.id = 'td'; tdX.className = 'x';
-          tdX.textContent = (this.showFullDate ? new Date(value.x).toLocaleString() : new Date(value.x).toLocaleTimeString());
-          tdY = document.createElement('section');
-          tdY.id = 'td'; tdY.className = 'y';
-          isExceeding = (value.exceeds === null) ? false : true;
-          tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : value.y);
-
-          if (this.highlightExceeding === true)
-            row.className = value.exceeds;
-
-          row.appendChild(tdX); row.appendChild(tdY);
-
-          if (this.descendingOrder === true)
-            this._body.appendChild(row);
-          else
-            this._body.insertBefore(row, this._body.childNodes[0]);
+        else {
+          this.createRow(value)
         }
       },
 
-      setValues: function(values) {
-        this.set('values', values);
-        while (this._body.lastChild) {
-          this._body.removeChild(this._body.lastChild);
-        }
+      createRow: function(value) {
+        row = document.createElement('section');
+        row.id = 'tr';
+        tdX = document.createElement('section');
+        tdX.id = 'td'; tdX.classList.add('x','style-scope','table-element');
+        tdX.textContent = (this.showFullDate ? new Date(value.x).toLocaleString() : new Date(value.x).toLocaleTimeString());
+        tdY = document.createElement('section');
+        tdY.id = 'td'; tdY.classList.add('y','style-scope','table-element');
+        isExceeding = (value.exceeds === null) ? false : true;
+        tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : value.y);
 
-        if (values.length !== 0) {
-          var row, tdX, tdY, isExceeding, tdI;
+        if (this.highlightExceeding === true)
+          row.className = value.exceeds;
+        row.classList.add('style-scope', 'table-element');
 
-          this.async( function() {
-            for (var j = values.length-1; j >=0 ; j--) {
-              row = document.createElement('section');
-              row.id = 'tr';
+        row.appendChild(tdX); row.appendChild(tdY);
+        if (this._map[value.x])
+          this._body.removeChild(this._map[value.x]);
+        this._map[value.x] = null;
+        this._map[value.x] = row;
 
-              tdX = document.createElement('section');
-              tdX.id = 'td'; tdX.className = 'x';
-              tdX.textContent = (this.showFullDate ? new Date(values[j].x).toLocaleString() : new Date(values[j].x).toLocaleTimeString());
-              tdY = document.createElement('section');
-              tdY.id = 'td'; tdY.className = 'y';
-              isExceeding = (values[j].exceeds === null) ? false : true;
-              tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : values[j].y);
-
-              if (this.highlightExceeding === true)
-                row.className = values[j].exceeds;
-              row.appendChild(tdX); row.appendChild(tdY);
-
-              if (this.descendingOrder === true)
-                this._body.appendChild(row);
-              else
-                this._body.insertBefore(row, this._body.childNodes[0]);
-            }
-            Polymer.dom.flush();
-          });
-        }
+        this._body.insertBefore(row, this._body.childNodes[0]);
       },
 
       switchOrder: function() {
-        this.set('descendingOrder', !this.descendingOrder);
+        if (this.descendingOrder === true) {
+          this.$.body.classList.remove('reverse');
+          this.descendingOrder = false;
+        }
+        else {
+          this.$.body.classList.add('reverse');
+          this.descendingOrder = true;
+        }
       },
-
-      _reorder: function(descendingOrder, oldOrder) {
-        // if (!(this._body && oldOrder !== undefined)) return;
-        //
-        // var rows = this._body.children;
-        //
-        // if (descendingOrder === true) {
-        //   for (var i=0; rows.length; i++) {
-        //     this._body.appendChild(rows[i]);
-        //   }
-        // }
-        // else {
-        //   for (var i=0; rows.length; i++) {
-        //     this._body.insertBefore(rows[i], this._body.childNodes[0]);
-        //   }
-        // }
+      setOrder: function(order) {
+        if (order === false) {
+          this.$.body.classList.remove('reverse');
+        }
+        else {
+          this.$.body.classList.add('reverse');
+        }
       }
     });
 

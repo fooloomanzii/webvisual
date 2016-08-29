@@ -176,6 +176,11 @@
         selectable: {
           type: Boolean,
           value: true
+        },
+        updateEveryValue: {
+          type: Boolean,
+          value: false,
+          readOnly: true
         }
       },
 
@@ -195,7 +200,7 @@
 
       _updateView: function(value) {
         if (value === undefined)
-          return;
+          value = this.values[0];
 
         // set value
         if (!this.isBoolean === true)

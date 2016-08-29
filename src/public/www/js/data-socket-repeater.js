@@ -10,9 +10,6 @@ var AvailableLabels = [];
 var GroupingKeys = {};
 var PreferedGroupingKeys = {};
 var maxValues = 9000; // 1.5h for every second update
-var doAppend = true;
-var newestDataLast = true;
-var isExceeding = false;
 var opened = false;
 
 // SOCKET
@@ -169,17 +166,7 @@ function _updateUpdatableNodes(message) {
     });
     if (UpdatableNodes[label][id]) {
       for (var j = 0; j < UpdatableNodes[label][id].length; j++) {
-        if (!doAppend)
-          UpdatableNodes[label][id][j].spliceValues(0, message.content[i].values.length);
-        if (newestDataLast) {
-          for (var k = 0; k < message.content[i].values.length; k++) {
-            UpdatableNodes[label][id][j].unshiftValues(message.content[i].values[k]);
-          }
-        } else {
-          for (var k = message.content[i].values.length - 1; k >= 0; k--) {
-            UpdatableNodes[label][id][j].unshiftValues(message.content[i].values[k]);
-          }
-        }
+        UpdatableNodes[label][id][j].insertValues(message.content[i].values, message.forceUpdate);
         if (UpdatableNodes[label][id][j].values.length > maxValues)
           UpdatableNodes[label][id][j].spliceValues(maxValues, UpdatableNodes[label][id][j].values.length - maxValues);
       }

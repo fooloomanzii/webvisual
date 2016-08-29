@@ -1,40 +1,40 @@
 {
+  "server": {
+    "auth": {
+      "ldap": {
+        "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
+        "url": "ibn-net.kfa-juelich.de"
+      },
+      "required": true,
+      "suffix": "@fz-juelich.de"
+    },
+    "logs": {
+      "http_server_log": "./logs/http-error.log",
+      "server_log": "./logs/server-error.log"
+    },
+    "port": {
+      "http": 80,
+      "https": 443
+    }
+  },
   "app": {
-    "width": 604,
+    "width": 446,
     "height": 692,
     "autoHideMenuBar": true,
     "acceptFirstMouse": true,
     "webPreferences": {
       "webSecurity": true
     },
-    "x": 247,
-    "y": 332
-  },
-  "server": {
-    "port": {
-      "http": 80,
-      "https": 443
-    },
-    "auth": {
-      "required": false,
-      "suffix": "@fz-juelich.de",
-      "ldap": {
-        "url": "ibn-net.kfa-juelich.de",
-        "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de"
-      }
-    },
-    "logs": {
-      "http_server_log": "./logs/http-error.log",
-      "server_log": "./logs/server-error.log"
-    }
+    "x": 222,
+    "y": 145
   },
   "userConfigFiles": {
     "HNF-GDS": {
-      "path": ".\\examples\\config\\HNF_GDS.json",
+      "path": "\\\\ibn-vsrv\\HNF-GDS$\\Config\\HNF_GDS.json",
       "renderer": "Alarmzustände"
     },
     "cryostat": {
-      "path": ".\\examples\\config\\cryostat_visu.json",
+      "path": "\\\\ibn3-vsrv\\CryostatVisu$\\Config\\cryostat_visu.json",
       "renderer": "Diagrammansicht"
     }
   },

@@ -5,7 +5,7 @@
 <style>
   :host {
     display: inline-flex;
-    width: auto;
+    width: 100%;
     height: auto;
     flex: 1;
     position: relative;
@@ -29,6 +29,14 @@
   }
   div#svgContainer {
     display: inline-flex;
+    flex: 1;
+    position: relative;
+  }
+  svg {
+    /*display: flex;
+    flex: 1;*/
+    width: 100%;
+    height: auto;
     position: relative;
   }
   button-element {
@@ -143,7 +151,7 @@
   </section>
 
   <icon-button-element id="menubutton" class="icon-button" icon="timeline"></icon-button-element>
-  <dropdown-element id="legend" for="menubutton" target-toggle-event="tap" position="bottom" align="end" offset="4">
+  <dropdown-element id="legend" for="menubutton" target-toggle-event="tap" position="top" align="outer-end" offset="4">
     <toggle-button-element checked="[[!noDots]]" on-change="changeDots"></iron-icon>mit Punkten</toggle-button-element>
     <toggle-button-element checked="[[!noLines]]" on-change="changeLines"></iron-icon>mit Linien</toggle-button-element>
     <toggle-button-element checked="[[!noAreas]]" on-change="changeAreas">mit Flächen</toggle-button-element>
@@ -341,7 +349,7 @@
       },
 
       observers: [
-        'redraw(selectedElements.splices)'
+        '_sizeChanged(selectedElements.splices)'
       ],
 
       created: function() {
@@ -393,7 +401,7 @@
       },
 
       _sizeChanged: function(e) {
-        this.debounce('resize', this._sizeLayout, 50);
+        this.debounce('resize', this._sizeLayout, 25);
       },
 
       _buildLayout: function() {
@@ -451,8 +459,8 @@
         this._height = Math.max(bRect.height, 150);
         this._width = Math.max(bRect.width, 150);
 
-        this._svg.attr('height', this._height)
-                 .attr('width', this._width);
+        // this._svg.attr('height', this._height)
+        //          .attr('width', this._width);
 
         this._width = this._width - this.margin.left - this.margin.right;
         this._height = this._height - this.margin.bottom - this.margin.top;
@@ -460,18 +468,18 @@
         this._x.range([0, this._width]);
         this._y.range([this._height, 0]);
 
-        this.$.menubutton.style.left = 'auto';
-        this.$.menubutton.style.right = (this.margin.right + 4) + 'px';
-        this.$.menubutton.style.top = (this.margin.top + 4) + 'px';
-        this.$.menubutton.style.bottom = 'auto';
+        this.$.menubutton.style.left = (this.margin.left - this.iconWidth - 12) + 'px';
+        this.$.menubutton.style.right = 'auto';
+        this.$.menubutton.style.top = 'auto';
+        this.$.menubutton.style.bottom = (this.margin.bottom - this.iconWidth) + 'px';
 
         this.$.ybutton.style.left = (this.margin.left - this.iconWidth - 12) + 'px';
         this.$.ybutton.style.right = 'auto';
-        this.$.ybutton.style.top = (this.margin.top + 16) + 'px';
+        this.$.ybutton.style.top = (this.margin.top) + 'px';
         this.$.ybutton.style.bottom = 'auto';
 
         this.$.xbutton.style.left = 'auto';
-        this.$.xbutton.style.right = (this.margin.right + 16) + 'px';
+        this.$.xbutton.style.right = (this.margin.right) + 'px';
         this.$.xbutton.style.top = 'auto';
         this.$.xbutton.style.bottom = (this.margin.bottom - this.iconWidth) + 'px';
 
@@ -512,6 +520,7 @@
         this._focusX.attr('y2', this._height);
         this._focusY.attr('x2', this._width);
 
+        this._brushBehavior.extent([[0, 0], [this._width, this._height]])
         this._brush.call(this._brushBehavior);
         //
         // this._graphs.selectAll('g.graph')
@@ -524,7 +533,9 @@
         this._svg.selectAll('g,line,text,path,rect')
                  .classed('style-scope', true)
                  .classed('chart-element', true);
-        this.redraw();
+
+        this._isBrushed = false;
+        this._redraw();
       },
 
       _createScale: function(option) {

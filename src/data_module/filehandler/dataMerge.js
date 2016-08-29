@@ -48,10 +48,12 @@ function processData(settings, data) {
         }
         // exceeding
         exceeds = null;
-        if (settings.types[k].threshold) {
-          if (data[i].values[j] < settings.types[k].threshold.from)
+        if (settings.types[k].threshold !== undefined) {
+          if (settings.types[k].threshold.from !== undefined &&
+              data[i].values[j] < settings.types[k].threshold.from)
             exceeds = false;
-          else if (data[i].values[j] > settings.types[k].threshold.to)
+          else if (settings.types[k].threshold.to !== undefined &&
+                   data[i].values[j] > settings.types[k].threshold.to)
             exceeds = true;
         }
         // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored

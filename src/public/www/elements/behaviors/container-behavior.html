@@ -96,6 +96,8 @@
       this.unlisten(this, 'element-deselect', '__unsetSelectedElement');
       this.unlisten(this.rootElement, 'element-select', '__setSelectedElement');
       this.unlisten(this.rootElement, 'element-deselect', '__unsetSelectedElement');
+      this.unlisten(this.rootElement, 'clear-selected-elements', 'clearSelectedElements');
+      this.unlisten(this.rootElement, 'clear-exceeding-elements-elements', 'clearExceedingElements');
     },
 
     attached: function(){
@@ -113,10 +115,12 @@
         if (this.noSelectNotify === false) {
           this.listen(this.rootElement, 'element-select', '__setSelectedElement');
           this.listen(this.rootElement, 'element-deselect', '__unsetSelectedElement');
+          this.listen(this.rootElement, 'clear-selected-elements', 'clearSelectedElements');
         }
         if (this.noExceedNotify === false) {
           this.listen(this.rootElement, 'element-is-exceeding', '__setExceedingElement');
           this.listen(this.rootElement, 'element-is-not-exceeding', '__unsetExceedingElement');
+          this.listen(this.rootElement, 'clear-exceeding-elements', 'clearExceedingElements');
         }
       }
     },
@@ -169,7 +173,6 @@
     },
 
     clearSelectedElements: function() {
-      if (!this.selectedElements) return;
       this.selectedElements.forEach(function(item) { item.checked = false });
       this.splice("selectedElements", 0, this.selectedElements.length);
     },
@@ -203,7 +206,6 @@
     },
 
     clearExceedingElements: function() {
-      if (!this.exceedingElements) return;
       this.splice("exceedingElements", 0, this.exceedingElements.length);
       this.isExceeding = false;
     },
@@ -214,7 +216,7 @@
     _reproductionRepeat: function(changeRecord) {
       if (changeRecord && changeRecord.indexSplices) {
 
-        var container = (this.reproductionContainer) ? Polymer.dom(this.root).querySelector('#'+this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);
+        var container = (this.reproductionContainer) ? Polymer.dom(this).querySelector('#'+this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);
 
         var index, items, item;
         var items = Polymer.dom(container).getEffectiveChildNodes().filter( function(el) {
@@ -246,7 +248,7 @@
                     }, this);
             this._elements = this._elements.filter( function(el) {
                                     return !(el.id === item.id && el.label === item.label);
-                                   })
+                                  })
             containers.forEach( function(el) {
                         // containers should notify themselfes? "item.unsetSelectedElement(del);"
                         el.unsetSelectedElement(item);

@@ -77,6 +77,10 @@
           value: false,
           observer: "_updatableChanged"
         },
+        updateEveryValue: {
+          type: Boolean,
+          value: false
+        },
 
         selectable: {
           type: Boolean,
@@ -103,8 +107,7 @@
 
     attached: function(){
       if (this.values.length > 0) {
-        this.setValues(this.values, this.newestDataLast);
-        this.setExceedingState(this.values[0].exceeds === true || this.values[0].exceeds === false, this.values[0].exceeds);
+        this.insertValues(this.values, true);
       }
     },
 
@@ -145,8 +148,7 @@
       for (var key in options) {
         this.set(key, options[key]);
       }
-      this.setValues(obj.element.values);
-      this.setExceedingState(obj.element.values[0].exceeds === true || obj.element.values[0].exceeds === false, obj.element.values[0].exceeds);
+      this.insertValues(obj.element.values, true);
       this._updatableChanged();
     },
 
@@ -160,7 +162,7 @@
         UpdatableNodes[this.label][this.id].splice(pos,1); // remove from UpdatableNodes
         this.removeAttribute('updatable');
       }
-      // this.spliceValues(0, this.values.length);
+      this.spliceValues(0, this.values.length);
     },
 
     getElement: function() {
@@ -184,16 +186,43 @@
             };
     },
 
-    unshiftValues: function(value) {
-      this.unshift('values', value);
-      this.checkExceedingState(value);
-      this._updateView(value);
+    insertValues: function(values, forceUpdate) {
+      if (forceUpdate === true) {
+        var array = this.values.concat(values);
+        array.sort(this.compareFn);
+        this.values = [];
+        this.values = array;
+        this._updateView();
+      }
+      else {
+        if (this.newestDataLast === true) {
+          for (var i = 0; i < values.length; i++) {
+            this.unshift('values', values[i]);
+            this.checkExceedingState(values[i]);
+            if (this.updateEveryValue === true) {
+              this._updateView(values[i]);
+            }
+          }
+        }
+        else {
+          for (var i = values.length - 1; i >= 0; i--) {
+            this.unshift('values', values[i]);
+            this.checkExceedingState(values[i]);
+            if (this.updateEveryValue === true) {
+              this._updateView(values[i]);
+            }
+          }
+        }
+        if (this.updateEveryValue === false) {
+          this._updateView(this.values[0]);
+        }
+      }
     },
 
-    pushValues: function(value) {
-      this.push('values', value);
-      this.checkExceedingState(value);
-      this._updateView(value);
+    compareFn: function(a, b) {
+      if (a.x > b.x) return 1;
+      if (a.x < b.x) return -1;
+      return 0;
     },
 
     __hide: function() {
@@ -204,8 +233,11 @@
     },
 
     spliceValues: function(start, length) {
-      var value = this.splice("values", start, length);
-      this._updateView(undefined, {start: start, length: length, value: value});
+      var values = this.splice("values", start, length);
+      this._updateView(undefined, {start: start, length: length, values: values});
+    },
+
+    _updateView: function(value, splices) {
     },
 
     checkExceedingState: function(value) {
@@ -237,25 +269,6 @@
 
     _setLastExceeds: function(value) {
       this.lastExceeds.push(value);
-    },
-
-    setValues: function(values, newestDataLast) {
-      if (newestDataLast === true || newestDataLast === false)
-        this.newestDataLast = newestDataLast;
-
-      if (newestDataLast) {
-        for (var i = 0; i < values.length; i++) {
-          this.checkExceedingState(values[i]);
-        }
-        this._updateView(values[values.length - 1]);
-      }
-      else {
-        for (var i = values.length - 1; i >= 0; i--) {
-          this.checkExceedingState(values[i]);
-        }
-        this._updateView(values[0]);
-      }
-      this.set("values", values);
     },
 
     _handleExceeding: function(isExceeding) {

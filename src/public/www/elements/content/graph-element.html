@@ -151,8 +151,7 @@
 
         // this.chartElement._addLegendEntry(this.getElement);
 
-        // set Values
-        if (this.values.length > 0) this.setValues(this.values);
+        this.chartElement.redraw();
       },
 
       detached: function() {
@@ -168,6 +167,8 @@
 
       redraw: function () {
         if (this._hidden === true) return;
+
+        this._pointsInRange();
 
         var dots = this._dots.selectAll('circle.dot')
                              .data(this.values);
@@ -207,34 +208,45 @@
         this._area.attr('d', this._areaFunction(this.values));
       },
 
-      setValues: function (values, newestDataLast) {
-        this.set('values', values);
-
-        if (this.chartElement)
-          // for (i= values.length-1; i>= 0; i)
-          //   this._updateView(values[i]);
-          this._updateView(undefined, Object);
-      },
-
-      unshiftValues: function(value) {
-        if (this.values.length === 0) {
-          this.setValues([value]);
-          return;
+      insertValues: function(values, forceUpdate) {
+        if (forceUpdate === true) {
+          var array = this.values.concat(values);
+          array.sort(this.compareFn);
+          this.values = [];
+          this.values = array;
+          this._updateView();
         }
-        this.unshift('values', value);
-        if (this.chartElement)
-          this._updateView(value);
+        else {
+          if (this.newestDataLast === true) {
+            for (var i = 0; i < values.length; i++) {
+              this.unshift('values', values[i]);
+              this._updateView(values[i]);
+            }
+          }
+          else {
+            for (var i = values.length - 1; i >= 0; i--) {
+              this.unshift('values', values[i]);
+              this._updateView(values[i]);
+            }
+          }
+        }
       },
 
       _updateView: function (value, splices) {
-        if ( value !== undefined && value.y < 0 &&
+        if ( value !== undefined) {
+          if (value.y < 0 &&
             (this.chartElement.yScale === "ln" ||
              this.chartElement.yScale === "log₁₀")) {
-          console.warn("ValueError: value in logarithmic scale below 0");
-          return;
+            console.warn("ValueError: value in logarithmic scale below 0");
+            return;
+          }
+          this._setRange(value);
         }
-        this._setRange(value);
-        this.chartElement.redraw();
+        else {
+          this._setRange();
+        }
+        if (this.chartElement)
+          this.chartElement.redraw();
       },
 
       _setRange: function(value) {
@@ -263,6 +275,27 @@
             this._dots.selectAll('circle.dot')
                       .attr('stroke', this.color);
         }
+      },
+
+      _pointsInRange: function() {
+        // var left = 0,
+        //     right = this.values.length - 1,
+        //     middle = right / 2,
+        //     domainX = this.chartElement._x.domain(),
+        //     step = middle / 2;
+        // // lowest range threshold
+        // while (step > 1) {
+        //   if (this.values[middle].x < domainX[0]) {
+        //     left = middle;
+        //     middle += step;
+        //   }
+        //   else {
+        //     middle -= step;
+        //   }
+        //   step /= 2;
+        // }
+        // console.log(left, middle, right);
+        // console.log(domainX);
       },
 
       _hiddenChanged: function() {

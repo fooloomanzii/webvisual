@@ -15,11 +15,17 @@ var EventEmitter = require('events').EventEmitter;
 var dataFileHandler = require('./../filehandler').dataFileHandler;
 
 var defaults = {
-  values: [{
-    x: new Date(),
-    y: 0,
-    exceeds: null
-  }]
+  values: [],
+  unit: '',
+  color: '',
+  isExceeding: false,
+  isBoolean: false,
+  threshold: {
+    from: undefined,
+    to: undefined
+  },
+  lastExceeds: [],
+  firstExceeds: []
 };
 
 class fileConfigLoader extends EventEmitter {
@@ -141,30 +147,18 @@ class fileConfigLoader extends EventEmitter {
       if (locals.ignore && locals.ignore.indexOf(i) == -1) {
         type = locals.types[i] || {};
         // if keys don't exist in locals
+        Object.keys(defaults).forEach(function(key){
+          if(type[key] === undefined) {
+            type[key] = defaults[key];
+          }
+        })
         if (!type.keys)
           type.keys = {};
         for (var j = 0; j < keys.length; j++) {
           type.keys[keys[j]] = type.keys[keys[j]] || locals.unnamedType.keys[keys[j]];
         }
-        // Unit
-        if (!type.unit)
-          type.unit = '';
-        // isBoolean
-        if (!type.isBoolean)
-          type.isBoolean = false;
-        // color
-        if (!type.color)
-          type.color = '';
-        // label
-        type.label = label;
-        // isExceeding
-        type.isExceeding = false;
-        // lastExceeds
-        type.lastExceeds = [];
-        // lastExceeds
-        type.firstExceeds = [];
         // id has to be different from unnamedType
-        if (type.id === locals.unnamedType.id)
+        if (!type.id || type.id === locals.unnamedType.id)
           type.id += i;
         // for Element structure
         elements[type.id] = type;

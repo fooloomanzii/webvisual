@@ -114,7 +114,7 @@ html
           radio-button-element.labelButton(label!= Label)
             != Label
       //- MAIN-PAGE
-      main-page.fullbleed.chartview(animated!= (!mobile), force-opened, no-exceed-notify, no-select-notify)
+      main-page.fullbleed.chartview(animated!= (!mobile), force-opened, reproduce, notify, no-exceed-notify, reproduction-container="selectedtable")
         //- TABS
         each Label in config.labels
           tab-element.label(label!= Label)
@@ -124,6 +124,8 @@ html
         //- sign-element.toolbar-footer(horizontal)
         //- table-element.toolbar-footer(highlight-exceeding)
         chart-element.toolbar-footer(notify-parent, multi-select, toggles, no-exceed-notify)
+        div#selectedtable.toolbar-footer
+          table-element()
           //- each Label in config.labels
           //-   each Elements, Id in config.elements[Label]
           //-     graph-element(label!= Label, 

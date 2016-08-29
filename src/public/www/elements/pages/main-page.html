@@ -217,7 +217,6 @@
 
       <section id="toolbarFooter" opened$="[[_computeOpened(opened, forceOpened)]]" expanded$="[[expanded]]">
         <content select=".toolbar-footer"></content>
-        </section>
       </section>
     </section>
 
@@ -377,7 +376,7 @@
 
         openOnSelect: {
           type: Boolean,
-          value: true
+          value: false
         },
         openOnExceed: {
           type: Boolean,
@@ -472,6 +471,7 @@
       _currentLabelChanged: function(newLabel, oldLabel) {
         this._selectPanel(newLabel, oldLabel);
         this.clearSelectedElements();
+        this.fire("clear-selected-elements");
       },
       _selectPanel: function(newLabel, oldLabel) {
         var newIndex = 0, oldIndex;
