@@ -230,6 +230,7 @@ connectionFn.file = {
     // Add the function which receives the parsed data; calls the emitter
     config.content = emitter;
 
+    this.mode = config.mode || 'test';
     if (config.mode === "json") {
       config.processor = JSON;
     }
@@ -274,6 +275,7 @@ connectionFn.udp = {
     // Add the function which recieves the parsed data; calls the emitter
     config.content = emitter;
 
+    this.mode = config.mode || 'test';
     if (config.mode === "json") {
       config.processor = JSON;
     }
@@ -302,11 +304,11 @@ dataFileHandler = (function() {
   // jshint validthis:true
   var defaults = {
     listener: {
-      error: function(type, err, id) {
+      error: function(opt, err, id) {
         //here is the space for reactions on the mistaken data
-        throw new Error(messages.functions.DataErrorMsgFn(type, err));
+        throw new Error(messages.functions.DataErrorMsgFn(opt.type, err));
       },
-      data: function(type, data, id) {}
+      data: function(opt, data, id) {}
     }
   };
 
@@ -381,7 +383,7 @@ dataFileHandler = (function() {
    * @param  {String} type The connection type from whom the data was received
    * @return {Function}    An emitter function that emits received data/error with the specified type information
    */
-  _Class.prototype._createEmitter = function(type) {
+  _Class.prototype._createEmitter = function(type, mode) {
     var self = this;
 
     // Return a function that receives an potential error and the data;
@@ -389,9 +391,9 @@ dataFileHandler = (function() {
     return function(error, data) {
       // TODO: Array or not array?
       if (error) {
-        self._emitter.emit('error', type, error, self.id);
+        self._emitter.emit('error', {type: type, mode: mode}, error, self.id);
       } else {
-        self._emitter.emit('data', type, data, self.id);
+        self._emitter.emit('data', {type: type, mode: mode}, data, self.id);
       }
     };
   };
@@ -497,7 +499,7 @@ dataFileHandler = (function() {
         self._connections[type] = connectionFn[type].connect(
           self.connectionConfig[type],
           // Create a suitable emitter function for the type, this ensures that the correct events get emitted on data occurrence
-          self._createEmitter(type)
+          self._createEmitter(type, self.connectionConfig[type].mode)
         );
       });
     };

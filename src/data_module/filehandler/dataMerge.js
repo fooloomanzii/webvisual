@@ -17,7 +17,7 @@ module.exports = processData;
 //                "values": [ {"x":"..", "y":"..", "exceeds":".."}, {..} , .. ] },
 //       "1":
 
-function processData(settings, data) {
+function processData(data, name, settings) {
 
   if (!Array.isArray(data) || settings === undefined) return; // Check for Existence
 
@@ -69,6 +69,7 @@ function processData(settings, data) {
 
   return {
     content: processedData,
+    name: name,
     label: settings.label,
     date: maxDate
   };

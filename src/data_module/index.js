@@ -45,13 +45,21 @@ class dataModule extends EventEmitter {
       if (!this.dataFile[name])
         this.dataFile[name] = {};
 
-      // dataFileHandler - established the data connections
-
-      for (let label of this.configHandler.settings[name].configuration.labels) {
-        if (this.dataFile[name][label]) {
-          this.dataFile[name][label].close();
-          delete this.dataFile[name][label];
+      // close prexisting connections and io-namespace(room)
+      for (let label in this.dataFile[name]) {
+        this.dataFile[name][label].close();
+        delete this.dataFile[name][label];
+        delete this.currentData[name][label];
+        if (this.configHandler.settings[name].configuration.labels.indexOf(label) === -1) {
+          delete this.io.nsps['/' + name + '__' + label];
         }
+      }
+
+      // dataFileHandler - established the data connections
+      for (let label of this.configHandler.settings[name].configuration.labels) {
+
+        if (!this.currentData[name][label])
+          this.currentData[name][label] = [];
 
         let listeners = {
           error: (function(type, err) {
@@ -61,20 +69,27 @@ class dataModule extends EventEmitter {
             })
             this.emit("error", type + "\n" + errString);
           }).bind(this),
-          data: (function(type, data, label) {
+          data: (function(option, data, label) {
             if (!data || data.length == 0)
               return; // Don"t handle empty data
             // temporary save data
             if (this.configHandler.settings[name].dataConfig[label]) {
               // process data
-              let mergedData = mergeData(this.configHandler.settings[name].dataConfig[label], data);
+              let mergedData = mergeData(data, name, this.configHandler.settings[name].dataConfig[label]);
               // serve clients in rooms for labels
               // only newer data is send
               // TODO: handle this optional by config
-              if (this.currentData[name][label] && mergedData.date > this.currentData[name][label].date) {
+              if (this.currentData[name][label] && 
+                  this.currentData[name][label].length &&
+                  mergedData.date > this.currentData[name][label][this.currentData[name][label].length - 1].date) {
                 this.dataSocket.to(name + "__" + label).emit("update", mergedData);
               }
-              this.currentData[name][label] = mergedData;
+              // save currentData
+              if (option.mode === 'append')
+                this.currentData[name][label].push(mergedData);
+              else if (option.mode === 'prepend')
+                this.currentData[name][label].push(mergedData);
+              else this.currentData[name][label] = [mergedData];
             }
           }).bind(this)
         };

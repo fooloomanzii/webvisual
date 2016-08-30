@@ -234,11 +234,13 @@
 
       _updateView: function (value, splices) {
         if ( value !== undefined) {
-          if (value.y < 0 &&
+          // console.log(this.chartElement.yScale);
+          if (value.y <= 0 &&
             (this.chartElement.yScale === "ln" ||
              this.chartElement.yScale === "log₁₀")) {
-            console.warn("ValueError: value in logarithmic scale below 0");
-            return;
+            console.warn("ValueError: value in logarithmic scale (value: ", value.y, ")");
+            value.y = 1e-16;
+            // return;
           }
           this._setRange(value);
         }

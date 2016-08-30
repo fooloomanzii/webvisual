@@ -140,8 +140,8 @@ function _loadSvgSources(sources) {
 
 function _update(message) {
   if (Array.isArray(message)) // if message is an Array
-    for (var mesId = 0; mesId < message.length; mesId++)
-      this._updateUpdatableNodes(message[mesId]);
+    for (var i = 0; i < message.length; i++)
+      this._updateUpdatableNodes(message[i]);
   else // if message is a single Object
     this._updateUpdatableNodes(message);
   if (!this.opened) {

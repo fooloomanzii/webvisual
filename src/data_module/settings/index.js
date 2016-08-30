@@ -39,13 +39,14 @@ class fileConfigLoader extends EventEmitter {
 
   watch(userConfigFiles) {
     // check User Data and folder
-    let listener;
-    for (var name in userConfigFiles) {
+    for (let name in userConfigFiles) {
       this.settings[name] = {};
       this.settings[name]._path = path.resolve(userConfigFiles[name].path);
-      if(this.settings[name]._filehandler)
+      if(this.settings[name]._filehandler) {
         this.settings[name]._filehandler.close();
-      listener = {
+        delete this.settings[name]._filehandler;
+      }
+      let listener = {
         error: (function(type, errors, name, path) {
           // console.log(errors);
           this.emit('error', errors, {path: path, name: name});
@@ -56,14 +57,15 @@ class fileConfigLoader extends EventEmitter {
           }
         }).bind(this)
       }
+      let connection = {
+        file: {
+          "mode": "json",
+          "path": this.settings[name]._path
+        }
+      }
       this.settings[name]._filehandler = new dataFileHandler({
         id: name,
-        connection: {
-          file: {
-            "mode": "json",
-            "path": this.settings[name]._path
-          }
-        },
+        connection: connection,
         listener: listener
       });
       this.settings[name]._filehandler.connect();
@@ -71,13 +73,15 @@ class fileConfigLoader extends EventEmitter {
   }
 
   unwatch() {
-    for (var name in this.settings) {
+    for (let name in this.settings) {
+      console.log('unwatch', name);
       this.settings[name]._filehandler.close();
       delete this.settings[name]._filehandler;
       delete this.settings[name]._path;
       delete this.settings[name].configuration;
       delete this.settings[name].dataConfig;
       delete this.settings[name].connection;
+      delete this.settings[name];
     }
   }
 
@@ -93,12 +97,12 @@ class fileConfigLoader extends EventEmitter {
         valueType: {},
         svg: {}
       };
-
-      if (this.settings[name].configuration)
-        configuration.labels = this.settings[name].configuration.labels || {};
-
       let dataConfig = {};
       let connection = {};
+
+      this.settings[name].configuration = {};
+      this.settings[name].dataConfig = {};
+      this.settings[name].connection = {};
 
       for (let label in data) {
         if (configuration.labels.indexOf(label) === -1)

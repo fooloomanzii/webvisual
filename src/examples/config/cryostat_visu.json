@@ -1,17 +1,17 @@
 {
-  "Temperatur (Testvisualisierung)": {
+  "Lakeshore": {
 
     "connections": {
       "file": {
         "mode": "append",
-        "path": "//ibn3-vsrv/CryostatVisu$/Lakeshore/201608021350_Lakeshore.txt",
+        "path": "//ibn3-vsrv/CryostatVisu$/Lakeshore/201608011541_Lakeshore.txt",
         "format": {
           "dateFormat": "DD.MM.YYYY hh:mm:ss",
           "decimalSeparator": ",",
           "valueSeparator": ";",
           "dimensions": 1
         },
-        "ignoredFirstLines": 0
+        "ignoredFirstLines": 1
       }
     },
 
@@ -25,12 +25,8 @@
             "Druck": "100 kPa",
             "Gefahrenklasse": "reizend"
           },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 400
-          },
-          "unit": "K"
+          "unit": "K",
+          "color": "#A3C825"
         }, {
           "id": "id2",
           "keys": {
@@ -38,11 +34,6 @@
             "Sprungtemperatur": "<40K",
             "Druck": "300 kPa",
             "Gefahrenklasse": "reizend"
-          },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 400
           },
           "unit": "K",
           "color": "#14AFB6"
@@ -53,11 +44,6 @@
             "Sprungtemperatur": "<150K",
             "Druck": "400 kPa"
           },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 400
-          },
           "unit": "K",
           "color": "#1464B6"
         }, {
@@ -66,11 +52,6 @@
             "Bezeichner": "id4",
             "Sprungtemperatur": "<150K",
             "Druck": "100 kPa"
-          },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 400
           },
           "unit": "K",
           "color": "#14B638"
@@ -81,11 +62,6 @@
             "Sprungtemperatur": "<150K",
             "Druck": "200 kPa"
           },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 400
-          },
           "unit": "K",
           "color": "#6A14B6"
         }, {
@@ -94,11 +70,6 @@
             "Bezeichner": "id6",
             "Sprungtemperatur": "<150K",
             "Druck": "200 kPa"
-          },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 400
           },
           "unit": "K",
           "color": "#6A14B6"
@@ -109,11 +80,6 @@
             "Sprungtemperatur": "<150K",
             "Druck": "200 kPa"
           },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 400
-          },
           "unit": "K"
         }, {
           "id": "id8",
@@ -121,11 +87,6 @@
             "Bezeichner": "id8",
             "Sprungtemperatur": "<150K",
             "Druck": "200 kPa"
-          },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 400
           },
           "unit": "K"
         }
@@ -139,20 +100,6 @@
           "Druck": "verschiedener Druck",
           "Gefahrenklasse": "keine Gefahrenklasse"
         },
-        "threshold": {
-          "from": null,
-          "to": null
-        },
-        "svg": {
-          "path": "",
-          "source": ""
-        },
-        "isBoolean": false,
-        "values": [{
-          "x": 0,
-          "y": 0,
-          "exceeds": null
-        }],
         "color": "#B63614"
       },
 
@@ -172,12 +119,12 @@
     }
   },
 
-  "Druckmessung (Testvisualisierung)": {
+  "Tic500": {
 
     "connections": {
       "file": {
         "mode": "append",
-        "path": "./examples/datafile/cryostat_visu2.txt",
+        "path": "//ibn3-vsrv/CryostatVisu$/Tic500/201608021350TIC500.txt",
         "format": {
           "dateFormat": "DD.MM.YYYY hh:mm:ss",
           "decimalSeparator": ".",
@@ -207,11 +154,6 @@
             "Temperatur": "120K",
             "Gefahrenklasse": "reizend"
           },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 30
-          },
           "unit": "kPa",
           "color": "#14AFB6"
         }, {
@@ -222,11 +164,6 @@
             "Temperatur": "130K",
             "Gefahrenklasse": "reizend"
           },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 15
-          },
           "unit": "MPa",
           "color": "#1416B6"
         }, {
@@ -235,11 +172,6 @@
             "Bezeichner": "Tantal",
             "Sprungtemperatur": "<150K",
             "Temperatur": "170K"
-          },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 60
           },
           "unit": "MPa",
           "color": "#14B655"
@@ -250,11 +182,6 @@
             "Sprungtemperatur": "<150K",
             "Temperatur": "170K"
           },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 50
-          },
           "unit": "kPa",
           "color": "#A9B614"
         }, {
@@ -263,11 +190,6 @@
             "Bezeichner": "PbMo6S8",
             "Sprungtemperatur": "<150K",
             "Temperatur": "170K"
-          },
-          "isBoolean": false,
-          "threshold": {
-            "from": 0,
-            "to": 50
           },
           "unit": "kPa"
         }
@@ -281,19 +203,10 @@
           "Temperatur": "Temperatur nicht exakt festgelegt",
           "Gefahrenklasse": "keine Gefahrenklasse"
         },
-        "threshold": {
-          "from": null,
-          "to": null
-        },
-        "svg": {
-          "path": "",
-          "source": ""
-        },
         "isBoolean": false,
         "values": [{
-          "x": 0,
-          "y": 0,
-          "exceeds": null
+          "x": null,
+          "y": 0
         }],
         "unit": "K",
         "color": "#B61462"

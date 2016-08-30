@@ -401,7 +401,7 @@
       },
 
       _sizeChanged: function(e) {
-        this.debounce('resize', this._sizeLayout, 25);
+        this._sizeLayout();
       },
 
       _buildLayout: function() {
@@ -454,6 +454,8 @@
       },
 
       _sizeLayout: function() {
+        if(this._chart === Object) return;
+        
         var bRect = this.getBoundingClientRect();
 
         this._height = Math.max(bRect.height, 150);
@@ -605,10 +607,9 @@
       },
 
       redraw: function () {
-        if (this._isBrushed === true) return;
+        // if (this._isBrushed === true) return;
         this.setDomains();
-
-        this.debounce('redraw', function() { this._redraw() }, 15);
+        this._redraw();
       },
 
       _redraw: function () {
@@ -643,7 +644,7 @@
       },
 
       setDomains: function () {
-        this.debounce('domains', function() { this._setDomains() }, 15);
+        this._setDomains();
       },
 
       _setDomains: function () {
