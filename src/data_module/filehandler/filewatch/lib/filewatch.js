@@ -212,9 +212,6 @@
     // Set the encoding
     readOptions.encoding = 'utf8';
 
-    if (ignored) {
-      read = fs.createReadStream(path);
-    }
     // Create the readstream
     read = fs.createReadStream(path, readOptions);
 
@@ -224,7 +221,6 @@
         details: err + ' '
       });
     });
-
 
     // We don't want to create functions in loops
     function pushData(err, data) {
@@ -376,7 +372,7 @@
   */
   function _handle_change(event, path, currStat, prevStat, options) {
     if (options.mode === 'append') {
-      if (currStat < prevStat) {
+      if (currStat <= prevStat) {
         if (options.content) {
           options.content([{
             path: path,
@@ -391,7 +387,7 @@
           options.work_function(path, prevStat, currStat, 0, options.processor, options.content, options.log_path);
       }
     } else if (options.mode === 'prepend') {
-      if (currStat < prevStat) {
+      if (currStat <= prevStat) {
         if (options.content) {
           options.content([{
             path: path,
@@ -403,7 +399,7 @@
         if (event === 'add')
           options.work_function(path, 0, (currStat - prevStat), options.ignoredFirstLines, options.processor, options.content, options.log_path);
         else
-          options.work_function(path, 0, (currStat - prevStat), options.ignoredFirstLines, options.processor, options.content, options.log_path);
+          options.work_function(path, 0, (currStat - prevStat), 0, options.processor, options.content, options.log_path);
       }
     } else if (options.mode === 'all') {
       options.work_function(path, undefined, undefined, options.ignoredFirstLines, options.processor, options.content, options.log_path);

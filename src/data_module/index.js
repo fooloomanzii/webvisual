@@ -62,12 +62,12 @@ class dataModule extends EventEmitter {
           this.currentData[name][label] = [];
 
         let listeners = {
-          error: (function(type, err) {
+          error: (function(option, err) {
             let errString = "";
             err.forEach(function(msg){
               errString += "path: " + msg.path + "\n" + msg.details + "\n";
             })
-            this.emit("error", type + "\n" + errString);
+            this.emit("error", option.type + "\n" + errString);
           }).bind(this),
           data: (function(option, data, label) {
             if (!data || data.length == 0)
@@ -79,7 +79,7 @@ class dataModule extends EventEmitter {
               // serve clients in rooms for labels
               // only newer data is send
               // TODO: handle this optional by config
-              if (this.currentData[name][label] && 
+              if (this.currentData[name][label] &&
                   this.currentData[name][label].length &&
                   mergedData.date > this.currentData[name][label][this.currentData[name][label].length - 1].date) {
                 this.dataSocket.to(name + "__" + label).emit("update", mergedData);
@@ -140,7 +140,10 @@ class dataModule extends EventEmitter {
       for (var label in this.dataFile[name]) {
         this.dataFile[name][label].close();
         delete this.dataFile[name][label];
+        delete this.currentData[name][label];
       }
+      delete this.dataFile[name];
+      delete this.currentData[name];
     }
     this.configHandler.unwatch();
   }

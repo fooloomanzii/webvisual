@@ -100,6 +100,9 @@ class DataParser {
 
     // Just to be sure
     try {
+      if (string.length < 1) {
+        throw new Error("String is empty");
+      }
       // Define Variables
       let check_val, data = { date: undefined, values: []},
         values, date, rest, counter = this.options.dimensions;
@@ -108,7 +111,7 @@ class DataParser {
       check_val = string.search(this.options.dateFormatRegExp);
 
       if (check_val === -1) {
-        throw new Error("String doesn't match given dateFormat " + this.options.dateFormat + "\n" + string);
+        throw new Error("String doesn't match given dateFormat " + this.options.dateFormat + "\n" + string + "\nLength: " + string.length);
       }
 
       date = string.slice(0, this.options.dateFormat.length);

@@ -119,6 +119,11 @@
         if (this.chartElement.nodeName !== 'CHART-ELEMENT') {
           console.warn(this.id, 'Graph is not attached to a container');
         }
+
+        this.noDots = this.chartElement.noDots || this.noDots;
+        this.noLine = this.chartElement.noLines || this.noLine;
+        this.noFill = this.chartElement.noAreas || this.noFill;
+
         // clippath for this graph
         this._node = this.chartElement._chart.select('g#graphs')
                                              .append('svg:g')
@@ -233,8 +238,9 @@
       },
 
       _updateView: function (value, splices) {
-        if ( value !== undefined) {
-          // console.log(this.chartElement.yScale);
+        if(!this.chartElement)
+          this.chartElement = this.containerRoot;
+        if (value !== undefined) {
           if (value.y <= 0 &&
             (this.chartElement.yScale === "ln" ||
              this.chartElement.yScale === "log₁₀")) {

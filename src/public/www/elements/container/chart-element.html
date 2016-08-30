@@ -45,8 +45,8 @@
   }
   .icon-button, section#info {
     position: absolute;
-    opacity: 0.6;
-    transform: scale(0.9);
+    opacity: 0.4;
+    transform: scale(0.8);
     transition: opacity 150ms ease, transform 150ms ease;
   }
   .icon-button:hover, section#info:hover {
@@ -151,20 +151,20 @@
   </section>
 
   <icon-button-element id="menubutton" class="icon-button" icon="timeline"></icon-button-element>
-  <dropdown-element id="legend" for="menubutton" target-toggle-event="tap" position="top" align="outer-end" offset="4">
+  <dropdown-element id="legend" for="menubutton" target-toggle-event="tap" position="right" align="outer-start" offset="2">
     <toggle-button-element checked="[[!noDots]]" on-change="changeDots"></iron-icon>mit Punkten</toggle-button-element>
     <toggle-button-element checked="[[!noLines]]" on-change="changeLines"></iron-icon>mit Linien</toggle-button-element>
     <toggle-button-element checked="[[!noAreas]]" on-change="changeAreas">mit Flächen</toggle-button-element>
   </dropdown-element>
 
-  <dropdown-selector id="ybutton" class="icon-button" icon="y" hide-selected attr-for-selected="scale" selected="{{yScale}}" fallback-selection="linear" offset="16" toggles hide-arrow position="right" align="start" no-focusLine>
+  <dropdown-selector id="ybutton" class="icon-button" icon="y" hide-selected attr-for-selected="scale" selected="{{yScale}}" fallback-selection="linear" offset="2" toggles hide-arrow position="right" align="start" no-focusLine>
       <button-element scale='linear'>linear</button-element>
       <button-element scale='√'>√</button-element>
       <button-element scale='ln'>ln</button-element>
       <button-element scale='log₁₀'>log₁₀</button-element>
   </dropdown-selector>
 
-  <dropdown-selector id="xbutton" class="icon-button" icon="x" hide-selected attr-for-selected="interpolate" selected="{{interpolation}}" fallback-selection="Lineare Verbindung" toggles no-focusLine hide-arrow offset="4" position="top" align="end">
+  <dropdown-selector id="xbutton" class="icon-button" icon="x" hide-selected attr-for-selected="interpolate" selected="{{interpolation}}" fallback-selection="Lineare Verbindung" toggles no-focusLine hide-arrow offset="2" position="top" align="end">
       <button-element interpolate='Lineare Verbindung'>Lineare Verbindung</button-element>
       <button-element interpolate='Basis Spline'>Basis Spline</button-element>
       <button-element interpolate='Monotoner Spline'>Monotoner Spline</button-element>
@@ -182,7 +182,7 @@
 
   <template is="dom-repeat" items="{{selectedElements}}">
     <graph-element id="[[item.id]]" label="[[item.label]]" caption-keys="[[item.captionKeys]]" color="[[item.color]]"
-      values="[[item.values]]" no-dots="[[noDots]]" no-line="[[noLine]]" interpolation="[[interpolation]]" no-areas="[[noAreas]]">
+      values="[[item.values]]" no-dots="[[noDots]]" no-line="[[noLines]]" interpolation="[[interpolation]]" no-fill="[[noAreas]]">
     </graph-element>
   </template>
 </section>
@@ -455,7 +455,7 @@
 
       _sizeLayout: function() {
         if(this._chart === Object) return;
-        
+
         var bRect = this.getBoundingClientRect();
 
         this._height = Math.max(bRect.height, 150);
@@ -470,12 +470,12 @@
         this._x.range([0, this._width]);
         this._y.range([this._height, 0]);
 
-        this.$.menubutton.style.left = (this.margin.left - this.iconWidth - 12) + 'px';
+        this.$.menubutton.style.left = (this.margin.left - this.iconWidth) + 'px';
         this.$.menubutton.style.right = 'auto';
         this.$.menubutton.style.top = 'auto';
         this.$.menubutton.style.bottom = (this.margin.bottom - this.iconWidth) + 'px';
 
-        this.$.ybutton.style.left = (this.margin.left - this.iconWidth - 12) + 'px';
+        this.$.ybutton.style.left = (this.margin.left - this.iconWidth) + 'px';
         this.$.ybutton.style.right = 'auto';
         this.$.ybutton.style.top = (this.margin.top) + 'px';
         this.$.ybutton.style.bottom = 'auto';
@@ -658,14 +658,12 @@
                     d3.max(this._elements, function(g){ if(g.hidden !== true) return g._rangeY[1] }) ];
 
         // rounding y-domains to the according decimal exponent
-        // if (domainY[0] !== undefined) {
-        //   v = (domainY[0]).toExponential().split('e');
-        //   domainY[0] = (Math.floor(v[0])) * Math.pow(10,parseInt(v[1],10));
-        // }
-        // if (domainY[1] !== undefined) {
-        //   v = (domainY[1]).toExponential().split('e');
-        //   domainY[1] = (Math.ceil(v[0])) * Math.pow(10,parseInt(v[1],10));
-        // }
+        if (domainY[0] === domainY[1]) {
+          v = (domainY[0]).toExponential().split('e');
+          domainY[0] = (Math.floor(v[0])) * Math.pow(10,parseInt(v[1],10));
+          v = (domainY[1]).toExponential().split('e');
+          domainY[1] = (Math.ceil(v[0])) * Math.pow(10,parseInt(v[1],10));
+        }
         this._x.domain(domainX);
         this._y.domain(domainY).nice(this.ticks);
       },
@@ -743,6 +741,7 @@
         this._redraw();
       },
       changeDots: function(e) {
+        this.noDots = !e.target.checked;
         if (this._elements === undefined) return;
         this._elements.forEach(
           function(g) {
@@ -750,6 +749,7 @@
           });
       },
       changeLines: function(e) {
+        this.noLines = !e.target.checked;
         if (this._elements === undefined) return;
         this._elements.forEach(
           function(g) {
@@ -757,6 +757,7 @@
           });
       },
       changeAreas: function(e) {
+        this.noAreas = !e.target.checked;
         if (this._elements === undefined) return;
         this._elements.forEach(
           function(g) {

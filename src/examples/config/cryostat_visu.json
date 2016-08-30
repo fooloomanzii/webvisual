@@ -4,7 +4,7 @@
     "connections": {
       "file": {
         "mode": "append",
-        "path": "//ibn3-vsrv/CryostatVisu$/Lakeshore/201608011541_Lakeshore.txt",
+        "path": "./examples/datafile/cryostat_visu.txt",
         "format": {
           "dateFormat": "DD.MM.YYYY hh:mm:ss",
           "decimalSeparator": ",",
@@ -124,7 +124,7 @@
     "connections": {
       "file": {
         "mode": "append",
-        "path": "//ibn3-vsrv/CryostatVisu$/Tic500/201608021350TIC500.txt",
+        "path": "./examples/datafile/cryostat_visu2.txt",
         "format": {
           "dateFormat": "DD.MM.YYYY hh:mm:ss",
           "decimalSeparator": ".",
