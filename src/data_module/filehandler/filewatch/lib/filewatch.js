@@ -438,6 +438,7 @@
       _watchers[path].close();
       _watcherCount--;
 
+      _watchers[path] = null;
       delete _watchers[path];
 
       if (remove) {

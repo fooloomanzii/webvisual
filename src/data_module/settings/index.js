@@ -76,11 +76,17 @@ class fileConfigLoader extends EventEmitter {
     for (let name in this.settings) {
       console.log('unwatch', name);
       this.settings[name]._filehandler.close();
+      this.settings[name]._filehandler = null;
       delete this.settings[name]._filehandler;
+      this.settings[name]._path = null;
       delete this.settings[name]._path;
+      this.settings[name].configuration = null;
       delete this.settings[name].configuration;
+      this.settings[name].dataConfig = null;
       delete this.settings[name].dataConfig;
+      this.settings[name].connection = null;
       delete this.settings[name].connection;
+      this.settings[name] = null;
       delete this.settings[name];
     }
   }

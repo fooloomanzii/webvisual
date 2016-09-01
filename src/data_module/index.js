@@ -25,6 +25,30 @@ class dataModule extends EventEmitter {
       this.setServer(server);
     if(config)
       this.connect(config);
+
+    // Handle connections of new clients
+    this.dataSocket = this.io.of("/data");
+    this.dataSocket.on("connection", (function(socket) {
+
+      var name = socket.handshake.query.name;
+      // console.log(socket.handshake.query);
+
+      if(this.configHandler.settings[name])
+        socket.emit("initByServer", this.configHandler.settings[name].configuration);
+
+      socket.on("initByClient", (function(config) {
+        for (var label of config.labels) {
+          socket.join(name + "__" + label); // client joins room for selected label
+          socket.emit("update", this.currentData[name][label]);
+        }
+      }).bind(this));
+
+    }).bind(this));
+
+    this.io.of("/data").clients(
+      (function(err, clients) {
+        if (err) this.emit("error", "socket.io", err) // => [PZDoMHjiu8PYfRiKAAAF, Anw2LatarvGVVXEIAAAD]
+        }).bind(this));
   }
 
   setServer(server) {
@@ -34,13 +58,10 @@ class dataModule extends EventEmitter {
   connect(config) {
     this.configHandler.watch(config);
 
-    this.dataSocket = this.io.of("/data");
-
     this.configHandler.on("changed", (function(name) {
       this.emit("changed", this.configHandler.settings[name].configuration, name);
 
-      if (!this.currentData[name])
-        this.currentData[name] = {};
+      this.currentData[name] = {};
 
       if (!this.dataFile[name])
         this.dataFile[name] = {};
@@ -58,9 +79,7 @@ class dataModule extends EventEmitter {
       // dataFileHandler - established the data connections
       for (let label of this.configHandler.settings[name].configuration.labels) {
 
-        if (!this.currentData[name][label])
-          this.currentData[name][label] = [];
-
+        this.currentData[name][label] = [];
         let listeners = {
           error: (function(option, err) {
             let errString = "";
@@ -102,36 +121,6 @@ class dataModule extends EventEmitter {
 
         this.dataFile[name][label].connect();
       }
-
-      // Handle connections of new clients
-      this.dataSocket.on("connection", (function(socket) {
-
-        var name = socket.handshake.query.name;
-        // console.log(socket.handshake.query);
-
-        socket.emit("init", this.configHandler.settings[name].configuration);
-
-        socket.on("init", (function(config) {
-          for (var label of config.labels) {
-            socket.join(name + "__" + label); // client joins room for selected label
-            socket.emit("update", this.currentData[name][label]);
-            // console.log(this.currentData[name][label].length);
-          }
-        }).bind(this));
-
-        // socket.on("disconnect", function() {
-        //   // leave rooms on disconnect
-        //   var rooms = io.sockets.manager.roomClients[socket.id];
-        //   for (var room in rooms) {
-        //     socket.leave(room);
-        //   }
-        // });
-      }).bind(this));
-
-      this.io.of("/data").clients(
-        (function(err, clients) {
-          if (err) this.emit("error", "socket.io", err) // => [PZDoMHjiu8PYfRiKAAAF, Anw2LatarvGVVXEIAAAD]
-          }).bind(this));
     }).bind(this))
   }
 

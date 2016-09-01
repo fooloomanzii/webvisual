@@ -5,7 +5,7 @@
         "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
         "url": "ibn-net.kfa-juelich.de"
       },
-      "required": true,
+      "required": false,
       "suffix": "@fz-juelich.de"
     },
     "logs": {
@@ -30,7 +30,7 @@
   },
   "userConfigFiles": {
     "HNF-GDS": {
-      "path": "D:\\Github\\webvisual\\src\\examples\\config\\HNF_GDS.json",
+      "path": "\\\\ibn-vsrv\\HNF-GDS$\\Config\\HNF_GDS.json",
       "renderer": "Alarmzustände"
     },
     "cryostat": {

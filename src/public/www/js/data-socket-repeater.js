@@ -9,7 +9,7 @@ var Labels = [];
 var AvailableLabels = [];
 var GroupingKeys = {};
 var PreferedGroupingKeys = {};
-var maxValues = 9000; // 1.5h for every second update
+var maxValues = 3000; // 1.5h for every second update
 var opened = false;
 
 // SOCKET
@@ -24,7 +24,7 @@ socket.on('connect', function() {
   console.info("client connected to: " + window.location.host);
 });
 // Init connection
-socket.on('init', function(settings) {
+socket.on('initByServer', function(settings) {
   if (!opened) {
     Labels = settings.labels;
     Groups = settings.groups;
@@ -67,7 +67,7 @@ function connect(labels) {
   }
   Labels = labels;
   _init();
-  socket.emit('init', {
+  socket.emit('initByClient', {
     labels: Labels
   });
 }
@@ -156,12 +156,14 @@ function _updateUpdatableNodes(message) {
     return;
 
   var label = message.label;
-  var id;
+  var id, len;
 
-  //
-  // .splice(1, 1, {name: 'Sam'}); this.items.push({name: 'Bob'}); this.notifySplices('items', [ { index: 1, removed: [{name: 'Todd'}], addedCount: 1, obect: this.items, type: 'splice' }, { index: 3, removed: [], addedCount: 1, object: this.items, type: 'splice'} ]);
   for (var i = 0; i < message.content.length; i++) {
     id = message.content[i].id;
+    len = message.content[i].values.length;
+    if (len > maxValues)
+      message.content[i].values = message.content[i].values.slice(len-maxValues, len);
+    // console.log(len, label, id);
     message.content[i].values.forEach(function(d) {
       d.x = Date.parse(d.x); // parse Date in Standard Date Object
     });
