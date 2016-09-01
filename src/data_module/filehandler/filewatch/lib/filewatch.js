@@ -383,6 +383,7 @@
     Handles a valid change event.
   */
   function _handle_change(event, path, currStat, prevStat, options) {
+    // console.log(event, path, currStat, prevStat);
     if (options.mode === 'append') {
       if (currStat < prevStat) {
         if (options.content) {
