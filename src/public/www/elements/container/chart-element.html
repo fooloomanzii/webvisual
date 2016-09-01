@@ -658,7 +658,7 @@
                     d3.max(this._elements, function(g){ if(g.hidden !== true) return g._rangeY[1] }) ];
 
         // rounding y-domains to the according decimal exponent
-        if (domainY[0] === domainY[1]) {
+        if (domainY[0] === domainY[1] && domainY[0] !== undefined && domainY[1] !== undefined) {
           v = (domainY[0]).toExponential().split('e');
           domainY[0] = (Math.floor(v[0])) * Math.pow(10,parseInt(v[1],10));
           v = (domainY[1]).toExponential().split('e');

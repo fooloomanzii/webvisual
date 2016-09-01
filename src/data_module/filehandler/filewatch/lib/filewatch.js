@@ -372,7 +372,7 @@
   */
   function _handle_change(event, path, currStat, prevStat, options) {
     if (options.mode === 'append') {
-      if (currStat <= prevStat) {
+      if (currStat < prevStat) {
         if (options.content) {
           options.content([{
             path: path,
@@ -387,7 +387,7 @@
           options.work_function(path, prevStat, currStat, 0, options.processor, options.content, options.log_path);
       }
     } else if (options.mode === 'prepend') {
-      if (currStat <= prevStat) {
+      if (currStat < prevStat) {
         if (options.content) {
           options.content([{
             path: path,

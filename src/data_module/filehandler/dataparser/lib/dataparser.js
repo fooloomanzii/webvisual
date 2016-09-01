@@ -141,9 +141,10 @@ class DataParser {
           }
         }
         else if(i !== (values.length-1) && !linefeed.test(values[i])) {
-          if (values[i] === '')
-            values[i] = '(value is empty)'
-          throw new Error("String includes invalid numbers: " + values[i] + "\n"+string);
+          if (values[i] === '' || values[i].match('\s*NaN\s*') || values[i].match('\s*undefined\s*'))
+            values[i] = null;
+          else
+            throw new Error("String includes invalid numbers: " + values[i] + "\n"+string);
         }
       }
       return callback(null, data);
