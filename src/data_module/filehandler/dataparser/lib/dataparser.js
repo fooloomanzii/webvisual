@@ -3,11 +3,11 @@
 // Variables
 var regular_expressions = {
     YYYY: "([1234][0-9]{3})", // 1000 - 4999 are valid
-    MM: "(0[1-9]|1[0-2])", // 01 - 12 are valid
-    DD: "(0[1-9]|[12][0-9]|3[01])", // 01 - 31 are valid
-    hh: "([01][0-9]|[2][0-3])", // 00 - 23 are valid
-    mm: "([0-5][0-9])", // 00 - 59 are valid
-    ss: "([0-5][0-9])", // 00 - 59 are valid
+    MM: "([1-9]|0[1-9]|1[0-2])", // 01 - 12 are valid
+    DD: "([1-9]|0[1-9]|[12][0-9]|3[01])", // 01 - 31 are valid
+    hh: "([0-9]|[01][0-9]|[2][0-3])", // 00 - 23 are valid
+    mm: "([0-9]|[0-5][0-9])", // 00 - 59 are valid
+    ss: "([0-9]|[0-5][0-9])", // 00 - 59 are valid
     lll: "([0-9]{3})" // 000 - 999 are valid,
 },
 
@@ -100,7 +100,7 @@ class DataParser {
 
     // Just to be sure
     try {
-      if (string.length < 1) {
+      if (!/\S/.test(string)) {
         throw new Error("String is empty");
       }
       // Define Variables

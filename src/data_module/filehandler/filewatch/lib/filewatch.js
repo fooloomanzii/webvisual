@@ -134,8 +134,8 @@
       options.writeOptions.flags = 'a';
     }
     if (end !== undefined) {
-      // Read; the -1 are necessary because the file starts at 0 and otherwise it would read 1 byte too mutch
-      options.readOptions.end = end - 1;
+      // old(correct?): Read; the -1 are necessary because the file starts at 0 and otherwise it would read 1 byte too mutch
+      options.readOptions.end = end;
     }
 
     return options;
@@ -213,74 +213,86 @@
     readOptions.encoding = 'utf8';
 
     // Create the readstream
-    read = fs.createReadStream(path, readOptions);
+    try {
+      read = fs.createReadStream(path, readOptions);
 
-    read.on('error', function(err) {
-      errorData.push({
-        path: path,
-        details: err + ' '
-      });
-    });
-
-    // We don't want to create functions in loops
-    function pushData(err, data) {
-      if (err) { // null == undefined => true; this is used here
+      read.on('error', function(err) {
         errorData.push({
           path: path,
           details: err + ' '
         });
-      } else {
-        processedData.push(data);
-      }
-    }
+      });
 
-    // Reading the stream
-    var tmpBuffer = "";
-
-    read.on('readable', function() {
-      var data = '',
-        chunk;
-
-      // Read the data in the buffer
-      while (null !== (chunk = read.read())) {
-        data += chunk;
+      // We don't want to create functions in loops
+      function pushData(err, data) {
+        if (err) { // null == undefined => true; this is used here
+          errorData.push({
+            path: path,
+            details: err + ' '
+          });
+        } else {
+          processedData.push(data);
+        }
       }
 
-      // There is no data? Well, wtf but we can't work with no data
-      if (data === '') return;
+      // Reading the stream
+      var tmpBuffer = "";
 
-      // Split the data
-      var tokens = data.split(newline);
-      // No multiple lines? Then we just read a partial line, add it to the buffer and return.
-      if (tokens.length === 1) {
-        tmpBuffer += tokens[0];
-        return;
-      }
+      read.on('readable', function() {
+        var data = '',
+          chunk;
 
-      // It is possible, that the last "line" of the data isn't complete. So we have to store it and wait for the next readable event
-      // Complete the first tokens element with the stored data ...
-      tokens[0] = tmpBuffer + tokens[0];
-      // ... and saves the last element for the next time
-      tmpBuffer = tokens.pop();
+        // Read the data in the buffer
+        while (null !== (chunk = read.read())) {
+          data += chunk;
+        }
 
-      // Process every line on their own
-      for (var i = ignored; i < tokens.length; ++i) {
-        // Skip empty lines
-        if (tokens[i].length > 0) processor.parse(tokens[i], pushData);
-      }
-    });
+        // There is no data? Well, wtf but we can't work with no data
+        if (data === '') return;
 
-    // End the stream
-    read.on('end', function(chunk) {
-      // We still need to add the last stored line in tmpBuffer, if there is one
-      if (tmpBuffer !== "") {
-        processor.parse(tmpBuffer, pushData);
-      }
-      // Are there any errors?
-      if (errorData.length === 0) errorData = null;
+        // Split the data
+        var tokens = data.split(newline);
+        // No multiple lines? Then we just read a partial line, add it to the buffer and return.
+        if (tokens.length === 1) {
+          tmpBuffer += tokens[0];
+          return;
+        }
 
+        // It is possible, that the last "line" of the data isn't complete. So we have to store it and wait for the next readable event
+        // Complete the first tokens element with the stored data ...
+        tokens[0] = tmpBuffer + tokens[0];
+        // ... and saves the last element for the next time
+        tmpBuffer = tokens.pop();
+
+        // Process every line on their own
+        for (var i = ignored; i < tokens.length; ++i) {
+          // Skip empty lines
+          if (/\S/.test(tokens[i])) {
+            // string is not empty and not just whitespace
+            processor.parse(tokens[i], pushData);
+          }
+        }
+      });
+
+      // End the stream
+      read.on('end', function(chunk) {
+        // We still need to add the last stored line in tmpBuffer, if there is one
+        if (tmpBuffer !== "") {
+          processor.parse(tmpBuffer, pushData);
+        }
+        // Are there any errors?
+        if (errorData.length === 0) errorData = null;
+
+        if (callback) callback(errorData, processedData);
+      });
+
+    } catch (err) {
+      errorData.push({
+        path: path,
+        details: err + ' '
+      });
       if (callback) callback(errorData, processedData);
-    });
+    }
   }
 
   // Read a json file
@@ -379,6 +391,7 @@
             details: 'new file size is smaller then previous'
           }]);
         }
+        return;
       }
       else {
         if (event === 'add')
@@ -394,6 +407,7 @@
             details: 'new file size is smaller then previous'
           }]);
         }
+        return;
       }
       else {
         if (event === 'add')

@@ -147,6 +147,7 @@ function _update(message) {
   if (!this.opened) {
     // this.fire("loaded");
     this.opened = true;
+    // console.log('loaded');
   }
 }
 

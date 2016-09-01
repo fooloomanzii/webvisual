@@ -32,12 +32,15 @@
     flex: 1;
     position: relative;
   }
-  svg {
+  svg#svgchart {
     /*display: flex;
     flex: 1;*/
     width: 100%;
     height: auto;
     position: relative;
+  }
+  svg#loader {
+    position: absolute;
   }
   button-element {
     padding: 0.5em;
@@ -122,7 +125,7 @@
   }
 </style>
 <div id="svgContainer">
-  <svg id='svg' version='1.1' xmlns='http://www.w3.org/2000/svg'>
+  <svg id='svgchart' version='1.1' xmlns='http://www.w3.org/2000/svg'>
     <g id='chart'>
       <clipPath id='clip'>
         <rect x='0' y='0'></rect>
@@ -144,6 +147,9 @@
       <g id='brush'></g>
     </g>
   </svg>
+
+  <!-- <svg id='loader'  version='1.1' xmlns='http://www.w3.org/2000/svg'>
+  </svg> -->
 
   <section id='info' on-tap='_toggleInfo' hidden>
     <section id='infoX' class="infotext"></section>
@@ -407,9 +413,9 @@
       _buildLayout: function() {
         this.assignParentResizable(this.rootElement);
 
-        this._svg = d3.select(this.$.svg).attr('preserveAspectRatio', 'xMinYMin meet')
-                                         .attr('height', null)
-                                         .attr('width', null);
+        this._svg = d3.select(this.$.svgchart).attr('preserveAspectRatio', 'xMinYMin meet')
+                                              .attr('height', null)
+                                              .attr('width', null);
         this._x  = this._createScale(this.xScale);
         this._y  = this._createScale(this.yScale);
 
@@ -459,7 +465,7 @@
         var bRect = this.getBoundingClientRect();
 
         this._height = Math.max(bRect.height, 150);
-        this._width = Math.max(bRect.width, 150);
+        this._width = Math.max(bRect.width, 250);
 
         // this._svg.attr('height', this._height)
         //          .attr('width', this._width);
