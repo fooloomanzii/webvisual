@@ -9,7 +9,7 @@ var Labels = [];
 var AvailableLabels = [];
 var GroupingKeys = {};
 var PreferedGroupingKeys = {};
-var maxValues = 3000; // 1.5h for every second update
+var maxValues = 3600; // 1h for every second update
 var opened = false;
 
 // SOCKET
@@ -141,17 +141,17 @@ function _loadSvgSources(sources) {
 function _update(message) {
   if (Array.isArray(message)) // if message is an Array
     for (var i = 0; i < message.length; i++)
-      this._updateUpdatableNodes(message[i]);
+      this._updateUpdatableNodes(message[i], opened);
   else // if message is a single Object
-    this._updateUpdatableNodes(message);
-  if (!this.opened) {
+    this._updateUpdatableNodes(message, opened);
+  if (!opened) {
     // this.fire("loaded");
-    this.opened = true;
+    opened = true;
     // console.log('loaded');
   }
 }
 
-function _updateUpdatableNodes(message) {
+function _updateUpdatableNodes(message, forceUpdate) {
   if (!message.content)
     return;
 
@@ -166,12 +166,14 @@ function _updateUpdatableNodes(message) {
     // console.log(len, label, id);
     message.content[i].values.forEach(function(d) {
       d.x = Date.parse(d.x); // parse Date in Standard Date Object
+      if(d.y === undefined || d.y === null)
+        console.log(label, id, d.y);
     });
     if (UpdatableNodes[label][id]) {
       for (var j = 0; j < UpdatableNodes[label][id].length; j++) {
-        UpdatableNodes[label][id][j].insertValues(message.content[i].values, message.forceUpdate);
+        UpdatableNodes[label][id][j].insertValues(message.content[i].values, forceUpdate);
         if (UpdatableNodes[label][id][j].values.length > maxValues)
-          UpdatableNodes[label][id][j].spliceValues(maxValues, UpdatableNodes[label][id][j].values.length - maxValues);
+          UpdatableNodes[label][id][j].spliceValues(0, UpdatableNodes[label][id][j].values.length - maxValues);
       }
     } else {
       console.warn("no UpdatableNodes for", label, id);

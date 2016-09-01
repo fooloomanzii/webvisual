@@ -119,9 +119,12 @@
       stroke-width: 2px;
       stroke-dasharray: 5;
   }
-  g#graphs > rect.overlay {
-    cursor: default;
-    fill-opacity: 0;
+  g#graphs path.area {
+    pointer-events: none;
+  }
+  g#graphs path.line, g#graphs circle.dot {
+    cursor: pointer;
+    pointer-events: all;
   }
 </style>
 <div id="svgContainer">
@@ -141,10 +144,10 @@
         <text class='focus text x' y='4'></text>
         <text class='focus text y' x='4'></text>
       </g> -->
-      <g id='graphs'>
-        <rect class="overlay" x='0' y='0'></rect>
-      </g>
       <g id='brush'></g>
+      <g id='graphs'>
+      </g>
+
     </g>
   </svg>
 
@@ -453,8 +456,7 @@
         this._svg.on('contextmenu',
           (function () {
             d3.event.preventDefault();
-            this._isBrushed = false;
-            this.redraw();
+            this.redraw()
           }).bind(this));
         this._sizeLayout();
       },
@@ -498,7 +500,7 @@
                    .attr('width', this._width)
                    .attr('height', this._height);
 
-        this._chart.selectAll('rect.plot, rect.overlay')
+        this._chart.selectAll('rect.plot')
                   .attr('width', this._width)
                   .attr('height', this._height);
 
@@ -542,7 +544,6 @@
                  .classed('style-scope', true)
                  .classed('chart-element', true);
 
-        this._isBrushed = false;
         this._redraw();
       },
 
@@ -613,7 +614,6 @@
       },
 
       redraw: function () {
-        // if (this._isBrushed === true) return;
         this.setDomains();
         this._redraw();
       },
@@ -635,13 +635,17 @@
 
       _brushed: function() {
         var s = d3.event.selection;
-        if (!s) {
-          this._isBrushed = false;
-        } else {
+        if (s) {
+          this._isBrushed = true;
           this._x.domain([s[0][0], s[1][0]].map(this._x.invert, this._x)).nice(this.ticks);
           this._y.domain([s[1][1], s[0][1]].map(this._y.invert, this._y)).nice(this.ticks);
           this._brush.call(this._brushBehavior.move, null);
-          this._isBrushed = true;
+        }
+        else if (this._isBrushed === true) {
+          this._isBrushed = false;
+        }
+        else {
+          this._setDomains();
         }
         this._redraw();
       },

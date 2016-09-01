@@ -15,6 +15,8 @@ seperators = /[.;:,/\!?\"'\s]+/,
 
 linefeed = /[\r\n\v]/,
 
+nullValue = /(\s*NaN\s*|[\s*]|\s*undefined\s*|\s*null\s*)?/,
+
 defaults = {
   dateFormat: "DD.MM.YYYY hh:mm:ss",
   decimalSeparator: ".",
@@ -141,8 +143,9 @@ class DataParser {
           }
         }
         else if(i !== (values.length-1) && !linefeed.test(values[i])) {
-          if (values[i] === '' || values[i].match('\s*NaN\s*') || values[i].match('\s*undefined\s*'))
-            values[i] = null;
+          if (nullValue.test(values[i])) {
+            data.values.push(null);
+          }
           else
             throw new Error("String includes invalid numbers: " + values[i] + "\n"+string);
         }

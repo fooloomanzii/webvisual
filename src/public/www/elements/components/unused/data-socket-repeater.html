@@ -94,7 +94,7 @@
             value: true,
             reflectToAttribute: true
           },
-          newestDataLast: {
+          newestDataFirst: {
             type: Boolean,
             value: true,
             reflectToAttribute: true
@@ -243,7 +243,7 @@
               values = this.get(path);
               if (!this.doAppend)
                 this.splice(path, 0, values.length);
-              if (this.newestDataLast) {
+              if (this.newestDataFirst) {
                 for (var j = 0; j < message.content[i].values.length; j++) {
                   this.unshift(path, message.content[i].values[j]);
                   this._checkIfExceedingStateHasToBeSet(path, message.content[i].values[j].exceeds);

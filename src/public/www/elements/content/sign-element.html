@@ -268,7 +268,7 @@
           type: Boolean,
           value: false
         },
-        updateEveryValue: {
+        insertEveryValue: {
           type: Boolean,
           value: false,
           readOnly: true
@@ -291,7 +291,7 @@
 
       _updateView: function(value) {
         if (value === undefined)
-          value = this.values[0];
+          value = this.values[this.values.length-1];
 
         // set value
         if (!this.isBoolean)
@@ -303,8 +303,8 @@
       },
 
       _setTooltip: function() {
-        this.$.firstExceedsTable.setValues(this.firstExceeds);
-        this.$.lastExceedsTable.setValues(this.lastExceeds);
+        this.$.firstExceedsTable.insertValues(this.firstExceeds);
+        this.$.lastExceedsTable.insertValues(this.lastExceeds);
       },
 
       _setFirstExceeds: function(value) {
@@ -345,8 +345,8 @@
         this.$.tooltip.classList.remove('opened');
       },
 
-      setValues: function(values, newestDataLast) {
-        ElementBehavior.setValues.call(this, values, newestDataLast);
+      insertValues: function(values, forceUpdate) {
+        ElementBehavior.insertValues.call(this, values, forceUpdate);
 
         if (this.tooltip)
           this._setTooltip();

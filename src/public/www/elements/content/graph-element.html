@@ -185,16 +185,20 @@
         // enter new dots
         dots.enter()
             .append('circle')
-              .attr('class', 'dot')
               .attr('r', this.dotRadius).attr('fill', '#FFF')
               .attr('stroke', this.color).attr('stroke-width', this.lineWidth)
               .attr('cx', (function(d,i) {
                 return this.chartElement._x(d.x)}).bind(this._self))
               .attr('cy', (function(d,i) {
-                return this.chartElement._y(d.y)}).bind(this._self));
-              // .on('mouseenter', (function(d) {
-              //   this.chartElement._updateInfo(d)
-              // }).bind(this._self));
+                return this.chartElement._y(d.y)}).bind(this._self))
+              .classed('dot style-scope chart-element', true)
+              .on('mouseenter', (function(d, i) {
+                  d3.select(this).transition().attr('r', this.dotRadius*2);
+                  this._node.append("text")
+                      .attr("id", "t" + d.x + "-" + d.y + "-" + i)
+                      .attr("x", (function() { return this.chartElement._x.invert(d.x) - 30}).bind(this._self))
+                      .attr("y", (function() { return this.chartElement._y.invert(d.y) - 15}).bind(this._self))
+                  }).bind(this._self));
         //  remove old dots
         dots.exit()
             .remove();
@@ -222,7 +226,7 @@
           this._updateView();
         }
         else {
-          if (this.newestDataLast === true) {
+          if (this.newestDataFirst === true) {
             for (var i = 0; i < values.length; i++) {
               this.unshift('values', values[i]);
               this._updateView(values[i]);

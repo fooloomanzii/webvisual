@@ -161,7 +161,7 @@
 
       var pos = this.indexOf(this.selectedElements, element);
       if (pos !== -1) {
-        element.checked = false;
+        this.selectedElements[pos].checked = false;
         this.splice("selectedElements", pos, 1);
       }
 
@@ -260,7 +260,7 @@
             item = changeRecord.indexSplices[i].object[index];
             var element = item.getElement();
 
-            if (this.multiSelect === false)
+            // if (this.multiSelect === false)
               elements.forEach( function(el) {
                         el.setElement(element);
                       });

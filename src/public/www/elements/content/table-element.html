@@ -140,7 +140,7 @@
           type: Boolean,
           value: false
         },
-        updateEveryValue: {
+        insertEveryValue: {
           type: Boolean,
           value: true,
           readOnly: true
@@ -174,10 +174,12 @@
               if (this._map[v.x] && this._map[v.x].nodeType === 1)
                 this._body.removeChild(this._map[v.x]);
               this._map[v.x] = null;
+              delete this._map[v.x];
             }, this)
           else {
             while (this._body.children[0])
-                this._body.removeChild(this._body.children[0]);
+              this._body.removeChild(this._body.children[0]);
+            this._map = {};
           }
           for (var i = 0; i < this.values.length; i++) {
             this.createRow(this.values[i]);
@@ -204,8 +206,9 @@
         row.classList.add('style-scope', 'table-element');
 
         row.appendChild(tdX); row.appendChild(tdY);
-        if (this._map[value.x])
+        if (this._map && this._map[value.x]) {
           this._body.removeChild(this._map[value.x]);
+        }
         this._map[value.x] = null;
         this._map[value.x] = row;
 

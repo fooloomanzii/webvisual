@@ -25,12 +25,12 @@
     "webPreferences": {
       "webSecurity": true
     },
-    "x": 222,
-    "y": 145
+    "x": 1062,
+    "y": 143
   },
   "userConfigFiles": {
     "HNF-GDS": {
-      "path": "\\\\ibn-vsrv\\HNF-GDS$\\Config\\HNF_GDS.json",
+      "path": "D:\\Github\\webvisual\\src\\examples\\config\\HNF_GDS.json",
       "renderer": "Alarmzustände"
     },
     "cryostat": {

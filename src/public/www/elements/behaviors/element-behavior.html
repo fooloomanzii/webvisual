@@ -77,7 +77,7 @@
           value: false,
           observer: "_updatableChanged"
         },
-        updateEveryValue: {
+        insertEveryValue: {
           type: Boolean,
           value: false
         },
@@ -197,24 +197,24 @@
       else {
         if (this.newestDataLast === true) {
           for (var i = 0; i < values.length; i++) {
-            this.unshift('values', values[i]);
+            this.push('values', values[i]);
             this.checkExceedingState(values[i]);
-            if (this.updateEveryValue === true) {
+            if (this.insertEveryValue === true) {
               this._updateView(values[i]);
             }
           }
         }
         else {
           for (var i = values.length - 1; i >= 0; i--) {
-            this.unshift('values', values[i]);
+            this.push('values', values[i]);
             this.checkExceedingState(values[i]);
-            if (this.updateEveryValue === true) {
+            if (this.insertEveryValue === true) {
               this._updateView(values[i]);
             }
           }
         }
-        if (this.updateEveryValue === false) {
-          this._updateView(this.values[0]);
+        if (this.insertEveryValue === false) {
+          this._updateView(this.values[this.values.length-1]);
         }
       }
     },
