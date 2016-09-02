@@ -173,6 +173,7 @@
       redraw: function () {
         if (this._hidden === true) return;
 
+        var self = this._self;
         this._pointsInRange();
 
         var dots = this._dots.selectAll('circle.dot')
@@ -187,18 +188,21 @@
             .append('circle')
               .attr('r', this.dotRadius).attr('fill', '#FFF')
               .attr('stroke', this.color).attr('stroke-width', this.lineWidth)
-              .attr('cx', (function(d,i) {
-                return this.chartElement._x(d.x)}).bind(this._self))
-              .attr('cy', (function(d,i) {
-                return this.chartElement._y(d.y)}).bind(this._self))
+              .attr('cx', function(d,i) {
+                return self.chartElement._x(d.x)})
+              .attr('cy', function(d,i) {
+                return self.chartElement._y(d.y)})
               .classed('dot style-scope chart-element', true)
-              .on('mouseenter', (function(d, i) {
-                  d3.select(this).transition().attr('r', this.dotRadius*2);
-                  this._node.append("text")
-                      .attr("id", "t" + d.x + "-" + d.y + "-" + i)
-                      .attr("x", (function() { return this.chartElement._x.invert(d.x) - 30}).bind(this._self))
-                      .attr("y", (function() { return this.chartElement._y.invert(d.y) - 15}).bind(this._self))
-                  }).bind(this._self));
+              .on('mouseenter', function(d) {
+                d3.select(this).transition(250)
+                               .attr('fill', self.color)
+                               .attr('r', self.dotRadius*1.5);
+                self.chartElement._showInfo(d); })
+              .on('mouseleave', function(d,i) {
+                d3.select(this).transition(250)
+                               .attr('fill', '#FFF')
+                               .attr('r', self.dotRadius);
+                self.chartElement._hideInfo(); });
         //  remove old dots
         dots.exit()
             .remove();

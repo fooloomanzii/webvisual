@@ -12,7 +12,6 @@
     align-self: stretch;
     box-sizing: border-box;
     font-family: inherit;
-    font-size: 0.75em;
     color: currentColor;
     letter-spacing: normal !important;
     border-radius: inherit;
@@ -43,6 +42,7 @@
     position: absolute;
   }
   button-element {
+    font-size: 0.8em;
     padding: 0.5em;
     border-radius: 0px;
   }
@@ -57,13 +57,6 @@
     transform: scale(1);
     border-radius: 0;
   }
-  section#info {
-    padding: 0.75em;
-    line-height: 1;
-  }
-  section.infotext {
-    margin-bottom: 0.5em;
-  }
   text {
     fill: currentColor;
     pointer-events: none;
@@ -76,7 +69,11 @@
     text-rendering: optimizeLegibility;
   }
   g#chart text{
-    font-size: 1em;
+    font-size: 0.8em;
+    pointer-events: none;
+  }
+  g#chart text#info{
+    font-size: 0.5em;
   }
   g#chart rect.plot {
     fill: white;
@@ -111,20 +108,20 @@
   g#chart g.axis path, g#chart g.axis line {
     stroke-opacity: 0.5;
   }
-  g#focus line.focus.line {
-      fill: none;
-      pointer-events: none;
-      stroke: currentColor;
-      stroke-opacity: 0.3;
-      stroke-width: 2px;
-      stroke-dasharray: 5;
-  }
   g#graphs path.area {
     pointer-events: none;
   }
   g#graphs path.line, g#graphs circle.dot {
     cursor: pointer;
     pointer-events: all;
+  }
+  g#focus line.focus.line {
+    fill: none;
+    pointer-events: none;
+    stroke: currentColor;
+    stroke-opacity: 0.1;
+    stroke-width: 1px;
+    stroke-dasharray: 2;
   }
 </style>
 <div id="svgContainer">
@@ -138,26 +135,18 @@
       <g class='y axis'></g>
       <g class='x grid'></g>
       <g class='y grid'></g>
-      <!-- <g id='focus'>
-        <line class='focus line x' y1='0'></line>
-        <line class='focus line y' x1='0'></line>
-        <text class='focus text x' y='4'></text>
-        <text class='focus text y' x='4'></text>
-      </g> -->
       <g id='brush'></g>
-      <g id='graphs'>
+      <g id='graphs'></g>
+      <text id='info' x='0' y='0' hidden></text>
+      <g id='focus' hidden>
+        <line class='focus line x' x1='0'></line>
+        <line class='focus line y'></line>
       </g>
-
     </g>
   </svg>
 
   <!-- <svg id='loader'  version='1.1' xmlns='http://www.w3.org/2000/svg'>
   </svg> -->
-
-  <section id='info' on-tap='_toggleInfo' hidden>
-    <section id='infoX' class="infotext"></section>
-    <section id='infoY' class="infotext"></section>
-  </section>
 
   <icon-button-element id="menubutton" class="icon-button" icon="timeline"></icon-button-element>
   <dropdown-element id="legend" for="menubutton" target-toggle-event="tap" position="right" align="outer-start" offset="2">
@@ -324,13 +313,10 @@
       _brushBehavior: Object,
       _isBrushed: false,
 
+      _info: Object,
       _focus: Object,
       _focusX: Object,
-      _focusTextX: Object,
       _focusY: Object,
-      _focusTextY: Object,
-
-      _info: Object,
 
       formatMillisecond: Function,
       formatSecond: Function,
@@ -379,7 +365,9 @@
           "currency": ["", "\u00a0€"]
         });
         this.formatMillisecond = d3.timeFormat(":%S.%L");
-        this.formatSecond = d3.timeFormat(":%S");
+        this.formatLongSecond = d3.timeFormat("%M:%S.%L");
+        this.formatSecond = d3.timeFormat("%M:%S");
+        this.formatLongMinute = d3.timeFormat("%H:%M:%S");
         this.formatMinute = d3.timeFormat("%H:%M");
         this.formatHour = d3.timeFormat("%X");
         this.formatDay = d3.timeFormat("%d.%m");
@@ -424,17 +412,8 @@
 
         this._chart = d3.select(this.$.chart);
 
-        this._focus = d3.select(this.$.focus)
-                        .attr('clip-path', 'url(#clip)');
         this._graphs = d3.select(this.$.graphs)
                          .attr('clip-path', 'url(#clip)');
-
-        this._focusX = this._focus.select('line.focus.line.x')
-                                  .attr('clip-path', 'url(#clip)');
-        this._focusY = this._focus.select('line.focus.line.y')
-                                  .attr('clip-path', 'url(#clip)');
-        this._focusTextX = this._focus.select('text.focus.text.x');
-        this._focusTextY = this._focus.select('text.focus.text.y');
 
         this._brushBehavior = d3.brush()
                                 .on('end', this._brushed.bind(this._self));
@@ -442,6 +421,12 @@
                         .attr('clip-path', 'url(#clip)');
 
         this._info = d3.select(this.$.info);
+        this._focus = d3.select(this.$.focus)
+                        .attr('clip-path', 'url(#clip)');
+        this._focusX = this._focus.select('line.focus.line.x')
+                                  .attr('clip-path', 'url(#clip)');
+        this._focusY = this._focus.select('line.focus.line.y')
+                                  .attr('clip-path', 'url(#clip)');
 
         if (this.xScale === 'time') this.$.xbutton.set('icon', 't');
         else this.$.xbutton.set('icon', 'x');
@@ -527,22 +512,13 @@
                   .call(this._yGrid)
                   .attr('transform', 'translate(0,' + 0 + ')');;
 
-        this._focusX.attr('y2', this._height);
-        this._focusY.attr('x2', this._width);
-
         this._brushBehavior.extent([[0, 0], [this._width, this._height]])
         this._brush.call(this._brushBehavior);
-        //
-        // this._graphs.selectAll('g.graph')
-        //            .on('mouseenter', this._showFocus.bind(this))
-        //            .on('mousemove',  this._updateFocus.bind(this))
-        //            .on('mouseleave', this._hideFocus.bind(this));
-
-        this._info.attr('style', 'left:'+(this.margin.left)+'px; top:'+(this.margin.top)+'px');
 
         this._svg.selectAll('g,line,text,path,rect')
                  .classed('style-scope', true)
                  .classed('chart-element', true);
+        this._focusY.attr('y1', this._height);
 
         this._redraw();
       },
@@ -602,14 +578,17 @@
               : this.formatYear)(date);
       },
       timeFormatRange: function (date, r, pixels) {
-        var msProPixel = (r[1] - r[0]).valueOf()/pixels;
-        return (msProPixel < 500 ? this.formatMillisecond
-              : msProPixel < 5000 ? this.formatSecond
-              : msProPixel < 60000 ? this.formatMinute
-              : msProPixel < 3600000 ? this.formatHour
-              : msProPixel < 86400000  ? this.formatDay
-              : msProPixel < 604800000 ? this.formatWeek
-              : msProPixel < 2419200000 ? this.formatMonth
+        var rangeRatio = (r[1] - r[0]).valueOf()/pixels;
+        console.log(rangeRatio);
+        return (rangeRatio < 100 ? this.formatMillisecond
+              : rangeRatio < 500 ? this.formatLongSecond
+              : rangeRatio < 5000 ? this.formatSecond
+              : rangeRatio < 20000 ? this.formatLongMinute
+              : rangeRatio < 60000 ? this.formatMinute
+              : rangeRatio < 3600000 ? this.formatHour
+              : rangeRatio < 86400000  ? this.formatDay
+              : rangeRatio < 604800000 ? this.formatWeek
+              : rangeRatio < 2419200000 ? this.formatMonth
               : this.formatYear)(date);
       },
 
@@ -630,7 +609,7 @@
         this._svg.selectAll('g,line,text,path,rect')
                  .classed('style-scope', true)
                  .classed('chart-element', true);
-        // this._updateFocusText();
+        this._updateInfo();
       },
 
       _brushed: function() {
@@ -677,53 +656,56 @@
         this._x.domain(domainX);
         this._y.domain(domainY).nice(this.ticks);
       },
+      _showInfo: function(d) {
+        this.cancelDebouncer('hideinfo');
+        var x = this.timeFormatRange.call(this, d.x, this._x.domain(), this._width);
+        this._info.text('(' + x + ', ' + d.y + ')');
+        this._info.x = d.x;
+        this._info.y = d.y;
+        this._info.attr('hidden', null);
+        this._focus.transition(25).attr('hidden', null);
+        this._updateInfo();
+      },
+      _hideInfo: function() {
+        this.debounce('hideinfo', this._debounceHideInfo, 1500);
+      },
+      _debounceHideInfo: function() {
+        this._xAxis = this._createAxis(this._x, 'bottom', this.xScale);
+        this._yAxis = this._createAxis(this._y, 'left', this.yScale);
+        this._chart.select('g.x.axis').transition(50).call(this._xAxis);
+        this._chart.select('g.y.axis').transition(50).call(this._yAxis);
+        this._info.transition(25).attr('hidden', true);
+        this._focus.transition(25).attr('hidden', true);
+        this._svg.selectAll('g,line,text,path,rect')
+                 .classed('style-scope', true)
+                 .classed('chart-element', true);
+      },
+      _updateInfo: function() {
+        if (this._info.attr('hidden') === true || this._info.x === undefined || this._info.y === undefined) return;
 
-      _showFocus: function() {
-        d3.select('g#focus').style('opacity', 1);
-        this._focus.__shown = true;
-      },
-      _updateFocus: function() {
-        if (!this._focus.__shown) return;
-        var x = d3.event.offsetX;
-        var y = d3.event.offsetY;
-        this._focusX.attr('transform', 'translate(' + x + ',0)');
-        this._focusTextX.attr('transform', 'translate(' + (x + 4) + ',' + (this._height - 8) + ')');
-        this._focusY.attr('transform', 'translate(0,' + (y) + ')');
-        this._focusTextY.attr('transform', 'translate(0,' + (y - 4) + ')');
-        this._focus.__mouse = {x: x, y: y};
-        this._updateFocusText();
-      },
-      _updateFocusText: function() {
-        if (!this._focus.__shown) return;
-        var x = this._x.invert(this._focus.__mouse.x),
-            y = this._y.invert(this._focus.__mouse.y),
-            dy = this._y.domain(),
-            p = d3.precisionFixed((dy[1]-dy[0])/100/this.ticks),
-            fn = d3.format("." + p + "f");
-        this._focusTextX.text(this.timeFormatRange.call(this, x, this._x.domain(), this._width));
-        this._focusTextY.text(fn(y));
-      },
-      _hideFocus: function() {
-        d3.select('g#focus').transition(1000).style('opacity', 0);
-        this._focus.__shown = false;
-      },
-      _updateInfo: function(d) {
-        this.$.info.removeAttribute('hidden');
-        var dy = this._y.domain(),
-            p = d3.precisionFixed((dy[1]-dy[0])/100/this.ticks),
-            y = d3.format("." + p + "f")(d.y),
-            x = this.timeFormatRange.call(this, d.x, this._x.domain(), this._width);
-        this.$.infoX.innerText = 'x = ' + x;
-        this.$.infoY.innerText = 'y = ' + y;
-        setTimeout((function(){ this.setAttribute('hidden', true) }).bind(this.$.info) , 5000);
-      },
-      _toggleInfo: function() {
-        if (this.$.info.hasAttribute('hidden')) {
-          this.$.info.removeAttribute('hidden');
-        }
-        else {
-          this.$.info.setAttribute('hidden', true);
-        }
+        var bbox = this._info.node().getBBox();
+        // console.log(bbox, this._width, this._height);
+        var x = this._x(this._info.x),
+            y = this._y(this._info.y);
+        this._info.transition(25)
+                  .attr('x', (x + 5 + bbox.width > this._width ? (x - 5 - bbox.width < 0 ? 0 : x - 5 - bbox.width) : x + 5))
+                  .attr('y', (y + 10 + bbox.height > this._height ? (y - bbox.height < 0 ? 0 : y - bbox.height) : y + 10));
+        this._focusX.transition(25)
+                    .attr('x2', x)
+                    .attr('y2', y)
+                    .attr('y1', y);
+        this._focusY.transition(25)
+                    .attr('y2', y)
+                    .attr('x2', x)
+                    .attr('x1', x);
+
+        this._xAxis.tickValues([this._info.x]);
+        this._yAxis.tickValues([this._info.y]);
+        this._chart.select('g.x.axis').transition(50).call(this._xAxis);
+        this._chart.select('g.y.axis').transition(50).call(this._yAxis);
+        this._svg.selectAll('g,line,text,path,rect')
+                 .classed('style-scope', true)
+                 .classed('chart-element', true);
       },
       toggleMenu: function() {
         if (this.$.menu.hasAttribute('hidden')) {
