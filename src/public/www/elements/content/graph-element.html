@@ -16,10 +16,6 @@
       behaviors: [ElementBehavior],
 
       properties: {
-        values: {
-          type: Array,
-          value: function() { return []; }
-        },
         color: {
           type: String,
           value: '',
@@ -95,10 +91,6 @@
 
       get _self () {
         return this;
-      },
-
-      get _values () {
-        return this.values;
       },
 
       created: function() {
@@ -223,22 +215,22 @@
 
       insertValues: function(values, forceUpdate) {
         if (forceUpdate === true) {
-          var array = this.values.concat(values);
-          array.sort(this.compareFn);
-          this.values = [];
-          this.values = array;
-          this._updateView();
+          // var array = this.values.concat(values);
+          // array.sort(this.compareFn);
+          // this.values = [];
+          // this.values = array;
+          // this._updateView();
         }
         else {
           if (this.newestDataFirst === true) {
             for (var i = 0; i < values.length; i++) {
-              this.unshift('values', values[i]);
+              // this.unshift('values', values[i]);
               this._updateView(values[i]);
             }
           }
           else {
             for (var i = values.length - 1; i >= 0; i--) {
-              this.unshift('values', values[i]);
+              // this.unshift('values', values[i]);
               this._updateView(values[i]);
             }
           }

@@ -112,35 +112,36 @@ html
             each GroupingKey in config.groupingKeys[Label]
               radio-button-element.lightcontext.groupingKey(groupingkey!= GroupingKey)
                 != GroupingKey
-                
+
         //- PANELS
         each Label, I in config.labels
           section.panel(label!= Label, animated!= (!mobile))
             each Subgroup, Name in config.groups[Label][config.preferedGroupingKeys[Label]]
-              group-card(headline= Name, 
+              group-card(headline= Name,
                          svg= JSON.stringify(Subgroup.svg),
                          no-select-notify, notify, open-on-exceed)
                 each Id, i in Subgroup.ids
-                  sign-element(label!= Label, 
-                               id!= Id, 
-                               is-boolean!= config.elements[Label][Id].isBoolean, 
-                               unit!= config.elements[Label][Id].unit, 
-                               keys= JSON.stringify(config.elements[Label][Id].keys), 
-                               svg= JSON.stringify(config.elements[Label][Id].svg), 
-                               caption-keys= JSON.stringify(config.groupingKeys[Label]), 
+                  sign-element(label!= Label,
+                               id!= Id,
+                               is-boolean!= config.elements[Label][Id].isBoolean,
+                               unit!= config.elements[Label][Id].unit,
+                               keys= JSON.stringify(config.elements[Label][Id].keys),
+                               svg= JSON.stringify(config.elements[Label][Id].svg),
+                               caption-keys= JSON.stringify(config.groupingKeys[Label]),
                                show-date!= (!mobile),
                                color!= config.elements[Label][Id].color,
-                               bubbles, 
+                               bubbles,
                                selectable,
+                               exeedable
                                tooltip)
-                               
-        //- Elements for TOOLBAR 
+
+        //- Elements for TOOLBAR
         sign-element.toolbar-footer(horizontal)
         table-element.toolbar-footer(highlight-exceeding)
         svg-element.toolbar-footer(initially-zoom-to-selected, notify-parent, open-on-select)
-        
+
         //- FULLSCREEN-SVG-ELEMENT
-        svg-element.overlay(is-fullscreen, 
+        svg-element.overlay(is-fullscreen,
                             zoom-partition='3',
                             max-zoom='3',
                             min-zoom='0.75',
@@ -148,7 +149,7 @@ html
                             no-select-notify)
 
     script.
-    
+
       var PageSelector;
       var MainPage;
       window.addEventListener('WebComponentsReady', function(e) {

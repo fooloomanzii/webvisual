@@ -2,6 +2,7 @@
 var socketName = "/data";
 var Request = "name=" + Name;
 var Selector = '[updatable]';
+var Values = {};
 var UpdatableNodes = {};
 var Elements = {};
 var SvgSource = {};
@@ -9,7 +10,7 @@ var Labels = [];
 var AvailableLabels = [];
 var GroupingKeys = {};
 var PreferedGroupingKeys = {};
-var maxValues = 3600; // 1h for every second update
+var maxValues = 100; // 1h for every second update
 var opened = false;
 
 // SOCKET
@@ -158,25 +159,43 @@ function _updateUpdatableNodes(message, forceUpdate) {
   var label = message.label;
   var id, len;
 
+  if (!Values[label])
+    Values[label] = {};
+
   for (var i = 0; i < message.content.length; i++) {
     id = message.content[i].id;
     len = message.content[i].values.length;
+
     if (len > maxValues)
       message.content[i].values = message.content[i].values.slice(len-maxValues, len);
     // console.log(len, label, id);
-    message.content[i].values.forEach(function(d) {
-      d.x = Date.parse(d.x); // parse Date in Standard Date Object
-      if(d.y === undefined || d.y === null)
-        console.log(label, id, d.y);
-    });
-    if (UpdatableNodes[label][id]) {
-      for (var j = 0; j < UpdatableNodes[label][id].length; j++) {
-        UpdatableNodes[label][id][j].insertValues(message.content[i].values, forceUpdate);
-        if (UpdatableNodes[label][id][j].values.length > maxValues)
-          UpdatableNodes[label][id][j].spliceValues(0, UpdatableNodes[label][id][j].values.length - maxValues);
+    // message.content[i].values.forEach(function(d) {
+    //   d.x = Date.parse(d.x); // parse Date in Standard Date Object
+    // });
+
+    if (!Values[label][id])
+      Values[label][id] = message.content[i].values;
+    else
+      for (var j = message.content[i].values.length - 1; j >= 0 ; j--) {
+        Values[label][id].push(message.content[i].values[j]);
       }
-    } else {
-      console.warn("no UpdatableNodes for", label, id);
-    }
+    // if (Values[label][id].length > maxValues)
+    //   Values[label][id] = Values[label][id].splice(0, Values[label][id].length - maxValues);
+
+    // if (UpdatableNodes[label][id]) {
+    //   for (var j = 0; j < UpdatableNodes[label][id].length; j++) {
+    //     UpdatableNodes[label][id][j].insertValues(message.content[i].values);
+    //     // if (UpdatableNodes[label][id][j].values.length > maxValues)
+    //     //   UpdatableNodes[label][id][j].spliceValues(0, UpdatableNodes[label][id][j].values.length - maxValues);
+    //   }
+    // } else {
+    //   console.warn("no UpdatableNodes for", label, id);
+    // }
   }
+}
+
+function compareFn(a, b) {
+  if (a.x > b.x) return 1;
+  if (a.x < b.x) return -1;
+  return 0;
 }

@@ -26,10 +26,10 @@
           type: Array,
           value: function() { return []; }
         },
-        values: {
-          type: Array,
-          value: function() { return []; }
-        },
+        // values: {
+        //   type: Array,
+        //   value: function() { return []; }
+        // },
         firstExceeds: {
           type: Array,
           value: function() { return []; }
@@ -53,7 +53,7 @@
           value: ''
         },
 
-        notExceedable: {
+        exeedable: {
           type: Boolean,
           value: false
         },
@@ -105,9 +105,14 @@
         }
     },
 
+    get values () {
+      if(this.label && this.id && Values[this.label] && Values[this.label][this.id])
+        return Values[this.label][this.id];
+    },
+
     attached: function(){
-      if (this.values.length > 0) {
-        this.insertValues(this.values, true);
+      if (this.values && this.values.length > 0) {
+        this.insertValues(this.values);
       }
     },
 
@@ -148,7 +153,7 @@
       for (var key in options) {
         this.set(key, options[key]);
       }
-      this.insertValues(obj.element.values, true);
+      // this.insertValues(obj.element.values, true);
       this._updatableChanged();
     },
 
@@ -162,7 +167,7 @@
         UpdatableNodes[this.label][this.id].splice(pos,1); // remove from UpdatableNodes
         this.removeAttribute('updatable');
       }
-      this.spliceValues(0, this.values.length);
+      // this.spliceValues(0, this.values.length);
     },
 
     getElement: function() {
@@ -170,6 +175,7 @@
                 'id': this.id,
                 'label': this.label,
                 'keys': this.keys,
+                // 'values': this.values,
                 'captionKeys': this.captionKeys,
                 'isBoolean': this.isBoolean,
                 'unit': this.unit,
@@ -177,28 +183,28 @@
                 'firstExceeds': this.firstExceeds,
                 'lastExceeds': this.lastExceeds,
                 'values': this.values,
-                'notExceedable': this.notExceedable,
+                'exeedable': this.exeedable,
                 'isExceeding': this.isExceeding,
                 'preferedKey': this.preferedKey,
-                'color': this.color,
-                'values': this.values
+                'color': this.color
               }
             };
     },
 
     insertValues: function(values, forceUpdate) {
       if (forceUpdate === true) {
-        var array = this.values.concat(values);
-        array.sort(this.compareFn);
-        this.values = [];
-        this.values = array;
-        this._updateView();
+        // var array = this.values.concat(values);
+        // array.sort(this.compareFn);
+        // this.values = [];
+        // this.values = array;
+        // this._updateView();
       }
-      else {
+      else if (this.exeedable === true || this.insertEveryValue === true) {
         if (this.newestDataLast === true) {
           for (var i = 0; i < values.length; i++) {
-            this.push('values', values[i]);
-            this.checkExceedingState(values[i]);
+            // this.push('values', values[i]);
+            if (this.exeedable === true)
+              this.checkExceedingState(values[i]);
             if (this.insertEveryValue === true) {
               this._updateView(values[i]);
             }
@@ -206,16 +212,17 @@
         }
         else {
           for (var i = values.length - 1; i >= 0; i--) {
-            this.push('values', values[i]);
-            this.checkExceedingState(values[i]);
+            // this.push('values', values[i]);
+            if (this.exeedable === true)
+              this.checkExceedingState(values[i]);
             if (this.insertEveryValue === true) {
               this._updateView(values[i]);
             }
           }
         }
-        if (this.insertEveryValue === false) {
-          this._updateView(this.values[this.values.length-1]);
-        }
+      }
+      else if (this.insertEveryValue === false) {
+        this._updateView(this.values[this.values.length-1]);
       }
     },
 
@@ -241,8 +248,6 @@
     },
 
     checkExceedingState: function(value) {
-      if (this.notExceedable === true) return;
-
       if (value.exceeds === null) {
         if(this.isExceeding !== false) {
           this.setExceedingState(false, value.exceeds);
@@ -272,7 +277,7 @@
     },
 
     _handleExceeding: function(isExceeding) {
-      if(this.notExceedable === false && this.bubbles === true) {
+      if(this.exeedable === true && this.bubbles === true) {
         if (isExceeding === true)
           this.fire('element-is-exceeding', {target: this});
         else
@@ -286,7 +291,7 @@
     setColor: function(color) {
       // random color if color is not set
       if (!color) {
-        if (this.notExceedable === false) {
+        if (this.exeedable === true) {
           this.color = "#51cc41";
         }
         else {
@@ -303,7 +308,7 @@
       }
       else {
         this.customStyle['--element-color'] = this.color;
-        if (this.notExceedable === true) {
+        if (this.exeedable === false) {
           this.customStyle['--element-exceeds-undefined-color'] = this.color;
           this.customStyle['--element-exceeds-true-color'] = this.color;
           this.customStyle['--element-exceeds-false-color'] = this.color;

@@ -579,7 +579,6 @@
       },
       timeFormatRange: function (date, r, pixels) {
         var rangeRatio = (r[1] - r[0]).valueOf()/pixels;
-        console.log(rangeRatio);
         return (rangeRatio < 100 ? this.formatMillisecond
               : rangeRatio < 500 ? this.formatLongSecond
               : rangeRatio < 5000 ? this.formatSecond
