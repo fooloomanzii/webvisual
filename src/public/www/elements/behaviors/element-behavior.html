@@ -14,7 +14,7 @@
           reflectToAttribute: true,
           observer: '__hide'
         },
-        newestDataLast: {
+        newestDataFirst: {
           type: Boolean,
           value: false
         },
@@ -26,10 +26,10 @@
           type: Array,
           value: function() { return []; }
         },
-        // values: {
-        //   type: Array,
-        //   value: function() { return []; }
-        // },
+        values: {
+          type: Array,
+          value: function() { return []; }
+        },
         firstExceeds: {
           type: Array,
           value: function() { return []; }
@@ -72,12 +72,12 @@
           type: Boolean,
           value: false
         },
-        notUpdatable: {
+        noSocketConnection: {
           type: Boolean,
           value: false,
           observer: "_updatableChanged"
         },
-        insertEveryValue: {
+        updateEveryValue: {
           type: Boolean,
           value: false
         },
@@ -105,15 +105,9 @@
         }
     },
 
-    get values () {
-      if(this.label && this.id && Values[this.label] && Values[this.label][this.id])
-        return Values[this.label][this.id];
-    },
-
     attached: function(){
-      if (this.values && this.values.length > 0) {
-        this.insertValues(this.values);
-      }
+      if (this.exeedable === true && this.values && this.values.length > 0)
+        this.checkExceedingState(this.values[this.values.length - 1]);
     },
 
     factoryImpl: function(obj) {
@@ -135,12 +129,12 @@
 
     setElement: function(obj, options) {
       var pos;
-      if (this.notUpdatable === false && this.label && this.id &&
-          window.UpdatableNodes !== undefined &&
-          UpdatableNodes[this.label] &&
-          UpdatableNodes[this.label][this.id] &&
-          (pos = UpdatableNodes[this.label][this.id].indexOf(this)) !== -1) {
-        UpdatableNodes[this.label][this.id].splice(pos,1); // remove from UpdatableNodes
+      if (this.noSocketConnection === false && this.label && this.id &&
+          window.Content !== undefined &&
+          Content[this.label] &&
+          Content[this.label][this.id] &&
+          (pos = Content[this.label][this.id].nodes.indexOf(this)) !== -1) {
+        Content[this.label][this.id].nodes.splice(pos,1); // remove from Content
         this.removeAttribute('updatable');
       }
       for (var key in obj.element) {
@@ -153,21 +147,21 @@
       for (var key in options) {
         this.set(key, options[key]);
       }
-      // this.insertValues(obj.element.values, true);
       this._updatableChanged();
+      this.insertValues();
     },
 
     unsetElement: function() {
       var pos;
-      if (this.notUpdatable === false && this.label && this.id &&
-          window.UpdatableNodes !== undefined &&
-          UpdatableNodes[this.label] &&
-          UpdatableNodes[this.label][this.id] &&
-          (pos = UpdatableNodes[this.label][this.id].indexOf(this)) !== -1) {
-        UpdatableNodes[this.label][this.id].splice(pos,1); // remove from UpdatableNodes
+      if (this.noSocketConnection === false && this.label && this.id &&
+          window.Content !== undefined &&
+          Content[this.label] &&
+          Content[this.label][this.id] &&
+          (pos = Content[this.label][this.id].nodes.indexOf(this)) !== -1) {
+        Content[this.label][this.id].nodes.splice(pos,1); // remove from Content
         this.removeAttribute('updatable');
       }
-      // this.spliceValues(0, this.values.length);
+      this.clearValues();
     },
 
     getElement: function() {
@@ -175,61 +169,47 @@
                 'id': this.id,
                 'label': this.label,
                 'keys': this.keys,
-                // 'values': this.values,
                 'captionKeys': this.captionKeys,
                 'isBoolean': this.isBoolean,
                 'unit': this.unit,
                 'svg': this.svg,
                 'firstExceeds': this.firstExceeds,
                 'lastExceeds': this.lastExceeds,
-                'values': this.values,
                 'exeedable': this.exeedable,
-                'isExceeding': this.isExceeding,
                 'preferedKey': this.preferedKey,
                 'color': this.color
               }
             };
     },
 
-    insertValues: function(values, forceUpdate) {
-      if (forceUpdate === true) {
-        // var array = this.values.concat(values);
-        // array.sort(this.compareFn);
-        // this.values = [];
-        // this.values = array;
-        // this._updateView();
+    insertValues: function(values) {
+      if (values === undefined) {
+        values = this.values || [];
       }
-      else if (this.exeedable === true || this.insertEveryValue === true) {
-        if (this.newestDataLast === true) {
-          for (var i = 0; i < values.length; i++) {
-            // this.push('values', values[i]);
-            if (this.exeedable === true)
-              this.checkExceedingState(values[i]);
-            if (this.insertEveryValue === true) {
-              this._updateView(values[i]);
-            }
-          }
-        }
-        else {
-          for (var i = values.length - 1; i >= 0; i--) {
-            // this.push('values', values[i]);
-            if (this.exeedable === true)
-              this.checkExceedingState(values[i]);
-            if (this.insertEveryValue === true) {
-              this._updateView(values[i]);
-            }
-          }
+      var it = (this.newestDataFirst === false) ? 1 : -1,
+          i, end = (this.newestDataFirst === false) ? values.length : -1;
+      if (this.noSocketConnection === true) {
+        i = (this.newestDataFirst === false) ? 0 : values.length - 1;
+        while (i !== end) {
+          this.values.push(values[i]);
+          i += it;
         }
       }
-      else if (this.insertEveryValue === false) {
-        this._updateView(this.values[this.values.length-1]);
+      if (this.updateEveryValue === false) {
+        if (this.exeedable === true)
+          this.checkExceedingState(values[(this.newestDataFirst === false) ? values.length - 1 : 0]);
+        this._updateView(values[(this.newestDataFirst === false) ? values.length - 1 : 0]);
       }
-    },
-
-    compareFn: function(a, b) {
-      if (a.x > b.x) return 1;
-      if (a.x < b.x) return -1;
-      return 0;
+      else {
+        if (this.exeedable === true) {
+          i = (this.newestDataFirst === false) ? 0 : values.length - 1;
+          while (i !== end) {
+            this.checkExceedingState(values[i]);
+            i += it;
+          }
+        }
+        this._updateView();
+      }
     },
 
     __hide: function() {
@@ -240,14 +220,43 @@
     },
 
     spliceValues: function(start, length) {
-      var values = this.splice("values", start, length);
-      this._updateView(undefined, {start: start, length: length, values: values});
+      if (this.noSocketConnection === true) {
+        var values = this.values.splice(start, length);
+        this._updateView(undefined, {start: start, length: length, values: values});
+      }
+      else {
+        this._updateView(undefined, {start: start, length: length, values: this.values.slice(start, start + length)});
+      }
     },
 
-    _updateView: function(value, splices) {
+    clearValues: function() {
+      if (this.noSocketConnection === true) {
+        var values = this.values.splice(0, this.values.length - 1);
+        this._updateView(undefined, {start: 0, length: this.values.length - 1, values: values});
+      }
+      else {
+        this._updateView(undefined, {start: 0, length: this.values.length - 1, values: this.values});
+      }
+    },
+
+    _updateView: function(values, splices) {
+    },
+
+    renderNewValues: function(values) {
+    },
+
+    renderAllValues: function() {
+    },
+
+    renderSplicedValues: function(start, length, values) {
     },
 
     checkExceedingState: function(value) {
+      if (this.exeedable === false) return;
+      if (value === undefined) {
+        console.log(this);
+        return;
+      }
       if (value.exceeds === null) {
         if(this.isExceeding !== false) {
           this.setExceedingState(false, value.exceeds);
@@ -277,11 +286,13 @@
     },
 
     _handleExceeding: function(isExceeding) {
-      if(this.exeedable === true && this.bubbles === true) {
-        if (isExceeding === true)
-          this.fire('element-is-exceeding', {target: this});
-        else
-          this.fire('element-is-not-exceeding', {target: this});
+      if (this.exeedable === true) {
+        if (this.bubbles === true) {
+          if (isExceeding === true)
+            this.fire('element-is-exceeding', {target: this});
+          else
+            this.fire('element-is-not-exceeding', {target: this});
+        }
       }
     },
 
@@ -322,36 +333,37 @@
     },
 
     _updatableChanged: function() {
-      // sets a global Object 'UpdatableNodes', for updating the values of the elements
-      if (this.notUpdatable === false && this.label && this.id) {
+      // sets a global Object 'Content', for updating the values of the elements
+      if (this.noSocketConnection === false && this.label && this.id) {
         this.setAttribute("updatable", true);
-        if (window.UpdatableNodes === undefined)
-          UpdatableNodes = {};
-        if (!UpdatableNodes[this.label])
-          UpdatableNodes[this.label] = {};
-        if (!UpdatableNodes[this.label][this.id])
-          UpdatableNodes[this.label][this.id] = [];
-        if (UpdatableNodes[this.label][this.id].indexOf(this) === -1)
-          UpdatableNodes[this.label][this.id].push(this);
+        if (Content[this.label] === undefined)
+          Content[this.label] = {};
+        if (!Content[this.label][this.id])
+          Content[this.label][this.id] = {nodes: [], values: [], database: new Database(this.label, this.id)};
+        if (Content[this.label][this.id].nodes.indexOf(this) === -1)
+          Content[this.label][this.id].nodes.push(this);
+        // delete this.values;
+        Object.defineProperty(this, "values", { get: function () { return Content[this.label][this.id].values; } });
       }
       else {
         this.removeAttribute("updatable");
         var pos;
-        if (window.UpdatableNodes !== undefined &&
-            UpdatableNodes[this.label] &&
-            UpdatableNodes[this.label][this.id] &&
-            (pos = UpdatableNodes[this.label][this.id].indexOf(this)) !== -1)
-          UpdatableNodes[this.label][this.id].splice(pos,1);
+        if (window.Content !== undefined &&
+            Content[this.label] &&
+            Content[this.label][this.id] &&
+            (pos = Content[this.label][this.id].nodes.indexOf(this)) !== -1)
+          Content[this.label][this.id].nodes.splice(pos,1);
       }
     },
 
     detached: function() {
-      if (this.notUpdatable === false &&
-          window.UpdatableNodes !== undefined &&
-          UpdatableNodes[this.label] &&
-          UpdatableNodes[this.label][this.id] &&
-          (pos = UpdatableNodes[this.label][this.id].indexOf(this)) !== -1)
-        UpdatableNodes[this.label][this.id].splice(pos,1);
+      var pos;
+      if (this.noSocketConnection === false &&
+          window.Content !== undefined &&
+          Content[this.label] &&
+          Content[this.label][this.id] &&
+          (pos = Content[this.label][this.id].nodes.indexOf(this)) !== -1)
+        Content[this.label][this.id].nodes.splice(pos,1);
     },
 
     checkedChanged: function(checked, old) {

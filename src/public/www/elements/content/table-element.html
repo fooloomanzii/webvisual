@@ -140,7 +140,7 @@
           type: Boolean,
           value: false
         },
-        insertEveryValue: {
+        updateEveryValue: {
           type: Boolean,
           value: true,
           readOnly: true
@@ -188,6 +188,13 @@
         else {
           this.createRow(value)
         }
+      },
+
+      clearValues: function() {
+        ElementBehavior.clearValues.call(this);
+        while (this._body.children[0])
+          this._body.removeChild(this._body.children[0]);
+        this._map = {};
       },
 
       createRow: function(value) {

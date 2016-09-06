@@ -30,7 +30,7 @@ function processData(data, name, settings) {
   var element;
   for (var i = 0; i < data.length; i++) {
     var k = 0;
-    maxDate = new Date(Math.max(maxDate, data[i].date));
+    maxDate = +(new Date(Math.max(maxDate, data[i].date)));
 
     for (var j = 0; j < data[i].values.length; j++) {
       // head-data of measuring-points
@@ -46,6 +46,7 @@ function processData(data, name, settings) {
           element.values = [];
           processedData[k] = element;
         }
+        exceeds = undefined;
         if (data[i].values[j] !== null) {
           // exceeding
           exceeds = null;
@@ -57,13 +58,13 @@ function processData(data, name, settings) {
                      data[i].values[j] > settings.types[k].threshold.to)
               exceeds = true;
           }
-          // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored
-          processedData[k].values.push({
-            x: data[i].date,
-            y: data[i].values[j],
-            exceeds: exceeds
-          })
         }
+        // .data is the array, in which the measuring time, the value itself and an exceeds-value is stored
+        processedData[k].values.push({
+          x: +(new Date(data[i].date)),
+          y: data[i].values[j],
+          exceeds: exceeds
+        })
         k++;
       }
     }

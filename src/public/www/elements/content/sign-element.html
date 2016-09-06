@@ -234,8 +234,8 @@
       <section id='tooltip' hidden$='[[!_hasTooltip(hasExceeded)]]' on-tap='_hideTooltip' on-mouseleave='_hideTooltip' role='tooltip' tabindex='-1'>
         <div class='title'>Alarmphasen</div>
         <section id='tooltipContent'>
-          <table-element id='firstExceedsTable' caption='Start' hide-header not-updatable show-full-date hide-overflow is-boolean='[[isBoolean]]' id="[[id]]" label="[[label]]"></table-element>
-          <table-element id='lastExceedsTable' caption='Ende' hide-header not-updatable show-full-date hide-overflow is-boolean='[[isBoolean]]' id="[[id]]" label="[[label]]"></table-element>
+          <table-element id='firstExceedsTable' caption='Start' hide-header no-socket-connection show-full-date hide-overflow is-boolean='[[isBoolean]]' id="[[id]]" label="[[label]]"></table-element>
+          <table-element id='lastExceedsTable' caption='Ende' hide-header no-socket-connection show-full-date hide-overflow is-boolean='[[isBoolean]]' id="[[id]]" label="[[label]]"></table-element>
         </section>
       </section>
 
@@ -268,7 +268,11 @@
           type: Boolean,
           value: false
         },
-        insertEveryValue: {
+        exeedable: {
+          type: Boolean,
+          value: true
+        },
+        updateEveryValue: {
           type: Boolean,
           value: false,
           readOnly: true
@@ -277,6 +281,11 @@
 
       hostAttributes: {
         tabindex: '0'
+      },
+
+      attached: function() {
+        if (this.tooltip)
+          this._setTooltip();
       },
 
       setExceedingState: function(isExceeding, state) {
@@ -343,13 +352,6 @@
 
       _hideTooltip: function() {
         this.$.tooltip.classList.remove('opened');
-      },
-
-      insertValues: function(values, forceUpdate) {
-        ElementBehavior.insertValues.call(this, values, forceUpdate);
-
-        if (this.tooltip)
-          this._setTooltip();
       },
 
       _updateTooltipPosition: function() {

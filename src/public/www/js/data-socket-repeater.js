@@ -2,15 +2,13 @@
 var socketName = "/data";
 var Request = "name=" + Name;
 var Selector = '[updatable]';
-var Values = {};
-var UpdatableNodes = {};
-var Elements = {};
+
+var Content = {};
 var SvgSource = {};
 var Labels = [];
-var AvailableLabels = [];
 var GroupingKeys = {};
 var PreferedGroupingKeys = {};
-var maxValues = 100; // 1h for every second update
+var maxValues = 50000; // 1h for every second update
 var opened = false;
 
 // SOCKET
@@ -26,17 +24,39 @@ socket.on('connect', function() {
 });
 // Init connection
 socket.on('initByServer', function(settings) {
-  if (!opened) {
+  if (opened === false) {
     Labels = settings.labels;
     Groups = settings.groups;
-    Elements = settings.elements;
     GroupingKeys = settings.groupingKeys;
     PreferedGroupingKeys = settings.preferedGroupingKeys;
+    Content = settings.elements;
+    for (var label in Content)
+      for (var id in Content[label]) {
+        Content[label][id].database = new Database(label, id);
+        Content[label][id].nodes = [];
+      }
     if (settings.svg)
       _loadSvgSources(settings.svg);
+    if (Labels.length === 1)
+      connect(Labels);
   } else {
     connect(Labels);
   }
+});
+// Receive Data
+socket.on('initial', function(message) {
+  if (message) {
+    _update(message);
+    // select the MainPage
+    PageSelector.select("1");
+    // Hide in MainPage the non selected label-related Elements
+    MainPage.dissemblePanels(Labels);
+    // Set Window title to selectedLabels
+    document.title = ((Labels.length > 1) ? Labels.join(', ') : Labels.toString());
+  }
+  else
+    console.info("socket: received empty message");
+  return;
 });
 // Receive Data
 socket.on('update', function(message) {
@@ -68,9 +88,11 @@ function connect(labels) {
   }
   Labels = labels;
   _init();
-  socket.emit('initByClient', {
-    labels: Labels
-  });
+  setTimeout( function() {
+    socket.emit('initByClient', {
+      labels: Labels
+    })
+  }, 5000);
 }
 
 function reconnect() {
@@ -89,12 +111,13 @@ function disconnect() {
 }
 
 function _init() {
-  _getUpdatableNodes();
+  _getContentNodes();
 }
 
-function _getUpdatableNodes() {
-  // grouping updatable UpdatableNodes in one Object
-  UpdatableNodes = {};
+function _getContentNodes() {
+  // grouping updatable Content in one Object
+  if (Content === undefined)
+    Content = {};
   var updatable = document.querySelectorAll(Selector);
   var label = '',
     id = '';
@@ -102,12 +125,12 @@ function _getUpdatableNodes() {
     label = updatable[i].getAttribute('label');
     id = updatable[i].getAttribute('id');
     if (label && id) {
-      if (!UpdatableNodes[label])
-        UpdatableNodes[label] = {};
-      if (!UpdatableNodes[label][id])
-        UpdatableNodes[label][id] = [];
-      if (UpdatableNodes[label][id].indexOf(updatable[i]) === -1)
-        UpdatableNodes[label][id].push(updatable[i]);
+      if (!Content[label])
+        Content[label] = {};
+      if (!Content[label][id])
+        Content[label][id] = {nodes: [], values: [], database: new Database(label, id)};
+      if (Content[label][id].nodes.indexOf(updatable[i]) === -1)
+        Content[label][id].nodes.push(updatable[i]);
     }
   }
   updatable.length = 0;
@@ -142,9 +165,9 @@ function _loadSvgSources(sources) {
 function _update(message) {
   if (Array.isArray(message)) // if message is an Array
     for (var i = 0; i < message.length; i++)
-      this._updateUpdatableNodes(message[i], opened);
+      this._updateContent(message[i], opened);
   else // if message is a single Object
-    this._updateUpdatableNodes(message, opened);
+    this._updateContent(message, opened);
   if (!opened) {
     // this.fire("loaded");
     opened = true;
@@ -152,19 +175,17 @@ function _update(message) {
   }
 }
 
-function _updateUpdatableNodes(message, forceUpdate) {
+function _updateContent(message, forceUpdate) {
   if (!message.content)
     return;
 
   var label = message.label;
-  var id, len;
-
-  if (!Values[label])
-    Values[label] = {};
+  var id, len, spliced;
 
   for (var i = 0; i < message.content.length; i++) {
     id = message.content[i].id;
     len = message.content[i].values.length;
+    spliced = [];
 
     if (len > maxValues)
       message.content[i].values = message.content[i].values.slice(len-maxValues, len);
@@ -173,24 +194,27 @@ function _updateUpdatableNodes(message, forceUpdate) {
     //   d.x = Date.parse(d.x); // parse Date in Standard Date Object
     // });
 
-    if (!Values[label][id])
-      Values[label][id] = message.content[i].values;
+    if (Content[label][id].values.length === 0)
+      Content[label][id].values = message.content[i].values;
     else
       for (var j = message.content[i].values.length - 1; j >= 0 ; j--) {
-        Values[label][id].push(message.content[i].values[j]);
+        Content[label][id].values.push(message.content[i].values[j]);
       }
-    // if (Values[label][id].length > maxValues)
-    //   Values[label][id] = Values[label][id].splice(0, Values[label][id].length - maxValues);
+    if (Content[label][id].values.length > maxValues) {
+      spliced = Content[label][id].values.splice(0, Content[label][id].values.length - maxValues);
+    }
 
-    // if (UpdatableNodes[label][id]) {
-    //   for (var j = 0; j < UpdatableNodes[label][id].length; j++) {
-    //     UpdatableNodes[label][id][j].insertValues(message.content[i].values);
-    //     // if (UpdatableNodes[label][id][j].values.length > maxValues)
-    //     //   UpdatableNodes[label][id][j].spliceValues(0, UpdatableNodes[label][id][j].values.length - maxValues);
-    //   }
-    // } else {
-    //   console.warn("no UpdatableNodes for", label, id);
-    // }
+    Content[label][id].database.add(message.content[i].values);
+
+    if (Content[label][id]) {
+      for (var j = 0; j < Content[label][id].nodes.length; j++) {
+        Content[label][id].nodes[j].insertValues(message.content[i].values);
+        if (spliced.length > 0)
+          Content[label][id].nodes[j].spliceValues({start: 0, length: spliced.length, values: spliced});
+      }
+    } else {
+      console.warn("no Content for", label, id);
+    }
   }
 }
 
