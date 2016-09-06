@@ -8,7 +8,7 @@ var SvgSource = {};
 var Labels = [];
 var GroupingKeys = {};
 var PreferedGroupingKeys = {};
-var maxValues = 50000; // 1h for every second update
+var maxValues = 3600; // 1h for every second update
 var opened = false;
 
 // SOCKET
@@ -204,7 +204,7 @@ function _updateContent(message, forceUpdate) {
       spliced = Content[label][id].values.splice(0, Content[label][id].values.length - maxValues);
     }
 
-    Content[label][id].database.add(message.content[i].values);
+    // Content[label][id].database.add(message.content[i].values);
 
     if (Content[label][id]) {
       for (var j = 0; j < Content[label][id].nodes.length; j++) {

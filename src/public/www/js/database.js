@@ -15,8 +15,7 @@ var default_callback = {
   }
 }
 
-class Database {
-  constructor(label, id, sub) {
+  function Database(label, id, sub) {
     this.dbVersion = 1;
     this.name = label + "__" + id;
 
@@ -47,7 +46,7 @@ class Database {
     }).bind(this);
   }
 
-  add (value, sub, callback = default_callback) {
+  Database.prototype.add = function add (value, sub, callback = default_callback) {
     if (!Array.isArray(sub)) {
       if (sub === undefined)
         sub = "values";
@@ -74,33 +73,26 @@ class Database {
     // objectStoreRequest.onsuccess = callback.onsuccess;
   }
 
-  remove (value) {}
+  Database.prototype.remove = function remove (value) {}
 
-  clear() {}
+  Database.prototype.clear  = function clear () {}
 
-  values(key, start, end) {
+  Database.prototype.values  = function values (key, start, end) {
       return;
   }
 
-  last() {
+  Database.prototype.last = function last () {
       return;
   }
 
-  first() {
+  Database.prototype.first = function first () {
       return;
   }
 
-  max() {
+  Database.prototype.max = function max () {
       return;
   }
 
-  min() {
+  Database.prototype.min = function min () {
       return;
   }
-
-  createObjectStore(database) {
-      // Create an objectStore
-      console.log("Creating objectStore");
-      database.createObjectStore(this.name);
-  }
-}
