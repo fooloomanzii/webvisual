@@ -124,7 +124,7 @@
     "connections": {
       "file": {
         "mode": "append",
-        "#path": "./examples/datafile/cryostat_visu2.txt",
+        "#path": "./examples/datafile/test.txt",
         "path": "//ibn3-vsrv/CryostatVisu$/Tic500/201608091006TIC500.txt",
         "format": {
           "dateFormat": "DD.MM.YYYY hh:mm:ss",

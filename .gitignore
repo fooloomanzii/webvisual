@@ -26,6 +26,7 @@ src/public/maps
 src/**/test/
 !src/tests/
 !src/public/www/test/
+src/tests/*.txt
 
 # Logs #
 *.log

@@ -667,7 +667,6 @@
         if (this.opened || this.forceOpened) {
           this.set('expanded', !this.expanded);
           this.toggleAttribute('expanded', this.expanded, this.$.toolbarFooter);
-          // this.$.elementForToolbarSVG._debounceResetZoom();
 
           var elements = this.queryAllEffectiveChildren('sign-element.toolbar-footer');
           elements.forEach(function(el) {

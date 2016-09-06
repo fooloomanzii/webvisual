@@ -60,9 +60,12 @@
       font-size: 1.2em;
       padding: 1em 1em 0.75em 1em;
     }
-    button-element#submitButton {
-      margin-left: auto;
+    circle-element#loader {
       margin-top: 2em;
+    }
+    button-element#submitButton {
+      /*margin-left: auto;*/
+      margin-top: 1.5em;
       border-style: solid;
       border-width: thin;
     }
@@ -80,6 +83,7 @@
           <content></content>
         </iron-selector>
         <button-element id="submitButton" disabled raised on-tap="_submit"><iron-icon id="logo" icon="juelich:logo" class="left"></iron-icon>Verbinden</button-element>
+        <circle-element id="loader"></circle-element>
       </section>
     </section>
 
@@ -94,6 +98,11 @@
       behaviors: [Polymer.NeonSharedElementAnimatableBehavior, Polymer.NeonAnimationRunnerBehavior],
 
       properties: {
+        active: {
+          type: Boolean,
+          value: false,
+          observer: "activeChanged"
+        },
         selectedLabels: {
           type: Array,
           value: function() { return [];},
@@ -189,12 +198,18 @@
         this.$.labelsCookie.save(this.selectedLabels);
         // connect the datasocket
         connect(this.selectedLabels);
+        this.$.loader.play();
         // select the MainPage
-        PageSelector.select("1");
-        // Hide in MianPage the non selected label-related Elements
-        MainPage.dissemblePanels(this.selectedLabels);
-        // Set Window title to selectedLabels
-        document.title = ((this.selectedLabels.length > 0) ? this.selectedLabels.join(', ') : this.selectedLabels.toString());
+        // PageSelector.select("1");
+        // // Hide in MainPage the non selected label-related Elements
+        // MainPage.dissemblePanels(this.selectedLabels);
+        // // Set Window title to selectedLabels
+        // document.title = ((this.selectedLabels.length > 0) ? this.selectedLabels.join(', ') : this.selectedLabels.toString());
+      },
+      activeChanged: function() {
+        if (this.active === false) {
+          this.$.loader.cancel();
+        }
       }
     });
   </script>

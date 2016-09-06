@@ -16,13 +16,16 @@
       flex-direction: row;
       justify-content: space-between;
       border-radius: inherit;
-      border: thin solid #BBBBBB;
+      border: thin solid rgba(0,0,0,.16);
       background: white;
       z-index: auto;
+      transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     }
     :host[dark] {
       background: #C1C1C1;
-      border-color: #606060;
+    }
+    :host[checked] {
+      @apply(--shadow-elevation-2dp);
     }
     section#sign {
       min-width: 48px;
@@ -177,7 +180,11 @@
           type: Boolean,
           value: true
         },
-        insertEveryValue: {
+        exeedable: {
+          type: Boolean,
+          value: true
+        },
+        updateEveryValue: {
           type: Boolean,
           value: false,
           readOnly: true
@@ -199,8 +206,9 @@
       },
 
       _updateView: function(value) {
-        if (value === undefined)
-          value = this.values[0];
+        if (value === undefined) {
+          value = this.values[this.values.length-1];
+        }
 
         // set value
         if (!this.isBoolean === true)

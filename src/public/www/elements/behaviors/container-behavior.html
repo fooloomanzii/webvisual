@@ -143,10 +143,10 @@
         this.splice("selectedElements", 0, this.selectedElements.length);
         this.push('selectedElements', element);
       }
-
-      if(this.noExceedNotify === false && element.isExceeding) {
-        this.setExceedingElement(element);
-      }
+      // 
+      // if(this.noExceedNotify === false && element.isExceeding === true) {
+      //   this.setExceedingElement(element);
+      // }
 
       this.opened = this.forceOpened || (this.openOnSelect === true && this.selectedElements.length > 0) ? true : false;
     },
@@ -214,6 +214,7 @@
     },
 
     _reproductionRepeat: function(changeRecord) {
+      if (this.reproduce === false) return;
       if (changeRecord && changeRecord.indexSplices) {
 
         var container = (this.reproductionContainer) ? Polymer.dom(this).querySelector('#'+this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);

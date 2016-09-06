@@ -556,25 +556,29 @@
           _watchers[path].prevStat = stats.size;
         })
         .on('unlink', path => console.log(`File ${path} has been removed`))
-        .on('error', error => console.log(`Watcher error: ${error}`));
+        .on('error', error => {
+          console.log(`Error: ${error}`)
+          wait_until_created();
+        });
       callback();
+    }
+
+    var wait_until_created = function() {
+      fs.exists(resFile, function(exists) {
+        if (exists === false) {
+          // check for file every 500ms.
+          setTimeout(wait_until_created, 500);
+        } else {
+          // file was created -> start watching
+          watch_the_file();
+        }
+      });
     }
 
     //Check for existence of directory
     fs.exists(resFile, function(exists) {
       if (exists === false) { // If file doesn't exists -> no reason to start the watcher
         console.log(resFile, "was not found.\n\"filewatch\" now listens for creation.");
-        var wait_until_created = function() {
-          fs.exists(resFile, function(exists) {
-            if (exists === false) {
-              // check for file every 200ms.
-              setTimeout(wait_until_created, 200);
-            } else {
-              // file was created -> start watching
-              watch_the_file();
-            }
-          });
-        }
         wait_until_created();
       } else {
         if (_watchers[resFile] !== undefined) {
