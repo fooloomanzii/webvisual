@@ -143,7 +143,7 @@
         this.splice("selectedElements", 0, this.selectedElements.length);
         this.push('selectedElements', element);
       }
-      // 
+      //
       // if(this.noExceedNotify === false && element.isExceeding === true) {
       //   this.setExceedingElement(element);
       // }
@@ -173,7 +173,9 @@
     },
 
     clearSelectedElements: function() {
-      this.selectedElements.forEach(function(item) { item.checked = false });
+      this.selectedElements.forEach(function(item) {
+        item.checked = false;
+        item.unsetElement(); });
       this.splice("selectedElements", 0, this.selectedElements.length);
     },
 

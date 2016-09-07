@@ -469,7 +469,10 @@
       },
       // app Control
       backToMainMenu: function() {
+        this.clearSelectedElements();
+        this.fire("clear-selected-elements");
         this.closeDrawer();
+        this._closeToolbar();
         PageSelector.select("0");
       },
       // Panel Control
