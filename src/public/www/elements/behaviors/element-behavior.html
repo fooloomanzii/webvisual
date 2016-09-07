@@ -257,15 +257,15 @@
         console.log(this);
         return;
       }
-      if (value.exceeds === null) {
+      if (value.exceedingState === null) {
         if(this.isExceeding !== false) {
-          this.setExceedingState(false, value.exceeds);
+          this.setExceedingState(false, value.exceedingState);
           this._setLastExceeds(value);
         }
       }
-      else if (value.exceeds === true || value.exceeds === false) {
+      else if (value.exceedingState === true || value.exceedingState === false) {
         if(this.isExceeding === false) {
-          this.setExceedingState(true, value.exceeds);
+          this.setExceedingState(true, value.exceedingState);
           this._setFirstExceeds(value);
           if (this.hasExceeded === false)
             this.set('hasExceeded', true);
@@ -320,9 +320,9 @@
       else {
         this.customStyle['--element-color'] = this.color;
         if (this.exeedable === false) {
-          this.customStyle['--element-exceeds-undefined-color'] = this.color;
-          this.customStyle['--element-exceeds-true-color'] = this.color;
-          this.customStyle['--element-exceeds-false-color'] = this.color;
+          this.customStyle['--element-exceedingState-undefined-color'] = this.color;
+          this.customStyle['--element-exceedingState-true-color'] = this.color;
+          this.customStyle['--element-exceedingState-false-color'] = this.color;
         }
         this.updateStyles();
       }

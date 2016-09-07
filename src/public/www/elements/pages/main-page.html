@@ -230,8 +230,8 @@
         <section id="dropShadow" class="has-shadow"></section>
 
       <!-- EXCEEDING -->
-      <section id="exceedsPanel">
-        <section id="exceedsHeader" on-tap="toggleExceedsPanel">
+      <section id="exceedingStatePanel">
+        <section id="exceedingStateHeader" on-tap="toggleExceedsPanel">
           <button-element class="title"><iron-icon icon="warning" class="left"></iron-icon><section class="content">Alarme</section></button-element>
         </section>
 
@@ -300,6 +300,11 @@
       ],
 
       properties: {
+        active: {
+          type: Boolean,
+          value: false,
+          observer: "activeChanged"
+        },
         sharedElements: {
           value: function() {
             return {
@@ -454,7 +459,7 @@
       },
 
       _handleExceeding: function(value) {
-        if(value && !(this.$.exceedsPanel.classList.contains("exceeds-panel-opened"))) {
+        if(value && !(this.$.exceedingStatePanel.classList.contains("exceedingState-panel-opened"))) {
           this.openExceedsPanel();
           this.debounceExceedsNotification();
         }
@@ -592,7 +597,7 @@
       },
 
       debounceExceedsNotification: function() {
-        this.debounce('exceedsNotification',
+        this.debounce('exceedingStateNotification',
           function() {
             this.createExceedsNotification();
           }, 500);
@@ -694,13 +699,13 @@
       },
       // Panel Control
       openExceedsPanel: function() {
-        this.$.exceedsPanel.classList.add("exceeds-panel-opened");
+        this.$.exceedingStatePanel.classList.add("exceedingState-panel-opened");
       },
       closeExceedsPanel: function() {
-        this.$.exceedsPanel.classList.remove("exceeds-panel-opened");
+        this.$.exceedingStatePanel.classList.remove("exceedingState-panel-opened");
       },
       toggleExceedsPanel: function() {
-        this.$.exceedsPanel.classList.toggle("exceeds-panel-opened");
+        this.$.exceedingStatePanel.classList.toggle("exceedingState-panel-opened");
       },
       toggleDrawer: function(){
         this.$.drawerPanel.classList.toggle("drawer-opened");
@@ -709,6 +714,23 @@
       closeDrawer: function(){
         this.$.drawerPanel.classList.remove("drawer-opened");
         this.$.backdrop.classList.remove("backdrop-opened");
+      },
+      activeChanged: function() {
+        // resize
+        // if (document.createEvent) { // W3C
+        //     var ev = document.createEvent('Event');
+        //     ev.initEvent('resize', true, true);
+        //     window.dispatchEvent(ev);
+        // }
+        // else { // IE
+        //     element=document.documentElement;
+        //     var event=document.createEventObject();
+        //     element.fireEvent("onresize",event);
+        // }
+        var preconf = JSON.parse(localStorage.getItem(window.Name));
+        if (this.active === true && preconf && preconf.selectedLabels) {
+            this.dissemblePanels(preconf.selectedLabels);
+        }
       }
     });
   </script>

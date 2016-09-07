@@ -4,17 +4,24 @@ html
     title Webvisual
     meta(name='viewport', charset='utf-8', content='width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.8')
     script(src='components/webcomponentsjs/webcomponents-lite.js')
+    script(src='socket.io/socket.io.js')
+    script(src='js/database.js')
+    script(src='js/data-socket-handler.js')
     script(type='text/javascript').
       // actual measuring system
-      var Name = !{JSON.stringify(name)};
+      window.Name = !{JSON.stringify(name)};
+      window.Labels = !{JSON.stringify(config.labels)};
       // performance
       window.Polymer = {
         dom: 'shady',
         lazyRegister: true
       };
-    script(src='socket.io/socket.io.js')
-    script(src='js/database.js')
-    script(src='js/data-socket-repeater.js')
+      window.DataHandler = new DataSocketHandler('/data', window.Name);
+      window.addEventListener('WebComponentsReady', function(e) {
+        var el = document.getElementById('spinner');
+        el.parentNode.removeChild(el);
+        window.PageSelector.removeAttribute('hidden');
+      });
     link(rel='import', href='components/polymer/polymer.html')
     link(rel="import", href="style/app-theme.html")
     link(rel='import', href='elements/imports.html')
@@ -147,20 +154,3 @@ html
                             min-zoom='0.75',
                             notify-parent,
                             no-select-notify)
-
-    script.
-
-      var PageSelector;
-      var MainPage;
-      window.addEventListener('WebComponentsReady', function(e) {
-        try {
-          var el = document.getElementById('spinner');
-          el.parentNode.removeChild(el);
-        }
-        catch(err){
-        }
-        PageSelector = document.querySelector('neon-animated-pages#PageSelector');
-        PageSelector.removeAttribute('hidden');
-        PageSelector.select('0');
-        MainPage = document.querySelector('main-page');
-      });

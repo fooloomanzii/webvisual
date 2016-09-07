@@ -26,11 +26,6 @@
           value: 'Lineare Verbindung',
           observer: '_interpolationChanged'
         },
-        hidden: {
-          type: Boolean,
-          value: false,
-          observer: '_hiddenChanged'
-        },
         noDots: {
           type: Boolean,
           value: false,
@@ -73,14 +68,13 @@
           type: Boolean,
           value: true,
           readOnly: true
-        },
-        _node: Object,
-        _dots: Object,
-        _line: Object,
-        _lineFunction: Object,
-        _area: Object,
-        _areaFunction: Object
+        }
       },
+      _dots: Object,
+      _line: Object,
+      _lineFunction: Object,
+      _area: Object,
+      _areaFunction: Object,
 
       get containerRoot () {
         var root = Polymer.dom(this).getOwnerRoot();
@@ -122,34 +116,36 @@
         this.noLine = this.chartElement.noLines || this.noLine;
         this.noFill = this.chartElement.noAreas || this.noFill;
 
-        // clippath for this graph
-        this._node = this.chartElement._chart.select('g#graphs')
-                                             .datum(this.values || [])
-                                             .append('svg:g')
-                                             .attr('clip-path', 'url(#clip)')
-                                             .attr('class', 'graph')
-                                             .attr('id', this.id)
-                                             .attr('label', this.label);
+        this._chart = this.chartElement._chart;
         // node of line
-        this._line = this._node.append('svg:path')
-                               .attr("class", "line")
-                               .attr('hidden', this.noLine ? true : null)
-                               .attr('fill', 'none')
-                               .attr('stroke', this.color)
-                               .attr('stroke-width', this.lineWidth)
-                               .datum(this.values || [])
-                               .attr("d", this._lineFunction);
+        this._line = this._chart.select('g#lines')
+                                .append('svg:path')
+                                 .attr('id', this.id)
+                                 .attr('label', this.label)
+                                 .attr("class", "line")
+                                 .attr('hidden', this.noLine ? true : null)
+                                 .attr('fill', 'none')
+                                 .attr('stroke', this.color)
+                                 .attr('stroke-width', this.lineWidth)
+                                 .datum(this.values || [])
+                                 .attr("d", this._lineFunction);
         // fill area
-        this._area = this._node.append('svg:path')
-                               .attr("class", "area")
-                               .attr('hidden', this.noFill ? true : null)
-                               .attr('fill', this.color)
-                               .attr('fill-opacity', this.fillOpacity)
-                               .attr('stroke', 'none')
-                               .datum(this.values || [])
-                               .attr("d", this._areaFunction);
+        this._area = this._chart.select('g#areas')
+                                .append('svg:path')
+                                .attr('id', this.id)
+                                .attr('label', this.label)
+                                 .attr("class", "area")
+                                 .attr('hidden', this.noFill ? true : null)
+                                 .attr('fill', this.color)
+                                 .attr('fill-opacity', this.fillOpacity)
+                                 .attr('stroke', 'none')
+                                 .datum(this.values || [])
+                                 .attr("d", this._areaFunction);
         // group of dots
-        this._dots = this._node.append("svg:g")
+        this._dots = this._chart.select('g#dots')
+                                .append("svg:g")
+                                .attr('id', this.id)
+                                .attr('label', this.label)
                                .attr("class", "dots")
                                .attr("hidden", this.noDots ? true : null);
 
@@ -159,7 +155,9 @@
       },
 
       detached: function() {
-        this._node.node().parentElement.removeChild(this._node.node());
+        this._line.node().parentElement.removeChild(this._line.node());
+        this._area.node().parentElement.removeChild(this._area.node());
+        this._dots.node().parentElement.removeChild(this._dots.node());
 
         if (this.noSocketConnection === false &&
             window.Content !== undefined &&
@@ -171,18 +169,22 @@
 
       redraw: function () {
         if (this._hidden === true) return;
-
+        var data = this.values.filter(this._defined.bind(this));
+        console.log('length', data.length);
         var self = this._self;
         this._pointsInRange();
-
-        var dots = this._node.selectAll('circle.dot')
-                             .data(this.values.filter(this._defined.bind(this)));
+        var date = new Date();
+        var dots = this._dots.selectAll('circle.dot')
+                             .data(data);
+        console.log('dots filter', new Date() - date);
         // update current dots
         dots.attr('cx', (function(d,i) {
               return this.chartElement._x(d.x)}).bind(this._self))
             .attr('cy', (function(d,i) {
               return this.chartElement._y(d.y)}).bind(this._self))
+            .attr('hidden', null);
         // enter new dots
+        console.log('dots radius', new Date() - date);
         dots.enter()
             .append('circle')
               .attr('r', this.dotRadius).attr('fill', '#FFF')
@@ -201,18 +203,28 @@
                 d3.select(this).transition(250)
                                .attr('fill', '#FFF')
                                .attr('r', self.dotRadius);
-                self.chartElement._hideInfo(); });
+                self.chartElement._hideInfo(); })
+              .on('click', function(d,i) {
+                var offset = self.dotRadius*5;
+                var x = self.chartElement._x(d.x);
+                var y = self.chartElement._y(d.y);
+                d3.event.selection = [[x-offset,y-offset],[x+offset,y+offset]];
+                self.chartElement._brushed(); });
+        console.log('dots new', new Date() - date);
         //  remove old dots
         dots.exit()
+            // .attr('hidden', true);
             .remove();
+        console.log('dots remove', new Date() - date);
 
         // update line, animated http://bl.ocks.org/benjchristensen/1148374
         // var dx = 1;
         // if (this.values.length > 1)
         //   dx = this.chartElement._x(this.values[this.values.length - 1].x) -this.chartElement._x(this.values[this.values.length - 2].x);
         this._line
-            .datum(this.values)
+            .datum(data)
             .attr('d', this._lineFunction);
+        console.log('line', new Date() - date);
         // .data([this.values]) // set the new data
 				// 	.attr("transform", "translate(" + dx + ")") // set the transform to the right by x(1) pixels (6 for the scale we've set) to hide the new value
 				// 	.attr("d", this._lineFunction) // apply the new data values ... but the new value is hidden at this point off the right of the canvas
@@ -220,17 +232,23 @@
 				// 	.duration(1000) // for this demo we want a continual slide so set this to the same as the setInterval amount below
 				// 	.attr("transform", "translate(" + 0 + ")");
         this._areaFunction.y0(this.chartElement._height)
-        this._area.datum(this.values).attr('d', this._areaFunction);
+        this._area.datum(data).attr('d', this._areaFunction);
+        console.log('area', new Date() - date);
       },
 
       _defined: function(d) {
+        var domainX = this.chartElement._x.domain(),
+            domainY = this.chartElement._y.domain();
         if (d.y === null || d.y === undefined)
           return false;
-        else if (d.y === 0 && (this.chartElement.yScale === "ln" || this.chartElement.yScale === "log₁₀")) {
+        else if (d.y === 0 && (this.chartElement.yScale === "ln" || this.chartElement.yScale === "log₁₀"))
           return false;
-        }
-        else
+        else if (d.x < domainX[1] && d.x > domainX[0])
           return true;
+        else if (d.y < domainY[1] && d.y > domainY[0])
+          return true;
+        else
+          return false;
       },
 
       _updateView: function (values, splices) {
@@ -271,7 +289,7 @@
       setColor: function(color) {
         // random color if color is not set
         ElementBehavior.setColor.call(this, color);
-        if (this._node) {
+        if (this._chart) {
           if (this._line) this._line.attr('stroke', this.color);
           if (this._area) this._line.attr('fill', this.color);
           if (this._dots)
@@ -301,44 +319,38 @@
         // console.log(domainX);
       },
 
-      _hiddenChanged: function() {
-        if (this._node) {
-          this._node.attr('hidden', this.hidden ? true : null);
-        }
-      },
-
       _dotsChanged: function() {
-        if (this._node && this._dots) {
+        if (this._chart && this._dots) {
           this._dots.attr('hidden', this.noDots ? true : null);
         }
       },
 
       _lineChanged: function() {
-        if (this._node && this._line) {
+        if (this._chart && this._line) {
           this._line.attr('hidden', this.noLine ? true : null);
         }
       },
 
       _fillOpacityChanged: function() {
-        if (this._node && this._area) {
+        if (this._chart && this._area) {
           this._area.attr('fill-opacity', this.fillOpacity);
         }
       },
 
       _fillChanged: function() {
-        if (this._node && this._area) {
+        if (this._chart && this._area) {
           this._area.attr('hidden', this.noFill ? true : null);
         }
       },
 
       _dotRadiusChanged: function(dotRadius) {
-        if (this._node && this._dots) {
+        if (this._chart && this._dots) {
           this._dots.selectAll('circle.dot').attr('r', dotRadius);
         }
       },
 
       _lineWidthChanged: function(lineWidth) {
-        if (this._node) {
+        if (this._chart) {
           if (this._line) this._line.attr('stroke-width', this.lineWidth);
           if (this._dots)
             this._dots.selectAll('circle.dot')
@@ -361,7 +373,7 @@
         }
         this._lineFunction.curve(curve);
         this._areaFunction.curve(curve);
-        if (this._node && this._area)
+        if (this._chart && this._area)
           this.redraw();
       }
     });

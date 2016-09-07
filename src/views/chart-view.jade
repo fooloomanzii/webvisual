@@ -4,18 +4,25 @@ html
     title Webvisual
     meta(name='viewport', charset='utf-8', content='width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.8')
     script(src='components/webcomponentsjs/webcomponents-lite.js')
+    script(src='socket.io/socket.io.js')
+    script(src='js/database.js')
+    script(src='js/data-socket-handler.js')
     script(type='text/javascript').
       // actual measuring system
-      var Name = !{JSON.stringify(name)};
-      var Labels = ["Temperatur (Testvisualisierung)"];
+      window.Name = !{JSON.stringify(name)};
+      window.Labels = !{JSON.stringify(config.labels)};
       // performance
       window.Polymer = {
         dom: 'shady',
         lazyRegister: true
       };
-    script(src='js/database.js')   
-    script(src='socket.io/socket.io.js')
-    script(src='js/data-socket-repeater.js')
+      window.DataHandler = new DataSocketHandler('/data', window.Name);
+      window.addEventListener('WebComponentsReady', function(e) {
+        var el = document.getElementById('spinner');
+        el.parentNode.removeChild(el);
+        window.PageSelector = document.querySelector('neon-animated-pages#PageSelector');
+        window.PageSelector.removeAttribute('hidden');
+      });
     link(rel='import', href='components/polymer/polymer.html')
     link(rel="import", href="style/app-theme.html")
     link(rel='import', href='elements/imports.html')

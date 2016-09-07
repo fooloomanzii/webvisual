@@ -61,7 +61,7 @@
       padding: 1em 1em 0.75em 1em;
     }
     circle-element#loader {
-      margin-top: 2em;
+      margin-top: 2.5em;
     }
     button-element#submitButton {
       /*margin-left: auto;*/
@@ -174,7 +174,17 @@
       ],
 
       attached: function() {
-        this._setSelected(this.$.labelsCookie.load());
+        if (window.Labels && window.Labels.length === 1) {
+          window.selectedLabels = this.selectedLabels = window.Labels;
+          this._setSelected(window.Labels[0]);
+          this._submit();
+        }
+        else {
+          var preconf = JSON.parse(localStorage.getItem(window.Name));
+          if (preconf && preconf.selectedLabels) {
+              this._setSelected(preconf.selectedLabels);
+          }
+        }
       },
 
       _setSelected: function(labels) {
@@ -194,20 +204,15 @@
       },
 
       _submit: function() {
-        // save the label
-        this.$.labelsCookie.save(this.selectedLabels);
-        // connect the datasocket
-        connect(this.selectedLabels);
         this.$.loader.play();
-        // select the MainPage
-        // PageSelector.select("1");
-        // // Hide in MainPage the non selected label-related Elements
-        // MainPage.dissemblePanels(this.selectedLabels);
-        // // Set Window title to selectedLabels
-        // document.title = ((this.selectedLabels.length > 0) ? this.selectedLabels.join(', ') : this.selectedLabels.toString());
+        // save the label to LocalStorage
+        window.selectedLabels = this.selectedLabels;
+        localStorage.setItem(window.Name, JSON.stringify({selectedLabels: this.selectedLabels}));
+        // connect the datasocket
+        window.DataHandler.connect(this.selectedLabels);
       },
       activeChanged: function() {
-        if (this.active === false) {
+        if (!this.active) {
           this.$.loader.cancel();
         }
       }

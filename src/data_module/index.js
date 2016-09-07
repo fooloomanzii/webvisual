@@ -33,13 +33,13 @@ class dataModule extends EventEmitter {
       var name = socket.handshake.query.name;
       // console.log(socket.handshake.query);
 
-      if(this.configHandler.settings[name])
-        socket.emit("initByServer", this.configHandler.settings[name].configuration);
+      if (this.configHandler.settings[name])
+        socket.compress(true).emit("initByServer", this.configHandler.settings[name].configuration);
 
       socket.on("initByClient", (function(config) {
         for (var label of config.labels) {
           socket.join(name + "__" + label); // client joins room for selected label
-          socket.emit("initial", this.currentData[name][label]);
+          socket.compress(true).emit("initial", this.currentData[name][label]);
         }
       }).bind(this));
 

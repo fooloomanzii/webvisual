@@ -41,7 +41,7 @@ var default_callback = {
         for (var i in this.sub) {
           var objectStore = this.db.createObjectStore(sub[i], { keyPath: "x" });
           objectStore.createIndex("y", "y", { unique: false });
-          objectStore.createIndex("exceeds", "exceeds", { unique: false });
+          objectStore.createIndex("exceedingState", "exceedingState", { unique: false });
         }
     }).bind(this);
   }

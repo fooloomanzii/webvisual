@@ -108,10 +108,11 @@
   g#chart g.axis path, g#chart g.axis line {
     stroke-opacity: 0.5;
   }
-  g#graphs path.area {
+  g#graphs path.area, g#graphs path.line {
     pointer-events: none;
+    mix-blend-mode: color;
   }
-  g#graphs path.line, g#graphs circle.dot {
+  g#graphs circle.dot {
     cursor: pointer;
     pointer-events: all;
   }
@@ -119,9 +120,10 @@
     fill: none;
     pointer-events: none;
     stroke: currentColor;
-    stroke-opacity: 0.1;
+    stroke-opacity: 0.2;
     stroke-width: 1px;
     stroke-dasharray: 2;
+    mix-blend-mode: color-burn;
   }
 </style>
 <div id="svgContainer">
@@ -136,7 +138,11 @@
       <g class='x grid'></g>
       <g class='y grid'></g>
       <g id='brush'></g>
-      <g id='graphs'></g>
+      <g id='graphs'>
+        <g id='areas'></g>
+        <g id='lines'></g>
+        <g id='dots'></g>
+      </g>
       <text id='info' x='0' y='0' hidden></text>
       <g id='focus' hidden>
         <line class='focus line x' x1='0'></line>
@@ -341,11 +347,12 @@
             },
 
             listeners: {
-                'iron-resize': '_sizeChanged'
+                'iron-resize': '_sizeChanged',
+                'resize': '_sizeChanged',
             },
 
             observers: [
-                '_sizeChanged(selectedElements.splices)'
+                '_redraw(selectedElements.splices)'
             ],
 
             created: function() {
@@ -382,12 +389,12 @@
             },
 
             attached: function() {
-                this._sizeLayout();
                 this._observer =
                     Polymer.dom(this.$.collector).observeNodes((function(info) {
                         this.__processNewNodes(info.addedNodes);
                         this.__processRemovedNodes(info.removedNodes);
                     }).bind(this));
+                this._sizeChanged();
             },
 
             __processNewNodes: function(nodes) {
@@ -399,7 +406,7 @@
             },
 
             _sizeChanged: function(e) {
-                this._sizeLayout();
+                this.debounce("resize", this._sizeLayout, 25);
             },
 
             _buildLayout: function() {
@@ -444,13 +451,12 @@
                         d3.event.preventDefault();
                         this.redraw()
                     }).bind(this));
-                this._sizeLayout();
+                this._sizeChanged();
             },
 
             _sizeLayout: function() {
-                if (this._chart === Object) return;
-
                 var bRect = this.getBoundingClientRect();
+                if (bRect.height === 0 || bRect.width === 0) return;
 
                 this._height = Math.max(bRect.height, 150);
                 this._width = Math.max(bRect.width, 250);
@@ -610,25 +616,28 @@
             },
 
             redraw: function() {
-                this.setDomains();
-                this._redraw();
+              if (this._chart === undefined || this._chart.select === undefined) return;
+              this.setDomains();
+              this._redraw();
             },
 
             _redraw: function() {
-                if (this._elements.length > 0)
-                    this._elements.forEach(function(g) {
-                        g.redraw();
-                    });
+              if (this._chart === undefined || this._chart.select === undefined) return;
+              if (this._elements.length > 0)
+                  this._elements.forEach(function(g) {
+                      g.redraw();
+                  });
 
-                this._chart.select('g.x.axis').transition(50).call(this._xAxis);
-                this._chart.select('g.y.axis').transition(50).call(this._yAxis);
-                this._chart.select('g.x.grid').transition(50).call(this._xGrid);
-                this._chart.select('g.y.grid').transition(50).call(this._yGrid);
+              this._chart.select('g.x.axis').transition(50).call(this._xAxis);
+              this._chart.select('g.y.axis').transition(50).call(this._yAxis);
+              this._chart.select('g.x.grid').transition(50).call(this._xGrid);
+              this._chart.select('g.y.grid').transition(50).call(this._yGrid);
 
-                this._svg.selectAll('g,line,text,path,rect')
-                    .classed('style-scope', true)
-                    .classed('chart-element', true);
-                this._updateInfo();
+              this._svg.selectAll('g,line,text,path,rect')
+                  .classed('style-scope', true)
+                  .classed('chart-element', true);
+              this._updateInfo();
+              this._hideInfo();
             },
 
             _brushed: function() {
@@ -638,6 +647,7 @@
                     this._x.domain([s[0][0], s[1][0]].map(this._x.invert, this._x)).nice(this.ticks);
                     this._y.domain([s[1][1], s[0][1]].map(this._y.invert, this._y)).nice(this.ticks);
                     this._brush.call(this._brushBehavior.move, null);
+                    return;
                 } else if (this._isBrushed === true) {
                     this._isBrushed = false;
                 } else {
@@ -713,8 +723,7 @@
                     .classed('chart-element', true);
             },
             _updateInfo: function() {
-                if (this._info.attr('hidden') === true || this._info.x === undefined || this._info.y === undefined) return;
-
+                if (this._info.attr('hidden') === "true" || this._info.x === undefined || this._info.y === undefined) return;
                 var bbox = this._info.node().getBBox();
                 // console.log(bbox, this._width, this._height);
                 var x = this._x(this._info.x),
