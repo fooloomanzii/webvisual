@@ -419,15 +419,15 @@
 
     _sourceChanged: function(source) {
       if (source && this.recentSource !== source) {
-        if (!SvgSource[source]) return;
-        if (!SvgSource[source].node) return;
+        if (!window.SvgSource[source]) return;
+        if (!window.SvgSource[source].node) return;
         this.recentSource = source;
         this._svg = d3.select(this.$.svgContainer).select('svg#main');
         if (this._svg && !this._svg.empty()) {
           this.$.svgContainer.removeChild(this._svg.node());
         }
         // import svg (came by data-socket-repeater)
-        this._registerXML(SvgSource[source].node, source);
+        this._registerXML(window.SvgSource[source].node, source);
       }
     },
 

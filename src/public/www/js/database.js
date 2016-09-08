@@ -3,96 +3,166 @@
 window.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB,
     IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction;
 
-var default_callback = {
+var default_handler = {
   onerror: function(event) {
-      // console.log("Error creating/accessing IndexedDB database", event.target.error);
+      console.log('Error IndexedDB', this.name, event.target.error);
   },
-  oncomplete: function(event) {
-      // console.log("Transaction IndexedDB database complete");
+  ontransactionerror: function(event) {
+      console.log('TransactionError IndexedDB', this.name, event.target.error);
+  },
+  onabort: function(event) {
+      console.log("IndexedDB database aborted", this.name);
+  },
+  onopenabort: function(event) {
+      console.log("IndexedDB database aborted while opening", this.name);
   },
   onsuccess: function(event) {
-      // console.log("Stored creating/accessing IndexedDB database successfully");
+      console.log("Stored creating/accessing IndexedDB database successfully", this.name);
+  },
+  onblocked: function() {
+    console.log("Your database version can't be upgraded because the app is open somewhere else.");
   }
 }
 
-  function Database(label, id, sub) {
-    this.dbVersion = 1;
-    this.name = label + "__" + id;
+function Database(label, id, sub, handler) {
+  this.dbVersion = 1;
+  this.name = label + "__" + id;
+  this.handler = handler || default_handler;
 
-    if (!Array.isArray(sub)) {
-      if (sub === undefined)
-        sub = "values";
-      sub = [sub];
-    }
-    this.sub = sub;
-
-    var request = indexedDB.open(this.name, this.dbVersion);
-    request.onblocked = default_callback.onerror;
-    request.onabort = default_callback.onerror;
-    request.onsuccess = (function(event) {
-        this.db = request.result;
-        this.db.onerror = default_callback.onerror;
-        this.db.onabort = default_callback.onerror;
-    }).bind(this);
-    request.onupgradeneeded = (function(event) {
-        this.db = request.result;
-        this.db.onerror = default_callback.onerror;
-        this.db.onabort = default_callback.onerror;
-        for (var i in this.sub) {
-          var objectStore = this.db.createObjectStore(sub[i], { keyPath: "x" });
-          objectStore.createIndex("y", "y", { unique: false });
-          objectStore.createIndex("exceedingState", "exceedingState", { unique: false });
-        }
-    }).bind(this);
+  if (!Array.isArray(sub)) {
+    if (sub === undefined)
+      sub = "values";
+    sub = [sub];
   }
+  this.sub = sub;
 
-  Database.prototype.add = function add (value, sub, callback = default_callback) {
-    if (!Array.isArray(sub)) {
-      if (sub === undefined)
-        sub = "values";
+  var request = window.indexedDB.open(this.name, this.dbVersion);
+  request.onerror = this.handler.onerror;
+  request.onsuccess = (function(event) {
+      this.db = request.result;
+      this.db.onerror = this.handler.onerror;
+  }).bind(this);
+  request.onupgradeneeded = (function(event) {
+      this.db = request.result;
+      this.db.onerror = this.handler.onerror;
+      for (var i in this.sub) {
+        var objectStore = this.db.createObjectStore(sub[i], { keyPath: "x" });
+        objectStore.createIndex("y", "y", { unique: false });
+        objectStore.createIndex("exceedingState", "exceedingState", { unique: false });
+      }
+  }).bind(this);
+}
+
+Database.prototype = {
+  constructor: Database,
+  add: function (value, sub, callback) {
+    if (value === undefined) return;
+    if (sub === undefined)
+      sub = this.sub;
+    else if (!Array.isArray(sub))
       sub = [sub];
-    }
-    var transaction = this.db.transaction(sub, "readwrite");
+    if (!Array.isArray(value))
+      value = [value];
+    if (callback === undefined)
+      callback = function() {
+        // console.log(this.name, value.length);
+      }
+    var tx = this.db.transaction(sub, "readwrite");
 
     // report on the success of opening the transaction
-    transaction.oncomplete = callback.oncomplete;
-    transaction.onerror = callback.onerror;
+    tx.oncomplete = function () {
+      callback(value);
+    }
+    tx.onerror = this.handler.ontransactionerror;
 
     // create an object store on the transaction
     for (var j in sub) {
-      var objectStore = transaction.objectStore(sub[j]);
-
+      var objectStore = tx.objectStore(sub[j]);
       // add our newItem object to the object store
-      if (Array.isArray(value)) {
-        for (var i in value)
-          objectStore.add(value[i]);
+      var i = 0;
+      addNext();
+      function addNext() {
+        if (i < value.length) {
+            objectStore.add(value[i]).onsuccess = addNext;
+            ++i;
+            return;
+        }
       }
-      else
-        objectStore.add(value);
     }
     // objectStoreRequest.onsuccess = callback.onsuccess;
-  }
-
-  Database.prototype.remove = function remove (value) {}
-
-  Database.prototype.clear  = function clear () {}
-
-  Database.prototype.values  = function values (key, start, end) {
+  },
+  remove: function (value) {},
+  clear: function () {},
+  values: function (key, start, end) {
       return;
-  }
+  },
+  first: function (callback, sub) {
+    this.search(callback, undefined, sub);
+  },
+  last: function (callback, sub) {
+    this.search(callback, undefined, sub, "prevunique");
+  },
+  min: function (callback, index, sub) {
+    this.search(callback, index, sub);
+  },
+  max: function (callback, index, sub) {
+    this.search(callback, index, sub, "prevunique");
+  },
+  search: function (callback, index, sub, direction) {
+    if (sub === undefined)
+      sub = this.sub[0];
+    else if (Array.isArray(sub))
+      sub = sub[0];
+    if (!Array.isArray(value))
+      value = [value];
+    if (callback === undefined)
+      callback = function() {}
 
-  Database.prototype.last = function last () {
-      return;
-  }
+    var last;
+    var tx = this.db.transaction(sub, "readwrite");
+    // report on the success of opening the transaction
+    tx.oncomplete = function () {
+      callback(last);
+    }
+    tx.onerror = this.handler.ontransactionerror;
 
-  Database.prototype.first = function first () {
-      return;
-  }
+    if (!index)
+      store = tx.objectStore(sub);
+    else
+      store = tx.objectStore(sub).index(index);
+    var openCursorRequest = store.openCursor(null, direction);
 
-  Database.prototype.max = function max () {
-      return;
-  }
+    openCursorRequest.onsuccess = function (event) {
+      last = event.target.result.value;
+    }
+  },
+  count: function(callback, index, sub) {
+    if (sub === undefined)
+      sub = this.sub[0];
+    else if (Array.isArray(sub))
+      sub = sub[0];
+    if (callback === undefined)
+      callback = function() {
+        // console.log(this.name, value.length);
+      }
 
-  Database.prototype.min = function min () {
-      return;
+    var tx = this.db.transaction(sub, "readwrite");
+    // report on the success of opening the transaction
+    tx.oncomplete = this.handler.ontransactioncomplete;
+    tx.onerror = this.handler.ontransactionerror;
+
+    var store;
+    if (!index)
+      store = tx.objectStore(sub);
+    else
+      store = tx.objectStore(sub).index(index);
+
+    var countRequest = store.count();
+    countRequest.onsuccess = function() {
+      callback(countRequest.result);
+    }
+    countRequest.onerror = function() {
+      callback(undefined);
+    }
   }
+}

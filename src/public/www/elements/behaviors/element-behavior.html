@@ -131,10 +131,10 @@
       var pos;
       if (this.noSocketConnection === false && this.label && this.id &&
           window.Content !== undefined &&
-          Content[this.label] &&
-          Content[this.label][this.id] &&
-          (pos = Content[this.label][this.id].nodes.indexOf(this)) !== -1) {
-        Content[this.label][this.id].nodes.splice(pos,1); // remove from Content
+          window.Content[this.label] &&
+          window.Content[this.label][this.id] &&
+          (pos = window.Content[this.label][this.id].nodes.indexOf(this)) !== -1) {
+        window.Content[this.label][this.id].nodes.splice(pos,1); // remove from Content
         this.removeAttribute('updatable');
       }
       for (var key in obj.element) {
@@ -155,10 +155,10 @@
       var pos;
       if (this.noSocketConnection === false && this.label && this.id &&
           window.Content !== undefined &&
-          Content[this.label] &&
-          Content[this.label][this.id] &&
-          (pos = Content[this.label][this.id].nodes.indexOf(this)) !== -1) {
-        Content[this.label][this.id].nodes.splice(pos,1); // remove from Content
+          window.Content[this.label] &&
+          window.Content[this.label][this.id] &&
+          (pos = window.Content[this.label][this.id].nodes.indexOf(this)) !== -1) {
+        window.Content[this.label][this.id].nodes.splice(pos,1); // remove from Content
         this.removeAttribute('updatable');
       }
       this.clearValues();
@@ -336,23 +336,23 @@
       // sets a global Object 'Content', for updating the values of the elements
       if (this.noSocketConnection === false && this.label && this.id) {
         this.setAttribute("updatable", true);
-        if (Content[this.label] === undefined)
-          Content[this.label] = {};
-        if (!Content[this.label][this.id])
-          Content[this.label][this.id] = {nodes: [], values: [], database: new Database(this.label, this.id)};
-        if (Content[this.label][this.id].nodes.indexOf(this) === -1)
-          Content[this.label][this.id].nodes.push(this);
+        if (window.Content[this.label] === undefined)
+          window.Content[this.label] = {};
+        if (!window.Content[this.label][this.id])
+          window.Content[this.label][this.id] = {nodes: [], values: [], database: new Database(this.label, this.id)};
+        if (window.Content[this.label][this.id].nodes.indexOf(this) === -1)
+          window.Content[this.label][this.id].nodes.push(this);
         // delete this.values;
-        Object.defineProperty(this, "values", { get: function () { return Content[this.label][this.id].values; } });
+        Object.defineProperty(this, "values", { get: function () { return window.Content[this.label][this.id].values; } });
       }
       else {
         this.removeAttribute("updatable");
         var pos;
         if (window.Content !== undefined &&
-            Content[this.label] &&
-            Content[this.label][this.id] &&
-            (pos = Content[this.label][this.id].nodes.indexOf(this)) !== -1)
-          Content[this.label][this.id].nodes.splice(pos,1);
+            window.Content[this.label] &&
+            window.Content[this.label][this.id] &&
+            (pos = window.Content[this.label][this.id].nodes.indexOf(this)) !== -1)
+          window.Content[this.label][this.id].nodes.splice(pos,1);
       }
     },
 
@@ -360,10 +360,10 @@
       var pos;
       if (this.noSocketConnection === false &&
           window.Content !== undefined &&
-          Content[this.label] &&
-          Content[this.label][this.id] &&
-          (pos = Content[this.label][this.id].nodes.indexOf(this)) !== -1)
-        Content[this.label][this.id].nodes.splice(pos,1);
+          window.Content[this.label] &&
+          window.Content[this.label][this.id] &&
+          (pos = window.Content[this.label][this.id].nodes.indexOf(this)) !== -1)
+        window.Content[this.label][this.id].nodes.splice(pos,1);
     },
 
     checkedChanged: function(checked, old) {

@@ -125,7 +125,7 @@
       "file": {
         "mode": "append",
         "#path": "./examples/datafile/test.txt",
-        "path": "//ibn3-vsrv/CryostatVisu$/Tic500/201608091006TIC500.txt",
+        "path": "//ibn3-vsrv/CryostatVisu$/Tic500/201608091006TIC500.test.txt",
         "format": {
           "dateFormat": "DD.MM.YYYY hh:mm:ss",
           "decimalSeparator": ".",

@@ -5,6 +5,7 @@ html
     meta(name='viewport', charset='utf-8', content='width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.8')
     script(src='components/webcomponentsjs/webcomponents-lite.js')
     script(src='socket.io/socket.io.js')
+    script(src='js/d3-queue.v3.min.js')
     script(src='js/database.js')
     script(src='js/data-socket-handler.js')
     script(type='text/javascript').
@@ -31,7 +32,7 @@ html
       width: 100%;
       padding: 0;
       margin: 0;
-      background: var(--bright-primary-color);
+      background: var(--bright-primary-color, #005B82);
     }
     div#background {
       background: var(--primary-color-background);
@@ -61,7 +62,7 @@ html
     }
     section#spinner.circles section.outer {
       animation-name: outer-animation;
-      animation-duration: 2.5s;
+      animation-duration: 4s;
       animation-timing-function: linear;
       animation-iteration-count: infinite;
       position: fixed;
@@ -69,16 +70,16 @@ html
     }
     section.outer svg {
       animation-name: inner-animation;
-      animation-duration: 2.5s;
+      animation-duration: 4s;
       animation-timing-function: linear;
       animation-iteration-count: infinite;
       opacity: 0;
     }
-    section.outer:nth-child(1), section.outer:nth-child(1) svg { animation-delay: 0.0s; fill: #E41A1A; }
-    section.outer:nth-child(2), section.outer:nth-child(2) svg { animation-delay: 0.5s; fill: #E45D1A; }
-    section.outer:nth-child(3), section.outer:nth-child(3) svg { animation-delay: 1.0s; fill: #E4D61A; }
-    section.outer:nth-child(4), section.outer:nth-child(4) svg { animation-delay: 1.5s; fill: #67E41A; }
-    section.outer:nth-child(5), section.outer:nth-child(5) svg { animation-delay: 2.0s; fill: #39C5ff; }
+    section.outer:nth-child(1), section.outer:nth-child(1) svg { animation-delay: 0.0s; fill: #39C5ff; }
+    section.outer:nth-child(2), section.outer:nth-child(2) svg { animation-delay: 0.8s; fill: #1EE41A; }
+    section.outer:nth-child(3), section.outer:nth-child(3) svg { animation-delay: 1.6s; fill: #E4D61A; }
+    section.outer:nth-child(4), section.outer:nth-child(4) svg { animation-delay: 2.4s; fill: #E45D1A; }
+    section.outer:nth-child(5), section.outer:nth-child(5) svg { animation-delay: 3.2s; fill: #E41A1A; }
     @keyframes inner-animation {
       0%   {opacity: 0.8; transform: rotate(0deg) scale(0.5);}
       50%  {opacity: 1; transform: rotate(180deg) scale(1);}
