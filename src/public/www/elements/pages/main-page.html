@@ -230,8 +230,8 @@
         <section id="dropShadow" class="has-shadow"></section>
 
       <!-- EXCEEDING -->
-      <section id="exceedingStatePanel">
-        <section id="exceedingStateHeader" on-tap="toggleExceedsPanel">
+      <section id="statePanel">
+        <section id="stateHeader" on-tap="toggleExceedsPanel">
           <button-element class="title"><iron-icon icon="warning" class="left"></iron-icon><section class="content">Alarme</section></button-element>
         </section>
 
@@ -459,7 +459,7 @@
       },
 
       _handleExceeding: function(value) {
-        if(value && !(this.$.exceedingStatePanel.classList.contains("exceedingState-panel-opened"))) {
+        if(value && !(this.$.statePanel.classList.contains("state-panel-opened"))) {
           this.openExceedsPanel();
           this.debounceExceedsNotification();
         }
@@ -600,7 +600,7 @@
       },
 
       debounceExceedsNotification: function() {
-        this.debounce('exceedingStateNotification',
+        this.debounce('stateNotification',
           function() {
             this.createExceedsNotification();
           }, 500);
@@ -702,13 +702,13 @@
       },
       // Panel Control
       openExceedsPanel: function() {
-        this.$.exceedingStatePanel.classList.add("exceedingState-panel-opened");
+        this.$.statePanel.classList.add("state-panel-opened");
       },
       closeExceedsPanel: function() {
-        this.$.exceedingStatePanel.classList.remove("exceedingState-panel-opened");
+        this.$.statePanel.classList.remove("state-panel-opened");
       },
       toggleExceedsPanel: function() {
-        this.$.exceedingStatePanel.classList.toggle("exceedingState-panel-opened");
+        this.$.statePanel.classList.toggle("state-panel-opened");
       },
       toggleDrawer: function(){
         this.$.drawerPanel.classList.toggle("drawer-opened");

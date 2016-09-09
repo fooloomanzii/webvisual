@@ -26,6 +26,7 @@ class router extends EventEmitter {
       res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
       res.render('tests', {
         user: req.user,
+        title: 'Webvisual Tests',
         config: this.configuration,
         mobile: this.isMobile(req)
       });
@@ -36,6 +37,7 @@ class router extends EventEmitter {
       res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
       res.render('index', {
         user: req.user,
+        title: 'Webvisual Index',
         userConfigFiles: this.settings.userConfigFiles,
         renderer: this.settings.renderer,
         mobile: this.isMobile(req)
@@ -47,6 +49,7 @@ class router extends EventEmitter {
       if (this.settings.server.auth.required === true) {
         res.render('login', {
           user: req.user,
+          title: 'Webvisual Login',
           mobile: this.isMobile(req),
           server: this.settings.server
         });
@@ -111,10 +114,11 @@ class router extends EventEmitter {
         let name = req.url.substr(1);
 
         let rendererName = this.settings.userConfigFiles[name].renderer;
-        let rendererPath = this.settings.renderer[rendererName].path;
+        let rendererPath = './renderer/' + this.settings.renderer[rendererName].path;
         res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
         res.render(rendererPath, {
           user: req.user,
+          title: name,
           name: name,
           config: this.configuration[name],
           mobile: this.isMobile(req)

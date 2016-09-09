@@ -26,12 +26,15 @@ function DataSocketHandler(socketName, name) {
       window.Groups = settings.groups;
       window.GroupingKeys = settings.groupingKeys;
       window.PreferedGroupingKeys = settings.preferedGroupingKeys;
+      window.Database = {};
       window.Content = settings.elements;
-      for (var label in window.Content)
-        for (var id in window.Content[label]) {
-          window.Content[label][id].database = new Database(label, id);
-          window.Content[label][id].nodes = [];
+      for (var label in window.Content) {
+        var ids = Object.keys(window.Content[label]);
+        window.Database[label] = new DatabaseHandler(this.name, label, ids);
+        for (var i in ids) {
+          window.Content[label][ids[i]].nodes = [];
         }
+      }
       if (settings.svg)
         this._loadSvgSources(settings.svg);
     } else {
@@ -114,7 +117,7 @@ DataSocketHandler.prototype = {
         if (!window.Content[label])
           window.Content[label] = {};
         if (!window.Content[label][id])
-          window.Content[label][id] = {nodes: [], values: [], database: new Database(label, id)};
+          window.Content[label][id] = {nodes: [], values: []};
         if (window.Content[label][id].nodes.indexOf(updatable[i]) === -1)
           window.Content[label][id].nodes.push(updatable[i]);
       }
@@ -160,52 +163,38 @@ DataSocketHandler.prototype = {
     var label = message.label;
     var len, spliced;
 
+    window.Database[label].add(message.content);
+
     for (var id in message.content) {
       if (window.Content[label] === undefined || window.Content[label][id] === undefined) {
         console.warn("no Content-Object for", label, id); continue;
       }
-      len = message.content[id].values.length;
+      len = message.content[id].length;
       spliced = [];
 
       if (len > maxValues)
-        message.content[id].values = message.content[id].values.slice(len-maxValues, len);
+        message.content[id] = message.content[id].slice(len-maxValues, len);
       // console.log(len, label, id);
       // message.content[i].values.forEach(function(d) {
       //   d.x = Date.parse(d.x); // parse Date in Standard Date Object
       // });
 
       if (window.Content[label][id].values.length === 0)
-        window.Content[label][id].values = message.content[id].values;
+        window.Content[label][id].values = message.content[id];
       else
-        for (var j = message.content[id].values.length - 1; j >= 0 ; j--) {
-          window.Content[label][id].values.push(message.content[id].values[j]);
+        for (var j = message.content[id].length - 1; j >= 0 ; j--) {
+          window.Content[label][id].values.push(message.content[id][j]);
         }
       if (window.Content[label][id].values.length > maxValues) {
         spliced = window.Content[label][id].values.splice(0, window.Content[label][id].values.length - maxValues);
       }
 
-      window.Content[label][id].database.add(message.content[id].values);
-
       for (var j = 0; j < window.Content[label][id].nodes.length; j++) {
-        window.Content[label][id].nodes[j].insertValues(message.content[id].values);
+        window.Content[label][id].nodes[j].insertValues(message.content[id]);
         if (spliced.length > 0)
           window.Content[label][id].nodes[j].spliceValues({start: 0, length: spliced.length, values: spliced});
       }
-
-      // window.Content[label][id].database.last(console.log);
     }
-    window.Content.Lakeshore.id1.database.last(( function(max) {
-      console.log('x last', new Date(max.x));
-    }).bind(this));
-    window.Content.Lakeshore.id1.database.min(( function(max) {
-      console.log('y min', max.y);
-    }).bind(this), 'y');
-    window.Content.Lakeshore.id1.database.first(( function(max) {
-      console.log('x first', new Date(max.x));
-    }).bind(this));
-    window.Content.Lakeshore.id1.database.max(( function(max) {
-      console.log('y max', max.y);
-    }).bind(this), 'y');
   },
   compareFn: function (a, b) {
     if (a.x > b.x) return 1;

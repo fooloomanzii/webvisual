@@ -205,11 +205,11 @@
         tdX.textContent = (this.showFullDate ? new Date(value.x).toLocaleString() : new Date(value.x).toLocaleTimeString());
         tdY = document.createElement('section');
         tdY.id = 'td'; tdY.classList.add('y','style-scope','table-element');
-        isExceeding = (value.exceedingState === null) ? false : true;
+        isExceeding = (value.state === null) ? false : true;
         tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : value.y);
 
         if (this.highlightExceeding === true)
-          row.className = value.exceedingState;
+          row.className = value.state;
         row.classList.add('style-scope', 'table-element');
 
         row.appendChild(tdX); row.appendChild(tdY);

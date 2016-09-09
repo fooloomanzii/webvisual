@@ -1,0 +1,65 @@
+include ./includes/default
+
+block StyleContent
+  style(is="custom-style", include="app-theme").
+    body {
+      background: var(--bright-primary-color, #005B82);
+    }
+    div#background {
+      background: var(--primary-color-background);
+    }
+
+block BodyContent
+  neon-animated-pages#PageSelector.fullbleed(hidden, selected-attribute="active")
+    //- LABEL SELECTION PAGE
+    select-page.fullbleed()
+      each Label in config.labels
+        radio-button-element.labelButton(label!= Label)
+          != Label
+    //- MAIN-PAGE
+    main-page.fullbleed(animated!= (!mobile), reproduce, notify, open-on-select)
+      //- TABS
+      each Label in config.labels
+        tab-element.label(label!= Label)
+          != Label
+
+      //- GROUPINGKEY SELECTORS
+      each Label in config.labels
+        iron-selector.groupingKeySelector(attr-for-selected= "groupingkey", selected-attribute= "checked", selected!= config.preferedGroupingKeys[Label], fallback-selection!= config.preferedGroupingKeys[Label], activate-event="change")
+          each GroupingKey in config.groupingKeys[Label]
+            radio-button-element.lightcontext.groupingKey(groupingkey!= GroupingKey)
+              != GroupingKey
+
+      //- PANELS
+      each Label, I in config.labels
+        section.panel(label!= Label, animated!= (!mobile))
+          each Subgroup, Name in config.groups[Label][config.preferedGroupingKeys[Label]]
+            group-card(headline= Name,
+                       svg= JSON.stringify(Subgroup.svg),
+                       no-select-notify, notify, open-on-exceed)
+              each Id, i in Subgroup.ids
+                sign-element(label!= Label,
+                             id!= Id,
+                             is-boolean!= config.elements[Label][Id].isBoolean,
+                             unit!= config.elements[Label][Id].unit,
+                             keys= JSON.stringify(config.elements[Label][Id].keys),
+                             svg= JSON.stringify(config.elements[Label][Id].svg),
+                             caption-keys= JSON.stringify(config.groupingKeys[Label]),
+                             show-date!= (!mobile),
+                             color!= config.elements[Label][Id].color,
+                             bubbles,
+                             selectable
+                             tooltip)
+
+      //- Elements for TOOLBAR
+      sign-element.toolbar-footer(horizontal)
+      table-element.toolbar-footer(highlight-exceeding)
+      svg-element.toolbar-footer(initially-zoom-to-selected, notify-parent, open-on-select)
+
+      //- FULLSCREEN-SVG-ELEMENT
+      svg-element.overlay(is-fullscreen,
+                          zoom-partition='3',
+                          max-zoom='3',
+                          min-zoom='0.75',
+                          notify-parent,
+                          no-select-notify)

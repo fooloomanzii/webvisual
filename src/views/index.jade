@@ -1,93 +1,75 @@
-doctype html
-html
-  head
-    title Webvisual Select
-    meta(name='viewport', content='width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes')
-    script(src='components/webcomponentsjs/webcomponents-lite.js')
-    script.
-      window.Polymer = {
-        dom: 'shady',
-        lazyRegister: true
-      };
-    link(rel='import', href='components/polymer/polymer.html')
-    link(rel="import", href="style/app-theme.html")
-    link(rel='import', href='elements/imports.html')
-    
+extends layout
+
+block StyleContent
   style(is="custom-style", include="app-theme").
     body {
-      height: 100%;
-      width: 100%;
-      padding: 0;
-      margin: 0;
-      background: var(--dark-primary-color);
-      white-space: nowrap;
-      display: flex;
+      background: var(--dark-primary-color, #345475);
     }
-    
-  body
-    dom-module#select-form
-      template
-        style.
-          :host {
-            position: relative;
-            box-sizing: border-box;
-            font-size: 1em;
-            padding: 1.5em;
-            margin: auto;
-            width: auto;
-            height: auto;
-            color: var(--bright-text-color);
+
+block BodyContent
+  dom-module#select-form
+    template
+      style.
+        :host {
+          position: relative;
+          box-sizing: border-box;
+          font-size: 1em;
+          padding: 1.5em;
+          margin: auto;
+          width: auto;
+          height: auto;
+          color: var(--bright-text-color);
+        }
+        h1 {
+          font-weight: normal;
+          font-size: 2em;
+          margin: 0.5em 0em;
+          text-align: center;
+        }
+        button-element {
+          border: thin solid var(--highlight-color);
+          color: var(--highlight-color);
+          margin-bottom: 1em;
+        }
+        button-element:hover {
+          color: var(--bright-text-color);
+        }
+        div.flex {
+          flex: 1;
+        }
+        section#container {
+          margin: 0 auto;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+        }
+      h1
+        | Auswahl der Messanlage
+      br
+      form#select(is='iron-form', method='get', action='')
+        section#container
+          each Config, Name in userConfigFiles
+            button-element(value!= Name, on-tap="_submit", raised, aria-label!= Name)
+              iron-icon.left(icon!= renderer[Config.renderer].icon)
+              div.flex
+                != Name
+              iron-icon.right(icon='arrow-forward')
+    script.
+      window.addEventListener('WebComponentsReady', function(e) {
+        Polymer({
+          is: 'select-form',
+          listeners: {
+            'iron-form-response': '_response'
+          },
+          _submit: function(e) {
+            var action = e.currentTarget.value;
+            this.$.select.action = '/' + action;
+            this.$.select.submit();
+          },
+          _response: function(e) {
+            window.location = e.detail.url;  
           }
-          h1 {
-            font-weight: normal;
-            font-size: 2em;
-            margin: 0.5em 0em;
-            text-align: center;
-          }
-          button-element {
-            border: thin solid var(--highlight-color);
-            color: var(--highlight-color);
-            margin-bottom: 1em;
-          }
-          button-element:hover {
-            color: var(--bright-text-color);
-          }
-          div.flex {
-            flex: 1;
-          }
-          section#container {
-            margin: 0 auto;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-          }
-        h1
-          | Auswahl der Messanlage
-        br
-        form#select(is='iron-form', method='get', action='')
-          section#container
-            each Config, Name in userConfigFiles
-              button-element(value!= Name, on-tap="_submit", raised, aria-label!= Name)
-                iron-icon.left(icon!= renderer[Config.renderer].icon)
-                div.flex
-                  != Name
-                iron-icon.right(icon='arrow-forward')
-      script.
-        window.addEventListener('WebComponentsReady', function(e) {
-          Polymer({
-            is: 'select-form',
-            listeners: {
-              'iron-form-response': '_response'
-            },
-            _submit: function(e) {
-              var action = e.currentTarget.value;
-              this.$.select.action = '/' + action;
-              this.$.select.submit();
-            },
-            _response: function(e) {
-              window.location = e.detail.url;  
-            }
-          });
         });
-    select-form()
+      });
+  select-form()

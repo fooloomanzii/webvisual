@@ -257,15 +257,15 @@
         console.log(this);
         return;
       }
-      if (value.exceedingState === null) {
+      if (value.state === null) {
         if(this.isExceeding !== false) {
-          this.setExceedingState(false, value.exceedingState);
+          this.setExceedingState(false, value.state);
           this._setLastExceeds(value);
         }
       }
-      else if (value.exceedingState === true || value.exceedingState === false) {
+      else if (value.state === true || value.state === false) {
         if(this.isExceeding === false) {
-          this.setExceedingState(true, value.exceedingState);
+          this.setExceedingState(true, value.state);
           this._setFirstExceeds(value);
           if (this.hasExceeded === false)
             this.set('hasExceeded', true);
@@ -320,9 +320,9 @@
       else {
         this.customStyle['--element-color'] = this.color;
         if (this.exeedable === false) {
-          this.customStyle['--element-exceedingState-undefined-color'] = this.color;
-          this.customStyle['--element-exceedingState-true-color'] = this.color;
-          this.customStyle['--element-exceedingState-false-color'] = this.color;
+          this.customStyle['--element-state-undefined-color'] = this.color;
+          this.customStyle['--element-state-true-color'] = this.color;
+          this.customStyle['--element-state-false-color'] = this.color;
         }
         this.updateStyles();
       }
@@ -339,7 +339,7 @@
         if (window.Content[this.label] === undefined)
           window.Content[this.label] = {};
         if (!window.Content[this.label][this.id])
-          window.Content[this.label][this.id] = {nodes: [], values: [], database: new Database(this.label, this.id)};
+          window.Content[this.label][this.id] = {nodes: [], values: []};
         if (window.Content[this.label][this.id].nodes.indexOf(this) === -1)
           window.Content[this.label][this.id].nodes.push(this);
         // delete this.values;

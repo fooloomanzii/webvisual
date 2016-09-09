@@ -1,0 +1,15 @@
+extends ../../layout
+
+block HeadContent
+  script(src='socket.io/socket.io.js')
+  script(src='js/database-handler.js')
+  script(src='js/data-socket-handler.js')
+  script(type='text/javascript').
+    // actual measuring system
+    window.Name = !{JSON.stringify(name)};
+    window.Labels = !{JSON.stringify(config.labels)};
+    console.log(window.Name);
+    window.DataHandler = new DataSocketHandler('/data', window.Name);
+    window.addEventListener('WebComponentsReady', function(e) {
+      window.PageSelector.removeAttribute('hidden');
+    });
