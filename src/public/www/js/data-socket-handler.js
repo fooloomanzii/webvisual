@@ -30,9 +30,10 @@ function DataSocketHandler(socketName, name) {
       window.Content = settings.elements;
       for (var label in window.Content) {
         var ids = Object.keys(window.Content[label]);
-        window.Database[label] = new DatabaseHandler(this.name, label, ids);
+        window.Database[label] = {};
         for (var i in ids) {
           window.Content[label][ids[i]].nodes = [];
+          window.Database[label][ids[i]] = new DatabaseClient(this.name+'/'+label, ids[i]);
         }
       }
       if (settings.svg)
@@ -163,8 +164,6 @@ DataSocketHandler.prototype = {
     var label = message.label;
     var len, spliced;
 
-    window.Database[label].add(message.content);
-
     for (var id in message.content) {
       if (window.Content[label] === undefined || window.Content[label][id] === undefined) {
         console.warn("no Content-Object for", label, id); continue;
@@ -188,6 +187,8 @@ DataSocketHandler.prototype = {
       if (window.Content[label][id].values.length > maxValues) {
         spliced = window.Content[label][id].values.splice(0, window.Content[label][id].values.length - maxValues);
       }
+
+      window.Database[label][id].transaction('set', undefined, message.content);
 
       for (var j = 0; j < window.Content[label][id].nodes.length; j++) {
         window.Content[label][id].nodes[j].insertValues(message.content[id]);

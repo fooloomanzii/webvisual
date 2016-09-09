@@ -53,7 +53,8 @@
         value: value
       });
     },
-    closeDb: function() {
+    
+    close: function() {
       return this.post({
         type: 'close-db'
       });

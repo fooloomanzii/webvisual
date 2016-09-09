@@ -227,12 +227,15 @@
   var databaseWorker = {};
 
   onmessage = function(e) {
-    if (e.type === 'connect') {
+    if (!e.data.type) {
+      return;
+    }
+    else if (e.data.type === 'connect') {
       if (e.args === undefined) {
         console.error('No given arguments for creating a Database-Worker')
         return;
       }
-      if (databaseWorker.close()) {
+      if (databaseWorker.close) {
         Promise.resolve(databaseWorker.close).then(function(){
           databaseWorker = {};
           IndexedDBWorker.apply(databaseWorker, e.args);
@@ -240,9 +243,18 @@
             type: 'db-connected'
           });
         })
+        return;
       }
+      databaseWorker = {};
+      IndexedDBWorker.apply(databaseWorker, e.args);
+      postMessage({
+        type: 'db-connected'
+      });
     }
-    else
+    else if (databaseWorker.handleMessage)
       databaseWorker.handleMessage(e);
-  });
+    else {
+      console.error('Not possible', e)
+    }
+  };
 })();
