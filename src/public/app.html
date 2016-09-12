@@ -270,10 +270,10 @@
         <dialog-element id="userConfigDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
           <h3>Konfigurationsdatei</h3>
           <div class="dialog-content">
-            <input-element id="fileName" label="Anzeigename" pattern="*" required></input-element>
+            <input-element id="newConfigName" label="Anzeigename" pattern="*" required></input-element>
             <section class="inline">
-              <input-element id="filePath" label="Pfad" pattern="*" required></input-element>
-              <icon-button-element icon="folder-open" class="spread" on-tap="openFileSelector" aria-label="Datei öffnen..."></icon-button-element>
+              <input-element id="newConfigPath" label="Pfad" pattern="*" required></input-element>
+              <icon-button-element icon="folder-open" class="spread" on-tap="openFileSelector" for="newConfigPath" filter="json" aria-label="Datei öffnen..."></icon-button-element>
             </section>
             <dropdown-selector id="fileRenderer" label="Rendereinheit" icon="view-agenda" class="inline" attr-for-selected="renderer" toggles position="bottom" align="start" required>
               <template is="dom-repeat" items="{{renderer}}">
@@ -332,9 +332,11 @@
           },
           eventHandler: function(event, arg) {
             switch (event) {
-              case 'config-filepath':
-                if(arg)
-                  this.$.filePath.value = arg;
+              case 'file-path':
+                if (arguments[1] && arguments[2]) {
+                  var input = document.querySelector('#'+arguments[2].for);
+                  input.value = arguments[1];
+                }
                 break;
               case 'set-user-config':
                 var values = [];
@@ -360,27 +362,31 @@
           },
           openFileSelector: function(e) {
             this.$.dropdown.close();
-            ipcRenderer.send('event', 'config-filepath');
+            var arg = {
+              for: e.currentTarget.for,
+              filter: [ {name: e.currentTarget.filter, extensions: [e.currentTarget.filter]} ]
+            }
+            ipcRenderer.send('event', 'file-path', arg);
           },
           editUserConfigFile: function(e) {
             this.$.dropdown.close();
             var arg = e.currentTarget.arg;
             if(arg) {
-              this.$.fileName.value = arg.name;
-              this.$.filePath.value = arg.path;
+              this.$.newConfigName.value = arg.name;
+              this.$.newConfigPath.value = arg.path;
               this.$.fileRenderer.selected = arg.renderer;
               this.$.userConfigDialog.open();
             }
           },
           addUserConfigFile: function() {
-            var name = this.$.fileName.value;
-            var path = this.$.filePath.value;
+            var name = this.$.newConfigName.value;
+            var path = this.$.newConfigPath.value;
             var renderer = this.$.fileRenderer.selected;
             ipcRenderer.send('event', 'add-user-config', {name: name, path: path, renderer: renderer});
           },
           removeUserConfigFile: function() {
-            var name = this.$.fileName.value;
-            var path = this.$.filePath.value;
+            var name = this.$.newConfigName.value;
+            var path = this.$.newConfigPath.value;
             var renderer = this.$.fileRenderer.selected;
             ipcRenderer.send('event', 'remove-user-config', {name: name, file: path, renderer: renderer});
           },

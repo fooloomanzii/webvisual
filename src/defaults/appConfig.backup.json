@@ -15,6 +15,11 @@
     "port": {
       "http": 80,
       "https": 443
+    },
+    "ssl": {
+      "cert": "",
+      "key": "",
+      "passphrase": ""
     }
   },
   "app": {

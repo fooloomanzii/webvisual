@@ -25,7 +25,7 @@ var mainWindow = null;
 var config;
 
 // Quit when all windows are closed.
-app.on("window-all-closed", function() {
+app.on("window-all-closed", () => {
   // OS X
   if (process.platform != "darwin") {
     app.quit();
@@ -35,15 +35,15 @@ app.on("window-all-closed", function() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 
-app.on("ready", function() {
+app.on("ready", () => {
   // Create the browser window.
   appConfigLoader = new Settings(app);
 
-  appConfigLoader.on("error", function(err) {
+  appConfigLoader.on("error", (err) => {
     console.log("Error in Config", err);
   });
 
-  appConfigLoader.on("ready", function(msg, settings) {
+  appConfigLoader.on("ready", (msg, settings) => {
     console.log(msg);
 
     config = settings;
@@ -67,23 +67,23 @@ app.on("ready", function() {
     });
 
     webvisualserver = new WebvisualServer(config);
-    webvisualserver.on("error", function(err, msg) {
+    webvisualserver.on("error", (err, msg) => {
       console.log("Error in", err, msg || "");
     });
-    webvisualserver.on("log", function(arg, msg) {
+    webvisualserver.on("log", (arg, msg) => {
       console.log(arg, msg || "");
     });
-    webvisualserver.on("server-start", function(err) {
+    webvisualserver.on("server-start", () => {
       mainWindow.webContents.send("event", "server-start");
     });
-    webvisualserver.on("server-stop", function(err) {
+    webvisualserver.on("server-stop", () => {
       mainWindow.webContents.send("event", "server-stop");
     });
     // Open the DevTools.
     // mainWindow.webContents.openDevTools();
 
     // Emitted when the window is going to be closed.
-    mainWindow.on("close", function() {
+    mainWindow.on("close", () => {
       let bounds = mainWindow.getBounds();
       config.app.width = bounds.width;
       config.app.height = bounds.height;
@@ -92,13 +92,13 @@ app.on("ready", function() {
       appConfigLoader.save(config);
     });
     // Emitted when the window is closed.
-    mainWindow.on("closed", function() {
+    mainWindow.on("closed", () => {
       mainWindow = null;
     });
   });
 
-  appConfigLoader.on("change", function(settings) {
-    webvisualserver.setConfig(settings);
+  appConfigLoader.on("change", (settings) => {
+    webvisualserver.createServer(settings);
   });
 
   // app quit
@@ -116,13 +116,13 @@ app.on("ready", function() {
       case "server-toggle":
         webvisualserver.toggle();
         break;
-      case "config-filepath":
+      case "file-dialog":
         dialog.showOpenDialog({
           properties: ["openFile"],
-          filters: [
-            {name: "JSON", extensions: ["json"]}
-          ]
-        }, openConfigFile);
+          filters: args.filter
+        }, (files) => {
+          sendFilePath(files, args)
+        });
         break;
       case "add-user-config":
         addConfigFile(arg);
@@ -137,8 +137,8 @@ app.on("ready", function() {
   });
 
   // addConfigFile
-  function openConfigFile(files) {
-    mainWindow.webContents.send("event", "config-filepath", (files && files.length > 0) ? files[0] : "");
+  function sendFilePath(files, args) {
+    mainWindow.webContents.send("event", "file-path", (files && files.length > 0) ? files[0] : "", args);
   }
 
   function addConfigFile(arg) {
@@ -169,23 +169,23 @@ app.on("ready", function() {
    * Handle various process events
    */
 
-  process.on("uncaughtException", function(err) {
+  process.on("uncaughtException", (err) => {
     console.log("uncaughtException", err);
     // webvisualserver.reconnect();
   });
 
-  process.on("ECONNRESET", function(err) {
+  process.on("ECONNRESET", (err) => {
     console.log("connection reset (ECONNRESET)", err);
     // webvisualserver.reconnect();
   });
 
-  process.on("SIGINT", function(err) {
+  process.on("SIGINT", (err) => {
     console.log("close webvisual (SIGINT)");
     // webvisualserver.disconnect();
     process.exit(0);
   });
 
-  process.on("exit", function(err) {
+  process.on("exit", (err) => {
     console.log("close webvisual (EXIT)");
     // webvisualserver.disconnect();
   });
