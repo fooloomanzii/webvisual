@@ -88,7 +88,7 @@ class WebvisualServer extends EventEmitter {
         let cert = path.resolve(this.config.server.ssl.cert);
         let key = path.resolve(this.config.server.ssl.key);
         let passphrase = path.resolve(this.config.server.ssl.passphrase);
-        let basedir = path.dirname(cert);
+        let certchaindir = path.resolve(this.config.server.ssl.certchaindir);
 
         fs.access(cert, fs.constants.R_OK, (err) => {
           if (err)
@@ -114,9 +114,9 @@ class WebvisualServer extends EventEmitter {
                     };
                     var cert_chain = [];
 
-                    fs.readdirSync(basedir + "/cert_chain").forEach(function(filename) {
+                    fs.readdirSync(certchaindir).forEach(function(filename) {
                       cert_chain.push(
-                        fs.readFileSync(path.resolve(basedir + "/cert_chain", filename), "utf-8"));
+                        fs.readFileSync(path.resolve(certchaindir, filename), "utf-8"));
                     });
                     sslOptions.ca = cert_chain;
 

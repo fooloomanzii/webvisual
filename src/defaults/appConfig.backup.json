@@ -15,8 +15,10 @@
     },
     "ssl": {
       "cert": "D:\\Github\\webvisual\\ssl\\ca.crt",
+      "certchaindir": "D:\\Github\\webvisual\\ssl\\cert_chain",
       "key": "D:\\Github\\webvisual\\ssl\\ca.key",
-      "passphrase": "D:\\Github\\webvisual\\ssl\\ca.pw.json"
+      "passphrase": "D:\\Github\\webvisual\\ssl\\ca.pw.json",
+      "certchainDir": ""
     },
     "logs": {
       "http_server_log": "./logs/http-error.log",

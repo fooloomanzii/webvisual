@@ -123,7 +123,14 @@ app.on("ready", () => {
           properties: ["openFile"],
           filters: arg.filter
         }, (files) => {
-          sendFilePath(files, arg)
+          sendPath(files, arg)
+        });
+        break;
+      case "folder-dialog":
+        dialog.showOpenDialog({
+          properties: ["openDirectory"]
+        }, (folder) => {
+          sendPath(folder, arg)
         });
         break;
       case "add-user-config":
@@ -139,7 +146,7 @@ app.on("ready", () => {
   });
 
   // addConfigFile
-  function sendFilePath(files, arg) {
+  function sendPath(files, arg) {
     mainWindow.webContents.send("event", "file-dialog", {for: arg.for, path: (files && files.length > 0) ? files[0] : ""});
   }
 
