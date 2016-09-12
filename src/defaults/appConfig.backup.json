@@ -1,12 +1,12 @@
 {
   "server": {
     "auth": {
-      "req": false,
+      "required": true,
+      "req": true,
       "ldap": {
         "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
         "url": "ibn-net.kfa-juelich.de"
       },
-      "required": false,
       "suffix": "@fz-juelich.de"
     },
     "port": {

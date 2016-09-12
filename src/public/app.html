@@ -404,9 +404,9 @@
             ipcRenderer.send('event', 'remove-user-config', {name: name, file: path, renderer: renderer});
           },
           commitServerFile: function() {
-            this.serverConfig = {
+            this.set("serverConfig", {
               auth: {
-                req: this.$.authRequired.checked
+                required: this.$.authRequired.checked
               },
               port: {
                 http: +this.$.httpPort.value,
@@ -417,7 +417,7 @@
                 key: this.$.keyPath.value,
                 passphrase: this.$.passphrasePath.value
               }
-            }
+            });
             ipcRenderer.send('event', 'set-server-config', this.serverConfig);
           },
           openDialog: function(e) {
