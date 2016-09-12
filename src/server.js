@@ -112,15 +112,12 @@ class WebvisualServer extends EventEmitter {
                       requestCert: true,
                       rejectUnauthorized: false
                     };
-                    var cert_chain = [ fs.readFileSync(cert, "utf8"),
-                                       fs.readFileSync(key, "utf8"),
-                                       fs.readFileSync(passphrase, "utf8") ];
+                    var cert_chain = [];
 
-                    // fs.readdirSync(basedir).forEach(function(filename) {
-                    //   console.log(path.resolve(basedir, filename));
-                    //   cert_chain.push(
-                    //     fs.readFileSync(path.resolve(basedir, filename), "utf-8"));
-                    // });
+                    fs.readdirSync(basedir + "/cert_chain").forEach(function(filename) {
+                      cert_chain.push(
+                        fs.readFileSync(path.resolve(basedir + "/cert_chain", filename), "utf-8"));
+                    });
                     sslOptions.ca = cert_chain;
 
                     // Routing to https if http is requested
