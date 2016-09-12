@@ -3,7 +3,7 @@ var Selector = '[updatable]';
 
 window.Content = {};
 window.SvgSource = {};
-window.maxValues = 500000; // 1h for every second update
+window.maxValues = 5000; // 1h for every second update
 
 // SOCKET
 function DataSocketHandler(socketName, name, callwhenconnected) {
