@@ -1,6 +1,6 @@
 (function() {
   'use strict';
-  var WORKER_URL = 'database-worker.js';
+  var WORKER_URL = 'js/database-worker.js';
   var CONNECTS_TO_WORKER = '__connectsToWorker';
   var CONNECTED = '__connected';
   var MESSAGE_ID = '__messageId';
@@ -23,14 +23,14 @@
     this.keyPath = keyPath || DB_KEYPATH;
     this.indexKeys = indexKeys || DB_INDEXKEYS;
 
-    this[WORKER_URL] = 'database-worker.js';
+    this.workerurl = WORKER_URL;
     this.isConnected = false;
     this.connectedWorker = null;
     this.connect();
   };
 
   DatabaseClient.prototype = {
-
+    constructor: DatabaseClient,
     post: function(message) {
       return this.connect().then(function(worker) {
         return new Promise(function(resolve) {
@@ -47,13 +47,13 @@
 
     transaction: function(method, key, value) {
       return this.post({
-        type: 'db-transaction',
+        type: 'transaction',
         method: method,
         key: key,
         value: value
       });
     },
-    
+
     close: function() {
       return this.post({
         type: 'close-db'
@@ -66,24 +66,38 @@
       }
       console.log('IndexedDB Client connecting..');
       return this.connectedWorker = new Promise(function(resolve) {
-        var worker = new Worker(this[WORKER_URL]);
+        var worker = new Worker(this.workerurl);
         worker.addEventListener('message', function(event) {
-          if (event.data &&
-              event.data.type === 'db-connected') {
-            console.log('IndexedDB Client connected!');
-            this.isConnected = true;
-            resolve(worker);
+          if (event.data) {
+            var type = event.data.type;
+            switch (type) {
+              case 'db-connected':
+                console.log('IndexedDB Client connected!');
+                this.isConnected = true;
+                break;
+              case 'log':
+                console.log(event.data.msg);
+              case 'db-closed':
+                console.log('IndexedDB Client disconnected!');
+              case 'error':
+                console.warn(event.data.msg);
+              case 'transaction-result':
+                console.info('result', event.data.result);
+              default:
+                resolve(worker);
+            }
           }
         }.bind(this));
+
         worker.addEventListener('error', function(error) {
-          console.error(error.message || error);
+          console.error(error);
         });
 
         worker.postMessage({
           type: 'connect',
           args: {
             dbName: this.dbName,
-            dbStore: this.dbStore,
+            storeName: this.storeName,
             indexKeys: this.indexKeys,
             keyPath: this.keyPath
           }
@@ -91,4 +105,5 @@
       }.bind(this));
     }
   }
+  window.DatabaseClient = DatabaseClient;
 })();

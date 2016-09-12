@@ -33,33 +33,29 @@
     }
   ];
 
-  function IndexedDBWorker(dbName, storeName, keyPath, indexKeys) {
-    this.dbVersion = 1;
-    this.dbName = dbName || DB_NAME;
-    this.storeName = storeName || DB_STORAGE;
+  function IndexedDBWorker (options) {
+    DB_VERSION++;
+    this.dbVersion = DB_VERSION;
+    this.dbName = options.dbName || DB_NAME;
+    this.storeName = options.storeName || DB_STORAGE;
 
-    this.keyPath = keyPath || DB_KEYPATH;
-    this.indexKeys = indexKeys || DB_INDEXKEYS;
+    this.keyPath = options.keyPath || DB_KEYPATH;
+    this.indexKeys = options.indexKeys || DB_INDEXKEYS;
 
     this.open();
-
-    self.addEventListener(
-        'unhandledrejection', function(error){ console.error(error); });
-    self.addEventListener(
-        'error', function(error) { console.error(error); });
-
-    console.log('IndexedDBWorker started...');
+    log('IndexedDBWorker started...');
   }
 
+  // IndexedDBWorker.prototype = {
   IndexedDBWorker.prototype = {
-    open: function() {
+    open: function () {
       this.__promise = this.__promise || new Promise(function(resolve, reject) {
-        console.log('Opening database..');
+        // log('Opening database..');
 
-        var r = indexedDB.open(this.dbName, DB_VERSION);
+        var r = indexedDB.open(this.dbName, this.dbVersion);
 
-        r.onupgradeneeded = function(e) {
-          console.log('Upgrade needed:', e.oldVersion, '=>', e.newVersion);
+        r.onupgradeneeded = (function(e) {
+          // log('Upgrade needed:', e.oldVersion, '=>', e.newVersion);
           var context = {
             database: r.result,
             storeName: this.storeName,
@@ -68,99 +64,110 @@
             indexKeys: this.indexKeys
           };
 
-          for (var i = e.oldVersion; i < e.newVersion; ++i) {
-            MIGRATIONS[i] && MIGRATIONS[i].call(this, context);
+          var objectStore = context.database.createObjectStore(context.storeName, { keyPath: context.keyPath });
+          for (var i in context.indexKeys) {
+            if (context.indexKeys[i].key)
+              objectStore.createIndex(context.indexKeys[i].key, context.indexKeys[i].key, { unique: context.indexKeys[i].unique || false });
           }
-        }.bind(this);
+          // for (var i = e.oldVersion; i < e.newVersion; ++i) {
+          //   MIGRATIONS[i] && MIGRATIONS[i].call(this, context);
+          // }
+        }).bind(this);
 
         r.onsuccess = function() {
-          console.log('Database opened.');
-          resolve(request.result);
-        };
+          log('Database opened. ' + this.dbName + ' ' + this.storeName);
+          resolve(r.result);
+        }.bind(this);
         r.onerror = function() {
-          reject(request.error);
-        };
+          errorlog('Could not open Database ' + this.dbName + ' ' + this.storeName)
+          reject(r.error);
+        }.bind(this);
+        return this.__promise;
       }.bind(this));
 
       return this.__promise;
     },
 
-    close: function() {
+    close: function () {
       if (this.__promise == null) {
         return Promise.resolve();
       }
 
       return this.open().then(function(db) {
         this.__promise = null;
-        console.log('Closing database..');
+        // log('Closing database..');
         db.close();
       }.bind(this));
     },
 
-    get: function(storeName, key) {
-      return this.operateOnStore('get', storeName, 'readonly', key);
+    get (key) {
+      return this.operateOnStore('get', 'readonly', key);
     },
 
-    set: function(storeName, key, value) {
-      return this.operateOnStore('put', storeName, 'readwrite', value, key);
+    set (key, value) {
+      return this.operateOnStore('put', 'readwrite', key, value);
     },
 
-    count: function(storeName, key) {
-      return this.operateOnStore('count', storeName, 'readonly', key);
+    count (key) {
+      return this.operateOnStore('count', 'readonly', key);
     },
 
-    place: function (storeName, key, value) {
+    place (key, value) {
       var setOperations = [];
+      var storeName = this.storeName;
       for (var i in value) {
-        setOperations.push(this.operateOnStore('put', storeName, 'readwrite', value, key));
+        setOperations.push(this.operateOnStore('put', 'readwrite', key, value));
       }
       return Promise.all(setOperations);
     },
 
-    clear: function(storeName) {
-      return this.operateOnStore('clear', storeName, 'readwrite');
+    clear: function () {
+      return this.operateOnStore('clear', 'readwrite');
     },
 
-    operateOnStore: function(operation, storeName, mode) {
+    operateOnStore: function (operation, mode, key, value) {
       var operationArgs = Array.from(arguments).slice(3);
-
+      var storeName = this.storeName;
       return this.open().then(function(db) {
 
-        console.log('Store operation:', operation, storeName, mode);
+        log(['Store operation:', operation, mode]);
 
         return new Promise(function(resolve, reject) {
           try {
-            var t = db.transaction(storeName, mode);
-            var s = t.objectStore(storeName);
-            var r = s[operation].apply(store, operationArgs);
-          } catch (e) {
-            return reject(e);
-          }
-
-          t.oncomplete = function() { resolve(request.result); };
-          t.onabort = function() { reject(transaction.error); };
-        });
-      });
-    },
-
-    edge: function(storeName, key, direction) {
-      return this.operateByCursor(storeName, key, direction);
-    },
-
-    operateByCursor: function(storeName, key, direction) {
-      var operationArgs = Array.from(arguments).slice(3);
-
-      return this.open().then(function(db) {
-
-        console.log('Cursor operation:', storeName, key, direction);
-
-        return new Promise(function(resolve, reject) {
-          try {
-            var t = db.transaction(storeName, 'readonly');
+            var t = db.transaction([storeName], mode);
             if (!key)
               var s = t.objectStore(storeName);
             else
               var s = t.objectStore(storeName).index(key);
+            var r = s[operation](value);
+          } catch (e) {
+            return reject(e);
+          }
+
+          t.oncomplete = function() { resolve(r.result); };
+          t.onabort = t.onerror = function() { reject(transaction.error); };
+        });
+      });
+    },
+
+    edge: function (key, direction) {
+      return this.operateByCursor(key, direction);
+    },
+
+    operateByCursor: function (key, direction) {
+      var operationArgs = Array.from(arguments).slice(2);
+
+      return this.open().then(function(db) {
+
+        log('Cursor operation:', this.storeName, key, direction);
+
+        return new Promise(function(resolve, reject) {
+          try {
+            var t = db.transaction(this.storeName, 'readonly');
+            if (!key)
+              var s = t.objectStore(this.storeName);
+            else
+              var s = t.objectStore(this.storeName).index(key);
             var r = s.openCursor(null, direction);
           } catch (e) {
             return reject(e);
@@ -172,37 +179,37 @@
       });
     },
 
-    transaction: function(method, key, value) {
+    transaction: function (method, key, value) {
       value = value || null;
+
+      log(method, key, value);
 
       switch(method) {
         case 'get':
-          return this.get(this.storeName, key);
+          return this.get(key);
         case 'set':
-          return this.set(this.storeName, key, value);
+          return this.set(key, value);
         case 'place':
-          return this.place(this.storeName, key, value);
+          return this.place(key, value);
         case 'first':
-          return this.edge(this.storeName, key, 'prev');
+          return this.edge(key, 'prev');
         case 'last':
-          return this.edge(this.storeName, key, 'next');
+          return this.edge(key, 'next');
         // case 'setMin':
         //   return this.setEdge(this.storeName, key, 'prev');
         // case 'setMax':
         //   return this.setEdge(this.storeName, key, 'next');
         case 'count':
-          return this.count(this.storeName, key);
+          return this.count(key);
       }
 
       return Promise.reject(new Error('Method not supported: ' + method));
     },
 
-    handleMessage: function(e) {
+    handleMessage: function (e) {
       if (!e.data) {
         return;
       }
-
-      var id = e.data.id;
 
       switch(e.data.type) {
         case 'close-db':
@@ -215,7 +222,7 @@
           this.transaction(e.data.method, e.data.key, e.data.value)
               .then(function(result) {
                 postMessage({
-                  type: 'db-transaction-result',
+                  type: 'transaction-result',
                   result: result
                 });
               });
@@ -224,29 +231,47 @@
     }
   };
 
-  var databaseWorker = {};
+  function log(args) {
+    postMessage({
+      type: 'log',
+      msg: JSON.stringify(args)
+    })
+  }
+  function errorlog(args) {
+    postMessage({
+      type: 'error',
+      msg: JSON.stringify(args)
+    })
+  }
+
+  self.addEventListener(
+      'unhandledrejection', function(error){ log({type: "unhandledrejection", error: error}); });
+  self.addEventListener(
+      'error', function(error) { errorlog(error); });
+
+  self.IndexedDBWorker = IndexedDBWorker;
+  var databaseWorker;
 
   onmessage = function(e) {
+    log(e);
     if (!e.data.type) {
       return;
     }
     else if (e.data.type === 'connect') {
-      if (e.args === undefined) {
-        console.error('No given arguments for creating a Database-Worker')
+      if (e.data.args === undefined) {
+        log('No given arguments for creating a Database-Worker')
         return;
       }
-      if (databaseWorker.close) {
+      if (databaseWorker) {
         Promise.resolve(databaseWorker.close).then(function(){
-          databaseWorker = {};
-          IndexedDBWorker.apply(databaseWorker, e.args);
+          databaseWorker = new IndexedDBWorker(e.data.args);
           postMessage({
             type: 'db-connected'
           });
         })
         return;
       }
-      databaseWorker = {};
-      IndexedDBWorker.apply(databaseWorker, e.args);
+      databaseWorker = new IndexedDBWorker(e.data.args);
       postMessage({
         type: 'db-connected'
       });
@@ -254,7 +279,7 @@
     else if (databaseWorker.handleMessage)
       databaseWorker.handleMessage(e);
     else {
-      console.error('Not possible', e)
+      log('Not possible', e)
     }
   };
 })();

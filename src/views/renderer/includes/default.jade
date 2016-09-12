@@ -3,17 +3,14 @@ extends ../../layout
 block HeadContent
   script(src='socket.io/socket.io.js')
   script(src='js/database-client.js')
-  script(src='js/database-worker.js')
   script(src='js/data-socket-handler.js')
+  
   script(type='text/javascript').
     // actual measuring system
     window.Name = !{JSON.stringify(name)};
     window.Labels = !{JSON.stringify(config.labels)};
-    window.DataHandler = new DataSocketHandler('/data', window.Name, function() {
-      // select the MainPage
-      window.PageSelector = document.querySelector('neon-animated-pages#PageSelector');
-      window.PageSelector.select("1");
-    });
+    window.DataHandler = new DataSocketHandler('/data', window.Name);
+
     window.addEventListener('WebComponentsReady', function(e) {
       window.PageSelector = document.querySelector('neon-animated-pages#PageSelector');
       window.PageSelector.removeAttribute('hidden');

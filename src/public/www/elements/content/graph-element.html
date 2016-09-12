@@ -169,14 +169,14 @@
 
       redraw: function () {
         if (this._hidden === true) return;
+        var date = new Date();
         var data = this.values.filter(this._defined.bind(this));
         console.log('length', data.length);
         var self = this._self;
         this._pointsInRange();
-        var date = new Date();
+        console.log('dots filter', new Date() - date);
         var dots = this._dots.selectAll('circle.dot')
                              .data(data);
-        console.log('dots filter', new Date() - date);
         // update current dots
         dots.attr('cx', (function(d,i) {
               return this.chartElement._x(d.x)}).bind(this._self))
@@ -238,10 +238,11 @@
 
       _defined: function(d) {
         var domainX = this.chartElement._x.domain(),
-            domainY = this.chartElement._y.domain();
+            domainY = this.chartElement._y.domain(),
+            yScale = this.chartElement.yScale;
         if (d.y === null || d.y === undefined)
           return false;
-        else if (d.y === 0 && (this.chartElement.yScale === "ln" || this.chartElement.yScale === "log₁₀"))
+        else if (d.y <= 0 && !(yScale === "linear"))
           return false;
         else if (d.x < domainX[1] && d.x > domainX[0])
           return true;

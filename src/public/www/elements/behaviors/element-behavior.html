@@ -134,7 +134,7 @@
           window.Content[this.label] &&
           window.Content[this.label][this.id] &&
           (pos = window.Content[this.label][this.id].nodes.indexOf(this)) !== -1) {
-        window.Content[this.label][this.id].nodes.splice(pos,1); // remove from Content
+        window.Content[this.label][this.id].nodes.splice(pos,1); // remove from window.Content
         this.removeAttribute('updatable');
       }
       for (var key in obj.element) {
@@ -158,7 +158,7 @@
           window.Content[this.label] &&
           window.Content[this.label][this.id] &&
           (pos = window.Content[this.label][this.id].nodes.indexOf(this)) !== -1) {
-        window.Content[this.label][this.id].nodes.splice(pos,1); // remove from Content
+        window.Content[this.label][this.id].nodes.splice(pos,1); // remove from window.Content
         this.removeAttribute('updatable');
       }
       this.clearValues();
@@ -254,7 +254,6 @@
     checkExceedingState: function(value) {
       if (this.exeedable === false) return;
       if (value === undefined) {
-        console.log(this);
         return;
       }
       if (value.state === null) {
@@ -332,27 +331,33 @@
       this.set('hasExceeded', false);
     },
 
-    _updatableChanged: function() {
-      // sets a global Object 'Content', for updating the values of the elements
+    _updatableChanged: function(newValue, oldValue) {
+      // sets a global Object 'window.Content', for updating the values of the elements
+      var id = this.id,
+          label = this.label;
       if (this.noSocketConnection === false && this.label && this.id) {
         this.setAttribute("updatable", true);
-        if (window.Content[this.label] === undefined)
-          window.Content[this.label] = {};
-        if (!window.Content[this.label][this.id])
-          window.Content[this.label][this.id] = {nodes: [], values: []};
-        if (window.Content[this.label][this.id].nodes.indexOf(this) === -1)
-          window.Content[this.label][this.id].nodes.push(this);
-        // delete this.values;
-        Object.defineProperty(this, "values", { get: function () { return window.Content[this.label][this.id].values; } });
+        if (window.Content === undefined)
+          window.Content = {};
+        if (window.Content[label] === undefined)
+          window.Content[label] = {};
+        if (window.Content[label][id] === undefined)
+          window.Content[label][id] = {nodes: [], values: []};
+        if (window.Content[label][id].nodes.indexOf(this) === -1) {
+          window.Content[label][id].nodes.push(this);
+          // console.log(id, label, 'added', window.Content);
+        delete this.values;
+        Object.defineProperty(this, "values", { get: function () { return window.Content[label][id].values; } });
+        }
       }
       else {
         this.removeAttribute("updatable");
         var pos;
-        if (window.Content !== undefined &&
-            window.Content[this.label] &&
-            window.Content[this.label][this.id] &&
-            (pos = window.Content[this.label][this.id].nodes.indexOf(this)) !== -1)
-          window.Content[this.label][this.id].nodes.splice(pos,1);
+        if (!(window.Content === undefined) &&
+            window.Content[label] &&
+            window.Content[label][id] &&
+            (pos = window.Content[label][id].nodes.indexOf(this)) !== -1)
+          window.Content[label][id].nodes.splice(pos,1);
       }
     },
 
