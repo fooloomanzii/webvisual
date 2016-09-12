@@ -9,8 +9,13 @@ block HeadContent
     // actual measuring system
     window.Name = !{JSON.stringify(name)};
     window.Labels = !{JSON.stringify(config.labels)};
-    console.log(window.Name);
-    window.DataHandler = new DataSocketHandler('/data', window.Name);
+    window.DataHandler = new DataSocketHandler('/data', window.Name, function() {
+      // select the MainPage
+      window.PageSelector = document.querySelector('neon-animated-pages#PageSelector');
+      window.PageSelector.select("1");
+    });
     window.addEventListener('WebComponentsReady', function(e) {
+      window.PageSelector = document.querySelector('neon-animated-pages#PageSelector');
       window.PageSelector.removeAttribute('hidden');
+      window.PageSelector.select("0");
     });

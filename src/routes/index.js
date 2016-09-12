@@ -66,6 +66,8 @@ class router extends EventEmitter {
   }
 
   setSettings(options) {
+    if (options === undefined)
+      this.emit("error", "Empty Configuration passed to router")
     for (let key in options) {
       if (key == 'server')
         this.setServer(options.server)

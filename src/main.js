@@ -98,7 +98,9 @@ app.on("ready", () => {
   });
 
   appConfigLoader.on("change", (settings) => {
-    webvisualserver.createServer(settings);
+    if (webvisualserver.isRunning === true) {
+      webvisualserver.reconnect(settings);
+    }
   });
 
   // app quit
@@ -119,9 +121,9 @@ app.on("ready", () => {
       case "file-dialog":
         dialog.showOpenDialog({
           properties: ["openFile"],
-          filters: args.filter
+          filters: arg.filter
         }, (files) => {
-          sendFilePath(files, args)
+          sendFilePath(files, arg)
         });
         break;
       case "add-user-config":
@@ -137,8 +139,8 @@ app.on("ready", () => {
   });
 
   // addConfigFile
-  function sendFilePath(files, args) {
-    mainWindow.webContents.send("event", "file-path", (files && files.length > 0) ? files[0] : "", args);
+  function sendFilePath(files, arg) {
+    mainWindow.webContents.send("event", "file-dialog", {for: arg.for, path: (files && files.length > 0) ? files[0] : ""});
   }
 
   function addConfigFile(arg) {

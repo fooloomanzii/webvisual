@@ -259,6 +259,18 @@
                 <span hidden$="{{!serverConfig.auth.required}}">mit</span>
                 <span>Authentifizierung</span>
               </toggle-button-element>
+              <section class="inline">
+                <input-element id="certPath" label="Zertifikatdatei (ssl crt)" pattern="*" value="{{serverConfig.ssl.cert}}"></input-element>
+                <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="certPath" filter="crt" aria-label="Datei öffnen..."></icon-button-element>
+              </section>
+              <section class="inline">
+                <input-element id="keyPath" label="Schlüsseldatei (ssl key)" pattern="*" value="{{serverConfig.ssl.key}}"></input-element>
+                <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="keyPath" filter="key" aria-label="Datei öffnen..."></icon-button-element>
+              </section>
+              <section class="inline">
+                <input-element id="passphrasePath" label="Passphrasendatei (ssl passphrase)" pattern="*" value="{{serverConfig.ssl.passphrase}}"></input-element>
+                <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="passphrasePath" filter="json" aria-label="Datei öffnen..."></icon-button-element>
+              </section>
             </section>
           </div>
           <div class="buttons">
@@ -332,10 +344,11 @@
           },
           eventHandler: function(event, arg) {
             switch (event) {
-              case 'file-path':
-                if (arguments[1] && arguments[2]) {
-                  var input = document.querySelector('#'+arguments[2].for);
-                  input.value = arguments[1];
+              case 'file-dialog':
+                console.log(arg);
+                if (arg) {
+                  var input = document.querySelector('#'+arg.for);
+                  input.value = arg.path;
                 }
                 break;
               case 'set-user-config':
@@ -363,10 +376,10 @@
           openFileSelector: function(e) {
             this.$.dropdown.close();
             var arg = {
-              for: e.currentTarget.for,
-              filter: [ {name: e.currentTarget.filter, extensions: [e.currentTarget.filter]} ]
+              for: e.currentTarget.getAttribute('for'),
+              filter: [ {name: e.currentTarget.getAttribute('filter'), extensions: [e.currentTarget.getAttribute('filter')]} ]
             }
-            ipcRenderer.send('event', 'file-path', arg);
+            ipcRenderer.send('event', 'file-dialog', arg);
           },
           editUserConfigFile: function(e) {
             this.$.dropdown.close();
@@ -391,9 +404,20 @@
             ipcRenderer.send('event', 'remove-user-config', {name: name, file: path, renderer: renderer});
           },
           commitServerFile: function() {
-            var req = this.$.authRequired.checked;
-            var http = +this.$.httpPort.value;
-            var https = +this.$.httpsPort.value;
+            this.serverConfig = {
+              auth: {
+                req: this.$.authRequired.checked
+              },
+              port: {
+                http: +this.$.httpPort.value,
+                https: +this.$.httpsPort.value
+              },
+              ssl: {
+                cert: this.$.certPath.value,
+                key: this.$.keyPath.value,
+                passphrase: this.$.passphrasePath.value
+              }
+            }
             ipcRenderer.send('event', 'set-server-config', this.serverConfig);
           },
           openDialog: function(e) {

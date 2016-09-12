@@ -68,7 +68,7 @@ class WebvisualServer extends EventEmitter {
     });
   }
 
-  createServer(settings) {
+  createServer(settings, callback) {
     if (settings)
       this.config = settings;
 
@@ -76,29 +76,29 @@ class WebvisualServer extends EventEmitter {
       this.disconnect();
 
     this.isHttps = false;
-    router.setSettings(config);
+    this.router.setSettings(this.config);
 
+    try {
     // use https & http-redirecting
-    if (this.config.server.ssl &&
-        this.config.server.ssl.cert &&
-        this.config.server.ssl.key &&
-        this.config.server.ssl.passphrase) {
+      if (this.config.server.ssl &&
+          this.config.server.ssl.cert &&
+          this.config.server.ssl.key &&
+          this.config.server.ssl.passphrase) {
 
-      try {
-        let cert = path.resove(this.config.server.ssl.cert);
-        let key = path.resove(this.config.server.ssl.key);
-        let passphrase = path.resove(this.config.server.ssl.passphrase);
+        let cert = path.resolve(this.config.server.ssl.cert);
+        let key = path.resolve(this.config.server.ssl.key);
+        let passphrase = path.resolve(this.config.server.ssl.passphrase);
         let basedir = path.dirname(cert);
 
-        fs.accessSync(cert, fs.constants.R_OK, (err) => {
+        fs.access(cert, fs.constants.R_OK, (err) => {
           if (err)
             throw new Error('File for certification (ssl) not found' + "\n" + err);
           else {
-            fs.accessSync(key, fs.constants.R_OK, (err) => {
+            fs.access(key, fs.constants.R_OK, (err) => {
               if (err)
                 throw new Error('File for public key (ssl) not found' + "\n" + err);
               else {
-                fs.accessSync(passphrase, fs.constants.R_OK, (err) => {
+                fs.access(passphrase, fs.constants.R_OK, (err) => {
                   if (err)
                     throw new Error('File for pasphrase (ssl) not found' + "\n" + err);
                   else {
@@ -112,12 +112,15 @@ class WebvisualServer extends EventEmitter {
                       requestCert: true,
                       rejectUnauthorized: false
                     };
-                    var cert_chain = [];
+                    var cert_chain = [ fs.readFileSync(cert, "utf8"),
+                                       fs.readFileSync(key, "utf8"),
+                                       fs.readFileSync(passphrase, "utf8") ];
 
-                    fs.readdirSync(basedir).forEach(function(filename) {
-                      cert_chain.push(
-                        fs.readFileSync(path.resolve(basedir, filename), "utf-8"));
-                    });
+                    // fs.readdirSync(basedir).forEach(function(filename) {
+                    //   console.log(path.resolve(basedir, filename));
+                    //   cert_chain.push(
+                    //     fs.readFileSync(path.resolve(basedir, filename), "utf-8"));
+                    // });
                     sslOptions.ca = cert_chain;
 
                     // Routing to https if http is requested
@@ -134,68 +137,73 @@ class WebvisualServer extends EventEmitter {
                     this.redirectServer = require("http").createServer(redirectApp);
 
                     // if Error: EADDRINUSE --> log in console
-                    redirectServer.on("error", (e) => {
+                    this.redirectServer.on("error", (e) => {
                           if (e.code == "EADDRINUSE") {
                             this.emit("log", "Port " + this.config.server.port.http + " in use, retrying...");
                             this.emit("log", "Please check if \"node.exe\" is not already running on this port.");
                             this.redirectServer.close();
-                            setTimeout(function() {
-                              this.redirectServer.listen(config.server.port.http);
-                            }, 5000);
                           }
                         })
                         .once("listening", () => {
                           this.emit("log", "HTTP Server is listening for redirecting to https on port", this.config.server.port.http);
                         });
+                    this.mainServer.on("error", (e) => {
+                          if (e.code == "EADDRINUSE") {
+                            this.emit("error", "Port " + this.config.server.port.https + " in use, retrying...");
+                            this.emit("error", "Please check if \"node.exe\" is not already running on this port.");
+                            this.mainServer.close();
+                          }
+                        })
+                      .once("listening", () => {
+                        this.emit("log", "HTTPS Server is listening on port " + this.config.server.port.https);
+                      });
+                    this.dataHandler.setServer(this.mainServer);
+                    if (callback)
+                      callback();
                   }
                 });
               }
             });
           }
         });
-      } catch (e) {
-        this.emit("error","Error in SSL Configuration" + "\n" + err)
-        return;
+      } else { // use http
+        this.mainServer = require("http").createServer(app);
+        this.mainServer.on("error", (e) => {
+              if (e.code == "EADDRINUSE") {
+                this.emit("error", "Port " + this.config.server.port.http + " in use, retrying...");
+                this.emit("error", "Please check if \"node.exe\" is not already running on this port.");
+                this.mainServer.close();
+              }
+            })
+          .once("listening", () => {
+            this.emit("log", "HTTP Server is listening on port " + this.config.server.port.http);
+          });
+        this.dataHandler.setServer(this.mainServer);
+        if (callback)
+          callback();
       }
-    } else { // use http
-      if(this.redirectServer)
-        this.redirectServer.close();
-      if(this.mainServer)
-        this.mainServer.close();
-      this.mainServer = require("http").createServer(app);
+    } catch (err) {
+      this.emit("error","Error in SSL Configuration" + "\n" + err)
+      return;
     }
-
-    mainServer.on("error", (e) => {
-          if (e.code == "EADDRINUSE") {
-            this.emit("error", "Port " + (this.isHttps ? this.config.server.port.https : this.config.server.port.http) + " in use, retrying...");
-            this.emit("error", "Please check if \"node.exe\" is not already running on this port.");
-            this.mainServer.close();
-          }
-        })
-      .once("listening", () => {
-        this.emit("log", (this.isHttps ? "HTTPS" : "HTTP") + "Server is listening on port " + (this.isHttps ? this.config.server.port.https : this.config.server.port.http));
-      });
-
-    this.dataHandler.setServer(this.mainServer);
   }
 
   connect(settings) {
-    if (settings)
-      this.config = settings;
     // connect the DATA-Module
     if (this.isRunning === false) {
       this.emit("log", "WebvisualServer is starting");
-      this.createServer();
-      this.dataHandler.connect(this.config.userConfigFiles);
-      if (this.isHttps === true) {
-        this.redirectServer.listen(config.server.port.http || 80);
-        this.mainServer.listen(config.server.port.https || 443);
-      }
-      else {
-        this.mainServer.listen(config.server.port.http || 80)
-      }
-      this.isRunning = true;
-      this.emit("server-start");
+      this.createServer(settings, () => {
+        this.dataHandler.connect(this.config.userConfigFiles);
+        if (this.isHttps === true) {
+          this.redirectServer.listen(this.config.server.port.http || 80);
+          this.mainServer.listen(this.config.server.port.https || 443);
+        }
+        else {
+          this.mainServer.listen(this.config.server.port.http || 80);
+        }
+        this.isRunning = true;
+        this.emit("server-start");
+      });
     }
   }
 

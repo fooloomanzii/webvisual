@@ -1,6 +1,7 @@
 {
   "server": {
     "auth": {
+      "req": false,
       "ldap": {
         "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
         "url": "ibn-net.kfa-juelich.de"
@@ -8,29 +9,29 @@
       "required": false,
       "suffix": "@fz-juelich.de"
     },
-    "logs": {
-      "http_server_log": "./logs/http-error.log",
-      "server_log": "./logs/server-error.log"
-    },
     "port": {
       "http": 80,
       "https": 443
     },
     "ssl": {
-      "cert": "",
-      "key": "",
-      "passphrase": ""
+      "cert": "D:\\Github\\webvisual\\ssl\\ca.crt",
+      "key": "D:\\Github\\webvisual\\ssl\\ca.key",
+      "passphrase": "D:\\Github\\webvisual\\ssl\\ca.pw.json"
+    },
+    "logs": {
+      "http_server_log": "./logs/http-error.log",
+      "server_log": "./logs/server-error.log"
     }
   },
   "app": {
-    "width": 446,
+    "width": 576,
     "height": 692,
     "autoHideMenuBar": true,
     "acceptFirstMouse": true,
     "webPreferences": {
       "webSecurity": true
     },
-    "x": 1062,
+    "x": 932,
     "y": 143
   },
   "userConfigFiles": {

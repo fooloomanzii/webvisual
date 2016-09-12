@@ -1,5 +1,5 @@
 # Packaged Stuff #
-*.exe
+# *.exe #
 dist/*
 
 # Config files #
@@ -46,6 +46,7 @@ src/ssl/*
 !src/ssl/cert_chain/
 !src/ssl/default/
 !src/ssl/README.md
+ssl/*
 
 # Distributions #
 dist/*

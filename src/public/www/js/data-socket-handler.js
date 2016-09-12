@@ -3,10 +3,10 @@ var Selector = '[updatable]';
 
 window.Content = {};
 window.SvgSource = {};
-window.maxValues = 5000; // 1h for every second update
+window.maxValues = 500000; // 1h for every second update
 
 // SOCKET
-function DataSocketHandler(socketName, name) {
+function DataSocketHandler(socketName, name, callwhenconnected) {
   this.opened = false;
   this.name = name;
   this.socketName = socketName;
@@ -33,7 +33,7 @@ function DataSocketHandler(socketName, name) {
         window.Database[label] = {};
         for (var i in ids) {
           window.Content[label][ids[i]].nodes = [];
-          window.Database[label][ids[i]] = new DatabaseClient(this.name+'/'+label, ids[i]);
+          // window.Database[label][ids[i]] = new DatabaseClient(this.name+'/'+label, ids[i]);
         }
       }
       if (settings.svg)
@@ -46,12 +46,10 @@ function DataSocketHandler(socketName, name) {
   this.socket.on('initial', (function(message) {
     if (message !== undefined) {
       this._update(message);
-      // select the MainPage
-      window.PageSelector = document.querySelector('neon-animated-pages#PageSelector');
-      window.PageSelector.select("1");
       // Set Window title to selectedLabels
       document.title = ((window.selectedLabels.length > 1) ? window.selectedLabels.join(', ') : window.selectedLabels.toString());
       this.opened = true;
+      callwhenconnected();
     }
     else
       console.info("socket: received empty message");
@@ -188,7 +186,7 @@ DataSocketHandler.prototype = {
         spliced = window.Content[label][id].values.splice(0, window.Content[label][id].values.length - maxValues);
       }
 
-      window.Database[label][id].transaction('set', undefined, message.content);
+      // window.Database[label][id].transaction('set', undefined, message.content);
 
       for (var j = 0; j < window.Content[label][id].nodes.length; j++) {
         window.Content[label][id].nodes[j].insertValues(message.content[id]);
