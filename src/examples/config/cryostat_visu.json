@@ -4,7 +4,7 @@
     "connections": {
       "file": {
         "mode": "append",
-        "path": "./examples/datafile/cryostat_visu.txt",
+        "path": "//ibn3-vsrv/CryostatVisu$/Lakeshore/201608011541_Lakeshore.txt",
         "format": {
           "dateFormat": "DD.MM.YYYY hh:mm:ss",
           "decimalSeparator": ",",
@@ -20,73 +20,63 @@
       "types": [{
           "id": "id1",
           "keys": {
-            "Bezeichner": "Temperatur oben",
-            "Sprungtemperatur": "<20K",
-            "Druck": "100 kPa",
-            "Gefahrenklasse": "reizend"
+            "Bezeichner": "Messreihe 1",
+            "bel. Eigenschaft": "1"
           },
           "unit": "K",
           "color": "#A3C825"
         }, {
           "id": "id2",
           "keys": {
-            "Bezeichner": "id2",
-            "Sprungtemperatur": "<40K",
-            "Druck": "300 kPa",
-            "Gefahrenklasse": "reizend"
+            "Bezeichner": "Messreihe 2",
+            "bel. Eigenschaft": "2"
           },
           "unit": "K",
           "color": "#14AFB6"
         }, {
           "id": "id3",
           "keys": {
-            "Bezeichner": "id3",
-            "Sprungtemperatur": "<150K",
-            "Druck": "400 kPa"
+            "Bezeichner": "Messreihe 3",
+            "bel. Eigenschaft": "3"
           },
           "unit": "K",
           "color": "#1464B6"
         }, {
           "id": "id4",
           "keys": {
-            "Bezeichner": "id4",
-            "Sprungtemperatur": "<150K",
-            "Druck": "100 kPa"
+            "Bezeichner": "Messreihe 4",
+            "bel. Eigenschaft": "4"
           },
           "unit": "K",
           "color": "#14B638"
         }, {
           "id": "id5",
           "keys": {
-            "Bezeichner": "id5",
-            "Sprungtemperatur": "<150K",
-            "Druck": "200 kPa"
+            "Bezeichner": "Messreihe 5",
+            "bel. Eigenschaft": "5"
           },
           "unit": "K",
           "color": "#6A14B6"
         }, {
           "id": "id6",
           "keys": {
-            "Bezeichner": "id6",
-            "Sprungtemperatur": "<150K",
-            "Druck": "200 kPa"
+            "Bezeichner": "Messreihe 6",
+            "bel. Eigenschaft": "6"
           },
           "unit": "K",
           "color": "#6A14B6"
         }, {
           "id": "id7",
           "keys": {
-            "Bezeichner": "id7",
-            "Sprungtemperatur": "<150K",
-            "Druck": "200 kPa"
+            "Bezeichner": "Messreihe 7",
+            "bel. Eigenschaft": "7"
           },
           "unit": "K"
         }, {
           "id": "id8",
           "keys": {
-            "Bezeichner": "id8",
-            "Sprungtemperatur": "<150K",
-            "Druck": "200 kPa"
+            "Bezeichner": "Messreihe 8",
+            "bel. Eigenschaft": "8"
           },
           "unit": "K"
         }
@@ -96,22 +86,21 @@
         "id": "id",
         "keys": {
           "Bezeichner": "Bezeichner",
-          "Sprungtemperatur": "verschiedene Sprungtemperatur",
-          "Druck": "verschiedener Druck",
-          "Gefahrenklasse": "keine Gefahrenklasse"
+          "bel. Eigenschaft": "verschiedene Sprungtemperatur"
         },
         "color": "#B63614"
       },
 
-      "groupingKeys": ["Bezeichner", "Gefahrenklasse", "Sprungtemperatur", "Druck", "*"],
+      "groupingKeys": ["Bezeichner", "bel. Eigenschaft", "*"],
       "preferedGroupingKey": "*",
 
       "exclusiveGroups": {
-        "Sprungtemperatur": {
-          "<50K": {
+        "bel. Eigenschaft": {
+          "bel. Vorgruppierung": {
             "ids": [
               "id1",
-              "id2"
+              "id2",
+              "id7"
             ]
           }
         }
@@ -124,7 +113,6 @@
     "connections": {
       "file": {
         "mode": "append",
-        "#path": "./examples/datafile/test.txt",
         "path": "//ibn3-vsrv/CryostatVisu$/Tic500/201608091006TIC500.txt",
         "format": {
           "dateFormat": "DD.MM.YYYY hh:mm:ss",
@@ -136,73 +124,127 @@
       }
     },
 
-    "svg": {
-      "E0": {
-        "src": "",
-        "selectable": {
-          "Cabinets": "g#Cabinets path"
-        }
-      }
-    },
-
     "locals": {
       "ignore": [],
       "types": [{
           "id": "id1",
           "keys": {
-            "Bezeichner": "SmFeAsO≈ 0.85",
-            "Sprungtemperatur": "<20K",
-            "Temperatur": "120K",
-            "Gefahrenklasse": "reizend"
+            "Bezeichner": "Messreihe 1",
+            "bel. Eigenschaft": "1"
           },
-          "unit": "kPa",
-          "color": "#14AFB6"
+          "unit": "K",
+          "color": "#A3C825"
         }, {
           "id": "id2",
           "keys": {
-            "Bezeichner": "GdFeAsO0.85",
-            "Sprungtemperatur": "<40K",
-            "Temperatur": "130K",
-            "Gefahrenklasse": "reizend"
+            "Bezeichner": "Messreihe 2",
+            "bel. Eigenschaft": "2"
           },
-          "unit": "MPa",
-          "color": "#1416B6"
+          "unit": "K",
+          "color": "#14AFB6"
         }, {
           "id": "id3",
           "keys": {
-            "Bezeichner": "Tantal",
-            "Sprungtemperatur": "<150K",
-            "Temperatur": "170K"
+            "Bezeichner": "Messreihe 3",
+            "bel. Eigenschaft": "3"
           },
-          "unit": "MPa",
-          "color": "#14B655"
+          "unit": "K",
+          "color": "#1464B6"
         }, {
           "id": "id4",
           "keys": {
-            "Bezeichner": "Technetium",
-            "Sprungtemperatur": "<150K",
-            "Temperatur": "170K"
+            "Bezeichner": "Messreihe 4",
+            "bel. Eigenschaft": "4"
           },
-          "unit": "kPa",
-          "color": "#A9B614"
+          "unit": "K",
+          "color": "#14B638"
         }, {
           "id": "id5",
           "keys": {
-            "Bezeichner": "PbMo6S8",
-            "Sprungtemperatur": "<150K",
-            "Temperatur": "170K"
+            "Bezeichner": "Messreihe 5",
+            "bel. Eigenschaft": "5"
           },
-          "unit": "kPa"
+          "unit": "K",
+          "color": "#6A14B6"
+        }, {
+          "id": "id6",
+          "keys": {
+            "Bezeichner": "Messreihe 6",
+            "bel. Eigenschaft": "6"
+          },
+          "unit": "K",
+          "color": "#6A14B6"
+        }, {
+          "id": "id7",
+          "keys": {
+            "Bezeichner": "Messreihe 7",
+            "bel. Eigenschaft": "7"
+          },
+          "unit": "K"
+        }, {
+          "id": "id8",
+          "keys": {
+            "Bezeichner": "Messreihe 8",
+            "bel. Eigenschaft": "8"
+          },
+          "unit": "K"
+        }, {
+          "id": "id9",
+          "keys": {
+            "Bezeichner": "Messreihe 9",
+            "bel. Eigenschaft": "9"
+          },
+          "unit": "K"
+        }, {
+          "id": "id10",
+          "keys": {
+            "Bezeichner": "Messreihe 10",
+            "bel. Eigenschaft": "10"
+          },
+          "unit": "K"
+        }, {
+          "id": "id11",
+          "keys": {
+            "Bezeichner": "Messreihe 11",
+            "bel. Eigenschaft": "10"
+          },
+          "unit": "K"
+        }, {
+          "id": "id12",
+          "keys": {
+            "Bezeichner": "Messreihe 12",
+            "bel. Eigenschaft": "7"
+          },
+          "unit": "K"
+        }, {
+          "id": "id13",
+          "keys": {
+            "Bezeichner": "Messreihe 13",
+            "bel. Eigenschaft": "7"
+          },
+          "unit": "K"
+        }, {
+          "id": "id14",
+          "keys": {
+            "Bezeichner": "Messreihe 14",
+            "bel. Eigenschaft": "7"
+          },
+          "unit": "K"
+        }, {
+          "id": "id15",
+          "keys": {
+            "Bezeichner": "Messreihe 15",
+            "bel. Eigenschaft": "7"
+          },
+          "unit": "K"
         }
       ],
 
       "unnamedType": {
         "id": "id",
         "keys": {
-          "Bezeichner": "Bezeichner",
-          "Sprungtemperatur": "verschiedene Sprungtemperatur",
-          "Temperatur": "Temperatur nicht exakt festgelegt",
-          "Gefahrenklasse": "keine Gefahrenklasse"
+          "Bezeichner": "Messreihe",
+          "bel. Eigenschaft": "beliebig"
         },
         "isBoolean": false,
         "values": [{
@@ -213,22 +255,13 @@
         "color": "#B61462"
       },
 
-      "groupingKeys": ["Bezeichner", "Gefahrenklasse", "Sprungtemperatur", "Temperatur", "*"],
-      "preferedGroupingKey": "Bezeichner",
+      "groupingKeys": ["Bezeichner", "bel. Eigenschaft", "*"],
+      "preferedGroupingKey": "*",
 
       "exclusiveGroups": {
         "Bezeichner": {
-          "metallische Supraleiter": {
+          "bel. Vorgruppierung": {
             "ids": [
-              "id3",
-              "id4",
-              "id5"
-            ]
-          },
-          "eisenhaltige Hochtemperatursupraleiter": {
-            "ids": [
-              "id1",
-              "id2"
             ]
           }
         }
