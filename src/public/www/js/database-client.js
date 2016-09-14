@@ -55,6 +55,7 @@
 				key: opt.key,
 				value: opt.value,
 				range: opt.range,
+				direction: opt.direction,
 				count: opt.count
 			}, opt.buffer);
 		},

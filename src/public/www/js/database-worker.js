@@ -368,6 +368,9 @@
 				case 'last':
 					return this.edge(opt.key, opt.count || 1, 'prev');
 					break;
+				case 'edge':
+					return this.edge(opt.key, opt.count || 1, opt.dierection || 'prevUnique');
+					break;
 				case 'count':
 					return this.count(opt.key);
 					break;
