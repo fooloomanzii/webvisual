@@ -144,7 +144,7 @@ class DataParser {
         }
         else if(i !== (values.length-1) && !linefeed.test(values[i])) {
           if (nullValue.test(values[i])) {
-            data.values.push(null);
+            data.values.push(NaN);
           }
           else
             throw new Error("String includes invalid numbers: " + values[i] + "\n"+string);

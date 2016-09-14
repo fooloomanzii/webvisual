@@ -210,7 +210,7 @@
       read;
 
     // Set the encoding
-    readOptions.encoding = 'utf8';
+    // readOptions.encoding = 'utf8';
 
     // Create the readstream
     try {

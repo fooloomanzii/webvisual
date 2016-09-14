@@ -17,14 +17,14 @@
 		unique: false
 	}];
 
-	function IndexedDBHandler(options) {
+	function IndexedDBHandler(opt) {
 
 		this.dbVersion = DB_VERSION;
-		this.dbName = options.dbName || DB_NAME;
-		this.storeName = options.storeName || DB_STORAGE;
+		this.dbName = opt.dbName || DB_NAME;
+		this.storeName = opt.storeName || DB_STORAGE;
 
-		this.keyPath = options.keyPath || DB_KEYPATH;
-		this.indexKeys = options.indexKeys || DB_INDEXKEYS;
+		this.keyPath = opt.keyPath || DB_KEYPATH;
+		this.indexKeys = opt.indexKeys || DB_INDEXKEYS;
 
 		this.open();
 	}
@@ -91,51 +91,58 @@
 			}.bind(this));
 		},
 
-		get (key, value, count, range) {
-			var rangeOptions, rangeMethod;
-			if (value !== undefined) {
+		get: function(key, value, range, count) {
+			var rangeOptions = null,
+				rangeMethod = null,
+				keyRange = null;
+			if (value !== null) {
 				rangeMethod = 'only';
+				rangeOptions = value;
 				if (count === undefined) {
 					count = 1;
 				}
-			}
-			else if (range) {
+			} else if (range) {
 				rangeMethod = range[0];
 				rangeOptions = range.slice(1);
 			}
+			console.log(range, rangeMethod, rangeOptions);
+			if (rangeMethod) {
+				keyRange = IDBKeyRange[rangeMethod].apply(this, rangeOptions);
+			}
 
+			var storeName = this.storeName;
 			return this.open().then(function(db) {
 				return new Promise(function(resolve, reject) {
 					try {
-						var t = db.transaction([storeName], mode);
+						var t = db.transaction([storeName], 'readonly');
 						if (!key)
 							var s = t.objectStore(storeName);
 						else
 							var s = t.objectStore(storeName).index(key);
 						var result = [],
-								i = 0;
-						var keyRange = IDBKeyRange[rangeMethod](rangeOptions);
-						if ('getAllKeys' in objectStore) {
-					    s.getAllKeys(keyRange, count).onsuccess = function(e) {
-					      result = e.target.result;
-					    };
-					  } else {
-					    s.openCursor(keyRange).onsuccess = function(e) {
-					      var cursor = e.target.result;
+							i = 0;
+
+						if (keyRange && 'getAllKeys' in s) {
+							s.getAllKeys(keyRange, count).onsuccess = function(e) {
+								resolve(e.target.result);
+							};
+						} else {
+							s.openCursor(keyRange, 'prev').onsuccess = function(e) {
+								var cursor = e.target.result;
 								i++;
-					      if (cursor && (count === undefined || i < count)) {
-					        result.push(cursor.value);
-					        cursor.continue();
-					      }
-					    };
+								if (cursor && (count === undefined || i < count)) {
+									result.push(cursor.value);
+									cursor.continue();
+								}
+								else {
+									resolve(result);
+								}
+							};
 						}
 					} catch (e) {
 						return reject(e);
 					}
 
-					t.oncomplete = function() {
-						resolve(result);
-					};
 					t.onabort = t.onerror = function() {
 						reject(t.error);
 					};
@@ -143,7 +150,7 @@
 			});
 		},
 
-		set(value) {
+		set: function(value) {
 			var storeName = this.storeName;
 			if (Array.isArray(value) === true) {
 				return this.place(value);
@@ -153,13 +160,13 @@
 						try {
 							var t = db.transaction([storeName], 'readwrite');
 							var s = t.objectStore(storeName);
-							s.put(value);
+							var r = s.put(value);
+							r.onsuccess = function() {
+								resolve();
+							}
 						} catch (e) {
 							return reject(e);
 						}
-						t.oncomplete = function() {
-							resolve();
-						};
 						t.onabort = t.onerror = function() {
 							reject(t.error);
 						};
@@ -168,7 +175,44 @@
 			}
 		},
 
-		place(values) {
+		setBuffer: function(buffer) {
+			var storeName = this.storeName;
+			var floatArrays = {
+				x: new Float64Array(buffer.x),
+				y: new Float64Array(buffer.y)
+			};
+			return this.open().then(function(db) {
+				console.log('start Promise', new Date());
+				return new Promise(function(resolve, reject) {
+					try {
+						var t = db.transaction([storeName], 'readwrite');
+						var s = t.objectStore(storeName);
+						var r;
+						for (var i = 0; i < floatArrays.x.length; i++) {
+							r = s.put({
+								x: floatArrays.x[i],
+								y: floatArrays.y[i] || null
+							});
+							if (i === floatArrays.x.length - 1) {
+								console.log('possible end Promise', new Date());
+								resolve();
+							}
+						}
+					} catch (e) {
+						return reject(e);
+					}
+					// t.oncomplete = function() {
+					// 	console.log('end Promise', new Date());
+					// 	resolve();
+					// };
+					t.onabort = t.onerror = function() {
+						reject(t.error);
+					};
+				});
+			});
+		},
+
+		place: function(values) {
 			var storeName = this.storeName;
 			return this.open().then(function(db) {
 				return new Promise(function(resolve, reject) {
@@ -191,23 +235,23 @@
 			});
 		},
 
-		count(key) {
+		count: function(key) {
 			var storeName = this.storeName;
 			return this.open().then(function(db) {
 				return new Promise(function(resolve, reject) {
 					try {
 						var t = db.transaction([storeName], 'readonly');
 						if (!key)
-							var s = t.objectStore(this.storeName);
+							var s = t.objectStore(storeName);
 						else
-							var s = t.objectStore(this.storeName).index(key);
-						var r = s.count(value);
+							var s = t.objectStore(storeName).index(key);
+						var r = s.count();
+						r.onsuccess = function() {
+							resolve(r.result);
+						}
 					} catch (e) {
 						return reject(e);
 					}
-					t.oncomplete = function() {
-						resolve(r.result);
-					};
 					t.onabort = t.onerror = function() {
 						reject(t.error);
 					};
@@ -221,14 +265,14 @@
 				return new Promise(function(resolve, reject) {
 					try {
 						var t = db.transaction([storeName], 'readwrite');
-						var s = t.objectStore(this.storeName);
-						s.count(value);
+						var s = t.objectStore(storeName);
+						var r = s.clear();
+						r.onsuccess = function() {
+							resolve();
+						}
 					} catch (e) {
 						return reject(e);
 					}
-					t.oncomplete = function() {
-						resolve();
-					};
 					t.onabort = t.onerror = function() {
 						reject(t.error);
 					};
@@ -237,31 +281,65 @@
 		},
 
 		edge: function(key, count, direction) {
+			var storeName = this.storeName;
 			return this.open().then(function(db) {
 				return new Promise(function(resolve, reject) {
 					try {
-						var t = db.transaction(this.storeName, 'readonly');
+						var t = db.transaction(storeName, 'readonly');
 						if (!key)
-							var s = t.objectStore(this.storeName);
+							var s = t.objectStore(storeName);
 						else
-							var s = t.objectStore(this.storeName).index(key);
+							var s = t.objectStore(storeName).index(key);
+
+						var result = [], cursor,
+							i = 0;
+						s.openCursor(null, direction).onsuccess = function(e) {
+							cursor = e.target.result;
+							i++;
+							if ((i <= count || count === undefined) && cursor) {
+								result.push(cursor.value);
+								cursor.continue();
+							}
+							else {
+								resolve(result)
+							}
+						};
+					} catch (e) {
+						return reject(e);
+					}
+					t.onabort = function() {
+						reject(t.error);
+					};
+				});
+			});
+		},
+
+		range: function(key) {
+			var storeName = this.storeName;
+			var keyPath = key || this.keyPath;
+			return this.open().then(function(db) {
+				return new Promise(function(resolve, reject) {
+					try {
+						var t = db.transaction(storeName, 'readonly');
+						if (!key)
+							var s = t.objectStore(storeName);
+						else
+							var s = t.objectStore(storeName).index(key);
 
 						var result = [],
-								i = 0;
-						s.openCursor(null, direction).onsuccess = function(e) {
-					    var cursor = e.target.result;
-							i++;
-				      if (cursor && (count === undefined || i < count)) {
-				        result.push(cursor.value);
-				        cursor.continue();
-				      }
-				    };
+							i = 0;
+						s.openCursor(null, 'next').onsuccess = function(e) {
+							result.push(e.target.result.value[keyPath]);
+						};
+						s.openCursor(null, 'prev').onsuccess = function(e) {
+							result.push(e.target.result.value[keyPath]);
+						};
 
 					} catch (e) {
 						return reject(e);
 					}
 
-					r.onsuccess = function(e) {
+					t.oncomplete = function(e) {
 						resolve(result);
 					};
 					t.onabort = function() {
@@ -271,24 +349,30 @@
 			});
 		},
 
-		transaction: function(method, key, value, range, count) {
-			value = value || null;
+		transaction: function(opt) {
+			opt.value = opt.value || null;
 
-			switch (method) {
+			switch (opt.method) {
 				case 'get':
-					return this.get(key, value, range, count);
+					return this.get(opt.key, opt.value, opt.range, opt.count || 1);
 					break;
 				case 'set':
-					return this.set(value);
+					return this.set(opt.value);
+					break;
+				case 'setBuffer':
+					return this.setBuffer(opt.value);
 					break;
 				case 'first':
-					return this.edge(key, count, 'prev');
+					return this.edge(opt.key, opt.count || 1, 'next');
 					break;
 				case 'last':
-					return this.edge(key, count, 'next');
+					return this.edge(opt.key, opt.count || 1, 'prev');
 					break;
 				case 'count':
-					return this.count(key);
+					return this.count(opt.key);
+					break;
+				case 'range':
+					return this.range(opt.key);
 					break;
 			}
 
@@ -299,6 +383,7 @@
 			if (!e.data) {
 				return;
 			}
+			var id = e.data.id;
 
 			switch (e.data.type) {
 				case 'close-db':
@@ -309,12 +394,12 @@
 					});
 					break;
 				case 'transaction':
-					this.transaction(e.data.method, e.data.key, e.data.value, e.data.range, e.data.count)
+					this.transaction(e.data)
 						.then(function(result) {
 							postMessage({
 								type: 'transaction-result',
-								result: result,
-								start: e.data.start
+								id: id,
+								result: result
 							});
 						});
 					break;
@@ -359,14 +444,16 @@
 						type: 'db-connected'
 					});
 				}
-			} else if (databaseWorker.handleMessage)
+			} else if (databaseWorker.handleMessage) {
+				console.log('onMessage', databaseWorker.dbName, (+(new Date())));
 				databaseWorker.handleMessage(e);
+			}
 			else {
 				console.log('Not possible', e)
 			}
 		};
 	} else {
 		// acting as a non-webworker (class)
-		window.IndexedDBHandler = IndexedDBHandler;
+		// window.IndexedDBHandler = IndexedDBHandler;
 	}
 })();

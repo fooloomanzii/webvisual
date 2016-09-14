@@ -1,14 +1,8 @@
 (function() {
 	'use strict';
 	var WORKER_URL = 'js/database-worker.js';
-	var CONNECTS_TO_WORKER = '__connectsToWorker';
-	var CONNECTED = '__connected';
-	var MESSAGE_ID = '__messageId';
-	var worker = null;
-
 	var DB_NAME = 'database';
 	var DB_STORAGE = 'entries';
-	var DB_VERSION = 1;
 	var DB_KEYPATH = 'x';
 	var DB_INDEXKEYS = [{
 		key: 'y',
@@ -22,6 +16,7 @@
 		this.dbVersion = 1;
 		this.dbName = dbName || DB_NAME;
 		this.storeName = storeName || DB_STORAGE;
+		this.messageId = 0;
 
 		this.keyPath = keyPath || DB_KEYPATH;
 		this.indexKeys = indexKeys || DB_INDEXKEYS;
@@ -29,33 +24,39 @@
 		this.workerurl = WORKER_URL;
 		this.isConnected = false;
 		this.connectedWorker = null;
+
 		this.connect();
 	};
 
 	DatabaseClient.prototype = {
 		constructor: DatabaseClient,
-		post: function(message) {
+		post: function(msg, buffer) {
+			this.messageId++;
 			return this.connect().then(function(worker) {
 				return new Promise(function(resolve) {
-					worker.addEventListener('message', function onMessage(event) {
-						if (event) {
+					var id = this.messageId;
+					worker.addEventListener('message', function onMessage(e) {
+            if (e.data && e.data.id === id) {
 							worker.removeEventListener('message', onMessage);
-							resolve(event.data.result);
+							resolve(e.data.result);
 						}
 					});
-					worker.postMessage(message);
+					msg.id = id;
+					console.log('postMessage', this.dbName, (+(new Date())));
+					worker.postMessage(msg, buffer);
 				}.bind(this));
 			}.bind(this));
 		},
 
-		transaction: function(method, key, value) {
+		transaction: function(method, opt) {
 			return this.post({
 				type: 'transaction',
 				method: method,
-				key: key,
-				value: value,
-				start: new Date()
-			});
+				key: opt.key,
+				value: opt.value,
+				range: opt.range,
+				count: opt.count
+			}, opt.buffer);
 		},
 
 		close: function() {
@@ -70,14 +71,11 @@
 			}
 			return this.connectedWorker = new Promise(function(resolve) {
 				var worker = new Worker(this.workerurl);
-				worker.addEventListener('message', function(event) {
-					if (event.data && event.data.type === 'db-connected') {
+				worker.addEventListener('message', function(e) {
+					if (e.data && e.data.type === 'db-connected') {
 						console.log('IndexedDB Client connected!');
 						this.isConnected = true;
 						resolve(worker);
-					} else if (event.data && event.data.type === 'transaction-result') {
-						// console.log('Transaction time:', new Date()-event.data.start);
-						// resolve(worker);
 					}
 				}.bind(this));
 

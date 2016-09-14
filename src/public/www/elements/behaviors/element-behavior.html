@@ -342,7 +342,9 @@
         if (window.Content[label] === undefined)
           window.Content[label] = {};
         if (window.Content[label][id] === undefined)
-          window.Content[label][id] = {nodes: [], values: []};
+          window.Content[label][id] = {};
+        if (window.Content[label][id].nodes === undefined)
+          window.Content[label][id].nodes = [];
         if (window.Content[label][id].nodes.indexOf(this) === -1) {
           window.Content[label][id].nodes.push(this);
           // console.log(id, label, 'added', window.Content);

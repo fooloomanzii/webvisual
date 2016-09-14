@@ -24,14 +24,17 @@ function DataSocketHandler(socketName, name, callwhenconnected) {
 			window.Groups = settings.groups;
 			window.GroupingKeys = settings.groupingKeys;
 			window.PreferedGroupingKeys = settings.preferedGroupingKeys;
-			window.Database = {};
-			// window.Content = settings.elements;
+			window.DatabaseForSocket = {};
+			window.DatabaseForElements = {};
+			window.Content = window.Content || settings.elements;
 			for (var label in window.Content) {
 				var ids = Object.keys(window.Content[label]);
-				window.Database[label] = {};
+				window.DatabaseForSocket[label] = {};
+				window.DatabaseForElements[label] = {};
 				for (var i in ids) {
 					// window.Content[label][ids[i]].nodes = [];
-					window.Database[label][ids[i]] = new DatabaseClient(this.name + '/' + label + '/' + ids[i]);
+					window.DatabaseForSocket[label][ids[i]] = new DatabaseClient(this.name + '/' + label + '/' + ids[i]);
+					window.DatabaseForElements[label][ids[i]] = new DatabaseClient(this.name + '/' + label + '/' + ids[i]);
 				}
 			}
 			if (settings.svg)
@@ -178,45 +181,75 @@ DataSocketHandler.prototype = {
 			start2 = {};
 
 		for (var id in message.content) {
-			if (window.Content[label] === undefined || window.Content[label][id] === undefined) {
-				console.warn("no window.Content-Object for", label, id);
-				continue;
-			}
-			len = message.content[id].length;
-			spliced = [];
+			// if (window.Content[label] === undefined || window.Content[label][id] === undefined) {
+			// 	console.warn("no window.Content-Object for", label, id);
+			// 	continue;
+			// }
+			// len = message.content[id].length;
+			// spliced = [];
+			//
+			// if (len > maxValues)
+			// 	message.content[id] = message.content[id].slice(len - maxValues, len);
+			// // console.log(len, label, id);
+			// // message.content[i].values.forEach(function(d) {
+			// //   d.x = Date.parse(d.x); // parse Date in Standard Date Object
+			// // });
+			//
+			// if (window.Content[label][id].values.length === 0)
+			// 	window.Content[label][id].values = message.content[id];
+			// else
+			// 	for (var j = message.content[id].length - 1; j >= 0; j--) {
+			// 		window.Content[label][id].values.push(message.content[id][j]);
+			// 	}
+			// if (window.Content[label][id].values.length > maxValues) {
+			// 	spliced = window.Content[label][id].values.splice(0, window.Content[label][id].values.length - maxValues);
+			// }
 
-			if (len > maxValues)
-				message.content[id] = message.content[id].slice(len - maxValues, len);
-			// console.log(len, label, id);
-			// message.content[i].values.forEach(function(d) {
-			//   d.x = Date.parse(d.x); // parse Date in Standard Date Object
-			// });
-
-			if (window.Content[label][id].values.length === 0)
-				window.Content[label][id].values = message.content[id];
-			else
-				for (var j = message.content[id].length - 1; j >= 0; j--) {
-					window.Content[label][id].values.push(message.content[id][j]);
-				}
-			if (window.Content[label][id].values.length > maxValues) {
-				spliced = window.Content[label][id].values.splice(0, window.Content[label][id].values.length - maxValues);
-			}
-
-			start1[id] = new Date();
-			window.Database[label][id].transaction('set', null, message.content[id])
+			// start1[id] = new Date();
+			// window.DatabaseForSocket[label][id].transaction('set', {value: message.content[id]})
+			// 	.then(function(result) {
+			// 		console.log("set", label, id, "length:", message.content[id].length, "time:", new Date() - start1[id]);
+			// 	});
+			// start2[id] = new Date();
+			window.DatabaseForSocket[label][id].transaction('setBuffer', {
+					value: message.buffer[id],
+					buffer: [message.buffer[id].x, message.buffer[id].y]
+				})
 				.then(function(result) {
-					console.log("complete", label, id, "length:", message.content[id].length, "time:", new Date() - start1[id]);
+					console.log("setBuffer", label, id, "length:", message.content[id].length, "time:", new Date() - start2[id]);
+					start1[id] = new Date();
+					window.DatabaseForSocket[label][id].transaction('get', {key: 'y', range: ['lowerBound',1.569983]})
+						.then(function(result) {
+							console.log("get", label, id, "time:", new Date() - start1[id]);
+							console.log(JSON.stringify(result));
+						});
+					window.DatabaseForElements[label][id].transaction('first', {key: 'y', count:20})
+						.then(function(result) {
+							console.log("first", label, id, "time:", new Date() - start1[id]);
+							console.log(JSON.stringify(result));
+						});
 				});
+			// setTimeout(function(){
+			// 	start1[id] = new Date();
+			// 	window.DatabaseForElements[label][id].transaction('last', {count: 10})
+			// 		.then(function(result) {
+			// 			console.log("last", label, id, "time:", new Date() - start1[id]);
+			// 			console.log(result);
+			// 		});
+			// }, 10000);
 
-			for (var j = 0; j < window.Content[label][id].nodes.length; j++) {
-				window.Content[label][id].nodes[j].insertValues(message.content[id]);
-				if (spliced.length > 0)
-					window.Content[label][id].nodes[j].spliceValues({
-						start: 0,
-						length: spliced.length,
-						values: spliced
-					});
-			}
+
+
+
+			// for (var j = 0; j < window.Content[label][id].nodes.length; j++) {
+			// 	window.Content[label][id].nodes[j].insertValues(message.content[id]);
+			// 	if (spliced.length > 0)
+			// 		window.Content[label][id].nodes[j].spliceValues({
+			// 			start: 0,
+			// 			length: spliced.length,
+			// 			values: spliced
+			// 		});
+			// }
 		}
 	},
 	compareFn: function(a, b) {

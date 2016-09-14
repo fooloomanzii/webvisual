@@ -16,7 +16,7 @@
     },
 
     "locals": {
-      "ignore": [],
+      "ignore": [1,2,3,4,5,6,7,8,9,10],
       "types": [{
           "id": "id1",
           "keys": {
@@ -142,101 +142,6 @@
           },
           "unit": "K",
           "color": "#14AFB6"
-        }, {
-          "id": "id3",
-          "keys": {
-            "Bezeichner": "Messreihe 3",
-            "bel. Eigenschaft": "3"
-          },
-          "unit": "K",
-          "color": "#1464B6"
-        }, {
-          "id": "id4",
-          "keys": {
-            "Bezeichner": "Messreihe 4",
-            "bel. Eigenschaft": "4"
-          },
-          "unit": "K",
-          "color": "#14B638"
-        }, {
-          "id": "id5",
-          "keys": {
-            "Bezeichner": "Messreihe 5",
-            "bel. Eigenschaft": "5"
-          },
-          "unit": "K",
-          "color": "#6A14B6"
-        }, {
-          "id": "id6",
-          "keys": {
-            "Bezeichner": "Messreihe 6",
-            "bel. Eigenschaft": "6"
-          },
-          "unit": "K",
-          "color": "#6A14B6"
-        }, {
-          "id": "id7",
-          "keys": {
-            "Bezeichner": "Messreihe 7",
-            "bel. Eigenschaft": "7"
-          },
-          "unit": "K"
-        }, {
-          "id": "id8",
-          "keys": {
-            "Bezeichner": "Messreihe 8",
-            "bel. Eigenschaft": "8"
-          },
-          "unit": "K"
-        }, {
-          "id": "id9",
-          "keys": {
-            "Bezeichner": "Messreihe 9",
-            "bel. Eigenschaft": "9"
-          },
-          "unit": "K"
-        }, {
-          "id": "id10",
-          "keys": {
-            "Bezeichner": "Messreihe 10",
-            "bel. Eigenschaft": "10"
-          },
-          "unit": "K"
-        }, {
-          "id": "id11",
-          "keys": {
-            "Bezeichner": "Messreihe 11",
-            "bel. Eigenschaft": "10"
-          },
-          "unit": "K"
-        }, {
-          "id": "id12",
-          "keys": {
-            "Bezeichner": "Messreihe 12",
-            "bel. Eigenschaft": "7"
-          },
-          "unit": "K"
-        }, {
-          "id": "id13",
-          "keys": {
-            "Bezeichner": "Messreihe 13",
-            "bel. Eigenschaft": "7"
-          },
-          "unit": "K"
-        }, {
-          "id": "id14",
-          "keys": {
-            "Bezeichner": "Messreihe 14",
-            "bel. Eigenschaft": "7"
-          },
-          "unit": "K"
-        }, {
-          "id": "id15",
-          "keys": {
-            "Bezeichner": "Messreihe 15",
-            "bel. Eigenschaft": "7"
-          },
-          "unit": "K"
         }
       ],
 
