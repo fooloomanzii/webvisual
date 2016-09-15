@@ -42,7 +42,7 @@
 						}
 					});
 					msg.id = id;
-					console.log('postMessage', this.dbName, (+(new Date())));
+					// console.log('postMessage', this.dbName, (+(new Date())));
 					worker.postMessage(msg, buffer);
 				}.bind(this));
 			}.bind(this));

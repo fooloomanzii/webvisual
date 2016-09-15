@@ -54,15 +54,18 @@
         binaryInterval: 100,
         alwaysStat: true,
         ignorePermissionErrors: false,
-        atomic: false,
-        awaitWriteFinish: false
+        atomic: 100,
+        awaitWriteFinish: {
+					stabilityThreshold: 100,
+					pollInterval: 100
+				}
       },
       ignoredFirstLines: 0
     },
     _watchers = {},
     _watcherCount = 0,
     _extension = '.log',
-    newline = /\r\n|\n\r|\n/, // Every possible newline character
+    newline = /\r\n|\n\r|\n|\v/, // Every possible newline character
     errorFile = './filewatch.err';
 
   // Functions

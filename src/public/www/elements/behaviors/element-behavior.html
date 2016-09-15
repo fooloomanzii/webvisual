@@ -207,7 +207,7 @@
       if (this.updateEveryValue === false) {
         if (this.exeedable === true)
           this.checkExceedingState(values[(this.newestDataFirst === false) ? values.length - 1 : 0]);
-        this._updateView(values[(this.newestDataFirst === false) ? values.length - 1 : 0]);
+        this.render(values[(this.newestDataFirst === false) ? values.length - 1 : 0]);
       } else {
         if (this.exeedable === true) {
           i = (this.newestDataFirst === false) ? 0 : values.length - 1;
@@ -216,7 +216,7 @@
             i += it;
           }
         }
-        this._updateView();
+        this.render();
       }
     },
 
@@ -230,13 +230,13 @@
     spliceValues: function(start, length) {
       if (this.noSocketConnection === true) {
         var values = this.values.splice(start, length);
-        this._updateView(undefined, {
+        this.render(undefined, {
           start: start,
           length: length,
           values: values
         });
       } else {
-        this._updateView(undefined, {
+        this.render(undefined, {
           start: start,
           length: length,
           values: this.values.slice(start, start + length)
@@ -247,13 +247,13 @@
     clearValues: function() {
       if (this.noSocketConnection === true) {
         var values = this.values.splice(0, this.values.length - 1);
-        this._updateView(undefined, {
+        this.render(undefined, {
           start: 0,
           length: this.values.length - 1,
           values: values
         });
       } else {
-        this._updateView(undefined, {
+        this.render(undefined, {
           start: 0,
           length: this.values.length - 1,
           values: this.values
@@ -261,7 +261,7 @@
       }
     },
 
-    _updateView: function(values, splices) {},
+    render: function(values, splices) {},
 
     renderNewValues: function(values) {},
 

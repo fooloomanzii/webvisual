@@ -173,6 +173,28 @@
 				});
 			}
 		},
+		place: function(values) {
+			var storeName = this.storeName;
+			return this.open().then(function(db) {
+				return new Promise(function(resolve, reject) {
+					try {
+						var t = db.transaction([storeName], 'readwrite');
+						var s = t.objectStore(storeName);
+						for (var i = values.length - 1 ; i >=0 ; i--) {
+							s.put(values[i]);
+						}
+					} catch (e) {
+						return reject(e);
+					}
+					t.oncomplete = function() {
+						resolve();
+					};
+					t.onabort = t.onerror = function() {
+						reject(t.error);
+					};
+				});
+			});
+		},
 
 		setBuffer: function(buffer) {
 			var storeName = this.storeName;
@@ -204,29 +226,6 @@
 					// 	console.log('end Promise', new Date());
 					// 	resolve();
 					// };
-					t.onabort = t.onerror = function() {
-						reject(t.error);
-					};
-				});
-			});
-		},
-
-		place: function(values) {
-			var storeName = this.storeName;
-			return this.open().then(function(db) {
-				return new Promise(function(resolve, reject) {
-					try {
-						var t = db.transaction([storeName], 'readwrite');
-						var s = t.objectStore(storeName);
-						for (var i = 0; i < values.length; i++) {
-							s.put(values[i]);
-						}
-					} catch (e) {
-						return reject(e);
-					}
-					t.oncomplete = function() {
-						resolve();
-					};
 					t.onabort = t.onerror = function() {
 						reject(t.error);
 					};
@@ -447,7 +446,7 @@
 					});
 				}
 			} else if (databaseWorker.handleMessage) {
-				console.log('onMessage', databaseWorker.dbName, (+(new Date())));
+				// console.log('onMessage', databaseWorker.dbName, (+(new Date())));
 				databaseWorker.handleMessage(e);
 			} else {
 				console.log('Not possible', e)

@@ -1,7 +1,7 @@
 // globals
 var Selector = '[updatable]';
 window.SvgSource = {};
-window.maxValues = 3600; // 1/2h for every second update
+window.maxValues = 7200; // 1/2h for every second update
 
 // SOCKET
 function DataSocketHandler(socketName, name, callwhenconnected) {
@@ -27,14 +27,14 @@ function DataSocketHandler(socketName, name, callwhenconnected) {
 			window.DatabaseForSocket = {};
 			window.DatabaseForElements = {};
 			window.Content = window.Content || settings.elements;
-			// for (var label in window.Content) {
-			// 	var ids = Object.keys(window.Content[label]);
-			// 	window.DatabaseForSocket[label] = {};
-			// 	for (var i in ids) {
-			// 		// window.Content[label][ids[i]].nodes = [];
-			// 		// window.DatabaseForSocket[label][ids[i]] = new DatabaseClient(this.name + '/' + label + '/' + ids[i]);
-			// 	}
-			// }
+			for (var label in window.Content) {
+				var ids = Object.keys(window.Content[label]);
+				window.DatabaseForSocket[label] = {};
+				for (var i in ids) {
+					// window.Content[label][ids[i]].nodes = [];
+					window.DatabaseForSocket[label][ids[i]] = new DatabaseClient(this.name + '/' + label + '/' + ids[i]);
+				}
+			}
 			if (settings.svg)
 				this._loadSvgSources(settings.svg);
 		} else {
@@ -203,11 +203,11 @@ DataSocketHandler.prototype = {
 				spliced = window.Content[label][id].values.splice(0, window.Content[label][id].values.length - maxValues);
 			}
 
-			// start1[id] = new Date();
-			// window.DatabaseForSocket[label][id].transaction('set', {value: message.content[id]})
-			// 	.then(function(result) {
-			// 		console.log("set", label, id, "length:", message.content[id].length, "time:", new Date() - start1[id]);
-			// 	});
+			start1[id] = new Date();
+			window.DatabaseForSocket[label][id].transaction('set', {value: message.content[id]})
+				.then(function(result) {
+					console.log("set", label, id, "length:", message.content[id].length, "time:", new Date() - start1[id]);
+				});
 			// start2[id] = new Date();
 			// window.DatabaseForSocket[label][id].transaction('setBuffer', {
 			// 		value: message.buffer[id],

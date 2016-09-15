@@ -298,7 +298,7 @@
         this.$.sign.classList.add(state);
       },
 
-      _updateView: function(value) {
+      render: function(value) {
         if (value === undefined)
           value = this.values[this.values.length-1];
 
@@ -318,12 +318,12 @@
 
       _setFirstExceeds: function(value) {
         this.firstExceeds.push(value);
-        this.$.firstExceedsTable._updateView(value);
+        this.$.firstExceedsTable.render(value);
       },
 
       _setLastExceeds: function(value) {
         this.lastExceeds.push(value);
-        this.$.lastExceedsTable._updateView(value);
+        this.$.lastExceedsTable.render(value);
       },
 
       _handleChecked: function() {

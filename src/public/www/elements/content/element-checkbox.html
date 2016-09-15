@@ -126,7 +126,7 @@
         font-size: 0.5em;
       }
 
-      :host([vertical]) span.captions {
+      :host:not([horizontal]) span.captions {
         float: left;
         clear: both;
       }
@@ -257,7 +257,7 @@
       <section id="preferedKey" class="caption">
         <span class="captions prefered">[[getPreferedKey(preferedKey, keys.*)]]</span>
         <template is="dom-if" if="[[!captionDropdown]]">
-          <template id='captiontemplate' is='dom-repeat' items='[[captionKeys]]' as='captionKey'>
+          <template id='captiontemplate' is='dom-repeat' items='[[reducedCaptionKeys]]' as='captionKey'>
             <span class='captions' hidden$='[[isEmptyCaption(captionKey, preferedKey)]]'>[[getKey(captionKey, keys.*)]]</span>
           </template>
         </template>
@@ -267,8 +267,8 @@
     <template is="dom-if" if="[[captionDropdown]]">
       <dropdown-element id="caption" for="preferedKey" target-showing-event="mouseover" target-hiding-event="mouseleave" position="bottom" align="start">
         <section class="caption">
-          <template id='captiontemplate' is='dom-repeat' items='[[captionKeys]]' as='captionKey'>
-            <span class='captions' hidden$='[[isEmptyCaption(captionKey, preferedKey)]]'>[[getKey(captionKey, keys.*)]]</span>
+          <template id='captiontemplate' is='dom-repeat' items='[[reducedCaptionKeys]]' as='captionKey'>
+            <span class='captions' hidden$='[[isEmptyCaption(captionKey)]]'>[[getKey(captionKey, keys.*)]]</span>
           </template>
         </section>
       </dropdown-element>
@@ -307,7 +307,7 @@
       },
 
       properties: {
-        vertical: {
+        horizontal: {
           type: Boolean,
           value: false,
           reflectToAttribute: true
@@ -332,6 +332,12 @@
           type: String,
           value: ""
         },
+				reducedCaptionKeys: {
+					type: Array,
+					value: function() {
+            return [];
+          }
+				},
         insertEveryValue: {
           type: Boolean,
           value: false,
@@ -340,11 +346,12 @@
       },
 
       getPreferedKey: function(preferedKey) {
-        return this.keys[this.preferedKey] || this.keys[this.captionKeys[0]];
+				this.set('reducedCaptionKeys', this.captionKeys.filter(function(key) {return (key !== preferedKey)} ));
+        return this.keys[this.preferedKey] || this.keys[this.reducedCaptionKeys[0]];
       },
 
       isEmptyCaption: function(key) {
-        if (!this.keys[key] || key === this.preferedKey) return true;
+        if (!this.keys[key]) return true;
         else return false;
       },
 
@@ -358,7 +365,7 @@
         this.$.container.classList.add(state);
       },
 
-      _updateView: function(value) {
+      render: function(value) {
         if (value === undefined) {
           value = this.values[this.values.length-1];
         }

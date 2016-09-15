@@ -372,8 +372,8 @@
                     "grouping": [3],
                     "currency": ["", "\u00a0€"]
                 });
-                this.formatMillisecond = d3.timeFormat(":%S.%L");
-                this.formatLongSecond = d3.timeFormat("%M:%S.%L");
+                this.formatMillisecond = d3.timeFormat(":%S,%L");
+                this.formatLongSecond = d3.timeFormat("%M:%S,%L");
                 this.formatSecond = d3.timeFormat("%M:%S");
                 this.formatLongMinute = d3.timeFormat("%H:%M:%S");
                 this.formatMinute = d3.timeFormat("%H:%M");
@@ -586,7 +586,7 @@
                     .tickFormat(this.timeFormat.bind(this));
                 else if (scale.base && scale.base() === Math.E)
                     axis.tickFormat(function(d) {
-                        return "ln(y) = " + Math.round(Math.log(d));
+                        return (d < 1 || d > 1000 ? (Math.log(d)).toExponential(3) : (Math.log(d)).toFixed(2));
                     })
 
                 return axis;
@@ -617,9 +617,13 @@
 
             redraw: function() {
               if (this._chart === undefined || this._chart.select === undefined) return;
-              this.setDomains();
-              this._redraw();
+							this.setDomains();
+              this._debouncedRedraw();
             },
+
+						_debouncedRedraw: function() {
+							this.debounce('redraw', this._redraw, 25);
+						},
 
             _redraw: function() {
               if (this._chart === undefined || this._chart.select === undefined) return;
@@ -651,18 +655,12 @@
                 } else if (this._isBrushed === true) {
                     this._isBrushed = false;
                 } else {
-                    this._setDomains();
+                    this.setDomains();
                 }
                 this._redraw();
             },
 
-            _zoomed: function() {},
-
             setDomains: function() {
-                this._setDomains();
-            },
-
-            _setDomains: function() {
                 if (this._elements.length === 0) return;
 
                 var domainX, domainY = [0, 0],
