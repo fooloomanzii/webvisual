@@ -47,9 +47,12 @@ class fileConfigLoader extends EventEmitter {
         delete this.settings[name]._filehandler;
       }
       let listener = {
-        error: (function(type, errors, name, path) {
-          // console.log(errors);
-          this.emit('error', errors, {path: path, name: name});
+        error: (function(option, err) {
+					let errString = "";
+					err.forEach(function(msg) {
+						errString += "path: " + msg.path + "\n" + msg.details + "\n";
+					})
+					this.emit("error", option.type + "\n" + errString);
         }).bind(this),
         data: (function(type, data, name, path) {
           if (data && name) {
