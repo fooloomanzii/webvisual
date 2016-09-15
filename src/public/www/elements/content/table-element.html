@@ -181,9 +181,10 @@
               this._body.removeChild(this._body.children[0]);
             this._map = {};
           }
-          for (var i = 0; i < this.values.length; i++) {
-            this.createRow(this.values[i]);
-          }
+					if (this.values)
+	          for (var i = 0; i < this.values.length; i++) {
+	            this.createRow(this.values[i]);
+	          }
         }
         else {
           this.createRow(value)

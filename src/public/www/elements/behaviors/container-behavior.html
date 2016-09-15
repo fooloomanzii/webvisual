@@ -2,73 +2,77 @@
   ContainerBehavior = {
 
     properties: {
-        opened: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true
-        },
-        openOnSelect: {
-          type: Boolean,
-          value: false
-        },
-        openOnExceed: {
-          type: Boolean,
-          value: false
-        },
-        forceOpened: {
-          type: Boolean,
-          value: false
-        },
+      opened: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
+      },
+      openOnSelect: {
+        type: Boolean,
+        value: false
+      },
+      openOnExceed: {
+        type: Boolean,
+        value: false
+      },
+      forceOpened: {
+        type: Boolean,
+        value: false
+      },
 
-        isExceeding: {
-          type: Boolean,
-          value: false,
-          notify: true,
-          observer: "_handleExceeding"
-        },
+      isExceeding: {
+        type: Boolean,
+        value: false,
+        notify: true,
+        observer: "_handleExceeding"
+      },
 
-        notify: {
-          type: Boolean,
-          value: false
-        },
-        notifyParent: {
-          type: Boolean,
-          value: false
-        },
-        noSelectNotify: {
-          type: Boolean,
-          value: false
-        },
-        noExceedNotify: {
-          type: Boolean,
-          value: false
-        },
+      notify: {
+        type: Boolean,
+        value: false
+      },
+      notifyParent: {
+        type: Boolean,
+        value: false
+      },
+      noSelectNotify: {
+        type: Boolean,
+        value: false
+      },
+      noExceedNotify: {
+        type: Boolean,
+        value: false
+      },
 
-        multiSelect: {
-          type: Boolean,
-          value: false
-        },
-        toggles: {
-          type: Boolean,
-          value: false
-        },
+      multiSelect: {
+        type: Boolean,
+        value: false
+      },
+      toggles: {
+        type: Boolean,
+        value: false
+      },
 
-        reproduce: {
-          type: Boolean,
-          value: false
-        },
-        reproductionContainer: {
-          type: String
-        },
+      reproduce: {
+        type: Boolean,
+        value: false
+      },
+      reproductionContainer: {
+        type: String
+      },
 
-        selectedElements: {
-          type: Array,
-          value: function() { return []; }
-        },
-        exceedingElements: {
-          type: Array,
-          value: function() { return []; }
+      selectedElements: {
+        type: Array,
+        value: function() {
+          return [];
         }
+      },
+      exceedingElements: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      }
     },
     _elements: [],
 
@@ -76,7 +80,7 @@
       container: true
     },
 
-    get rootElement () {
+    get rootElement() {
       var rootNode = Polymer.dom(this).getOwnerRoot();
       if (rootNode === null)
         rootNode = Polymer.dom(this.parentNode).getOwnerRoot();
@@ -91,7 +95,7 @@
       '_reproductionRepeat(exceedingElements.splices)'
     ],
 
-    detached: function(){
+    detached: function() {
       this.unlisten(this, 'element-select', '__setSelectedElement');
       this.unlisten(this, 'element-deselect', '__unsetSelectedElement');
       this.unlisten(this.rootElement, 'element-select', '__setSelectedElement');
@@ -100,7 +104,7 @@
       this.unlisten(this.rootElement, 'clear-exceeding-elements-elements', 'clearExceedingElements');
     },
 
-    attached: function(){
+    attached: function() {
       if (this.notify === true) {
         if (this.noSelectNotify === false) {
           this.listen(this, 'element-select', '__setSelectedElement');
@@ -135,11 +139,9 @@
       if (this.multiSelect === true) {
         if (this.indexOf(this.selectedElements, element) === -1) {
           this.push("selectedElements", element);
-        }
-        else if (this.toggles === true)
+        } else if (this.toggles === true)
           this.unsetSelectedElement(element);
-      }
-      else {
+      } else {
         this.splice("selectedElements", 0, this.selectedElements.length);
         this.push('selectedElements', element);
       }
@@ -166,7 +168,9 @@
       }
 
       if (this.multiSelect === false) {
-        this.selectedElements.forEach(function(item) { item.checked = false });
+        this.selectedElements.forEach(function(item) {
+          item.checked = false
+        });
       }
 
       this.opened = this.forceOpened || (this.openOnSelect === true && this.selectedElements.length > 0) ? true : false;
@@ -175,7 +179,8 @@
     clearSelectedElements: function() {
       this.selectedElements.forEach(function(item) {
         item.checked = false;
-        item.unsetElement(); });
+        item.unsetElement();
+      });
       this.splice("selectedElements", 0, this.selectedElements.length);
     },
 
@@ -212,28 +217,27 @@
       this.isExceeding = false;
     },
 
-    _handleExceeding: function(value) {
-    },
+    _handleExceeding: function(value) {},
 
     _reproductionRepeat: function(changeRecord) {
       if (this.reproduce === false) return;
       if (changeRecord && changeRecord.indexSplices) {
 
-        var container = (this.reproductionContainer) ? Polymer.dom(this).querySelector('#'+this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);
+        var container = (this.reproductionContainer) ? Polymer.dom(this).querySelector('#' + this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);
 
         var index, items, item;
-        var items = Polymer.dom(container).getEffectiveChildNodes().filter( function(el) {
-                      return el.nodeType === Node.ELEMENT_NODE;
-                    });
+        var items = Polymer.dom(container).getEffectiveChildNodes().filter(function(el) {
+          return el.nodeType === Node.ELEMENT_NODE;
+        });
 
-        var elements = items.filter( function(el) {
-                         return el.hasAttribute('element');
-                       });
-        var containers = items.filter( function(el) {
-                          return el.hasAttribute('container');
-                        });
+        var elements = items.filter(function(el) {
+          return el.hasAttribute('element');
+        });
+        var containers = items.filter(function(el) {
+          return el.hasAttribute('container');
+        });
 
-        for (var i=0; i < changeRecord.indexSplices.length; i++) {
+        for (var i = 0; i < changeRecord.indexSplices.length; i++) {
           for (var j = 0; j < changeRecord.indexSplices[i].removed.length; j++) {
             item = changeRecord.indexSplices[i].removed[j];
             // this._elements.filter( function(el) {
@@ -243,19 +247,19 @@
             //                 console.log('unset', el);
             //                 el.unsetElement();
             //               }, this);
-            elements.filter( function(el) {
-                      return el.id === item.id && el.label === item.label;
-                     })
-                    .forEach( function(el) {
-                      el.unsetElement();
-                    }, this);
-            this._elements = this._elements.filter( function(el) {
-                                    return !(el.id === item.id && el.label === item.label);
-                                  })
-            containers.forEach( function(el) {
-                        // containers should notify themselfes? "item.unsetSelectedElement(del);"
-                        el.unsetSelectedElement(item);
-                      }, this);
+            elements.filter(function(el) {
+                return el.id === item.id && el.label === item.label;
+              })
+              .forEach(function(el) {
+                el.unsetElement();
+              }, this);
+            this._elements = this._elements.filter(function(el) {
+              return !(el.id === item.id && el.label === item.label);
+            })
+            containers.forEach(function(el) {
+              // containers should notify themselfes? "item.unsetSelectedElement(del);"
+              el.unsetSelectedElement(item);
+            }, this);
           }
 
           for (var j = 0; j < changeRecord.indexSplices[i].addedCount; j++) {
@@ -264,13 +268,13 @@
             var element = item.getElement();
 
             // if (this.multiSelect === false)
-              elements.forEach( function(el) {
-                        el.setElement(element);
-                      });
+            elements.forEach(function(el) {
+              el.setElement(element);
+            });
 
             containers.forEach(function(el) {
-                        el.setSelectedElement(item);
-                      }, this);
+              el.setSelectedElement(item);
+            }, this);
 
             // var tagName = this.reproductionTagName || "";
             // if (tagName !== "") {

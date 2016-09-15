@@ -45,18 +45,18 @@ function processData(data, name, settings) {
 				if (!processedData[id]) {
 					processedData[id] = [];
 				}
-				if (!buffer[id]) {
-					buffer[id] = {
-						x: new ArrayBuffer(bufferLength),
-						y: new ArrayBuffer(bufferLength)
-					};
-					floatArrayView[id] = {
-						x: new Float64Array(buffer[id].x),
-						y: new Float64Array(buffer[id].y)
-					}
-				}
-				floatArrayView[id].x[i] = data[i].date;
-				floatArrayView[id].y[i] = data[i].values[j];
+				// if (!buffer[id]) {
+				// 	buffer[id] = {
+				// 		x: new ArrayBuffer(bufferLength),
+				// 		y: new ArrayBuffer(bufferLength)
+				// 	};
+				// 	floatArrayView[id] = {
+				// 		x: new Float64Array(buffer[id].x),
+				// 		y: new Float64Array(buffer[id].y)
+				// 	}
+				// }
+				// floatArrayView[id].x[i] = data[i].date;
+				// floatArrayView[id].y[i] = data[i].values[j];
 				state = null;
 				if (data[i].values[j] !== null) {
 					// exceeding
@@ -84,7 +84,7 @@ function processData(data, name, settings) {
 
 	return {
 		content: processedData,
-		buffer: buffer,
+		// buffer: buffer,
 		name: name,
 		label: settings.label,
 		date: maxDate

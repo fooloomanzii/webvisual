@@ -1,7 +1,7 @@
 <script>
   ElementBehavior = {
 
-    properties: {
+      properties: {
         label: {
           type: String,
           value: '',
@@ -20,23 +20,27 @@
         },
         keys: {
           type: Object,
-          value: function() { return {}; }
+          value: function() {
+            return {};
+          }
         },
         captionKeys: {
           type: Array,
-          value: function() { return []; }
-        },
-        values: {
-          type: Array,
-          value: function() { return []; }
+          value: function() {
+            return [];
+          }
         },
         firstExceeds: {
           type: Array,
-          value: function() { return []; }
+          value: function() {
+            return [];
+          }
         },
         lastExceeds: {
           type: Array,
-          value: function() { return []; }
+          value: function() {
+            return [];
+          }
         },
         isBoolean: {
           type: Boolean,
@@ -45,7 +49,9 @@
 
         svg: {
           type: Object,
-          value: function() { return {}; }
+          value: function() {
+            return {};
+          }
         },
 
         preferedKey: {
@@ -103,11 +109,12 @@
           type: String,
           observer: "setColor"
         }
-    },
+      },
 
-    attached: function(){
-      if (this.exeedable === true && this.values && this.values.length > 0)
-        this.checkExceedingState(this.values[this.values.length - 1]);
+      attached: function() {
+	      this._updatableChanged();
+	      if (this.exeedable === true && this.values && this.values.length > 0)
+	        this.checkExceedingState(this.values[this.values.length - 1]);
     },
 
     factoryImpl: function(obj) {
@@ -130,11 +137,11 @@
     setElement: function(obj, options) {
       var pos;
       if (this.noSocketConnection === false && this.label && this.id &&
-          window.Content !== undefined &&
-          window.Content[this.label] &&
-          window.Content[this.label][this.id] &&
-          (pos = window.Content[this.label][this.id].nodes.indexOf(this)) !== -1) {
-        window.Content[this.label][this.id].nodes.splice(pos,1); // remove from window.Content
+        window.Content !== undefined &&
+        window.Content[this.label] &&
+        window.Content[this.label][this.id] &&
+        (pos = window.Content[this.label][this.id].nodes.indexOf(this)) !== -1) {
+        window.Content[this.label][this.id].nodes.splice(pos, 1); // remove from window.Content
         this.removeAttribute('updatable');
       }
       for (var key in obj.element) {
@@ -142,7 +149,8 @@
           this.set(key, obj.element[key]);
       }
       for (var key in obj.properties) {
-        this.set(key, obj.properties[key].value);
+        if (key !== 'values')
+          this.set(key, obj.properties[key].value);
       }
       for (var key in options) {
         this.set(key, options[key]);
@@ -154,32 +162,33 @@
     unsetElement: function() {
       var pos;
       if (this.noSocketConnection === false && this.label && this.id &&
-          window.Content !== undefined &&
-          window.Content[this.label] &&
-          window.Content[this.label][this.id] &&
-          (pos = window.Content[this.label][this.id].nodes.indexOf(this)) !== -1) {
-        window.Content[this.label][this.id].nodes.splice(pos,1); // remove from window.Content
+        window.Content !== undefined &&
+        window.Content[this.label] &&
+        window.Content[this.label][this.id] &&
+        (pos = window.Content[this.label][this.id].nodes.indexOf(this)) !== -1) {
+        window.Content[this.label][this.id].nodes.splice(pos, 1); // remove from window.Content
         this.removeAttribute('updatable');
       }
       this.clearValues();
     },
 
     getElement: function() {
-      return { element: {
-                'id': this.id,
-                'label': this.label,
-                'keys': this.keys,
-                'captionKeys': this.captionKeys,
-                'isBoolean': this.isBoolean,
-                'unit': this.unit,
-                'svg': this.svg,
-                'firstExceeds': this.firstExceeds,
-                'lastExceeds': this.lastExceeds,
-                'exeedable': this.exeedable,
-                'preferedKey': this.preferedKey,
-                'color': this.color
-              }
-            };
+      return {
+        element: {
+          'id': this.id,
+          'label': this.label,
+          'keys': this.keys,
+          'captionKeys': this.captionKeys,
+          'isBoolean': this.isBoolean,
+          'unit': this.unit,
+          'svg': this.svg,
+          'firstExceeds': this.firstExceeds,
+          'lastExceeds': this.lastExceeds,
+          'exeedable': this.exeedable,
+          'preferedKey': this.preferedKey,
+          'color': this.color
+        }
+      };
     },
 
     insertValues: function(values) {
@@ -187,7 +196,7 @@
         values = this.values || [];
       }
       var it = (this.newestDataFirst === false) ? 1 : -1,
-          i, end = (this.newestDataFirst === false) ? values.length : -1;
+        i, end = (this.newestDataFirst === false) ? values.length : -1;
       if (this.noSocketConnection === true) {
         i = (this.newestDataFirst === false) ? 0 : values.length - 1;
         while (i !== end) {
@@ -199,8 +208,7 @@
         if (this.exeedable === true)
           this.checkExceedingState(values[(this.newestDataFirst === false) ? values.length - 1 : 0]);
         this._updateView(values[(this.newestDataFirst === false) ? values.length - 1 : 0]);
-      }
-      else {
+      } else {
         if (this.exeedable === true) {
           i = (this.newestDataFirst === false) ? 0 : values.length - 1;
           while (i !== end) {
@@ -222,34 +230,44 @@
     spliceValues: function(start, length) {
       if (this.noSocketConnection === true) {
         var values = this.values.splice(start, length);
-        this._updateView(undefined, {start: start, length: length, values: values});
-      }
-      else {
-        this._updateView(undefined, {start: start, length: length, values: this.values.slice(start, start + length)});
+        this._updateView(undefined, {
+          start: start,
+          length: length,
+          values: values
+        });
+      } else {
+        this._updateView(undefined, {
+          start: start,
+          length: length,
+          values: this.values.slice(start, start + length)
+        });
       }
     },
 
     clearValues: function() {
       if (this.noSocketConnection === true) {
         var values = this.values.splice(0, this.values.length - 1);
-        this._updateView(undefined, {start: 0, length: this.values.length - 1, values: values});
+        this._updateView(undefined, {
+          start: 0,
+          length: this.values.length - 1,
+          values: values
+        });
+      } else {
+        this._updateView(undefined, {
+          start: 0,
+          length: this.values.length - 1,
+          values: this.values
+        });
       }
-      else {
-        this._updateView(undefined, {start: 0, length: this.values.length - 1, values: this.values});
-      }
     },
 
-    _updateView: function(values, splices) {
-    },
+    _updateView: function(values, splices) {},
 
-    renderNewValues: function(values) {
-    },
+    renderNewValues: function(values) {},
 
-    renderAllValues: function() {
-    },
+    renderAllValues: function() {},
 
-    renderSplicedValues: function(start, length, values) {
-    },
+    renderSplicedValues: function(start, length, values) {},
 
     checkExceedingState: function(value) {
       if (this.exeedable === false) return;
@@ -257,13 +275,12 @@
         return;
       }
       if (value.state === null) {
-        if(this.isExceeding !== false) {
+        if (this.isExceeding !== false) {
           this.setExceedingState(false, value.state);
           this._setLastExceeds(value);
         }
-      }
-      else if (value.state === true || value.state === false) {
-        if(this.isExceeding === false) {
+      } else if (value.state === true || value.state === false) {
+        if (this.isExceeding === false) {
           this.setExceedingState(true, value.state);
           this._setFirstExceeds(value);
           if (this.hasExceeded === false)
@@ -288,35 +305,36 @@
       if (this.exeedable === true) {
         if (this.bubbles === true) {
           if (isExceeding === true)
-            this.fire('element-is-exceeding', {target: this});
+            this.fire('element-is-exceeding', {
+              target: this
+            });
           else
-            this.fire('element-is-not-exceeding', {target: this});
+            this.fire('element-is-not-exceeding', {
+              target: this
+            });
         }
       }
     },
 
-    _hasExceededChanged: function() {
-    },
+    _hasExceededChanged: function() {},
 
     setColor: function(color) {
       // random color if color is not set
       if (!color) {
         if (this.exeedable === true) {
           this.color = "#51cc41";
-        }
-        else {
+        } else {
           color = '#';
           var perm = ['2C', 'F5'];
-          perm.push((4*Math.floor(Math.random()*64)).toString(16));
+          perm.push((4 * Math.floor(Math.random() * 64)).toString(16));
           for (var i = 3; i > 0; i--) {
-            var pos = Math.floor(Math.random()*i);
+            var pos = Math.floor(Math.random() * i);
             color += ((perm[pos].length === 1) ? '0' : '') + perm[pos];
             perm.splice(pos, 1);
           }
           this.color = color;
         }
-      }
-      else {
+      } else {
         this.customStyle['--element-color'] = this.color;
         if (this.exeedable === false) {
           this.customStyle['--element-state-undefined-color'] = this.color;
@@ -331,10 +349,10 @@
       this.set('hasExceeded', false);
     },
 
-    _updatableChanged: function(newValue, oldValue) {
+    _updatableChanged: function() {
       // sets a global Object 'window.Content', for updating the values of the elements
       var id = this.id,
-          label = this.label;
+        label = this.label;
       if (this.noSocketConnection === false && this.label && this.id) {
         this.setAttribute("updatable", true);
         if (window.Content === undefined)
@@ -345,41 +363,55 @@
           window.Content[label][id] = {};
         if (window.Content[label][id].nodes === undefined)
           window.Content[label][id].nodes = [];
+        if (window.Content[label][id].values === undefined)
+          window.Content[label][id].values = [];
         if (window.Content[label][id].nodes.indexOf(this) === -1) {
           window.Content[label][id].nodes.push(this);
           // console.log(id, label, 'added', window.Content);
-        delete this.values;
-        Object.defineProperty(this, "values", { get: function () { return window.Content[label][id].values; } });
+					try {
+						delete this.values;
+						Object.defineProperty(this, "values", {
+							configurable: true,
+							enumerable: true,
+							get: function() {
+								return window.Content[label][id].values;
+							}
+						});
+					} catch (e) {
+							console.log(this.label, this.id, this, e);
+					}
         }
-      }
-      else {
+      } else {
         this.removeAttribute("updatable");
         var pos;
         if (!(window.Content === undefined) &&
-            window.Content[label] &&
-            window.Content[label][id] &&
-            (pos = window.Content[label][id].nodes.indexOf(this)) !== -1)
-          window.Content[label][id].nodes.splice(pos,1);
+          window.Content[label] &&
+          window.Content[label][id] &&
+          (pos = window.Content[label][id].nodes.indexOf(this)) !== -1)
+          window.Content[label][id].nodes.splice(pos, 1);
       }
     },
 
     detached: function() {
       var pos;
       if (this.noSocketConnection === false &&
-          window.Content !== undefined &&
-          window.Content[this.label] &&
-          window.Content[this.label][this.id] &&
-          (pos = window.Content[this.label][this.id].nodes.indexOf(this)) !== -1)
-        window.Content[this.label][this.id].nodes.splice(pos,1);
+        window.Content !== undefined &&
+        window.Content[this.label] &&
+        window.Content[this.label][this.id] &&
+        (pos = window.Content[this.label][this.id].nodes.indexOf(this)) !== -1)
+        window.Content[this.label][this.id].nodes.splice(pos, 1);
     },
 
     checkedChanged: function(checked, old) {
       if (old !== undefined && this.selectable === true) {
         if (this.checked === false) {
-          this.fire('element-deselect', {target: this});
-        }
-        else if (this.checked === true){
-          this.fire('element-select', {target: this});
+          this.fire('element-deselect', {
+            target: this
+          });
+        } else if (this.checked === true) {
+          this.fire('element-select', {
+            target: this
+          });
         }
         if (this._handleChecked)
           this._handleChecked();
@@ -389,14 +421,12 @@
     _select: function() {
       if (this.selectable === true) {
         if (this.toggles) {
-            if (this.checked) {
-              this.checked = false;
-            }
-            else {
-              this.checked = true;
-            }
-        }
-        else {
+          if (this.checked) {
+            this.checked = false;
+          } else {
+            this.checked = true;
+          }
+        } else {
           this.checked = true;
         }
       }

@@ -4,12 +4,11 @@
 <link rel='import' href='../behaviors/element-behavior.html'>
 <dom-module id='graph-element'>
   <style include="app-theme">
-    :host {
+     :host {
       --element-color: var(--primary-color);
     }
   </style>
   <script>
-
     DiagramGraph = Polymer({
       is: 'graph-element',
 
@@ -34,7 +33,7 @@
         noLine: {
           type: Boolean,
           value: false,
-          observer: '_lineChanged'
+          observer: '_lineNodeChanged'
         },
         noFill: {
           type: Boolean,
@@ -49,7 +48,7 @@
         lineWidth: {
           type: Number,
           value: 1,
-          observer: '_lineWidthChanged'
+          observer: '_lineNodeWidthChanged'
         },
         fillOpacity: {
           type: Number,
@@ -58,11 +57,15 @@
         },
         _rangeX: {
           type: Array,
-          value: function() { return []; }
+          value: function() {
+            return [];
+          }
         },
         _rangeY: {
           type: Array,
-          value: function() { return []; }
+          value: function() {
+            return [];
+          }
         },
         updateEveryValue: {
           type: Boolean,
@@ -71,12 +74,12 @@
         }
       },
       _dots: Object,
+      _lineNode: Object,
       _line: Object,
-      _lineFunction: Object,
+      _areaNode: Object,
       _area: Object,
-      _areaFunction: Object,
 
-      get containerRoot () {
+      get containerRoot() {
         var root = Polymer.dom(this).getOwnerRoot();
 
         if (!root)
@@ -88,22 +91,26 @@
         }
       },
 
-      get _self () {
+      get _self() {
         return this;
       },
 
       created: function() {
-        this._lineFunction = d3.line()
-                               .defined(this._defined.bind(this))
-                               .x( (function (d) { return this.chartElement._x(d.x); }).bind(this))
-                               .y( (function (d) { return this.chartElement._y(d.y); }).bind(this));
-        this._areaFunction = d3.area()
-                               .defined(this._defined.bind(this))
-                               .x( this._lineFunction.x() )
-                               .y1( this._lineFunction.y() );
+        this._line = d3.line()
+          .defined(this._defined.bind(this))
+          .x((function(d) {
+            return this.chartElement._x(d.x);
+          }).bind(this))
+          .y((function(d) {
+            return this.chartElement._y(d.y);
+          }).bind(this));
+        this._area = d3.area()
+          .defined(this._defined.bind(this))
+          .x(this._line.x())
+          .y1(this._line.y());
       },
 
-      attached: function () {
+      attached: function() {
         this.chartElement = this.containerRoot;
         if (this.chartElement._elements.indexOf(this) === -1)
           this.chartElement._elements.push(this);
@@ -118,36 +125,36 @@
 
         this._chart = this.chartElement._chart;
         // node of line
-        this._line = this._chart.select('g#lines')
-                                .append('svg:path')
-                                 .attr('id', this.id)
-                                 .attr('label', this.label)
-                                 .attr("class", "line")
-                                 .attr('hidden', this.noLine ? true : null)
-                                 .attr('fill', 'none')
-                                 .attr('stroke', this.color)
-                                 .attr('stroke-width', this.lineWidth)
-                                 .datum(this.values || [])
-                                 .attr("d", this._lineFunction);
+        this._lineNode = this._chart.select('g#lines')
+          .append('svg:path')
+          .attr('id', this.id)
+          .attr('label', this.label)
+          .attr("class", "line")
+          .attr('hidden', this.noLine ? true : null)
+          .attr('fill', 'none')
+          .attr('stroke', this.color)
+          .attr('stroke-width', this.lineWidth)
+          .datum(this.values || [])
+          .attr("d", this._line);
         // fill area
-        this._area = this._chart.select('g#areas')
-                                .append('svg:path')
-                                .attr('id', this.id)
-                                .attr('label', this.label)
-                                 .attr("class", "area")
-                                 .attr('hidden', this.noFill ? true : null)
-                                 .attr('fill', this.color)
-                                 .attr('fill-opacity', this.fillOpacity)
-                                 .attr('stroke', 'none')
-                                 .datum(this.values || [])
-                                 .attr("d", this._areaFunction);
+        this._areaNode = this._chart.select('g#areas')
+          .append('svg:path')
+          .attr('id', this.id)
+          .attr('label', this.label)
+          .attr("class", "area")
+          .attr('hidden', this.noFill ? true : null)
+          .attr('fill', this.color)
+          .attr('fill-opacity', this.fillOpacity)
+          .attr('stroke', 'none')
+          .datum(this.values || [])
+          .attr("d", this._area);
         // group of dots
         this._dots = this._chart.select('g#dots')
-                                .append("svg:g")
-                                .attr('id', this.id)
-                                .attr('label', this.label)
-                               .attr("class", "dots")
-                               .attr("hidden", this.noDots ? true : null);
+          .append("svg:g")
+          .attr('id', this.id)
+          .attr('label', this.label)
+          .attr("class", "dots")
+          .attr("hidden", this.noDots ? true : null);
 
         // this.chartElement._addLegendEntry(this.getElement);
         this._setRange();
@@ -155,19 +162,19 @@
       },
 
       detached: function() {
-        this._line.node().parentElement.removeChild(this._line.node());
-        this._area.node().parentElement.removeChild(this._area.node());
+        this._lineNode.node().parentElement.removeChild(this._lineNode.node());
+        this._areaNode.node().parentElement.removeChild(this._areaNode.node());
         this._dots.node().parentElement.removeChild(this._dots.node());
 
         if (this.noSocketConnection === false &&
-            window.Content !== undefined &&
-            Content[this.label] &&
-            Content[this.label][this.id] &&
-            (pos = Content[this.label][this.id].nodes.indexOf(this)) !== -1)
-          Content[this.label][this.id].nodes.splice(pos,1);
+          window.Content !== undefined &&
+          Content[this.label] &&
+          Content[this.label][this.id] &&
+          (pos = Content[this.label][this.id].nodes.indexOf(this)) !== -1)
+          Content[this.label][this.id].nodes.splice(pos, 1);
       },
 
-      redraw: function () {
+      redraw: function() {
         if (this._hidden === true) return;
         var date = new Date();
         var data = this.values.filter(this._defined.bind(this));
@@ -176,84 +183,93 @@
         this._pointsInRange();
         console.log('dots filter', new Date() - date);
         var dots = this._dots.selectAll('circle.dot')
-                             .data(data);
+          .data(data);
         // update current dots
-        dots.attr('cx', (function(d,i) {
-              return this.chartElement._x(d.x)}).bind(this._self))
-            .attr('cy', (function(d,i) {
-              return this.chartElement._y(d.y)}).bind(this._self))
-            .attr('hidden', null);
+        dots.attr('cx', (function(d, i) {
+            return this.chartElement._x(d.x)
+          }).bind(this._self))
+          .attr('cy', (function(d, i) {
+            return this.chartElement._y(d.y)
+          }).bind(this._self))
+          .attr('hidden', null);
         // enter new dots
         console.log('dots radius', new Date() - date);
         dots.enter()
-            .append('circle')
-              .attr('r', this.dotRadius).attr('fill', '#FFF')
-              .attr('stroke', this.color).attr('stroke-width', this.lineWidth)
-              .attr('cx', function(d,i) {
-                return self.chartElement._x(d.x)})
-              .attr('cy', function(d,i) {
-                return self.chartElement._y(d.y)})
-              .classed('dot style-scope chart-element', true)
-              .on('mouseenter', function(d) {
-                d3.select(this).transition(250)
-                               .attr('fill', self.color)
-                               .attr('r', self.dotRadius*1.5);
-                self.chartElement._showInfo(d); })
-              .on('mouseleave', function(d,i) {
-                d3.select(this).transition(250)
-                               .attr('fill', '#FFF')
-                               .attr('r', self.dotRadius);
-                self.chartElement._hideInfo(); })
-              .on('click', function(d,i) {
-                var offset = self.dotRadius*5;
-                var x = self.chartElement._x(d.x);
-                var y = self.chartElement._y(d.y);
-                d3.event.selection = [[x-offset,y-offset],[x+offset,y+offset]];
-                self.chartElement._brushed(); });
+          .append('circle')
+          .attr('r', this.dotRadius).attr('fill', '#FFF')
+          .attr('stroke', this.color).attr('stroke-width', this.lineWidth)
+          .attr('cx', function(d, i) {
+            return self.chartElement._x(d.x)
+          })
+          .attr('cy', function(d, i) {
+            return self.chartElement._y(d.y)
+          })
+          .classed('dot style-scope chart-element', true)
+          .on('mouseenter', function(d) {
+            d3.select(this).transition(250)
+              .attr('fill', self.color)
+              .attr('r', self.dotRadius * 1.5);
+            self.chartElement._showInfo(d);
+          })
+          .on('mouseleave', function(d, i) {
+            d3.select(this).transition(250)
+              .attr('fill', '#FFF')
+              .attr('r', self.dotRadius);
+            self.chartElement._hideInfo();
+          })
+          .on('click', function(d, i) {
+            var offset = self.dotRadius * 5;
+            var x = self.chartElement._x(d.x);
+            var y = self.chartElement._y(d.y);
+            d3.event.selection = [
+              [x - offset, y - offset],
+              [x + offset, y + offset]
+            ];
+            self.chartElement._brushed();
+          });
         console.log('dots new', new Date() - date);
         //  remove old dots
         dots.exit()
-            // .attr('hidden', true);
-            .remove();
+          // .attr('hidden', true);
+          .remove();
         console.log('dots remove', new Date() - date);
 
         // update line, animated http://bl.ocks.org/benjchristensen/1148374
         // var dx = 1;
         // if (this.values.length > 1)
         //   dx = this.chartElement._x(this.values[this.values.length - 1].x) -this.chartElement._x(this.values[this.values.length - 2].x);
-        this._line
-            .datum(data)
-            .attr('d', this._lineFunction);
+        this._lineNode
+          	.attr('d', this._line);
         console.log('line', new Date() - date);
         // .data([this.values]) // set the new data
-				// 	.attr("transform", "translate(" + dx + ")") // set the transform to the right by x(1) pixels (6 for the scale we've set) to hide the new value
-				// 	.attr("d", this._lineFunction) // apply the new data values ... but the new value is hidden at this point off the right of the canvas
-				// 	.transition() // start a transition to bring the new value into view
-				// 	.duration(1000) // for this demo we want a continual slide so set this to the same as the setInterval amount below
-				// 	.attr("transform", "translate(" + 0 + ")");
-        this._areaFunction.y0(this.chartElement._height)
-        this._area.datum(data).attr('d', this._areaFunction);
+        // 	.attr("transform", "translate(" + dx + ")") // set the transform to the right by x(1) pixels (6 for the scale we've set) to hide the new value
+        // 	.attr("d", this._line) // apply the new data values ... but the new value is hidden at this point off the right of the canvas
+        // 	.transition() // start a transition to bring the new value into view
+        // 	.duration(1000) // for this demo we want a continual slide so set this to the same as the setInterval amount below
+        // 	.attr("transform", "translate(" + 0 + ")");
+        this._area.y0(this.chartElement._height)
+        this._areaNode.attr('d', this._area);
         console.log('area', new Date() - date);
       },
 
       _defined: function(d) {
         var domainX = this.chartElement._x.domain(),
-            domainY = this.chartElement._y.domain(),
-            yScale = this.chartElement.yScale;
+          domainY = this.chartElement._y.domain(),
+          yScale = this.chartElement.yScale;
         if (d.y === null || d.y === undefined)
-          return false;
+          return undefined;
         else if (d.y <= 0 && !(yScale === "linear"))
-          return false;
+          return undefined;
         else if (d.x < domainX[1] && d.x > domainX[0])
           return true;
         else if (d.y < domainY[1] && d.y > domainY[0])
           return true;
         else
-          return false;
+          return undefined;
       },
 
-      _updateView: function (values, splices) {
-        if(!this.chartElement)
+      _updateView: function(values, splices) {
+        if (!this.chartElement)
           this.chartElement = this.containerRoot;
         this._setRange(values);
         if (this.chartElement)
@@ -266,24 +282,32 @@
             values = [values];
           }
           if (!this._rangeX || this._rangeX.length !== 2) {
-            this._rangeX = [this.values[0].x, this.values[this.values.length-1].x]
+            this._rangeX = [this.values[0].x, this.values[this.values.length - 1].x]
           }
           if (!this._rangeY || this._rangeY.length !== 2) {
             this._rangeY = [values[0].y, values[0].y]
           }
           for (var i = 0; i < values.length; i++) {
-            this._rangeX[0] = (values[i].x < this._rangeX[0]) ? values[i].x : (this.values[this.values.length-1].x > this._rangeX[0]) ? this.values[this.values.length-1].x : this._rangeX[0];
+            this._rangeX[0] = (values[i].x < this._rangeX[0]) ? values[i].x : (this.values[this.values.length - 1].x > this._rangeX[0]) ? this.values[this.values.length - 1].x : this._rangeX[0];
             this._rangeX[1] = (this._rangeX[1] < values[i].x) ? values[i].x : this._rangeX[1];
             this._rangeY[0] = (values[i].y < this._rangeY[0]) ? values[i].y : this._rangeY[0];
             this._rangeY[1] = (this._rangeY[1] < values[i].y) ? values[i].y : this._rangeY[1];
           }
-        }
-        else {
-          this._rangeX = []; this._rangeY = [];
-          this._rangeX.push(d3.min(this.values, function(v){ return v.x; }));
-          this._rangeX.push(d3.max(this.values, function(v){ return v.x; }));
-          this._rangeY.push(d3.min(this.values, function(v){ return v.y; }));
-          this._rangeY.push(d3.max(this.values, function(v){ return v.y; }));
+        } else {
+          this._rangeX = [];
+          this._rangeY = [];
+          this._rangeX.push(d3.min(this.values, function(v) {
+            return v.x;
+          }));
+          this._rangeX.push(d3.max(this.values, function(v) {
+            return v.x;
+          }));
+          this._rangeY.push(d3.min(this.values, function(v) {
+            return v.y;
+          }));
+          this._rangeY.push(d3.max(this.values, function(v) {
+            return v.y;
+          }));
         }
       },
 
@@ -291,11 +315,11 @@
         // random color if color is not set
         ElementBehavior.setColor.call(this, color);
         if (this._chart) {
-          if (this._line) this._line.attr('stroke', this.color);
-          if (this._area) this._line.attr('fill', this.color);
+          if (this._lineNode) this._lineNode.attr('stroke', this.color);
+          if (this._areaNode) this._lineNode.attr('fill', this.color);
           if (this._dots)
             this._dots.selectAll('circle.dot')
-                      .attr('stroke', this.color);
+            .attr('stroke', this.color);
         }
       },
 
@@ -326,21 +350,21 @@
         }
       },
 
-      _lineChanged: function() {
-        if (this._chart && this._line) {
-          this._line.attr('hidden', this.noLine ? true : null);
+      _lineNodeChanged: function() {
+        if (this._chart && this._lineNode) {
+          this._lineNode.attr('hidden', this.noLine ? true : null);
         }
       },
 
       _fillOpacityChanged: function() {
-        if (this._chart && this._area) {
-          this._area.attr('fill-opacity', this.fillOpacity);
+        if (this._chart && this._areaNode) {
+          this._areaNode.attr('fill-opacity', this.fillOpacity);
         }
       },
 
       _fillChanged: function() {
-        if (this._chart && this._area) {
-          this._area.attr('hidden', this.noFill ? true : null);
+        if (this._chart && this._areaNode) {
+          this._areaNode.attr('hidden', this.noFill ? true : null);
         }
       },
 
@@ -350,35 +374,52 @@
         }
       },
 
-      _lineWidthChanged: function(lineWidth) {
+      _lineNodeWidthChanged: function(lineWidth) {
         if (this._chart) {
-          if (this._line) this._line.attr('stroke-width', this.lineWidth);
+          if (this._lineNode) this._lineNode.attr('stroke-width', this.lineWidth);
           if (this._dots)
             this._dots.selectAll('circle.dot')
-                      .attr('stroke-width', this.lineWidth);
+            .attr('stroke-width', this.lineWidth);
         }
       },
 
       _interpolationChanged: function(interpolation) {
         var curve;
         switch (interpolation) {
-          case 'Basis Spline': curve = d3.curveBasis; break;
-          case 'Monotoner Spline': curve = d3.curveMonotoneX; break;
-          case 'Kubischer Spline': curve = d3.curveNatural; break;
-          case 'Cardinaler Spline': curve = d3.curveCardinal; break;
-          case 'Catmull-Rom-Spline': curve = d3.curveCatmullRom; break;
-          case 'Stufe (mitte)': curve = d3.curveStep; break;
-          case 'Stufe (davor)': curve = d3.curveStepAfter; break;
-          case 'Stufe (danach)': curve = d3.curveStepBefore; break;
-          default: curve = d3.curveLinear; break;
+          case 'Basis Spline':
+            curve = d3.curveBasis;
+            break;
+          case 'Monotoner Spline':
+            curve = d3.curveMonotoneX;
+            break;
+          case 'Kubischer Spline':
+            curve = d3.curveNatural;
+            break;
+          case 'Cardinaler Spline':
+            curve = d3.curveCardinal;
+            break;
+          case 'Catmull-Rom-Spline':
+            curve = d3.curveCatmullRom;
+            break;
+          case 'Stufe (mitte)':
+            curve = d3.curveStep;
+            break;
+          case 'Stufe (davor)':
+            curve = d3.curveStepAfter;
+            break;
+          case 'Stufe (danach)':
+            curve = d3.curveStepBefore;
+            break;
+          default:
+            curve = d3.curveLinear;
+            break;
         }
-        this._lineFunction.curve(curve);
-        this._areaFunction.curve(curve);
-        if (this._chart && this._area)
+        this._line.curve(curve);
+        this._area.curve(curve);
+        if (this._chart && this._areaNode)
           this.redraw();
       }
     });
-
   </script>
 
 </dom-module>

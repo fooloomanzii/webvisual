@@ -36,7 +36,7 @@
 				return new Promise(function(resolve) {
 					var id = this.messageId;
 					worker.addEventListener('message', function onMessage(e) {
-            if (e.data && e.data.id === id) {
+						if (e.data && e.data.id === id) {
 							worker.removeEventListener('message', onMessage);
 							resolve(e.data.result);
 						}

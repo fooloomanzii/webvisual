@@ -133,8 +133,7 @@
 								if (cursor && (count === undefined || i < count)) {
 									result.push(cursor.value);
 									cursor.continue();
-								}
-								else {
+								} else {
 									resolve(result);
 								}
 							};
@@ -291,7 +290,8 @@
 						else
 							var s = t.objectStore(storeName).index(key);
 
-						var result = [], cursor,
+						var result = [],
+							cursor,
 							i = 0;
 						s.openCursor(null, direction).onsuccess = function(e) {
 							cursor = e.target.result;
@@ -299,8 +299,7 @@
 							if ((i <= count || count === undefined) && cursor) {
 								result.push(cursor.value);
 								cursor.continue();
-							}
-							else {
+							} else {
 								resolve(result)
 							}
 						};
@@ -450,8 +449,7 @@
 			} else if (databaseWorker.handleMessage) {
 				console.log('onMessage', databaseWorker.dbName, (+(new Date())));
 				databaseWorker.handleMessage(e);
-			}
-			else {
+			} else {
 				console.log('Not possible', e)
 			}
 		};
