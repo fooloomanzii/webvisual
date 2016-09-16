@@ -2,6 +2,9 @@
 <template>
 
 <style is="custom-style">
+	:host {
+		--multiplicator: 3;
+	}
   .indention {
     margin: 0em 0em 0.5em 1.5em;
     padding-top: 0.25em;
@@ -252,7 +255,7 @@
   }
   section#toolbarFooter[opened][expanded] {
     min-height: 250px;
-    max-height: calc(1.33 * var(--app-toolbar-max-height));
+    max-height: var(--app-toolbar-expanded-height,calc(2 * var(--app-toolbar-max-height)));
   }
   </style>
   </template>
