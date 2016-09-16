@@ -156,6 +156,7 @@
         this.set(key, options[key]);
       }
       this._updatableChanged();
+			this.clearValues();
       this.insertValues();
     },
 
@@ -216,7 +217,7 @@
             i += it;
           }
         }
-        this.render();
+        this.render(values);
       }
     },
 

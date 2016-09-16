@@ -1,6 +1,6 @@
 <link rel='import' href='../behaviors/element-behavior.html'>
 <dom-module id='table-element'>
-  <template>
+	<template>
   <style>
     :host {
       /*height needs to be set by outer element*/
@@ -103,146 +103,149 @@
     </section>
   </template>
 
-  <script>
+	<script>
+		TableElement = Polymer({
+			is: 'table-element',
 
-    TableElement = Polymer({
-      is: 'table-element',
+			behaviors: [ElementBehavior],
 
-      behaviors: [ElementBehavior],
+			properties: {
+				caption: {
+					type: String,
+					value: ''
+				},
+				unit: {
+					type: String,
+					value: 'Wert'
+				},
+				descendingOrder: {
+					type: Boolean,
+					value: false,
+					observer: 'setOrder'
+				},
+				highlightExceeding: {
+					type: Boolean,
+					value: false
+				},
+				hideHeader: {
+					type: Boolean,
+					value: false
+				},
+				showFullDate: {
+					type: Boolean,
+					value: false
+				},
+				hideOverflow: {
+					type: Boolean,
+					value: false
+				},
+				updateEveryValue: {
+					type: Boolean,
+					value: true,
+					readOnly: true
+				},
+				_body: {
+					type: Object,
+					value: function() {
+						return Polymer.dom(this.$.body);
+					}
+				},
+				_map: {
+					type: Object,
+					value: function() {
+						return {};
+					}
+				}
+			},
 
-      properties: {
-        caption: {
-          type: String,
-          value: ''
-        },
-        unit: {
-          type: String,
-          value: 'Wert'
-        },
-        descendingOrder: {
-          type: Boolean,
-          value: false,
-          observer: 'setOrder'
-        },
-        highlightExceeding: {
-          type: Boolean,
-          value: false
-        },
-        hideHeader: {
-          type: Boolean,
-          value: false
-        },
-        showFullDate: {
-          type: Boolean,
-          value: false
-        },
-        hideOverflow: {
-          type: Boolean,
-          value: false
-        },
-        updateEveryValue: {
-          type: Boolean,
-          value: true,
-          readOnly: true
-        },
-        _body: {
-          type: Object,
-          value: function() {
-            return Polymer.dom(this.$.body);
-          }
-        },
-        _map: {
-          type: Object,
-          value: function() {
-            return {};
-          }
-        }
-      },
+			attached: function() {
+				this._body = this.$.body;
+				if (this.hideOverflow) {
+					this._body.style.overflow = 'hidden';
+				}
+			},
 
-      attached: function() {
-        this._body = this.$.body;
-        if (this.hideOverflow) {
-          this._body.style.overflow = 'hidden';
-        }
-      },
+			render: function(value, splices) {
+				var row, tdX, tdY, isExceeding, index, tdI;
+				if (value === undefined) {
+					if (splices !== undefined)
+						splices.values.forEach(function(v) {
+							if (this._map[v.x] && this._map[v.x].nodeType === 1)
+								this._body.removeChild(this._map[v.x]);
+							this._map[v.x] = null;
+							delete this._map[v.x];
+						}, this)
+					else {
+						while (this._body.children[0])
+							this._body.removeChild(this._body.children[0]);
+						this._map = {};
+					}
+					// if (this.values) {
+					// 	for (var i = this.values.length - 1; i >= 0; i--) {
+					// 		this.createRow(this.values[i]);
+					// 	}
+					// 	Array.prototype.sort.call(this._body.childNodes, this.compareFn);
+					// }
+				} else {
+					for (var i = 0; i < value.length; i++) {
+						this.createRow(value[i]);
+					}
+				}
+			},
 
-      render: function(value, splices) {
-        var row, tdX, tdY, isExceeding, index, tdI;
-        if (value === undefined) {
-          if (splices !== undefined)
-            splices.values.forEach(function(v){
-              if (this._map[v.x] && this._map[v.x].nodeType === 1)
-                this._body.removeChild(this._map[v.x]);
-              this._map[v.x] = null;
-              delete this._map[v.x];
-            }, this)
-          else {
-            while (this._body.children[0])
-              this._body.removeChild(this._body.children[0]);
-            this._map = {};
-          }
-					if (this.values)
-	          for (var i = 0; i < this.values.length; i++) {
-	            this.createRow(this.values[i]);
-	          }
-        }
-        else {
-          this.createRow(value)
-        }
-      },
+			createRow: function(value) {
+				if (this._map && this._map[value.x]) {
+					return;
+				}
+				row = document.createElement('section');
+				row.id = 'tr';
+				tdX = document.createElement('section');
+				tdX.id = 'td';
+				tdX.classList.add('x', 'style-scope', 'table-element');
+				tdX.textContent = (this.showFullDate ? new Date(value.x).toLocaleString() : new Date(value.x).toLocaleTimeString());
+				tdY = document.createElement('section');
+				tdY.id = 'td';
+				tdY.classList.add('y', 'style-scope', 'table-element');
+				isExceeding = (value.state === null) ? false : true;
+				tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : value.y);
 
-      clearValues: function() {
-        ElementBehavior.clearValues.call(this);
-        while (this._body.children[0])
-          this._body.removeChild(this._body.children[0]);
-        this._map = {};
-      },
+				if (this.highlightExceeding === true)
+					row.className = value.state;
+				row.classList.add('style-scope', 'table-element');
 
-      createRow: function(value) {
-        row = document.createElement('section');
-        row.id = 'tr';
-        tdX = document.createElement('section');
-        tdX.id = 'td'; tdX.classList.add('x','style-scope','table-element');
-        tdX.textContent = (this.showFullDate ? new Date(value.x).toLocaleString() : new Date(value.x).toLocaleTimeString());
-        tdY = document.createElement('section');
-        tdY.id = 'td'; tdY.classList.add('y','style-scope','table-element');
-        isExceeding = (value.state === null) ? false : true;
-        tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : value.y);
+				row.appendChild(tdX);
+				row.appendChild(tdY);
+				// row.x = value.x;
 
-        if (this.highlightExceeding === true)
-          row.className = value.state;
-        row.classList.add('style-scope', 'table-element');
+				this._map[value.x] = null;
+				this._map[value.x] = row;
 
-        row.appendChild(tdX); row.appendChild(tdY);
-        if (this._map && this._map[value.x]) {
-          this._body.removeChild(this._map[value.x]);
-        }
-        this._map[value.x] = null;
-        this._map[value.x] = row;
+				this._body.insertBefore(row, this._body.children[0]);
+			},
 
-        this._body.insertBefore(row, this._body.childNodes[0]);
-      },
+			compareFn: function(a, b) {
+				if (a.x > b.x) return 1;
+				if (a.x < b.x) return -1;
+				return 0;
+			},
 
-      switchOrder: function() {
-        if (this.descendingOrder === true) {
-          this.$.body.classList.remove('reverse');
-          this.descendingOrder = false;
-        }
-        else {
-          this.$.body.classList.add('reverse');
-          this.descendingOrder = true;
-        }
-      },
-      setOrder: function(order) {
-        if (order === false) {
-          this.$.body.classList.remove('reverse');
-        }
-        else {
-          this.$.body.classList.add('reverse');
-        }
-      }
-    });
-
-  </script>
+			switchOrder: function() {
+				if (this.descendingOrder === true) {
+					this.$.body.classList.remove('reverse');
+					this.descendingOrder = false;
+				} else {
+					this.$.body.classList.add('reverse');
+					this.descendingOrder = true;
+				}
+			},
+			setOrder: function(order) {
+				if (order === false) {
+					this.$.body.classList.remove('reverse');
+				} else {
+					this.$.body.classList.add('reverse');
+				}
+			}
+		});
+	</script>
 
 </dom-module>

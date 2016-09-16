@@ -193,7 +193,7 @@
         var date = new Date();
         var data = this.values.filter(this._defined.bind(this));
 
-				var everyOverlappingDot = (data.length / Math.max(this.chartElement._height,this.chartElement._width) * (this.dotRadius * 3));
+				var everyOverlappingDot = (data.length / Math.max(this.chartElement._height,this.chartElement._width) * (this.dotRadius * 4));
 
 				if (everyOverlappingDot > 1)
 					data = data.filter(function(d, i) {

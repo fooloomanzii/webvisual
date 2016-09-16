@@ -12,10 +12,9 @@ module.exports = processData;
 //      currentData.state <-- Object of Boolean-Arrays
 //  Return:
 //    JSON-Object-Structure:
-//      content: Object of:
-//       "0": { "id":"..", laststate: {"x":"..", "y":"..", "state":".."},
-//                "values": [ {"x":"..", "y":"..", "state":".."}, {..} , .. ] },
-//       "1":
+//      values: Object of:
+//       [id] :  [ {"x":"..", "y":"..", "state":".."}, {..} , .. ] },
+//			 [id..]: [...]
 
 function processData(data, name, settings) {
 
@@ -83,7 +82,7 @@ function processData(data, name, settings) {
 	}
 
 	return {
-		content: processedData,
+		values: processedData,
 		// buffer: buffer,
 		name: name,
 		label: settings.label,

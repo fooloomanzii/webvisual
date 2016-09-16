@@ -22,7 +22,7 @@
         display: none;
       }
       section#container {
-        display: inline-block;
+        display: inline-flex;
         white-space: nowrap;
         position: relative;
         cursor: pointer;
@@ -33,6 +33,7 @@
 
       section#checkboxContainer {
         display: inline-block;
+				align-self: center;
         position: relative;
         width: var(--calculated-checkbox-size);
         height: var(--calculated-checkbox-size);
@@ -111,24 +112,22 @@
       /* label */
       section.caption {
         position: relative;
-        display: inline-block;
-        vertical-align: middle;
-        padding: 0.25em 0.25em 0.25em 0.5em;
+        display: flex;
+        flex-direction: row;
+        padding-left: 0.25em;
         white-space: normal;
-        line-height: 1.2;
         color: currentColor;
       }
       section.caption > span.captions {
         padding: 0;
-        margin: 0;
         font-weight: normal;
+				line-height: 1.4;
         width: 100%;
         font-size: 0.5em;
       }
 
-      :host:not([horizontal]) span.captions {
-        float: left;
-        clear: both;
+      :host:not([horizontal]) section.caption {
+        flex-direction: column;
       }
 
       section.caption > span.captions.prefered {
@@ -245,6 +244,20 @@
         --icon-height: var(--calculated-checkbox-size);
         --icon-width: var(--calculated-checkbox-size);
       }
+			/*section#extra {
+				visibility: hidden;
+				background-color: rgba(0, 0, 0, 0.2);
+				width: 0.5em;
+				height: 100%;
+				position: absolute;
+				right: 0;
+				top: 0;
+				border-top-right-radius: inherit;
+				border-bottom-right-radius: inherit;
+			}
+			:host([checked]):hover section#extra {
+				visibility: visible;
+			}*/
     </style>
 
     <section id="container" class="null">
@@ -263,6 +276,7 @@
         </template>
       </section>
     </section>
+		<!-- <section id="extra"></section> -->
 
     <template is="dom-if" if="[[captionDropdown]]">
       <dropdown-element id="caption" for="preferedKey" target-showing-event="mouseover" target-hiding-event="mouseleave" position="bottom" align="start">
@@ -289,6 +303,10 @@
         <section id='dateSection' hidden$='[[!showDate]]'></section>
       </section>
     </dropdown-element>
+
+    <!-- <dropdown-element id="table" for="extra" target-showing-event="mouseover" target-hiding-event="mouseleave" position="right" align="start" offset="4">
+      <table-element id='[[id]]' label='[[label]]'></table-element>
+    </dropdown-element> -->
   </template>
 
   <script>

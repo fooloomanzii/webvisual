@@ -7,7 +7,7 @@
 
 	var DB_NAME = 'database';
 	var DB_STORAGE = 'entries';
-	var DB_VERSION = 1;
+	var DB_VERSION = 2;
 	var DB_KEYPATH = 'x';
 	var DB_INDEXKEYS = [{
 		key: 'y',
