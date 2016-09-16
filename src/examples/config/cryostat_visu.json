@@ -1,176 +1,232 @@
 {
-  "Lakeshore": {
+	"Lakeshore": {
 
-    "connections": {
-      "file": {
-        "mode": "append",
-        "path": "//ibn3-vsrv/CryostatVisu$/Lakeshore/201608011541_Lakeshore.txt",
-        "format": {
-          "dateFormat": "DD.MM.YYYY hh:mm:ss",
-          "decimalSeparator": ",",
-          "valueSeparator": ";",
-          "dimensions": 1
-        },
-        "ignoredFirstLines": 0
-      }
-    },
+		"connections": {
+			"file": {
+				"mode": "append",
+				"path": "D:\\Github\\webvisual\\src\\examples\\datafile\\cryostat_visu.txt",
+				"format": {
+					"dateFormat": "DD.MM.YYYY hh:mm:ss",
+					"decimalSeparator": ",",
+					"valueSeparator": ";",
+					"dimensions": 1
+				},
+				"ignoredFirstLines": 0
+			}
+		},
 
-    "locals": {
-      "ignore": [1,2,3,4,5,6,7,8,9,10],
-      "types": [{
-          "id": "id1",
-          "keys": {
-            "Bezeichner": "Messreihe 1",
-            "bel. Eigenschaft": "1"
-          },
-          "unit": "K",
-          "color": "#A3C825"
-        }, {
-          "id": "id2",
-          "keys": {
-            "Bezeichner": "Messreihe 2",
-            "bel. Eigenschaft": "2"
-          },
-          "unit": "K",
-          "color": "#14AFB6"
-        }, {
-          "id": "id3",
-          "keys": {
-            "Bezeichner": "Messreihe 3",
-            "bel. Eigenschaft": "3"
-          },
-          "unit": "K",
-          "color": "#1464B6"
-        }, {
-          "id": "id4",
-          "keys": {
-            "Bezeichner": "Messreihe 4",
-            "bel. Eigenschaft": "4"
-          },
-          "unit": "K",
-          "color": "#14B638"
-        }, {
-          "id": "id5",
-          "keys": {
-            "Bezeichner": "Messreihe 5",
-            "bel. Eigenschaft": "5"
-          },
-          "unit": "K",
-          "color": "#6A14B6"
-        }, {
-          "id": "id6",
-          "keys": {
-            "Bezeichner": "Messreihe 6",
-            "bel. Eigenschaft": "6"
-          },
-          "unit": "K",
-          "color": "#6A14B6"
-        }, {
-          "id": "id7",
-          "keys": {
-            "Bezeichner": "Messreihe 7",
-            "bel. Eigenschaft": "7"
-          },
-          "unit": "K"
-        }, {
-          "id": "id8",
-          "keys": {
-            "Bezeichner": "Messreihe 8",
-            "bel. Eigenschaft": "8"
-          },
-          "unit": "K"
-        }
-      ],
+		"locals": {
+			"ignore": [],
+			"types": [ {
+				"id": "id1",
+				"keys": {
+					"Bezeichner": "Messreihe 1"
+				},
+				"unit": "K",
+				"color": "#A3C825"
+			}, {
+				"id": "id2",
+				"keys": {
+					"Bezeichner": "Messreihe 2"
+				},
+				"unit": "K",
+				"color": "#14AFB6"
+			}, {
+				"id": "id3",
+				"keys": {
+					"Bezeichner": "Messreihe 3"
+				},
+				"unit": "K",
+				"color": "#1464B6"
+			}, {
+				"id": "id4",
+				"keys": {
+					"Bezeichner": "Messreihe 4"
+				},
+				"unit": "K",
+				"color": "#14B638"
+			}, {
+				"id": "id5",
+				"keys": {
+					"Bezeichner": "Messreihe 5"
+				},
+				"unit": "K",
+				"color": "#6A14B6"
+			}, {
+				"id": "id6",
+				"keys": {
+					"Bezeichner": "Messreihe 6"
+				},
+				"unit": "K",
+				"color": "#6A14B6"
+			}, {
+				"id": "id7",
+				"keys": {
+					"Bezeichner": "Messreihe 7"
+				},
+				"unit": "K"
+			}, {
+				"id": "id8",
+				"keys": {
+					"Bezeichner": "Messreihe 8"
+				},
+				"unit": "K"
+			} ],
 
-      "unnamedType": {
-        "id": "id",
-        "keys": {
-          "Bezeichner": "Bezeichner",
-          "bel. Eigenschaft": "verschiedene Sprungtemperatur"
-        },
-        "color": "#B63614"
-      },
+			"unnamedType": {
+				"id": "id",
+				"keys": {
+					"Bezeichner": "Bezeichner"
+				},
+				"color": "#B63614"
+			},
 
-      "groupingKeys": ["Bezeichner", "bel. Eigenschaft", "*"],
-      "preferedGroupingKey": "*",
+			"groupingKeys": [ "Bezeichner", "*" ],
+			"preferedGroupingKey": "*",
 
-      "exclusiveGroups": {
-        "bel. Eigenschaft": {
-          "bel. Vorgruppierung": {
-            "ids": [
-              "id1",
-              "id2",
-              "id7"
-            ]
-          }
-        }
-      }
-    }
-  },
+			"exclusiveGroups": {
+				"bel. Eigenschaft": {
+				}
+			}
+		}
+	},
 
-  "Tic500": {
+	"Tic500": {
 
-    "connections": {
-      "file": {
-        "mode": "append",
-        "path": "//ibn3-vsrv/CryostatVisu$/Tic500/201608091006TIC500.txt",
-        "format": {
-          "dateFormat": "DD.MM.YYYY hh:mm:ss",
-          "decimalSeparator": ".",
-          "valueSeparator": ",",
-          "dimensions": 1
-        },
-        "ignoredFirstLines": 3
-      }
-    },
+		"connections": {
+			"file": {
+				"mode": "append",
+				"path": "D:\\Github\\webvisual\\src\\examples\\datafile\\cryostat_visu2.txt",
+				"format": {
+					"dateFormat": "DD.MM.YYYY hh:mm:ss",
+					"decimalSeparator": ".",
+					"valueSeparator": ",",
+					"dimensions": 1
+				},
+				"ignoredFirstLines": 3
+			}
+		},
 
-    "locals": {
-      "ignore": [],
-      "types": [{
-          "id": "id1",
-          "keys": {
-            "Bezeichner": "Messreihe 1",
-            "bel. Eigenschaft": "1"
-          },
-          "unit": "K",
-          "color": "#A3C825"
-        }, {
-          "id": "id2",
-          "keys": {
-            "Bezeichner": "Messreihe 2",
-            "bel. Eigenschaft": "2"
-          },
-          "unit": "K",
-          "color": "#14AFB6"
-        }
-      ],
+		"locals": {
+			"ignore": [],
+			"types": [ {
+				"id": "id1",
+				"keys": {
+					"Bezeichner": "4K"
+				},
+				"unit": "",
+				"color": "#A3C825"
+			}, {
+				"id": "id2",
+				"keys": {
+					"Bezeichner": "1K"
+				},
+				"unit": "",
+				"color": "#14AFB6"
+			}, {
+				"id": "id3",
+				"keys": {
+					"Bezeichner": "Cryostat"
+				},
+				"unit": "",
+				"color": "#1464B6"
+			}, {
+				"id": "id4",
+				"keys": {
+					"Bezeichner": "ENTROPY"
+				},
+				"unit": "",
+				"color": "#14B638"
+			}, {
+				"id": "id5",
+				"keys": {
+					"Bezeichner": "H-Oben"
+				},
+				"unit": "W",
+				"color": "#6A14B6"
+			}, {
+				"id": "id6",
+				"keys": {
+					"Bezeichner": "H-Unten"
+				},
+				"unit": "W",
+				"color": "#6A14B6"
+			}, {
+				"id": "id7",
+				"keys": {
+					"Bezeichner": "R1"
+				},
+				"unit": "V"
+			}, {
+				"id": "id8",
+				"keys": {
+					"Bezeichner": "R2"
+				},
+				"unit": "V"
+			}, {
+				"id": "id9",
+				"keys": {
+					"Bezeichner": "AIO3"
+				},
+				"unit": "V"
+			}, {
+				"id": "id10",
+				"keys": {
+					"Bezeichner": "AIO4"
+				},
+				"unit": "K"
+			}, {
+				"id": "id11",
+				"keys": {
+					"Bezeichner": "DIO"
+				},
+				"unit": ""
+			}, {
+				"id": "id12",
+				"keys": {
+					"Bezeichner": "Relays"
+				},
+				"unit": ""
+			}, {
+				"id": "id13",
+				"keys": {
+					"Bezeichner": "V1"
+				},
+				"unit": ""
+			}, {
+				"id": "id14",
+				"keys": {
+					"Bezeichner": "V2"
+				},
+				"unit": ""
+			}, {
+				"id": "id15",
+				"keys": {
+					"Bezeichner": "V3"
+				},
+				"unit": ""
+			} ],
 
-      "unnamedType": {
-        "id": "id",
-        "keys": {
-          "Bezeichner": "Messreihe",
-          "bel. Eigenschaft": "beliebig"
-        },
-        "isBoolean": false,
-        "values": [{
-          "x": null,
-          "y": 0
-        }],
-        "unit": "K",
-        "color": "#B61462"
-      },
+			"unnamedType": {
+				"id": "id",
+				"keys": {
+					"Bezeichner": "Messreihe"
+				},
+				"isBoolean": false,
+				"values": [ {
+					"x": null,
+					"y": 0
+				} ],
+				"unit": "",
+				"color": "#B61462"
+			},
 
-      "groupingKeys": ["Bezeichner", "bel. Eigenschaft", "*"],
-      "preferedGroupingKey": "*",
+			"groupingKeys": [ "Bezeichner", "*" ],
+			"preferedGroupingKey": "*",
 
-      "exclusiveGroups": {
-        "Bezeichner": {
-          "bel. Vorgruppierung": {
-            "ids": [
-            ]
-          }
-        }
-      }
-    }
-  }
+			"exclusiveGroups": {
+				"Bezeichner": {}
+			}
+		}
+	}
 }

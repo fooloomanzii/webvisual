@@ -120,6 +120,7 @@ class dataModule extends EventEmitter {
 		for (var name in this.dataFile) {
 			for (var label in this.dataFile[name]) {
 				this.dataFile[name][label].close();
+				this.cache[name][label].clear();
 				delete this.dataFile[name][label];
 				delete this.cache[name][label];
 			}

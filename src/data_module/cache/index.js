@@ -51,10 +51,17 @@ class Cache {
 								configurable: true
 							});
 					}
-					for (var i = 0; i < v[id].length-1; i--)
-						this._cache[id].push(v[id][i]);
-					if (this._cache[id].length > this.maxValues)
-						this._cache[id].splice(0, this._cache[id].length - this.maxValues);
+					var len = v[id].length;
+					if (len > this.maxLength)
+						v[id] = v[id].slice(len - this.maxLength, len);
+					if (this._cache[id].length === 0)
+						this._cache[id] = v[id];
+					else
+						for (var i = 0; i < v[id].length-1; i--)
+							this._cache[id].push(v[id][i]);
+					if (this._cache[id].length > this.maxLength)
+						this._cache[id].splice(0, this._cache[id].length - this.maxLength);
+
 				}
 			},
 			enumerable: true,

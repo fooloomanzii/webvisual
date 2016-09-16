@@ -385,7 +385,7 @@
 
       render: function(value) {
         if (value === undefined) {
-          value = this.values[this.values.length-1];
+          value = this.values[this.values.length-1] || {};
         }
         // set value
         if (!this.isBoolean === true)
