@@ -57,7 +57,7 @@ class Cache {
 					if (this._cache[id].length === 0)
 						this._cache[id] = v[id];
 					else
-						for (var i = 0; i < v[id].length-1; i--)
+						for (var i = 0; i < v[id].length; i++)
 							this._cache[id].push(v[id][i]);
 					if (this._cache[id].length > this.maxLength)
 						this._cache[id].splice(0, this._cache[id].length - this.maxLength);

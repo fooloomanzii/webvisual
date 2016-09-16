@@ -534,9 +534,9 @@
         var newLabel;
 
         if (labels.length > 1)
-          this.$.labelsTabs.style.visibility = "visible";
+          this.$.labelsTabs.style.display = "inline-block";
         else
-          this.$.labelsTabs.style.visibility = "hidden";
+          this.$.labelsTabs.style.display = "none";
 
         for (var i = 0; i < content.length; i++) {
           if (labels.indexOf(content[i].getAttribute('label')) === -1) {
