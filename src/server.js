@@ -162,8 +162,7 @@ class WebvisualServer extends EventEmitter {
 													this.emit("log", "HTTPS Server is listening on port " + this.config.server.port.https);
 												});
 											this.dataHandler.setServer(this.mainServer);
-											if (callback)
-												resolve(true);
+											resolve(true);
 										}
 									});
 								}

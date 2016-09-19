@@ -85,15 +85,17 @@
 					console.error(error);
 				});
 
-				worker.postMessage({
-					type: 'connect',
-					args: {
-						dbName: this.dbName,
-						storeName: this.storeName,
-						indexKeys: this.indexKeys,
-						keyPath: this.keyPath
+				worker.postMessage(
+					JSON.stringify( {
+						type: 'connect',
+						args: {
+							dbName: this.dbName,
+							storeName: this.storeName,
+							indexKeys: this.indexKeys,
+							keyPath: this.keyPath
+						}
 					}
-				});
+				) );
 			}.bind(this));
 		}
 	}

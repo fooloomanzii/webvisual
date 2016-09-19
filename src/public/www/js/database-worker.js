@@ -425,32 +425,33 @@
 		var databaseWorker;
 
 		onmessage = function(e) {
-			var data = JSON.parse(e.data);
-			if (!data.type) {
+			// console.log(e);
+			// var data = JSON.parse(e);
+			if (!e.data.type) {
 				return;
-			} else if (data.type === 'connect') {
-				if (data.args === undefined) {
+			} else if (e.data.type === 'connect') {
+				if (e.data.args === undefined) {
 					console.log('No given arguments for creating a Database-Worker')
 					return;
 				}
 				if (databaseWorker) {
 					Promise.resolve(databaseWorker.close).then(function() {
-						databaseWorker = new IndexedDBHandler(data.args);
+						databaseWorker = new IndexedDBHandler(e.data.args);
 						postMessage({
 							type: 'db-connected'
 						});
 					})
 				} else {
-					databaseWorker = new IndexedDBHandler(data.args);
+					databaseWorker = new IndexedDBHandler(e.data.args);
 					postMessage({
 						type: 'db-connected'
 					});
 				}
 			} else if (databaseWorker.handleMessage) {
 				// console.log('onMessage', databaseWorker.dbName, (+(new Date())));
-				databaseWorker.handleMessage(data);
+				databaseWorker.handleMessage(e.data);
 			} else {
-				console.log('Not possible', data)
+				console.log('Not possible', e.data)
 			}
 		};
 	} else {
