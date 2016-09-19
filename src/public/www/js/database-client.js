@@ -12,10 +12,7 @@
 		unique: false
 	}];
 
-	function DatabaseClient(dbName, storeName, keyPath, indexKeys) {
-		this.dbVersion = 1;
-		this.dbName = dbName || DB_NAME;
-		this.storeName = storeName || DB_STORAGE;
+	function DatabaseClient(keyPath, indexKeys) {
 		this.messageId = 0;
 
 		this.keyPath = keyPath || DB_KEYPATH;
@@ -43,22 +40,24 @@
 					});
 					msg.id = id;
 					// console.log('postMessage', this.dbName, (+(new Date())));
-					worker.postMessage(msg, buffer);
+					worker.postMessage(JSON.stringify(msg), buffer);
 				}.bind(this));
 			}.bind(this));
 		},
 
-		transaction: function(method, opt) {
+		transaction: function(dbName, storeName, method, opt) {
 			return this.post(
-				JSON.stringify( {
+			 {
 					type: 'transaction',
+					dbName: dbName,
+					storeName: storeName,
 					method: method,
 					key: opt.key,
 					value: opt.value,
 					range: opt.range,
 					direction: opt.direction,
 					count: opt.count
-				} ), opt.buffer);
+				}, opt.buffer);
 		},
 
 		close: function() {
@@ -89,8 +88,6 @@
 					JSON.stringify( {
 						type: 'connect',
 						args: {
-							dbName: this.dbName,
-							storeName: this.storeName,
 							indexKeys: this.indexKeys,
 							keyPath: this.keyPath
 						}

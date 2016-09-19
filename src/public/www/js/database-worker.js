@@ -1,13 +1,8 @@
 (function() {
 	'use strict';
 	//
-	// if (self && self.importScripts)
-	//   self.importScripts('bluebird.min.js');
 	// IndexedDBHandler
 
-	var DB_NAME = 'database';
-	var DB_STORAGE = 'entries';
-	var DB_VERSION = 2;
 	var DB_KEYPATH = 'x';
 	var DB_INDEXKEYS = [{
 		key: 'y',
@@ -18,53 +13,59 @@
 	}];
 
 	function IndexedDBHandler(opt) {
-
-		this.dbVersion = DB_VERSION;
-		this.dbName = opt.dbName || DB_NAME;
-		this.storeName = opt.storeName || DB_STORAGE;
-
 		this.keyPath = opt.keyPath || DB_KEYPATH;
 		this.indexKeys = opt.indexKeys || DB_INDEXKEYS;
 
-		this.open();
+		this.__dbOpenPromise = null;
+
 	}
 
 	// IndexedDBHandler.prototype = {
 	IndexedDBHandler.prototype = {
-		open: function(dbVersion) {
-			this.__dbOpenPromise = this.__dbOpenPromise || new Promise(function(resolve, reject) {
-				var r = indexedDB.open(this.dbName, this.dbVersion);
+		open: function(dbName, storeName, dbVersion) {
 
-				r.onupgradeneeded = r.onsuccess = function() {
-					var existingStoreNames = r.result.objectStoreNames;
-					if (existingStoreNames.contains(this.storeName) === false) {
-						this.createObjectStore(r.result)
-							.then(function() {
-								resolve(r.result)
+			return new Promise(function(resolve, reject) {
+
+				var r = indexedDB.open(dbName, dbVersion);
+
+				r.onsuccess = function(e) {
+					var db = e.target.result;
+					var existingstoreNames = db.objectStoreNames;
+					var version = parseInt(db.version) || 0;
+					// console.log(dbName, storeName, version);
+					if (existingstoreNames.contains(storeName))
+						resolve(db);
+					else {
+						db.close();
+						this.open(dbName, storeName, version + 1)
+								.then(function(db) {
+									resolve(db);
+								})
+					}
+				}.bind(this);
+
+				r.onupgradeneeded = function(e) {
+					var db = e.target.result;
+					console.log(db, dbName, storeName);
+					this.createObjectStore(db, dbName, storeName)
+							.then(function(db) {
+								resolve(db);
 							});
-					} else
-						resolve(r.result);
 				}.bind(this);
 
-				r.onsuccess = function() {
-					resolve(r.result);
-				}.bind(this);
-
-				r.onerror = function() {
-					console.log('Could not open Database ', this.dbName, this.storeName)
+				r.onerror = function(e) {
+					console.log('Could not open Database ', dbName, storeName, dbVersion)
 					reject(r.error);
 				}.bind(this);
 
 			}.bind(this));
-
-			return this.__dbOpenPromise;
 		},
 
-		createObjectStore: function(db) {
-			return new Promise(function(resolve, reject) {
+		createObjectStore: function(db, dbName, storeName) {
+			return new Promise( function(resolve, reject) {
 				try {
-					console.log("createObjectStore", this.dbName, this.storeName)
-					var objectStore = db.createObjectStore(this.storeName, {
+					console.log("createObjectStore", dbName, storeName)
+					var objectStore = db.createObjectStore(storeName, {
 						keyPath: this.keyPath
 					});
 					for (var i in this.indexKeys) {
@@ -76,7 +77,7 @@
 				} catch (e) {
 					return reject(e);
 				}
-				return resolve();
+				return resolve(db);
 			}.bind(this));
 		},
 
@@ -91,7 +92,7 @@
 			}.bind(this));
 		},
 
-		get: function(key, value, range, count) {
+		get: function(dbName, storeName, key, value, range, count) {
 			var rangeOptions = null,
 				rangeMethod = null,
 				keyRange = null;
@@ -110,8 +111,7 @@
 				keyRange = IDBKeyRange[rangeMethod].apply(this, rangeOptions);
 			}
 
-			var storeName = this.storeName;
-			return this.open().then(function(db) {
+			return this.open(dbName, storeName).then(function(db) {
 				return new Promise(function(resolve, reject) {
 					try {
 						var t = db.transaction([storeName], 'readonly');
@@ -149,12 +149,11 @@
 			});
 		},
 
-		set: function(value) {
-			var storeName = this.storeName;
+		set: function(dbName, storeName, value) {
 			if (Array.isArray(value) === true) {
-				return this.place(value);
+				return this.place(dbName, storeName, value);
 			} else {
-				return this.open().then(function(db) {
+				return this.open(dbName, storeName).then(function(db) {
 					return new Promise(function(resolve, reject) {
 						try {
 							var t = db.transaction([storeName], 'readwrite');
@@ -173,9 +172,8 @@
 				});
 			}
 		},
-		place: function(values) {
-			var storeName = this.storeName;
-			return this.open().then(function(db) {
+		place: function(dbName, storeName, values) {
+			return this.open(dbName, storeName).then(function(db) {
 				return new Promise(function(resolve, reject) {
 					try {
 						var t = db.transaction([storeName], 'readwrite');
@@ -196,13 +194,12 @@
 			});
 		},
 
-		setBuffer: function(buffer) {
-			var storeName = this.storeName;
+		setBuffer: function(dbName, storeName, buffer) {
 			var floatArrays = {
 				x: new Float64Array(buffer.x),
 				y: new Float64Array(buffer.y)
 			};
-			return this.open().then(function(db) {
+			return this.open(dbName, storeName).then(function(db) {
 				console.log('start Promise', new Date());
 				return new Promise(function(resolve, reject) {
 					try {
@@ -233,9 +230,8 @@
 			});
 		},
 
-		count: function(key) {
-			var storeName = this.storeName;
-			return this.open().then(function(db) {
+		count: function(dbName, storeName, key) {
+			return this.open(dbName, storeName).then(function(db) {
 				return new Promise(function(resolve, reject) {
 					try {
 						var t = db.transaction([storeName], 'readonly');
@@ -257,9 +253,8 @@
 			});
 		},
 
-		clear: function() {
-			var storeName = this.storeName;
-			return this.open().then(function(db) {
+		clear: function(dbName, storeName) {
+			return this.open(dbName, storeName).then(function(db) {
 				return new Promise(function(resolve, reject) {
 					try {
 						var t = db.transaction([storeName], 'readwrite');
@@ -278,9 +273,8 @@
 			});
 		},
 
-		edge: function(key, count, direction) {
-			var storeName = this.storeName;
-			return this.open().then(function(db) {
+		edge: function(dbName, storeName, key, count, direction) {
+			return this.open(dbName, storeName).then(function(db) {
 				return new Promise(function(resolve, reject) {
 					try {
 						var t = db.transaction(storeName, 'readonly');
@@ -312,10 +306,9 @@
 			});
 		},
 
-		range: function(key) {
-			var storeName = this.storeName;
+		range: function(dbName, storeName, key) {
 			var keyPath = key || this.keyPath;
-			return this.open().then(function(db) {
+			return this.open(dbName, storeName).then(function(db) {
 				return new Promise(function(resolve, reject) {
 					try {
 						var t = db.transaction(storeName, 'readonly');
@@ -349,31 +342,33 @@
 
 		transaction: function(opt) {
 			opt.value = opt.value || null;
+			var dbName = opt.dbName;
+			var storeName = opt.storeName;
 
 			switch (opt.method) {
 				case 'get':
-					return this.get(opt.key, opt.value, opt.range, opt.count || 1);
+					return this.get(dbName, storeName, opt.key, opt.value, opt.range, opt.count || 1);
 					break;
 				case 'set':
-					return this.set(opt.value);
+					return this.set(dbName, storeName, opt.value);
 					break;
 				case 'setBuffer':
-					return this.setBuffer(opt.value);
+					return this.setBuffer(dbName, storeName, opt.value);
 					break;
 				case 'first':
-					return this.edge(opt.key, opt.count || 1, 'next');
+					return this.edge(dbName, storeName, opt.key, opt.count || 1, 'next');
 					break;
 				case 'last':
-					return this.edge(opt.key, opt.count || 1, 'prev');
+					return this.edge(dbName, storeName, opt.key, opt.count || 1, 'prev');
 					break;
 				case 'edge':
-					return this.edge(opt.key, opt.count || 1, opt.dierection || 'prevUnique');
+					return this.edge(dbName, storeName, opt.key, opt.count || 1, opt.dierection || 'prevUnique');
 					break;
 				case 'count':
-					return this.count(opt.key);
+					return this.count(dbName, storeName, opt.key);
 					break;
 				case 'range':
-					return this.range(opt.key);
+					return this.range(dbName, storeName, opt.key);
 					break;
 			}
 
@@ -425,33 +420,26 @@
 		var databaseWorker;
 
 		onmessage = function(e) {
-			// console.log(e);
-			// var data = JSON.parse(e);
-			if (!e.data.type) {
-				return;
-			} else if (e.data.type === 'connect') {
-				if (e.data.args === undefined) {
-					console.log('No given arguments for creating a Database-Worker')
-					return;
-				}
+			var message = JSON.parse(e.data) || {};
+			if (message.type === 'connect') {
 				if (databaseWorker) {
 					Promise.resolve(databaseWorker.close).then(function() {
-						databaseWorker = new IndexedDBHandler(e.data.args);
+						databaseWorker = new IndexedDBHandler(message.args);
 						postMessage({
 							type: 'db-connected'
 						});
 					})
 				} else {
-					databaseWorker = new IndexedDBHandler(e.data.args);
+					databaseWorker = new IndexedDBHandler(message.args);
 					postMessage({
 						type: 'db-connected'
 					});
 				}
-			} else if (databaseWorker.handleMessage) {
-				// console.log('onMessage', databaseWorker.dbName, (+(new Date())));
-				databaseWorker.handleMessage(e.data);
+			} else if (databaseWorker && databaseWorker.handleMessage) {
+				// console.log('onMessage', message.dbName, (+(new Date())));
+				databaseWorker.handleMessage(message);
 			} else {
-				console.log('Not possible', e.data)
+				console.log('Not possible', message)
 			}
 		};
 	} else {

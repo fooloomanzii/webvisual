@@ -121,6 +121,20 @@
 			}
 		},
 
+		"cache": {
+			"size": 10000
+		},
+
+		"clientRequest": {
+			"initial": {
+				"mobile": 300,
+				"stationary": 5400
+			},
+			"update": {
+				"interval": 1000
+			}
+		},
+
 		"locals": {
 			"ignore": [],
 			"types": [ {
