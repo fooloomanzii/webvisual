@@ -6,7 +6,6 @@
 //    'test-error'
 //    'file-error'
 
-
 var fs = require('fs');
 var path = require('path');
 var util = require('util');
@@ -17,31 +16,55 @@ var app;
 var mergeDeep = require('merge-defaults');
 
 const defaults = {
-    app: {
-      width: 400,
-      height: 500,
-      autoHideMenuBar: true,
-      acceptFirstMouse: true,
-      webPreferences: {
-        webSecurity: true
-      }
-    },
-    userConfigFiles: {},
-    server: {
-      port: {
-        http: 80,
-        https: 443
+  "server": {
+    "auth": {
+      "required": false,
+      "ldap": {
+        "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
+        "url": "ldap:\\\\ibn-net.kfa-juelich.de"
       },
-      auth: {
-        required: true,
-        ldap: {
-          url: "ibn-net.kfa-juelich.de",
-          baseDN: "dc=ibn-net,dc=kfa-juelich,dc=de"
-        }
-      }
+      "suffix": "@fz-juelich.de"
     },
-    database: {}
-};
+    "port": {
+      "http": 80,
+      "https": 443
+    },
+    "ssl": {
+      "cert": "",
+      "certchaindir": "",
+      "key": "",
+      "passphrase": ""
+    },
+    "logs": {
+      "http_server_log": "",
+      "server_log": ""
+    }
+  },
+  "app": {
+    "width": 576,
+    "height": 692,
+    "autoHideMenuBar": true,
+    "acceptFirstMouse": true,
+    "webPreferences": {
+      "webSecurity": true
+    },
+    "x": 932,
+    "y": 143
+  },
+  "userConfigFiles": {
+  },
+  "renderer": {
+    "Alarmzustände": {
+      "icon": "juelich:alarm",
+      "path": "alarm-view.jade"
+    },
+    "Diagrammansicht": {
+      "icon": "juelich:graph",
+      "path": "chart-view.jade"
+    }
+  },
+  "database": {}
+}
 
 class configLoader extends EventEmitter {
 

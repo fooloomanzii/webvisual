@@ -380,13 +380,13 @@
 			return Promise.reject(new Error('Method not supported: ' + method));
 		},
 
-		handleMessage: function(e) {
-			if (!e.data) {
+		handleMessage: function(data) {
+			if (!data) {
 				return;
 			}
-			var id = e.data.id;
+			var id = data.id;
 
-			switch (e.data.type) {
+			switch (data.type) {
 				case 'close-db':
 					this.closeDb().then(function() {
 						postMessage({
@@ -395,7 +395,7 @@
 					});
 					break;
 				case 'transaction':
-					this.transaction(e.data)
+					this.transaction(data)
 						.then(function(result) {
 							postMessage({
 								type: 'transaction-result',
@@ -425,31 +425,32 @@
 		var databaseWorker;
 
 		onmessage = function(e) {
-			if (!e.data.type) {
+			var data = JSON.parse(e.data);
+			if (!data.type) {
 				return;
-			} else if (e.data.type === 'connect') {
-				if (e.data.args === undefined) {
+			} else if (data.type === 'connect') {
+				if (data.args === undefined) {
 					console.log('No given arguments for creating a Database-Worker')
 					return;
 				}
 				if (databaseWorker) {
 					Promise.resolve(databaseWorker.close).then(function() {
-						databaseWorker = new IndexedDBHandler(e.data.args);
+						databaseWorker = new IndexedDBHandler(data.args);
 						postMessage({
 							type: 'db-connected'
 						});
 					})
 				} else {
-					databaseWorker = new IndexedDBHandler(e.data.args);
+					databaseWorker = new IndexedDBHandler(data.args);
 					postMessage({
 						type: 'db-connected'
 					});
 				}
 			} else if (databaseWorker.handleMessage) {
 				// console.log('onMessage', databaseWorker.dbName, (+(new Date())));
-				databaseWorker.handleMessage(e);
+				databaseWorker.handleMessage(data);
 			} else {
-				console.log('Not possible', e)
+				console.log('Not possible', data)
 			}
 		};
 	} else {

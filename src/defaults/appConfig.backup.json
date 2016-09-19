@@ -2,7 +2,6 @@
   "server": {
     "auth": {
       "required": false,
-      "req": true,
       "ldap": {
         "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
         "url": "ldap:\\\\ibn-net.kfa-juelich.de"
@@ -14,14 +13,14 @@
       "https": 443
     },
     "ssl": {
-      "cert": "D:\\Github\\webvisual\\ssl\\ca.crt",
-      "certchaindir": "D:\\Github\\webvisual\\ssl\\cert_chain",
-      "key": "D:\\Github\\webvisual\\ssl\\ca.key",
-      "passphrase": "D:\\Github\\webvisual\\ssl\\ca.pw.json"
+      "cert": "",
+      "certchaindir": "",
+      "key": "",
+      "passphrase": ""
     },
     "logs": {
-      "http_server_log": "./logs/http-error.log",
-      "server_log": "./logs/server-error.log"
+      "http_server_log": "",
+      "server_log": ""
     }
   },
   "app": {
@@ -37,11 +36,11 @@
   },
   "userConfigFiles": {
     "HNF-GDS": {
-      "path": "\\\\ibn-vsrv\\HNF-GDS$\\Config\\HNF_GDS.json",
+      "path": "examples\\config\\HNF_GDS.json",
       "renderer": "Alarmzustände"
     },
     "Cryostat": {
-      "path": "\\\\ibn3-vsrv\\CryostatVisu$\\Config\\cryostat_visu.json",
+      "path": "examples\\config\\cryostat_visu.json",
       "renderer": "Diagrammansicht"
     }
   },

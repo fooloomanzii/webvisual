@@ -204,7 +204,7 @@ DataSocketHandler.prototype = {
 			}
 
 			// start1[id] = new Date();
-			window.DatabaseForSocket[label][id].transaction('set', {value: message.values[id]});
+			window.DatabaseForSocket[label][id].transaction('set', JSON.stringify({value: message.values[id]}));
 				// .then(function(result) {
 				// 	console.log("set", label, id, "length:", message.values[id].length, "time:", new Date() - start1[id]);
 				// });

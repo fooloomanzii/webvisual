@@ -49,15 +49,16 @@
 		},
 
 		transaction: function(method, opt) {
-			return this.post({
-				type: 'transaction',
-				method: method,
-				key: opt.key,
-				value: opt.value,
-				range: opt.range,
-				direction: opt.direction,
-				count: opt.count
-			}, opt.buffer);
+			return this.post(
+				JSON.stringify( {
+					type: 'transaction',
+					method: method,
+					key: opt.key,
+					value: opt.value,
+					range: opt.range,
+					direction: opt.direction,
+					count: opt.count
+				} ), opt.buffer);
 		},
 
 		close: function() {
