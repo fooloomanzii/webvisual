@@ -1,115 +1,117 @@
 extends layout
 
 block StyleContent
-  style(is="custom-style", include="app-theme").
-    body {
-      background: var(--bright-primary-color, #669DB4);
-    }
+    style(is="custom-style", include="app-theme").
+        body {
+            background: var(--bright-primary-color, #669DB4);
+        }
 
 block BodyContent    
-  dom-module#login-form
-    template
-      style.
-        :host {
-          position: relative;
-          box-sizing: border-box;
-          font-size: 1em;
-          padding: 1.5em;
-          margin: auto;
-          width: auto;
-          height: auto;
-          color: var(--bright-text-color);
-        }
-        h1 {
-          font-weight: normal;
-          font-size: 2em;
-          margin: 0.5em 0em;
-          text-align: center;
-        }
-        input-element {
-          padding: 0.4em 1em;
-          font-size: 1em;
-          color: var(--primary-text-color);
-          --input-label: {
-            text-align: center;
-          };
-          --form-valid: var(--primary-color);
-        }
-        input-element#username {
-          --input-inner: {
-            text-align: end;
-            width: 50%;
-            padding: 0.75em 2px 0.5em 0.25em;
-          };
-          --input-suffix: {
-            padding: 0.75em 0.5em 0.5em 0em;
-            font-size: 0.8em;
-          };
-        }
-        input-element#password {
-          --input-inner: {
-            text-align: center;
-          };
-        }
-        section.input {
-          background: var(--bright-text-color);
-          border-radius: 8px;
-          border: thin solid rgba(0,0,0,0.4);
-        }
-        circle-element {
-          left: 0;
-          right: 0;
-          position: absolute;
-          bottom: -3em;
-          justify-content: center;
-        }
-        button-element {
-          float: right;
-          clear: both;
-          border: thin solid rgba(0,0,0,0.12);
-        }
-      h1
-        | Webvisual Login
-      br
-      form#login(is='iron-form')
-        section.input
-          input-element#username(type='text', name='username', label='Username', required, tabindex="1")
-            section(suffix)
-              != server.auth.suffix
-        br
-        section.input
-          input-element#password(type='password', name='password', label='Password', required, tabindex="2")
-        br
-        button-element#submit(raised, on-tap="_submit", tabindex="0")
-          iron-icon.left(icon='juelich:logo')
-          | Login
-        br
-      form#native(action='/login', method='post')
-    script.
-      window.addEventListener('WebComponentsReady', function(e) {
-        Polymer({
-          is: 'login-form',
-          listeners: {
-            'keydown': '_keyHandler'
-          },
-          _keyHandler: function(e) {
-            switch (e.which) {
-              case 13: this._submit(); break;
-            }
-          },
-          _submit: function() {
-            if (this.$.login.validate()) {
-              var serializedItems = this.$.login.serialize();
-              for (var name in serializedItems) {
-                var input = document.createElement('input');
-                input.hidden = true;
-                input.name = name;
-                input.value = serializedItems[name];
-                this.$.native.appendChild(input);
-              }
-              this.$.native.submit();
-            }
-          }
-        });
-      });
-  login-form()
+    dom-module#login-form
+        template
+            style.
+                :host {
+                    position: relative;
+                    box-sizing: border-box;
+                    font-size: 1em;
+                    padding: 1.5em;
+                    margin: auto;
+                    width: auto;
+                    height: auto;
+                    color: var(--bright-text-color);
+                        white-space: pre-wrap;
+                        line-height: 1.4;
+                }
+                h1 {
+                    font-weight: normal;
+                    font-size: 2em;
+                    margin: 0.5em;
+                    text-align: center;
+                }
+                input-element {
+                    padding: 0.4em 1em;
+                    font-size: 1em;
+                    color: var(--primary-text-color);
+                    --input-label: {
+                        text-align: center;
+                    };
+                    --form-valid: var(--primary-color);
+                }
+                input-element#username {
+                    --input-inner: {
+                        text-align: end;
+                        width: 50%;
+                        padding: 0.75em 2px 0.5em 0.25em;
+                    };
+                    --input-suffix: {
+                        padding: 0.75em 0.5em 0.5em 0em;
+                        font-size: 0.8em;
+                    };
+                }
+                input-element#password {
+                    --input-inner: {
+                        text-align: center;
+                    };
+                }
+                section.input {
+                    background: var(--bright-text-color);
+                    border-radius: 8px;
+                    border: thin solid rgba(0,0,0,0.4);
+                }
+                circle-element {
+                    left: 0;
+                    right: 0;
+                    position: absolute;
+                    bottom: -3em;
+                    justify-content: center;
+                }
+                button-element {
+                    float: right;
+                    clear: both;
+                    border: thin solid rgba(0,0,0,0.12);
+                }
+            h1
+                | Webvisual Login
+            br
+            form#login(is='iron-form')
+                section.input
+                    input-element#username(type='text', name='username', label='Username', required, tabindex="1")
+                        section(suffix)
+                            != server.auth.suffix
+                br
+                section.input
+                    input-element#password(type='password', name='password', label='Password', required, tabindex="2")
+                br
+                button-element#submit(raised, on-tap="_submit", tabindex="0")
+                    iron-icon.left(icon='juelich:logo')
+                    | Login
+                br
+            form#native(action='/login', method='post')
+        script.
+            window.addEventListener('WebComponentsReady', function(e) {
+                Polymer({
+                    is: 'login-form',
+                    listeners: {
+                        'keydown': '_keyHandler'
+                    },
+                    _keyHandler: function(e) {
+                        switch (e.which) {
+                            case 13: this._submit(); break;
+                        }
+                    },
+                    _submit: function() {
+                        if (this.$.login.validate()) {
+                            var serializedItems = this.$.login.serialize();
+                            for (var name in serializedItems) {
+                                var input = document.createElement('input');
+                                input.hidden = true;
+                                input.name = name;
+                                input.value = serializedItems[name];
+                                this.$.native.appendChild(input);
+                            }
+                            this.$.native.submit();
+                        }
+                    }
+                });
+            });
+    login-form()

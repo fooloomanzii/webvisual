@@ -10,6 +10,7 @@ block HeadContent
     // actual measuring system
     window.Name = !{JSON.stringify(name)};
     window.Labels = !{JSON.stringify(config.labels)};
+    window.isMobile = !{mobile};
     window.DataHandler = new DataSocketHandler('/data', window.Name);
 
     window.addEventListener('WebComponentsReady', function(e) {

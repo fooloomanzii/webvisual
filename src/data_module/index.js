@@ -29,19 +29,21 @@ class dataModule extends EventEmitter {
 
 		// Handle connections of new clients
 		this.dataSocket = this.io.of("/data");
-		this.dataSocket.on("connection", (socket) => {
+		this.dataSocket.on("connection", (client) => {
 
-			var name = socket.handshake.query.name;
-			// console.log(socket.handshake.query);
+			client.on("setup", (settings) => {
+				var name = settings.name;
+				var last = settings.last;
 
-			if (this.configHandler.settings[name])
-				socket.compress(true).emit("initByServer", this.configHandler.settings[name].configuration);
+				if (this.configHandler.settings[name])
+					client.compress(true).emit("initByServer", this.configHandler.settings[name].configuration);
 
-			socket.on("initByClient", (config) => {
-				for (var label of config.labels) {
-					socket.join(name + "__" + label); // client joins room for selected label
-					socket.compress(true).emit("initial", {label: label, values: this.cache[name][label].values});
-				}
+				client.on("initByClient", (config) => {
+					for (var label of config.labels) {
+						client.join(name + "__" + label); // client joins room for selected label
+						client.compress(true).emit("initial", {label: label, values: this.cache[name][label].request(last)});
+					}
+				});
 			});
 
 		});

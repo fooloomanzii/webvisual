@@ -10,14 +10,17 @@ function DataSocketHandler(socketName, name, callwhenconnected) {
 	this.socketName = socketName;
 	this.socket = io.connect('https://' + window.location.host + socketName, {
 		secure: true,
-		multiplex: false,
-		query: "name=" + name
+		multiplex: false
 	});
 
 	// Connect
-	this.socket.on('connect', function() {
+	this.socket.on('connect', (function() {
 		console.info("client connected to: " + window.location.host);
-	});
+		this.socket.emit('setup', {
+			name: this.name,
+			last: window.isMobile ? 300 : window.maxValues
+		})
+	}).bind(this));
 	// Init connection
 	this.socket.on('initByServer', (function(settings) {
 		if (this.opened === false) {
