@@ -33,15 +33,23 @@ class dataModule extends EventEmitter {
 
 			client.on("setup", (settings) => {
 				var name = settings.name;
-				var last = settings.last;
+				var mobile = settings.mobile;
+				var requestlast;
 
-				if (this.configHandler.settings[name])
+				if (this.configHandler.settings[name]) {
+					if (this.configHandler.settings[name].clientRequest) {
+						if (mobile && this.configHandler.settings[name].clientRequest.mobile)
+							requestlast = this.configHandler.settings[name].clientRequest.mobile || 300;
+						else if (this.configHandler.settings[name].clientRequest.stationary) {
+							requestlast = this.configHandler.settings[name].clientRequest.stationary || 5000;
+						}
+					}
 					client.compress(true).emit("initByServer", this.configHandler.settings[name].configuration);
-
+				}
 				client.on("initByClient", (config) => {
 					for (var label of config.labels) {
 						client.join(name + "__" + label); // client joins room for selected label
-						client.compress(true).emit("initial", {label: label, values: this.cache[name][label].request(last)});
+						client.compress(true).emit("initial", {label: label, values: this.cache[name][label].request(requestlast)});
 					}
 				});
 			});

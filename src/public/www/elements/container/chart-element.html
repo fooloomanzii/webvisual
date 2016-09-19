@@ -155,13 +155,13 @@
   </svg> -->
 
   <icon-button-element id="menubutton" class="icon-button" icon="timeline"></icon-button-element>
-  <dropdown-element id="legend" for="menubutton" target-toggle-event="tap" position="right" align="outer-start" offset="2">
+  <dropdown-element id="legend" for="menubutton" target-toggle-event="tap" position="right" align="outer-start" offset="8">
     <toggle-button-element checked="[[!noDots]]" on-change="changeDots">mit Punkten</toggle-button-element>
     <toggle-button-element checked="[[!noLines]]" on-change="changeLines">mit Linien</toggle-button-element>
     <toggle-button-element checked="[[!noAreas]]" on-change="changeAreas">mit Flächen</toggle-button-element>
   </dropdown-element>
 
-  <dropdown-selector id="ybutton" class="icon-button" icon="y" hide-selected attr-for-selected="scale" selected="{{yScale}}" fallback-selection="linear" offset="2" toggles hide-arrow position="right" align="start" no-focusLine>
+  <dropdown-selector id="ybutton" class="icon-button" icon="y" hide-selected attr-for-selected="scale" selected="{{yScale}}" fallback-selection="linear" offset="8" toggles hide-arrow position="right" align="start" no-focusLine>
       <button-element scale='linear'>linear</button-element>
       <button-element scale='√'>√</button-element>
       <button-element scale='ln'>ln</button-element>
@@ -470,12 +470,12 @@
                 this._x.range([0, this._width]);
                 this._y.range([this._height, 0]);
 
-                this.$.menubutton.style.left = (this.margin.left - this.iconWidth) + 'px';
+                this.$.menubutton.style.left = (this.margin.left - this.iconWidth - 6) + 'px';
                 this.$.menubutton.style.right = 'auto';
                 this.$.menubutton.style.top = 'auto';
                 this.$.menubutton.style.bottom = (this.margin.bottom - this.iconWidth) + 'px';
 
-                this.$.ybutton.style.left = (this.margin.left - this.iconWidth) + 'px';
+                this.$.ybutton.style.left = (this.margin.left - this.iconWidth - 6) + 'px';
                 this.$.ybutton.style.right = 'auto';
                 this.$.ybutton.style.top = (this.margin.top) + 'px';
                 this.$.ybutton.style.bottom = 'auto';

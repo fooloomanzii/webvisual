@@ -18,7 +18,7 @@ function DataSocketHandler(socketName, name, callwhenconnected) {
 		console.info("client connected to: " + window.location.host);
 		this.socket.emit('setup', {
 			name: this.name,
-			last: window.isMobile ? 300 : window.maxValues
+			mobile: window.isMobile
 		})
 	}).bind(this));
 	// Init connection
