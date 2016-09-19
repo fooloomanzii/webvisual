@@ -21,6 +21,7 @@ function DataSocketHandler(socketName, name, callwhenconnected) {
 			mobile: window.isMobile
 		})
 	}).bind(this));
+
 	// Init connection
 	this.socket.on('initByServer', (function(settings) {
 		if (this.opened === false) {
@@ -35,7 +36,7 @@ function DataSocketHandler(socketName, name, callwhenconnected) {
 				window.DatabaseForSocket[label] = {};
 				for (var i in ids) {
 					// window.Content[label][ids[i]].nodes = [];
-					window.DatabaseForSocket[label][ids[i]] = new DatabaseClient(this.name + '/' + label + '/' + ids[i]);
+					// window.DatabaseForSocket[label][ids[i]] = new DatabaseClient();
 				}
 			}
 			if (settings.svg)
@@ -48,9 +49,11 @@ function DataSocketHandler(socketName, name, callwhenconnected) {
 	// Receive Data
 	this.socket.on('initial', (function(message) {
 		if (message !== undefined) {
-			this._update(message);
 			// Set Window title to selectedLabels
 			document.title = ((window.selectedLabels.length > 1) ? window.selectedLabels.join(', ') : window.selectedLabels.toString());
+
+			this._update(message);
+
 			this.opened = true;
 			// select the MainPage
 			window.PageSelector = document.querySelector('neon-animated-pages#PageSelector');
@@ -59,6 +62,7 @@ function DataSocketHandler(socketName, name, callwhenconnected) {
 			console.info("socket: received empty message");
 		return;
 	}).bind(this));
+
 	// Receive Data
 	this.socket.on('update', (function(message) {
 		if (message)
@@ -67,14 +71,17 @@ function DataSocketHandler(socketName, name, callwhenconnected) {
 			console.info("socket: received empty message");
 		return;
 	}).bind(this));
+
 	// Disconnect
 	this.socket.on('disconnect', function() {
 		console.warn("client disconnected to: " + window.location.host);
 	});
+
 	// Reconnect
 	this.socket.on('reconnect', function() {
 		console.info("client reconnected to: " + window.location.host);
 	});
+
 	// Disconnect
 	this.socket.on('connect_error', function() {
 		console.warn("error in connection to: " + window.location.host);
@@ -168,11 +175,23 @@ DataSocketHandler.prototype = {
 	},
 	_update: function(message) {
 		if (Array.isArray(message)) // if message is an Array
-			for (var i = 0; i < message.length; i++)
-			this._updateContent(message[i]);
-		else // if message is a single Object
+			for (var i = 0; i < message.length; i++) {
+				this._updateContent(message[i]);
+				// this._updateDatabase(message[i]);
+			}
+		else {// if message is a single Object
 			this._updateContent(message);
+			// this._updateDatabase(message);
+		}
 	},
+
+	_updateDatabase: function(message) {
+		var label = message.label;
+		for (var id in message.values) {
+			window.DatabaseForSocket[label][id].transaction(label+"/"+id, id, 'set', {value: message.values[id]});
+		}
+	},
+
 	_updateContent: function(message) {
 		if (!message.values)
 			return;
@@ -188,6 +207,7 @@ DataSocketHandler.prototype = {
 			}
 			len = message.values[id].length;
 			spliced = [];
+
 
 			if (len > maxValues)
 				message.values[id] = message.values[id].slice(len - maxValues, len);
@@ -207,7 +227,7 @@ DataSocketHandler.prototype = {
 			}
 
 			// start1[id] = new Date();
-			window.DatabaseForSocket[label][id].transaction('set', {value: message.values[id]});
+			// window.DatabaseForSocket[label][id].transaction(label+"/"+id, id, 'set', {value: message.values[id]});
 				// .then(function(result) {
 				// 	console.log("set", label, id, "length:", message.values[id].length, "time:", new Date() - start1[id]);
 				// });

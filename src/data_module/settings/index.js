@@ -107,10 +107,14 @@ class fileConfigLoader extends EventEmitter {
 			};
 			let dataConfig = {};
 			let connection = {};
+			let clientRequest = {};
+			let cache = {};
 
 			this.settings[name].configuration = {};
 			this.settings[name].dataConfig = {};
 			this.settings[name].connection = {};
+			this.settings[name].clientRequest = {};
+			this.settings[name].cache = {};
 
 			for (let label in data) {
 				if (configuration.labels.indexOf(label) === -1)
@@ -128,10 +132,15 @@ class fileConfigLoader extends EventEmitter {
 				configuration.svg[label] = dataConfig[label].svg;
 
 				connection[label] = data[label].connections;
+				clientRequest[label] = data[label].clientRequest;
+				cache[label] = data[label].cache;
 			}
 			this.settings[name].configuration = configuration;
 			this.settings[name].dataConfig = dataConfig;
 			this.settings[name].connection = connection;
+			this.settings[name].clientRequest = clientRequest;
+			this.settings[name].cache = cache;
+			
 		} catch (e) {
 			err = e;
 			console.log(e);
