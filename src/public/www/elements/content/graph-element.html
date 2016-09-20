@@ -272,7 +272,7 @@
           return undefined;	// NaN and null are displayable
         else if (!(yScale === "linear") && d.y <= 0)
           return undefined;	// log- and sqrt-scales require larger than 0-Values
-				else if ((d.x > domainX[0] && d.x < domainX[1]) || (i > 0 && i+1 < data.length && data[i+1].x > domainX[0] && data[i-1].x < domainX[1]))
+				else if ((d.x >= domainX[0] && d.x <= domainX[1]) || (i > 0 && i+1 < data.length && data[i+1].x > domainX[0] && data[i-1].x < domainX[1]))
           return true; // only numbers in x-Domain are shown (and their successor and predecessor) (graph is a function by definition, so y-Domain is not relevant)
         else
           return undefined;
