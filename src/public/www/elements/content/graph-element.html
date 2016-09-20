@@ -179,7 +179,7 @@
 			render: function(values, splices) {
 				if (!this.chartElement)
 					this.chartElement = this.containerRoot;
-				this._setRange(values);
+				// this._setRange(values);
 				// if (this.chartElement) {
 				// 	if (this.chartElement.isBrushed === false)
 				// 		this.chartElement.redraw();
@@ -190,7 +190,7 @@
 
       redraw: function() {
         if (this._hidden === true) return;
-        var date = new Date();
+
         var data = this.values.filter(this._defined.bind(this));
 
 				var everyOverlappingDot = (data.length / Math.max(this.chartElement._height,this.chartElement._width) * (this.dotRadius * 4));
@@ -199,7 +199,6 @@
 					data = data.filter(function(d, i) {
 						return (i % everyOverlappingDot < 1);
 					})
-        console.log('length', data.length, 'dots filter (ms)', new Date() - date);
 
         var self = this._self;
         var dots = this._dots.selectAll('circle.dot')
@@ -213,7 +212,6 @@
           }).bind(this._self))
           .attr('hidden', null);
         // enter new dots
-        console.log('dots positioning (ms)', new Date() - date);
         dots.enter()
           .append('circle')
           .attr('r', this.dotRadius).attr('fill', '#FFF')
@@ -247,22 +245,18 @@
             ];
             self.chartElement._brushed();
           });
-        console.log('dots new append (ms)', new Date() - date);
         //  remove old dots
         dots.exit()
           	.remove();
-        console.log('dots old remove (ms)', new Date() - date);
 
         // TODO(?): update line, animated http://bl.ocks.org/benjchristensen/1148374
         this._lineNode
           	.attr('d', this._line);
-        console.log('line rerendering (ms)', new Date() - date);
 
         this._area
 						.y0(this.chartElement._height)
         this._areaNode
 						.attr('d', this._area);
-        console.log('area rerendering (ms)', new Date() - date);
       },
 
       _defined: function(d, i, data) {
@@ -311,6 +305,7 @@
             return v.y;
           }));
         }
+        console.log(new Date(this._rangeX[0]), new Date(this._rangeX[1]));
       },
 
       setColor: function(color) {

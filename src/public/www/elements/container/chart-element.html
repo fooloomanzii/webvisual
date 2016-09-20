@@ -1,7 +1,7 @@
 <!-- Using d3.js-library -->
 
 <dom-module id='chart-element'>
-  <template>
+	<template>
 <style>
   :host {
     display: inline-flex;
@@ -188,634 +188,623 @@
     <graph-element id="[[item.id]]" label="[[item.label]]" caption-keys="[[item.captionKeys]]" color="[[item.color]]" interpolation="[[interpolation]]">
     </graph-element>
   </template>
-  </section>
-
-  </template>
-
-  <script>
-    ChartElement = Polymer({
-      is: 'chart-element',
-
-      behaviors: [
-        ContainerBehavior,
-        Polymer.IronResizableBehavior
-      ],
-
-      properties: {
-        notify: {
-          type: Boolean,
-          value: false
-        },
-        notifyParent: {
-          type: Boolean,
-          value: false
-        },
-        noSelectNotify: {
-          type: Boolean,
-          value: false
-        },
-        noExceedNotify: {
-          type: Boolean,
-          value: false
-        },
-
-        multiSelect: {
-          type: Boolean,
-          value: true
-        },
-        toggles: {
-          type: Boolean,
-          value: true
-        },
-
-        reproduce: {
-          type: Boolean,
-          value: true
-        },
-        reproductionContainer: {
-          type: String,
-          value: 'content',
-          readOnly: true
-        },
-
-        margin: {
-          type: Object,
-          value: function() {
-            return {
-              top: 6,
-              right: 12,
-              bottom: 36,
-              left: 48
-            };
-          }
-        },
-        iconWidth: {
-          type: Number,
-          value: 36
-        },
-        clamp: {
-          type: Boolean,
-          value: true
-        },
-        clampExtend: {
-          type: Number,
-          value: 16
-        },
-        _isClamping: {
-          type: Boolean,
-          value: false
-        },
-        xTicks: {
-          type: Number,
-          value: 5
-        },
-        yTicks: {
-          type: Number,
-          value: 10
-        },
-        gridMult: {
-          type: Number,
-          value: 2
-        },
-        xScale: {
-          type: String,
-          value: 'time',
-          observer: 'changeScale'
-        },
-        yScale: {
-          type: String,
-          value: 'linear',
-          observer: 'changeScale'
-        },
-        interpolation: {
-          type: String,
-          value: 'Lineare Verbindung',
-          observer: 'changeInterpolation'
-        },
-        noDots: {
-          type: Boolean,
-          value: false
-        },
-        noLines: {
-          type: Boolean,
-          value: false
-        },
-        noAreas: {
-          type: Boolean,
-          value: false
-        },
-      },
-
-      _width: 0,
-      _height: 0,
-
-      _chart: Object,
-      _svg: Object,
-
-      _x: Function,
-      _y: Function,
-
-      _xAxis: Object,
-      _yAxis: Object,
-      _xGrid: Object,
-      _yGrid: Object,
-
-      _brush: Object,
-      _brushBehavior: Object,
-      _isBrushed: false,
-
-      _info: Object,
-      _focus: Object,
-      _focusX: Object,
-      _focusY: Object,
-
-      formatMillisecond: Function,
-      formatSecond: Function,
-      formatMinute: Function,
-      formatHour: Function,
-      formatDay: Function,
-      formatWeek: Function,
-      formatMonth: Function,
-      formatYear: Function,
-      _elements: [],
-
-      get _self() {
-        return this;
-      },
-
-      get _parent() {
-        if (this.parentNode.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
-          return this.parentNode.host;
-        }
-        return this.parentNode;
-      },
-
-      listeners: {
-        'iron-resize': '_sizeChanged',
-        'resize': '_sizeChanged',
-      },
-
-      observers: [
-        'redraw(selectedElements.splices)'
-      ],
-
-      created: function() {
-        d3.timeFormatDefaultLocale({
-          'dateTime': '%x %X',
-          'date': '%d.%m.%Y',
-          'time': '%H:%M:%S',
-          'periods': ['', ''],
-          'days': ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
-          'shortDays': ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
-          'months': ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
-          'shortMonths': ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Dez']
-        });
-        d3.formatDefaultLocale({
-          "decimal": ",",
-          "thousands": ".",
-          "grouping": [3],
-          "currency": ["", "\u00a0€"]
-        });
-        this.formatMillisecond = d3.timeFormat(":%S,%L");
-        this.formatLongSecond = d3.timeFormat("%M:%S,%L");
-        this.formatSecond = d3.timeFormat("%M:%S");
-        this.formatLongMinute = d3.timeFormat("%H:%M:%S");
-        this.formatMinute = d3.timeFormat("%H:%M");
-        this.formatHour = d3.timeFormat("%X");
-        this.formatDay = d3.timeFormat("%d.%m");
-        this.formatWeek = d3.timeFormat("%d.%m");
-        this.formatMonth = d3.timeFormat("%d. %b");
-        this.formatYear = d3.timeFormat("%Y");
-      },
-
-      ready: function() {
-        this._buildLayout();
-      },
-
-      attached: function() {
-        this._observer =
-          Polymer.dom(this.$.collector).observeNodes((function(info) {
-            this.__processNewNodes(info.addedNodes);
-            this.__processRemovedNodes(info.removedNodes);
-          }).bind(this));
-        this._sizeChanged();
-      },
-
-      __processNewNodes: function(nodes) {
-        this._elements = nodes.concat(this._elements || []);
-      },
-
-      __processRemovedNodes: function(nodes) {
-        this._elements = this.getEffectiveChildren();
-      },
-
-      _sizeChanged: function(e) {
-        this.debounce("resize", this._sizeLayout, 25);
-      },
-
-      _buildLayout: function() {
-        this.assignParentResizable(this.rootElement);
-
-        this._svg = d3.select(this.$.svgchart).attr('preserveAspectRatio', 'xMinYMin meet')
-          .attr('height', null)
-          .attr('width', null);
-        this._x = this._createScale(this.xScale);
-        this._y = this._createScale(this.yScale);
-
-        this._chart = d3.select(this.$.chart);
-
-        this._graphs = d3.select(this.$.graphs)
-          .attr('clip-path', 'url(#clip)');
-
-        this._brushBehavior = d3.brush()
-          .on('end', this._brushed.bind(this._self));
-        this._brush = d3.select(this.$.brush)
-          .attr('clip-path', 'url(#clip)');
-
-        this._info = d3.select(this.$.info);
-        this._focus = d3.select(this.$.focus)
-          .attr('clip-path', 'url(#clip)');
-        this._focusX = this._focus.select('line.focus.line.x')
-          .attr('clip-path', 'url(#clip)');
-        this._focusY = this._focus.select('line.focus.line.y')
-          .attr('clip-path', 'url(#clip)');
-
-        if (this.xScale === 'time') this.$.xbutton.set('icon', 't');
-        else this.$.xbutton.set('icon', 'x');
-
-        if (this.yScale === 'time') this.$.ybutton.icon = 't';
-        else this.$.ybutton.set('icon', 'y');
-
-        this._svg.selectAll('g,line,text,path,rect')
-          .classed('style-scope', true)
-          .classed('chart-element', true);
-
-        this._svg.on('contextmenu',
-          (function() {
-            d3.event.preventDefault();
-            this.redraw()
-          }).bind(this));
-        this._sizeChanged();
-      },
-
-      _sizeLayout: function() {
-        var bRect = this.getBoundingClientRect();
-        if (bRect.height === 0 || bRect.width === 0) return;
-
-        this._height = Math.max(bRect.height, 150);
-        this._width = Math.max(bRect.width, 250);
-
-        // this._svg.attr('height', this._height)
-        //          .attr('width', this._width);
-
-        this._width = this._width - this.margin.left - this.margin.right;
-        this._height = this._height - this.margin.bottom - this.margin.top;
-
-        this._x.range([0, this._width]);
-        this._y.range([this._height, 0]);
-
-        this.$.menubutton.style.left = (this.margin.left - this.iconWidth - 6) + 'px';
-        this.$.menubutton.style.right = 'auto';
-        this.$.menubutton.style.top = 'auto';
-        this.$.menubutton.style.bottom = (this.margin.bottom - this.iconWidth) + 'px';
-
-        this.$.ybutton.style.left = (this.margin.left - this.iconWidth - 6) + 'px';
-        this.$.ybutton.style.right = 'auto';
-        this.$.ybutton.style.top = (this.margin.top) + 'px';
-        this.$.ybutton.style.bottom = 'auto';
-
-        this.$.xbutton.style.left = 'auto';
-        this.$.xbutton.style.right = (this.margin.right) + 'px';
-        this.$.xbutton.style.top = 'auto';
-        this.$.xbutton.style.bottom = (this.margin.bottom - this.iconWidth) + 'px';
-
-        this._chart.attr('transform', 'translate(' + this.margin.left + ',' + (this.margin.top) + ')');
-
-        // Limiting Projection to Margin
-        this._chart.selectAll('clipPath#clip rect')
-          .attr('width', this._width)
-          .attr('height', this._height);
-
-        this._chart.selectAll('rect.plot')
-          .attr('width', this._width)
-          .attr('height', this._height);
-
-        this._xAxis = this._createAxis(this._x, 'bottom', this.xScale);
-        this._yAxis = this._createAxis(this._y, 'left', this.yScale);
-
-        this._xGrid = this._createAxis(this._x, 'bottom', this.xScale, this.gridMult)
-          .tickSize(-this._height, 0, 0)
-          .tickFormat('');
-        this._yGrid = this._createAxis(this._y, 'left', this.yScale, this.gridMult)
-          .tickSize(-this._width, 0, 0)
-          .tickFormat('');
-
-        this._chart.select('g.x.axis')
-          .call(this._xAxis)
-          .attr('transform', 'translate(0,' + this._height + ')');
-        this._chart.select('g.y.axis')
-          .call(this._yAxis)
-          .attr('transform', 'translate(0,' + 0 + ')');
-        this._chart.select('g.x.grid')
-          .attr('transform', 'translate(0,' + this._height + ')')
-          .call(this._xGrid);
-        this._chart.select('g.y.grid')
-          .call(this._yGrid)
-          .attr('transform', 'translate(0,' + 0 + ')');;
-
-        this._brushBehavior.extent([
-          [0, 0],
-          [this._width, this._height]
-        ])
-        this._brush.call(this._brushBehavior);
-
-        this._svg.selectAll('g,line,text,path,rect')
-          .classed('style-scope', true)
-          .classed('chart-element', true);
-        this._focusY.attr('y1', this._height);
-
-        this._redraw();
-      },
-
-      _createScale: function(option) {
-        switch (option) {
-          case 'time':
-            return d3.scaleTime();
-            break;
-          case 'ln':
-            return d3.scaleLog().base(Math.E);
-            break;
-          case 'log₁₀':
-            return d3.scaleLog();
-            break;
-          case '√':
-            return d3.scaleSqrt();
-            break;
-          default:
-            return d3.scaleLinear();
-        }
-      },
-
-      _createAxis: function(scale, orient, kind, tickmult) {
-        var axis, ticks, horTicks, verTicks;
-        tickmult = tickmult || 1;
-        if (this._width < this._height) {
-          verTicks = this.yTicks;
-          horTicks = Math.ceil(this.xTicks * this._width / this._height) || this.xTicks;
-        } else {
-          horTicks = this.xTicks;
-          verTicks = Math.ceil(this.yTicks * this._height / this._width) || this.yTicks;
-        }
-        switch (orient) {
-          case 'top':
-            axis = d3.axisTop();
-            ticks = horTicks;
-            break;
-          case 'bottom':
-            axis = d3.axisBottom();
-            ticks = horTicks;
-            break;
-          case 'left':
-            axis = d3.axisLeft();
-            ticks = verTicks;
-            break;
-          case 'right':
-            axis = d3.axisRight();
-            ticks = verTicks;
-            break;
-        }
-        axis.scale(scale).ticks(ticks * tickmult);
-        if (kind === "time")
-          axis.ticks(ticks * tickmult)
-          .tickFormat(this.timeFormat.bind(this));
-        else if (scale.base && scale.base() === Math.E)
-          axis.tickFormat(function(d) {
-            return (d < 1 || d > 1000 ? (Math.log(d)).toExponential(3) : (Math.log(d)).toFixed(2));
-          })
-
-        return axis;
-      },
-
-      timeFormat: function(date) {
-        return (d3.timeSecond(date) < date ? this.formatMillisecond :
-          d3.timeMinute(date) < date ? this.formatSecond :
-          d3.timeHour(date) < date ? this.formatMinute :
-          d3.timeDay(date) < date ? this.formatHour :
-          d3.timeMonth(date) < date ? (d3.timeWeek(date) < date ? this.formatDay : this.formatWeek) :
-          d3.timeYear(date) < date ? this.formatMonth :
-          this.formatYear)(date);
-      },
-      timeFormatRange: function(date, r, pixels) {
-        var rangeRatio = (r[1] - r[0]).valueOf() / pixels;
-        return (rangeRatio < 100 ? this.formatMillisecond :
-          rangeRatio < 500 ? this.formatLongSecond :
-          rangeRatio < 5000 ? this.formatSecond :
-          rangeRatio < 20000 ? this.formatLongMinute :
-          rangeRatio < 60000 ? this.formatMinute :
-          rangeRatio < 3600000 ? this.formatHour :
-          rangeRatio < 86400000 ? this.formatDay :
-          rangeRatio < 604800000 ? this.formatWeek :
-          rangeRatio < 2419200000 ? this.formatMonth :
-          this.formatYear)(date);
-      },
-
-      redraw: function() {
-        if (this._chart === undefined || this._chart.select === undefined) return;
-        this.setDomains();
-        this._debouncedRedraw();
-      },
-
-      _debouncedRedraw: function() {
-        this.debounce('redraw', this._redraw, 25);
-      },
-
-      _redraw: function() {
-        if (this._chart === undefined || this._chart.select === undefined) return;
-        if (this._elements.length > 0)
-          this._elements.forEach(function(g) {
-            g.redraw();
-          });
-
-        this._chart.select('g.x.axis').transition(50).call(this._xAxis);
-        this._chart.select('g.y.axis').transition(50).call(this._yAxis);
-        this._chart.select('g.x.grid').transition(50).call(this._xGrid);
-        this._chart.select('g.y.grid').transition(50).call(this._yGrid);
-
-        this._svg.selectAll('g,line,text,path,rect')
-          .classed('style-scope', true)
-          .classed('chart-element', true);
-        this._updateInfo();
-        this._hideInfo();
-      },
-
-      _brushed: function() {
-        var s = d3.event.selection;
-        if (s) {
-          this._isBrushed = true;
-          this._x.domain([s[0][0], s[1][0]].map(this._x.invert, this._x)).nice(this.xTicks);
-          this._y.domain([s[1][1], s[0][1]].map(this._y.invert, this._y)).nice(this.yTicks);
-          this._brush.call(this._brushBehavior.move, null);
-          return;
-        } else if (this._isBrushed === true) {
-          this._isBrushed = false;
-        } else {
-          this.setDomains();
-        }
-        this._redraw();
-      },
-
-      setDomains: function() {
-        if (this._elements.length === 0) return;
-
-        var domainX, domainY = [0, 0],
-          v, yScale = this.yScale;
-
-        domainX = [d3.min(this._elements, function(g) {
-            if (g.hidden !== true) return g._rangeX[0];
-          }),
-          d3.max(this._elements, function(g) {
-            if (g.hidden !== true) return g._rangeX[1];
-          })
-        ];
-
-        domainY = [d3.min(this._elements, function(g) {
-            if (g.hidden !== true)
-              if (g._rangeY[0] > 0 || !(yScale === "ln" || yScale === "log₁₀"))
-                return g._rangeY[0]
-          }),
-          d3.max(this._elements, function(g) {
-            if (g.hidden !== true)
-              if (g._rangeY[0] > 0 || !(yScale === "ln" || yScale === "log₁₀"))
-                return g._rangeY[1]
-          })
-        ];
-
-        // rounding y-domains to the according decimal exponent
-        if (domainY[0] === domainY[1] && domainY[0] !== undefined && domainY[1] !== undefined) {
-          v = (domainY[0]).toExponential().split('e');
-          domainY[0] = (Math.floor(v[0])) * Math.pow(10, parseInt(v[1], 10));
-          v = (domainY[1]).toExponential().split('e');
-          domainY[1] = (Math.ceil(v[0])) * Math.pow(10, parseInt(v[1], 10));
-        }
-
-        this._x.domain(domainX);
-        this._y.domain(domainY).nice(this.yTicks);
-      },
-      _showInfo: function(d) {
-        this.cancelDebouncer('hideinfo');
-        var x = this.timeFormatRange.call(this, d.x, this._x.domain(), this._width);
-        this._info.text(x + ' , ' + d.y);
-        this._info.x = d.x;
-        this._info.y = d.y;
-        this._info.attr('hidden', null);
-        this._focus.transition(25).attr('hidden', null);
-        this._updateInfo();
-      },
-      _hideInfo: function() {
-        this.debounce('hideinfo', this._debounceHideInfo, 750);
-      },
-      _debounceHideInfo: function() {
-        this._xAxis = this._createAxis(this._x, 'bottom', this.xScale);
-        this._yAxis = this._createAxis(this._y, 'left', this.yScale);
-        this._chart.select('g.x.axis').transition(50).call(this._xAxis);
-        this._chart.select('g.y.axis').transition(50).call(this._yAxis);
-        this._info.transition(25).attr('hidden', true);
-        this._focus.transition(25).attr('hidden', true);
-        this._svg.selectAll('g,line,text,path,rect')
-          .classed('style-scope', true)
-          .classed('chart-element', true);
-      },
-      _updateInfo: function() {
-        if (this._info.attr('hidden') === "true" || this._info.x === undefined || this._info.y === undefined) return;
-        var bbox = this._info.node().getBBox();
-        // console.log(bbox, this._width, this._height);
-        var x = this._x(this._info.x),
-          y = this._y(this._info.y);
-        this._info.transition(25)
-          .attr('x', (x + 4 + bbox.width > this._width ? (x - 4 - bbox.width < 0 ? 0 : x - 4 - bbox.width) : x + 4))
-          .attr('y', (y > bbox.height + 4 ? y - 4 : bbox.height));
-        this._focusX.transition(25)
-          .attr('x2', x)
-          .attr('y2', y)
-          .attr('y1', y);
-        this._focusY.transition(25)
-          .attr('y2', y)
-          .attr('x2', x)
-          .attr('x1', x);
-
-        this._xAxis.tickValues([this._info.x]);
-        this._yAxis.tickValues([this._info.y]);
-        this._chart.select('g.x.axis').transition(50).call(this._xAxis);
-        this._chart.select('g.y.axis').transition(50).call(this._yAxis);
-        this._svg.selectAll('g,line,text,path,rect')
-          .classed('style-scope', true)
-          .classed('chart-element', true);
-      },
-      toggleMenu: function() {
-        if (this.$.menu.hasAttribute('hidden')) {
-          this.$.menu.removeAttribute('hidden');
-        } else {
-          this.$.menu.setAttribute('hidden', true);
-        }
-      },
-      changeInterpolation: function(interpolation, oldValue) {
-        if (this._elements === undefined) return;
-        this._elements.forEach(
-          function(g) {
-            g.interpolation = interpolation;
-          });
-      },
-      changeScale: function(newValue, oldValue) {
-        if (oldValue === undefined) return;
-        var domainX = this._x.domain();
-        var domainY = this._y.domain();
-        if (this.yScale === "ln" || this.yScale === "log₁₀") {
-          if (domainY[0] <= 0) {
-            domainY[0] = d3.min(this._elements, function(g) {
-              if (g.hidden !== true)
-                if (g._rangeY[0] > 0)
-                  return g._rangeY[0]
-            });
-          }
-          if (domainY[1] <= 0) {
-            domainY[1] = d3.max(this._elements, function(g) {
-              if (g.hidden !== true)
-                if (g._rangeY[0] > 0)
-                  return g._rangeY[1]
-            });
-          }
-        }
-        this._buildLayout();
-        this._sizeLayout();
-        this._x.domain(domainX);
-        this._y.domain(domainY).nice(this.yTicks);
-        this._redraw();
-      },
-      changeDots: function(e) {
-        this.noDots = !e.target.checked;
-        if (this._elements === undefined) return;
-        this._elements.forEach(
-          function(g) {
-            g.set('noDots', !e.target.checked)
-          });
-      },
-      changeLines: function(e) {
-        this.noLines = !e.target.checked;
-        if (this._elements === undefined) return;
-        this._elements.forEach(
-          function(g) {
-            g.set('noLine', !e.target.checked)
-          });
-      },
-      changeAreas: function(e) {
-        this.noAreas = !e.target.checked;
-        if (this._elements === undefined) return;
-        this._elements.forEach(
-          function(g) {
-            g.set('noFill', !e.target.checked)
-          });
-      }
-    });
-  </script>
+	</section>
+
+	</template>
+
+	<script>
+		ChartElement = Polymer({
+			is: 'chart-element',
+
+			behaviors: [
+				ContainerBehavior,
+				Polymer.IronResizableBehavior
+			],
+
+			properties: {
+				notify: {
+					type: Boolean,
+					value: false
+				},
+				notifyParent: {
+					type: Boolean,
+					value: false
+				},
+				noSelectNotify: {
+					type: Boolean,
+					value: false
+				},
+				noExceedNotify: {
+					type: Boolean,
+					value: false
+				},
+
+				multiSelect: {
+					type: Boolean,
+					value: true
+				},
+				toggles: {
+					type: Boolean,
+					value: true
+				},
+
+				reproduce: {
+					type: Boolean,
+					value: true
+				},
+				reproductionContainer: {
+					type: String,
+					value: 'content',
+					readOnly: true
+				},
+
+				margin: {
+					type: Object,
+					value: function() {
+						return {
+							top: 6,
+							right: 12,
+							bottom: 36,
+							left: 48
+						};
+					}
+				},
+				iconWidth: {
+					type: Number,
+					value: 36
+				},
+				clamp: {
+					type: Boolean,
+					value: true
+				},
+				clampExtend: {
+					type: Number,
+					value: 16
+				},
+				_isClamping: {
+					type: Boolean,
+					value: false
+				},
+				gridMult: {
+					type: Number,
+					value: 2
+				},
+				xScale: {
+					type: String,
+					value: 'time',
+					observer: 'changeScale'
+				},
+				yScale: {
+					type: String,
+					value: 'linear',
+					observer: 'changeScale'
+				},
+				interpolation: {
+					type: String,
+					value: 'Lineare Verbindung',
+					observer: 'changeInterpolation'
+				},
+				noDots: {
+					type: Boolean,
+					value: false
+				},
+				noLines: {
+					type: Boolean,
+					value: false
+				},
+				noAreas: {
+					type: Boolean,
+					value: false
+				},
+			},
+
+			_width: 0,
+			_height: 0,
+
+			_chart: Object,
+			_svg: Object,
+
+			_x: Function,
+			_y: Function,
+
+			_xAxis: Object,
+			_yAxis: Object,
+			_xGrid: Object,
+			_yGrid: Object,
+
+			_brush: Object,
+			_brushBehavior: Object,
+			_isBrushed: false,
+
+			_info: Object,
+			_focus: Object,
+			_focusX: Object,
+			_focusY: Object,
+
+			formatMillisecond: Function,
+			formatSecond: Function,
+			formatMinute: Function,
+			formatHour: Function,
+			formatDay: Function,
+			formatWeek: Function,
+			formatMonth: Function,
+			formatYear: Function,
+			_elements: [],
+
+			get _self() {
+				return this;
+			},
+
+			get _parent() {
+				if (this.parentNode.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+					return this.parentNode.host;
+				}
+				return this.parentNode;
+			},
+
+			listeners: {
+				'iron-resize': '_sizeChanged',
+				'resize': '_sizeChanged',
+			},
+
+			observers: [
+				'redraw(selectedElements.splices)'
+			],
+
+			created: function() {
+				d3.timeFormatDefaultLocale({
+					'dateTime': '%x %X',
+					'date': '%d.%m.%Y',
+					'time': '%H:%M:%S',
+					'periods': ['', ''],
+					'days': ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+					'shortDays': ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+					'months': ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
+					'shortMonths': ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Dez']
+				});
+				d3.formatDefaultLocale({
+					"decimal": ",",
+					"thousands": ".",
+					"grouping": [3],
+					"currency": ["", "\u00a0€"]
+				});
+				this.formatMillisecond = d3.timeFormat(":%S,%L");
+				this.formatLongSecond = d3.timeFormat("%M:%S,%L");
+				this.formatSecond = d3.timeFormat("%M:%S");
+				this.formatLongMinute = d3.timeFormat("%H:%M:%S");
+				this.formatMinute = d3.timeFormat("%H:%M");
+				this.formatHour = d3.timeFormat("%X");
+				this.formatDay = d3.timeFormat("%d.%m");
+				this.formatWeek = d3.timeFormat("%d.%m");
+				this.formatMonth = d3.timeFormat("%d. %b");
+				this.formatYear = d3.timeFormat("%Y");
+			},
+
+			ready: function() {
+				this._buildLayout();
+			},
+
+			attached: function() {
+				this._observer =
+					Polymer.dom(this.$.collector).observeNodes((function(info) {
+						this.__processNewNodes(info.addedNodes);
+						this.__processRemovedNodes(info.removedNodes);
+					}).bind(this));
+				this._sizeChanged();
+			},
+
+			__processNewNodes: function(nodes) {
+				this._elements = nodes.concat(this._elements || []);
+			},
+
+			__processRemovedNodes: function(nodes) {
+				this._elements = this.getEffectiveChildren();
+			},
+
+			_sizeChanged: function(e) {
+				this.debounce("resize", this._sizeLayout, 25);
+			},
+
+			_buildLayout: function() {
+				this.assignParentResizable(this.rootElement);
+
+				this._svg = d3.select(this.$.svgchart).attr('preserveAspectRatio', 'xMinYMin meet')
+					.attr('height', null)
+					.attr('width', null);
+				this._x = this._createScale(this.xScale);
+				this._y = this._createScale(this.yScale);
+
+				this._chart = d3.select(this.$.chart);
+
+				this._graphs = d3.select(this.$.graphs)
+					.attr('clip-path', 'url(#clip)');
+
+				this._brushBehavior = d3.brush()
+					.on('end', this._brushed.bind(this._self));
+				this._brush = d3.select(this.$.brush)
+					.attr('clip-path', 'url(#clip)');
+
+				this._info = d3.select(this.$.info);
+				this._focus = d3.select(this.$.focus)
+					.attr('clip-path', 'url(#clip)');
+				this._focusX = this._focus.select('line.focus.line.x')
+					.attr('clip-path', 'url(#clip)');
+				this._focusY = this._focus.select('line.focus.line.y')
+					.attr('clip-path', 'url(#clip)');
+
+				if (this.xScale === 'time') this.$.xbutton.set('icon', 't');
+				else this.$.xbutton.set('icon', 'x');
+
+				if (this.yScale === 'time') this.$.ybutton.icon = 't';
+				else this.$.ybutton.set('icon', 'y');
+
+				this._svg.selectAll('g,line,text,path,rect')
+					.classed('style-scope', true)
+					.classed('chart-element', true);
+
+				this._svg.on('contextmenu',
+					(function() {
+						d3.event.preventDefault();
+						this.redraw()
+					}).bind(this));
+				this._sizeChanged();
+			},
+
+			_sizeLayout: function() {
+				var bRect = this.getBoundingClientRect();
+				if (bRect.height === 0 || bRect.width === 0) return;
+
+				this._height = Math.max(bRect.height, 150);
+				this._width = Math.max(bRect.width, 250);
+
+				// this._svg.attr('height', this._height)
+				//          .attr('width', this._width);
+
+				this._width = this._width - this.margin.left - this.margin.right;
+				this._height = this._height - this.margin.bottom - this.margin.top;
+
+				this.xTicks = Math.ceil(this._width / 150);
+				this.yTicks = Math.ceil(this._height / 50);
+
+				this._x.range([0, this._width]);
+				this._y.range([this._height, 0]);
+
+				this.$.menubutton.style.left = (this.margin.left - this.iconWidth - 6) + 'px';
+				this.$.menubutton.style.right = 'auto';
+				this.$.menubutton.style.top = 'auto';
+				this.$.menubutton.style.bottom = (this.margin.bottom - this.iconWidth) + 'px';
+
+				this.$.ybutton.style.left = (this.margin.left - this.iconWidth - 6) + 'px';
+				this.$.ybutton.style.right = 'auto';
+				this.$.ybutton.style.top = (this.margin.top) + 'px';
+				this.$.ybutton.style.bottom = 'auto';
+
+				this.$.xbutton.style.left = 'auto';
+				this.$.xbutton.style.right = (this.margin.right) + 'px';
+				this.$.xbutton.style.top = 'auto';
+				this.$.xbutton.style.bottom = (this.margin.bottom - this.iconWidth) + 'px';
+
+				this._chart.attr('transform', 'translate(' + this.margin.left + ',' + (this.margin.top) + ')');
+
+				// Limiting Projection to Margin
+				this._chart.selectAll('clipPath#clip rect')
+					.attr('width', this._width)
+					.attr('height', this._height);
+
+				this._chart.selectAll('rect.plot')
+					.attr('width', this._width)
+					.attr('height', this._height);
+
+				this._xAxis = this._createAxis(this._x, 'bottom', this.xScale);
+				this._yAxis = this._createAxis(this._y, 'left', this.yScale);
+
+				this._xGrid = this._createAxis(this._x, 'bottom', this.xScale, this.gridMult)
+					.tickSize(-this._height, 0, 0)
+					.tickFormat('');
+				this._yGrid = this._createAxis(this._y, 'left', this.yScale, this.gridMult)
+					.tickSize(-this._width, 0, 0)
+					.tickFormat('');
+
+				this._chart.select('g.x.axis')
+					.call(this._xAxis)
+					.attr('transform', 'translate(0,' + this._height + ')');
+				this._chart.select('g.y.axis')
+					.call(this._yAxis)
+					.attr('transform', 'translate(0,' + 0 + ')');
+				this._chart.select('g.x.grid')
+					.attr('transform', 'translate(0,' + this._height + ')')
+					.call(this._xGrid);
+				this._chart.select('g.y.grid')
+					.call(this._yGrid)
+					.attr('transform', 'translate(0,' + 0 + ')');;
+
+				this._brushBehavior.extent([
+					[0, 0],
+					[this._width, this._height]
+				])
+				this._brush.call(this._brushBehavior);
+
+				this._svg.selectAll('g,line,text,path,rect')
+					.classed('style-scope', true)
+					.classed('chart-element', true);
+				this._focusY.attr('y1', this._height);
+
+				this._redraw();
+			},
+
+			_createScale: function(option) {
+				switch (option) {
+					case 'time':
+						return d3.scaleTime();
+						break;
+					case 'ln':
+						return d3.scaleLog().base(Math.E);
+						break;
+					case 'log₁₀':
+						return d3.scaleLog();
+						break;
+					case '√':
+						return d3.scaleSqrt();
+						break;
+					default:
+						return d3.scaleLinear();
+				}
+			},
+
+			_createAxis: function(scale, orient, kind, tickmult) {
+				var axis, ticks, horTicks, verTicks;
+				tickmult = tickmult || 1;
+
+				switch (orient) {
+					case 'top':
+						axis = d3.axisTop();
+						ticks = this.xTicks;
+						break;
+					case 'bottom':
+						axis = d3.axisBottom();
+						ticks = this.xTicks;
+						break;
+					case 'left':
+						axis = d3.axisLeft();
+						ticks = this.yTicks;
+						break;
+					case 'right':
+						axis = d3.axisRight();
+						ticks = this.yTicks;
+						break;
+				}
+				axis.scale(scale).ticks(ticks * tickmult);
+				if (kind === "time")
+					axis.ticks(ticks * tickmult)
+					.tickFormat(this.timeFormat.bind(this));
+				else if (scale.base && scale.base() === Math.E)
+					axis.tickFormat(function(d) {
+						return (d < 1 || d > 1000 ? (Math.log(d)).toExponential(3) : (Math.log(d)).toFixed(2));
+					})
+
+				return axis;
+			},
+
+			timeFormat: function(date) {
+				return (d3.timeSecond(date) < date ? this.formatMillisecond :
+					d3.timeMinute(date) < date ? this.formatSecond :
+					d3.timeHour(date) < date ? this.formatMinute :
+					d3.timeDay(date) < date ? this.formatHour :
+					d3.timeMonth(date) < date ? (d3.timeWeek(date) < date ? this.formatDay : this.formatWeek) :
+					d3.timeYear(date) < date ? this.formatMonth :
+					this.formatYear)(date);
+			},
+			timeFormatRange: function(date, r, pixels) {
+				var rangeRatio = (r[1] - r[0]).valueOf() / pixels;
+				return (rangeRatio < 100 ? this.formatMillisecond :
+					rangeRatio < 500 ? this.formatLongSecond :
+					rangeRatio < 5000 ? this.formatSecond :
+					rangeRatio < 20000 ? this.formatLongMinute :
+					rangeRatio < 60000 ? this.formatMinute :
+					rangeRatio < 3600000 ? this.formatHour :
+					rangeRatio < 86400000 ? this.formatDay :
+					rangeRatio < 604800000 ? this.formatWeek :
+					rangeRatio < 2419200000 ? this.formatMonth :
+					this.formatYear)(date);
+			},
+
+			redraw: function() {
+				if (this._chart === undefined || this._chart.select === undefined) return;
+				this.setDomains();
+				this._debouncedRedraw();
+			},
+
+			_debouncedRedraw: function() {
+				this.debounce('redraw', this._redraw, 25);
+			},
+
+			_redraw: function() {
+				if (this._chart === undefined || this._chart.select === undefined) return;
+				if (this._elements.length > 0)
+					this._elements.forEach(function(g) {
+						g.redraw();
+					});
+
+				this._chart.select('g.x.axis').transition(50).call(this._xAxis);
+				this._chart.select('g.y.axis').transition(50).call(this._yAxis);
+				this._chart.select('g.x.grid').transition(50).call(this._xGrid);
+				this._chart.select('g.y.grid').transition(50).call(this._yGrid);
+
+				this._svg.selectAll('g,line,text,path,rect')
+					.classed('style-scope', true)
+					.classed('chart-element', true);
+				this._updateInfo();
+				this._hideInfo();
+			},
+
+			_brushed: function() {
+				var s = d3.event.selection;
+				if (s) {
+					this._isBrushed = true;
+					this._x.domain([s[0][0], s[1][0]].map(this._x.invert, this._x)).nice(this.xTicks);
+					this._y.domain([s[1][1], s[0][1]].map(this._y.invert, this._y)).nice(this.yTicks);
+					this._brush.call(this._brushBehavior.move, null);
+					return;
+				} else if (this._isBrushed === true) {
+					this._isBrushed = false;
+				} else {
+					this.setDomains();
+				}
+				this._redraw();
+			},
+
+			setDomains: function() {
+				if (this._elements.length === 0) return;
+
+				var domainX, domainY = [0, 0],
+					v, yScale = this.yScale;
+
+				domainX = [d3.min(this._elements, function(g) {
+						if (g.hidden !== true) return g._rangeX[0];
+					}),
+					d3.max(this._elements, function(g) {
+						if (g.hidden !== true) return g._rangeX[1];
+					})
+				];
+
+				domainY = [d3.min(this._elements, function(g) {
+						if (g.hidden !== true)
+							if (g._rangeY[0] > 0 || !(yScale === "ln" || yScale === "log₁₀"))
+								return g._rangeY[0]
+					}),
+					d3.max(this._elements, function(g) {
+						if (g.hidden !== true)
+							if (g._rangeY[0] > 0 || !(yScale === "ln" || yScale === "log₁₀"))
+								return g._rangeY[1]
+					})
+				];
+
+				// rounding y-domains to the according decimal exponent
+				if (domainY[0] === domainY[1] && domainY[0] !== undefined && domainY[1] !== undefined) {
+					v = (domainY[0]).toExponential().split('e');
+					domainY[0] = (Math.floor(v[0])) * Math.pow(10, parseInt(v[1], 10));
+					v = (domainY[1]).toExponential().split('e');
+					domainY[1] = (Math.ceil(v[0])) * Math.pow(10, parseInt(v[1], 10));
+				}
+
+				this._x.domain(domainX);
+				this._y.domain(domainY).nice(this.yTicks);
+			},
+			_showInfo: function(d) {
+				this.cancelDebouncer('hideinfo');
+				var x = this.timeFormatRange.call(this, d.x, this._x.domain(), this._width);
+				this._info.text(x + ' , ' + d.y);
+				this._info.x = d.x;
+				this._info.y = d.y;
+				this._info.attr('hidden', null);
+				this._focus.transition(25).attr('hidden', null);
+				this._updateInfo();
+			},
+			_hideInfo: function() {
+				this.debounce('hideinfo', this._debounceHideInfo, 750);
+			},
+			_debounceHideInfo: function() {
+				this._xAxis = this._createAxis(this._x, 'bottom', this.xScale);
+				this._yAxis = this._createAxis(this._y, 'left', this.yScale);
+				this._chart.select('g.x.axis').transition(50).call(this._xAxis);
+				this._chart.select('g.y.axis').transition(50).call(this._yAxis);
+				this._info.transition(25).attr('hidden', true);
+				this._focus.transition(25).attr('hidden', true);
+				this._svg.selectAll('g,line,text,path,rect')
+					.classed('style-scope', true)
+					.classed('chart-element', true);
+			},
+			_updateInfo: function() {
+				if (this._info.attr('hidden') === "true" || this._info.x === undefined || this._info.y === undefined) return;
+				var bbox = this._info.node().getBBox();
+				// console.log(bbox, this._width, this._height);
+				var x = this._x(this._info.x),
+					y = this._y(this._info.y);
+				this._info.transition(25)
+					.attr('x', (x + 4 + bbox.width > this._width ? (x - 4 - bbox.width < 0 ? 0 : x - 4 - bbox.width) : x + 4))
+					.attr('y', (y > bbox.height + 4 ? y - 4 : bbox.height));
+				this._focusX.transition(25)
+					.attr('x2', x)
+					.attr('y2', y)
+					.attr('y1', y);
+				this._focusY.transition(25)
+					.attr('y2', y)
+					.attr('x2', x)
+					.attr('x1', x);
+
+				this._xAxis.tickValues([this._info.x]);
+				this._yAxis.tickValues([this._info.y]);
+				this._chart.select('g.x.axis').transition(50).call(this._xAxis);
+				this._chart.select('g.y.axis').transition(50).call(this._yAxis);
+				this._svg.selectAll('g,line,text,path,rect')
+					.classed('style-scope', true)
+					.classed('chart-element', true);
+			},
+			toggleMenu: function() {
+				if (this.$.menu.hasAttribute('hidden')) {
+					this.$.menu.removeAttribute('hidden');
+				} else {
+					this.$.menu.setAttribute('hidden', true);
+				}
+			},
+			changeInterpolation: function(interpolation, oldValue) {
+				if (this._elements === undefined) return;
+				this._elements.forEach(
+					function(g) {
+						g.interpolation = interpolation;
+					});
+			},
+			changeScale: function(newValue, oldValue) {
+				if (oldValue === undefined) return;
+				var domainX = this._x.domain();
+				var domainY = this._y.domain();
+				if (this.yScale === "ln" || this.yScale === "log₁₀") {
+					if (domainY[0] <= 0) {
+						domainY[0] = d3.min(this._elements, function(g) {
+							if (g.hidden !== true)
+								if (g._rangeY[0] > 0)
+									return g._rangeY[0]
+						});
+					}
+					if (domainY[1] <= 0) {
+						domainY[1] = d3.max(this._elements, function(g) {
+							if (g.hidden !== true)
+								if (g._rangeY[0] > 0)
+									return g._rangeY[1]
+						});
+					}
+				}
+				this._buildLayout();
+				this._sizeLayout();
+				this._x.domain(domainX);
+				this._y.domain(domainY).nice(this.yTicks);
+				this._redraw();
+			},
+			changeDots: function(e) {
+				this.noDots = !e.target.checked;
+				if (this._elements === undefined) return;
+				this._elements.forEach(
+					function(g) {
+						g.set('noDots', !e.target.checked)
+					});
+			},
+			changeLines: function(e) {
+				this.noLines = !e.target.checked;
+				if (this._elements === undefined) return;
+				this._elements.forEach(
+					function(g) {
+						g.set('noLine', !e.target.checked)
+					});
+			},
+			changeAreas: function(e) {
+				this.noAreas = !e.target.checked;
+				if (this._elements === undefined) return;
+				this._elements.forEach(
+					function(g) {
+						g.set('noFill', !e.target.checked)
+					});
+			}
+		});
+	</script>
 
 </dom-module>

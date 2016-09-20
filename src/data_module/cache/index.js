@@ -81,15 +81,15 @@ class Cache {
 		for (var id in data) {
 			if (this._cache[id] === undefined) {
 				this._cache[id] = [];
-				if (id !== 'values')
+				if (id !== '_cache')
 					Object.defineProperty(this, id, {
 						get: function() {
 							return this._cache[id];
 						},
 						set: function(obj) {
-							this.values = {
-								id: obj
-							};
+							var res = {};
+              res[id] = obj
+							this.append(res);
 						},
 						enumerable: true,
 						configurable: true

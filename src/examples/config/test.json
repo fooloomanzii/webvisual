@@ -1,0 +1,95 @@
+{
+  "test": {
+
+    "connections": {
+      "file": {
+        "mode": "append",
+        "path": "../tests/test.txt",
+        "format": {
+          "dateFormat": "DD.MM.YYYY hh:mm:ss",
+          "decimalSeparator": ".",
+          "valueSeparator": ",",
+          "dimensions": 1
+        }
+      }
+    },
+
+		"cache": {
+			"size": 10000
+		},
+
+		"clientRequest": {
+			"initial": {
+				"mobile": 300,
+				"stationary": 5400
+			},
+			"update": {
+				"interval": 1000
+			}
+		},
+
+    "locals": {
+      "ignore": [],
+      "types": [
+        {
+          "id": "DI3-3",
+          "keys": {
+            "prompt": "2030"
+          }
+        }, {
+          "id": "DI4-3",
+          "keys": {
+            "prompt": "2031"
+          }
+        }, {
+          "id": "DI5-3",
+          "keys": {
+            "prompt": "2032"
+          }
+        }, {
+          "id": "DI6-3",
+          "keys": {
+            "prompt": "2033"
+          }
+        }, {
+          "id": "DI7-3",
+          "keys": {
+            "prompt": "2034"
+          }
+        }, {
+          "id": "DI8-3",
+          "keys": {
+            "prompt": "2035"
+          }
+        }, {
+          "id": "DI9-3",
+          "keys": {
+            "prompt": "2036"
+          }
+        }, {
+          "id": "DI1-3",
+          "keys": {
+            "prompt": "2037"
+          }
+        }
+      ],
+
+      "unnamedType": {
+        "id": "id",
+        "keys": {
+          "prompt": "id"
+        },
+        "values": [{
+          "x": 0,
+          "y": 0,
+          "exceeds": null
+        }]
+      },
+
+      "groupingKeys": ["prompt", "*"],
+      "preferedGroupingKey": "prompt",
+
+      "exclusiveGroups": {}
+    }
+  }
+}

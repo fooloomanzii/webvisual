@@ -22,17 +22,6 @@ class router extends EventEmitter {
       }
     }).bind(this));
 
-    this.app.get('/tests', this.loggedIn.bind(this), (function(req, res) {
-      res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
-      res.render('tests', {
-        user: req.user,
-        title: 'Webvisual Tests',
-        config: this.configuration,
-        mobile: this.isMobile(req)
-      });
-      res.end();
-    }).bind(this));
-
     this.app.get('/index', this.loggedIn.bind(this), (function(req, res) {
       res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
       res.render('index', {
