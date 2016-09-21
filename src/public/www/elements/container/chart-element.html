@@ -715,14 +715,17 @@
 					v, yScale = this.yScale,
 					range, rangedValues;
 
+				console.log(this._containing);
 				for (var label in this._containing) {
-					range = window.Cache[label].range(this._containing[label]);
-					domainX[0] = (domainX[0] === null || range[0] < domainX[0]) ? range[0] : domainX[0];
-					domainX[1] = (domainX[1] === null || range[1] > domainX[1]) ? range[1] : domainX[1];
+					if (this._containing[label].length > 0) {
+						range = window.Cache[label].range(this._containing[label]);
+						domainX[0] = (domainX[0] === null || range[0] < domainX[0]) ? range[0] : domainX[0];
+						domainX[1] = (domainX[1] === null || range[1] > domainX[1]) ? range[1] : domainX[1];
 
-					rangedValues = window.Cache[label].rangedValues(this._containing[label], 'y');
-					domainY[0] = (domainY[0] === null || rangedValues[0] < domainY[0]) ? rangedValues[0] : domainY[0];
-					domainY[1] = (domainY[1] === null || rangedValues[1] > domainY[1]) ? rangedValues[1] : domainY[1];
+						rangedValues = window.Cache[label].rangedValues(this._containing[label], 'y');
+						domainY[0] = (domainY[0] === null || rangedValues[0] < domainY[0]) ? rangedValues[0] : domainY[0];
+						domainY[1] = (domainY[1] === null || rangedValues[1] > domainY[1]) ? rangedValues[1] : domainY[1];
+					}
 				}
 
 				// rounding y-domains to the according decimal exponent
