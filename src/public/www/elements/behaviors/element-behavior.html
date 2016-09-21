@@ -1,120 +1,120 @@
 <script>
   ElementBehavior = {
 
-      properties: {
-        label: {
-          type: String,
-          value: '',
-          reflectToAttribute: true,
-          observer: '__hide'
-        },
-        id: {
-          type: String,
-          value: '',
-          reflectToAttribute: true,
-          observer: '__hide'
-        },
-        newestDataFirst: {
-          type: Boolean,
-          value: false
-        },
-        keys: {
-          type: Object,
-          value: function() {
-            return {};
-          }
-        },
-        captionKeys: {
-          type: Array,
-          value: function() {
-            return [];
-          }
-        },
-        firstExceeds: {
-          type: Array,
-          value: function() {
-            return [];
-          }
-        },
-        lastExceeds: {
-          type: Array,
-          value: function() {
-            return [];
-          }
-        },
-        isBoolean: {
-          type: Boolean,
-          value: false
-        },
+    properties: {
+      label: {
+        type: String,
+        value: '',
+        reflectToAttribute: true,
+        observer: '__hide'
+      },
+      id: {
+        type: String,
+        value: '',
+        reflectToAttribute: true,
+        observer: '__hide'
+      },
+      newestDataFirst: {
+        type: Boolean,
+        value: false
+      },
+      keys: {
+        type: Object,
+        value: function() {
+          return {};
+        }
+      },
+      captionKeys: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      },
+      firstExceeds: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      },
+      lastExceeds: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      },
+      isBoolean: {
+        type: Boolean,
+        value: false
+      },
 
-        svg: {
-          type: Object,
-          value: function() {
-            return {};
-          }
-        },
-
-        preferedKey: {
-          type: String,
-          value: ''
-        },
-
-        exeedable: {
-          type: Boolean,
-          value: false
-        },
-        isExceeding: {
-          type: Boolean,
-          value: false,
-          observer: '_handleExceeding'
-        },
-        hasExceeded: {
-          type: Boolean,
-          value: false,
-          observer: '_hasExceededChanged'
-        },
-
-        bubbles: {
-          type: Boolean,
-          value: false
-        },
-        noSocketConnection: {
-          type: Boolean,
-          value: false,
-          observer: "_updatableChanged"
-        },
-        updateEveryValue: {
-          type: Boolean,
-          value: false
-        },
-
-        selectable: {
-          type: Boolean,
-          value: false
-        },
-        checked: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true,
-          notify: true,
-          observer: 'checkedChanged'
-        },
-        toggles: {
-          type: Boolean,
-          value: true,
-          reflectToAttribute: true
-        },
-
-        color: {
-          type: String,
-          observer: "setColor"
+      svg: {
+        type: Object,
+        value: function() {
+          return {};
         }
       },
 
-      attached: function() {
-	      this._updatableChanged();
-	      if (this.exeedable === true && this.values && this.values.length > 0)
-	        this.checkExceedingState(this.values[this.values.length - 1]);
+      preferedKey: {
+        type: String,
+        value: ''
+      },
+
+      exeedable: {
+        type: Boolean,
+        value: false
+      },
+      isExceeding: {
+        type: Boolean,
+        value: false,
+        observer: '_handleExceeding'
+      },
+      hasExceeded: {
+        type: Boolean,
+        value: false,
+        observer: '_hasExceededChanged'
+      },
+
+      bubbles: {
+        type: Boolean,
+        value: false
+      },
+      noSocketConnection: {
+        type: Boolean,
+        value: false,
+        observer: "_updatableChanged"
+      },
+      updateEveryValue: {
+        type: Boolean,
+        value: false
+      },
+
+      selectable: {
+        type: Boolean,
+        value: false
+      },
+      checked: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true,
+        notify: true,
+        observer: 'checkedChanged'
+      },
+      toggles: {
+        type: Boolean,
+        value: true,
+        reflectToAttribute: true
+      },
+
+      color: {
+        type: String,
+        observer: "setColor"
+      }
+    },
+
+    attached: function() {
+      this._updatableChanged();
+      if (this.exeedable === true && this.values && this.values.length > 0)
+        this.checkExceedingState(this.values[this.values.length - 1]);
     },
 
     factoryImpl: function(obj) {
@@ -156,7 +156,7 @@
         this.set(key, options[key]);
       }
       this._updatableChanged();
-			this.clearValues();
+      this.clearValues();
       this.insertValues();
     },
 
@@ -369,18 +369,21 @@
         if (window.Content[label][id].nodes.indexOf(this) === -1) {
           window.Content[label][id].nodes.push(this);
           // console.log(id, label, 'added', window.Content);
-					try {
-						delete this.values;
-						Object.defineProperty(this, "values", {
-							configurable: true,
-							enumerable: true,
-							get: function() {
-								return window.Content[label][id].values;
-							}
-						});
-					} catch (e) {
-							console.log(this.label, this.id, this, e);
-					}
+          try {
+            // delete this.values;
+            Object.defineProperty(this, "values", {
+              configurable: true,
+              enumerable: false,
+              get: function() {
+                // if (window.Cache[label] && window.Cache[label][id])
+                  return window.Cache[label][id].values;
+                // else
+                //   return {};
+              }
+            });
+          } catch (e) {
+            console.log(this.label, this.id, this, e);
+          }
         }
       } else {
         this.removeAttribute("updatable");

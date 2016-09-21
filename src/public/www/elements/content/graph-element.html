@@ -112,8 +112,9 @@
 
       attached: function() {
         this.chartElement = this.containerRoot;
-        if (this.chartElement._elements.indexOf(this) === -1)
-          this.chartElement._elements.push(this);
+        if (this.chartElement._elements.indexOf(this) === -1) {
+          this.chartElement.__processNewNodes([this]);
+        }
 
         if (this.chartElement.nodeName !== 'CHART-ELEMENT') {
           console.warn(this.id, 'Graph is not attached to a container');
@@ -128,6 +129,7 @@
         // node of line
         this._lineNode = this._chart.select('g#lines')
           .append('svg:path')
+          .datum(this.values)
           .attr('id', this.id)
           .attr('label', this.label)
           .attr("class", "line")
@@ -135,12 +137,13 @@
           .attr('fill', 'none')
           .attr('stroke', this.color)
           .attr('stroke-width', this.lineWidth)
-          .datum(this.values || [])
           .attr("d", this._line);
+
         // fill area
-				this._area.y0(this.chartElement._height);
+        this._area.y0(this.chartElement._height);
         this._areaNode = this._chart.select('g#areas')
           .append('svg:path')
+          .datum(this.values)
           .attr('id', this.id)
           .attr('label', this.label)
           .attr("class", "area")
@@ -148,8 +151,8 @@
           .attr('fill', this.color)
           .attr('fill-opacity', this.fillOpacity)
           .attr('stroke', 'none')
-          .datum(this.values || [])
           .attr("d", this._area);
+
         // group of dots
         this._dots = this._chart.select('g#dots')
           .append("svg:g")
@@ -158,8 +161,6 @@
           .attr("class", "dots")
           .attr("hidden", this.noDots ? true : null);
 
-        // this.chartElement._addLegendEntry(this.getElement);
-        this._setRange();
         this.chartElement.redraw();
       },
 
@@ -174,35 +175,37 @@
           Content[this.label][this.id] &&
           (pos = Content[this.label][this.id].nodes.indexOf(this)) !== -1)
           Content[this.label][this.id].nodes.splice(pos, 1);
+
+        this.chartElement.__processRemovedNodes([this]);
       },
 
-			render: function(values, splices) {
-				if (!this.chartElement)
-					this.chartElement = this.containerRoot;
-				// this._setRange(values);
-				// if (this.chartElement) {
-				// 	if (this.chartElement.isBrushed === false)
-				// 		this.chartElement.redraw();
-				// 	else
-						this.redraw();
-				// }
-			},
+      render: function(values, splices) {
+        if (!this.chartElement)
+          this.chartElement = this.containerRoot;
+
+        if (this.chartElement) {
+          if (this.chartElement._isZoomed === false)
+            this.chartElement.redraw();
+          else
+            this.redraw();
+        }
+      },
 
       redraw: function() {
         if (this._hidden === true) return;
 
         var data = this.values.filter(this._defined.bind(this));
 
-				var everyOverlappingDot = (data.length / Math.max(this.chartElement._height,this.chartElement._width) * (this.dotRadius * 4));
+        var everyOverlappingDot = (data.length / Math.max(this.chartElement._height, this.chartElement._width) * (this.dotRadius * 4));
 
-				if (everyOverlappingDot > 1)
-					data = data.filter(function(d, i) {
-						return (i % everyOverlappingDot < 1);
-					})
-
+        if (everyOverlappingDot > 1)
+          data = data.filter(function(d, i) {
+            return (i % everyOverlappingDot < 1);
+          })
         var self = this._self;
+
         var dots = this._dots.selectAll('circle.dot')
-          									 .data(data);
+          .data(data);
         // update current dots
         dots.attr('cx', (function(d, i) {
             return this.chartElement._x(d.x)
@@ -247,65 +250,31 @@
           });
         //  remove old dots
         dots.exit()
-          	.remove();
+            .remove();
 
         // TODO(?): update line, animated http://bl.ocks.org/benjchristensen/1148374
         this._lineNode
-          	.attr('d', this._line);
-
+          .datum(this.values)
+          .attr('d', this._line);
         this._area
-						.y0(this.chartElement._height)
+          .y0(this.chartElement._height)
+
         this._areaNode
-						.attr('d', this._area);
+          .datum(this.values)
+          .attr('d', this._area);
       },
 
       _defined: function(d, i, data) {
         var domainX = this.chartElement._x.domain(),
           yScale = this.chartElement.yScale;
-        if (d.y === null || isNaN(d.y) )
-          return undefined;	// NaN and null are displayable
+        if (d.y === null || isNaN(d.y))
+          return undefined; // NaN and null are displayable
         else if (!(yScale === "linear") && d.y <= 0)
-          return undefined;	// log- and sqrt-scales require larger than 0-Values
-				else if ((d.x >= domainX[0] && d.x <= domainX[1]) || (i > 0 && i+1 < data.length && data[i+1].x > domainX[0] && data[i-1].x < domainX[1]))
+          return undefined; // log- and sqrt-scales require larger than 0-Values
+        else if ((d.x >= domainX[0] && d.x <= domainX[1]) || (i > 0 && i + 1 < data.length && data[i + 1].x > domainX[0] && data[i - 1].x < domainX[1]))
           return true; // only numbers in x-Domain are shown (and their successor and predecessor) (graph is a function by definition, so y-Domain is not relevant)
         else
           return undefined;
-      },
-
-      _setRange: function(values) {
-        if (values !== undefined) {
-          if (!Array.isArray(values)) {
-            values = [values];
-          }
-          if (!this._rangeX || this._rangeX.length !== 2) {
-            this._rangeX = [this.values[0].x, this.values[this.values.length - 1].x]
-          }
-          if (!this._rangeY || this._rangeY.length !== 2) {
-            this._rangeY = [values[0].y, values[0].y]
-          }
-          for (var i = 0; i < values.length; i++) {
-            this._rangeX[0] = (values[i].x < this._rangeX[0]) ? values[i].x : (this.values[this.values.length - 1].x > this._rangeX[0]) ? this.values[this.values.length - 1].x : this._rangeX[0];
-            this._rangeX[1] = (this._rangeX[1] < values[i].x) ? values[i].x : this._rangeX[1];
-            this._rangeY[0] = (values[i].y < this._rangeY[0]) ? values[i].y : this._rangeY[0];
-            this._rangeY[1] = (this._rangeY[1] < values[i].y) ? values[i].y : this._rangeY[1];
-          }
-        } else {
-          this._rangeX = [];
-          this._rangeY = [];
-          this._rangeX.push(d3.min(this.values, function(v) {
-            return v.x;
-          }));
-          this._rangeX.push(d3.max(this.values, function(v) {
-            return v.x;
-          }));
-          this._rangeY.push(d3.min(this.values, function(v) {
-            return v.y;
-          }));
-          this._rangeY.push(d3.max(this.values, function(v) {
-            return v.y;
-          }));
-        }
-        console.log(new Date(this._rangeX[0]), new Date(this._rangeX[1]));
       },
 
       setColor: function(color) {

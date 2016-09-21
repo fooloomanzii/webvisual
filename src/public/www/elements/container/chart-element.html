@@ -116,6 +116,14 @@
     cursor: pointer;
     pointer-events: all;
   }
+	g#zoom rect.overlay {
+		fill: none;
+		pointer-events: none;
+	}
+	g#zoom rect.overlay.active {
+		pointer-events: all;
+		cursor: zoom-in;
+	}
   g#focus line.focus.line {
     fill: none;
     pointer-events: none;
@@ -148,11 +156,16 @@
         <line class='focus line x' x1='0'></line>
         <line class='focus line y'></line>
       </g>
+			<g id='zoom'>
+				<rect class='overlay'></rect>
+			</g>
     </g>
   </svg>
 
   <!-- <svg id='loader'  version='1.1' xmlns='http://www.w3.org/2000/svg'>
   </svg> -->
+
+  <icon-button-element id="zoombutton" class="icon-button" icon="search" on-tap="_startZoomSession"></icon-button-element>
 
   <icon-button-element id="menubutton" class="icon-button" icon="timeline"></icon-button-element>
   <dropdown-element id="legend" for="menubutton" target-toggle-event="tap" position="right" align="outer-start" offset="8">
@@ -315,6 +328,7 @@
 			_brush: Object,
 			_brushBehavior: Object,
 			_isBrushed: false,
+			_isZoomed: false,
 
 			_info: Object,
 			_focus: Object,
@@ -329,7 +343,9 @@
 			formatWeek: Function,
 			formatMonth: Function,
 			formatYear: Function,
+
 			_elements: [],
+			_containing: {},
 
 			get _self() {
 				return this;
@@ -348,7 +364,7 @@
 			},
 
 			observers: [
-				'redraw(selectedElements.splices)'
+				'redraw(selectedElements.length)'
 			],
 
 			created: function() {
@@ -395,10 +411,25 @@
 
 			__processNewNodes: function(nodes) {
 				this._elements = nodes.concat(this._elements || []);
+				nodes.forEach(function(node) {
+					if (node.label && node.id) {
+						if (!this._containing[node.label])
+							this._containing[node.label] = [];
+						if (this._containing[node.label].indexOf(node.id) === -1)
+							this._containing[node.label].push(node.id)
+					}
+				}.bind(this))
 			},
 
 			__processRemovedNodes: function(nodes) {
 				this._elements = this.getEffectiveChildren();
+				nodes.forEach(function(node) {
+					if (node.label && node.id && this._containing[node.label]) {
+						var pos = this._containing[node.label].indexOf(node.id);
+						if (pos !== -1)
+							this._containing[node.label].splice(pos, 1);
+					}
+				}.bind(this))
 			},
 
 			_sizeChanged: function(e) {
@@ -431,6 +462,19 @@
 					.attr('clip-path', 'url(#clip)');
 				this._focusY = this._focus.select('line.focus.line.y')
 					.attr('clip-path', 'url(#clip)');
+				this._zoomOverlay = d3.select('g#zoom rect.overlay')
+					.attr('clip-path', 'url(#clip)')
+					.on('click', function(d, i) {
+						var offset = Math.floor(Math.min(this._height, this._width) / 5);
+						var x = d3.event.offsetX;
+						var y = d3.event.offsetY;
+						d3.event.selection = [
+							[x - offset, y - offset],
+							[x + offset, y + offset]
+						];
+            this._brushed();
+          }.bind(this))
+					.on('touchmove', this._resetZoom.bind(this));
 
 				if (this.xScale === 'time') this.$.xbutton.set('icon', 't');
 				else this.$.xbutton.set('icon', 'x');
@@ -442,11 +486,7 @@
 					.classed('style-scope', true)
 					.classed('chart-element', true);
 
-				this._svg.on('contextmenu',
-					(function() {
-						d3.event.preventDefault();
-						this.redraw()
-					}).bind(this));
+				this._svg.on('contextmenu', this._resetZoom.bind(this));
 				this._sizeChanged();
 			},
 
@@ -468,6 +508,11 @@
 
 				this._x.range([0, this._width]);
 				this._y.range([this._height, 0]);
+
+				this.$.zoombutton.style.left = 'auto';
+				this.$.zoombutton.style.right = (this.margin.right) + 'px';
+				this.$.zoombutton.style.top = (this.margin.top) + 'px';
+				this.$.zoombutton.style.bottom = 'auto';
 
 				this.$.menubutton.style.left = (this.margin.left - this.iconWidth - 6) + 'px';
 				this.$.menubutton.style.right = 'auto';
@@ -492,6 +537,10 @@
 					.attr('height', this._height);
 
 				this._chart.selectAll('rect.plot')
+					.attr('width', this._width)
+					.attr('height', this._height);
+
+				this._zoomOverlay
 					.attr('width', this._width)
 					.attr('height', this._height);
 
@@ -610,8 +659,12 @@
 
 			redraw: function() {
 				if (this._chart === undefined || this._chart.select === undefined) return;
-				this.setDomains();
+				this._debouncedSetDomains();
 				this._debouncedRedraw();
+			},
+
+			_debouncedSetDomains: function() {
+				this.debounce('domains', this._setDomains, 25);
 			},
 
 			_debouncedRedraw: function() {
@@ -641,6 +694,7 @@
 				var s = d3.event.selection;
 				if (s) {
 					this._isBrushed = true;
+					this._isZoomed = true;
 					this._x.domain([s[0][0], s[1][0]].map(this._x.invert, this._x)).nice(this.xTicks);
 					this._y.domain([s[1][1], s[0][1]].map(this._y.invert, this._y)).nice(this.yTicks);
 					this._brush.call(this._brushBehavior.move, null);
@@ -648,45 +702,36 @@
 				} else if (this._isBrushed === true) {
 					this._isBrushed = false;
 				} else {
-					this.setDomains();
+					this._isZoomed = false;
+					this._setDomains();
 				}
 				this._redraw();
 			},
 
-			setDomains: function() {
-				if (this._elements.length === 0) return;
+			_setDomains: function() {
+				if (this._elements.length === 0 || this._isZoomed === true) return;
 
-				var domainX, domainY = [0, 0],
-					v, yScale = this.yScale;
+				var domainX = [null, null], domainY = [null, null],
+					v, yScale = this.yScale,
+					range, rangedValues;
 
-				domainX = [d3.min(this._elements, function(g) {
-						if (g.hidden !== true) return g._rangeX[0];
-					}),
-					d3.max(this._elements, function(g) {
-						if (g.hidden !== true) return g._rangeX[1];
-					})
-				];
+				for (var label in this._containing) {
+					range = window.Cache[label].range(this._containing[label]);
+					domainX[0] = (domainX[0] === null || range[0] < domainX[0]) ? range[0] : domainX[0];
+					domainX[1] = (domainX[1] === null || range[1] > domainX[1]) ? range[1] : domainX[1];
 
-				domainY = [d3.min(this._elements, function(g) {
-						if (g.hidden !== true)
-							if (g._rangeY[0] > 0 || !(yScale === "ln" || yScale === "log₁₀"))
-								return g._rangeY[0]
-					}),
-					d3.max(this._elements, function(g) {
-						if (g.hidden !== true)
-							if (g._rangeY[0] > 0 || !(yScale === "ln" || yScale === "log₁₀"))
-								return g._rangeY[1]
-					})
-				];
+					rangedValues = window.Cache[label].rangedValues(this._containing[label], 'y');
+					domainY[0] = (domainY[0] === null || rangedValues[0] < domainY[0]) ? rangedValues[0] : domainY[0];
+					domainY[1] = (domainY[1] === null || rangedValues[1] > domainY[1]) ? rangedValues[1] : domainY[1];
+				}
 
 				// rounding y-domains to the according decimal exponent
-				if (domainY[0] === domainY[1] && domainY[0] !== undefined && domainY[1] !== undefined) {
+				if (domainY[0] === domainY[1] && domainY[0] && domainY[1]) {
 					v = (domainY[0]).toExponential().split('e');
 					domainY[0] = (Math.floor(v[0])) * Math.pow(10, parseInt(v[1], 10));
 					v = (domainY[1]).toExponential().split('e');
 					domainY[1] = (Math.ceil(v[0])) * Math.pow(10, parseInt(v[1], 10));
 				}
-
 				this._x.domain(domainX);
 				this._y.domain(domainY).nice(this.yTicks);
 			},
@@ -803,6 +848,20 @@
 					function(g) {
 						g.set('noFill', !e.target.checked)
 					});
+			},
+			_startZoomSession: function() {
+				if (this._zoomOverlay.classed('active')) {
+					this._zoomOverlay.classed('active', null);
+				}
+				else {
+					this._zoomOverlay.classed('active', true);
+				}
+			},
+			_resetZoom: function() {
+				if (d3.event)
+					d3.event.preventDefault();
+				this._isZoomed = false;
+				this.redraw();
 			}
 		});
 	</script>
