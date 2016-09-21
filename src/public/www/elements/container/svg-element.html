@@ -64,7 +64,7 @@
     transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1),
                 transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
   }
-  :host[is-fullscreen][opened] {
+  :host[is-fullscreen][opened], :host:fullscreen, :host:-moz-full-screen, :host:-ms-fullscreen, :host:-webkit-full-screen {
     background: rgba(52,84,117,0.8);
     opacity: 1;
     transform: scale(1);
@@ -750,7 +750,17 @@
     },
 
     _fireOpenFullscreen: function() {
-      this.fire('svg-open-fullscreen', this.getSvg());
+      // this.fire('svg-open-fullscreen', this.getSvg());
+
+      var fullscreenFunc   = Polymer.dom(this).requestFullscreen;
+      if (!fullscreenFunc) {
+        ['mozRequestFullScreen',
+         'msRequestFullscreen',
+         'webkitRequestFullScreen'].forEach(function (req) {
+           fullscreenFunc = fullscreenFunc || this[req];
+         });
+      }
+      fullscreenFunc.call(this);
     }
   });
 </script>
