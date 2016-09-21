@@ -52,23 +52,25 @@
               user-select: none !important;
   }
   :host[is-fullscreen] {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 1500;
+      /*position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1500;
     transform-origin: center;
     transform: scale(0);
     opacity: 0;
     transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1),
-                transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+                transform 500ms cubic-bezier(0.4, 0, 0.2, 1);*/
   }
-  :host[is-fullscreen][opened], :host:fullscreen, :host:-moz-full-screen, :host:-ms-fullscreen, :host:-webkit-full-screen {
+  /*:host[is-fullscreen], div#host:fullscreen, div#host:-moz-full-screen, div#host:-ms-fullscreen, div#host:-webkit-full-screen {
+    height: 100%;
+    width: 100% !important;
     background: rgba(52,84,117,0.8);
     opacity: 1;
     transform: scale(1);
-  }
+  }*/
   svg {
     -webkit-touch-callout: none !important;
       -webkit-user-select: none !important;
@@ -77,12 +79,15 @@
           -ms-user-select: none !important;
               user-select: none !important;
   }
-  svg#main {
+  div#host {
+    display: flex;
     flex: 1;
-    height: auto;
-    font-family: inherit;
-    font-weight: inherit;
-    letter-spacing: normal;
+    position: relative;
+    height: 100%;
+    width: 100%;
+  }
+  :host[is-fullscreen] div#host {
+    background: var(--bright-primary-color);
   }
   div#svgContainer {
     border-radius: inherit;
@@ -91,7 +96,10 @@
     height: auto;
     background: linear-gradient(to right top, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.2));
   }
-
+  div#svgContainer svg {
+    position: relative;
+    width: 100%;
+  }
   div#control {
     position: absolute;
     bottom: 4px;
@@ -188,13 +196,14 @@
   }
 
 </style>
-
-  <div id='svgContainer' hidden$="[[_computeHidden(opened, forceOpened)]]">
-  </div>
-  <div id='control' top$='{{isFullscreen}}' hidden$="[[_computeHidden(opened, forceOpened)]]">
-    <svg class='icon' viewBox='0 -4 16 24' on-tap='_debounceResetZoom'><title>focus</title><g id='focus'> <path d='M 16,5.5 13,8 16,10.5 Z' /> <path d='M 10.5,16 8,13 5.5,16 Z' /> <path d='M 0,10.5 3,7.9999999 0,5.5 Z' /><path d='M 5.5,0 8,3 10.5,0 Z'/><circle r='1.5' cx='8' cy='8' /></g></svg>
-    <svg class='icon' viewBox='0 0 24 24' hidden$='{{isFullscreen}}' on-tap='_fireOpenFullscreen'><title>fullscreen</title><g id='fullscreen'><path d='M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z'/></g></svg>
-    <svg class='icon' viewBox='0 0 24 24' hidden$='{{!isFullscreen}}' on-tap='close'><title>close</title><g id='fullscreen-exit'><path d='M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z'/></g></svg>
+  <div id='host'>
+    <div id='svgContainer' hidden$="[[_computeHidden(opened, forceOpened)]]">
+    </div>
+    <div id='control' top$='{{isFullscreen}}' hidden$="[[_computeHidden(opened, forceOpened)]]">
+      <svg class='icon' viewBox='0 -4 16 24' on-tap='_debounceResetZoom'><title>focus</title><g id='focus'> <path d='M 16,5.5 13,8 16,10.5 Z' /> <path d='M 10.5,16 8,13 5.5,16 Z' /> <path d='M 0,10.5 3,7.9999999 0,5.5 Z' /><path d='M 5.5,0 8,3 10.5,0 Z'/><circle r='1.5' cx='8' cy='8' /></g></svg>
+      <svg class='icon' viewBox='0 0 24 24' hidden$='{{isFullscreen}}' on-tap='_requestFullscreen'><title>fullscreen</title><g id='fullscreen'><path d='M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z'/></g></svg>
+      <svg class='icon' viewBox='0 0 24 24' hidden$='{{!isFullscreen}}' on-tap='_exitFullscreen'><title>close</title><g id='fullscreen-exit'><path d='M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z'/></g></svg>
+    </div>
   </div>
 </template>
 
@@ -359,6 +368,13 @@
       '_exceedingChanged(exceedingElements.splices)'
     ],
 
+    listeners: {
+      'mozfullscreenchange': '_fullScreenChanged',
+      'webkitfullscreenchange': '_fullScreenChanged',
+      'mozfullscreenchange': '_fullScreenChanged',
+      'webkitfullscreenchange': '_fullScreenChanged'
+    },
+
     behaviors: [
       ContainerBehavior
     ],
@@ -373,24 +389,11 @@
         return this.parentNode;
     },
 
-    attached: function() {
-      if (this.isFullscreen) {
-        this.listen(this.rootElement, 'svg-open-fullscreen', 'open');
-        this.listen(this.rootElement, 'svg-close-fullscreen', 'close');
-      }
-    },
-
-    detached: function() {
-      if (this.isFullscreen) {
-        this.unlisten(this.rootElement, 'svg-open-fullscreen', 'open');
-        this.unlisten(this.rootElement, 'svg-close-fullscreen', 'close');
-      }
-    },
-
     open: function(e) {
       this.setSvg(e.detail);
       this.set('opened', true);
     },
+
     close: function() {
       this.set('opened', false);
     },
@@ -667,7 +670,7 @@
 
     _calcCenterZoom: function(elem) {
       // get view height and width
-      var view = this.getClientRects()[0];
+      var view = this.$.host.getClientRects()[0];
       if (view === undefined || elem === undefined || view.height === 0 || view.width === 0)
         return {x: 0, y: 0, k: 1};
 
@@ -749,18 +752,40 @@
       return !(opened || forceOpened);
     },
 
-    _fireOpenFullscreen: function() {
-      // this.fire('svg-open-fullscreen', this.getSvg());
-
-      var fullscreenFunc   = Polymer.dom(this).requestFullscreen;
-      if (!fullscreenFunc) {
+    _requestFullscreen: function() {
+      if (document.fullscreen || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
+        this._exitFullscreen();
+      }
+      var host = this.$.host;
+      var f = this.requestFullscreen;
+      if (!f) {
         ['mozRequestFullScreen',
          'msRequestFullscreen',
          'webkitRequestFullScreen'].forEach(function (req) {
-           fullscreenFunc = fullscreenFunc || this[req];
-         });
+           f = f || host[req];
+        });
       }
-      fullscreenFunc.call(this);
+      f.call(host);
+    },
+
+    _exitFullscreen: function() {
+      var f = document.exitFullscreen || document.mozCancelFullScreen || document.webkitCancelFullScreen || document.msExitFullscreen;
+      f.call(document);
+    },
+
+    _fullScreenChanged: function() {
+      if (document.fullscreen || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
+        this.zoomPartition /= 2;
+        this.maxZoom /= 2;
+        this.minZoom /= 2;
+        this.isFullscreen = true;
+      } else {
+        this.zoomPartition *= 2;
+        this.maxZoom *= 2;
+        this.minZoom *= 2;
+        this.isFullscreen = false;
+      }
+      this._debounceResetZoom();
     }
   });
 </script>
