@@ -35,21 +35,37 @@
           "id": "DI3-3",
           "keys": {
             "prompt": "2030"
+          },
+          "threshold": {
+            "from": 1,
+            "to": 9
           }
         }, {
           "id": "DI4-3",
           "keys": {
             "prompt": "2031"
+          },
+          "threshold": {
+            "from": 0,
+            "to": 10000000
           }
         }, {
           "id": "DI5-3",
           "keys": {
             "prompt": "2032"
+          },
+          "threshold": {
+            "from": 1,
+            "to": 9
           }
         }, {
           "id": "DI6-3",
           "keys": {
             "prompt": "2033"
+          },
+          "threshold": {
+            "from": 0.2,
+            "to": 9.8
           }
         }, {
           "id": "DI7-3",

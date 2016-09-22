@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	var defaults = {
-		size: 10000, // Length of each DataRow (by id in values)
+		size: 5400, // Length of each DataRow (by id in values)
 		is: 'Array', // TODO: +ArrayBuffer
 		type: 'Float64', // TODO: TypedArray
 		primary: undefined // 'append' or 'prepend'
@@ -17,7 +17,6 @@
 			if (this[type] === undefined)
 				this[type] = defaults[type];
 		}
-		this._cache = {}; // internal Cache
 
 		switch (this.is) {
 			case 'Array':
@@ -40,7 +39,23 @@
 				set: function(data) {
 					this.append(data);
 				},
-				enumerable: true,
+				enumerable: false,
+				configurable: true
+			});
+			this._splices = Array.prototype;
+			Object.defineProperty(this, "splices", {
+				get: function() {
+					return this._splices.splice(0, this._splices.length);
+				},
+				enumerable: false,
+				configurable: true
+			});
+			this._heap = Array.prototype;
+			Object.defineProperty(this, "heap", {
+				get: function() {
+					return this._heap.splice(0, this._heap.length);
+				},
+				enumerable: false,
 				configurable: true
 			});
 		},
@@ -113,12 +128,13 @@
 			var len = data.length;
 			if (len > this.size)
 				data = data.slice(len - this.size, len);
+			this._heap = this._heap.concat(data);
 			if (this._cache.length === 0)
 				this._cache = data;
 			else
 				this._cache = this._cache.concat(data);
 			if (this._cache.length > this.size)
-				this._cache.splice(0, this._cache.length - this.size);
+				this._splices = this._splices.concat(this._cache.splice(0, this._cache.length - this.size));
 	    if (this.primary)
 	      this._cache.sort(this.compareFn(this.primary));
 		}

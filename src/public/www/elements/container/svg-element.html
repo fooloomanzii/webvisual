@@ -581,7 +581,7 @@
     },
 
     _zoom: function () {
-      if (isNaN(d3.event.transform.x) || isNaN(d3.event.transform.y) || isNaN(d3.event.transform.k)) return;
+      // if (isNaN(d3.event.transform.x) || isNaN(d3.event.transform.y) || isNaN(d3.event.transform.k)) return;
       this._mainG.attr('transform', d3.event.transform);
     },
 
@@ -591,7 +591,7 @@
       let transform = this._calcCenterZoom(elem);
       let t = d3.zoomIdentity.translate(transform.x, transform.y).scale(transform.k)
 
-      if (isNaN(t.x) || isNaN(t.y) || isNaN(t.k)) return;
+      // if (isNaN(transform.x) || isNaN(transform.y) || isNaN(transform.k)) return;
 
       // Bug in Firefox in Transition for d3.interpolateZoom()
       // this._svg.transition()
@@ -600,7 +600,7 @@
 
       // call transition to new translate and scale
       this._mainG.transition()
-               .duration(400)
+               .duration(300)
                .attr('transform', t);
 
       // save last transition

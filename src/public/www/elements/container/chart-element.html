@@ -715,7 +715,6 @@
 					v, yScale = this.yScale,
 					range, rangedValues;
 
-				console.log(this._containing);
 				for (var label in this._containing) {
 					if (this._containing[label].length > 0) {
 						range = window.Cache[label].range(this._containing[label]);
@@ -745,7 +744,7 @@
 				this._info.x = d.x;
 				this._info.y = d.y;
 				this._info.attr('hidden', null);
-				this._focus.transition(25).attr('hidden', null);
+				this._focus.transition(33).attr('hidden', null);
 				this._updateInfo();
 			},
 			_hideInfo: function() {
@@ -756,8 +755,8 @@
 				this._yAxis = this._createAxis(this._y, 'left', this.yScale);
 				this._chart.select('g.x.axis').transition(50).call(this._xAxis);
 				this._chart.select('g.y.axis').transition(50).call(this._yAxis);
-				this._info.transition(25).attr('hidden', true);
-				this._focus.transition(25).attr('hidden', true);
+				this._info.transition(33).attr('hidden', true);
+				this._focus.transition(33).attr('hidden', true);
 				this._svg.selectAll('g,line,text,path,rect')
 					.classed('style-scope', true)
 					.classed('chart-element', true);
@@ -768,14 +767,14 @@
 				// console.log(bbox, this._width, this._height);
 				var x = this._x(this._info.x),
 					y = this._y(this._info.y);
-				this._info.transition(25)
+				this._info.transition(33)
 					.attr('x', (x + 4 + bbox.width > this._width ? (x - 4 - bbox.width < 0 ? 0 : x - 4 - bbox.width) : x + 4))
 					.attr('y', (y > bbox.height + 4 ? y - 4 : bbox.height));
-				this._focusX.transition(25)
+				this._focusX.transition(33)
 					.attr('x2', x)
 					.attr('y2', y)
 					.attr('y1', y);
-				this._focusY.transition(25)
+				this._focusY.transition(33)
 					.attr('y2', y)
 					.attr('x2', x)
 					.attr('x1', x);

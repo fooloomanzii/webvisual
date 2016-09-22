@@ -23,6 +23,11 @@ block BodyContent
                 tab-element.label(label!= Label)
                     != Label
 
+            //- Elements for TOOLBAR
+            sign-element.toolbar-footer(horizontal)
+            table-element.toolbar-footer(highlight-exceeding)
+            svg-element.toolbar-footer(initially-zoom-to-selected, notify-parent, open-on-select)
+            
             //- GROUPINGKEY SELECTORS
             each Label in config.labels
                 iron-selector.groupingKeySelector(attr-for-selected= "groupingkey", selected-attribute= "checked", selected!= config.preferedGroupingKeys[Label], fallback-selection!= config.preferedGroupingKeys[Label], activate-event="change")
@@ -50,8 +55,3 @@ block BodyContent
                                     bubbles,
                                     selectable
                                     tooltip)
-
-            //- Elements for TOOLBAR
-            sign-element.toolbar-footer(horizontal)
-            table-element.toolbar-footer(highlight-exceeding)
-            svg-element.toolbar-footer(initially-zoom-to-selected, notify-parent, open-on-select)

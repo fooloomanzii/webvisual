@@ -23,6 +23,8 @@
 			border-color: rgba(52, 84, 117, 0.4);
 		}
     section#sign {
+      background: var(--element-color);
+      color: var(--element-text-color);
       border-top-left-radius: inherit; border-top-right-radius: inherit; border-bottom-left-radius: 0; border-bottom-right-radius: 0;
       cursor: pointer;
       box-shadow: inherit;
@@ -42,17 +44,17 @@
     :host[dark] section#sign{
       color: #d3d3d3;
     }
-    section#sign.null {
-      background: var(--element-color);
-      color: var(--element-text-color);
+    section#sign.inrange {
+      background: var(--element-inrange-color);
+      color: var(--element-state-inrange-text-color);
     }
-    section#sign.true {
-      background: var(--element-state-true-color);
-      color: var(--element-state-true-text-color);
+    section#sign.exceeds {
+      background: var(--element-state-exceeds-color);
+      color: var(--element-state-exceeds-text-color);
     }
-    section#sign.false {
-      background: var(--element-state-false-color);
-      color: var(--element-state-false-text-color);
+    section#sign.deceeds {
+      background: var(--element-state-deceeds-color);
+      color: var(--element-state-deceeds-text-color);
     }
     section#sign.undefined {
       background: var(--element-state-undefined-color);
@@ -69,7 +71,8 @@
       border-radius: inherit;
     }
     section#valueSection {
-      font-size: 1.5em;
+      font-size: 1em;
+      padding: 0 0.25em;
       float: left;
     }
     section#unitSection {
@@ -197,13 +200,14 @@
       background: transparent;
       color: currentColor;
       min-width: 4em;
+      max-height: calc(10vh + 6em);
     }
     [hidden] {
       pointer-events: none;
     }
   </style>
   <template>
-      <section id='sign' class='null'>
+      <section id='sign' class='inrange'>
 
         <section id='actualValueSection' on-tap='_select'>
           <paper-ripple hidden$='[[!selectable]]' id='ripple'></paper-ripple>
@@ -234,8 +238,8 @@
       <section id='tooltip' hidden$='[[!_hasTooltip(hasExceeded)]]' on-tap='_hideTooltip' on-mouseleave='_hideTooltip' role='tooltip' tabindex='-1'>
         <div class='title'>Alarmphasen</div>
         <section id='tooltipContent'>
-          <table-element id='firstExceedsTable' caption='Start' hide-header no-socket-connection show-full-date hide-overflow is-boolean='[[isBoolean]]' id="[[id]]" label="[[label]]"></table-element>
-          <table-element id='lastExceedsTable' caption='Ende' hide-header no-socket-connection show-full-date hide-overflow is-boolean='[[isBoolean]]' id="[[id]]" label="[[label]]"></table-element>
+          <table-element id='firstStateChangeTable' caption='Start' hide-header no-socket-connection show-full-date hide-overflow is-boolean='[[isBoolean]]' id="[[id]]" label="[[label]]"></table-element>
+          <table-element id='lastStateChangeTable' caption='Ende' hide-header no-socket-connection hide-overflow is-boolean='[[isBoolean]]' id="[[id]]" label="[[label]]"></table-element>
         </section>
       </section>
 
@@ -288,19 +292,23 @@
           this._setTooltip();
       },
 
-      setExceedingState: function(isExceeding, state) {
+      setExceedingStatus: function(isExceeding, state) {
+        var status;
         this.set('isExceeding', isExceeding);
         // set color of the sign
-        this.$.sign.classList.remove('true');
-        this.$.sign.classList.remove('false');
-        this.$.sign.classList.remove('null');
-        this.$.sign.classList.remove('undefined');
-        this.$.sign.classList.add(state);
+        this.$.sign.classList.remove('exceeds', 'deceeds', 'inrange', 'undefined');
+        switch (state) {
+          case 0: status='inrange'; break;
+          case -1: status='deceeds'; break;
+          case 1: status='exceeds'; break;
+          default: status='undefined';
+        }
+        this.$.sign.classList.add(status);
       },
 
       render: function(value) {
         if (value === undefined)
-          value = this.values[this.values.length-1];
+          return;
 
         // set value
         if (!this.isBoolean)
@@ -312,18 +320,18 @@
       },
 
       _setTooltip: function() {
-        this.$.firstExceedsTable.insertValues(this.firstExceeds);
-        this.$.lastExceedsTable.insertValues(this.lastExceeds);
+        this.$.firstStateChangeTable.insertValues(this.firstStateChange);
+        this.$.lastStateChangeTable.insertValues(this.lastStateChange);
       },
 
-      _setFirstExceeds: function(value) {
-        this.firstExceeds.push(value);
-        this.$.firstExceedsTable.render(value);
+      _setFirstStateChange: function(value) {
+        this.firstStateChange.push(value);
+        this.$.firstStateChangeTable.createRow(value);
       },
 
-      _setLastExceeds: function(value) {
-        this.lastExceeds.push(value);
-        this.$.lastExceedsTable.render(value);
+      _setLastStateChange: function(value) {
+        this.lastStateChange.push(value);
+        this.$.lastStateChangeTable.createRow(value);
       },
 
       _handleChecked: function() {

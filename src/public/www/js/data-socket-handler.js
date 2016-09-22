@@ -6,6 +6,7 @@ window.maxValues = 5400; // 3/2h for every second update
 // SOCKET
 function DataSocketHandler(socketName, name, callwhenconnected) {
 	this.opened = false;
+	this.connected = false;
 	this.name = name;
 	this.socketName = socketName;
 	this.socket = io.connect('https://' + window.location.host + socketName, {
@@ -13,18 +14,19 @@ function DataSocketHandler(socketName, name, callwhenconnected) {
 		multiplex: false
 	});
 
+
 	// Connect
 	this.socket.on('connect', (function() {
 			console.info("client connected to: " + window.location.host);
+			this.connected = true;
 			this.socket.emit('setup', {
-				name: this.name,
-				mobile: window.isMobile
+				name: this.name
 			})
 		})
 		.bind(this));
 
 	// Init connection
-	this.socket.on('initByServer', (function(settings) {
+	this.socket.on('init-by-server', (function(settings) {
 			if (this.opened === false) {
 				window.Groups = settings.groups;
 				window.GroupingKeys = settings.groupingKeys;
@@ -54,11 +56,11 @@ function DataSocketHandler(socketName, name, callwhenconnected) {
 	this.socket.on('initial', (function(message) {
 			if (message !== undefined) {
 				// Set Window title to selectedLabels
+				this.opened = true;
 				document.title = ((window.selectedLabels.length > 1) ? window.selectedLabels.join(', ') : window.selectedLabels.toString());
-
+				createMessage('notification', "Connected to <i>" + this.name + "</i>: " + document.title, 3000);
 				this._update(message);
 
-				this.opened = true;
 				// select the MainPage
 				window.PageSelector = document.querySelector('neon-animated-pages#PageSelector');
 				window.PageSelector.select("1");
@@ -78,19 +80,36 @@ function DataSocketHandler(socketName, name, callwhenconnected) {
 		})
 		.bind(this));
 
-	// Disconnect
+	// Disconnect (Reload if discoonected)
 	this.socket.on('disconnect', function() {
 		console.warn("client disconnected to: " + window.location.host);
-	});
+		createMessage('error', "Disconnected to <i>" + this.name + "</i>", 3000);
+		this.connected = false;
+		var restart = setInterval( function() {
+			if (this.connected === true) {
+				clearInterval(restart);
+			} else {
+				window.location.reload()
+			}
+		}, 10000);
+	}.bind(this));
 
 	// Reconnect
 	this.socket.on('reconnect', function() {
 		console.info("client reconnected to: " + window.location.host);
-	});
+		this.connected = true;
+		createMessage('notification', "Client reconnected", 3000);
+	}.bind(this));
 
-	// Disconnect
+	// Error
 	this.socket.on('connect_error', function() {
 		console.warn("error in connection to: " + window.location.host);
+		createMessage('error', 'An error occured in the connection to the data server');
+	});
+
+	this.socket.on('error', function() {
+		console.warn("server error by: " + window.location.host);
+		createMessage('error', 'There is no connection possible to the data-server. Please try again later');
 	});
 }
 
@@ -105,12 +124,11 @@ DataSocketHandler.prototype = {
 		}
 		this._init()
 			.then((function() {
-					// console.log("initByClient");
-					// setTimeout( (function() {
-					this.socket.emit('initByClient', {
-							labels: labels
+					this.socket.emit('init-by-client', {
+							name: this.name,
+							labels: labels,
+							mobile: window.isMobile
 						})
-						// }).bind(this), 500);
 				})
 				.bind(this));
 
@@ -213,7 +231,7 @@ DataSocketHandler.prototype = {
 
 		var label = message.label;
 		var len, spliced, start1 = {},
-			start2 = {};
+			start2 = {}, splices = [], heap = [];
 
 		for (var id in message.values) {
 			if (window.Content[label] === undefined || window.Content[label][id] === undefined) {
@@ -221,7 +239,6 @@ DataSocketHandler.prototype = {
 				continue;
 			}
 			len = message.values[id].length;
-			spliced = [];
 
 
 			// if (len > maxValues)
@@ -273,16 +290,14 @@ DataSocketHandler.prototype = {
 			// 			console.log(result);
 			// 		});
 			// }, 10000);
-
+			splices = window.Cache[label][id].splices;
+			heap = window.Cache[label][id].heap;
 			for (var j = 0; j < window.Content[label][id].nodes.length; j++) {
-				window.Content[label][id].nodes[j].insertValues(message.values[id]);
-				// if (spliced.length > 0)
-				// 	window.Content[label][id].nodes[j].spliceValues({
-				// 		start: 0,
-				// 		length: spliced.length,
-				// 		values: spliced
-				// 	});
+				window.Content[label][id].nodes[j].insertValues(heap);
+				window.Content[label][id].nodes[j].spliceValues(splices);
 			}
+			splices.length = 0;
+			heap.length = 0;
 		}
 	},
 	compareFn: function(a, b) {

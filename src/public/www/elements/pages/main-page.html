@@ -194,7 +194,7 @@
 					<section id="tabsIcon">
 						<icon-button-element icon="more-vert" class="tab-icon" on-tap="toggleTabs"></icon-button-element>
 					</section>
-          <icon-button-element icon="error-outline" class="error control" on-tap="toggleExceedsPanel" hidden$="[[!isExceeding]]"></icon-button-element>
+          <icon-button-element icon="error-outline" class="error control" on-tap="toggleAlarmPanel" hidden$="[[!isExceeding]]"></icon-button-element>
           <section hidden$="[[!_computeOpened(opened, forceOpened)]]" style="display: flex;">
             <icon-button-element icon="[[_computeExpandIcon(expanded)]]" class="expand-icon" on-tap="_toolbarExpand"></icon-button-element>
             <icon-button-element icon="remove" hidden$="[[forceOpened]]" class="toggle-icon control" on-tap="clearSelectedElements"></icon-button-element>
@@ -217,8 +217,8 @@
         <section id="dropShadow" class="has-shadow"></section>
 
       <!-- EXCEEDING -->
-      <section id="statePanel">
-        <section id="stateHeader" on-tap="toggleExceedsPanel">
+      <section id="alarmPanel">
+        <section id="alarmHeader" on-tap="toggleAlarmPanel">
           <button-element class="title"><iron-icon icon="warning" class="left"></iron-icon><section class="content">Alarme</section></button-element>
         </section>
 
@@ -446,12 +446,12 @@
       },
 
       _handleExceeding: function(value) {
-        if(value && !(this.$.statePanel.classList.contains("state-panel-opened"))) {
-          this.openExceedsPanel();
-          this.debounceExceedsNotification();
+        if(value && !(this.$.alarmPanel.classList.contains("alarm-panel-opened"))) {
+          this.openAlarmPanel();
+          this.debounce('alarm-notification', this.createAlarmNotification, 750);
         }
         else if (this.$.exceedingElementsList.exceedingElements.length === 0) {
-          this.closeExceedsPanel();
+          this.debounce('close-alarm-panel', this.closeAlarmPanel, 1000);
         }
       },
       // app Control
@@ -586,17 +586,10 @@
 
       _clearExceedingElementsFromList: function() {
         this.$.exceedingElementsList.clearExceedingElements();
-        this.closeExceedsPanel();
+        this.closeAlarmPanel();
       },
 
-      debounceExceedsNotification: function() {
-        this.debounce('stateNotification',
-          function() {
-            this.createExceedsNotification();
-          }, 500);
-      },
-
-      createExceedsNotification: function() {
+      createAlarmNotification: function() {
         if (Notification.permission !== 'denied') {
           var count = this.exceedingElements.length;
           var msg = '';
@@ -691,14 +684,14 @@
           return 'expand-more';
       },
       // Panel Control
-      openExceedsPanel: function() {
-        this.$.statePanel.classList.add("state-panel-opened");
+      openAlarmPanel: function() {
+        this.$.alarmPanel.classList.add("alarm-panel-opened");
       },
-      closeExceedsPanel: function() {
-        this.$.statePanel.classList.remove("state-panel-opened");
+      closeAlarmPanel: function() {
+        this.$.alarmPanel.classList.remove("alarm-panel-opened");
       },
-      toggleExceedsPanel: function() {
-        this.$.statePanel.classList.toggle("state-panel-opened");
+      toggleAlarmPanel: function() {
+        this.$.alarmPanel.classList.toggle("alarm-panel-opened");
       },
       toggleDrawer: function(){
         this.$.drawerPanel.classList.toggle("drawer-opened");
@@ -717,17 +710,6 @@
 				this.fire('resize');
       },
       activeChanged: function() {
-        // resize
-        // if (document.createEvent) { // W3C
-        //     var ev = document.createEvent('Event');
-        //     ev.initEvent('resize', true, true);
-        //     window.dispatchEvent(ev);
-        // }
-        // else { // IE
-        //     element=document.documentElement;
-        //     var event=document.createEventObject();
-        //     element.fireEvent("onresize",event);
-        // }
         var preconf = JSON.parse(localStorage.getItem(window.Name));
         if (this.active === true && preconf && preconf.selectedLabels) {
             this.dissemblePanels(preconf.selectedLabels);

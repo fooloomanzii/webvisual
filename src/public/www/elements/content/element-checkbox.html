@@ -137,40 +137,37 @@
         font-weight: bold;
       }
 
-      section#container.null section#checkbox {
-        border-color: var(--element-color);
-      }
-      section#container.true section#checkbox {
-        border-color: var(--element-state-true-color);
-      }
-      section#container.false section#checkbox {
-        border-color: var(--element-state-false-color);
-      }
-      section#container.undefined section#checkbox {
-        border-color: var(--element-state-undefined-color);
-      }
-
-      :host([checked]) section#container.null section#checkbox.checked {
+      :host([checked]) section#container.inrange section#checkbox.checked {
         background-color: var(--element-color);
       }
-      :host([checked]) section#container.true section#checkbox.checked {
-        background-color: var(--element-state-true-color);
+      :host([checked]) section#container.exceeds section#checkbox.checked {
+        background-color: var(--element-state-exceeds-color);
       }
-      :host([checked]) section#container.false section#checkbox.checked {
-        background-color: var(--element-state-false-color);
+      :host([checked]) section#container.deceeds section#checkbox.checked {
+        background-color: var(--element-state-deceeds-color);
       }
       :host([checked]) section#container.undefined section#checkbox.checked {
         background-color: var(--element-state-undefined-color);
       }
 
-      section#container.null, section#ink {
+      section#container.exceeds section#checkbox {
+        border-color: var(--element-state-exceeds-color);
+      }
+      section#container.deceeds section#checkbox {
+        border-color: var(--element-state-deceeds-color);
+      }
+      section#container.undefined section#checkbox {
+        border-color: var(--element-state-undefined-color);
+      }
+
+      section#container.inrange, section#ink {
         color: var(---primary-text-color);
       }
-      section#container.true, section#ink {
-        color: var(--element-state-true-color);
+      section#container.exceeds, section#ink {
+        color: var(--element-state-exceeds-color);
       }
-      section#container.false, section#ink {
-        color: var(--element-state-false-color);
+      section#container.deceeds, section#ink {
+        color: var(--element-state-deceeds-color);
       }
       section#container.undefined, section#ink {
         color: var(--element-state-undefined-color);
@@ -260,7 +257,7 @@
 			}*/
     </style>
 
-    <section id="container" class="null">
+    <section id="container" class="inrange">
       <section id="checkboxContainer">
         <section id="checkbox" class$="[[_computeCheckboxClass(checked, invalid)]]">
           <section id="checkmark" class$="[[_computeCheckmarkClass(checked)]]"></section>
@@ -373,20 +370,24 @@
         else return false;
       },
 
-      setExceedingState: function(isExceeding, state) {
+      setExceedingStatus: function(isExceeding, exceeds) {
+        var state;
         this.set('isExceeding', isExceeding);
         // set color of the sign
-        this.$.container.classList.remove('true');
-        this.$.container.classList.remove('false');
-        this.$.container.classList.remove('null');
-        this.$.container.classList.remove('undefined');
+        this.$.container.classList.remove('exceeds', 'deceeds', 'inrange', 'undefined');
+        switch (exceeds) {
+          case 0: state='inrange'; break;
+          case -1: state='deceeds'; break;
+          case 1: state='exceeds'; break;
+          default: state='undefined';
+        }
         this.$.container.classList.add(state);
       },
 
       render: function(value) {
-        if (value === undefined) {
-          value = this.values[this.values.length-1] || {};
-        }
+        if (value === undefined)
+          return;
+          
         // set value
         if (!this.isBoolean === true)
           this.$.valueSection.textContent = value.y;

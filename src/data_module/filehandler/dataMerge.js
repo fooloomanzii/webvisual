@@ -24,7 +24,7 @@ function processData(data, name, settings) {
 	var processedData = {},
 		buffer = {},
 		floatArrayView = {},
-		state, exceeds, id,
+		state, id,
 		maxDate = data[0].date || 0;
 
 	var bufferLength = data.length * 8;
@@ -56,25 +56,23 @@ function processData(data, name, settings) {
 				// }
 				// floatArrayView[id].x[i] = data[i].date;
 				// floatArrayView[id].y[i] = data[i].values[j];
-				state = null;
+				state = 0;
 				if (data[i].values[j] !== null) {
 					// exceeding
 					if (settings.types[k].threshold !== undefined) {
 						if (settings.types[k].threshold.from !== undefined &&
 							data[i].values[j] < settings.types[k].threshold.from)
-							state = false;
+							state = -1;
 						else if (settings.types[k].threshold.to !== undefined &&
 							data[i].values[j] > settings.types[k].threshold.to)
-							state = true;
+							state = 1;
 					}
-					exceeds = (state === null) ? false : true;
 				}
 				// .data is the array, in which the measuring time, the value itself and an state-value is stored
 				processedData[id].push({
 					x: +(new Date(data[i].date)),
 					y: data[i].values[j],
-					state: state,
-					exceeds: exceeds
+					state: state
 				})
 				k++;
 			}

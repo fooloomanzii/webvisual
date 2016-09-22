@@ -22,10 +22,15 @@ class dataModule extends EventEmitter {
 		this.cache = {};
 		this.dataFile = {};
 
-		if (server)
-			this.setServer(server);
 		if (config)
 			this.connect(config);
+
+		if (server)
+			this.setServer(server);
+	}
+
+	setServer(server) {
+		this.io.listen(server);
 
 		// Handle connections of new clients
 		this.dataSocket = this.io.of("/data");
@@ -33,40 +38,41 @@ class dataModule extends EventEmitter {
 
 			client.on("setup", (settings) => {
 				var name = settings.name;
-				var mobile = settings.mobile;
+				if (settings) {
+					client.compress(true).emit("init-by-server", this.configHandler.settings[name].configuration);
+				}
+			});
+
+			client.on("init-by-client", (config) => {
+				var name = config.name;
+				var mobile = config.mobile;
 				var requestlast;
 				var settings = this.configHandler.settings[name];
 
-				if (settings) {
-					client.compress(true).emit("initByServer", this.configHandler.settings[name].configuration);
-				}
+				for (var label of config.labels) {
 
-				client.on("initByClient", (config) => {
-					for (var label of config.labels) {
-						client.join(name + "__" + label); // client joins room for selected label
-
-						if (settings.clientRequest[label] &&
-								settings.clientRequest[label].initial) {
-							if (mobile && settings.clientRequest[label].initial.mobile)
-								requestlast = settings.clientRequest[label].initial.mobile;
-							else if (!mobile && settings.clientRequest[label].initial.stationary)
-								requestlast = settings.clientRequest[label].initial.stationary;
-						}
-
-						client.compress(true).emit("initial", {label: label, values: this.cache[name][label].request(requestlast)});
+					if (settings && settings.clientRequest[label] &&
+							settings.clientRequest[label].initial) {
+						if (mobile && settings.clientRequest[label].initial.mobile)
+							requestlast = settings.clientRequest[label].initial.mobile;
+						else if (!mobile && settings.clientRequest[label].initial.stationary)
+							requestlast = settings.clientRequest[label].initial.stationary;
 					}
-				});
+
+					client.compress(true).emit("initial", {label: label, values: this.cache[name][label].request(requestlast)});
+
+					client.join(name + "__" + label); // client joins room for selected label
+				}
 			});
 
+			client.on("disconnect", (socket) => { });
+
+			client.on("error", (err) => { });
 		});
 
 		this.io.of("/data").clients((err, clients) => {
 			if (err) this.emit("error", "socket.io", err) // => [PZDoMHjiu8PYfRiKAAAF, Anw2LatarvGVVXEIAAAD]
 		});
-	}
-
-	setServer(server) {
-		this.io.listen(server);
 	}
 
 	connect(config) {
@@ -106,7 +112,7 @@ class dataModule extends EventEmitter {
 						if (!data || data.length == 0)
 							return; // Don"t handle empty data
 						// temporary save data
-						if (this.configHandler.settings[name].dataConfig[label]) {
+						if (this.configHandler.settings[name] && this.configHandler.settings[name].dataConfig[label]) {
 							// process data
 							let mergedData = mergeData(data, name, this.configHandler.settings[name].dataConfig[label]);
 
@@ -131,6 +137,7 @@ class dataModule extends EventEmitter {
 	}
 
 	disconnect() {
+
 		for (var name in this.dataFile) {
 			for (var label in this.dataFile[name]) {
 				this.dataFile[name][label].close();
@@ -141,6 +148,15 @@ class dataModule extends EventEmitter {
 			delete this.dataFile[name];
 			delete this.cache[name];
 		}
+
+		var sockets = this.dataSocket.connected;
+		for (var id in sockets) {
+			sockets[id].client.disconnect();
+		};
+		this.dataSocket.removeAllListeners(); // Remove all Listeners for the event emitter
+		delete this.dataSocket;
+		delete this.io.nsps['/data'];
+
 		this.configHandler.unwatch();
 	}
 

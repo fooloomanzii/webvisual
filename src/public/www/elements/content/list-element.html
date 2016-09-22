@@ -30,18 +30,20 @@
     section#sign {
       min-width: 48px;
       position: relative;
-    }
-    section#sign.null {
       background: var(--element-color);
       color: var(--element-text-color);
     }
-    section#sign.true {
-      background: var(--element-state-true-color);
-      color: var(--element-state-true-text-color);
+    section#sign.inrange {
+      background: var(--element-inrange-color);
+      color: var(--element-state-inrange-text-color);
     }
-    section#sign.false {
-      background: var(--element-state-false-color);
-      color: var(--element-state-false-text-color);
+    section#sign.exceeds {
+      background: var(--element-state-exceeds-color);
+      color: var(--element-state-exceeds-text-color);
+    }
+    section#sign.deceeds {
+      background: var(--element-state-deceeds-color);
+      color: var(--element-state-deceeds-text-color);
     }
     section#sign.undefined {
       background: var(--element-state-undefined-color);
@@ -63,20 +65,18 @@
       align-items: center;
     }
     section#valueSection {
-      font-size: 1.5em;
+      font-size: 0.9em;
+      padding: 0 0.25em;
       float: left;
     }
     section#unitSection {
       margin-left: 0.25em;
-      font-family: Fira Sans Light;
-      font-size: 0.8em;
+      font-size: 0.75em;
       float: right;
     }
     section#label {
       color: #333333;
-      /*transform: rotate(180deg);*/
       writing-mode: vertical-lr;
-      /*transform-origin: center;*/
       font-size: 0.6em;
       text-align: center;
       padding: 0.25em 0;
@@ -148,7 +148,7 @@
       </template>
     </section>
 
-    <section id='sign' class='null'>
+    <section id='sign' class='inrange'>
       <section id='actualValueSection'>
         <section hidden$='[[isBoolean]]'>
           <section id='valueSection'></section>
@@ -195,20 +195,23 @@
         'tap': '_select'
       },
 
-      setExceedingState: function(isExceeding, state) {
+      setExceedingStatus: function(isExceeding, state) {
+        var status;
         this.set('isExceeding', isExceeding);
         // set color of the sign
-        this.$.sign.classList.remove('true');
-        this.$.sign.classList.remove('false');
-        this.$.sign.classList.remove('null');
-        this.$.sign.classList.remove('undefined');
-        this.$.sign.classList.add(state);
+        this.$.sign.classList.remove('exceeds', 'deceeds', 'inrange', 'undefined');
+        switch (state) {
+          case 0: status = 'inrange'; break;
+          case -1: status = 'deceeds'; break;
+          case 1: status = 'exceeds'; break;
+          default: status = 'undefined';
+        }
+        this.$.sign.classList.add(status);
       },
 
       render: function(value) {
-        if (value === undefined) {
-          value = this.values[this.values.length-1] || {};
-        }
+        if (value === undefined)
+          return;
 
         // set value
         if (!this.isBoolean === true)

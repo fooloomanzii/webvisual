@@ -92,8 +92,7 @@
   </template>
 
   <script>
-
-  Polymer({
+    Polymer({
       is: 'select-page',
 
       behaviors: [Polymer.NeonSharedElementAnimatableBehavior, Polymer.NeonAnimationRunnerBehavior],
@@ -106,7 +105,9 @@
         },
         selectedLabels: {
           type: Array,
-          value: function() { return [];},
+          value: function() {
+            return [];
+          },
           notify: true
         },
         sharedElements: {
@@ -120,101 +121,117 @@
         animationConfig: {
           value: function() {
             return {
-              'entry': [
-                {
-                  name: 'fade-in-animation',
-                  node: this.$.background,
-                  timing: {
-                    duration: 1000,
-                    delay: 0,
-                    easing: 'ease'
-                  }
-                },
-                {
-                  name: 'scale-up-animation',
-                  node: this.$.mainContent,
-                  timing: {
-                    duration: 500,
-                    delay: 0,
-                    easing: 'ease'
-                  }
+              'entry': [{
+                name: 'fade-in-animation',
+                node: this.$.background,
+                timing: {
+                  duration: 1000,
+                  delay: 0,
+                  easing: 'ease'
                 }
-              ],
-              'exit': [
-                {
-                  name: 'hero-animation',
-                  id: 'herologo',
-                  fromPage: this,
-                },
-                {
-                  name: 'slide-up-animation',
-                  node: this.$.background,
-                  timing: {
-                    duration: 500,
-                    delay: 0,
-                    easing: 'ease'
-                  }
-                },
-                {
-                  name: 'fade-out-animation',
-                  node: this.$.mainContent,
-                  timing: {
-                    duration: 300,
-                    delay: 0,
-                    easing: 'linear'
-                  }
+              }, {
+                name: 'scale-up-animation',
+                node: this.$.mainContent,
+                timing: {
+                  duration: 500,
+                  delay: 0,
+                  easing: 'ease'
                 }
-              ]
+              }],
+              'exit': [{
+                name: 'hero-animation',
+                id: 'herologo',
+                fromPage: this,
+              }, {
+                name: 'slide-up-animation',
+                node: this.$.background,
+                timing: {
+                  duration: 500,
+                  delay: 0,
+                  easing: 'ease'
+                }
+              }, {
+                name: 'fade-out-animation',
+                node: this.$.mainContent,
+                timing: {
+                  duration: 300,
+                  delay: 0,
+                  easing: 'linear'
+                }
+              }]
             }
           }
         }
       },
 
-      observers: [
-          "_one(labels)"
-      ],
+      start: undefined,
 
       attached: function() {
         if (window.Labels && window.Labels.length === 1) {
           window.selectedLabels = this.selectedLabels = window.Labels;
-          this._setSelected(window.Labels[0]);
-          this._submit();
-        }
-        else {
+          this._setSelected(window.Labels)
+            .then(function(res) {
+              this._submit(res);
+            }.bind(this));
+        } else {
           var preconf = JSON.parse(localStorage.getItem(window.Name));
           if (preconf && preconf.selectedLabels) {
-              this._setSelected(preconf.selectedLabels);
+            this._setSelected(preconf.selectedLabels)
+              .then(function(res) {
+                this.start = setTimeout(function() {
+                  this._submit(res);
+                }.bind(this), 5000);
+              }.bind(this));
           }
         }
       },
 
       _setSelected: function(labels) {
-        if (!labels) return;
-        var labelSelector = this.$.labelSelector;
-        for (var i in labels) {
-          if (Labels.indexOf(labels[i]) !== -1)
-            labelSelector.select(labels[i]);
-        }
+        return new Promise(function(resolve, reject) {
+          var selected = [];
+          if (!labels) reject();
+          var labelSelector = this.$.labelSelector;
+          for (var i in labels) {
+            if (Labels.indexOf(labels[i]) !== -1) {
+              selected.push(labels[i]);
+              labelSelector.select(labels[i]);
+            }
+          }
+          if (selected.length > 0)
+            resolve(selected);
+          else
+            reject();
+        }.bind(this))
       },
 
       _disableButton: function() {
         if (this.selectedLabels.length === 0)
           this.$.submitButton.setAttribute('disabled', true);
-        else
+        else {
+          clearTimeout(this.start);
           this.$.submitButton.removeAttribute('disabled');
+        }
       },
 
-      _submit: function() {
+      _submit: function(labels) {
+        if (this.start) clearTimeout(this.start);
         this.$.loader.play();
+
         // save the label to LocalStorage
+        if (Array.isArray(labels))
+          this.set('selectedLabels', labels)
+
         window.selectedLabels = this.selectedLabels;
-        localStorage.setItem(window.Name, JSON.stringify({selectedLabels: this.selectedLabels}));
+        localStorage.setItem(window.Name, JSON.stringify({
+          selectedLabels: this.selectedLabels
+        }));
+
         // connect the datasocket
         window.DataHandler.connect(this.selectedLabels);
       },
       activeChanged: function() {
         // if (!this.active) {
-          this.$.loader.cancel();
+        this.$.loader.cancel();
         // }
       }
     });

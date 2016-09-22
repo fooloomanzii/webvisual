@@ -44,6 +44,11 @@
         value: false
       },
 
+      debouncedUnset: {
+        type: Number,
+        value: 1000
+      },
+
       multiSelect: {
         type: Boolean,
         value: false
@@ -91,8 +96,8 @@
     },
 
     observers: [
-      '_reproductionRepeat(selectedElements.splices)',
-      '_reproductionRepeat(exceedingElements.splices)'
+      '_reproductionSelectRepeat(selectedElements.splices)',
+      '_reproductionExceedsRepeat(exceedingElements.splices)'
     ],
 
     detached: function() {
@@ -145,10 +150,6 @@
         this.splice("selectedElements", 0, this.selectedElements.length);
         this.push('selectedElements', element);
       }
-      //
-      // if(this.noExceedNotify === false && element.isExceeding === true) {
-      //   this.setExceedingElement(element);
-      // }
 
       this.opened = this.forceOpened || (this.openOnSelect === true && this.selectedElements.length > 0) ? true : false;
     },
@@ -195,7 +196,7 @@
         this.push("exceedingElements", element);
 
       this.isExceeding = (this.exceedingElements.length > 0) ? true : false;
-      this.opened = this.forceOpened || (this.openOnExceed === true && this.isExceeding);
+      this.opened = this.opened || this.forceOpened || (this.openOnExceed === true && this.isExceeding);
     },
 
     __unsetExceedingElement: function(e) {
@@ -209,7 +210,7 @@
         this.splice("exceedingElements", pos, 1);
 
       this.isExceeding = (this.exceedingElements.length > 0) ? true : false;
-      this.opened = this.forceOpened || (this.openOnExceed === true && this.isExceeding);
+      this.opened = this.opened || this.forceOpened || (this.openOnExceed === true && this.isExceeding);
     },
 
     clearExceedingElements: function() {
@@ -219,7 +220,7 @@
 
     _handleExceeding: function(value) {},
 
-    _reproductionRepeat: function(changeRecord) {
+    _reproductionSelectRepeat: function(changeRecord) {
       if (this.reproduce === false) return;
       if (changeRecord && changeRecord.indexSplices) {
 
@@ -297,6 +298,39 @@
             //     this._elements.push(node);
             //   }
             // }
+          }
+        }
+      }
+    },
+    _reproductionExceedsRepeat: function(changeRecord) { // just the container
+      if (this.reproduce === false) return;
+      if (changeRecord && changeRecord.indexSplices) {
+
+        var container = (this.reproductionContainer) ? Polymer.dom(this).querySelector('#' + this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);
+
+        var index, items, item;
+        var items = Polymer.dom(container).getEffectiveChildNodes().filter(function(el) {
+          return el.nodeType === Node.ELEMENT_NODE;
+        });
+
+        var containers = items.filter(function(el) {
+          return el.hasAttribute('container');
+        });
+
+        for (var i = 0; i < changeRecord.indexSplices.length; i++) {
+          for (var j = 0; j < changeRecord.indexSplices[i].removed.length; j++) {
+            item = changeRecord.indexSplices[i].removed[j];
+            containers.forEach(function(el) {
+              el.unsetExceedingElement(item);
+            }, this);
+          }
+          for (var j = 0; j < changeRecord.indexSplices[i].addedCount; j++) {
+            index = changeRecord.indexSplices[i].index + j;
+            item = changeRecord.indexSplices[i].object[index];
+
+            containers.forEach(function(el) {
+              el.setExceedingElement(item);
+            }, this);
           }
         }
       }

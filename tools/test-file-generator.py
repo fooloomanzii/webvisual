@@ -8,7 +8,7 @@ dateformat = '%d.%m.%Y %H:%M:%S'
 low = 0
 high = 10
 rowlenght = 8
-linelength = 10
+initialLineLength = 5000
 valueseperator = ','
 interval = 2
 
@@ -32,6 +32,6 @@ def intervalWrite(interval):
 
 open(outfile, 'w', newline='').close()
 d = datetime.datetime.now()
-for i in range(-linelength, 0):
+for i in range(-initialLineLength, 0):
     createRow(d, i*interval)
 intervalWrite(interval)
