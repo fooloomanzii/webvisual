@@ -36,6 +36,7 @@ src/tests/*.txt
 *thumbs.db
 .bower.json
 .codelite/
+tools/*.txt
 
 # Mail login #
 src/config/mail.json
@@ -57,3 +58,4 @@ dist/*
 .tern-project
 *.tern-port
 *.log
+tools/test.txt
