@@ -8,7 +8,7 @@ dateformat = '%d.%m.%Y %H:%M:%S'
 low = 0
 high = 10
 rowlenght = 8
-initialLineLength = 5000
+initialLineLength = 10
 valueseperator = ','
 interval = 2
 
