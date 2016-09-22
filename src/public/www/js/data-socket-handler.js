@@ -91,7 +91,7 @@ function DataSocketHandler(socketName, name, callwhenconnected) {
 			} else {
 				window.location.reload()
 			}
-		}, 10000);
+		}, 30000);
 	}.bind(this));
 
 	// Reconnect

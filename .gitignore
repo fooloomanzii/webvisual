@@ -36,7 +36,6 @@ src/tests/*.txt
 *thumbs.db
 .bower.json
 .codelite/
-tools/*.txt
 
 # Mail login #
 src/config/mail.json
