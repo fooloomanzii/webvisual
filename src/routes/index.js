@@ -113,27 +113,15 @@ class router extends EventEmitter {
         let rendererName = this.settings.userConfigFiles[name].renderer;
         let rendererPath = './renderer/' + this.settings.renderer[rendererName].path;
 
-        fs.open('myfile', 'r', (err, fd) => {
-          if (err) {
-            if (err.code === "ENOENT") {
-              this.emit("error", "Renderer for " + name + " not found. (" + rendererName + ": " + rendererPath + ")");
-            } else {
-              this.emit("error", "Renderer Error: " + err);
-            }
-            res.redirect('/index');
-            res.end();
-            return;
-          }
-          res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
-          res.render(rendererPath, {
-            user: req.user,
-            title: name,
-            name: name,
-            config: this.configuration[name],
-            mobile: this.isMobile(req)
-          });
-          res.end();
+        res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
+        res.render(rendererPath, {
+          user: req.user,
+          title: name,
+          name: name,
+          config: this.configuration[name],
+          mobile: this.isMobile(req)
         });
+        res.end();
       });
     }
     this.app.use(function(req, res) {
