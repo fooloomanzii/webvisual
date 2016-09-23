@@ -29,24 +29,31 @@
         box-shadow: none;
         border-color: transparent;
       }
+      /*IE needs a fixed width*/
+      @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+        :host {
+          width: calc(50% - 1em);
+        }
+      }
       @media all and (max-width: 520px) {
         :host {
           width: 100%;
+          max-width: 100%;
         }
       }
-      @media all and (min-width: 720px) and (max-width: 1280px) and (orientation: portrait) {
+      @media all and (min-width: 521px) and (max-width: 1200px) and (orientation: portrait) {
         :host {
-          width: 45%;
+          max-width: calc(50% - 1em);
         }
       }
-      @media all and (min-width: 600px) and (max-width: 1600px) and (orientation: landscape) {
+      @media all and (min-width: 521px) and (max-width: 1200px) and (orientation: landscape) {
         :host {
-          width: 30%;
+          max-width: calc(33% - 1em);
         }
       }
-      @media all and (min-width: 1600px) {
+      @media all and (min-width: 1201px) {
         :host {
-          width: 22%;
+          max-width: calc(25% - 1em);
         }
       }
       :host([headline='*']) {
