@@ -49,8 +49,11 @@ class WebvisualServer extends EventEmitter {
 		this.isRunning = false;
 		this.config = settings;
 		this.router = new Router(app, passport);
-		this.dataHandler = new dataModule();
+		this.router.on("error", (err) => {
+			this.emit("error", err);
+		});
 
+		this.dataHandler = new dataModule();
 		this.dataHandler.on("changed", (configuration, name) => {
 			this.router.setConfiguration(configuration, name); // load Settings to Routen them to requests
 		});

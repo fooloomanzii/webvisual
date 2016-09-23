@@ -53,13 +53,13 @@ module.exports = function(passport, config_ldap) {
         password: password
       };
 
-      console.log(req.connection.remoteAddress);
+      // console.log(req.connection.remoteAddress);
 
       var ad = new ActiveDirectory(cred);
       ad.userExists(username, function(err, exists) {
         if (err) {
           // if error, return no user
-          console.log("Authentification Error", err.name);
+          // console.log("Authentification Error", err.name);
           return;
         }
         // if user exists, then check, if user can authenticate

@@ -13,16 +13,16 @@ class router extends EventEmitter {
     this.settings = {};
     this.configuration = {};
 
-    this.app.get('/', (function(req, res) {
+    this.app.get('/', (req, res) => {
       if (this.settings.server.auth.required === true) {
         res.redirect('/login');
       }
       else {
         res.redirect('/index');
       }
-    }).bind(this));
+    });
 
-    this.app.get('/index', this.loggedIn.bind(this), (function(req, res) {
+    this.app.get('/index', this.loggedIn.bind(this), (req, res) => {
       res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
       res.render('index', {
         user: req.user,
@@ -32,9 +32,9 @@ class router extends EventEmitter {
         mobile: this.isMobile(req)
       });
       res.end();
-    }).bind(this));
+    });
 
-    this.app.get('/login', (function(req, res) {
+    this.app.get('/login', (req, res) => {
       if (this.settings.server.auth.required === true) {
         res.render('login', {
           user: req.user,
@@ -46,9 +46,9 @@ class router extends EventEmitter {
       else {
         res.redirect('/index');
       }
-    }).bind(this));
+    });
 
-    this.app.get('/logout', function(req, res) {
+    this.app.get('/logout', (req, res) => {
       req.logout();
       res.redirect('/login');
     });
@@ -56,12 +56,12 @@ class router extends EventEmitter {
 
   setSettings(options) {
     if (options === undefined)
-      this.emit("error", "Empty Configuration passed to router")
+      this.emit("error", "Empty Configuration passed to router");
     for (let key in options) {
       if (key == 'server')
-        this.setServer(options.server)
+        this.setServer(options.server);
       else if (key == 'userConfigFiles')
-        this.setUserConfig(options.userConfigFiles)
+        this.setUserConfig(options.userConfigFiles);
       else {
         this.settings[key] = options[key];
       }
@@ -101,24 +101,40 @@ class router extends EventEmitter {
     this.settings.userConfigFiles = userConfigFiles;
 
     for (let name in userConfigFiles) {
-      this.app.get('/' + name, this.loggedIn.bind(this), (function(req, res) {
+      this.app.get('/' + name, this.loggedIn.bind(this), (req, res) => {
         let name = req.url.substr(1);
 
+        if (!name || !this.settings.userConfigFiles[name] || !this.settings.userConfigFiles[name].renderer) {
+          this.emit("error", "Requested Renderer for '" + name + "' not found.");
+          res.redirect('/index');
+          res.end();
+          return;
+        }
         let rendererName = this.settings.userConfigFiles[name].renderer;
         let rendererPath = './renderer/' + this.settings.renderer[rendererName].path;
 
-        console.log(rendererName, rendererPath);
-
-        res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
-        res.render(rendererPath, {
-          user: req.user,
-          title: name,
-          name: name,
-          config: this.configuration[name],
-          mobile: this.isMobile(req)
+        fs.open('myfile', 'r', (err, fd) => {
+          if (err) {
+            if (err.code === "ENOENT") {
+              this.emit("error", "Renderer for " + name + " not found. (" + rendererName + ": " + rendererPath + ")");
+            } else {
+              this.emit("error", "Renderer Error: " + err);
+            }
+            res.redirect('/index');
+            res.end();
+            return;
+          }
+          res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
+          res.render(rendererPath, {
+            user: req.user,
+            title: name,
+            name: name,
+            config: this.configuration[name],
+            mobile: this.isMobile(req)
+          });
+          res.end();
         });
-        res.end();
-      }).bind(this));
+      });
     }
     this.app.use(function(req, res) {
       res.redirect('/login');
