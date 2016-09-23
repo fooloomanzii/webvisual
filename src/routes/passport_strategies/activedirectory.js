@@ -53,6 +53,8 @@ module.exports = function(passport, config_ldap) {
         password: password
       };
 
+      console.log(req.connection.remoteAddress);
+
       var ad = new ActiveDirectory(cred);
       ad.userExists(username, function(err, exists) {
         if (err) {

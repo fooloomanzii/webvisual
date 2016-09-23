@@ -3,8 +3,8 @@
     :host {
       position: relative;
       box-sizing: border-box;
-      display: flex;
       flex-direction: column;
+      display: inline-flex;
       outline: none;
       -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
       -webkit-touch-callout: none; -webkit-tap-highlight-color: rgba(0,0,0,0);
@@ -23,6 +23,8 @@
 			border-color: rgba(52, 84, 117, 0.4);
 		}
     section#sign {
+      height: auto;
+      width: 100%;
       background: var(--element-color);
       color: var(--element-text-color);
       border-top-left-radius: inherit; border-top-right-radius: inherit; border-bottom-left-radius: 0; border-bottom-right-radius: 0;
@@ -89,16 +91,19 @@
       pointer-events: none;
     }
     section#caption {
+      height: auto;
+      width: 100%;
       display: flex;
       flex-direction: column;
       cursor: default;
+      box-sizing: border-box;
       position: relative;
       border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: inherit; border-bottom-right-radius: inherit;
       background: white;
       color: var(--primary-text-color);
       line-height: 1.5;
       padding: 0.25em 0.75em 0.5em 0.5em;
-      flex: 1;
+      flex: 1 0 auto;
       margin: 0;
       border: none;
     }
@@ -143,9 +148,13 @@
         border-top-left-radius: inherit; border-top-right-radius: 0; border-bottom-left-radius: inherit; border-bottom-right-radius: 0;
         border-bottom-width: 0;
         border-right-width: thin;
+        height: 100%;
+        width: auto;
       }
       :host[horizontal] section#caption {
         border-top-left-radius: 0; border-top-right-radius: inherit; border-bottom-left-radius: 0; border-bottom-right-radius: inherit;
+        height: 100%;
+        width: auto;
       }
     }
     svg#bookmark {
@@ -295,15 +304,13 @@
       setExceedingStatus: function(isExceeding, state) {
         var status;
         this.set('isExceeding', isExceeding);
-        // set color of the sign
-        this.$.sign.classList.remove('exceeds', 'deceeds', 'inrange', 'undefined');
         switch (state) {
           case 0: status='inrange'; break;
           case -1: status='deceeds'; break;
           case 1: status='exceeds'; break;
           default: status='undefined';
         }
-        this.$.sign.classList.add(status);
+        this.$.sign.className = status + " style-scope sign-element";
       },
 
       render: function(value) {

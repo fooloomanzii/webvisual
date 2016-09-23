@@ -17,7 +17,7 @@
         box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
                     0 1px 10px 0 rgba(0, 0, 0, 0.12),
                     0 2px 4px -1px rgba(0, 0, 0, 0.4);
-        max-width: calc(50vw - 2em);
+        /*max-width: calc(100vw - 2em);*/
       }
       :host[dark] {
         background: #959595;
@@ -29,24 +29,24 @@
         box-shadow: none;
         border-color: transparent;
       }
-      @media all and (min-width: 750px) and (max-width: 1280px) and (orientation: portrait) {
-        :host {
-          max-width: 31.5em;
-        }
-      }
-      @media all and (min-width: 600px) and (max-width: 1280px) and (orientation: landscape) {
-        :host {
-          max-width: 31.5em;
-        }
-      }
-      @media all and (min-width: 1280px) {
-        :host {
-          max-width: 39.5em;
-        }
-      }
       @media all and (max-width: 520px) {
         :host {
-          max-width: none;
+          width: 100%;
+        }
+      }
+      @media all and (min-width: 720px) and (max-width: 1280px) and (orientation: portrait) {
+        :host {
+          width: 45%;
+        }
+      }
+      @media all and (min-width: 600px) and (max-width: 1600px) and (orientation: landscape) {
+        :host {
+          width: 30%;
+        }
+      }
+      @media all and (min-width: 1600px) {
+        :host {
+          width: 22%;
         }
       }
       :host([headline='*']) {

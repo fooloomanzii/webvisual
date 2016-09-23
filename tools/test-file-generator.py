@@ -15,7 +15,7 @@ interval = 2
 
 def createRow(d, i):
     with open(outfile, 'a', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter=',')
+        writer = csv.writer(csvfile, delimiter=valueseperator)
         r = [round(random.uniform(low, high), 5) for _ in range(rowlenght)]
         r.insert(0, (d + datetime.timedelta(seconds=i)).strftime(dateformat))
         print(r)

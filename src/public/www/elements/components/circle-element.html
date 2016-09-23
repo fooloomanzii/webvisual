@@ -1,7 +1,7 @@
 <dom-module id="circle-element">
-<template>
+  <template>
   <style>
-    :host{
+    section#container {
       display: flex;
       flex-direction: row;
       align-self: center;
@@ -11,63 +11,65 @@
       height: 18px;
       transform: scale(0);
       transform-origin: center;
-    }
-
-    #circle1{ fill: #E41A1A; animation-delay: 50ms;}
-    #circle2{ fill: #E45D1A; animation-delay: 100ms;}
-    #circle3{ fill: #E4D61A; animation-delay: 150ms;}
-    #circle4{ fill: #67E41A; animation-delay: 200ms;}
-    #circle5{ fill: #1AA9E4; animation-delay: 250ms;}
-
-    svg.animated {
-      animation-name: scaleup;
       animation-timing-function: ease;
       animation-duration: 750ms;
       animation-fill-mode: both;
       animation-iteration-count: infinite;
     }
+    svg:nth-child(1) { animation-delay: 50ms; fill: #39C5ff; }
+    svg:nth-child(2) { animation-delay: 100ms; fill: #1EE41A; }
+    svg:nth-child(3) { animation-delay: 150ms; fill: #E4D61A; }
+    svg:nth-child(4) { animation-delay: 200ms; fill: #E45D1A; }
+    svg:nth-child(5) { animation-delay: 250ms; fill: #E41A1A; }
 
+    section#container.animated svg {
+      animation-name: scaleup;
+    }
     @keyframes scaleup {
       0%   { transform: scale(0) }
       80%  { transform: scale(1) }
       100%  { transform: scale(0) }
     }
   </style>
+  <section id="container">
+    <svg viewBox="0 0 32 18">
+      <circle r="8" cy="9" cx="16" stroke="#252D36" stroke-width="0.25"/>
+    </svg>
+    <svg viewBox="0 0 32 18">
+      <circle r="8" cy="9" cx="16" stroke="#252D36" stroke-width="0.25"/>
+    </svg>
+    <svg viewBox="0 0 32 18">
+      <circle r="8" cy="9" cx="16" stroke="#252D36" stroke-width="0.25"/>
+    </svg>
+    <svg viewBox="0 0 32 18">
+      <circle r="8" cy="9" cx="16" stroke="#252D36" stroke-width="0.25"/>
+    </svg>
+    <svg viewBox="0 0 32 18">
+      <circle r="8" cy="9" cx="16" stroke="#252D36" stroke-width="0.25"/>
+    </svg>
+  </section>
 
-  <svg id="circle1" viewBox="0 0 32 18">
-    <circle r="8" cy="9" cx="16" stroke="#252D36" stroke-width="0.25"/>
-  </svg>
-  <svg id="circle2" viewBox="0 0 32 18">
-    <circle r="8" cy="9" cx="16" stroke="#252D36" stroke-width="0.25"/>
-  </svg>
-  <svg id="circle3" viewBox="0 0 32 18">
-    <circle r="8" cy="9" cx="16" stroke="#252D36" stroke-width="0.25"/>
-  </svg>
-  <svg id="circle4" viewBox="0 0 32 18">
-    <circle r="8" cy="9" cx="16" stroke="#252D36" stroke-width="0.25"/>
-  </svg>
-  <svg id="circle5" viewBox="0 0 32 18">
-    <circle r="8" cy="9" cx="16" stroke="#252D36" stroke-width="0.25"/>
-  </svg>
 </template>
 
-<script>
-  Polymer({
-    is: 'circle-element',
-    play: function() {
-      this.$.circle1.classList.add('animated');
-      this.$.circle2.classList.add('animated');
-      this.$.circle3.classList.add('animated');
-      this.$.circle4.classList.add('animated');
-      this.$.circle5.classList.add('animated');
-    },
-    cancel: function() {
-      this.$.circle1.classList.remove('animated');
-      this.$.circle2.classList.remove('animated');
-      this.$.circle3.classList.remove('animated');
-      this.$.circle4.classList.remove('animated');
-      this.$.circle5.classList.remove('animated');
-    }
-  });
-</script>
+  <script>
+    Polymer({
+      is: 'circle-element',
+      isPlaying: false,
+      attached: function() {
+        this.container = this.$.container;
+      },
+      play: function() {
+        if (this.isPlaying === false) {
+          this.container.classList.add('animated');
+          this.isPlaying = true;
+        }
+      },
+      cancel: function() {
+        if (this.isPlaying === true) {
+          this.container.classList.remove('animated');
+          this.isPlaying = false;
+        }
+      }
+    });
+  </script>
 </dom-module>

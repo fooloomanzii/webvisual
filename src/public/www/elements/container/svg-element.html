@@ -541,8 +541,8 @@
                         self._zoomToElement(this);
                         self._mainG.selectAll('.clicked')
                                    .classed('clicked', false);
-                        this.classList.add('clicked');
-                      })
+                      }.bind(this))
+                    .classed('clicked', true)
                     .append('title')
                     .text(function() {
                         return element.id;
@@ -557,8 +557,8 @@
                         self._zoomToElement(this);
                         self._mainG.selectAll('.clicked')
                                    .classed('clicked', false);
-                        this.classList.add('clicked');
                       })
+                    .classed('clicked', true)
                     .append('title')
                     .text(function() {
                         return element.id;
@@ -572,8 +572,8 @@
                       self._zoomToElement(this);
                       self._mainG.selectAll('.clicked')
                                  .classed('clicked', false);
-                      this.classList.add('clicked');
                     })
+                  .classed('clicked', true)
                   .append('title')
                   .text(function() {
                       return key;
@@ -630,7 +630,7 @@
       if (Object.keys(this._mainG).length === 0 || !this.source) return;
       // previous selected elements: remove class for selected elements
       this._mainG.selectAll('.' + selectedClass)
-                .classed(selectedClass, false);
+                 .classed(selectedClass, false);
 
       var elems;
       var sel = [];
@@ -641,7 +641,7 @@
       var sel = sel.join(',');
       if (sel === '' ||
           (elems = this._mainG.selectAll(sel)
-                              .filter('.svg-element-selectable')).empty()) {
+                              .filter('.svg-element-selectable')).classed(selectedClass, true).empty()) {
         if (this.opened)
           this._debounceResetZoom();
         return;
@@ -656,7 +656,6 @@
                bounds[1] = (bounds[1] > boundE.top ? boundE.top : bounds[1]) || boundE.top;
                bounds[2] = (bounds[2] < boundE.right ? boundE.right : bounds[2]) || boundE.right;
                bounds[3] = (bounds[3] < boundE.bottom ? boundE.bottom : bounds[3]) || boundE.bottom;
-               this.classList.add(selectedClass);
              });
 
       boundE = { left: bounds[0],

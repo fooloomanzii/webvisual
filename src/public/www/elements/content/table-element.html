@@ -196,14 +196,12 @@
 				var row, tdX, tdY, isExceeding, status;
 
 				row = document.createElement('section');
-				row.classList.add('tr', 'style-scope', 'table-element');
-
 				tdX = document.createElement('section');
-				tdX.classList.add('style-scope', 'table-element');
+				tdX.className = 'style-scope table-element';
 				tdX.textContent = (this.showFullDate ? new Date(value.x).toLocaleString() : new Date(value.x).toLocaleTimeString());
 
 				tdY = document.createElement('section');
-				tdY.classList.add('style-scope', 'table-element');
+				tdY.className = 'style-scope table-element';
 				isExceeding = (value.state === 0) ? false : true;
 				tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : value.y);
 
@@ -214,7 +212,9 @@
 						case 1: status = 'exceeds'; break;
 						default: status = 'undefined';
 					}
-					row.classList.add(status);
+					row.className = status + " tr style-scope table-element";
+				} else {
+					row.className = "tr style-scope table-element";
 				}
 
 				row.appendChild(tdX);

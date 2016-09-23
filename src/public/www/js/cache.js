@@ -45,6 +45,8 @@
 			this._splices = Array.prototype;
 			Object.defineProperty(this, "splices", {
 				get: function() {
+					// var ret = this._splices.slice(0); // flat copy
+					// this._splices.length = 0; // clear array
 					return this._splices.splice(0, this._splices.length);
 				},
 				enumerable: false,
@@ -53,7 +55,9 @@
 			this._heap = Array.prototype;
 			Object.defineProperty(this, "heap", {
 				get: function() {
-					return this._heap.splice(0, this._heap.length);
+					// var ret = this._heap.slice(0); // flat copy
+					// this._heap.length = 0; // clear array
+					return this._heap.splice(0,this._heap.length);
 				},
 				enumerable: false,
 				configurable: true
@@ -68,9 +72,9 @@
 		},
 
 		clear: function() {
-			delete this.first;
-			delete this.last;
-			delete this._cache;
+			this._spliced.length = 0; // clear array
+			this._heap.length = 0;
+			this._cache.length = 0;
 		},
 
 		request: function(len) {
@@ -158,8 +162,7 @@
 			}
 			for (let id in ids) {
 				if (this._cache[id]) {
-					delete this[id];
-					delete this._cache[id];
+					this._cache[id].clear();
 				}
 			}
 		},
@@ -169,9 +172,9 @@
 				ids = Object.keys(this._cache);
 			}
 			var ret = {};
-			for (var id of ids) {
-				if (id in this._cache) {
-					ret[id] = this._cache[id].request(len);
+			for (var i in ids) {
+				if (ids[i] in this._cache) {
+					ret[ids[i]] = this._cache[ids[i]].request(len);
 				}
 			}
 			return ret;
@@ -206,9 +209,9 @@
 	      ids = Object.keys(this._cache);
 	    }
 	    var temp = [];
-	    for (var id of ids) {
-	      if (id in this._cache) {
-	        temp.push(this._cache[id][func](key));
+	    for (var i in ids) {
+	      if (ids[i] in this._cache) {
+	        temp.push(this._cache[ids[i]][func](key));
 	      }
 	    }
 	    return compareFn(temp, key);

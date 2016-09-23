@@ -4,9 +4,8 @@ window.SvgSource = {};
 window.maxValues = 5400; // 3/2h for every second update
 
 // SOCKET
-function DataSocketHandler(socketName, name, callwhenconnected) {
+function DataSocketHandler(socketName, name) {
 	this.opened = false;
-	this.connected = false;
 	this.name = name;
 	this.socketName = socketName;
 	this.socket = io.connect('https://' + window.location.host + socketName, {
@@ -14,11 +13,9 @@ function DataSocketHandler(socketName, name, callwhenconnected) {
 		multiplex: false
 	});
 
-
 	// Connect
 	this.socket.on('connect', (function() {
 			console.info("client connected to: " + window.location.host);
-			this.connected = true;
 			this.socket.emit('setup', {
 				name: this.name
 			})
@@ -83,21 +80,16 @@ function DataSocketHandler(socketName, name, callwhenconnected) {
 	// Disconnect (Reload if discoonected)
 	this.socket.on('disconnect', function() {
 		console.warn("client disconnected to: " + window.location.host);
-		createMessage('error', "Disconnected to <i>" + this.name + "</i>", 3000);
-		this.connected = false;
-		var restart = setInterval( function() {
-			if (this.connected === true) {
-				clearInterval(restart);
-			} else {
-				window.location.reload()
-			}
-		}, 30000);
+		createMessage('error', "Disconnected to <i>" + this.name + "</i><br>Reload in 45sec", 3000);
+		this.restart = setTimeout( function() {
+			window.location.reload();
+		}, 45000);
 	}.bind(this));
 
 	// Reconnect
 	this.socket.on('reconnect', function() {
 		console.info("client reconnected to: " + window.location.host);
-		this.connected = true;
+		clearTimeout(this.restart);
 		createMessage('notification', "Client reconnected", 3000);
 	}.bind(this));
 
@@ -109,7 +101,7 @@ function DataSocketHandler(socketName, name, callwhenconnected) {
 
 	this.socket.on('error', function() {
 		console.warn("server error by: " + window.location.host);
-		createMessage('error', 'There is no connection possible to the data-server. Please try again later');
+		createMessage('error', 'An error occured in the connection to the data server');
 	});
 }
 

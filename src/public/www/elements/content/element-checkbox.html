@@ -370,24 +370,23 @@
         else return false;
       },
 
-      setExceedingStatus: function(isExceeding, exceeds) {
-        var state;
+      setExceedingStatus: function(isExceeding, state) {
+        var status;
         this.set('isExceeding', isExceeding);
         // set color of the sign
-        this.$.container.classList.remove('exceeds', 'deceeds', 'inrange', 'undefined');
-        switch (exceeds) {
-          case 0: state='inrange'; break;
-          case -1: state='deceeds'; break;
-          case 1: state='exceeds'; break;
-          default: state='undefined';
+        switch (state) {
+          case 0: status = 'inrange'; break;
+          case -1: status = 'deceeds'; break;
+          case 1: status = 'exceeds'; break;
+          default: status = 'undefined';
         }
-        this.$.container.classList.add(state);
+        this.$.container.className = status + " style-scope element-checkbox";
       },
 
       render: function(value) {
         if (value === undefined)
           return;
-          
+
         // set value
         if (!this.isBoolean === true)
           this.$.valueSection.textContent = value.y;

@@ -199,14 +199,13 @@
         var status;
         this.set('isExceeding', isExceeding);
         // set color of the sign
-        this.$.sign.classList.remove('exceeds', 'deceeds', 'inrange', 'undefined');
         switch (state) {
           case 0: status = 'inrange'; break;
           case -1: status = 'deceeds'; break;
           case 1: status = 'exceeds'; break;
           default: status = 'undefined';
         }
-        this.$.sign.classList.add(status);
+        this.$.sign.className = status + " style-scope list-element";
       },
 
       render: function(value) {
