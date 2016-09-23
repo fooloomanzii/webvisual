@@ -106,6 +106,9 @@ class router extends EventEmitter {
 
         let rendererName = this.settings.userConfigFiles[name].renderer;
         let rendererPath = './renderer/' + this.settings.renderer[rendererName].path;
+
+        console.log(rendererName, rendererPath);
+
         res.get('X-Frame-Options'); // prevent to render the page within an <iframe> element
         res.render(rendererPath, {
           user: req.user,
