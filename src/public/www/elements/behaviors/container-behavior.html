@@ -44,16 +44,16 @@
         value: false
       },
 
-      debouncedUnset: {
-        type: Number,
-        value: 1000
-      },
-
       multiSelect: {
         type: Boolean,
         value: false
       },
       toggles: {
+        type: Boolean,
+        value: false
+      },
+      
+      noAutoRemovalExceedingElements: {
         type: Boolean,
         value: false
       },
@@ -205,6 +205,7 @@
     },
 
     unsetExceedingElement: function(element) {
+      if (this.noAutoRemovalExceedingElements === true) return;
       var pos = this.indexOf(this.exceedingElements, element);
       if (pos !== -1)
         this.splice("exceedingElements", pos, 1);

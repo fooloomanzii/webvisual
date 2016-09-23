@@ -225,7 +225,8 @@
         <swipeable-container id="exceedingElementsList"
                          is-exceeding="{{isExceeding}}"
                          notify-parent="{{!noExceedNotify}}"
-                         no-select-notify>
+                         no-select-notify
+                         no-auto-removal-exceeding-elements>
         </swipeable-container>
 
         <section style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_clearExceedingElementsFromList">Liste leeren</a></section>
@@ -388,6 +389,20 @@
           value: false
         },
         noExceedNotify: {
+          type: Boolean,
+          value: false
+        },
+
+        multiSelect: {
+          type: Boolean,
+          value: false
+        },
+        toggles: {
+          type: Boolean,
+          value: false
+        },
+
+        noAutoRemovalExceedingElements: {
           type: Boolean,
           value: false
         },

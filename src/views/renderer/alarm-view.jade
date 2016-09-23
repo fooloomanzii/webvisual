@@ -17,7 +17,7 @@ block BodyContent
                 radio-button-element.labelButton(label!= Label)
                     != Label
         //- MAIN-PAGE
-        main-page.fullbleed(animated!= (!mobile), reproduce, notify, open-on-select)
+        main-page.fullbleed(animated!= (!mobile), reproduce, notify, open-on-select, no-auto-removal-exceeding-elements)
             //- TABS
             each Label in config.labels
                 tab-element.label(label!= Label)
