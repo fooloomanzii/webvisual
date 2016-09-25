@@ -5,9 +5,17 @@
 <dom-module id='graph-element'>
   <style include="app-theme">
      :host {
-      --element-color: var(--primary-color);
-    }
+       --element-color: var(--primary-color);
+     }
+     radio-button-element#legendEntry {
+       --radio-button-label-color: currentColor;
+       --radio-button-checked-color: var(--element-color);
+       font-size: 0.8em;
+     }
   </style>
+  <template>
+    <radio-button-element id='legendEntry' checked='{{checked}}'>[[id]]</radio-button-element>
+  </template>
   <script>
     DiagramGraph = Polymer({
       is: 'graph-element',
@@ -19,6 +27,13 @@
           type: String,
           value: '',
           observer: 'setColor'
+        },
+        checked: {
+          type: Boolean,
+          value: true,
+          reflectToAttribute: true,
+          notify: true,
+          observer: 'checkedChanged'
         },
         interpolation: {
           type: String,
@@ -91,10 +106,6 @@
         }
       },
 
-      get _self() {
-        return this;
-      },
-
       created: function() {
         this._line = d3.line()
           .defined(this._defined.bind(this))
@@ -111,13 +122,18 @@
       },
 
       attached: function() {
-        this.chartElement = this.containerRoot;
-        if (this.chartElement._elements.indexOf(this) === -1) {
-          this.chartElement.__processNewNodes([this]);
+        var containerRoot = this.containerRoot;
+
+        if (containerRoot.nodeName !== 'CHART-ELEMENT') {
+          console.warn(this.id, 'Graph is not attached to a container');
+          this.chartElement = document.createElement('chart-element');
+          containerRoot.appendChild(this.chartElement);
+        } else {
+          this.chartElement = containerRoot;
         }
 
-        if (this.chartElement.nodeName !== 'CHART-ELEMENT') {
-          console.warn(this.id, 'Graph is not attached to a container');
+        if (this.chartElement._elements.indexOf(this) === -1) {
+          this.chartElement.__processNewNodes([this]);
         }
 
         this.noDots = this.chartElement.noDots || this.noDots;
@@ -192,7 +208,7 @@
       },
 
       redraw: function() {
-        if (this._hidden === true) return;
+        var self = this;
 
         var data = this.values.filter(this._defined.bind(this));
 
@@ -202,22 +218,21 @@
           data = data.filter(function(d, i) {
             return (i % everyOverlappingDot < 1);
           })
-        var self = this._self;
 
         var dots = this._dots.selectAll('circle.dot')
           .data(data);
         // update current dots
-        dots.attr('cx', (function(d, i) {
-            return this.chartElement._x(d.x)
-          }).bind(this._self))
-          .attr('cy', (function(d, i) {
-            return this.chartElement._y(d.y)
-          }).bind(this._self))
+        dots.attr('cx', function(d, i) {
+            return self.chartElement._x(d.x)
+          })
+          .attr('cy', function(d, i) {
+            return self.chartElement._y(d.y)
+          })
           .attr('hidden', null);
         // enter new dots
         dots.enter()
           .append('circle')
-          .attr('r', this.dotRadius).attr('fill', '#FFF')
+          .attr('r', this.dotRadius)
           .attr('stroke', this.color).attr('stroke-width', this.lineWidth)
           .attr('cx', function(d, i) {
             return self.chartElement._x(d.x)
@@ -228,13 +243,11 @@
           .classed('dot style-scope chart-element', true)
           .on('mouseenter', function(d) {
             d3.select(this).transition(250)
-              .attr('fill', self.color)
               .attr('r', self.dotRadius * 1.5);
             self.chartElement._showInfo(d);
           })
           .on('mouseleave', function(d, i) {
-            d3.select(this).transition(250)
-              .attr('fill', '#FFF')
+            d3.select(this).transition(150)
               .attr('r', self.dotRadius);
             self.chartElement._hideInfo();
           })
@@ -287,6 +300,13 @@
             this._dots.selectAll('circle.dot')
             .attr('stroke', this.color);
         }
+      },
+
+      checkedChanged: function(checked, old) {
+        ElementBehavior.checkedChanged.call(this, checked, old);
+        this.noDots = !checked;
+        this.noLine = !checked;
+        this.noFill = !checked;
       },
 
       _dotsChanged: function() {

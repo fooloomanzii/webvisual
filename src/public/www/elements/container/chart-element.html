@@ -2,206 +2,215 @@
 
 <dom-module id='chart-element'>
 	<template>
-<style>
-  :host {
-    display: inline-flex;
-    width: 100%;
-    height: auto;
-    flex: 1;
-    position: relative;
-    align-self: stretch;
-    box-sizing: border-box;
-    font-family: inherit;
-    color: currentColor;
-    letter-spacing: normal !important;
-    border-radius: inherit;
-    -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-    -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
-  	/*overflow: hidden;*/
-    visibility: visible;
-    -webkit-touch-callout: none !important;
-      -webkit-user-select: none !important;
-       -khtml-user-select: none !important;
-         -moz-user-select: none !important;
-          -ms-user-select: none !important;
-              user-select: none !important;
-  }
-  div#svgContainer {
-    display: inline-flex;
-    flex: 1;
-    position: relative;
-  }
-  svg#svgchart {
-    /*display: flex;
-    flex: 1;*/
-    width: 100%;
-    height: auto;
-    position: relative;
-  }
-  svg#loader {
-    position: absolute;
-  }
-  button-element {
-    font-size: 0.8em;
-    padding: 0.5em;
-    border-radius: 0px;
-  }
-  .icon-button, section#info {
-    position: absolute;
-    opacity: 0.4;
-    transform: scale(0.8);
-    transition: opacity 150ms ease, transform 150ms ease;
-  }
-  .icon-button:hover, section#info:hover {
-    opacity: 1;
-    transform: scale(1);
-    border-radius: 0;
-  }
-  text {
-    fill: currentColor;
-    pointer-events: none;
-    font-weight: normal; !important;
-    letter-spacing: normal !important;
-    /*@apply(--font-common-base);*/
-    font-family: sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-  }
-  g#chart text{
-    font-size: 0.8em;
-    pointer-events: none;
-  }
-  g#chart text#info{
-    font-size: 0.5em;
-  }
-  g#chart rect.plot {
-    fill: white;
-    fill-opacity: 0.7;
-    stroke: currentColor;
-    stroke-opacity: 0.25;
-    shape-rendering: crispEdges;
-    stroke-width: 1px;
-  }
-  g#brush > rect.overlay {
-    cursor: default;
-  }
-  g#brush > rect.selection {
-    stroke: #345475;
-    fill: #111;
-    stroke-opacity: 0.5;
-    fill-opacity: 0.05;
-  }
-  g.grid g.tick line {
-    stroke: currentColor;
-    stroke-opacity: 0.1;
-  }
-  g.grid path {
-    stroke-width: 0;
-  }
-  g.axis path, g.axis line {
-    fill: none;
-    stroke: currentColor;
-    stroke-opacity: 0.25;
-    stroke-width: 1.5px;
-  }
-  g#chart g.axis path, g#chart g.axis line {
-    stroke-opacity: 0.5;
-  }
-  g#graphs path.area, g#graphs path.line {
-    pointer-events: none;
-    mix-blend-mode: color;
-  }
-  g#graphs circle.dot {
-    cursor: pointer;
-    pointer-events: all;
-  }
-	g#zoom rect.overlay {
-		fill: none;
-		pointer-events: none;
-	}
-	g#zoom rect.overlay.active {
-		pointer-events: all;
-		cursor: zoom-in;
-	}
-  g#focus line.focus.line {
-    fill: none;
-    pointer-events: none;
-    stroke: currentColor;
-    stroke-opacity: 0.2;
-    stroke-width: 1px;
-    stroke-dasharray: 2;
-    mix-blend-mode: color-burn;
-  }
-</style>
-<div id="svgContainer">
-  <svg id='svgchart' version='1.1' xmlns='http://www.w3.org/2000/svg'>
-    <g id='chart'>
-      <clipPath id='clip'>
-        <rect x='0' y='0'></rect>
-      </clipPath>
-      <rect class='plot'></rect>
-      <g class='x axis'></g>
-      <g class='y axis'></g>
-      <g class='x grid'></g>
-      <g class='y grid'></g>
-      <g id='brush'></g>
-      <g id='graphs'>
-        <g id='areas'></g>
-        <g id='lines'></g>
-        <g id='dots'></g>
-      </g>
-      <text id='info' x='0' y='0' hidden></text>
-      <g id='focus' hidden>
-        <line class='focus line x' x1='0'></line>
-        <line class='focus line y'></line>
-      </g>
-			<g id='zoom'>
-				<rect class='overlay'></rect>
-			</g>
-    </g>
-  </svg>
+		<style>
+		  :host {
+		    display: inline-flex;
+		    width: 100%;
+		    height: auto;
+		    flex: 1;
+		    position: relative;
+		    align-self: stretch;
+		    box-sizing: border-box;
+		    font-family: inherit;
+		    color: currentColor;
+		    letter-spacing: normal !important;
+		    border-radius: inherit;
+		    -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+		    -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
+		  	/*overflow: hidden;*/
+		    visibility: visible;
+		    -webkit-touch-callout: none !important;
+		      -webkit-user-select: none !important;
+		       -khtml-user-select: none !important;
+		         -moz-user-select: none !important;
+		          -ms-user-select: none !important;
+		              user-select: none !important;
+		  }
+		  div#svgContainer {
+		    display: inline-flex;
+		    flex: 1;
+		    position: relative;
+		  }
+		  svg#svgchart {
+		    /*display: flex;
+		    flex: 1;*/
+		    width: 100%;
+		    height: auto;
+		    position: relative;
+		  }
+		  svg#loader {
+		    position: absolute;
+		  }
+		  button-element, toggle-button-element {
+		    font-size: 0.7em;
+		    padding: 0.5em;
+		    border-radius: 0px;
+		  }
+		  .icon-button, section#info {
+		    position: absolute;
+		    opacity: 0.4;
+		    transform: scale(0.8);
+		    transition: opacity 150ms ease, transform 150ms ease;
+		  }
+		  .icon-button:hover, section#info:hover {
+		    opacity: 1;
+		    transform: scale(1);
+		    border-radius: 0;
+		  }
+		  text {
+		    fill: currentColor;
+		    pointer-events: none;
+		    font-weight: normal; !important;
+		    letter-spacing: normal !important;
+		    /*@apply(--font-common-base);*/
+		    font-family: sans-serif;
+		    -webkit-font-smoothing: antialiased;
+		    -moz-osx-font-smoothing: grayscale;
+		    text-rendering: optimizeLegibility;
+		    pointer-events: none;
+		  }
+		  g#chart g.axis {
+				font-size: inherit;
+			}
+			g#chart text {
+		    font-size: 0.55em;
+		  }
+		  g#chart rect.plot {
+		    fill: white;
+		    fill-opacity: 0.7;
+		    stroke: currentColor;
+		    stroke-opacity: 0.25;
+		    shape-rendering: crispEdges;
+		    stroke-width: 1px;
+		  }
+		  g#brush > rect.overlay {
+		    cursor: default;
+		  }
+		  g#brush > rect.selection {
+		    stroke: #345475;
+		    fill: #111;
+		    stroke-opacity: 0.5;
+		    fill-opacity: 0.05;
+		  }
+		  g.grid g.tick line {
+		    stroke: currentColor;
+		    stroke-opacity: 0.1;
+		  }
+		  g.grid path {
+		    stroke-width: 0;
+		  }
+		  g.axis path, g.axis line {
+		    fill: none;
+		    stroke: currentColor;
+		    stroke-opacity: 0.25;
+		    stroke-width: 1.5px;
+		  }
+		  g#chart g.axis path, g#chart g.axis line {
+		    stroke-opacity: 0.5;
+		  }
+		  g#graphs path.area, g#graphs path.line {
+		    pointer-events: none;
+		    mix-blend-mode: color;
+		  }
+		  g#graphs circle.dot {
+		    cursor: pointer;
+		    pointer-events: all;
+				mix-blend-mode: lighten;
+				transform-origin: center;
+				fill: #FFF;
+				fill-opacity: 0.75;
+				transition: all 200ms ease;
+		  }
+		  g#graphs circle.dot:hover {
+				fill-opacity: 1;
+		  }
+			g#zoom rect.overlay {
+				fill: none;
+				pointer-events: none;
+			}
+			g#zoom rect.overlay.active {
+				pointer-events: all;
+				cursor: zoom-in;
+			}
+		  g#focus line.focus.line {
+		    fill: none;
+		    pointer-events: none;
+		    stroke: currentColor;
+		    stroke-opacity: 0.2;
+		    stroke-width: 1px;
+		    stroke-dasharray: 2;
+		    mix-blend-mode: color-burn;
+		  }
+		</style>
 
-  <!-- <svg id='loader'  version='1.1' xmlns='http://www.w3.org/2000/svg'>
-  </svg> -->
+		<div id="svgContainer">
+		  <svg id='svgchart' version='1.1' xmlns='http://www.w3.org/2000/svg'>
+		    <g id='chart'>
+		      <clipPath id='clip'>
+		        <rect x='0' y='0'></rect>
+		      </clipPath>
+		      <rect class='plot'></rect>
+		      <g class='x axis'></g>
+		      <g class='y axis'></g>
+		      <g class='x grid'></g>
+		      <g class='y grid'></g>
+		      <g id='brush'></g>
+					<g id='focus' hidden>
+						<line class='focus line x' x1='0'></line>
+						<line class='focus line y'></line>
+					</g>
+		      <g id='graphs'>
+		        <g id='areas'></g>
+		        <g id='lines'></g>
+		        <g id='dots'></g>
+		      </g>
+		      <text id='info' x='0' y='0' hidden></text>
+					<g id='zoom'>
+						<rect class='overlay'></rect>
+					</g>
+		    </g>
+		  </svg>
 
-  <icon-button-element id="zoombutton" class="icon-button" icon="search" on-tap="_startZoomSession"></icon-button-element>
+		  <!-- <svg id='loader'  version='1.1' xmlns='http://www.w3.org/2000/svg'>
+		  </svg> -->
 
-  <icon-button-element id="menubutton" class="icon-button" icon="timeline"></icon-button-element>
-  <dropdown-element id="legend" for="menubutton" target-toggle-event="tap" position="right" align="outer-start" offset="8">
-    <toggle-button-element checked="[[!noDots]]" on-change="changeDots">mit Punkten</toggle-button-element>
-    <toggle-button-element checked="[[!noLines]]" on-change="changeLines">mit Linien</toggle-button-element>
-    <toggle-button-element checked="[[!noAreas]]" on-change="changeAreas">mit Flächen</toggle-button-element>
-  </dropdown-element>
+		  <icon-button-element id="zoombutton" class="icon-button" icon="search" on-tap="_startZoomSession"></icon-button-element>
 
-  <dropdown-selector id="ybutton" class="icon-button" icon="y" hide-selected attr-for-selected="scale" selected="{{yScale}}" fallback-selection="linear" offset="8" toggles hide-arrow position="right" align="start" no-focusLine>
-      <button-element scale='linear'>linear</button-element>
-      <button-element scale='√'>√</button-element>
-      <button-element scale='ln'>ln</button-element>
-      <button-element scale='log₁₀'>log₁₀</button-element>
-  </dropdown-selector>
+		  <icon-button-element id="menubutton" class="icon-button" icon="timeline"></icon-button-element>
+		  <dropdown-element id="options" for="menubutton" target-toggle-event="tap" position="right" align="outer-start" offset="8">
+		    <toggle-button-element checked="[[!noDots]]" on-change="changeDots">mit Punkten</toggle-button-element>
+		    <toggle-button-element checked="[[!noLines]]" on-change="changeLines">mit Linien</toggle-button-element>
+		    <toggle-button-element checked="[[!noAreas]]" on-change="changeAreas">mit Flächen</toggle-button-element>
 
-  <dropdown-selector id="xbutton" class="icon-button" icon="x" hide-selected attr-for-selected="interpolate" selected="{{interpolation}}" fallback-selection="Lineare Verbindung" toggles no-focusLine hide-arrow offset="2" position="top" align="end">
-      <button-element interpolate='Lineare Verbindung'>Lineare Verbindung</button-element>
-      <button-element interpolate='Basis Spline'>Basis Spline</button-element>
-      <button-element interpolate='Monotoner Spline'>Monotoner Spline</button-element>
-      <button-element interpolate='Kubischer Spline'>Kubischer Spline</button-element>
-      <button-element interpolate='Cardinaler Spline'>Cardinaler Spline</button-element>
-      <button-element interpolate='Catmull-Rom-Spline'>Catmull-Rom-Spline</button-element>
-      <button-element interpolate='Stufe (mitte)'>Stufe (mitte)</button-element>
-      <button-element interpolate='Stufe (davor)'>Stufe (davor)</button-element>
-      <button-element interpolate='Stufe (danach)'>Stufe (danach)</button-element>
-  </dropdown-selector>
+				<section id="legend">
+				  <content id='collector' select='graph-element'></content>
+				  <template is="dom-repeat" items="{{selectedElements}}">
+				    <graph-element id="[[item.id]]" label="[[item.label]]" caption-keys="[[item.captionKeys]]" color="[[item.color]]" interpolation="[[interpolation]]">
+				    </graph-element>
+				  </template>
+				</section>
+		  </dropdown-element>
 
-</div>
-<section id="content">
-  <content id='collector' select='graph-element'></content>
+		  <dropdown-selector id="ybutton" class="icon-button" icon="y" hide-selected attr-for-selected="scale" selected="{{yScale}}" fallback-selection="linear" offset="8" toggles hide-arrow position="right" align="start" no-focusLine>
+		      <button-element scale='linear'>linear</button-element>
+		      <button-element scale='√'>√</button-element>
+		      <button-element scale='ln'>ln</button-element>
+		      <button-element scale='log₁₀'>log₁₀</button-element>
+		  </dropdown-selector>
 
-  <template is="dom-repeat" items="{{selectedElements}}">
-    <graph-element id="[[item.id]]" label="[[item.label]]" caption-keys="[[item.captionKeys]]" color="[[item.color]]" interpolation="[[interpolation]]">
-    </graph-element>
-  </template>
-	</section>
+		  <dropdown-selector id="xbutton" class="icon-button" icon="x" hide-selected attr-for-selected="interpolate" selected="{{interpolation}}" fallback-selection="Lineare Verbindung" toggles no-focusLine hide-arrow offset="2" position="top" align="end">
+		      <button-element interpolate='Lineare Verbindung'>Lineare Verbindung</button-element>
+		      <button-element interpolate='Basis Spline'>Basis Spline</button-element>
+		      <button-element interpolate='Monotoner Spline'>Monotoner Spline</button-element>
+		      <button-element interpolate='Kubischer Spline'>Kubischer Spline</button-element>
+		      <button-element interpolate='Cardinaler Spline'>Cardinaler Spline</button-element>
+		      <button-element interpolate='Catmull-Rom-Spline'>Catmull-Rom-Spline</button-element>
+		      <button-element interpolate='Stufe (mitte)'>Stufe (mitte)</button-element>
+		      <button-element interpolate='Stufe (davor)'>Stufe (davor)</button-element>
+		      <button-element interpolate='Stufe (danach)'>Stufe (danach)</button-element>
+		  </dropdown-selector>
+
+		</div>
 
 	</template>
 
@@ -247,7 +256,7 @@
 				},
 				reproductionContainer: {
 					type: String,
-					value: 'content',
+					value: 'legend',
 					readOnly: true
 				},
 
@@ -410,7 +419,11 @@
 			},
 
 			__processNewNodes: function(nodes) {
-				this._elements = nodes.concat(this._elements || []);
+				for (var i in nodes) {
+					if (!(nodes[i] in this._elements)) {
+						this._elements.push(nodes[i]);
+					}
+				}
 				nodes.forEach(function(node) {
 					if (node.label && node.id) {
 						if (!this._containing[node.label])
@@ -422,7 +435,12 @@
 			},
 
 			__processRemovedNodes: function(nodes) {
-				this._elements = this.getEffectiveChildren();
+				var pos;
+				for (var i in nodes) {
+					if ((pos = this._elements.indexOf(nodes[i])) !== -1) {
+						this._elements.splice(pos, 1);
+					}
+				}
 				nodes.forEach(function(node) {
 					if (node.label && node.id && this._containing[node.label]) {
 						var pos = this._containing[node.label].indexOf(node.id);

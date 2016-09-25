@@ -1,9 +1,9 @@
 {
   "name": "webvisual",
-  "version": "0.7.0",
+  "version": "0.7.2",
   "description": "Visualisierung von Sensordaten",
   "private": "true",
-  "homepage": "https://github.com/fooloomanzii/webvisual",
+  "homepage": "https://github.com/fooloomanzoo/webvisual",
   "author": "Johannes Brautzsch <hannes-b@web.de>",
   "owner": "Forschungszentrum Jülich GmbH",
   "contributors": [

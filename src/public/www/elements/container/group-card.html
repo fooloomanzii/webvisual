@@ -32,7 +32,7 @@
       /*IE needs a fixed width*/
       @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
         :host {
-          width: calc(50% - 1em);
+          width: calc(50% - 0.8em);
         }
       }
       @media all and (max-width: 520px) {
@@ -41,19 +41,29 @@
           max-width: 100%;
         }
       }
-      @media all and (min-width: 521px) and (max-width: 1200px) and (orientation: portrait) {
+      @media all and (min-width: 521px) and (max-width: 1340px) and (orientation: portrait) {
         :host {
-          max-width: calc(50% - 1em);
+          max-width: calc(50% - 0.8em);
         }
       }
-      @media all and (min-width: 521px) and (max-width: 1200px) and (orientation: landscape) {
+      @media all and (min-width: 1340px) and (max-width: 2000px) and (orientation: portrait) {
         :host {
-          max-width: calc(33% - 1em);
+          max-width: calc(33.33% - 0.8em);
         }
       }
-      @media all and (min-width: 1201px) {
+      @media all and (min-width: 521px) and (max-width: 1060px) and (orientation: landscape) {
         :host {
-          max-width: calc(25% - 1em);
+          max-width: calc(50% - 0.8em);
+        }
+      }
+      @media all and (min-width: 1061px) and (max-width: 2000px) and (orientation: landscape) {
+        :host {
+          max-width: calc(33.33% - 0.8em);
+        }
+      }
+      @media all and (min-width: 2001px) {
+        :host {
+          max-width: calc(25% - 0.8em);
         }
       }
       :host([headline='*']) {

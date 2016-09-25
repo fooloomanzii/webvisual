@@ -8,8 +8,7 @@ function DataSocketHandler(socketName, name) {
 	this.opened = false;
 	this.name = name;
 	this.socketName = socketName;
-	this.socket = io.connect('https://' + window.location.host + socketName, {
-		secure: true,
+	this.socket = io.connect(window.location.host + socketName, {
 		multiplex: false
 	});
 

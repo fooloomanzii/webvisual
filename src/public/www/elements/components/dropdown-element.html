@@ -37,7 +37,7 @@
         justify-content: center;
         box-shadow: none;
       }
-      section#dropdown[shadow] {
+      :host([shadow]) section#dropdown {
         box-shadow: var(--dropdown-shadow);
       }
       section#dropdown[horizontal] {
@@ -60,7 +60,7 @@
       }
     </style>
 
-    <section id="dropdown" horizontal$="[[horizontal]]" shadow$="[[!noShadow]]" on-transitionend="updatePosition">
+    <section id="dropdown" horizontal$="[[horizontal]]" on-transitionend="updatePosition">
       <section id="background"></section>
       <content></content>
     </section>
@@ -103,10 +103,6 @@
           type: Number,
           value: 1,
           observer: "_opacityChanged"
-        },
-        noShadow: {
-          type: Boolean,
-          value: false
         },
         // e.g. tap
         targetToggleEvent: {
