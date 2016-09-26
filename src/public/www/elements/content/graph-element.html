@@ -242,13 +242,11 @@
           })
           .classed('dot style-scope chart-element', true)
           .on('mouseenter', function(d) {
-            d3.select(this).transition(250)
-              .attr('r', self.dotRadius * 1.5);
+            this.setAttribute('r', self.dotRadius * 1.5);
             self.chartElement._showInfo(d);
           })
           .on('mouseleave', function(d, i) {
-            d3.select(this).transition(150)
-              .attr('r', self.dotRadius);
+            this.setAttribute('r', self.dotRadius);
             self.chartElement._hideInfo();
           })
           .on('click', function(d, i) {
@@ -280,6 +278,7 @@
       _defined: function(d, i, data) {
         var domainX = this.chartElement._x.domain(),
           yScale = this.chartElement.yScale;
+          // console.log(yScale);
         if (d.y === null || isNaN(d.y))
           return undefined; // NaN and null are displayable
         else if (!(yScale === "linear") && d.y <= 0)

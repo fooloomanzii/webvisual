@@ -44,6 +44,9 @@
 		  button-element, toggle-button-element {
 		    font-size: 0.7em;
 		    padding: 0.5em;
+				float: left;
+				clear: both;
+				width: 100%;
 		    border-radius: 0px;
 		  }
 		  .icon-button, section#info {
@@ -176,8 +179,8 @@
 
 		  <icon-button-element id="zoombutton" class="icon-button" icon="search" on-tap="_startZoomSession"></icon-button-element>
 
-		  <icon-button-element id="menubutton" class="icon-button" icon="timeline"></icon-button-element>
-		  <dropdown-element id="options" for="menubutton" target-toggle-event="tap" position="right" align="outer-start" offset="8">
+		  <icon-button-element id="optionsbutton" class="icon-button" icon="timeline"></icon-button-element>
+		  <dropdown-element for="optionsbutton" target-toggle-event="tap" position="right" align="outer-start" offset="4">
 		    <toggle-button-element checked="[[!noDots]]" on-change="changeDots">mit Punkten</toggle-button-element>
 		    <toggle-button-element checked="[[!noLines]]" on-change="changeLines">mit Linien</toggle-button-element>
 		    <toggle-button-element checked="[[!noAreas]]" on-change="changeAreas">mit Flächen</toggle-button-element>
@@ -191,14 +194,19 @@
 				</section>
 		  </dropdown-element>
 
-		  <dropdown-selector id="ybutton" class="icon-button" icon="y" hide-selected attr-for-selected="scale" selected="{{yScale}}" fallback-selection="linear" offset="8" toggles hide-arrow position="right" align="start" no-focusLine>
+			<icon-button-element id="ybutton" class="icon-button" icon="y"></icon-button-element>
+		  <dropdown-element for="ybutton" target-toggle-event="tap" position="right" align="start" offset="4">
+				<iron-selector attr-for-selected="scale" selected="{{yScale}}" fallback-selection="linear" toggles>
 		      <button-element scale='linear'>linear</button-element>
 		      <button-element scale='√'>√</button-element>
 		      <button-element scale='ln'>ln</button-element>
 		      <button-element scale='log₁₀'>log₁₀</button-element>
-		  </dropdown-selector>
+				</iron-selector>
+		  </dropdown-element>
 
-		  <dropdown-selector id="xbutton" class="icon-button" icon="x" hide-selected attr-for-selected="interpolate" selected="{{interpolation}}" fallback-selection="Lineare Verbindung" toggles no-focusLine hide-arrow offset="2" position="top" align="end">
+			<icon-button-element id="xbutton" class="icon-button" icon="x"></icon-button-element>
+		  <dropdown-element for="xbutton" target-toggle-event="tap" position="top" align="end" offset="4">
+				<iron-selector attr-for-selected="interpolate" selected="{{interpolation}}" fallback-selection="Lineare Verbindung" toggles>
 		      <button-element interpolate='Lineare Verbindung'>Lineare Verbindung</button-element>
 		      <button-element interpolate='Basis Spline'>Basis Spline</button-element>
 		      <button-element interpolate='Monotoner Spline'>Monotoner Spline</button-element>
@@ -208,7 +216,8 @@
 		      <button-element interpolate='Stufe (mitte)'>Stufe (mitte)</button-element>
 		      <button-element interpolate='Stufe (davor)'>Stufe (davor)</button-element>
 		      <button-element interpolate='Stufe (danach)'>Stufe (danach)</button-element>
-		  </dropdown-selector>
+				</iron-selector>
+		  </dropdown-element>
 
 		</div>
 
@@ -266,7 +275,7 @@
 						return {
 							top: 6,
 							right: 12,
-							bottom: 36,
+							bottom: 42,
 							left: 48
 						};
 					}
@@ -484,8 +493,8 @@
 					.attr('clip-path', 'url(#clip)')
 					.on('click', function(d, i) {
 						var offset = Math.floor(Math.min(this._height, this._width) / 5);
-						var x = d3.event.offsetX;
-						var y = d3.event.offsetY;
+						var x = d3.event.offsetX - this.margin.left;
+						var y = d3.event.offsetY - this.margin.top;
 						d3.event.selection = [
 							[x - offset, y - offset],
 							[x + offset, y + offset]
@@ -494,11 +503,11 @@
           }.bind(this))
 					.on('touchmove', this._resetZoom.bind(this));
 
-				if (this.xScale === 'time') this.$.xbutton.set('icon', 't');
-				else this.$.xbutton.set('icon', 'x');
-
-				if (this.yScale === 'time') this.$.ybutton.icon = 't';
-				else this.$.ybutton.set('icon', 'y');
+				// if (this.xScale === 'time') this.$.xbutton.set('icon', 't');
+				// else this.$.xbutton.set('icon', 'x');
+				//
+				// if (this.yScale === 'time') this.$.ybutton.icon = 't';
+				// else this.$.ybutton.set('icon', 'y');
 
 				this._svg.selectAll('g,line,text,path,rect')
 					.classed('style-scope', true)
@@ -532,10 +541,10 @@
 				this.$.zoombutton.style.top = (this.margin.top) + 'px';
 				this.$.zoombutton.style.bottom = 'auto';
 
-				this.$.menubutton.style.left = (this.margin.left - this.iconWidth - 6) + 'px';
-				this.$.menubutton.style.right = 'auto';
-				this.$.menubutton.style.top = 'auto';
-				this.$.menubutton.style.bottom = (this.margin.bottom - this.iconWidth) + 'px';
+				this.$.optionsbutton.style.left = (this.margin.left - this.iconWidth - 6) + 'px';
+				this.$.optionsbutton.style.right = 'auto';
+				this.$.optionsbutton.style.top = 'auto';
+				this.$.optionsbutton.style.bottom = (this.margin.bottom - this.iconWidth - 6) + 'px';
 
 				this.$.ybutton.style.left = (this.margin.left - this.iconWidth - 6) + 'px';
 				this.$.ybutton.style.right = 'auto';
@@ -545,7 +554,7 @@
 				this.$.xbutton.style.left = 'auto';
 				this.$.xbutton.style.right = (this.margin.right) + 'px';
 				this.$.xbutton.style.top = 'auto';
-				this.$.xbutton.style.bottom = (this.margin.bottom - this.iconWidth) + 'px';
+				this.$.xbutton.style.bottom = (this.margin.bottom - this.iconWidth - 6) + 'px';
 
 				this._chart.attr('transform', 'translate(' + this.margin.left + ',' + (this.margin.top) + ')');
 

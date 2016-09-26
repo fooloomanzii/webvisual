@@ -272,9 +272,9 @@
         }
 
         // Clip the left/right side.
-        if (dropdownLeft + parentRect.left + thisRect.width + 8 > window.innerWidth) {
+        if (dropdownLeft + parentRect.left + thisRect.width> window.innerWidth) {
           this.style.right = 'auto';
-          this.style.left = (window.innerWidth - (parentRect.left + thisRect.width + offset + 8)) + 'px';
+          this.style.left = (window.innerWidth - (parentRect.left + thisRect.width + offset)) + 'px';
         } else if (dropdownLeft + targetRect.left < 0) {
           this.style.left = (-targetRect.left) + 'px';
           this.style.right = 'auto';
@@ -284,11 +284,11 @@
         }
 
         // Clip the top/bottom side.
-        if (dropdownTop + thisRect.height + targetRect.top + 8 > window.innerHeight) {
+        if (dropdownTop + thisRect.height > window.innerHeight) {
           this.style.bottom = 'auto';
-          this.style.top = (window.innerHeight - (thisRect.height + targetRect.top + offset + 8 )) + "px";
-        } else if (dropdownTop + targetRect.top < 0) {
-          this.style.top = (-targetRect.top) + 'px';
+          this.style.top = (window.innerHeight - (thisRect.height + targetRect.top + offset)) + "px";
+        } else if (dropdownTop > targetRect.top) {
+          this.style.top = (targetRect.top) + 'px';
           this.style.bottom = 'auto';
         } else {
           this.style.top = dropdownTop + 'px';
