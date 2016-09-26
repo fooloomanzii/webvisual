@@ -14,7 +14,7 @@
       align-self: stretch;
       border-radius: 2px 2px 2px 3px;
       border: thin solid rgba(0,0,0,.15);
-      transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
     :host:focus {
       border-color: rgba(0,0,0,.25);
@@ -111,20 +111,20 @@
       background: #B0B0B0;
       color: #1d1d1d;
     }
-    section#caption span#captions {
+    section#caption span.captions {
       padding: 0;
       margin: 0;
       font-weight: normal;
       font-size: 0.6em;
     }
-    span#captions:first-child {
+    span.captions:first-child {
       font-weight: bold !important;
       font-size: 1em !important;
     }
-    span#captions:nth-child(2) {
+    span.captions:nth-child(2) {
       font-size: 0.85em !important;
     }
-    span#captions:nth-child(3) {
+    span.captions:nth-child(3) {
       font-size: 0.75em !important;
     }
     svg#exceeding {
@@ -218,7 +218,7 @@
   <template>
       <section id='sign' class='inrange'>
 
-        <section id='actualValueSection' on-tap='_select'>
+        <section id='actualValueSection' on-click='_select'>
           <paper-ripple hidden$='[[!selectable]]' id='ripple'></paper-ripple>
           <section hidden$='[[isBoolean]]'>
             <section id='valueSection'></section><section id='unitSection'>[[unit]]</section>
@@ -233,18 +233,18 @@
         <section id='dateSection' hidden$='[[!showDate]]'>
         </section>
 
-        <svg id='bookmark' hidden$='[[!_hasTooltip(hasExceeded)]]' viewBox='0 0 24 24' on-tap='_toggleTooltip' aria-label='Alarme'>
+        <svg id='bookmark' hidden$='[[!_hasTooltip(hasExceeded)]]' viewBox='0 0 24 24' on-click='_toggleTooltip' aria-label='Alarme'>
           <g id='announcement'><path d='M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 9h-2V5h2v6zm0 4h-2v-2h2v2z'/></g>
         </svg>
       </section>
 
       <section id='caption' hidden$='[[!showCaption]]'>
         <template id='captiontemplate' is='dom-repeat' items='[[captionKeys]]' as='captionKey'>
-          <span id='captions' hidden$='[[isEmptyCaption(captionKey)]]'>[[getKey(captionKey, keys.*)]]</span>
+          <span class='captions' hidden$='[[isEmptyCaption(captionKey)]]'>[[getKey(captionKey, keys.*)]]</span>
         </template>
       </section>
 
-      <section id='tooltip' hidden$='[[!_hasTooltip(hasExceeded)]]' on-tap='_hideTooltip' on-mouseleave='_hideTooltip' role='tooltip' tabindex='-1'>
+      <section id='tooltip' hidden$='[[!_hasTooltip(hasExceeded)]]' on-click='_hideTooltip' on-mouseleave='_hideTooltip' role='tooltip' tabindex='-1'>
         <div class='title'>Alarmphasen</div>
         <section id='tooltipContent'>
           <table-element id='firstStateChangeTable' caption='Start' hide-header no-socket-connection show-full-date hide-overflow is-boolean='[[isBoolean]]' id="[[id]]" label="[[label]]"></table-element>
@@ -289,6 +289,15 @@
           type: Boolean,
           value: false,
           readOnly: true
+        },
+
+        draggable: {
+          type: Boolean,
+          value: true
+        },
+        droppable: {
+          type: Boolean,
+          value: true
         }
       },
 

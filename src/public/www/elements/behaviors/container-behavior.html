@@ -52,7 +52,7 @@
         type: Boolean,
         value: false
       },
-      
+
       noAutoRemovalExceedingElements: {
         type: Boolean,
         value: false
@@ -77,6 +77,19 @@
         value: function() {
           return [];
         }
+      },
+
+      draggable: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true,
+        observer: 'draggableChanged'
+      },
+      droppable: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true,
+        observer: 'droppableChanged'
       }
     },
     _elements: [],
@@ -93,6 +106,10 @@
         return rootNode.host;
       else
         return this.parentNode;
+    },
+
+    created: function() {
+      this.setAttribute('uniqueId', String(Math.random().toString(16).slice(2)));
     },
 
     observers: [
@@ -164,14 +181,14 @@
 
       var pos = this.indexOf(this.selectedElements, element);
       if (pos !== -1) {
-        this.selectedElements[pos].checked = false;
+        if (this.multiSelect === false) {
+          this.selectedElements.forEach(function(item) {
+            item.checked = false
+          });
+        } else {
+          this.selectedElements[pos].checked = false;
+        }
         this.splice("selectedElements", pos, 1);
-      }
-
-      if (this.multiSelect === false) {
-        this.selectedElements.forEach(function(item) {
-          item.checked = false
-        });
       }
 
       this.opened = this.forceOpened || (this.openOnSelect === true && this.selectedElements.length > 0) ? true : false;
@@ -350,6 +367,64 @@
         }
       }
       return -1;
+    },
+
+    draggableChanged: function() {
+      if (this.draggable === true) {
+        this.setAttribute('draggable', true);
+        this.addEventListener('dragstart', this.dragStart);
+      }
+      else if (this.draggable === false && this.hasAttribute('draggable')) {
+        this.removeAttribute('draggable');
+        this.removeEventListener('dragstart', this.dragStart);
+      }
+    },
+    droppableChanged: function() {
+      if (this.droppable === true) {
+        this.setAttribute('droppable', true);
+        this.addEventListener('dragover', this.dragOver);
+        this.addEventListener('drop', this.dropped);
+      }
+      else if (this.droppable === false && this.hasAttribute('droppable')) {
+        this.removeAttribute('droppable');
+        this.removeEventListener('dragover', this.dragOver);
+        this.removeEventListener('drop', this.dropped);
+      }
+    },
+    dragStart: function(e) {
+      e.dataTransfer.setData("text", "[uniqueId='" + e.target.getAttribute('uniqueId') + "']");
+      e.dataTransfer.effectAllowed = "move";
+    },
+    dragOver: function(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move"
+    },
+    dropped: function(e) {
+      e.preventDefault();
+      var selector = e.dataTransfer.getData("text");
+      if (selector) {
+        var elem = document.querySelector(selector);
+        if (elem) {
+          var elemParent = elem.parentNode;
+          var thisParent = this.parentNode;
+          if (elemParent === thisParent) {
+            var elemSibling = elem.nextSibling;
+            if (elemSibling === this) {
+              Polymer.dom(elemParent).insertBefore(this, elem);
+            } else {
+              Polymer.dom(thisParent).insertBefore(elem, this);
+              if (elemSibling) {
+                Polymer.dom(elemParent).insertBefore(this, elemSibling);
+              } else {
+                Polymer.dom(elemParent).appendChild(this);
+              }
+            }
+          } else {
+            Polymer.dom(this).appendChild(elem);
+          }
+        }
+      }
+      e.stopPropagation();
     }
   };
 </script>

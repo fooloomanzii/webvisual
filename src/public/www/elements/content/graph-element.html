@@ -94,18 +94,6 @@
       _areaNode: Object,
       _area: Object,
 
-      get containerRoot() {
-        var root = Polymer.dom(this).getOwnerRoot();
-
-        if (!root)
-          return Polymer.dom(this).parentNode;
-        else if (root.nodeType == Node.DOCUMENT_FRAGMENT_NODE)
-          return root.host;
-        else {
-          root
-        }
-      },
-
       created: function() {
         this._line = d3.line()
           .defined(this._defined.bind(this))
@@ -122,7 +110,7 @@
       },
 
       attached: function() {
-        var containerRoot = this.containerRoot;
+        var containerRoot = this.containerRoot();
 
         if (containerRoot.nodeName !== 'CHART-ELEMENT') {
           console.warn(this.id, 'Graph is not attached to a container');
@@ -197,7 +185,7 @@
 
       render: function(values, splices) {
         if (!this.chartElement)
-          this.chartElement = this.containerRoot;
+          this.chartElement = this.containerRoot();
 
         if (this.chartElement) {
           if (this.chartElement._isZoomed === false)

@@ -99,7 +99,7 @@
     :host[dark] section#caption {
       color: #1d1d1d;
     }
-    section#caption span#captions {
+    section#caption span.captions {
       padding: 0;
       margin: 0;
       margin-left: 0.5em;
@@ -108,17 +108,17 @@
       word-wrap: break-word;
       word-break: break-all;
     }
-    span#captions:first-child {
+    span.captions:first-child {
       margin-left: 0 !important;
       font-weight: bold !important;
       font-size: 1em !important;
       word-wrap: normal !important;
       word-break: keep-all !important;
     }
-    span#captions:nth-child(2) {
+    span.captions:nth-child(2) {
       font-size: 0.85em !important;
     }
-    span#captions:nth-child(3) {
+    span.captions:nth-child(3) {
       font-size: 0.75em !important;
     }
     svg#icon {
@@ -144,7 +144,7 @@
 
     <section id='caption'>
       <template id='captiontemplate' is='dom-repeat' items='[[captionKeys]]' as='captionKey'>
-        <span id='captions' hidden$='[[isEmptyCaption(captionKey)]]'>[[getKey(captionKey, keys.*)]]</span>
+        <span class='captions' hidden$='[[isEmptyCaption(captionKey)]]'>[[getKey(captionKey, keys.*)]]</span>
       </template>
     </section>
 
@@ -188,11 +188,20 @@
           type: Boolean,
           value: false,
           readOnly: true
+        },
+
+        draggable: {
+          type: Boolean,
+          value: true
+        },
+        droppable: {
+          type: Boolean,
+          value: true
         }
       },
 
       listeners: {
-        'tap': '_select'
+        'click': '_select'
       },
 
       setExceedingStatus: function(isExceeding, state) {

@@ -5,13 +5,13 @@
         display: inline-block;
         position: relative;
         line-height: 0;
-        --calculated-checkbox-size: var(--checkbox-size, 20px);
+        --calculated-box-size: var(--box-size, 20px);
         padding: 0.25em 0.5em;
         transition: background-color 150ms ease;
       }
 
       :host[checked] {
-        background-color: var(--checkbox-checked-background, white);
+        background-color: var(--box-checked-background, white);
       }
 
       :host(:focus) {
@@ -31,52 +31,52 @@
         -webkit-tap-highlight-color: transparent;
       }
 
-      section#checkboxContainer {
+      section#boxContainer {
         display: inline-block;
 				align-self: center;
         position: relative;
-        width: var(--calculated-checkbox-size);
-        height: var(--calculated-checkbox-size);
-        min-width: var(--calculated-checkbox-size);
-        margin: var(--checkbox-margin, initial);
-        vertical-align: var(--checkbox-vertical-align, middle);
-        background-color: var(--checkbox-unchecked-background-color, transparent);
+        width: var(--calculated-box-size);
+        height: var(--calculated-box-size);
+        min-width: var(--calculated-box-size);
+        margin: var(--box-margin, initial);
+        vertical-align: var(--box-vertical-align, middle);
+        background-color: var(--box-unchecked-background-color, transparent);
       }
 
-      section#ink {
+      section#ripple {
         position: absolute;
 
-        /* Center the ripple in the checkbox by negative offsetting it by
-         * (inkWidth - rippleWidth) / 2 */
-        top: calc(0px - (2.66 * var(--calculated-checkbox-size) - var(--calculated-checkbox-size)) / 2);
-        left: calc(0px - (2.66 * var(--calculated-checkbox-size) - var(--calculated-checkbox-size)) / 2);
-        width: calc(2.66 * var(--calculated-checkbox-size));
-        height: calc(2.66 * var(--calculated-checkbox-size));
-        color: var(--checkbox-unchecked-ink-color, --bright-text-color);
+        /* Center the ripple in the box by negative offsetting it by
+         * (rippleWidth - rippleWidth) / 2 */
+        top: calc(0px - (2.66 * var(--calculated-box-size) - var(--calculated-box-size)) / 2);
+        left: calc(0px - (2.66 * var(--calculated-box-size) - var(--calculated-box-size)) / 2);
+        width: calc(2.66 * var(--calculated-box-size));
+        height: calc(2.66 * var(--calculated-box-size));
+        color: var(--box-unchecked-ripple-color, --bright-text-color);
         opacity: 0.25;
         pointer-events: none;
       }
 
-      section#checkbox {
+      section#box {
         position: relative;
         box-sizing: border-box;
         position: relative;
         height: 100%;
-        border: solid var(--checkbox-border, 2px);
+        border: solid var(--box-border, 2px);
         border-radius: 2px;
         background: rgba(255, 255, 255, 0.9);
         pointer-events: none;
-        -webkit-transition: background-color 150ms, border-color 150ms;
-        transition: background-color 150ms, border-color 150ms;
+        -webkit-transition: background-color 150ms, border-color 150ms, opacity 150ms;
+        transition: background-color 150ms, border-color 150ms, opacity 150ms;
       }
 
-      /* checkbox checked animations */
-      section#checkbox.checked section#checkmark {
-        -webkit-animation: checkmark-expand 150ms ease-out forwards;
-        animation: checkmark-expand 150ms ease-out forwards;
+      /* box checked animations */
+      section#box.checked section#arrow {
+        -webkit-animation: arrow-expand 150ms ease-out forwards;
+        animation: arrow-expand 150ms ease-out forwards;
       }
 
-      @-webkit-keyframes checkmark-expand {
+      @-webkit-keyframes arrow-expand {
         0% {
           -webkit-transform: scale(0, 0) rotate(45deg);
         }
@@ -85,7 +85,7 @@
         }
       }
 
-      @keyframes checkmark-expand {
+      @keyframes arrow-expand {
         0% {
           transform: scale(0, 0) rotate(45deg);
         }
@@ -94,16 +94,16 @@
         }
       }
 
-      section#checkmark {
+      section#arrow {
         position: absolute;
         width: 36%;
         height: 70%;
         border-style: solid;
         border-top: none;
         border-left: none;
-        border-right-width: calc(2/15 * var(--calculated-checkbox-size));
-        border-bottom-width: calc(2/15 * var(--calculated-checkbox-size));
-        border-color: var(--checkbox-checkmark-color, white);
+        border-right-width: calc(2/15 * var(--calculated-box-size));
+        border-bottom-width: calc(2/15 * var(--calculated-box-size));
+        border-color: var(--box-arrow-color, white);
         -webkit-transform-origin: 97% 86%;
         transform-origin: 97% 86%;
         box-sizing: content-box; /* protect against page-level box-sizing */
@@ -137,48 +137,46 @@
         font-weight: bold;
       }
 
-      :host([checked]) section#container.inrange section#checkbox.checked {
+      section#container.inrange section#box {
         background-color: var(--element-color);
+        opacity: 0.25;
       }
-      :host([checked]) section#container.exceeds section#checkbox.checked {
+      section#container.exceeds section#box {
+        border-color: var(--element-state-exceeds-color);
         background-color: var(--element-state-exceeds-color);
       }
-      :host([checked]) section#container.deceeds section#checkbox.checked {
+      section#container.deceeds section#box {
+        border-color: var(--element-state-deceeds-color);
         background-color: var(--element-state-deceeds-color);
       }
-      :host([checked]) section#container.undefined section#checkbox.checked {
+      section#container.undefined section#box {
+        border-color: var(--element-state-undefined-color);
         background-color: var(--element-state-undefined-color);
       }
 
-      section#container.exceeds section#checkbox {
-        border-color: var(--element-state-exceeds-color);
-      }
-      section#container.deceeds section#checkbox {
-        border-color: var(--element-state-deceeds-color);
-      }
-      section#container.undefined section#checkbox {
-        border-color: var(--element-state-undefined-color);
+      section#container section#box.checked {
+        opacity: 1;
       }
 
-      section#container.inrange, section#ink {
+      section#container.inrange, section#ripple {
         color: var(---primary-text-color);
       }
-      section#container.exceeds, section#ink {
+      section#container.exceeds, section#ripple {
         color: var(--element-state-exceeds-color);
       }
-      section#container.deceeds, section#ink {
+      section#container.deceeds, section#ripple {
         color: var(--element-state-deceeds-color);
       }
-      section#container.undefined, section#ink {
+      section#container.undefined, section#ripple {
         color: var(--element-state-undefined-color);
       }
       /* disabled state */
 
-      :host([disabled]) section#checkbox {
+      :host([disabled]) section#box {
         opacity: 0.5;
-        border-color: var(--checkbox-unchecked-color, --primary-text-color);
+        border-color: var(--box-unchecked-color, --primary-text-color);
       }
-      :host([disabled][checked]) section#checkbox {
+      :host([disabled][checked]) section#box {
         background-color: var(--disabled-text-color, --primary-text-color);
         opacity: 0.5;
       }
@@ -186,7 +184,7 @@
         opacity: 0.65;
       }
       /* invalid state */
-      section#checkbox.invalid:not(.checked) {
+      section#box.invalid:not(.checked) {
         border-color: var(--form-invalid);
       }
       section#sign {
@@ -238,8 +236,8 @@
         font-size: 1em;
       }
       iron-icon {
-        --icon-height: var(--calculated-checkbox-size);
-        --icon-width: var(--calculated-checkbox-size);
+        --icon-height: var(--calculated-box-size);
+        --icon-width: var(--calculated-box-size);
       }
 			/*section#extra {
 				visibility: hidden;
@@ -257,10 +255,13 @@
 			}*/
     </style>
 
-    <section id="container" class="inrange">
-      <section id="checkboxContainer">
-        <section id="checkbox" class$="[[_computeCheckboxClass(checked, invalid)]]">
-          <section id="checkmark" class$="[[_computeCheckmarkClass(checked)]]"></section>
+    <section id="container" class="inrange" on-click='_select'>
+      <section id="boxContainer">
+        <section id="box" class$="[[_computeBoxClass(checked)]]">
+          <section id="arrow" class$="[[_computeArrowClass(checked)]]"></section>
+        </section>
+        <section id="ripple">
+          <paper-ripple></paper-ripple>
         </section>
       </section>
 
@@ -268,12 +269,11 @@
         <span class="captions prefered">[[getPreferedKey(preferedKey, keys.*)]]</span>
         <template is="dom-if" if="[[!captionDropdown]]">
           <template id='captiontemplate' is='dom-repeat' items='[[reducedCaptionKeys]]' as='captionKey'>
-            <span class='captions' hidden$='[[isEmptyCaption(captionKey, preferedKey)]]'>[[getKey(captionKey, keys.*)]]</span>
+            <span class='captions' hidden$='[[isEmptyCaption(captionKey, preferedKey)]]'>[[getKey(captionKey, reducedCaptionKeys.*)]]</span>
           </template>
         </template>
       </section>
     </section>
-		<!-- <section id="extra"></section> -->
 
     <template is="dom-if" if="[[captionDropdown]]">
       <dropdown-element id="caption" for="preferedKey" target-showing-event="mouseover" target-hiding-event="mouseleave" position="bottom" align="start">
@@ -285,7 +285,7 @@
       </dropdown-element>
     </template>
 
-    <dropdown-element id="value" for="checkboxContainer" shadow target-showing-event="mouseover" target-hiding-event="mouseleave" position="bottom" align="end" offset="4">
+    <dropdown-element id="value" for="boxContainer" shadow target-showing-event="mouseover" target-hiding-event="mouseleave" position="bottom" align="end" offset="4">
       <section id='sign'>
         <section id='actualValueSection'>
           <section hidden$='[[isBoolean]]' style="display: inline-flex;">
@@ -307,37 +307,26 @@
   </template>
 
   <script>
-    Polymer({
+    ElementCheckbox = Polymer({
       is: 'element-checkbox',
 
       behaviors: [
-        Polymer.PaperCheckedElementBehavior,
         ElementBehavior
       ],
 
-      hostAttributes: {
-        role: 'checkbox',
-        'aria-checked': false,
-        tabindex: 0
-      },
-
       properties: {
+        showDate: {
+          type: Boolean,
+          value: false
+        },
         horizontal: {
           type: Boolean,
           value: false,
           reflectToAttribute: true
         },
-        showDate: {
-          type: Boolean,
-          value: true
-        },
         captionDropdown: {
           type: Boolean,
           value: false
-        },
-        ariaActiveAttribute: {
-          type: String,
-          value: 'aria-checked'
         },
         selectable: {
           type: Boolean,
@@ -353,10 +342,19 @@
             return [];
           }
 				},
-        insertEveryValue: {
+        updateEveryValue: {
           type: Boolean,
           value: false,
           readOnly: true
+        },
+
+        draggable: {
+          type: Boolean,
+          value: true
+        },
+        droppable: {
+          type: Boolean,
+          value: true
         }
       },
 
@@ -375,9 +373,9 @@
         this.set('isExceeding', isExceeding);
         // set color of the sign
         switch (state) {
-          case 0: status = 'inrange'; break;
+          case 0 : status = 'inrange'; break;
           case -1: status = 'deceeds'; break;
-          case 1: status = 'exceeds'; break;
+          case 1 : status = 'exceeds'; break;
           default: status = 'undefined';
         }
         this.$.container.className = status + " style-scope element-checkbox";
@@ -396,7 +394,7 @@
           this.$.dateSection.textContent = new Date(value.x).toLocaleTimeString();
       },
 
-      _computeCheckboxClass: function(checked, invalid) {
+      _computeBoxClass: function(checked, invalid) {
         var className = '';
         if (checked) {
           className += 'checked ';
@@ -407,16 +405,9 @@
         return className;
       },
 
-      _computeCheckmarkClass: function(checked) {
+      _computeArrowClass: function(checked) {
         return checked ? '' : 'hidden';
-      },
-
-      // create ripple inside the checkboxContainer
-      _createRipple: function() {
-        this._rippleContainer = this.$.checkboxContainer;
-        return Polymer.PaperInkyFocusBehaviorImpl._createRipple.call(this);
       }
-
     });
   </script>
 </dom-module>

@@ -423,11 +423,6 @@
         }
       },
 
-      observers: [
-        // '_setToolbarElement(selectedElements.splices)',
-        // '_handleExceeding(exceedingElements.splices)'
-      ],
-
       attached: function() {
         this.fire('resize');
         var self = this;
@@ -435,7 +430,8 @@
                .observeNodes(function(info) {
                  for (var i in info.addedNodes)
                   if (info.addedNodes[i].nodeName === "IRON-SELECTOR")
-                    info.addedNodes[i].addEventListener("iron-select", function(e){
+                    info.addedNodes[i].addEventListener("iron-select", function(e) {
+                      console.log(e);
                       self._regroup(e.currentTarget.selected);
                     });
                });
