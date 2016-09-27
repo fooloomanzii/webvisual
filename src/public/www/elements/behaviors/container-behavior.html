@@ -109,7 +109,13 @@
     },
 
     created: function() {
-      this.setAttribute('uniqueId', String(Math.random().toString(16).slice(2)));
+      var sel, uniqueid;
+      while (true) {
+        uniqueid = String(Math.random().toString(16).slice(2));
+        sel = document.querySelector("[uniqueid='" + uniqueid + "']");
+        if (!sel) break;
+      }
+      this.setAttribute('uniqueid', uniqueid);
     },
 
     observers: [
@@ -152,7 +158,9 @@
     },
 
     __setSelectedElement: function(e) {
-      if (e && e.detail && e.detail.target) this.setSelectedElement(e.detail.target);
+      if (e && e.detail && e.detail.target) {
+        this.setSelectedElement(e.detail.target);
+      }
       else return;
     },
 
@@ -172,7 +180,9 @@
     },
 
     __unsetSelectedElement: function(e) {
-      if (e && e.detail && e.detail.target) this.unsetSelectedElement(e.detail.target);
+      if (e && e.detail && e.detail.target) {
+        this.unsetSelectedElement(e.detail.target);
+      }
       else return;
     },
 
@@ -203,7 +213,9 @@
     },
 
     __setExceedingElement: function(e) {
-      if (e && e.detail && e.detail.target) this.setExceedingElement(e.detail.target);
+      if (e && e.detail && e.detail.target) {
+        this.setExceedingElement(e.detail.target);
+      }
       else return;
     },
 
@@ -217,7 +229,9 @@
     },
 
     __unsetExceedingElement: function(e) {
-      if (e && e.detail && e.detail.target) this.unsetExceedingElement(e.detail.target);
+      if (e && e.detail && e.detail.target) {
+        this.unsetExceedingElement(e.detail.target);
+      }
       else return;
     },
 
@@ -372,27 +386,31 @@
     draggableChanged: function() {
       if (this.draggable === true) {
         this.setAttribute('draggable', true);
-        this.addEventListener('dragstart', this.dragStart);
+        var dragArea = this.dragArea || this;
+        dragArea.addEventListener('dragstart', this.dragStart);
       }
       else if (this.draggable === false && this.hasAttribute('draggable')) {
         this.removeAttribute('draggable');
-        this.removeEventListener('dragstart', this.dragStart);
+        var dragArea = this.dragArea || this;
+        dragArea.removeEventListener('dragstart', this.dragStart);
       }
     },
     droppableChanged: function() {
       if (this.droppable === true) {
         this.setAttribute('droppable', true);
-        this.addEventListener('dragover', this.dragOver);
-        this.addEventListener('drop', this.dropped);
+        var dropArea = this.dropArea || this;
+        dropArea.addEventListener('dragover', this.dragOver);
+        dropArea.addEventListener('drop', this.dropped);
       }
       else if (this.droppable === false && this.hasAttribute('droppable')) {
         this.removeAttribute('droppable');
-        this.removeEventListener('dragover', this.dragOver);
-        this.removeEventListener('drop', this.dropped);
+        var dropArea = this.dropArea || this;
+        dropArea.removeEventListener('dragover', this.dragOver);
+        dropArea.removeEventListener('drop', this.dropped);
       }
     },
     dragStart: function(e) {
-      e.dataTransfer.setData("text", "[uniqueId='" + e.target.getAttribute('uniqueId') + "']");
+      e.dataTransfer.setData("text", "[uniqueid='" + e.target.getAttribute('uniqueid') + "']");
       e.dataTransfer.effectAllowed = "move";
     },
     dragOver: function(e) {

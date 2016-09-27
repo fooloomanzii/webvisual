@@ -122,7 +122,7 @@
       }
     },
 
-    containerRoot: function() {
+    get containerRoot() {
       var root = Polymer.dom(this).getOwnerRoot();
       if (!root)
         return Polymer.dom(this).parentNode;
@@ -134,7 +134,13 @@
     },
 
     created: function() {
-      this.setAttribute('uniqueId', String(Math.random().toString(16).slice(2)));
+      var sel, uniqueid;
+      while (true) {
+        uniqueid = String(Math.random().toString(16).slice(2));
+        sel = document.querySelector("[uniqueid='" + uniqueid + "']");
+        if (!sel) break;
+      }
+      this.setAttribute('uniqueid', uniqueid);
     },
 
     attached: function() {
@@ -464,7 +470,7 @@
       }
     },
     dragStart: function(e) {
-      e.dataTransfer.setData("text", "[uniqueId='" + e.target.getAttribute('uniqueId') + "']");
+      e.dataTransfer.setData("text", "[uniqueid='" + e.target.getAttribute('uniqueid') + "']");
       e.dataTransfer.effectAllowed = "move";
     },
     dragOver: function(e) {
@@ -480,22 +486,28 @@
           var elemParent = elem.parentNode;
           var elemSibling = elem.nextSibling;
           if (elemParent === this.parentNode) {
+            // drag and drop just in same context
             if (elemSibling === this) {
               elemParent.insertBefore(this, elem);
             } else {
-              this.parentNode.insertBefore(elem, this);
+              elemParent.insertBefore(elem, this);
               if (elemSibling) {
                 elemParent.insertBefore(this, elemSibling);
               } else {
                 elemParent.appendChild(this);
               }
             }
+            if (window.getComputedStyle(elemParent,null).getPropertyValue('flex-wrap') === 'wrap') { // bug fix for wrap styles, polymer.dom and event propagation
+              Array.prototype.forEach.call(elemParent.children, function(item, i) {
+                item.style.order = i;
+              })
+            }
             e.stopPropagation();
           }
           // else {
           //   this.parentNode.insertBefore(elem, this);
           // }
-          // e.stopPropagation();
+
         }
       }
     }

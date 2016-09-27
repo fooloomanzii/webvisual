@@ -110,7 +110,7 @@
       },
 
       attached: function() {
-        var containerRoot = this.containerRoot();
+        var containerRoot = this.containerRoot;
 
         if (containerRoot.nodeName !== 'CHART-ELEMENT') {
           console.warn(this.id, 'Graph is not attached to a container');
@@ -185,7 +185,7 @@
 
       render: function(values, splices) {
         if (!this.chartElement)
-          this.chartElement = this.containerRoot();
+          this.chartElement = this.containerRoot;
 
         if (this.chartElement) {
           if (this.chartElement._isZoomed === false)

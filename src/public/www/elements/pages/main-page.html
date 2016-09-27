@@ -62,6 +62,7 @@
       flex-direction: row;
       flex-wrap: wrap;
       align-items: flex-start;
+      justify-content: space-around;
       -webkit-overflow-scrolling: touch;
       -ms-flex: 1 1 0.000000001px; -webkit-flex: 1; flex: 1;
       flex-basis: 0.000000001px; -webkit-flex-basis: 0.000000001px;
@@ -431,7 +432,6 @@
                  for (var i in info.addedNodes)
                   if (info.addedNodes[i].nodeName === "IRON-SELECTOR")
                     info.addedNodes[i].addEventListener("iron-select", function(e) {
-                      console.log(e);
                       self._regroup(e.currentTarget.selected);
                     });
                });
@@ -573,6 +573,7 @@
         }
         var hideHeader = oldgroupcards[0].hideHeader;
         var withoutWindow = oldgroupcards[0].withoutWindow;
+        // console.log(oldgroupcards[0].attributes, oldgroupcards[0].attribute, oldgroupcards[0].properties);
 
         var newgroupcards = {};
         for (var subgroup in Groups[label][key]) {

@@ -17,17 +17,10 @@
         box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
                     0 1px 10px 0 rgba(0, 0, 0, 0.12),
                     0 2px 4px -1px rgba(0, 0, 0, 0.4);
-        /*max-width: calc(100vw - 2em);*/
       }
       :host[dark] {
         background: #959595;
         border-color: #444;
-      }
-      :host([headline='*']), :host([without-window]) {
-        background: transparent;
-        border-radius: inherit;
-        box-shadow: none;
-        border-color: transparent;
       }
       /*IE needs a fixed width*/
       @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
@@ -66,12 +59,9 @@
           max-width: calc(25% - 0.8em);
         }
       }
-      :host([headline='*']) {
-        max-width: none;
-      }
-
       section#header {
         display: flex;
+        white-space: normal;
         position: relative;
         box-sizing: border-box;
         border-top-left-radius: inherit;
@@ -129,8 +119,8 @@
         position: relative;
         box-sizing: border-box;
         flex-wrap: wrap;
-        justify-content: flex-start;;
         align-items: flex-start;
+        justify-content: space-around;
         border-top-width: thin;
         border-top-style: solid;
         border-top-color: inherit;
@@ -162,7 +152,18 @@
         border-top-left-radius: inherit;
         border-top-right-radius: inherit;
       }
-
+      /*:host {
+        min-width: 9em;
+      }*/
+      :host:not([headline]), :host([headline='*']), :host([without-window]) {
+        background: transparent;
+        border-radius: inherit;
+        box-shadow: none;
+        border-color: transparent;
+      }
+      :host:not([headline]), :host([headline='*']) {
+        max-width: none;
+      }
     </style>
 
       <section id='header' hidden$='[[_hideheadline(headline,withoutWindow,hideHeader)]]'>
@@ -183,14 +184,15 @@
       is: 'group-card',
 
       behaviors: [
-        ContainerBehavior,
-        Polymer.IronResizableBehavior
+        Polymer.IronResizableBehavior,
+        ContainerBehavior
       ],
 
       properties: {
         headline: {
           type: String,
           value: '',
+          reflectToAttribute: true,
           observer: '_headlineChanged'
         },
         opened: {
@@ -273,6 +275,49 @@
           this.hideHeader = true;
       },
 
+      // // EXPERIMENTAL RESIZING
+      // listeners: {
+      //   'iron-resize': 'resized'
+      // },
+      //
+      // resized: function() {
+      //   this.debounce('resize', this._resized, 50);
+      // },
+      //
+      // _resized: function() {
+      //   if (window.getComputedStyle(this.parentNode, null).getPropertyValue('flex-wrap') === 'wrap') {
+      //     var elemscount = this.$.mainContent.children.length;
+      //     if (elemscount > 2) {
+      //       var paddingoffset = 16, width, tmp, rows;
+      //       var elemswidth = d3.max(this.$.mainContent.children, function(c) {
+      //         return c.offsetWidth;
+      //       });
+      //       var elemsheight = d3.max(this.$.mainContent.children, function(c) {
+      //         return c.offsetHeight;
+      //       });
+      //       if (!elemswidth || !elemsheight) return;
+      //       tmp = Math.ceil(Math.sqrt(elemscount))*(elemswidth + paddingoffset);
+      //       console.log(tmp);
+      //       this.style.maxWidth = tmp ? tmp + 'px' : '';
+      //
+      //       var headerheight = this.$.header.offsetHeight;
+      //       var previous = this.previousSibling;
+      //
+      //       tmp = this.parentNode.offsetWidth - this.offsetLeft;
+      //       if (previous && previous.offsetTop === this.offsetTop && previous.offsetHeight > this.offsetHeight) {
+      //         rows = Math.floor((previous.offsetHeight - headerheight) / elemsheight);
+      //         width = Math.ceil(elemscount / rows) * (elemswidth + paddingoffset);
+      //         this.style.maxWidth = (width < tmp) ? width + 'px' : '';
+      //       }
+      //       var next = this.nextSibling;
+      //       if (next && next.offsetTop === this.offsetTop) {
+      //         width = next.offsetLeft - this.offsetLeft;
+      //         this.style.maxWidth = width + 'px';
+      //       }
+      //     }
+      //   }
+      // },
+
       observers: [
         '_exceedingChanged(exceedingElements.splices)'
       ],
@@ -314,7 +359,7 @@
         // this.$.header.setAttribute('aria-label', this.headline);
       },
 
-      _hideheadline: function(headline,withoutWindow, hideHeader) {
+      _hideheadline: function(headline, withoutWindow, hideHeader) {
         if(headline === '*' || withoutWindow || hideHeader)
           return true;
         else
