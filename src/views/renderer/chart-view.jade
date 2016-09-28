@@ -61,8 +61,7 @@ block BodyContent
                                     is-boolean!= config.elements[Label][Id].isBoolean, 
                                     unit!= config.elements[Label][Id].unit, 
                                     keys= JSON.stringify(config.elements[Label][Id].keys),
-                                    prefered-key!= config.preferedGroupingKeys[Label]
-                                    caption-keys= JSON.stringify(config.groupingKeys[Label]),
+                                    grouped-key!= config.preferedGroupingKeys[Label],
                                     show-date!= (!mobile),
                                     color!= config.elements[Label][Id].color,
                                     bubbles,

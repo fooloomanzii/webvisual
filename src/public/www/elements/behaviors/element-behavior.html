@@ -22,7 +22,12 @@
           return {};
         }
       },
-      captionKeys: {
+      groupedKey: {
+        type: String,
+        value: ''
+      },
+
+      reducedCaptionKeys: {
         type: Array,
         value: function() {
           return [];
@@ -50,11 +55,6 @@
         value: function() {
           return {};
         }
-      },
-
-      preferedKey: {
-        type: String,
-        value: ''
       },
 
       exeedable: {
@@ -146,6 +146,8 @@
     attached: function() {
       if (this.label && this.id)
         this._updatableChanged();
+      else
+        this.set('values', this.values || []);
       this.insertValues();
     },
 
@@ -176,13 +178,12 @@
         window.Content[this.label][this.id].nodes.splice(pos, 1); // remove from window.Content
         this.removeAttribute('updatable');
       }
+
       for (var key in obj.element) {
-        if (key !== 'values')
-          this.set(key, obj.element[key]);
+        this.set(key, obj.element[key]);
       }
       for (var key in obj.properties) {
-        if (key !== 'values')
-          this.set(key, obj.properties[key].value);
+        this.set(key, obj.properties[key].value);
       }
       for (var key in options) {
         this.set(key, options[key]);
@@ -218,7 +219,7 @@
           'firstStateChange': this.firstStateChange,
           'lastStateChange': this.lastStateChange,
           'exeedable': this.exeedable,
-          'preferedKey': this.preferedKey,
+          'groupedKey': this.groupedKey,
           'color': this.color
         }
       };
@@ -232,7 +233,11 @@
         i, end = (this.newestDataFirst === false) ? values.length : -1;
       if (this.noSocketConnection === true) {
         i = (this.newestDataFirst === false) ? 0 : values.length - 1;
-        while (i !== end) {
+        while (i !== end && i !== -1) {
+          if (this.values === undefined) {
+            console.log(this);
+            break;
+          }
           this.values.push(values[i]);
           i += it;
         }
@@ -510,6 +515,17 @@
 
         }
       }
+    },
+
+    getReducedCaptionKeys: function(groupedKey) {
+      var captionKeys = Object.keys(this.keys) || [];
+      this.set('reducedCaptionKeys', captionKeys.filter( function(key) { return (groupedKey !== key) } ));
+      return (this.reducedCaptionKeys.length === 0) ? captionKeys : this.reducedCaptionKeys;
+    },
+
+    isEmptyCaption: function(key) {
+      if (!this.keys[key]) return true;
+      else return false;
     }
   };
 </script>

@@ -16,6 +16,7 @@ var dataFileHandler = require('./../filehandler').dataFileHandler;
 
 var defaults = {
 	values: [],
+	keys: [],
 	unit: '',
 	color: '',
 	isExceeding: false,
@@ -140,7 +141,7 @@ class fileConfigLoader extends EventEmitter {
 			this.settings[name].connection = connection;
 			this.settings[name].clientRequest = clientRequest;
 			this.settings[name].cache = cache;
-			
+
 		} catch (e) {
 			err = e;
 			console.log(e);

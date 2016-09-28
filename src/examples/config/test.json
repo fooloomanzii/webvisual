@@ -34,7 +34,8 @@
         {
           "id": "DI3-3",
           "keys": {
-            "prompt": "2030"
+            "prompt": "2030",
+            "secondprompt": "taurin"
           },
           "threshold": {
             "from": 1,

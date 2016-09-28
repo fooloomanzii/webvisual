@@ -439,6 +439,7 @@
     if (_watchers[path] !== undefined) {
       console.log("Stoped watching file '" + path);
       _watchers[path].close();
+      _watchers[path].removeAllListeners();
       _watcherCount--;
 
       _watchers[path] = null;

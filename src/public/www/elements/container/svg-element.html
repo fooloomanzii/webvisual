@@ -220,7 +220,7 @@
        */
       source: {
         type: String,
-        observer: '_sourceChanged'
+        observer: '_debounceSourceChanged'
       },
       recentSource: {
         type: String,
@@ -420,17 +420,17 @@
       });
     },
 
-    _sourceChanged: function(source) {
-      if (source && this.recentSource !== source) {
-        if (!window.SvgSource[source]) return;
-        if (!window.SvgSource[source].node) return;
-        this.recentSource = source;
+    _sourceChanged: function() {
+      if (this.source && this.recentSource !== this.source) {
+        if (!window.SvgSource[this.source]) { return; }
+        if (!window.SvgSource[this.source].node) { return; }
+        this.recentSource = this.source;
         this._svg = d3.select(this.$.svgContainer).select('svg#main');
         if (this._svg && !this._svg.empty()) {
           this.$.svgContainer.removeChild(this._svg.node());
         }
         // import svg (came by data-socket-repeater)
-        this._registerXML(window.SvgSource[source].node, source);
+        this._registerXML(window.SvgSource[this.source].node, this.source);
       }
     },
 
@@ -466,16 +466,14 @@
       this._height = viewBox[3] - viewBox[1];
 
       this._debounceSelectable();
-      this._debounceSelect();
-      this._debounceSelectExceeds();
-      this._resetZoom();
+      this.debounce('select', this._selectSelected, 50);;
+      this.debounce('exceeds', this._selectExceeds, 50);;
+      this._debounceResetZoom();
     },
 
     _openedChanged: function(opened) {
       if (!this.source) return;
-      this._sourceChanged(this.source);
-      this._debounceSelectExceeds();
-      this._debounceSelect();
+      this._debounceSourceChanged();
       this._debounceResetZoom();
     },
 
@@ -487,9 +485,8 @@
             this.opened = true;
         }
         if (!this.source) this.opened = false;
-        this._sourceChanged(this.source);
-        this._debounceSelectable();
-        this._debounceSelect();
+        this._debounceSourceChanged();
+        this.debounce('select', this._selectSelected, 50);;
       }
     },
 
@@ -502,9 +499,8 @@
           if (this.openOnExceed)
             this.opened = true;
         }
-        this._sourceChanged(this.source);
-        this._debounceSelectable();
-        this._debounceSelectExceeds();
+        this._debounceSourceChanged();
+        this.debounce('exceeds', this._selectExceeds, 50);;
       }
     },
 
@@ -607,23 +603,19 @@
       this._svg.node().__zoom = t;
     },
 
+    _debounceSourceChanged: function() {
+      this.debounce('source', this._sourceChanged, 50);
+    },
+
     _debounceSelectable: function() {
-      this.debounce('selectable',
-        function() {
-          this._selectableChanged();
-        }, 50);
+      this.debounce('selectable', this._selectableChanged, 50);
     },
-    _debounceSelect: function() {
-      this.debounce('select',
-        function() {
-          this.select(this.selectedElements, this.selectedClass);
-        }, 100);
+
+    _selectSelected: function() {
+      this.select(this.selectedElements, this.selectedClass);
     },
-    _debounceSelectExceeds: function() {
-      this.debounce('state',
-        function() {
-          this.select(this.exceedingElements, this.exceedingClass);
-        }, 100);
+    _selectExceeds: function() {
+      this.select(this.exceedingElements, this.exceedingClass);
     },
 
     select: function(selected, selectedClass) {
@@ -642,8 +634,9 @@
       if (sel === '' ||
           (elems = this._mainG.selectAll(sel)
                               .filter('.svg-element-selectable')).classed(selectedClass, true).empty()) {
-        if (this.opened)
-          this._debounceResetZoom();
+        // if (this.opened) {
+        //   this._debounceResetZoom();
+        // }
         return;
       }
 
@@ -715,10 +708,7 @@
     },
 
     _debounceResetZoom: function() {
-      this.debounce('resetZoom',
-        function() {
-          this._resetZoom()
-        }, 100);
+      this.debounce('resetZoom', this._resetZoom, 33);
     },
 
     _resetZoom: function() {
@@ -726,11 +716,11 @@
       // zoom to selectedItems
       if(this.initiallyZoomToSelected === true) {
         if (this.selectedElements.length > 0) {
-          this._debounceSelect();
+          this.debounce('select', this._selectSelected, 50);
           return;
         }
         if (this.exceedingElements.length > 0) {
-          this._debounceSelectExceeds();
+          this.debounce('exceeds', this._selectExceeds, 50);
           return;
         }
       }

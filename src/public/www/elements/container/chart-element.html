@@ -49,15 +49,21 @@
 				width: 100%;
 		    border-radius: 0px;
 		  }
-		  .icon-button, section#info {
+			dropdown-element {
+				--dropdown-background: rgba(255, 255, 255, 0.7);;
+			}
+			dropdown-element#legend {
+				--dropdown-background: transparent;
+			}
+		  .icon-button {
 		    position: absolute;
 		    opacity: 0.4;
-		    transform: scale(0.8);
-		    transition: opacity 150ms ease, transform 150ms ease;
+				--iron-icon-width: 20px;
+				--iron-icon-height: 20px;
+		    transition: opacity 150ms ease;
 		  }
-		  .icon-button:hover, section#info:hover {
+		  .icon-button:hover {
 		    opacity: 1;
-		    transform: scale(1);
 		    border-radius: 0;
 		  }
 		  text {
@@ -177,25 +183,26 @@
 		  <!-- <svg id='loader'  version='1.1' xmlns='http://www.w3.org/2000/svg'>
 		  </svg> -->
 
+			<icon-button-element id="legendbutton" class="icon-button" icon="timeline"></icon-button-element>
+		  <dropdown-element id="legend" for="legendbutton" target-toggle-event="tap" position="bottom" align="end">
+				<content id='collector' select='graph-element'></content>
+				<template is="dom-repeat" items="[[selectedElements]]">
+					<graph-element id="[[item.id]]" label="[[item.label]]" caption-keys="[[item.captionKeys]]" color="[[item.color]]" interpolation="[[interpolation]]">
+					</graph-element>
+				</template>
+		  </dropdown-element>
+
 		  <icon-button-element id="zoombutton" class="icon-button" icon="search" on-tap="_startZoomSession"></icon-button-element>
 
-		  <icon-button-element id="optionsbutton" class="icon-button" icon="timeline"></icon-button-element>
-		  <dropdown-element for="optionsbutton" target-toggle-event="tap" position="right" align="outer-start" offset="4">
+		  <icon-button-element id="optionsbutton" class="icon-button" icon="juelich:app-inverted"></icon-button-element>
+		  <dropdown-element for="optionsbutton" target-toggle-event="tap" position="right" align="outer-start" offset="2">
 		    <toggle-button-element checked="[[!noDots]]" on-change="changeDots">mit Punkten</toggle-button-element>
 		    <toggle-button-element checked="[[!noLines]]" on-change="changeLines">mit Linien</toggle-button-element>
 		    <toggle-button-element checked="[[!noAreas]]" on-change="changeAreas">mit Flächen</toggle-button-element>
-
-				<section id="legend">
-				  <content id='collector' select='graph-element'></content>
-				  <template is="dom-repeat" items="[[selectedElements]]">
-				    <graph-element id="[[item.id]]" label="[[item.label]]" caption-keys="[[item.captionKeys]]" color="[[item.color]]" interpolation="[[interpolation]]">
-				    </graph-element>
-				  </template>
-				</section>
 		  </dropdown-element>
 
 			<icon-button-element id="ybutton" class="icon-button" icon="y"></icon-button-element>
-		  <dropdown-element for="ybutton" target-toggle-event="tap" position="right" align="start" offset="4">
+		  <dropdown-element for="ybutton" target-toggle-event="tap" position="right" align="start" offset="2">
 				<iron-selector attr-for-selected="scale" selected="{{yScale}}" fallback-selection="linear" toggles>
 		      <button-element scale='linear'>linear</button-element>
 		      <button-element scale='√'>√</button-element>
@@ -205,7 +212,7 @@
 		  </dropdown-element>
 
 			<icon-button-element id="xbutton" class="icon-button" icon="x"></icon-button-element>
-		  <dropdown-element for="xbutton" target-toggle-event="tap" position="top" align="end" offset="4">
+		  <dropdown-element for="xbutton" target-toggle-event="tap" position="top" align="end" offset="2">
 				<iron-selector attr-for-selected="interpolate" selected="{{interpolation}}" fallback-selection="Lineare Verbindung" toggles>
 		      <button-element interpolate='Lineare Verbindung'>Lineare Verbindung</button-element>
 		      <button-element interpolate='Basis Spline'>Basis Spline</button-element>
@@ -537,16 +544,21 @@
 				this._y.range([this._height, 0]);
 
 				this.$.zoombutton.style.left = 'auto';
-				this.$.zoombutton.style.right = (this.margin.right) + 'px';
+				this.$.zoombutton.style.right = (this.margin.right + this.iconWidth) + 'px';
 				this.$.zoombutton.style.top = (this.margin.top) + 'px';
 				this.$.zoombutton.style.bottom = 'auto';
 
-				this.$.optionsbutton.style.left = (this.margin.left - this.iconWidth - 6) + 'px';
+				this.$.legendbutton.style.left = 'auto';
+				this.$.legendbutton.style.right = (this.margin.right) + 'px';
+				this.$.legendbutton.style.top = (this.margin.top) + 'px';
+				this.$.legendbutton.style.bottom = 'auto';
+
+				this.$.optionsbutton.style.left = (this.margin.left - this.iconWidth) + 'px';
 				this.$.optionsbutton.style.right = 'auto';
 				this.$.optionsbutton.style.top = 'auto';
-				this.$.optionsbutton.style.bottom = (this.margin.bottom - this.iconWidth - 6) + 'px';
+				this.$.optionsbutton.style.bottom = (this.margin.bottom - this.iconWidth) + 'px';
 
-				this.$.ybutton.style.left = (this.margin.left - this.iconWidth - 6) + 'px';
+				this.$.ybutton.style.left = (this.margin.left - this.iconWidth) + 'px';
 				this.$.ybutton.style.right = 'auto';
 				this.$.ybutton.style.top = (this.margin.top) + 'px';
 				this.$.ybutton.style.bottom = 'auto';
@@ -554,7 +566,7 @@
 				this.$.xbutton.style.left = 'auto';
 				this.$.xbutton.style.right = (this.margin.right) + 'px';
 				this.$.xbutton.style.top = 'auto';
-				this.$.xbutton.style.bottom = (this.margin.bottom - this.iconWidth - 6) + 'px';
+				this.$.xbutton.style.bottom = (this.margin.bottom - this.iconWidth) + 'px';
 
 				this._chart.attr('transform', 'translate(' + this.margin.left + ',' + (this.margin.top) + ')');
 

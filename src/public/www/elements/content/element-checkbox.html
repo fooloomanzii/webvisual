@@ -110,30 +110,40 @@
       }
 
       /* label */
-      section.caption {
+      section#caption {
         position: relative;
+        padding: 0;
+        margin: 0;
+        background: transparent;
         display: flex;
         flex-direction: row;
-        padding-left: 0.25em;
+        justify-content: center;
+        padding-left: 0.5em;
         white-space: normal;
         color: currentColor;
+        line-height: 1.4;
       }
-      section.caption > span.captions {
+      section#caption > span.captions {
         padding: 0;
+        margin: 0;
         font-weight: normal;
-				line-height: 1.4;
-        width: 100%;
-        font-size: 0.5em;
+        font-size: 0.6em;
+      }
+      span.captions:first-child {
+        font-size: 1em !important;
+      }
+      span.captions:nth-child(2) {
+        font-size: 0.85em !important;
+      }
+      span.captions:nth-child(3) {
+        font-size: 0.75em !important;
       }
 
-      :host:not([horizontal]) section.caption {
+      :host:not([horizontal]) section#caption {
         flex-direction: column;
       }
 
-      section.caption > span.captions.prefered {
-        font-size: 0.8em;
-      }
-      :host([checked]) section.caption > span.captions.prefered {
+      :host([checked]) span.captions:first-child {
         font-weight: bold;
       }
 
@@ -229,12 +239,7 @@
         --dropdown-text-color: var(--bright-text-color);
         border-radius: 2px;
       }
-      dropdown-element#caption {
-        --dropdown-background: white;
-        --dropdown-text-color: var(--primary-text-color);
-        --dropdown-shadow: none;
-        font-size: 1em;
-      }
+
       iron-icon {
         --icon-height: var(--calculated-box-size);
         --icon-width: var(--calculated-box-size);
@@ -265,25 +270,12 @@
         </section>
       </section>
 
-      <section id="preferedKey" class="caption">
-        <span class="captions prefered">[[getPreferedKey(preferedKey, keys.*)]]</span>
-        <template is="dom-if" if="[[!captionDropdown]]">
-          <template id='captiontemplate' is='dom-repeat' items='[[reducedCaptionKeys]]' as='captionKey'>
-            <span class='captions' hidden$='[[isEmptyCaption(captionKey, preferedKey)]]'>[[getKey(captionKey, reducedCaptionKeys.*)]]</span>
-          </template>
+      <section id="caption">
+        <template is='dom-repeat' items='[[getReducedCaptionKeys(groupedKey, keys.*)]]' as='captionKey'>
+          <span class='captions' hidden$='[[isEmptyCaption(captionKey, groupedKey)]]'>[[getKey(captionKey, reducedCaptionKeys.*)]]</span>
         </template>
       </section>
     </section>
-
-    <template is="dom-if" if="[[captionDropdown]]">
-      <dropdown-element id="caption" for="preferedKey" target-showing-event="mouseover" target-hiding-event="mouseleave" position="bottom" align="start">
-        <section class="caption">
-          <template id='captiontemplate' is='dom-repeat' items='[[reducedCaptionKeys]]' as='captionKey'>
-            <span class='captions' hidden$='[[isEmptyCaption(captionKey)]]'>[[getKey(captionKey, keys.*)]]</span>
-          </template>
-        </section>
-      </dropdown-element>
-    </template>
 
     <dropdown-element id="value" for="boxContainer" shadow target-showing-event="mouseover" target-hiding-event="mouseleave" position="bottom" align="end" offset="4">
       <section id='sign'>
@@ -301,9 +293,6 @@
       </section>
     </dropdown-element>
 
-    <!-- <dropdown-element id="table" for="extra" target-showing-event="mouseover" target-hiding-event="mouseleave" position="right" align="start" offset="4">
-      <table-element id='[[id]]' label='[[label]]'></table-element>
-    </dropdown-element> -->
   </template>
 
   <script>
@@ -324,24 +313,10 @@
           value: false,
           reflectToAttribute: true
         },
-        captionDropdown: {
-          type: Boolean,
-          value: false
-        },
         selectable: {
           type: Boolean,
           value: false
         },
-        preferedKey: {
-          type: String,
-          value: ""
-        },
-				reducedCaptionKeys: {
-					type: Array,
-					value: function() {
-            return [];
-          }
-				},
         updateEveryValue: {
           type: Boolean,
           value: false,
@@ -356,16 +331,6 @@
           type: Boolean,
           value: true
         }
-      },
-
-      getPreferedKey: function(preferedKey) {
-				this.set('reducedCaptionKeys', this.captionKeys.filter(function(key) {return (key !== preferedKey)} ));
-        return this.keys[this.preferedKey] || this.keys[this.reducedCaptionKeys[0]];
-      },
-
-      isEmptyCaption: function(key) {
-        if (!this.keys[key]) return true;
-        else return false;
       },
 
       setExceedingStatus: function(isExceeding, state) {

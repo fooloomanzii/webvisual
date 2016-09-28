@@ -67,7 +67,7 @@
       flex: 1;
       background: linear-gradient(180deg,rgba(255,255,255,0),rgba(230,230,230,0.2),rgba(255,255,255,0));
       padding: 0.25em;
-      line-height: 1.5em;
+      line-height: 1.4;
       justify-content: center;
       align-items: center;
       border-radius: inherit;
@@ -101,7 +101,7 @@
       border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: inherit; border-bottom-right-radius: inherit;
       background: white;
       color: var(--primary-text-color);
-      line-height: 1.5;
+      line-height: 1.4;
       padding: 0.25em 0.75em 0.5em 0.5em;
       flex: 1 0 auto;
       margin: 0;
@@ -239,16 +239,16 @@
       </section>
 
       <section id='caption' hidden$='[[!showCaption]]'>
-        <template id='captiontemplate' is='dom-repeat' items='[[captionKeys]]' as='captionKey'>
-          <span class='captions' hidden$='[[isEmptyCaption(captionKey)]]'>[[getKey(captionKey, keys.*)]]</span>
+        <template is='dom-repeat' items='[[getReducedCaptionKeys(groupedKey, keys.*)]]' as='captionKey'>
+          <span class='captions' hidden$='[[isEmptyCaption(captionKey, groupedKey)]]'>[[getKey(captionKey, reducedCaptionKeys.*)]]</span>
         </template>
       </section>
 
       <section id='tooltip' hidden$='[[!_hasTooltip(hasExceeded)]]' on-click='_hideTooltip' on-mouseleave='_hideTooltip' role='tooltip' tabindex='-1'>
         <div class='title'>Alarmphasen</div>
         <section id='tooltipContent'>
-          <table-element id='firstStateChangeTable' caption='Start' hide-header no-socket-connection show-full-date hide-overflow is-boolean='[[isBoolean]]' id="[[id]]" label="[[label]]"></table-element>
-          <table-element id='lastStateChangeTable' caption='Ende' hide-header no-socket-connection hide-overflow is-boolean='[[isBoolean]]' id="[[id]]" label="[[label]]"></table-element>
+          <table-element id='firstStateChangeTable' caption='Start' hide-header no-socket-connection show-full-date hide-overflow is-boolean='[[isBoolean]]'></table-element>
+          <table-element id='lastStateChangeTable' caption='Ende' hide-header no-socket-connection hide-overflow is-boolean='[[isBoolean]]'></table-element>
         </section>
       </section>
 

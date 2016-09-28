@@ -62,6 +62,7 @@
       flex-direction: row;
       flex-wrap: wrap;
       align-items: flex-start;
+      align-content: flex-start;
       justify-content: space-around;
       -webkit-overflow-scrolling: touch;
       -ms-flex: 1 1 0.000000001px; -webkit-flex: 1; flex: 1;
@@ -581,12 +582,12 @@
           Polymer.dom(panel).appendChild(newgroupcards[subgroup]);
           for (var i in Groups[label][key][subgroup].ids) {
             for (var j = 0; j < elements.length; j++) {
-              elements[j].preferedKey = key;
-              if (elements[j].id === Groups[label][key][subgroup].ids[i])
+              if (elements[j].id === Groups[label][key][subgroup].ids[i]) {
+                elements[j].groupedKey = key;
+                elements[j].style.order = '';
+                Polymer.dom(newgroupcards[subgroup]).appendChild(elements[j]);
                 break;
-            }
-            if (j !== elements.length) {
-               Polymer.dom(newgroupcards[subgroup]).appendChild(elements[j]);
+              }
             }
           }
         }

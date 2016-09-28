@@ -164,6 +164,10 @@
       :host:not([headline]), :host([headline='*']) {
         max-width: none;
       }
+      :host:not([headline]) > section#mainContent, :host([headline='*']) > section#mainContent {
+        align-items: center;
+        justify-content: flex-start;
+      }
     </style>
 
       <section id='header' hidden$='[[_hideheadline(headline,withoutWindow,hideHeader)]]'>
