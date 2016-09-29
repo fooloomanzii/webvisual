@@ -195,6 +195,7 @@
       },
 
       redraw: function() {
+        if (this.checked === false) return;
         var self = this;
 
         var data = this.values.filter(this._defined.bind(this));
