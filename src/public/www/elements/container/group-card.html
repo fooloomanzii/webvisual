@@ -59,7 +59,7 @@
           max-width: calc(25% - 0.8em);
         }
       }
-      section#header {
+      #header {
         display: flex;
         white-space: normal;
         position: relative;
@@ -75,15 +75,15 @@
         transition: max-height linear 180ms, min-height linear 180ms;
         min-height: 2.6em;
       }
-      :host[dark] > section#header {
+      :host[dark] > #header {
         background: var(--dark-primary-color);
         color: var(--highlight-color);
       }
-      section#header[opened] {
+      #header[opened] {
         height: calc(15vh + 120px);
         max-height: 40vh;
       }
-      section#headline {
+      #headline {
         cursor: pointer;
         position: relative;
         bottom: 0;
@@ -101,7 +101,7 @@
         background: linear-gradient(to top, rgba(255,255,255,0.05) 10%,rgba(255,255,255,0.15) 60%);
         text-transform: none;
       }
-      section#header section#headline.over-image {
+      #headline.over-image {
         position: absolute;
         height: auto;
         width: auto;
@@ -110,10 +110,10 @@
         background: none !important;
         text-shadow: -1px 0px 1px #1f1f1f;
       }
-      :host[dark] section#headline {
+      :host[dark] #headline {
         color: var(--highlight-color);
       }
-      section#mainContent {
+      #mainContent {
         flex-direction: row;
         display: flex;
         position: relative;
@@ -134,21 +134,21 @@
         width: auto;
         overflow: visible;
       }
-      section#mainContent ::content > * {
+      #mainContent ::content > * {
         margin: 0 0.5em 0.5em 0;
         border-radius: 12px;
       }
-      section#header ::content .header {
+      #header ::content .header {
         display: flex;
         flex: 1;
         position: relative;
       }
-      section#header svg-element {
+      #header svg-element {
         display: flex;
         flex: 1;
         position: relative;
       }
-      section#header[hidden] ~ section#mainContent {
+      #header[hidden] ~ #mainContent {
         border-top-left-radius: inherit;
         border-top-right-radius: inherit;
       }
@@ -164,7 +164,7 @@
       :host:not([headline]), :host([headline='*']) {
         max-width: none;
       }
-      :host:not([headline]) > section#mainContent, :host([headline='*']) > section#mainContent {
+      :host:not([headline]) > #mainContent, :host([headline='*']) > #mainContent {
         align-items: center;
         justify-content: flex-start;
       }

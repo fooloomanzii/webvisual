@@ -24,8 +24,9 @@ block BodyContent
                     != Label
 
             //- Elements for TOOLBAR
-            sign-element.toolbar-footer(horizontal)
-            table-element.toolbar-footer(highlight-exceeding)
+            flex-container.toolbar-footer(horizontal)
+              sign-element
+              table-element(highlight-exceeding)
             svg-element.toolbar-footer(initially-zoom-to-selected, notify-parent, open-on-select)
             
             //- GROUPINGKEY SELECTORS

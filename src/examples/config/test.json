@@ -40,7 +40,9 @@
           "threshold": {
             "from": 1,
             "to": 9
-          }
+          },
+          "unit": "kPa",
+          "isBoolean": true
         }, {
           "id": "DI4-3",
           "keys": {

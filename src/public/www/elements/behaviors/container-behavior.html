@@ -65,6 +65,10 @@
       reproductionContainer: {
         type: String
       },
+      reproducedAttribute: {
+        type: String,
+        observer: '_reproducedAttributeChanged'
+      },
 
       selectedElements: {
         type: Array,
@@ -154,6 +158,10 @@
           this.listen(this.rootElement, 'element-is-not-exceeding', '__unsetExceedingElement');
           this.listen(this.rootElement, 'clear-exceeding-elements', 'clearExceedingElements');
         }
+      }
+      if (this.reproducedAttribute && this[this.reproducedAttribute]) {
+        var e = {detail: {value: this[this.reproducedAttribute]}, type: this.reproducedAttribute}
+        this._reproduceAttribute(e);
       }
     },
 
@@ -273,13 +281,7 @@
         for (var i = 0; i < changeRecord.indexSplices.length; i++) {
           for (var j = 0; j < changeRecord.indexSplices[i].removed.length; j++) {
             item = changeRecord.indexSplices[i].removed[j];
-            // this._elements.filter( function(el) {
-            //                 return el.id === item.id && el.label === item.label;
-            //                })
-            //               .forEach( function(el) {
-            //                 console.log('unset', el);
-            //                 el.unsetElement();
-            //               }, this);
+
             elements.filter(function(el) {
                 return el.id === item.id && el.label === item.label;
               })
@@ -308,28 +310,6 @@
             containers.forEach(function(el) {
               el.setSelectedElement(item);
             }, this);
-
-            // var tagName = this.reproductionTagName || "";
-            // if (tagName !== "") {
-            //   var setted = this._elements.filter( function(el) {
-            //     return el.id === item.id && el.label === item.label });
-            //   if (setted.length !== 0) {
-            //     setted.forEach(function(el) {
-            //       el.setElement(element);
-            //       console.log('REset', element, this);
-            //     }, this);
-            //   }
-            //   else if (this._elements.length === 0 || this.multiSelect === true) {
-            //     var node = document.createElement(tagName.toLowerCase());
-            //     if (node.setElement)
-            //       node.setElement(element, this.reproductionElementOptions || {});
-            //     else if (node.setSelectedElement)
-            //       node.setSelectedElement(item);
-            //     console.log('set', element);
-            //     Polymer.dom(container).appendChild(node);
-            //     this._elements.push(node);
-            //   }
-            // }
           }
         }
       }
@@ -365,6 +345,37 @@
             }, this);
           }
         }
+      }
+    },
+
+    _reproduceAttribute: function(e) {
+      var type = e.type.replace("-changed", "");
+      var value = e.detail.value;
+
+      if (this.reproduce === false) return;
+      if (type) {
+        var container = (this.reproductionContainer) ? Polymer.dom(this).querySelector('#' + this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);
+
+        var items = Polymer.dom(container).getEffectiveChildNodes().filter(function(el) {
+          return (el.nodeType === Node.ELEMENT_NODE && (el.hasAttribute('element') || el.hasAttribute('container')));
+        });
+
+        items.forEach(
+          function(el) {
+            if (type && value)
+              el.setAttribute(type, value);
+            else if (el.hasAttribute(type))
+              el.removeAttribute(type);
+          });
+      }
+    },
+
+    _reproducedAttributeChanged: function(nValue, oValue) {
+      if (oValue && this[oValue]) {
+        this.unlisten(this, Polymer.CaseMap.camelToDashCase(oValue) + '-changed', '_reproduceAttribute');
+      }
+      if (nValue && this[nValue]) {
+        this.listen(this, Polymer.CaseMap.camelToDashCase(nValue) + '-changed', '_reproduceAttribute');
       }
     },
 

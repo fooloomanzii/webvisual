@@ -41,7 +41,7 @@
         color: var(--ripple-color, currentColor);
       }
 
-      section.input-container {
+      .input-container {
         display: flex;
         position: relative;
         margin-top: 0.75em;
@@ -56,7 +56,7 @@
           -webkit-transition-delay: 9999s;
       }
 
-      input#input {
+      #input {
       	display: inline-flex;
         letter-spacing: inherit;
         color: currentColor;
@@ -75,7 +75,7 @@
         @apply(--input-inner);
       }
 
-      input#input[disabled] {
+      #input[disabled] {
         border-bottom: 1px dashed rgba(0,0,0, 0.12);
         background-color: transparent;
       }
@@ -96,11 +96,11 @@
         @apply(--input-label);
       }
 
-      input#input:focus {
+      #input:focus {
         outline: none;
       }
 
-      section.focusline {
+      .focusline {
         background-color: var(--form-valid);
         height: 2px;
         width: 5%;
@@ -114,18 +114,18 @@
         -webkit-transition: 0.2s ease
       }
 
-      input#input:focus ~ section.focusline {
+      #input:focus ~ .focusline {
         visibility: visible;
         width: 100%;
         left: 0;
       }
 
-      input#input.set ~ label[noFloat] {
+      #input.set ~ label[noFloat] {
         visibility: hidden;
       }
 
-      input#input:focus ~ label:not([noFloat]),
-      input#input.set ~ label:not([noFloat]) {
+      #input:focus ~ label:not([noFloat]),
+      #input.set ~ label:not([noFloat]) {
         visibility: visible;
         top: -0.75em;
         font-size: 0.75em;
@@ -133,23 +133,23 @@
         color: var(--form-valid);
       }
 
-      input#input:invalid ~ label:not([noFloat]) {
+      #input:invalid ~ label:not([noFloat]) {
         top: -0.75em;
         font-size: 0.75em;
         padding-top: 0;
         color: var(--form-invalid);
       }
 
-      input#input:invalid ~ section.focusline {
+      #input:invalid ~ .focusline {
         background-color: var(--form-invalid);
       }
 
-      input#input:invalid {
+      #input:invalid {
         box-shadow: none;
         border-color: var(--form-invalid);
       }
 
-      span.error {
+      .error {
         position: absolute;
         font-size: 0.75em;
         color: var(--form-invalid);
@@ -167,7 +167,7 @@
         -webkit-transition: 0.2s ease all;
       }
 
-      input#input:invalid ~ span.error {
+      #input:invalid ~ span.error {
         visibility: visible;
       }
 

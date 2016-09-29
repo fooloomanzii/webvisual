@@ -4,8 +4,8 @@
     "connections": {
       "file": {
         "mode": "all",
-        "path": "examples/datafile/HNF_Datafile.txt",
-        "#path": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\HNF_Datafile.txt",
+        "#path": "examples/datafile/HNF_Datafile.txt",
+        "path": "\\\\ibn-vsrv.ibn-net.kfa-juelich.de\\HNF-GDS$\\Datafile\\HNF_Datafile.txt",
         "format": {
           "dateFormat": "DD.MM.YYYY;hh:mm:ss",
           "decimalSeparator": ".",

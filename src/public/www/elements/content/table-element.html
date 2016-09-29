@@ -6,10 +6,12 @@
       /*height needs to be set by outer element*/
       color: var(--primary-text-color);
       display: flex;
-      height: inherit;
+      height: auto;
+			width: auto;
       text-align: center;
       font-size: 0.75em;
       line-height: 1.5em;
+			flex-shrink: 2 !important;
       overflow: hidden;
       cursor: default;
       z-index: auto;
@@ -21,66 +23,79 @@
       background: #a8a8a8;
       border-color: #808080;
     }
-    section#table {
-      display: inline-flex;;
+    #table {
+      display: inline-flex;
+			width: 100%;
+			height: auto;
 			flex-direction: column;
       position: relative;
       border-color: inherit;
     }
-    section#caption {
+    #caption {
       display: block;
       position: relative;
       font-size: 0.9em;
       font-weight: bold;
       padding: 0em 1.5em;
     }
-    section#body {
-      display: inline-block;;
-			float: left;
-			clear: both;
+    #body {
+			display: inline-flex;
+			flex-direction: column;
+			width: auto;
+			height: auto;
       position: relative;
       overflow-x: hidden;
       overflow-y: scroll;
     }
-		section.tr {
+		.block {
+			display: none;
 			position: relative;
-			display: inline-flex;
-	    flex-shrink: 0;
+		}
+		.block:first-child {
+			display: block;
+		}
+		.block:nth-child(2) {
+			display: block;
+		}
+		.tr {
+			position: relative;
+			display: flex;
 			float: left;
 			clear: both;
 			width: 100%;
 		}
-		section.tr, section.tr.inrange {
+		.tr, .tr.inrange {
 			background: none; color: inherit;
 		}
-		section.tr.inrange:nth-child(even) {
-			background-color: rgba(137, 137, 137, 0.15);
+		.tr.inrange:nth-child(even) {
+			background: rgba(137, 137, 137, 0.15);
 		}
-		section.tr.exceeds {
+		.tr.exceeds {
 			background: var(--element-state-exceeds-color);
 			color: var(--element-state-exceeds-text-color);
 		}
-		section.tr.deceeds {
+		.tr.deceeds {
 			background: var(--element-state-deceeds-color);
 			color: var(--element-state-deceeds-text-color);
 		}
-		section.tr.undefined {
+		.tr.undefined {
 			background: var(--element-state-undefined-color);
 			color: var(--element-state-undefined-text-color);
 		}
-    section#body.reverse {
+    #body.reverse {
       flex-direction: column-reverse;
     }
-		section.tr > section {
+		.tr > span {
       font-size: 1em;
       position: relative;
       padding: 0em 0.75em;
       white-space: nowrap;
     }
-    section.tr > section:first-child {
+    .tr > :first-child {
       min-width: 3.5em;
     }
-		section#head.tr {
+		#head.tr {
+			display: block;
 			line-height: 2em;
 			border-bottom-style: solid;
 			border-bottom-width: thin;
@@ -92,10 +107,11 @@
     <section id='table'>
       <section id='caption'>[[caption]]</section>
       <section id='head' class='tr' hidden$='[[hideHeader]]' on-tap='switchOrder'>
-        <section>Datum</section>
-        <section>Wert <span hidden$="[[!unit]]" style="font-style:italic;">([[unit]])</span></section>
+        <span>Datum</span>
+        <span>Wert <span hidden$="[[!unit]]" style="font-style:italic;">([[unit]])</span></span>
       </section>
-      <section id='body'>
+      <section id='body' on-scroll='scrollHandler'>
+				<section class='block'></section>
       </section>
     </section>
   </template>
@@ -141,19 +157,15 @@
 					value: true,
 					readOnly: true
 				},
-				_body: {
-					type: Object,
-					value: function() {
-						return Polymer.dom(this.$.body);
-					}
-				},
-				_map: {
-					type: Object,
-					value: function() {
-						return {};
-					}
+
+				maxProBlock: {
+					type: Number,
+					value: 60
 				}
 			},
+
+			_map: Object,
+			_body: Object,
 
 			attached: function() {
 				this._body = this.$.body;
@@ -167,7 +179,7 @@
 					if (Array.isArray(splices))
 						splices.forEach(function(v) {
 							if (this._map[v.x] && this._map[v.x].nodeType === 1)
-								this._body.removeChild(this._map[v.x]);
+								this._map[v.x].parentNode.removeChild(this._map[v.x]);
 							this._map[v.x] = null;
 							delete this._map[v.x];
 						}, this)
@@ -176,12 +188,6 @@
 							this._body.removeChild(this._body.children[0]);
 						this._map = {};
 					}
-					// if (this.values) {
-					// 	for (var i = this.values.length - 1; i >= 0; i--) {
-					// 		this.createRow(this.values[i]);
-					// 	}
-					// 	Array.prototype.sort.call(this._body.childNodes, this.compareFn);
-					// }
 				} else {
 					for (var i = 0; i < value.length; i++) {
 						this.createRow(value[i]);
@@ -196,14 +202,14 @@
 				var row, tdX, tdY, isExceeding, status;
 
 				row = document.createElement('section');
-				tdX = document.createElement('section');
+				tdX = document.createElement('span');
 				tdX.className = 'style-scope table-element';
-				tdX.textContent = (this.showFullDate ? new Date(value.x).toLocaleString() : new Date(value.x).toLocaleTimeString());
+				tdX.innerText = (this.showFullDate ? new Date(value.x).toLocaleString() : new Date(value.x).toLocaleTimeString());
 
-				tdY = document.createElement('section');
+				tdY = document.createElement('span');
 				tdY.className = 'style-scope table-element';
 				isExceeding = (value.state === 0) ? false : true;
-				tdY.textContent = (this.isBoolean ? (isExceeding ? '✗' : '✓') : value.y);
+				tdY.innerText = (this.isBoolean ? (isExceeding ? '✗' : '✓') : value.y);
 
 				if (this.highlightExceeding === true) {
 					switch (value.state) {
@@ -219,11 +225,30 @@
 
 				row.appendChild(tdX);
 				row.appendChild(tdY);
-				row.x = value.x;
+				// row.x = value.x;
 
 				this._map[value.x] = row;
 
-				this._body.insertBefore(row, this._body.children[0]);
+				if (this._body.children[0].children.length > this.maxProBlock) {
+					var block = document.createElement('section');
+					block.className = 'block style-scope table-element';
+					block.appendChild(row);
+					this._body.insertBefore(block, this._body.children[0]);
+				}
+				else
+					this._body.children[0].insertBefore(row, this._body.children[0].children[0]);
+			},
+
+			scrollHandler: function(e) {
+				// console.log(e.target.offsetHeight, e.target.scrollTop, e.target.scrollHeight);
+				if (3 * e.target.offsetHeight + e.target.scrollTop > e.target.scrollHeight) {
+          for (var i = 0; i < this._body.children.length; i++) {
+						if (this._body.children[i].style.display !== 'block') {
+							this._body.children[i].style.display = 'block';
+							return;
+						}
+					}
+        }
 			},
 
 			compareFn: function(a, b) {

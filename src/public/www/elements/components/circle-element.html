@@ -1,7 +1,7 @@
 <dom-module id="circle-element">
   <template>
   <style>
-    section#container {
+    #container {
       display: flex;
       flex-direction: row;
       align-self: center;
@@ -22,7 +22,7 @@
     svg:nth-child(4) { animation-delay: 200ms; fill: #E45D1A; }
     svg:nth-child(5) { animation-delay: 250ms; fill: #E41A1A; }
 
-    section#container.animated svg {
+    #container.animated svg {
       animation-name: scaleup;
     }
     @keyframes scaleup {

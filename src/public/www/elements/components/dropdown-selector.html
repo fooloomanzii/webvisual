@@ -14,7 +14,7 @@
       letter-spacing: 0.2px;
     }
 
-    section#container {
+    #container {
       display: flex;
       position: relative;
       flex-direction: row;
@@ -37,7 +37,7 @@
     :host([no-focusline]) {
       border: none;
     }
-    :host([no-focusline]) > section.focusline {
+    :host([no-focusline]) > .focusline {
       display: none;
     }
     label {
@@ -55,7 +55,7 @@
       text-align: center;
     }
 
-    section.focusline {
+    .focusline {
       background-color: var(--form-valid);
       visibility: hidden;
       pointer-events: none;
@@ -64,37 +64,37 @@
       -moz-transition: 0.25s ease all;
       -webkit-transition: 0.25s ease
     }
-    section.focusline[position="bottom"] {
+    .focusline[position="bottom"] {
       height: 2px;
       width: 5%;
       bottom: 0;
       left: 45%;
     }
-    section.focusline[position="top"] {
+    .focusline[position="top"] {
       height: 2px;
       width: 5%;
       top: 0;
       left: 45%;
     }
-    section.focusline[position="left"] {
+    .focusline[position="left"] {
       width: 2px;
       height: 5%;
       left: 0;
       top: 45%;
     }
-    section.focusline[position="right"] {
+    .focusline[position="right"] {
       width: 2px;
       height: 5%;
       right: 0;
       top: 45%;
     }
 
-    :host:focus section.focusline[position="bottom"], :host:focus section.focusline[position="top"], :host[active] section.focusline[position="bottom"], :host[active] section.focusline[position="top"] {
+    :host:focus .focusline[position="bottom"], :host:focus .focusline[position="top"], :host[active] .focusline[position="bottom"], :host[active] .focusline[position="top"] {
       visibility: visible;
       width: 100%;
       left: 0;
     }
-    :host:focus section.focusline[position="left"], :host:focus section.focusline[position="right"], :host[active] section.focusline[position="left"], :host[active] section.focusline[position="right"] {
+    :host:focus .focusline[position="left"], :host:focus .focusline[position="right"], :host[active] .focusline[position="left"], :host[active] .focusline[position="right"] {
       visibility: visible;
       height: 100%;
       top: 0;
@@ -108,7 +108,7 @@
       top: auto;
     }
 
-    section#container.set label[float] {
+    #container.set label[float] {
       visibility: visible;
       top: 0;
       font-size: 0.75em;
@@ -129,7 +129,7 @@
     paper-ripple {
       color: var(--ripple-color, currentColor);
     }
-    section#selected {
+    #selected {
       display: inline-flex;
       position: relative;
       padding: 0.5em;

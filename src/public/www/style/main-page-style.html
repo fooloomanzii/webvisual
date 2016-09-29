@@ -17,12 +17,12 @@
                 0 1px 5px 0 rgba(0, 0, 0, 0.12),
                 0 3px 1px -2px rgba(0, 0, 0, 0.2);
   }
-  section#mainView {
+  #mainView {
     position: relative;
     flex: 1;
     overflow: hidden;
   }
-  section#drawerPanel {
+  #drawerPanel {
     position: absolute;
     z-index: 200;
     top: 0;
@@ -40,11 +40,11 @@
     -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
     -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
   }
-  section#drawerPanel:not(.drawer-opened) {
+  #drawerPanel:not(.drawer-opened) {
     -webkit-transform: translateX(-100%);
     transform: translateX(-100%);
   }
-  section#drawerPanel button-element {
+  #drawerPanel button-element {
     width: 100%;
     padding: 1.3em 0.8em;
     border-top: thin solid rgba(200, 200, 200, 0);
@@ -52,21 +52,21 @@
     float: left;
     clear: both;
   }
-  section#drawerPanel iron-collapse {
+  #drawerPanel iron-collapse {
     float: left;
     clear: both;
     box-sizing: content-box;
   }
-  section#drawerPanel button-element, section#drawerPanel toggle-button-element {
+  #drawerPanel button-element, #drawerPanel toggle-button-element {
     width: 100%;
     float: left;
     clear: both;
     background: linear-gradient(to bottom, rgba(35,35,35,0.01) 5%,rgba(35,35,35,0.05) 40%);
   }
-  section#drawerPanel button-element:hover {
+  #drawerPanel button-element:hover {
     background: linear-gradient(to bottom, rgba(35,35,35,0.02) 5%,rgba(35,35,35,0.1) 40%);
   }
-  section#alarmPanel {
+  #alarmPanel {
     position: absolute;
     top: 0;
     right: 0;
@@ -90,33 +90,33 @@
     -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
     z-index: 90;
   }
-  section#alarmPanel[dark] {
+  #alarmPanel[dark] {
     background-color: rgba(162, 162, 162, 0.5);
   }
-  section#alarmPanel:not(.alarm-panel-opened) {
+  #alarmPanel:not(.alarm-panel-opened) {
     left: auto;
     visibility: hidden;
     -webkit-transform: translateX(100%); transform: translateX(100%);
   }
-  section#alarmHeader {
+  #alarmHeader {
     position: relative;
     overflow: hidden;
     width: auto;
     background: #C84040;
     color: var(--bright-text-color);
   }
-  section#alarmHeader[dark] {
+  #alarmHeader[dark] {
     background: #AA2525;
     color: var(--highlight-color);
     border-color: #444;
   }
-  section#alarmHeader button-element.title {
+  #alarmHeader button-element.title {
     width: 100%;
     font-size: 1.25em;
     padding: 0.75em 1em;
     border-radius: 0;
   }
-  section#backdrop {
+  #backdrop {
     z-index: 100;
     position: absolute;
     top: 0;
@@ -128,11 +128,11 @@
     transition: opacity ease-in-out 0.38s, visibility ease-in-out 0.38s;
     background-color: rgba(18,12,11,0.25);
   }
-  section#backdrop.backdrop-opened {
+  #backdrop.backdrop-opened {
     visibility: visible;
     opacity: 1;
   }
-  section#mainContent {
+  #mainContent {
     background: var(--app-content-background);
     position: absolute;
     top: 0;
@@ -145,10 +145,10 @@
     margin: 0;
     padding: 0;
   }
-  section#mainContent[dark] {
+  #mainContent[dark] {
     background: var(--dark-app-content-background);
   }
-  section#dropShadow {
+  #dropShadow {
     position: absolute;
     top: 0;
     left: 0;
@@ -160,7 +160,7 @@
     -webkit-transition: opacity 0.5s; transition: opacity 0.5s;
     opacity: 0;
   }
-  section#dropShadow.has-shadow {
+  #dropShadow.has-shadow {
     opacity: 1;
   }
 
@@ -180,7 +180,7 @@
     width: 148px;
   }
 
-  section#toolbar {
+  #toolbar {
     display: flex;
     flex-direction: column;
     position: relative;
@@ -191,19 +191,19 @@
     padding: 0;
     color: var(--bright-text-color);
   }
-  section#toolbar[dark] {
+  #toolbar[dark] {
     color: var(--highlight-color);
   }
-  section#toolbarBackground {
+  #toolbarBackground {
     @apply(--background);
     flex: 1;
     z-index: 100;
     background: var(--primary-color);
   }
-  section#toolbarBackground[dark] {
+  #toolbarBackground[dark] {
     background: var(--dark-primary-color);
   }
-  section#toolbarHeader {
+  #toolbarHeader {
     width: 100%;
     display: flex;
     flex-shrink: 0;
@@ -211,25 +211,24 @@
     z-index: 100;
   }
 
-  section#toolbarHeader icon-button-element.menu-icon {
+  #toolbarHeader icon-button-element.menu-icon {
 		margin: 12px 160px 12px 20px;
   }
-  section#toolbarHeader icon-button-element.error {
+  #toolbarHeader icon-button-element.error {
     color: var(--warning-color);
   }
-  section#toolbarHeader section#control {
+  #toolbarHeader #control {
     position: absolute;
 		display: inline-flex;
 		z-index: inherit;
 		top: 12px;
 		right: 12px;
   }
-  section#toolbarHeader section#control iron-icon {
+  #toolbarHeader #control iron-icon {
     margin-left: 8px;
   }
-  section#toolbarFooter {
+  #toolbarFooter {
     min-height: 0px;
-    max-height: 0px;
     display: flex;
     position: relative;
     box-sizing: border-box;
@@ -242,15 +241,14 @@
     width: 100%;
     z-index: 100;
   }
-  section#toolbarFooter[opened] {
+  #toolbarFooter[opened] {
     padding: 2px 6px 4px 6px;
     min-height: 150px;
-    max-height: var(--app-toolbar-max-height);
-    height: 1200px;
+    height: var(--app-toolbar-max-height);
   }
-  section#toolbarFooter[opened][expanded] {
+  #toolbarFooter[opened][expanded] {
     min-height: 250px;
-    max-height: var(--app-toolbar-expanded-height,calc(2 * var(--app-toolbar-max-height)));
+    height: var(--app-toolbar-expanded-height,calc(2 * var(--app-toolbar-max-height)));
   }
   </style>
   </template>

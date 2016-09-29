@@ -41,12 +41,12 @@
       "renderer": "Diagrammansicht"
     },
     "HNF-GDS": {
-      "path": "D:\\Github\\webvisual\\src\\examples\\config\\HNF_GDS.json",
+      "path": "\\\\ibn-vsrv\\HNF-GDS$\\Config\\HNF_GDS.json",
       "renderer": "Alarmzustände"
     },
     "Tests": {
       "path": "D:\\Github\\webvisual\\src\\examples\\config\\test.json",
-      "renderer": "Diagrammansicht"
+      "renderer": "Alarmzustände"
     }
   },
   "renderer": {

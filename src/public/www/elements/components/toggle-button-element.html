@@ -21,7 +21,7 @@
         pointer-events: none;
       }
 
-      section.toggle-bar {
+      .toggle-bar {
         position: absolute;
         height: 100%;
         width: 100%;
@@ -34,7 +34,7 @@
         @apply(--toggle-button-unchecked-bar);
       }
 
-      section.toggle-button {
+      .toggle-button {
         position: absolute;
         top: -0.125em;
         left: 0;
@@ -50,35 +50,35 @@
         @apply(--toggle-button-unchecked-button);
       }
 
-      section.toggle-button.dragging {
+      .toggle-button.dragging {
         -webkit-transition: none;
         transition: none;
       }
 
-      :host([checked]:not([disabled])) section.toggle-bar {
+      :host([checked]:not([disabled])) .toggle-bar {
         opacity: 0.5;
         background-color: var(--toggle-button-checked-bar-color, --primary-color);
 
         @apply(--toggle-button-checked-bar);
       }
 
-      :host([disabled]) section.toggle-bar {
+      :host([disabled]) .toggle-bar {
         background-color: #000;
         opacity: 0.2;
       }
 
-      :host([checked]) section.toggle-button {
+      :host([checked]) .toggle-button {
         -webkit-transform: translate(1.25em, 0);
         transform: translate(1.25em, 0);
       }
 
-      :host([checked]:not([disabled])) section.toggle-button {
+      :host([checked]:not([disabled])) .toggle-button {
         background-color: var(--toggle-button-checked-button-color, --primary-color);
 
         @apply(--toggle-button-checked-button);
       }
 
-      :host([disabled]) section.toggle-button {
+      :host([disabled]) .toggle-button {
         background-color: var(--disabled-text-color);
         opacity: 1;
       }
@@ -100,7 +100,7 @@
         color: var(--toggle-button-checked-ink-color, --primary-color);
       }
 
-      section.toggle-container {
+      .toggle-container {
         display: inline-block;
         position: relative;
         width: 2.5em;
@@ -108,7 +108,7 @@
         margin: 0.25em 1px;
       }
 
-      section.toggle-label {
+      .toggle-label {
         position: relative;
         display: inline-block;
         vertical-align: middle;

@@ -89,7 +89,7 @@ Custom property | Description | Default
         border-color: var(--notification-element-dark-border-color, #444);
       }
 
-      section.header {
+      .header {
         position: relative;
         border-top-left-radius: inherit;
         border-top-right-radius: inherit;
@@ -98,20 +98,20 @@ Custom property | Description | Default
         color: var(--notification-element-title-color,#1f1f1f);
       }
 
-      section.header .text.over-image {
+      .header .text.over-image {
         background: none !important;;
         position: absolute;
         bottom: 0px;
       }
 
-      section.text {
+      .text {
         background: linear-gradient(180deg,rgba(255,255,255,0),rgba(230,230,230,0.1),rgba(255,255,255,0));
         width: auto;
         padding: 1em;
         font-size: 1.25em;
       }
 
-      section.header iron-image {
+      .header iron-image {
         display: block;
         max-width: 100%;
         --iron-image-height: 100%;
@@ -128,7 +128,7 @@ Custom property | Description | Default
         display: none;
       }
 
-      section.mainContent {
+      .mainContent {
         display: flex;
         flex-direction: column;
         background-color: var(--notification-element-background-color,#CFCFCF);
@@ -138,7 +138,7 @@ Custom property | Description | Default
         font-size: 1em;
       }
 
-      section.mainContent[dark] {
+      .mainContent[dark] {
         background-color: var(--notification-element-dark-background-color,#747474);
         border-color: var(--notification-element-dark-border-color, #444);
       }

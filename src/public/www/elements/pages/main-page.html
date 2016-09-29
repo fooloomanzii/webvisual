@@ -15,39 +15,27 @@
       position: absolute;
       pointer-events: all !important;
     }
-    section#toolbarFooter ::content sign-element {
-      border: none;
-    }
-    section#toolbarFooter ::content .toolbar-footer {
-      /*display: flex;*/
+    #toolbarFooter ::content > .toolbar-footer {
       border-right: thin solid #BBBBBB;
+      border-color: #BBBBBB;
       border-radius: 8px;
       z-index: 100;
       height: auto;
       position: relative;
     }
-    /*section#toolbarFooter ::content .toolbar-footer:last-child {
+    #toolbarFooter ::content > .toolbar-footer:last-child {
       border-right: none;
-    }*/
-    section#toolbarFooter ::content [element] {
-      flex-shrink: 0;
     }
-    section#toolbarFooter ::content [dark] {
+    #toolbarFooter ::content [dark] {
       border-color: #808080;
     }
-    section#toolbarFooter ::content svg-element {
+    #toolbarFooter ::content svg-element {
       background: rgba(255,255,255,0.2);
-      border-top: thin solid #669DB4;
-      border-bottom: thin solid #669DB4;
     }
-    section#toolbarFooter ::content svg-element[dark] {
-      border-top: thin solid #005B82 !important;
-      border-bottom: thin solid #005B82 !important;
-    }
-    section#toolbarFooter:not([opened]) ::content > * {
+    #toolbarFooter:not([opened]) ::content > * {
       display: none;
     }
-    section#mainContent ::content .panel {
+    #mainContent ::content .panel {
       height: 100%;
       width: 100%;
       top: 0;
@@ -70,76 +58,76 @@
       padding: 0.5em;
       opacity: 1;
     }
-    section#mainContent ::content .panel > * {
+    #mainContent ::content .panel > * {
       margin: 0.4em;
     }
-    section#mainContent ::content .panel.foreground {
+    #mainContent ::content .panel.foreground {
       display: flex;
     }
-    section#mainContent ::content .panel:not(.foreground) {
+    #mainContent ::content .panel:not(.foreground) {
       display: none;
     }
-    section#mainContent ::content .panel.selected[animated] {
+    #mainContent ::content .panel.selected[animated] {
       transition: opacity 150ms ease, transform 300ms ease;
     }
-    section#mainContent ::content .panel:not(.selected)[animated] {
+    #mainContent ::content .panel:not(.selected)[animated] {
       transition: opacity 300ms ease, transform 150ms ease;
       opacity: 0;
       transform: translateY(25%);
       pointer-events: none;
       z-index: 51;
     }
-    section#groupingKeysLabelSelector {
+    #groupingKeysLabelSelector {
       display: flex;
       flex-direction: column;
     }
-    section#groupingKeysLabelSelector ::content iron-selector.groupingKeySelector {
+    #groupingKeysLabelSelector ::content iron-selector.groupingKeySelector {
       display: flex;
       flex-direction: column;
     }
-    section#groupingKeysLabelSelector ::content iron-selector.groupingKeySelector:not(.foreground){
+    #groupingKeysLabelSelector ::content iron-selector.groupingKeySelector:not(.foreground){
       display: none;
     }
-    section#groupingKeysLabelSelector ::content radio-button-element {
+    #groupingKeysLabelSelector ::content radio-button-element {
       font-size: 0.9em;
     }
-    section#labelsTabs {
+    #labelsTabs {
       height: 34px;
       font-size: 0.85em;
 			align-self: flex-end;
 			margin-left: 24px;
 			margin-right: 60px;
     }
-    section#labelsTabs ::content tab-element.label.iron-selected {
+    #labelsTabs ::content tab-element.label.iron-selected {
       background: linear-gradient(to top, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.15));
       color: #f1f1f1;
     }
-    section#labelsTabs ::content tab-element.label:hover:not(.iron-selected){
+    #labelsTabs ::content tab-element.label:hover:not(.iron-selected){
       background: linear-gradient(to top, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
     }
-    section#labelsTabs ::content tab-element.label.iron-selected[dark]{
+    #labelsTabs ::content tab-element.label.iron-selected[dark]{
       background: linear-gradient(to top, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
       color: #A8CCDB;
     }
 
-		section#control icon-button-element.tab-icon {
+		#control icon-button-element.tab-icon {
 			display: none;
 		}
     @media all and (max-width: 520px) {
-			section#toolbarHeader {
+			#toolbarHeader {
 				flex-direction: column;
 			}
-			section#labelsTabs {
+			#labelsTabs {
 				align-self: flex-start;
 				display: none;
 			}
-			section#labelsTabs.tabs-opened {
+			#labelsTabs.tabs-opened {
 				display: inline-block;
 			}
-			section#control icon-button-element.tab-icon {
+			#control icon-button-element.tab-icon {
 				display: inline-block;;
 			}
-      section#mainContent ::content .panel {
+      #mainContent ::content .panel {
         display: block;
         padding: 0em;
       }
@@ -148,7 +136,7 @@
         border-radius: 0em;
         width: 100%;
       }
-      section#toolbarHeader icon-button-element.menu-icon {
+      #toolbarHeader icon-button-element.menu-icon {
         margin-left: 12px;
       }
       logo-element#logo {
@@ -157,7 +145,7 @@
       }
     }
     @media all and (min-width: 520px) and (max-width: 600px){
-      section#toolbarHeader icon-button-element.menu-icon {
+      #toolbarHeader icon-button-element.menu-icon {
         margin-left: 16px;
       }
       logo-element#logo {
@@ -170,10 +158,10 @@
       }
     }
     @media all and (min-width: 601px) {
-      section#toolbarFooter[dark] .caption {
+      #toolbarFooter[dark] .caption {
         border-top: none;
       }
-      section#toolbarFooter .caption {
+      #toolbarFooter .caption {
         border-top: none;
       }
     }
@@ -671,16 +659,8 @@
         if (this.opened || this.forceOpened) {
           this.set('expanded', !this.expanded);
           this.toggleAttribute('expanded', this.expanded, this.$.toolbarFooter);
-
-          var elements = this.queryAllEffectiveChildren('sign-element.toolbar-footer');
-          elements.forEach(function(el) {
-            if (this.expanded === true)
-              el.removeAttribute('horizontal');
-            else
-              el.setAttribute('horizontal', true);
-          }, this);
-
-          this.async(function() {this.fire('resize')}, 150);
+          this._reproduceAttribute({detail: {value: !this.expanded}, type: 'horizontal'});
+          this.async(this.notifyResize, 150);
         }
       },
       closeToolbar: function(newLabel, oldLabel) {
@@ -727,6 +707,7 @@
         if (this.active === true && preconf && preconf.selectedLabels) {
             this.dissemblePanels(preconf.selectedLabels);
         }
+        this.notifyResize();
       }
     });
   </script>

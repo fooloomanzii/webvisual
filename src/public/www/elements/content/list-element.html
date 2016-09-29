@@ -27,14 +27,24 @@
     :host[checked] {
       @apply(--shadow-elevation-2dp);
     }
-    section#sign {
-      min-width: 48px;
+    section.list-element {
       position: relative;
+    }
+    section#sign {
+      min-width: 2em;
+      position: relative;
+      padding: 0;
+      margin: 0;
+      width: auto;
       background: var(--element-color);
       color: var(--element-text-color);
+      height: auto;
+      width: auto;
+      box-sizing: border-box;
+      line-height: 1;
     }
     section#sign.inrange {
-      background: var(--element-inrange-color);
+      background: var(--element-state-inrange-color);
       color: var(--element-state-inrange-text-color);
     }
     section#sign.exceeds {
@@ -52,21 +62,20 @@
     :host[dark] section#sign {
       color: #d3d3d3;
     }
-    section#actualValueSection {
-      display: flex;
-      flex: 1;
-      height: 100%;
-      box-sizing: border-box;
-      position: relative;
-      background: linear-gradient(180deg,rgba(255,255,255,0),rgba(230,230,230,0.2),rgba(255,255,255,0));
-      padding: 0.25em;
-      line-height: 1.4;
-      justify-content: center;
+    section#sign > section {
+      padding: 0.5em;
+      display: inline-flex;
       align-items: center;
+      justify-content: center;
+      height: 100%;
+      width: 100%;
+      box-sizing: border-box;
+      background: linear-gradient(180deg,rgba(255,255,255,0),rgba(230,230,230,0.2),rgba(255,255,255,0));
     }
     section#valueSection {
       font-size: 0.9em;
-      padding: 0 0.25em;
+      padding: 0;
+      margin: 0;
       float: left;
     }
     section#unitSection {
@@ -77,9 +86,11 @@
     section#label {
       color: #333333;
       writing-mode: vertical-lr;
+      -ms-writing-mode: tb-rl;
       font-size: 0.6em;
       text-align: center;
-      padding: 0.25em 0;
+      padding: 0.5em 0;
+      width: 3em;
       font-weight: normal;
     }
     section#caption {
@@ -88,13 +99,14 @@
       border-bottom-left-radius: inherit;
       border-bottom-right-radius: inherit;
       color: #1f1f1f;
-      line-height: 1.4;
+      line-height: 1;
       padding: 0.5em 0.5em 0.5em 0em;
       display: flex;
       flex-direction: row;
       flex: 1 0 auto;
       align-items: center;
       margin: 0;
+      width: auto;
     }
     :host[dark] section#caption {
       color: #1d1d1d;
@@ -134,10 +146,7 @@
       min-width: 5em;
       padding: 0.5em;
       box-sizing: border-box;
-    }
-    radio-button-element {
-      --radio-button-checked-color: var(--element-color);
-      --radio-button-unchecked-color: var(--element-color);
+      position: relative;
     }
   </style>
     <section id='label'>[[label]]</section>
@@ -149,16 +158,14 @@
     </section>
 
     <section id='sign' class='inrange'>
-      <section id='actualValueSection'>
-        <section hidden$='[[isBoolean]]'>
-          <section id='valueSection'></section>
-          <section id='unitSection'>[[unit]]</section>
-        </section>
-        <section hidden$='[[!isBoolean]]'>
-          <svg id='icon' hidden$='[[!isExceeding]]' viewBox='0 0 24 24'>
-              <g id='error-outline'><path d='M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z'/></g>
-          </svg>
-        </section>
+      <section hidden$="[[isBoolean]]">
+        <section id='valueSection'></section>
+        <section id='unitSection' hidden$="[[!unit]]">[[unit]]</section>
+      </section>
+      <section hidden$="[[!isBoolean]]">
+        <svg id='icon' hidden$='[[!isExceeding]]' viewBox='0 0 24 24'>
+          <g id='error-outline'><path d='M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z'/></g>
+        </svg>
       </section>
     </section>
     <section id='dateSection' hidden$='[[!showDate]]'></section>
@@ -175,6 +182,11 @@
         showDate: {
           type: Boolean,
           value: true
+        },
+        ariaLabel: {
+          value: 'gsfdgfsg',
+          reflectToAttribute: true
+
         },
         selectable: {
           type: Boolean,
@@ -204,6 +216,16 @@
         'click': '_select'
       },
 
+      _value: Object,
+      _date: Object,
+      _sign: Object,
+
+      attached: function() {
+        this._value = this.$.valueSection;
+        this._date = this.$.dateSection;
+        this._sign = this.$.sign;
+      },
+
       setExceedingStatus: function(isExceeding, state) {
         var status;
         this.set('isExceeding', isExceeding);
@@ -214,7 +236,7 @@
           case 1: status = 'exceeds'; break;
           default: status = 'undefined';
         }
-        this.$.sign.className = status + " style-scope list-element";
+        this._sign.className = status + " style-scope list-element";
       },
 
       render: function(value) {
@@ -222,12 +244,14 @@
           return;
 
         // set value
-        if (!this.isBoolean === true)
-          this.$.valueSection.textContent = value.y;
+        if (this.isBoolean === false) {
+          this._value.innerText = value.y;
+        }
 
         // set date
-        if (this.showDate === true)
-          this.$.dateSection.textContent = new Date(value.x).toLocaleTimeString();
+        if (this.showDate === true) {
+          this._date.innerText = new Date(value.x).toLocaleTimeString();
+        }
       }
     });
   </script>
