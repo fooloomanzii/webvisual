@@ -55,17 +55,24 @@
 			dropdown-element#legend {
 				--dropdown-background: transparent;
 			}
-		  .icon-button {
+		  icon-button-element {
 		    position: absolute;
 		    opacity: 0.4;
 				--iron-icon-width: 20px;
 				--iron-icon-height: 20px;
 		    transition: opacity 150ms ease;
 		  }
-		  .icon-button:hover {
+		  icon-button-element:hover {
 		    opacity: 1;
 		    border-radius: 0;
 		  }
+			icon-button-element#xbutton {
+				left:	auto;
+				right: 0;
+				top: auto;
+				bottom: 0;
+			}
+
 		  text {
 		    fill: currentColor;
 		    pointer-events: none;
@@ -183,7 +190,7 @@
 		  <!-- <svg id='loader'  version='1.1' xmlns='http://www.w3.org/2000/svg'>
 		  </svg> -->
 
-			<icon-button-element id="legendbutton" class="icon-button" icon="timeline"></icon-button-element>
+			<icon-button-element id="legendbutton" icon="timeline"></icon-button-element>
 		  <dropdown-element id="legend" for="legendbutton" target-toggle-event="tap" position="bottom" align="end">
 				<content id='collector' select='graph-element'></content>
 				<template is="dom-repeat" items="[[selectedElements]]">
@@ -192,16 +199,16 @@
 				</template>
 		  </dropdown-element>
 
-		  <icon-button-element id="zoombutton" class="icon-button" icon="search" on-tap="_startZoomSession"></icon-button-element>
+		  <icon-button-element id="zoombutton" icon="search" on-tap="_startZoomSession"></icon-button-element>
 
-		  <icon-button-element id="optionsbutton" class="icon-button" icon="juelich:app-inverted"></icon-button-element>
+		  <icon-button-element id="optionsbutton" icon="juelich:app-inverted"></icon-button-element>
 		  <dropdown-element for="optionsbutton" target-toggle-event="tap" position="right" align="outer-start" offset="2">
 		    <toggle-button-element checked="[[!noDots]]" on-change="changeDots">mit Punkten</toggle-button-element>
 		    <toggle-button-element checked="[[!noLines]]" on-change="changeLines">mit Linien</toggle-button-element>
 		    <toggle-button-element checked="[[!noAreas]]" on-change="changeAreas">mit Flächen</toggle-button-element>
 		  </dropdown-element>
 
-			<icon-button-element id="ybutton" class="icon-button" icon="y"></icon-button-element>
+			<icon-button-element id="ybutton" icon="y"></icon-button-element>
 		  <dropdown-element for="ybutton" target-toggle-event="tap" position="right" align="start" offset="2">
 				<iron-selector attr-for-selected="scale" selected="{{yScale}}" fallback-selection="linear" toggles>
 		      <button-element scale='linear'>linear</button-element>
@@ -211,7 +218,7 @@
 				</iron-selector>
 		  </dropdown-element>
 
-			<icon-button-element id="xbutton" class="icon-button" icon="x"></icon-button-element>
+			<icon-button-element id="xbutton" icon="x"></icon-button-element>
 		  <dropdown-element for="xbutton" target-toggle-event="tap" position="top" align="end" offset="2">
 				<iron-selector attr-for-selected="interpolate" selected="{{interpolation}}" fallback-selection="Lineare Verbindung" toggles>
 		      <button-element interpolate='Lineare Verbindung'>Lineare Verbindung</button-element>
@@ -290,18 +297,6 @@
 				iconWidth: {
 					type: Number,
 					value: 36
-				},
-				clamp: {
-					type: Boolean,
-					value: true
-				},
-				clampExtend: {
-					type: Number,
-					value: 16
-				},
-				_isClamping: {
-					type: Boolean,
-					value: false
 				},
 				gridMult: {
 					type: Number,
@@ -525,7 +520,7 @@
 			},
 
 			_sizeLayout: function() {
-				var bRect = this.getBoundingClientRect();
+				var bRect = this.$.svgchart.getBoundingClientRect();
 				if (bRect.height === 0 || bRect.width === 0) return;
 
 				this._height = Math.max(bRect.height, 150);
