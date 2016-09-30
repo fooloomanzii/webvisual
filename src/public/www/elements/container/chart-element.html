@@ -27,25 +27,33 @@
               -ms-user-select: none !important;
                   user-select: none !important;
       }
-      #svgContainer {
+      :host #svgContainer {
         display: inline-flex;
         flex: 1;
         position: relative;
       }
-      #svgchart {
-        /*display: flex;
-        flex: 1;*/
+      :host #svgchart {
+
         width: 100%;
         height: auto;
         position: relative;
       }
-      button-element, toggle-button-element {
-        font-size: 0.7em;
+      button-element, radio-button-element {
         padding: 0.5em;
         float: left;
         clear: both;
         width: 100%;
         border-radius: 0px;
+      }
+      button-element {
+        font-size: 0.7em;
+      }
+      radio-button-element {
+        font-size: 0.9em;
+        margin-top: 0.2em;
+        margin-bottom: 0.2em;
+        --radio-button-checked-color: var(--bright-primary-color);
+        --radio-button-unchecked-color: #bbb;
       }
       dropdown-element {
         --dropdown-background: rgba(255, 255, 255, 0.7);;
@@ -148,16 +156,17 @@
       }
       g#zoom rect.overlay {
         fill: none;
+        fill-opacity: 0.05;
         pointer-events: none;
         stroke-width: 0;
       }
       g#zoom rect.overlay.active {
         pointer-events: all;
+        fill: #BEA93E;
         cursor: zoom-in;
-        stroke: #111;
-        stroke-opacity: 0.75;
-        stroke-width: 3px;
-        stroke-dasharray: 3 3;
+        stroke: #1f1f1f;
+        stroke-opacity: 0.3;
+        stroke-width: 1px;
       }
       g#focus line.focus.line {
         fill: none;
@@ -193,7 +202,7 @@
           </g>
           <text id='info' x='0' y='0' hidden></text>
           <g id='zoom'>
-            <rect class='overlay'></rect>
+            <rect class='overlay' x="0.5" y="0.5"></rect>
           </g>
         </g>
       </svg>
@@ -211,13 +220,13 @@
 
 		  <icon-button-element id="optionsbutton" icon="juelich:app-inverted"></icon-button-element>
 		  <dropdown-element for="optionsbutton" target-toggle-event="tap" position="right" align="outer-start" offset="10">
-		    <toggle-button-element checked="[[!noDots]]" on-change="changeDots">mit Punkten</toggle-button-element>
-		    <toggle-button-element checked="[[!noLines]]" on-change="changeLines">mit Linien</toggle-button-element>
-		    <toggle-button-element checked="[[!noAreas]]" on-change="changeAreas">mit Flächen</toggle-button-element>
+		    <radio-button-element checked="[[!noDots]]" on-change="changeDots">mit Punkten</radio-button-element>
+		    <radio-button-element checked="[[!noLines]]" on-change="changeLines">mit Linien</radio-button-element>
+		    <radio-button-element checked="[[!noAreas]]" on-change="changeAreas">mit Flächen</radio-button-element>
 		  </dropdown-element>
 
 		  <icon-button-element id="ybutton" icon="y"></icon-button-element>
-		  <dropdown-element for="ybutton" target-toggle-event="tap" position="right" align="outer-center" offset="10">
+		  <dropdown-element for="ybutton" target-toggle-event="tap" position="right" align="start" offset="10">
 		    <iron-selector attr-for-selected="scale" selected="{{yScale}}" fallback-selection="linear" toggles>
 		      <button-element scale='linear'>linear</button-element>
 		      <button-element scale='√'>√</button-element>
@@ -227,7 +236,7 @@
 		  </dropdown-element>
 
 		  <icon-button-element id="xbutton" icon="x"></icon-button-element>
-		  <dropdown-element for="xbutton" target-toggle-event="tap" position="top" align="outer-start" offset="1">
+		  <dropdown-element for="xbutton" target-toggle-event="tap" position="top" align="end" offset="1">
 		    <iron-selector attr-for-selected="interpolate" selected="{{interpolation}}" fallback-selection="Lineare Verbindung" toggles>
 		      <button-element interpolate='Lineare Verbindung'>Lineare Verbindung</button-element>
 		      <button-element interpolate='Basis Spline'>Basis Spline</button-element>
@@ -434,14 +443,6 @@
             this._elements.push(nodes[i]);
           }
         }
-        nodes.forEach(function(node) {
-          if (node.label && node.id) {
-            if (!this._containing[node.label])
-              this._containing[node.label] = [];
-            if (this._containing[node.label].indexOf(node.id) === -1)
-              this._containing[node.label].push(node.id)
-          }
-        }.bind(this))
       },
 
       __processRemovedNodes: function(nodes) {
@@ -451,13 +452,6 @@
             this._elements.splice(pos, 1);
           }
         }
-        nodes.forEach(function(node) {
-          if (node.label && node.id && this._containing[node.label]) {
-            var pos = this._containing[node.label].indexOf(node.id);
-            if (pos !== -1)
-              this._containing[node.label].splice(pos, 1);
-          }
-        }.bind(this))
       },
 
       _sizeChanged: function(e) {
@@ -549,8 +543,8 @@
           .attr('height', this._height);
 
         this._zoomOverlay
-          .attr('width', this._width)
-          .attr('height', this._height);
+          .attr('width', this._width - 1)
+          .attr('height', this._height - 1);
 
         this._xAxis = this._createAxis(this._x, 'bottom', this.xScale);
         this._yAxis = this._createAxis(this._y, 'left', this.yScale);
@@ -681,10 +675,22 @@
 
       _redraw: function() {
         if (this._chart === undefined || this._chart.select === undefined) return;
-        if (this._elements.length > 0)
+        if (this._elements.length > 0) {
           this._elements.forEach(function(g) {
+            // performance.mark('start');
             g.redraw();
+            // performance.mark('end');
+            // performance.measure(g.id, 'start', 'end');
           });
+          // p = performance.getEntriesByType("measure");
+          //   for (var i=0; i < p.length; i++) {
+          //     console.log ("performance.measure " + p[i].name +
+          //         //  " startTime = " + p[i].startTime +
+          //          " duration  = " + p[i].duration);
+          //   }
+          // performance.clearMarks();
+          // performance.clearMeasures();
+        }
 
         this._chart.select('g.x.axis').transition(50).call(this._xAxis);
         this._chart.select('g.y.axis').transition(50).call(this._yAxis);
@@ -695,7 +701,7 @@
           .classed('style-scope', true)
           .classed('chart-element', true);
         this._updateInfo();
-        this._hideInfo();
+        // this._hideInfo();
       },
 
       _brushed: function() {
@@ -722,15 +728,24 @@
         var domainX = [null, null],
           domainY = [null, null],
           v, yScale = this.yScale,
-          range, rangedValues;
+          range, rangedValues, containing = {};
 
-        for (var label in this._containing) {
-          if (this._containing[label].length > 0) {
-            range = window.Cache[label].range(this._containing[label]);
+        this._elements.forEach(function(g) {
+          if (g.id && g.label) {
+            if (containing[g.label] === undefined)
+              containing[g.label] = [];
+            if (containing[g.label].indexOf(g.id) === -1)
+              containing[g.label].push(g.id)
+          }
+        });
+
+        for (var label in containing) {
+          if (containing[label].length > 0) {
+            range = window.Cache[label].range(containing[label]);
             domainX[0] = (domainX[0] === null || range[0] < domainX[0]) ? range[0] : domainX[0];
             domainX[1] = (domainX[1] === null || range[1] > domainX[1]) ? range[1] : domainX[1];
 
-            rangedValues = window.Cache[label].rangedValues(this._containing[label], 'y');
+            rangedValues = window.Cache[label].rangedValues(containing[label], 'y');
             domainY[0] = (domainY[0] === null || rangedValues[0] < domainY[0]) ? rangedValues[0] : domainY[0];
             domainY[1] = (domainY[1] === null || rangedValues[1] > domainY[1]) ? rangedValues[1] : domainY[1];
           }
@@ -745,6 +760,7 @@
         }
         this._x.domain(domainX);
         this._y.domain(domainY).nice(this.yTicks);
+
       },
       _showInfo: function(d) {
         this.cancelDebouncer('hideinfo');

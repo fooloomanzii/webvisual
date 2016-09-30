@@ -7,11 +7,12 @@
         line-height: 0;
         --calculated-box-size: var(--box-size, 20px);
         padding: 0.25em 0.5em;
-        transition: background-color 150ms ease;
+        transition: background-color 200ms ease;
+        cursor: pointer;
       }
 
       :host[checked] {
-        background-color: var(--box-checked-background, white);
+        background-color: var(--box-checked-background, rgba(255, 255, 255, 0.9));
       }
 
       :host(:focus) {
@@ -25,7 +26,6 @@
         display: inline-flex;
         white-space: nowrap;
         position: relative;
-        cursor: pointer;
         @apply(--font-common-base);
         line-height: 0;
         -webkit-tap-highlight-color: transparent;
