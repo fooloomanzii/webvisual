@@ -90,10 +90,6 @@ class dataModule extends EventEmitter {
 			for (let label in this.dataFile[name]) {
 				this.dataFile[name][label].close();
 				delete this.dataFile[name][label];
-				delete this.cache[name][label];
-				if (this.configHandler.settings[name].configuration.labels.indexOf(label) === -1) {
-					delete this.io.nsps['/' + name + '__' + label];
-				}
 			}
 
 			// dataFileHandler - established the data connections
