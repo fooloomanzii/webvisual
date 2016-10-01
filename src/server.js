@@ -30,12 +30,6 @@ app.use(bodyParser.urlencoded({
 })); // get information from html form
 app.use(bodyParser.json());
 
-app.use(session({
-	secret: "&hkG#1dwwh!",
-	resave: false,
-	saveUninitialized: false
-}));
-
 // Prevent Clickjacking
 app.use(xFrameOptions());
 app.use(passport.initialize());
@@ -82,10 +76,13 @@ class WebvisualServer extends EventEmitter {
 					!this.config.server.ssl.certchaindir) {
 						this.mainServer = http.createServer(app);
 						this.mainServer.on("error", (e) => {
-								if (e.code == "EADDRINUSE") {
-									this.emit("error", "Port " + this.config.server.port.http + " in use, retrying...");
-									this.emit("error", "Please check if \"node.exe\" is not already running on this port.");
+								if (e.code === "EADDRINUSE") {
+									this.emit("error", "HTTP Server \n Port " + this.config.server.port.http + " in use. Please check if \"node.exe\" is not already running on this port.");
 									this.mainServer.close();
+								} else if (e.code === "EACCES") {
+									this.emit("error", "HTTP Server \n Network not accessable. Port " + this.config.server.port.http + " might be in use by another application. Try to switch the port or quit the application, which is using this port");
+								} else {
+									this.emit("error", e);
 								}
 							})
 							.once("listening", () => {
@@ -94,7 +91,6 @@ class WebvisualServer extends EventEmitter {
 						this.dataHandler.setServer(this.mainServer);
 						resolve(false);
 				} else {
-
 					let cert = path.resolve(this.config.server.ssl.cert);
 					let key = path.resolve(this.config.server.ssl.key);
 					let passphrase = path.resolve(this.config.server.ssl.passphrase);
@@ -145,20 +141,26 @@ class WebvisualServer extends EventEmitter {
 
 											// if Error: EADDRINUSE --> log in console
 											this.redirectServer.on("error", (e) => {
-													if (e.code == "EADDRINUSE") {
-														this.emit("log", "Port " + this.config.server.port.http + " in use, retrying...");
-														this.emit("log", "Please check if \"node.exe\" is not already running on this port.");
-														this.redirectServer.close();
+													if (e.code === "EADDRINUSE") {
+														this.emit("error", "HTTP Server \n Port " + this.config.server.port.http + " in use. Please check if \"node.exe\" is not already running on this port.");
+														this.mainServer.close();
+													} else if (e.code === "EACCES") {
+														this.emit("error", "HTTP Server \n Network not accessable. Port " + this.config.server.port.http + " might be in use by another application. Try to switch the port or quit the application, which is using this port");
+													} else {
+														this.emit("error", e);
 													}
 												})
 												.once("listening", () => {
 													this.emit("log", "HTTP Server is listening for redirecting to https on port", this.config.server.port.http);
 												});
 											this.mainServer.on("error", (e) => {
-													if (e.code == "EADDRINUSE") {
-														this.emit("error", "Port " + this.config.server.port.https + " in use, retrying...");
-														this.emit("error", "Please check if \"node.exe\" is not already running on this port.");
+													if (e.code === "EADDRINUSE") {
+														this.emit("error", "HTTPS Server \n Port " + this.config.server.port.https + " in use. Please check if \"node.exe\" is not already running on this port.");
 														this.mainServer.close();
+													} else if (e.code === "EACCES") {
+														this.emit("error", "HTTPS Server \n Network not accessable. Port " + this.config.server.port.https + " might be in use by another application. Try to switch the port or quit the application, which is using this port");
+													} else {
+														this.emit("error", e);
 													}
 												})
 												.once("listening", () => {
@@ -188,11 +190,15 @@ class WebvisualServer extends EventEmitter {
 					.then( (isHttps) => {
 						this.dataHandler.connect(this.config.userConfigFiles);
 						if (isHttps === true) {
+							app.use(session({
+								secret: "&hkG#1dwwh!",
+								resave: false,
+								saveUninitialized: false
+							}));
 							this.redirectServer.listen(this.config.server.port.http || 80);
 							this.mainServer.listen(this.config.server.port.https || 443);
 						} else {
 							this.mainServer.listen(this.config.server.port.http || 80);
-							console.log(isHttps, this.config.server.port.http);
 						}
 						this.isRunning = true;
 						this.emit("server-start");
