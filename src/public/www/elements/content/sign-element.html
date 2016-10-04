@@ -268,10 +268,6 @@
           type: Boolean,
           value: false
         },
-        exeedable: {
-          type: Boolean,
-          value: true
-        },
         updateEveryValue: {
           type: Boolean,
           value: false,
@@ -365,7 +361,6 @@
       _openTooltip: function(e) {
         if (!this.hasExceeded) return;
         e.preventDefault();
-        console.log(this._tooltip);
         this._tooltip.setAttribute('opened', true);
         this._updateTooltipPosition();
         e.stopPropagation();
@@ -373,7 +368,6 @@
 
       _toggleTooltip: function(e) {
         e.preventDefault();
-        console.log(this._tooltip);
         // if (!this.hasExceeded) return;
         if (this._tooltip.hasAttribute('opened'))
           this._tooltip.removeAttribute('opened');

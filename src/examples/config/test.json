@@ -4,7 +4,7 @@
     "connections": {
       "file": {
         "mode": "append",
-        "path": "//ibn-vsrv/HNF-GDS$/Datafile/test.txt",
+        "path": "../tools/test.txt",
         "format": {
           "dateFormat": "DD.MM.YYYY hh:mm:ss",
           "decimalSeparator": ".",

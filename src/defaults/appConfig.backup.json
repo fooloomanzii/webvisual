@@ -2,6 +2,7 @@
   "server": {
     "auth": {
       "required": false,
+      "req": true,
       "ldap": {
         "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
         "url": "ldap:\\\\ibn-net.kfa-juelich.de"
@@ -24,14 +25,14 @@
     }
   },
   "app": {
-    "width": 576,
+    "width": 1065,
     "height": 770,
     "autoHideMenuBar": true,
     "acceptFirstMouse": true,
     "webPreferences": {
       "webSecurity": true
     },
-    "x": 932,
+    "x": 443,
     "y": 65
   },
   "userConfigFiles": {
@@ -40,7 +41,7 @@
       "renderer": "Diagrammansicht"
     },
     "HNF-GDS": {
-      "path": "\\\\ibn-vsrv\\HNF-GDS$\\Config\\HNF_GDS.json",
+      "path": "D:\\Github\\webvisual\\src\\examples\\config\\HNF_GDS.json",
       "renderer": "Alarmzustände"
     },
     "Tests": {

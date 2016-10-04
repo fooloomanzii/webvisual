@@ -23,14 +23,14 @@
       <template is="dom-if" if="[[!noExceedNotify]]">
         <template is="dom-repeat" items="{{exceedingElements}}">
           <list-element id="[[item.id]]" label="[[item.label]]" keys="{{item.keys}}" grouped-key="{{item.groupedKey}}" unit="{{item.unit}}"
-                        color="[[item.color]]" is-boolean="[[item.isBoolean]]" selectable exceedable show-date>
+                        color="[[item.color]]" is-boolean="[[item.isBoolean]]" selectable exceedable="{{item.exceedable}}" show-date>
           </list-element>
         </template>
       </template>
       <template is="dom-if" if="[[!noSelectNotify]]">
         <template is="dom-repeat" items="{{selectedElements}}">
           <list-element id="[[item.id]]" label="[[item.label]]" keys="{{item.keys}}" grouped-key="{{item.groupedKey}}"  unit="{{item.unit}}"
-                        color="[[item.color]]" is-boolean="[[item.isBoolean]]" selectable exceedable show-date>
+                        color="[[item.color]]" is-boolean="[[item.isBoolean]]" selectable exceedable="{{item.exceedable}}" show-date>
           </list-element>
         </template>
       </template>

@@ -5,7 +5,10 @@
 <dom-module id='graph-element'>
   <style include="app-theme">
      :host {
-       --element-color: var(--primary-color);
+       /*--element-color: var(--element-color, --primary-color);*/
+       padding-bottom: 0.5em;
+       box-sizing: border-box;
+       position: relative;
      }
      radio-button-element#legendEntry {
        --radio-button-label-color: currentColor;
@@ -284,8 +287,10 @@
           if (this._areaNode) this._lineNode.attr('fill', this.color);
           if (this._dots)
             this._dots.selectAll('circle.dot')
-            .attr('stroke', this.color);
+                      .attr('stroke', this.color);
         }
+        this.customStyle['--radio-button-checked-color'] = this.color;
+        this.updateStyles();
       },
 
       checkedChanged: function(checked, old) {

@@ -19,6 +19,7 @@ var defaults = {
 	keys: [],
 	unit: '',
 	color: '',
+	exceedable: false,
 	isExceeding: false,
 	isBoolean: false,
 	threshold: {
@@ -182,6 +183,11 @@ class fileConfigLoader extends EventEmitter {
 				// id has to be different from unnamedType
 				if (!type.id || type.id === locals.unnamedType.id)
 					type.id += i;
+				// exceedable if threshold exists
+				if (type.threshold && (type.threshold.from !== undefined || type.threshold.to  !== undefined))
+					type.exceedable = true;
+				else
+					type.exceedable = false;
 				// for Element structure
 				elements[type.id] = type;
 				// initial Values
