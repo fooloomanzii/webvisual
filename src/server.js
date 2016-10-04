@@ -30,6 +30,12 @@ app.use(bodyParser.urlencoded({
 })); // get information from html form
 app.use(bodyParser.json());
 
+app.use(session({
+	secret: "&hkG#1dwwh!",
+	resave: false,
+	saveUninitialized: false
+}));
+
 // Prevent Clickjacking
 app.use(xFrameOptions());
 app.use(passport.initialize());
@@ -190,11 +196,6 @@ class WebvisualServer extends EventEmitter {
 					.then( (isHttps) => {
 						this.dataHandler.connect(this.config.userConfigFiles);
 						if (isHttps === true) {
-							app.use(session({
-								secret: "&hkG#1dwwh!",
-								resave: false,
-								saveUninitialized: false
-							}));
 							this.redirectServer.listen(this.config.server.port.http || 80);
 							this.mainServer.listen(this.config.server.port.https || 443);
 						} else {
