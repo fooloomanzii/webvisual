@@ -248,14 +248,6 @@
         observer: '_openedChanged'
       },
       /**
-       * If true, Svg-Element can be in fullscreen-presentation.
-       * The Element sends an Event, that would being catched by another Svg-Element (that is marked 'isFullscreen')
-       */
-      fullscreen: {
-        type: Boolean,
-        value: true
-      },
-      /**
        * Marks the element, that triggers, when an another Svg-Element requests fullscreen-presentation.
        * This Element should be in Polymer-DOM's Top Level, to catch the events.
        */
@@ -283,7 +275,7 @@
        */
       maxZoom: {
         type: Number,
-        value: 5
+        value: 3
       },
       /**
        * a clicked or selected Node will be centered and zoomed, depending how many times a zoomed Node,
@@ -291,7 +283,7 @@
        */
       zoomPartition: {
         type: Number,
-        value: 3
+        value: 4
       },
 
       /**
@@ -491,7 +483,7 @@
     },
 
     _selectableChanged: function() {
-      if (Object.keys(this._mainG).length === 0 || !this.source) return;
+      if (!this._mainG.node || !this.source) return;
 
       var self = this;
       this._svg.on('contextmenu',
@@ -600,7 +592,7 @@
     },
 
     select: function(selected, selectedClass) {
-      if (Object.keys(this._mainG).length === 0 || !this.source) return;
+      if (!this._mainG.node || !this.source) return;
       // previous selected elements: remove class for selected elements
       this._mainG.selectAll('.' + selectedClass)
                  .classed(selectedClass, false);
@@ -648,7 +640,7 @@
         return {x: 0, y: 0, k: 1};
 
       // calculate scale based on partioned view and dimensions of the element
-      var boundE; var bboxE;
+      var boundE, bboxE, ratio = view.width/view.height;
       if (elem.nodeType !== undefined)
         boundE = elem.getBoundingClientRect();
       else boundE = elem;
@@ -665,21 +657,24 @@
       // scaling and centering
       // view height/width in comparison tho viewboxheight/-width is important because of resizing by the browser
       // difference in calculation by firefox in comparison to chromium based browsers
-      if (view.width > view.height)
-        var scale = Math.min(this._width/(this.zoomPartition*vs*boundE.width), this._height/(this.zoomPartition*vs*boundE.height));
-      else
+
+      if (ratio > 1) {
         var scale = Math.max(this._width/(this.zoomPartition*vs*boundE.width), this._height/(this.zoomPartition*vs*boundE.height));
+      }
+      else {
+        var scale = Math.max(this._width/(this.zoomPartition*vs*boundE.width), this._height/(this.zoomPartition*vs*boundE.height));
+      }
 
       if (scale < this.minZoom) scale = this.minZoom;
       else if (scale > this.maxZoom) scale = this.maxZoom;
 
-      if (view.width/view.height > this._width/this._height) {
-        x = -scale*x + (this._height*view.width/view.height - scale*boundE.width*vs)/2;
+      if (ratio > this._width/this._height) {
+        x = -scale*x + (this._height*ratio - scale*boundE.width*vs)/2;
         y = -scale*y + (this._height - scale*boundE.height*vs)/2;
       }
       else {
         x = -scale*x + (this._width - scale*boundE.width*vs)/2;
-        y = -scale*y + (this._width*view.height/view.width - scale*boundE.height*vs)/2;
+        y = -scale*y + (this._width/ratio - scale*boundE.height*vs)/2;
       }
 
       if (isNaN(x) || isNaN(y) || isNaN(scale))
@@ -693,7 +688,7 @@
     },
 
     _resetZoom: function() {
-      if (Object.keys(this._mainG).length === 0 || this.opened === false) return;
+      if (!this._mainG || !this._mainG.node || this.opened === false) return;
       // zoom to selectedItems
       if(this.initiallyZoomToSelected === true) {
         if (this.selectedElements.length > 0) {

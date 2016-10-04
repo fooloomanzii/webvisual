@@ -230,27 +230,23 @@
           <iron-icon icon="arrow-drop-up" class="right" id="settings"></iron-icon>
         </button-element>
 
-          <iron-collapse class="sidemenu collapse settings" opened>
-            <section class="indention collapse-content">
+            <section class="sidemenu indention collapse settings" opened>
               <button-element collapse-id="grouping" class="sidemenu" on-tap="toggleCollapse">
                 <iron-icon icon="reorder" class="left"></iron-icon>
                 <section class="content">Gruppierung</section>
                 <iron-icon icon="arrow-drop-down" class="right" id="grouping"></iron-icon>
               </button-element>
-                <iron-collapse class="sidemenu collapse grouping">
-                  <section id="groupingKeysButtons" class="indention">
-                    <section id="groupingKeysLabelSelector">
-                      <content select="iron-selector.groupingKeySelector"></content>
-                    </section>
-                  </section>
-                </iron-collapse>
+              <section id="groupingKeysButtons" class="sidemenu indention collapse grouping">
+                <section id="groupingKeysLabelSelector">
+                  <content select="iron-selector.groupingKeySelector"></content>
+                </section>
+              </section>
 
-              <toggle-button-element on-change="toggleDateView"><iron-icon icon="date-range"></iron-icon>Zeit anzeigen</toggle-button-element>
-              <toggle-button-element on-change="toggleWindowDecoration" checked="{{withoutWindow}}"><iron-icon icon="editor:border-style"></iron-icon>Fensterrahmen</toggle-button-element>
-              <toggle-button-element on-change="toggleWindowHeader" checked="{{hideHeader}}"><iron-icon icon="editor:drag-handle"></iron-icon>Fenstertitel</toggle-button-element>
-              <toggle-button-element id="colorschema" on-change="toggleTheme"><iron-icon icon="settings-brightness"></iron-icon>Farbschema</toggle-button-element>
+              <toggle-button-element class="sidemenu" on-change="toggleDateView"><iron-icon icon="date-range"></iron-icon>Zeit anzeigen</toggle-button-element>
+              <toggle-button-element class="sidemenu" on-change="toggleWindowDecoration" checked="{{withoutWindow}}"><iron-icon icon="editor:border-style"></iron-icon>Fensterrahmen</toggle-button-element>
+              <toggle-button-element class="sidemenu" on-change="toggleWindowHeader" checked="{{hideHeader}}"><iron-icon icon="editor:drag-handle"></iron-icon>Fenstertitel</toggle-button-element>
+              <toggle-button-element class="sidemenu" id="colorschema" on-change="toggleTheme"><iron-icon icon="settings-brightness"></iron-icon>Farbschema</toggle-button-element>
             </section>
-          </iron-collapse>
 
         <button-element class="sidemenu" on-tap="backToMainMenu">
           <iron-icon icon="arrow-back" class="left"></iron-icon>
@@ -642,10 +638,14 @@
           return;
         }
         var id = button.getAttribute('collapse-id');
-        var collapse = Polymer.dom(this.root).querySelector('iron-collapse.'+id);
+        var collapse = Polymer.dom(this.root).querySelector('section.collapse.'+id);
         var iconbutton = Polymer.dom(button).querySelector('iron-icon.right');
         if (collapse) {
-          collapse.toggle();
+          if (collapse.hasAttribute('opened')) {
+            collapse.removeAttribute('opened')
+          } else {
+            collapse.setAttribute('opened', true);
+          }
           if (iconbutton) {
             if (iconbutton.icon === 'arrow-drop-down')
               iconbutton.set('icon','arrow-drop-up');
@@ -660,7 +660,7 @@
           this.set('expanded', !this.expanded);
           this.toggleAttribute('expanded', this.expanded, this.$.toolbarFooter);
           this._reproduceAttribute({detail: {value: !this.expanded}, type: 'horizontal'});
-          this.async(this.notifyResize, 150);
+          this.async(this.notifyResize, 50);
         }
       },
       closeToolbar: function(newLabel, oldLabel) {

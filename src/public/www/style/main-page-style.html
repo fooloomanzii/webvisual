@@ -2,9 +2,6 @@
 <template>
 
 <style is="custom-style">
-	:host {
-		--multiplicator: 3;
-	}
   .indention {
     margin: 0em 0em 0.5em 1.5em;
     padding-top: 0.25em;
@@ -17,6 +14,13 @@
                 0 1px 5px 0 rgba(0, 0, 0, 0.12),
                 0 3px 1px -2px rgba(0, 0, 0, 0.2);
   }
+	.collapse:not([opened]) {
+		display: none;
+	}
+	.sidemenu {
+		float: left;
+		clear: both;
+	}
   #mainView {
     position: relative;
     flex: 1;
@@ -49,18 +53,9 @@
     padding: 1.3em 0.8em;
     border-top: thin solid rgba(200, 200, 200, 0);
     border-bottom: thin solid  rgba(200, 200, 200, 0);
-    float: left;
-    clear: both;
-  }
-  #drawerPanel iron-collapse {
-    float: left;
-    clear: both;
-    box-sizing: content-box;
   }
   #drawerPanel button-element, #drawerPanel toggle-button-element {
     width: 100%;
-    float: left;
-    clear: both;
     background: linear-gradient(to bottom, rgba(35,35,35,0.01) 5%,rgba(35,35,35,0.05) 40%);
   }
   #drawerPanel button-element:hover {
@@ -228,14 +223,10 @@
     margin-left: 8px;
   }
   #toolbarFooter {
-    min-height: 0px;
     display: flex;
     position: relative;
     box-sizing: border-box;
     background: var(--blur-overlay-background);
-    transition: max-height 150ms linear, min-height 150ms linear;
-    will-change: min-height;
-    will-change: max-height;
     padding: 0;
     flex-direction: row;
     width: 100%;
@@ -243,11 +234,11 @@
   }
   #toolbarFooter[opened] {
     padding: 2px 6px 4px 6px;
-    min-height: 150px;
+    /*min-height: 150px;*/
     height: var(--app-toolbar-max-height);
   }
   #toolbarFooter[opened][expanded] {
-    min-height: 250px;
+    /*min-height: 250px;*/
     height: var(--app-toolbar-expanded-height,calc(2 * var(--app-toolbar-max-height)));
   }
   </style>
