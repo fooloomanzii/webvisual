@@ -4,32 +4,19 @@
     "connections": {
       "file": {
         "mode": "append",
-        "path": "../tools/test.txt",
+        "path": "//ibn-vsrv/HNF-GDS$/Datafile/test.txt",
         "format": {
           "dateFormat": "DD.MM.YYYY hh:mm:ss",
           "decimalSeparator": ".",
           "valueSeparator": ",",
           "dimensions": 1
-        }
+        },
+				"ignoredFirstLines": 0
       }
     },
 
-		"cache": {
-			"size": 10000
-		},
-
-		"clientRequest": {
-			"initial": {
-				"mobile": 300,
-				"stationary": 5400
-			},
-			"update": {
-				"interval": 1000
-			}
-		},
-
     "locals": {
-      "ignore": [],
+      "ignore": [1],
       "types": [
         {
           "id": "DI3-3",
@@ -61,35 +48,6 @@
             "from": 1,
             "to": 9
           }
-        }, {
-          "id": "DI6-3",
-          "keys": {
-            "prompt": "2033"
-          },
-          "threshold": {
-            "from": 0.2,
-            "to": 9.8
-          }
-        }, {
-          "id": "DI7-3",
-          "keys": {
-            "prompt": "2034"
-          }
-        }, {
-          "id": "DI8-3",
-          "keys": {
-            "prompt": "2035"
-          }
-        }, {
-          "id": "DI9-3",
-          "keys": {
-            "prompt": "2036"
-          }
-        }, {
-          "id": "DI1-3",
-          "keys": {
-            "prompt": "2037"
-          }
         }
       ],
 
@@ -108,7 +66,15 @@
       "groupingKeys": ["prompt", "*"],
       "preferedGroupingKey": "prompt",
 
-      "exclusiveGroups": {}
+      "exclusiveGroups": {
+        "prompt": {
+          "very-important": {
+            "ids": [
+              "DI5-3"
+            ]
+          }
+        }
+      }
     }
   }
 }

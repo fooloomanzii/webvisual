@@ -3,14 +3,14 @@ import random
 import datetime
 from threading import Event, Thread
 
-outfile = 'test.txt'
+outfile = '//ibn-vsrv/HNF-GDS$/Datafile/test.txt'
 dateformat = '%d.%m.%Y %H:%M:%S'
 low = 0
 high = 10
 rowlenght = 8
 initialLineLength = 10
 valueseperator = ','
-interval = 0.5
+interval = 1
 
 
 def createRow(d, i):

@@ -234,6 +234,7 @@ class fileConfigLoader extends EventEmitter {
 		var sameSource, source, selectable;
 		for (var group in groups) {
 			for (var subgroup in groups[group]) {
+				if (!groups[group][subgroup].ids) continue;
 				source = '';
 				sameSource = true;
 				for (var id of groups[group][subgroup].ids) {

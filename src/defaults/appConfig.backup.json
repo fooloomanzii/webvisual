@@ -9,42 +9,42 @@
       "suffix": "@fz-juelich.de"
     },
     "port": {
-      "http": 81,
+      "http": 80,
       "https": 443
     },
     "ssl": {
-      "cert": "",
-      "certchaindir": "",
-      "key": "",
-      "passphrase": ""
+      "cert": "D:\\Github\\webvisual\\ssl\\ca.crt",
+      "certchaindir": "D:\\Github\\webvisual\\ssl\\cert_chain",
+      "key": "D:\\Github\\webvisual\\ssl\\ca.key",
+      "passphrase": "D:\\Github\\webvisual\\ssl\\ca.pw.json"
     },
     "logs": {
-      "http_server_log": "",
-      "server_log": ""
+      "http_server_log": "./logs/http-error.log",
+      "server_log": "./logs/server-error.log"
     }
   },
   "app": {
     "width": 576,
-    "height": 692,
+    "height": 770,
     "autoHideMenuBar": true,
     "acceptFirstMouse": true,
     "webPreferences": {
       "webSecurity": true
     },
-    "x": 71,
-    "y": 21
+    "x": 932,
+    "y": 65
   },
   "userConfigFiles": {
-    "HNF-GDS": {
-      "path": "examples\\config\\HNF_GDS.json",
-      "renderer": "Alarmzustände"
-    },
     "Cryostat": {
-      "path": "examples\\config\\cryostat_visu.json",
+      "path": "D:\\Github\\webvisual\\src\\examples\\config\\cryostat_visu.json",
       "renderer": "Diagrammansicht"
     },
+    "HNF-GDS": {
+      "path": "\\\\ibn-vsrv\\HNF-GDS$\\Config\\HNF_GDS.json",
+      "renderer": "Alarmzustände"
+    },
     "Tests": {
-      "path": "C:\\Github\\webvisual\\src\\examples\\config\\test.json",
+      "path": "D:\\Github\\webvisual\\src\\examples\\config\\test.json",
       "renderer": "Alarmzustände"
     }
   },
