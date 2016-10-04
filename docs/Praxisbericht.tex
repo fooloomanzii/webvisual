@@ -1,0 +1,24 @@
+Für das Projekt den Betrieb einer Gaswarnanlage, habe ich dem bestehenden Projekt "webvisual" weitergearbeitet.
+Grundlage des Projekts ist die Überwachung einer Datei an Messwerten, die durch ein Programm erzeugt wird, dass eine Verbindung zu verschiedenen Messräumen aufbaut und die Messzustände in diese Datei schreibt. Die Aufgabe des Projekts "webvisual" ist es, Änderungen an der Datei zu detektieren und durch einen selbsterzeugten Server über das Netzwerk die Zustände der Messgeräte über eine Webseite zu visualisieren.
+Der entsprechende Server ist auf mittels der node.js-Platform in Javascript entstanden und beinhaltet verschiedene Module. Überbau ist eine bestimmte Node-Umgebung (electron), de eine GUI mittels einer eigenen Chromium-Laufzeitumgebung erzeugt und der Steuerung des Servers dient. Die Steuerung ist unter anderem eventbasiert, das heißt sie ist in der Regel vom Standard-Node-Js-Modul EventEmitter abhängig. Die Verbindung zu den Clients wird über Websockets innerhalb einer Browserumgebung hergestellt.
+
+Wichtige Module für node-js
+
+main-module (src/main.js)
+Dieses Modul dient dem Grundaufbau der Anwendung, dem Erzeugen der Basisklassen und der Vermittlung zwischen der GUI, die selbst eine Webseite darstellt, und der Steuerung der Serverprozesse. Wenn beispielsweise eine neue Konfigurationsdatei hinzugefügt wird, werden die entspechenden Informationen über den Prozessaustauschenkanal (hier ipc-Renderer) verschickt und durch dieses Modul ausgewertet. Auch werden über dieses Modul die Benutzerdaten geladen und gespeichert, die Informationen zu den Authentifizierungseinstellungen, Rendereinheiten, Messgerätebeschreibungen und den Servereinstellungen enthalten.
+
+server-module (src/server.js)
+Über das Servermodul wird aus den übergebenen Einstellungen ein http-Server und gegebenfalls ein https-Server erzeugt. Ob dies der Fall ist, hängt davon ab, ob die Pfade zum public key, zum private key, zur certificate chain und zur passphrase existieren und gültig sind. Zum anderen wird hier die Datenmodul- und die Routerklasse erzeugt. Sollte die Datenmodulklasse eine Änderung an den Konfiguration vermelden, erzeugt dieses Modul entsprechende Events, die die Routingeinstellungen neusetzen.
+
+router-module (src/router/index.js))
+Durch das Router modul wird die Zuordnung der entsprechenden Templates, hier jade, und den Benutzeranfragen gesetzt. In jedem Fall setzt das Modul das Logintemplate (/login), durch welches sich ein Benutzer anmeldet und authentifiziert, und das Indextemplate (/index), welches eine Auflistung der vorhandenen Messkonfiguration erzeugt und eine Weiterleitung auf eben jene generiert.
+Durch das /logout-Routing wird der Benutzer abgemeldet und wieder auf das /login-Template geleitet.
+Ebenfalls wird i diesem Module die Authentifizierung der Benutzer überprüft. Da dies im Institut der gewählte Weg der Identifiezierung ist wird eine Verbindung mittels ActiveDirectory zu einem ldap-Server hergestellt, und mittels der vom Benutzer auf dem /login-Seite angegebenen Benutzernamen und -passwort überprüft, ob sich der Benutzer in der Organisationsstruktur des erlaubten Bereichs befindet und sich über den ldap-Server authenfizieren ließe, was zur Weiterleitung auf die /index-Seite führt.
+
+data-module (src/data_module/index.js)
+Das data-Module baut auf mehreren Modulen auf, die Websockets für die Clients erzeugen, eine Messraumbeschreibungsdatei auslesen und auf Veränderung überwachen, die Messdatei überwachen, Veränderungen in umwandeln und an verbundene Clients verschiecken, von denen einige durch Vorgänger erzeugt wurden, die ich zum Teil neuaufgebaute habe.
+
+	settings-module (src/data_module/settings/)
+
+
+server
