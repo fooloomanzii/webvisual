@@ -183,11 +183,6 @@
           type: Boolean,
           value: true
         },
-        ariaLabel: {
-          value: 'gsfdgfsg',
-          reflectToAttribute: true
-
-        },
         selectable: {
           type: Boolean,
           value: true
@@ -224,6 +219,7 @@
         this._value = this.$.valueSection;
         this._date = this.$.dateSection;
         this._sign = this.$.sign;
+        this.insertValues();
       },
 
       setExceedingStatus: function(isExceeding, state) {
@@ -240,8 +236,13 @@
       },
 
       render: function(value) {
-        if (value === undefined)
-          return;
+        if (value === undefined) {
+          if (this.values && this.values.length) {
+            value = this.values[this.values.length - 1];
+          } else {
+            return;
+          }
+        }
 
         // set value
         if (this.isBoolean === false) {

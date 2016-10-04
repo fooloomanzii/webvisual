@@ -302,6 +302,7 @@
         this._sign = this.$.sign;
         if (this.tooltip)
           this._setTooltip();
+        this.insertValues();
       },
 
       setExceedingStatus: function(isExceeding, state) {
@@ -317,8 +318,13 @@
       },
 
       render: function(value) {
-        if (value === undefined)
-          return;
+        if (value === undefined) {
+          if (this.values && this.values.length) {
+            value = this.values[this.values.length - 1];
+          } else {
+            return;
+          }
+        }
 
         // set value
         if (this.isBoolean === false) {

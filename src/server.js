@@ -225,9 +225,9 @@ class WebvisualServer extends EventEmitter {
 			this.config = settings;
 		if (this.isRunning)
 			this.disconnect();
-		setTimeout((function() {
+		setTimeout(() => {
 			this.connect();
-		}).bind(this), 3000);
+		}, 2500);
 	}
 
 	toggle(settings) {

@@ -38,7 +38,7 @@ block BodyContent
                 tab-element.label(label!= Label)
                     != Label
 
-            //- Elements for TOOLBAR 
+            //- Elements for TOOLBAR
             chart-element.toolbar-footer(notify-parent, multi-select, toggles, no-exceed-notify, no-dots!= (mobile), no-areas!= (mobile))
             //- div#selectedTable.toolbar-footer
             //-   table-element()
@@ -57,11 +57,12 @@ block BodyContent
                         group-card(headline= Titel)
                             each Id, i in Subgroup.ids
                                 element-checkbox(label!= Label,
-                                    id!= Id, 
-                                    is-boolean!= config.elements[Label][Id].isBoolean, 
-                                    unit!= config.elements[Label][Id].unit, 
+                                    id!= Id,
+                                    is-boolean!= config.elements[Label][Id].isBoolean,
+                                    unit!= config.elements[Label][Id].unit,
                                     keys= JSON.stringify(config.elements[Label][Id].keys),
                                     grouped-key!= config.preferedGroupingKeys[Label],
+                                    show-last-value!= (!mobile),
                                     show-date!= (!mobile),
                                     color!= config.elements[Label][Id].color,
                                     bubbles,

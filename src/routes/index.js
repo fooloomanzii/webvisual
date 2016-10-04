@@ -144,8 +144,8 @@ class router extends EventEmitter {
 
   isMobile(req) {
     var ua = req.header('user-agent');
-    // console.log(ua);
-    if (/mobile/i.test(ua) || /tablet/i.test(ua) || /android/i.test(ua))
+    // console.log(ua, '\n', /[mM]obi/i.test(ua) || /[tT]ablet/i.test(ua) || /[aA]ndroid/i.test(ua));
+    if (/[mM]obi/i.test(ua) || /[tT]ablet/i.test(ua) || /[aA]ndroid/i.test(ua))
       return true;
     else
       return false;

@@ -148,7 +148,6 @@
         this._updatableChanged();
       else
         this.set('values', this.values || []);
-      this.insertValues();
     },
 
     factoryImpl: function(obj) {
@@ -235,7 +234,7 @@
         i = (this.newestDataFirst === false) ? 0 : values.length - 1;
         while (i !== end && i !== -1) {
           if (this.values === undefined) {
-            console.log(this);
+            // console.log(this);
             break;
           }
           this.values.push(values[i]);

@@ -28,7 +28,7 @@ block BodyContent
               sign-element
               table-element(highlight-exceeding)
             svg-element.toolbar-footer(initially-zoom-to-selected, notify-parent, open-on-select)
-            
+
             //- GROUPINGKEY SELECTORS
             each Label in config.labels
                 iron-selector.groupingKeySelector(attr-for-selected= "groupingkey", selected-attribute= "checked", selected!= config.preferedGroupingKeys[Label], fallback-selection!= config.preferedGroupingKeys[Label], activate-event="change")
@@ -51,7 +51,7 @@ block BodyContent
                                     keys= JSON.stringify(config.elements[Label][Id].keys),
                                     svg= JSON.stringify(config.elements[Label][Id].svg),
                                     grouped-key!= config.preferedGroupingKeys[Label],
-                                    show-date,
+                                    show-date!= (!mobile),
                                     color!= config.elements[Label][Id].color,
                                     bubbles,
                                     selectable

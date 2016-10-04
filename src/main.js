@@ -161,7 +161,7 @@ app.on("ready", () => {
 
 	function addConfigFile(arg) {
 		if (!arg.name)
-			arg.name = "test";
+			arg.name = "tests";
 		if (arg.path) {
 			config.userConfigFiles[arg.name] = {
 				path: arg.path,
