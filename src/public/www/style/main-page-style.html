@@ -227,6 +227,9 @@
     position: relative;
     box-sizing: border-box;
     background: var(--blur-overlay-background);
+		min-height: 0px;
+		will-change: min-height;
+		transition: min-height 100ms linear;
     padding: 0;
     flex-direction: row;
     width: 100%;
@@ -234,12 +237,10 @@
   }
   #toolbarFooter[opened] {
     padding: 2px 6px 4px 6px;
-    /*min-height: 150px;*/
-    height: var(--app-toolbar-max-height);
+    min-height: var(--app-toolbar-max-height);
   }
   #toolbarFooter[opened][expanded] {
-    /*min-height: 250px;*/
-    height: var(--app-toolbar-expanded-height,calc(2 * var(--app-toolbar-max-height)));
+    min-height: var(--app-toolbar-expanded-height,calc(2 * var(--app-toolbar-max-height)));
   }
   </style>
   </template>

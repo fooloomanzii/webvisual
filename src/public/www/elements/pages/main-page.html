@@ -660,7 +660,7 @@
           this.set('expanded', !this.expanded);
           this.toggleAttribute('expanded', this.expanded, this.$.toolbarFooter);
           this._reproduceAttribute({detail: {value: !this.expanded}, type: 'horizontal'});
-          this.async(this.notifyResize, 50);
+          this.async(this.notifyResize, 100);
         }
       },
       closeToolbar: function(newLabel, oldLabel) {

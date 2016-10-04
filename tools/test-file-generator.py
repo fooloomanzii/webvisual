@@ -3,7 +3,7 @@ import random
 import datetime
 from threading import Event, Thread
 
-outfile = '//ibn-vsrv/HNF-GDS$/Datafile/test.txt'
+outfile = 'test.txt'
 dateformat = '%d.%m.%Y %H:%M:%S'
 low = 0
 high = 10

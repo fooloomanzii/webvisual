@@ -71,8 +71,9 @@
         border-bottom-right-radius: 0px;
         background: var(--bright-primary-color);
         color: var(--bright-text-color);
+        will-change: min-height;
         font-size: 1em;
-        transition: max-height linear 180ms, min-height linear 180ms;
+        transition: max-height linear 150ms, min-height linear 150ms;
         min-height: 2.6em;
       }
       :host[dark] > #header {
@@ -80,6 +81,7 @@
         color: var(--highlight-color);
       }
       #header[opened] {
+        min-height: calc(15vh + 120px);
         height: calc(15vh + 120px);
         max-height: 40vh;
       }
