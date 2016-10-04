@@ -282,12 +282,14 @@
         return;
       }
       if (value.state === 0) {
-        if (this.isExceeding !== false) {
+        if (this.isExceeding === true) {
+          this.isExceeding = false;
           this.setExceedingStatus(false, value.state);
           this._setLastStateChange(value);
         }
       } else {
-        if (this.isExceeding === false) {
+        if (this.isExceeding !== true) {
+          this.isExceeding = true;
           this.setExceedingStatus(true, value.state);
           this._setFirstStateChange(value);
           if (this.hasExceeded === false)
@@ -297,7 +299,6 @@
     },
 
     setExceedingStatus: function(isExceeding, state) {
-      this.set('isExceeding', isExceeding);
     },
 
     _setFirstStateChange: function(value) {

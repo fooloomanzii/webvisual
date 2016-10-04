@@ -10,7 +10,7 @@ high = 10
 rowlenght = 8
 initialLineLength = 10
 valueseperator = ','
-interval = 0.25
+interval = 0.5
 
 
 def createRow(d, i):

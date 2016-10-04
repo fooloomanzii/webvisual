@@ -170,7 +170,7 @@
       z-index: 150;
       outline: none;
     }
-    #tooltip:not(.opened) {
+    #tooltip:not([opened]) {
       opacity: 0;
       visibility: hidden;
     }
@@ -182,6 +182,7 @@
     }
     #tooltip #tooltipContent {
       display: inline-flex;
+      max-height: calc(10vh + 6em);
     }
     #tooltip #tooltipContent table-element:first-child {
       border-right: solid thin #BBB;
@@ -190,7 +191,6 @@
       background: transparent;
       color: currentColor;
       min-width: 4em;
-      max-height: calc(10vh + 6em);
     }
     [hidden] {
       pointer-events: none;
@@ -234,8 +234,8 @@
       <section id='tooltip' hidden$='[[!_hasTooltip(hasExceeded)]]' on-click='_hideTooltip' on-mouseleave='_hideTooltip' role='tooltip' tabindex='-1'>
         <div class='title'>Alarmphasen</div>
         <section id='tooltipContent'>
-          <table-element id='firstStateChangeTable' caption='Start' hide-header no-socket-connection show-full-date hide-overflow is-boolean='[[isBoolean]]'></table-element>
-          <table-element id='lastStateChangeTable' caption='Ende' hide-header no-socket-connection hide-overflow is-boolean='[[isBoolean]]'></table-element>
+          <table-element id='firstStateChangeTable' caption='Start' hide-header no-socket-connection show-full-date is-boolean='[[isBoolean]]'></table-element>
+          <table-element id='lastStateChangeTable' caption='Ende' hide-header no-socket-connection is-boolean='[[isBoolean]]'></table-element>
         </section>
       </section>
 
@@ -295,11 +295,14 @@
       _value: Object,
       _date: Object,
       _sign: Object,
+      _tooltip: Object,
 
       attached: function() {
         this._value = this.$.valueSection;
         this._date = this.$.dateSection;
         this._sign = this.$.sign;
+        this._tooltip = this.$.tooltip;
+
         if (this.tooltip)
           this._setTooltip();
         this.insertValues();
@@ -307,7 +310,6 @@
 
       setExceedingStatus: function(isExceeding, state) {
         var status;
-        this.set('isExceeding', isExceeding);
         switch (state) {
           case 0: status='inrange'; break;
           case -1: status='deceeds'; break;
@@ -360,24 +362,31 @@
         return hasExceeded && this.tooltip;
       },
 
-      _openTooltip: function() {
+      _openTooltip: function(e) {
         if (!this.hasExceeded) return;
-        this.$.tooltip.classList.add('opened');
+        e.preventDefault();
+        console.log(this._tooltip);
+        this._tooltip.setAttribute('opened', true);
         this._updateTooltipPosition();
+        e.stopPropagation();
       },
 
-      _toggleTooltip: function() {
+      _toggleTooltip: function(e) {
+        e.preventDefault();
+        console.log(this._tooltip);
         // if (!this.hasExceeded) return;
-        if (this.$.tooltip.classList.contains('opened'))
-          this.$.tooltip.classList.remove('opened');
+        if (this._tooltip.hasAttribute('opened'))
+          this._tooltip.removeAttribute('opened');
         else {
-          this.$.tooltip.classList.add('opened');
+          this._tooltip.setAttribute('opened', true);
           this._updateTooltipPosition();
         }
+        e.stopPropagation();
       },
 
-      _hideTooltip: function() {
-        this.$.tooltip.classList.remove('opened');
+      _hideTooltip: function(e) {
+        if (this._tooltip.hasAttribute('opened'))
+          this._tooltip.removeAttribute('opened');
       },
 
       _updateTooltipPosition: function() {
@@ -385,7 +394,7 @@
 
         var parentRect = this.getBoundingClientRect();
         var targetRect = this.$.sign.getBoundingClientRect();
-        var thisRect = this.$.tooltip.getBoundingClientRect();
+        var thisRect = this._tooltip.getBoundingClientRect();
 
         var targetLeft = targetRect.left - parentRect.left;
         var targetTop = targetRect.top - parentRect.top;
@@ -393,19 +402,19 @@
         var tooltipTop = targetTop + (targetRect.height - thisRect.height) / 2;
 
         if (tooltipLeft + thisRect.width + parentRect.left > window.innerWidth) {
-          this.$.tooltip.style.right = '0px';
-          this.$.tooltip.style.left = 'auto';
+          this._tooltip.style.right = '0px';
+          this._tooltip.style.left = 'auto';
         } else {
-          this.$.tooltip.style.left = Math.max(0, tooltipLeft) + 'px';
-          this.$.tooltip.style.right = 'auto';
+          this._tooltip.style.left = Math.max(0, tooltipLeft) + 'px';
+          this._tooltip.style.right = 'auto';
         }
 
         if (tooltipTop + thisRect.height + parentRect.top> window.innerHeight) {
-          this.$.tooltip.style.top = '0px';
-          this.$.tooltip.style.bottom = 'auto';
+          this._tooltip.style.top = '0px';
+          this._tooltip.style.bottom = 'auto';
         } else {
-          this.$.tooltip.style.top = Math.max(0, tooltipTop) + 'px';
-          this.$.tooltip.style.bottom = 'auto';
+          this._tooltip.style.top = Math.max(0, tooltipTop) + 'px';
+          this._tooltip.style.bottom = 'auto';
         }
       }
     });
