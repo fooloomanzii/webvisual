@@ -55,10 +55,14 @@
         --radio-button-unchecked-color: #bbb;
       }
       dropdown-element {
-        --dropdown-background: rgba(255, 255, 255, 0.7);;
+        --dropdown-background: rgba(255, 255, 255, 0.75);
       }
       dropdown-element#legend {
-        --dropdown-background: transparent;
+        --dropdown-background: rgba(255, 255, 255, 0.5);
+        padding: 0.25em;
+      }
+      graph-element {
+        padding: 0.25em;
       }
       icon-button-element {
         position: absolute;
@@ -209,10 +213,10 @@
       <icon-button-element id="zoombutton" icon="search" on-tap="_startZoomSession"></icon-button-element>
 
 		  <icon-button-element id="legendbutton" icon="timeline"></icon-button-element>
-		  <dropdown-element id="legend" for="legendbutton" target-toggle-event="tap" position="bottom" align="center">
+		  <dropdown-element id="legend" for="legendbutton" target-toggle-event="tap" hiding-event="" position="bottom" align="center">
 		    <content id='collector' select='graph-element'></content>
 		    <template is="dom-repeat" items="[[selectedElements]]">
-		      <graph-element id="[[item.id]]" label="[[item.label]]" caption-keys="[[item.captionKeys]]" color="[[item.color]]" interpolation="[[interpolation]]">
+		      <graph-element id="[[item.id]]" label="[[item.label]]" keys="[[item.keys]]" grouped-key="[[item.groupedKey]]" color="[[item.color]]" interpolation="[[interpolation]]">
 		      </graph-element>
 		    </template>
 		  </dropdown-element>

@@ -1,3 +1,8 @@
+<link rel="import" href="../behaviors/color-behavior.html"/>
+<link rel="import" href="../behaviors/checked-and-select-behavior.html"/>
+<link rel="import" href="../behaviors/drag-and-drop-behavior.html"/>
+<link rel="import" href="../behaviors/caption-behavior.html"/>
+<link rel="import" href="../behaviors/element-behavior.html"/>
 <dom-module id="element-checkbox">
   <template strip-whitespace>
     <style>
@@ -45,7 +50,6 @@
 
       #ripple {
         position: absolute;
-
         /* Center the ripple in the box by negative offsetting it by
          * (rippleWidth - rippleWidth) / 2 */
         top: calc(0px - (2.66 * var(--calculated-box-size) - var(--calculated-box-size)) / 2);
@@ -109,42 +113,14 @@
         box-sizing: content-box; /* protect against page-level box-sizing */
       }
 
-      /* label */
-      #caption {
-        position: relative;
-        padding: 0;
-        margin: 0;
-        background: transparent;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        padding-left: 0.5em;
-        white-space: normal;
-        color: currentColor;
-        line-height: 1.4;
-      }
-      #caption > .captions {
-        padding: 0;
-        margin: 0;
-        font-weight: normal;
-        font-size: 0.6em;
-      }
-      .captions:first-child {
-        font-size: 0.9em !important;
-      }
-      .captions:nth-child(2) {
-        font-size: 0.8em !important;
-      }
-      .captions:nth-child(3) {
-        font-size: 0.7em !important;
+      :host:not([checked]) caption-element {
+        font-weight: lighter;
       }
 
-      :host:not([horizontal]) #caption {
-        flex-direction: column;
-      }
-
-      :host([checked]) .captions:first-child {
-        font-weight: bold;
+      caption-element {
+        --caption-background: transparent;
+        --caption-dark-background: transparent;
+        --caption-padding: 0 0 0 0.35em;
       }
 
       #container.inrange #box {
@@ -187,7 +163,7 @@
         background-color: var(--disabled-text-color, --primary-text-color);
         opacity: 0.5;
       }
-      :host([disabled]) #caption  {
+      :host([disabled]) caption-element  {
         opacity: 0.65;
       }
       /* invalid state */
@@ -250,7 +226,7 @@
       }
     </style>
 
-    <section id="container" class="inrange" on-click='_select'>
+    <section id="container" class="inrange" on-click='select'>
       <section id="boxContainer">
         <section id="box" class$="[[_computeBoxClass(checked)]]">
           <section id="arrow" class$="[[_computeArrowClass(checked)]]"></section>
@@ -260,14 +236,10 @@
         </section>
       </section>
 
-      <section id="caption">
-        <template is='dom-repeat' items='[[getReducedCaptionKeys(groupedKey, keys.*)]]' as='captionKey'>
-          <span class='captions' hidden$='[[isEmptyCaption(captionKey, groupedKey)]]'>[[getKey(captionKey, reducedCaptionKeys.*)]]</span>
-        </template>
-      </section>
+      <caption-element horizontal$="[[horizontal]]" without-grouped-key grouped-key='[[groupedKey]]' keys='[[keys]]'></caption-element>
     </section>
 
-    <dropdown-element hidden$="[[!showLastValue]]" id="value" for="boxContainer" shadow target-showing-event="mouseover" target-hiding-event="mouseleave" position="bottom" align="center" offset="4">
+    <dropdown-element hidden$="[[!showLastValue]]" id="value" for="boxContainer" shadow target-showing-event="mouseover" target-hiding-event="mouseleave" hiding-event="tap" position="bottom" align="center" offset="4">
       <section id='sign'>
         <section class="value" hidden$="[[isBoolean]]">
           <section id='valueSection'></section>
@@ -288,6 +260,10 @@
       is: 'element-checkbox',
 
       behaviors: [
+        ColorBehavior,
+        CheckedAndSelectBehavior,
+        DragAndDropBehavior,
+        CaptionBehavior,
         ElementBehavior
       ],
 
@@ -305,23 +281,10 @@
           value: false,
           reflectToAttribute: true
         },
-        selectable: {
-          type: Boolean,
-          value: false
-        },
         updateEveryValue: {
           type: Boolean,
           value: false,
           readOnly: true
-        },
-
-        draggable: {
-          type: Boolean,
-          value: true
-        },
-        droppable: {
-          type: Boolean,
-          value: true
         }
       },
 
@@ -336,7 +299,7 @@
         this.insertValues();
       },
 
-      setExceedingStatus: function(isExceeding, state) {
+      setExceedingStatus: function(state) {
         var status;
         // set color of the sign
         switch (state) {

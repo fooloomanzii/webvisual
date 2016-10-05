@@ -1,0 +1,114 @@
+<link rel="import" href="../behaviors/caption-behavior.html"/>
+<dom-module id='caption-element'>
+  <template>
+    <style>
+      :host {
+        display: flex;
+        border-radius: inherit;
+        height: auto;
+        width: auto;
+        flex: 1 0 auto;
+        flex-direction: column;
+        cursor: default;
+        box-sizing: border-box;
+        position: relative;
+        border-radius: inherit;
+        background: var(--caption-background, white);
+        color: var(--primary-text-color);
+        line-height: 1.4;
+        padding: var(--caption-padding, 0.5em);
+        margin: 0;
+        border: none;
+        align-items: flex-start;
+        justify-content: center;
+      }
+      :host[dark] {
+        background: var(--caption-dark-background, #B0B0B0);
+      }
+      .captions {
+        padding: 0;
+        margin: 0;
+        font-weight: normal;
+        font-size: 0.6em;
+        word-wrap: break-word;
+        word-break: break-all;
+      }
+      :host[horizontal] {
+        flex-direction: row;
+        align-items: center;
+        line-height: 0;
+      }
+      :host[horizontal] .captions {
+        margin-left: 0.5em;
+      }
+      .captions:first-child {
+        margin-left: 0;
+        font-weight: bold;
+        font-size: 0.9em;
+        word-wrap: normal;
+        word-break: keep-all;
+      }
+      .captions:nth-child(2) {
+        font-size: 0.8em;
+      }
+      .captions:nth-child(3) {
+        font-size: 0.7em;
+      }
+    </style>
+
+    <template is='dom-repeat' items='[[reducedCaptionKeys]]' as='captionKey'>
+      <span class='captions' hidden$='[[isEmptyCaption(captionKey, groupedKey)]]'>[[getKey(captionKey, groupedKey, keys.*)]]</span>
+    </template>
+
+  </template>
+
+  <script>
+
+    CaptionElement = Polymer({
+      is: 'caption-element',
+
+      behaviors: [
+        CaptionBehavior
+      ],
+
+      properties: {
+        reducedCaptionKeys: {
+          type: Array,
+          value: function() {
+            return [];
+          },
+          computed: 'getReducedCaptionKeys(groupedKey, onlyGroupedKey, withoutGroupedKey, keys.*)'
+        },
+        horizontal: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        }
+      },
+
+      getKey: function(key) {
+        return this.keys[key];
+      },
+
+      getReducedCaptionKeys: function() {
+        var captionKeys = Object.keys(this.keys);
+        if (captionKeys.length === 0) return [];
+
+        var reducedCaptionKeys = [],
+            groupedKey = this.groupedKey;
+        if (this.withoutGroupedKey === true)
+          reducedCaptionKeys = captionKeys.filter( function(key) { return (groupedKey !== key) } );
+        else if (this.onlyGroupedKey === true)
+          reducedCaptionKeys = captionKeys.filter( function(key) { return (groupedKey === key) } );
+        return (reducedCaptionKeys.length === 0) ? captionKeys : reducedCaptionKeys;
+      },
+
+      isEmptyCaption: function(key) {
+        if (!this.keys[key]) return true;
+        else return false;
+      }
+
+    });
+  </script>
+
+</dom-module>

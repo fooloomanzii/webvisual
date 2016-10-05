@@ -16,7 +16,7 @@
     },
 
     "locals": {
-      "ignore": [1],
+      "ignore": [],
       "types": [
         {
           "id": "DI3-3",
@@ -33,16 +33,58 @@
         }, {
           "id": "DI4-3",
           "keys": {
-            "prompt": "2031"
+            "prompt": "2030",
+            "secondprompt": "taurin"
           },
           "threshold": {
             "from": 0,
             "to": 10000000
           }
         }, {
+          "id": "DI1-3",
+          "keys": {
+            "prompt": "2033",
+            "secondprompt": "irun"
+          },
+          "threshold": {
+            "from": 1,
+            "to": 9
+          }
+        }, {
+          "id": "DI2-3",
+          "keys": {
+            "prompt": "2033",
+            "secondprompt": "nirtau"
+          },
+          "threshold": {
+            "from": 1,
+            "to": 9
+          }
+        }, {
+          "id": "DI6-3",
+          "keys": {
+            "prompt": "2035",
+            "secondprompt": "taurin"
+          },
+          "threshold": {
+            "from": 1,
+            "to": 9
+          }
+        }, {
+          "id": "DI7-3",
+          "keys": {
+            "prompt": "2034",
+            "secondprompt": "taurin"
+          },
+          "threshold": {
+            "from": 1,
+            "to": 9
+          }
+        }, {
           "id": "DI5-3",
           "keys": {
-            "prompt": "2032"
+            "prompt": "2037",
+            "secondprompt": "trin"
           },
           "threshold": {
             "from": 1,
@@ -63,7 +105,7 @@
         }]
       },
 
-      "groupingKeys": ["prompt", "*"],
+      "groupingKeys": ["prompt","secondprompt", "*"],
       "preferedGroupingKey": "prompt",
 
       "exclusiveGroups": {

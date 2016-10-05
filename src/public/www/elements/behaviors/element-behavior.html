@@ -16,23 +16,7 @@
         type: Boolean,
         value: false
       },
-      keys: {
-        type: Object,
-        value: function() {
-          return {};
-        }
-      },
-      groupedKey: {
-        type: String,
-        value: ''
-      },
 
-      reducedCaptionKeys: {
-        type: Array,
-        value: function() {
-          return [];
-        }
-      },
       firstStateChange: {
         type: Array,
         value: function() {
@@ -64,61 +48,26 @@
       isExceeding: {
         type: Boolean,
         value: false,
-        observer: '_handleExceeding'
+        observer: 'handleExceeding'
       },
       hasExceeded: {
         type: Boolean,
         value: false,
-        observer: '_hasExceededChanged'
+        observer: 'hasExceededChanged'
       },
-
       bubbles: {
         type: Boolean,
         value: false
       },
+
       noSocketConnection: {
         type: Boolean,
         value: false,
-        observer: "_updatableChanged"
+        observer: "updatableChanged"
       },
       updateEveryValue: {
         type: Boolean,
         value: false
-      },
-
-      selectable: {
-        type: Boolean,
-        value: false
-      },
-      checked: {
-        type: Boolean,
-        value: false,
-        reflectToAttribute: true,
-        notify: true,
-        observer: 'checkedChanged'
-      },
-      toggles: {
-        type: Boolean,
-        value: true,
-        reflectToAttribute: true
-      },
-
-      color: {
-        type: String,
-        observer: "setColor"
-      },
-
-      draggable: {
-        type: Boolean,
-        value: false,
-        reflectToAttribute: true,
-        observer: 'draggableChanged'
-      },
-      droppable: {
-        type: Boolean,
-        value: false,
-        reflectToAttribute: true,
-        observer: 'droppableChanged'
       }
     },
 
@@ -133,6 +82,10 @@
       }
     },
 
+    hostAttributes: {
+      element: true
+    },
+
     created: function() {
       var sel, uniqueid;
       while (true) {
@@ -143,28 +96,25 @@
       this.setAttribute('uniqueid', uniqueid);
     },
 
-    attached: function() {
-      if (this.label && this.id)
-        this._updatableChanged();
-      else
-        this.set('values', this.values || []);
-    },
-
     factoryImpl: function(obj) {
       this.setElement(obj);
     },
 
-    hostAttributes: {
-      element: true
+    attached: function() {
+      if (this.label && this.id)
+        this.updatableChanged();
+      else
+        this.set('values', this.values || []);
     },
 
-    getKey: function(key) {
-      return this.keys[key];
-    },
-
-    isEmptyCaption: function(key) {
-      if (!this.keys[key]) return true;
-      else return false;
+    detached: function() {
+      var pos;
+      if (this.noSocketConnection === false &&
+        window.Content !== undefined &&
+        window.Content[this.label] &&
+        window.Content[this.label][this.id] &&
+        (pos = window.Content[this.label][this.id].nodes.indexOf(this)) !== -1)
+        window.Content[this.label][this.id].nodes.splice(pos, 1);
     },
 
     setElement: function(obj, options) {
@@ -187,7 +137,7 @@
       for (var key in options) {
         this.set(key, options[key]);
       }
-      this._updatableChanged();
+      this.updatableChanged();
       this.clearValues();
       this.insertValues();
     },
@@ -283,33 +233,33 @@
       }
       if (value.state === 0) {
         if (this.isExceeding === true) {
+          this.setLastStateChange(value);
           this.isExceeding = false;
-          this.setExceedingStatus(false, value.state);
-          this._setLastStateChange(value);
+          this.setExceedingStatus(value.state);
         }
       } else {
         if (this.isExceeding !== true) {
+          this.setFirstStateChange(value);
           this.isExceeding = true;
-          this.setExceedingStatus(true, value.state);
-          this._setFirstStateChange(value);
+          this.setExceedingStatus(value.state);
           if (this.hasExceeded === false)
             this.set('hasExceeded', true);
         }
       }
     },
 
-    setExceedingStatus: function(isExceeding, state) {
+    setExceedingStatus: function(state) {
     },
 
-    _setFirstStateChange: function(value) {
+    setFirstStateChange: function(value) {
       this.firstStateChange.push(value);
     },
 
-    _setLastStateChange: function(value) {
+    setLastStateChange: function(value) {
       this.lastStateChange.push(value);
     },
 
-    _handleExceeding: function(isExceeding) {
+    handleExceeding: function(isExceeding) {
       if (this.exceedable === true) {
         if (this.bubbles === true) {
           if (isExceeding === true)
@@ -324,40 +274,13 @@
       }
     },
 
-    _hasExceededChanged: function() {},
+    hasExceededChanged: function() {},
 
-    setColor: function(color) {
-      // random color if color is not set
-      if (!color) {
-        if (this.exceedable === true) {
-          this.color = "#51cc41";
-        } else {
-          color = '#';
-          var perm = ['2C', 'F5'];
-          perm.push((4 * Math.floor(Math.random() * 64)).toString(16));
-          for (var i = 3; i > 0; i--) {
-            var pos = Math.floor(Math.random() * i);
-            color += ((perm[pos].length === 1) ? '0' : '') + perm[pos];
-            perm.splice(pos, 1);
-          }
-          this.color = color;
-        }
-      } else {
-        this.customStyle['--element-color'] = this.color;
-        if (this.exceedable === false) {
-          this.customStyle['--element-state-undefined-color'] = this.color;
-          this.customStyle['--element-state-true-color'] = this.color;
-          this.customStyle['--element-state-false-color'] = this.color;
-        }
-        this.updateStyles();
-      }
-    },
-
-    reset: function() {
+    resetState: function() {
       this.set('hasExceeded', false);
     },
 
-    _updatableChanged: function() {
+    updatableChanged: function() {
       // sets a global Object 'window.Content', for updating the values of the elements
       if (this.noSocketConnection === false && this.label && this.id) {
         var id = this.id,
@@ -406,126 +329,6 @@
           (pos = window.Content[label][id].nodes.indexOf(this)) !== -1)
           window.Content[label][id].nodes.splice(pos, 1);
       }
-    },
-
-    detached: function() {
-      var pos;
-      if (this.noSocketConnection === false &&
-        window.Content !== undefined &&
-        window.Content[this.label] &&
-        window.Content[this.label][this.id] &&
-        (pos = window.Content[this.label][this.id].nodes.indexOf(this)) !== -1)
-        window.Content[this.label][this.id].nodes.splice(pos, 1);
-    },
-
-    checkedChanged: function(checked, old) {
-      if (old !== undefined && this.selectable === true) {
-        if (this.checked === false) {
-          this.fire('element-deselect', {
-            target: this
-          });
-        } else if (this.checked === true) {
-          this.fire('element-select', {
-            target: this
-          });
-        }
-        if (this._handleChecked)
-          this._handleChecked();
-      }
-    },
-
-    _select: function() {
-      if (this.selectable === true) {
-        if (this.toggles === true) {
-          if (this.checked === true) {
-            this.checked = false;
-          } else {
-            this.checked = true;
-          }
-        } else {
-          this.checked = true;
-        }
-      }
-    },
-
-    draggableChanged: function() {
-      if (this.draggable === true) {
-        this.setAttribute('draggable', true);
-        var dragArea = this.dragArea || this;
-        dragArea.addEventListener('dragstart', this.dragStart);
-      }
-      else if (this.draggable === false && this.hasAttribute('draggable')) {
-        this.removeAttribute('draggable');
-        var dragArea = this.dragArea || this;
-        dragArea.removeEventListener('dragstart', this.dragStart);
-      }
-    },
-    droppableChanged: function() {
-      if (this.droppable === true) {
-        this.setAttribute('droppable', true);
-        var dropArea = this.dropArea || this;
-        dropArea.addEventListener('dragover', this.dragOver);
-        dropArea.addEventListener('drop', this.dropped);
-      }
-      else if (this.droppable === false && this.hasAttribute('droppable')) {
-        this.removeAttribute('droppable');
-        var dropArea = this.dropArea || this;
-        dropArea.removeEventListener('dragover', this.dragOver);
-        dropArea.removeEventListener('drop', this.dropped);
-      }
-    },
-    dragStart: function(e) {
-      e.dataTransfer.setData("text", "[uniqueid='" + e.target.getAttribute('uniqueid') + "']");
-      e.dataTransfer.effectAllowed = "move";
-    },
-    dragOver: function(e) {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = "move";
-    },
-    dropped: function(e) {
-      e.preventDefault();
-      var selector = e.dataTransfer.getData("text");
-      if (selector) {
-        var elem = document.querySelector(selector);
-        if (elem) {
-          var elemParent = elem.parentNode;
-          var elemSibling = elem.nextSibling;
-          if (elemParent === this.parentNode) {
-            // drag and drop just in same context
-            if (elemSibling === this) {
-              elemParent.insertBefore(this, elem);
-            } else {
-              elemParent.insertBefore(elem, this);
-              if (elemSibling) {
-                elemParent.insertBefore(this, elemSibling);
-              } else {
-                elemParent.appendChild(this);
-              }
-            }
-            if (window.getComputedStyle(elemParent,null).getPropertyValue('flex-wrap') === 'wrap') { // bug fix for wrap styles, polymer.dom and event propagation
-              Array.prototype.forEach.call(elemParent.children, function(item, i) {
-                item.style.order = i;
-              })
-            }
-            e.stopPropagation();
-          }
-          // else {
-          //   this.parentNode.insertBefore(elem, this);
-          // }
-
-        }
-      }
-    },
-
-    getReducedCaptionKeys: function(groupedKey) {
-      var captionKeys = Object.keys(this.keys) || [];
-      this.set('reducedCaptionKeys', captionKeys.filter( function(key) { return (groupedKey !== key) } ));
-      return (this.reducedCaptionKeys.length === 0) ? captionKeys : this.reducedCaptionKeys;
-    },
-
-    isEmptyCaption: function(key) {
-      if (!this.keys[key]) return true;
-      else return false;
     }
   };
 </script>

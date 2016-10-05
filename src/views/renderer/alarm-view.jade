@@ -44,17 +44,18 @@ block BodyContent
                             svg= JSON.stringify(Subgroup.svg),
                             no-select-notify, notify, open-on-exceed)
                             each Id, i in Subgroup.ids
-                                sign-element(label!= Label,
-                                    id!= Id,
-                                    is-boolean!= config.elements[Label][Id].isBoolean,
-                                    unit!= config.elements[Label][Id].unit,
-                                    keys= JSON.stringify(config.elements[Label][Id].keys),
-                                    svg= JSON.stringify(config.elements[Label][Id].svg),
-                                    grouped-key!= config.preferedGroupingKeys[Label],
-                                    show-date!= (!mobile),
-                                    color!= config.elements[Label][Id].color,
-                                    bubbles,
-                                    exceedable!= config.elements[Label][Id].exceedable,
-                                    selectable
-                                    tooltip)
+                                if (config.elements[Label][Id])
+                                    sign-element(label!= Label,
+                                        id!= Id,
+                                        is-boolean!= config.elements[Label][Id].isBoolean,
+                                        unit!= config.elements[Label][Id].unit,
+                                        keys= JSON.stringify(config.elements[Label][Id].keys),
+                                        svg= JSON.stringify(config.elements[Label][Id].svg),
+                                        grouped-key!= config.preferedGroupingKeys[Label],
+                                        show-date!= (!mobile),
+                                        color!= config.elements[Label][Id].color,
+                                        bubbles,
+                                        exceedable!= config.elements[Label][Id].exceedable,
+                                        selectable
+                                        tooltip)
     

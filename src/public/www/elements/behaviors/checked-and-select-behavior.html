@@ -1,0 +1,55 @@
+<script>
+  CheckedAndSelectBehavior = {
+
+    properties: {
+      selectable: {
+        type: Boolean,
+        value: false
+      },
+      checked: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true,
+        notify: true,
+        observer: 'checkedChanged'
+      },
+      toggles: {
+        type: Boolean,
+        value: true,
+        reflectToAttribute: true
+      }
+    },
+
+    checkedChanged: function(checked, old) {
+      if (old !== undefined && this.selectable === true) {
+        if (checked === false) {
+          this.fire('element-deselect', {
+            target: this
+          });
+        } else if (checked === true) {
+          this.fire('element-select', {
+            target: this
+          });
+        }
+      }
+      if (this.handleChecked)
+        this.handleChecked(checked, old);
+    },
+
+    handleChecked: function() {},
+
+    select: function() {
+      if (this.selectable === true) {
+        if (this.toggles === true) {
+          if (this.checked === true) {
+            this.checked = false;
+          } else {
+            this.checked = true;
+          }
+        } else {
+          this.checked = true;
+        }
+      }
+    }
+  };
+</script>

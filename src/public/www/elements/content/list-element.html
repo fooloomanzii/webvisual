@@ -1,161 +1,120 @@
-<link rel='import' href='../behaviors/element-behavior.html'>
+<link rel="import" href="../behaviors/color-behavior.html"/>
+<link rel="import" href="../behaviors/checked-and-select-behavior.html"/>
+<link rel="import" href="../behaviors/drag-and-drop-behavior.html"/>
+<link rel="import" href="../behaviors/caption-behavior.html"/>
+<link rel="import" href="../behaviors/element-behavior.html"/>
 <dom-module id='list-element'>
   <template>
-  <style>
-    :host {
-      cursor: pointer;
-      position: relative;
-      box-sizing: border-box;
-      border-radius: 5px;
-      overflow: hidden;
-      outline: none;
-      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-      -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
-      align-self: stretch;
-      display: inline-flex;
-      flex-direction: row;
-      justify-content: space-between;
-      border-radius: inherit;
-      border: thin solid rgba(0,0,0,.16);
-      background: white;
-      z-index: auto;
-      transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    :host[dark] {
-      background: #C1C1C1;
-    }
-    :host[checked] {
-      @apply(--shadow-elevation-2dp);
-    }
-    section.list-element {
-      position: relative;
-    }
-    section#sign {
-      min-width: 2em;
-      position: relative;
-      padding: 0;
-      margin: 0;
-      width: auto;
-      background: var(--element-color);
-      color: var(--element-text-color);
-      height: auto;
-      width: auto;
-      box-sizing: border-box;
-      line-height: 1;
-    }
-    section#sign.inrange {
-      background: var(--element-state-inrange-color);
-      color: var(--element-state-inrange-text-color);
-    }
-    section#sign.exceeds {
-      background: var(--element-state-exceeds-color);
-      color: var(--element-state-exceeds-text-color);
-    }
-    section#sign.deceeds {
-      background: var(--element-state-deceeds-color);
-      color: var(--element-state-deceeds-text-color);
-    }
-    section#sign.undefined {
-      background: var(--element-state-undefined-color);
-      color: var(--element-state-undefined-text-color);
-    }
-    :host[dark] section#sign {
-      color: #d3d3d3;
-    }
-    section#sign > section {
-      padding: 0.5em;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      width: 100%;
-      box-sizing: border-box;
-      background: linear-gradient(180deg,rgba(255,255,255,0),rgba(230,230,230,0.2),rgba(255,255,255,0));
-    }
-    section#valueSection {
-      font-size: 0.9em;
-      padding: 0;
-      margin: 0;
-      float: left;
-    }
-    section#unitSection {
-      margin-left: 0.25em;
-      font-size: 0.75em;
-      float: right;
-    }
-    section#label {
-      color: #333333;
-      writing-mode: vertical-lr;
-      -ms-writing-mode: tb-rl;
-      font-size: 0.6em;
-      text-align: center;
-      padding: 0.5em 0;
-      width: 3em;
-      font-weight: normal;
-    }
-    section#caption {
-      border-top-left-radius: 0;
-      border-top-right-radius: 0;
-      border-bottom-left-radius: inherit;
-      border-bottom-right-radius: inherit;
-      color: #1f1f1f;
-      line-height: 1;
-      padding: 0.5em 0.5em 0.5em 0em;
-      display: flex;
-      flex-direction: row;
-      flex: 1 0 auto;
-      align-items: center;
-      margin: 0;
-      width: auto;
-    }
-    :host[dark] section#caption {
-      color: #1d1d1d;
-    }
-    section#caption span.captions {
-      padding: 0;
-      margin: 0;
-      margin-left: 0.5em;
-      font-weight: normal;
-      font-size: 0.6em;
-      word-wrap: break-word;
-      word-break: break-all;
-    }
-    span.captions:first-child {
-      margin-left: 0 !important;
-      font-weight: bold !important;
-      font-size: 1em !important;
-      word-wrap: normal !important;
-      word-break: keep-all !important;
-    }
-    span.captions:nth-child(2) {
-      font-size: 0.85em !important;
-    }
-    span.captions:nth-child(3) {
-      font-size: 0.75em !important;
-    }
-    svg#icon {
-      height: 1em;
-      width: 1em;
-      fill: currentColor;
-    }
-    section#dateSection {
-      font-size: 0.6em;
-      color: var(--primary-text-color);
-      align-self: center;
-      text-align: center;
-      min-width: 5em;
-      padding: 0.5em;
-      box-sizing: border-box;
-      position: relative;
-    }
-  </style>
-    <section id='label'>[[label]]</section>
+    <style>
+      :host {
+        cursor: pointer;
+        position: relative;
+        box-sizing: border-box;
+        border-radius: 5px;
+        overflow: hidden;
+        outline: none;
+        -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+        -webkit-touch-callout: none; -webkit-tap-highlight-color:rgba(0,0,0,0);
+        align-self: stretch;
+        display: inline-flex;
+        flex-direction: row;
+        justify-content: space-between;
+        border-radius: inherit;
+        border: thin solid rgba(0,0,0,.16);
+        background: white;
+        z-index: auto;
+        transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      :host[dark] {
+        background: #C1C1C1;
+      }
+      :host[checked] {
+        @apply(--shadow-elevation-2dp);
+      }
+      .list-element {
+        position: relative;
+      }
+      #sign {
+        min-width: 2em;
+        position: relative;
+        padding: 0;
+        margin: 0;
+        width: auto;
+        background: var(--element-color);
+        color: var(--element-text-color);
+        height: auto;
+        width: auto;
+        box-sizing: border-box;
+        line-height: 1;
+      }
+      #sign.inrange {
+        background: var(--element-state-inrange-color);
+        color: var(--element-state-inrange-text-color);
+      }
+      #sign.exceeds {
+        background: var(--element-state-exceeds-color);
+        color: var(--element-state-exceeds-text-color);
+      }
+      #sign.deceeds {
+        background: var(--element-state-deceeds-color);
+        color: var(--element-state-deceeds-text-color);
+      }
+      #sign.undefined {
+        background: var(--element-state-undefined-color);
+        color: var(--element-state-undefined-text-color);
+      }
+      :host[dark] #sign {
+        color: #d3d3d3;
+      }
+      #sign > section {
+        padding: 0.5em;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
+        box-sizing: border-box;
+        background: linear-gradient(180deg,rgba(255,255,255,0),rgba(230,230,230,0.2),rgba(255,255,255,0));
+      }
+      #valueSection {
+        font-size: 0.9em;
+        padding: 0;
+        margin: 0;
+        float: left;
+      }
+      #unitSection {
+        margin-left: 0.25em;
+        font-size: 0.75em;
+        float: right;
+      }
+      #label {
+        color: #333333;
+        writing-mode: vertical-lr;
+        -ms-writing-mode: tb-rl;
+        font-size: 0.6em;
+        text-align: center;
+        padding: 0.5em 0;
+        width: 3em;
+        font-weight: normal;
+      }
+      svg#icon {
+        height: 1em;
+        width: 1em;
+        fill: currentColor;
+      }
+      #dateSection {
+        font-size: 0.6em;
+        color: var(--primary-text-color);
+        align-self: center;
+        text-align: center;
+        min-width: 5em;
+        padding: 0.5em;
+        box-sizing: border-box;
+        position: relative;
+      }
+    </style>
 
-    <section id='caption'>
-      <template is='dom-repeat' items='[[getReducedCaptionKeys(groupedKey, keys.*)]]' as='captionKey'>
-        <span class='captions' hidden$='[[isEmptyCaption(captionKey, groupedKey)]]'>[[getKey(captionKey, reducedCaptionKeys.*)]]</span>
-      </template>
-    </section>
+    <section id='label'>[[label]]</section>
 
     <section id='sign' class='inrange'>
       <section hidden$="[[isBoolean]]">
@@ -168,6 +127,9 @@
         </svg>
       </section>
     </section>
+
+    <caption-element horizontal$="[[horizontal]]" grouped-key='[[groupedKey]]' keys='[[keys]]'></caption-element>
+
     <section id='dateSection' hidden$='[[!showDate]]'></section>
   </template>
 
@@ -176,7 +138,13 @@
     ListElement = Polymer({
       is: 'list-element',
 
-      behaviors: [ElementBehavior],
+      behaviors: [
+        ColorBehavior,
+        CheckedAndSelectBehavior,
+        DragAndDropBehavior,
+        CaptionBehavior,
+        ElementBehavior
+      ],
 
       properties: {
         showDate: {
@@ -187,24 +155,19 @@
           type: Boolean,
           value: true
         },
+        horizontal: {
+          type: Boolean,
+          value: true
+        },
         updateEveryValue: {
           type: Boolean,
           value: false,
           readOnly: true
-        },
-
-        draggable: {
-          type: Boolean,
-          value: true
-        },
-        droppable: {
-          type: Boolean,
-          value: true
         }
       },
 
       listeners: {
-        'click': '_select'
+        'click': 'select'
       },
 
       _value: Object,
@@ -218,7 +181,7 @@
         this.insertValues();
       },
 
-      setExceedingStatus: function(isExceeding, state) {
+      setExceedingStatus: function(state) {
         var status;
         // set color of the sign
         switch (state) {

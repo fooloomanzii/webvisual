@@ -3,22 +3,7 @@
   <template>
     <style>
       :host {
-        font-size: 0.8em;
-        display: block;
-        position: absolute;
-        outline: none;
-        z-index: 1010;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        -webkit-user-select: none;
-        user-select: none;
-        height: 0px;
-        --dropdown-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-                           0 1px 5px 0 rgba(0, 0, 0, 0.12),
-                           0 3px 1px -2px rgba(0, 0, 0, 0.2);
-      }
-
-      #dropdown {
+        font-size: var(--dropdown-fontsize, 0.8em);
         position: absolute;
         top: 0;
         left: 0;
@@ -26,7 +11,7 @@
         flex-direction: column;
         overflow: hidden;
         transition-delay: 250ms;
-        transition: box-shadow 250ms ease, opacity 250ms ease;
+        transition: box-shadow 250ms ease, opacity 250ms ease, visibility 250ms ease;
         opacity: 1;
         visibility: visible;
         color: var(--dropdown-text-color, --primary-text-color);
@@ -36,34 +21,42 @@
         align-content: stretch;
         justify-content: center;
         box-shadow: none;
+        outline: none;
+        z-index: 1010;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-select: none;
+        user-select: none;
+        --dropdown-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                           0 1px 5px 0 rgba(0, 0, 0, 0.12),
+                           0 3px 1px -2px rgba(0, 0, 0, 0.2);
       }
-      :host([shadow]) #dropdown {
+      :host([shadow]) {
         box-shadow: var(--dropdown-shadow);
       }
-      #dropdown[horizontal] {
+      :host([horizontal]) {
         flex-direction: row;
       }
-      #dropdown:not(.opened) {
+      :host:not([opened]) {
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
       }
-      #dropdown #background {
+      #background {
         position: absolute;
         border-radius: inherit;
         top: 0; left: 0; right: 0; bottom: 0;
         background: var(--dropdown-background, --background-0);
         box-shadow: none;
       }
-      #dropdown ::content > * {
+      ::content > * {
         border-radius: 0px;
+        z-index: inherit;
       }
     </style>
 
-    <section id="dropdown" horizontal$="[[horizontal]]" on-transitionend="updatePosition">
-      <section id="background"></section>
-      <content></content>
-    </section>
+    <section id="background"></section>
+    <content></content>
   </template>
 
   <script>
@@ -120,9 +113,15 @@
           value: ""
         },
 
+        hidingEvent: {
+          type: String,
+          value: "mouseleave"
+        },
+
         opened: {
           type: Boolean,
           value: false,
+          reflectToAttribute: true,
           observer: "_openedChanged"
         }
       },
@@ -134,7 +133,8 @@
       listeners: {
         'iron-resize': 'updatePosition',
         'focus': 'show',
-        "keyup": "_keyHandler"
+        'keyup': '_keyHandler',
+        'transitionend': 'updatePosition'
       },
 
       get target () {
@@ -159,6 +159,8 @@
           this.listen(this._target, this.targetShowingEvent, 'show');
         if (this.targetHidingEvent !== "")
           this.listen(this._target, this.targetHidingEvent, 'hide');
+        if (this.hidingEvent !== "")
+          this.listen(this, this.hidingEvent, 'hide');
       },
 
       detached: function() {
@@ -170,26 +172,21 @@
           if (this.targetHidingEvent !== "")
             this.unlisten(this._target, this.targetHidingEvent, 'hide');
         }
+        if (this.hidingEvent !== "")
+          this.listen(this, this.hidingEvent, 'hide');
       },
 
-      show: function() {
-        this.$.dropdown.removeAttribute("hidden");
-        this.$.dropdown.classList.add('opened');
+      show: function(e) {
+        this.removeAttribute('hidden');
+        this.setAttribute('opened', true);
         this.updatePosition();
       },
-      open: function() {
-        this.$.dropdown.removeAttribute("hidden");
-        this.$.dropdown.classList.add('opened');
-        this.updatePosition();
+      hide: function(e) {
+        if (this.hasAttribute('opened'))
+          this.removeAttribute('opened');
       },
-      hide: function() {
-        this.$.dropdown.classList.remove('opened');
-      },
-      close: function() {
-        this.$.dropdown.classList.remove('opened');
-      },
-      toggle: function() {
-        if (this.$.dropdown.classList.contains('opened')) this.hide();
+      toggle: function(e) {
+        if (this.hasAttribute('opened')) this.hide();
         else this.show();
       },
 
@@ -217,7 +214,7 @@
         var offset = this.offset;
         var parentRect = this.offsetParent.getBoundingClientRect();
         var targetRect = this._target.getBoundingClientRect();
-        var thisRect = this.$.dropdown.getBoundingClientRect();
+        var thisRect = this.getBoundingClientRect();
         var horizontalOffset, verticalOffset;
 
         switch (this.align) {

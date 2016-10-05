@@ -1,0 +1,37 @@
+<script>
+  ColorBehavior = {
+
+    properties: {
+      color: {
+        type: String,
+        observer: "setColor"
+      }
+    },
+
+    setColor: function(color) {
+      // random color if color is not set
+      if (!color) {
+        if (this.exceedable === true) {
+          this.customStyle['--element-state-inrange-color'] = "#51CC41";
+        }
+        color = '#';
+        var perm = ['2C', 'F5'];
+        perm.push((4 * Math.floor(Math.random() * 64)).toString(16));
+        for (var i = 3; i > 0; i--) {
+          var pos = Math.floor(Math.random() * i);
+          color += ((perm[pos].length === 1) ? '0' : '') + perm[pos];
+          perm.splice(pos, 1);
+        }
+        this.color = color;
+      } else {
+        this.customStyle['--element-color'] = this.color;
+        if (this.exceedable === false) {
+          this.customStyle['--element-state-undefined-color'] = this.color;
+          this.customStyle['--element-state-true-color'] = this.color;
+          this.customStyle['--element-state-false-color'] = this.color;
+        }
+        this.updateStyles();
+      }
+    }
+  };
+</script>
