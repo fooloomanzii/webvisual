@@ -1,5 +1,8 @@
 extends layout
 
+block HeadContent
+    link(rel='import', href='elements/login-imports.html')
+
 block StyleContent
     style(is="custom-style", include="app-theme").
         body {

@@ -1,6 +1,7 @@
 extends ../../layout
 
 block HeadContent
+  link(rel='import', href='elements/imports.html')
   script(src='socket.io/socket.io.js')
   //- script(src='js/database-worker.js')
   script(src='js/database-client.js')

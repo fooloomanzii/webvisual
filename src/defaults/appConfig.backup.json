@@ -1,7 +1,7 @@
 {
   "server": {
     "auth": {
-      "required": false,
+      "required": true,
       "req": true,
       "ldap": {
         "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
