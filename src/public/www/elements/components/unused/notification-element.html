@@ -125,7 +125,7 @@ Custom property | Description | Default
       }
 
       leaflet-map .leaflet-bottom {
-        display: none;
+        display: none !important;
       }
 
       .mainContent {
@@ -141,6 +141,9 @@ Custom property | Description | Default
       .mainContent[dark] {
         background-color: var(--notification-element-dark-background-color,#747474);
         border-color: var(--notification-element-dark-border-color, #444);
+      }
+      [hidden] {
+        display: none !important;
       }
     </style>
 

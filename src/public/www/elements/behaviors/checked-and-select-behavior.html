@@ -17,17 +17,25 @@
         type: Boolean,
         value: true,
         reflectToAttribute: true
-      }
+      },
+      selectEvent: {
+        type: String,
+        value: 'element-select'
+      },
+      deselectEvent: {
+        type: String,
+        value: 'element-deselect'
+      },
     },
 
     checkedChanged: function(checked, old) {
       if (old !== undefined && this.selectable === true) {
         if (checked === false) {
-          this.fire('element-deselect', {
+          this.fire(this.deselectEvent, {
             target: this
           });
         } else if (checked === true) {
-          this.fire('element-select', {
+          this.fire(this.selectEvent, {
             target: this
           });
         }
@@ -36,7 +44,7 @@
         this.handleChecked(checked, old);
     },
 
-    handleChecked: function() {},
+    handleChecked: function(checked, old) {},
 
     select: function() {
       if (this.selectable === true) {

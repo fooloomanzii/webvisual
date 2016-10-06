@@ -17,7 +17,7 @@ block BodyContent
                 radio-button-element.labelButton(label!= Label)
                     != Label
         //- MAIN-PAGE
-        main-page.fullbleed(animated!= (!mobile), reproduce, notify, open-on-select, no-auto-removal-exceeding-elements)
+        main-page.fullbleed(animated!= (!mobile), reproduce, notify, open-on-select, no-auto-removal-exceeding-elements, native-notifications)
             //- TABS
             each Label in config.labels
                 tab-element.label(label!= Label)
@@ -31,7 +31,7 @@ block BodyContent
 
             //- GROUPINGKEY SELECTORS
             each Label in config.labels
-                iron-selector.groupingKeySelector(attr-for-selected= "groupingkey", selected-attribute= "checked", selected!= config.preferedGroupingKeys[Label], fallback-selection!= config.preferedGroupingKeys[Label], activate-event="change")
+                iron-selector.groupingKeySelector(label!= Label, attr-for-selected= "groupingkey", selected-attribute= "checked", selected!= config.preferedGroupingKeys[Label], fallback-selection!= config.preferedGroupingKeys[Label], activate-event="change")
                     each GroupingKey in config.groupingKeys[Label]
                         radio-button-element.lightcontext.groupingKey(groupingkey!= GroupingKey)
                             != GroupingKey

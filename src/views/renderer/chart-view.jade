@@ -19,7 +19,7 @@ block StyleContent
         main-page.chartview {
             --app-content-background: #a9a9a9;
             --dark-app-content-background: #708090;
-            --app-toolbar-max-height: calc(50vh - 64px);
+            --app-toolbar-height: calc(50vh - 64px);
             --app-toolbar-expanded-height: calc(100vh - 64px);
         }
 
@@ -45,7 +45,7 @@ block BodyContent
 
             //- GROUPINGKEY SELECTORS
             each Label in config.labels
-                iron-selector.groupingKeySelector(attr-for-selected= "groupingkey", selected-attribute= "checked", selected!= config.preferedGroupingKeys[Label], fallback-selection!= config.preferedGroupingKeys[Label], activate-event="change")
+                iron-selector.groupingKeySelector(label!= Label, attr-for-selected= "groupingkey", selected-attribute= "checked", selected!= config.preferedGroupingKeys[Label], fallback-selection!= config.preferedGroupingKeys[Label], activate-event="change")
                     each GroupingKey in config.groupingKeys[Label]
                         radio-button-element.lightcontext.groupingKey(groupingkey!= GroupingKey)
                             != GroupingKey

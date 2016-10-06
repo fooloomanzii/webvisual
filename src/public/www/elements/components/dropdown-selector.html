@@ -38,7 +38,7 @@
       border: none;
     }
     :host([no-focusline]) > .focusline {
-      display: none;
+      display: none !important;
     }
     label {
       position: absolute;
@@ -136,6 +136,9 @@
       align-items: center;
       flex: 1;
       min-height: 2em;
+    }
+    [hidden] {
+      display: none !important;
     }
   </style>
     <paper-ripple></paper-ripple>

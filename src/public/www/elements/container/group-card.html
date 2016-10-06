@@ -170,6 +170,9 @@
         align-items: center;
         justify-content: flex-start;
       }
+      [hidden] {
+        display: none !important;
+      }
     </style>
 
       <section id='header' hidden$='[[_hideheadline(headline,withoutWindow,hideHeader)]]'>
@@ -366,7 +369,7 @@
       },
 
       _hideheadline: function(headline, withoutWindow, hideHeader) {
-        if(headline === '*' || withoutWindow || hideHeader)
+        if (headline == '*' || withoutWindow || hideHeader)
           return true;
         else
           return false;

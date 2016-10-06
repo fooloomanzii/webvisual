@@ -341,7 +341,7 @@
           },
 
           sendEvent: function(e) {
-            this.$.dropdown.close();
+            this.$.dropdown.hide();
             var ipcEvent = e.currentTarget.getAttribute('ipc-event');
             if (ipcEvent) {
               var arg = e.currentTarget.ipcArg;
@@ -380,7 +380,7 @@
             }
           },
           openFileSelector: function(e) {
-            this.$.dropdown.close();
+            this.$.dropdown.hide();
             var arg = {
               for: e.currentTarget.getAttribute('for'),
               filter: [ {name: e.currentTarget.getAttribute('filter'), extensions: [e.currentTarget.getAttribute('filter')]} ]
@@ -388,14 +388,14 @@
             ipcRenderer.send('event', 'file-dialog', arg);
           },
           openFolderSelector: function(e) {
-            this.$.dropdown.close();
+            this.$.dropdown.hide();
             var arg = {
               for: e.currentTarget.getAttribute('for')
             }
             ipcRenderer.send('event', 'folder-dialog', arg);
           },
           editUserConfigFile: function(e) {
-            this.$.dropdown.close();
+            this.$.dropdown.hide();
             var arg = e.currentTarget.arg;
             if(arg) {
               this.$.newConfigName.value = arg.name;
@@ -436,14 +436,14 @@
           },
           openDialog: function(e) {
             this.$.mainDrawer.close();
-            this.$.dropdown.close();
+            this.$.dropdown.hide();
             var For = e.currentTarget.getAttribute('for');
             var dialog = this.$$('dialog-element#'+For);
             if (dialog)
               dialog.open();
           },
           clearHistory: function() {
-            this.$.dropdown.close();
+            this.$.dropdown.hide();
             var body = this.$.body;
             while (body.lastChild) {
               body.removeChild(body.lastChild);

@@ -3,11 +3,7 @@
 
 <style is="custom-style">
 /* Application theme */
-  :root {
-    height: 100%;
-    width: 100%;
-    margin: 0em;
-    padding: 0em;
+  html {
     @apply(--font-common-base);
     color: var(--primary-text-color);
 
@@ -36,7 +32,7 @@
 
     --app-content-background: #BBBBBB;
     --dark-app-content-background: #666666;
-    --app-toolbar-max-height: 25vh;
+    --app-toolbar-height: 25vh;
 
     --blur-overlay-background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(230,230,230,0.2), rgba(255,255,255,0));
     --hover-background: rgba(255,255,255,0.2);
@@ -177,6 +173,10 @@
 
   iron-collapse {
     outline: none;
+  }
+
+  [hidden] {
+    display: none !important;
   }
 
    /*

@@ -3,19 +3,14 @@
   <template>
     <style>
       :host {
-        font-size: var(--dropdown-fontsize, 0.8em);
+        display: none;
         position: absolute;
         top: 0;
         left: 0;
-        display: flex;
         flex-direction: column;
         overflow: hidden;
-        transition-delay: 250ms;
-        transition: box-shadow 250ms ease, opacity 250ms ease, visibility 250ms ease;
-        opacity: 1;
-        visibility: visible;
-        color: var(--dropdown-text-color, --primary-text-color);
         outline: none;
+        border: none !important;
         border-radius: inherit;
         align-items: stretch;
         align-content: stretch;
@@ -27,6 +22,9 @@
         -ms-user-select: none;
         -webkit-user-select: none;
         user-select: none;
+        font-size: var(--dropdown-fontsize, 0.8em);
+        color: var(--dropdown-text-color, --primary-text-color);
+        background: var(--dropdown-background, transparent);
         --dropdown-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
                            0 1px 5px 0 rgba(0, 0, 0, 0.12),
                            0 3px 1px -2px rgba(0, 0, 0, 0.2);
@@ -37,25 +35,15 @@
       :host([horizontal]) {
         flex-direction: row;
       }
-      :host:not([opened]) {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-      }
-      #background {
-        position: absolute;
-        border-radius: inherit;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: var(--dropdown-background, --background-0);
-        box-shadow: none;
-      }
       ::content > * {
-        border-radius: 0px;
+        border-radius: 0;
+        border-width: 0;
+        padding: 0;
+        margin: 0;
         z-index: inherit;
       }
     </style>
 
-    <section id="background"></section>
     <content></content>
   </template>
 
@@ -63,13 +51,30 @@
     Polymer({
       is: 'dropdown-element',
 
-      behaviors: [Polymer.IronResizableBehavior],
+      behaviors: [
+        Polymer.NeonAnimationRunnerBehavior
+      ],
 
       properties: {
-
         for: {
           type: String,
           observer: '_forChanged'
+        },
+        animationConfig: {
+          value: function() {
+            return {
+              'entry': {
+                // provided by neon-animation/animations/scale-up-animation.html
+                name: 'fade-in-animation',
+                node: this
+              },
+              'exit': {
+                // provided by neon-animation-animations/fade-out-animation.html
+                name: 'fade-out-animation',
+                node: this
+              }
+            }
+          }
         },
         // options: 'left', 'right', 'bottom', 'top'
         position: {
@@ -92,11 +97,7 @@
           type: Boolean,
           value: false
         },
-        backgroundOpacity: {
-          type: Number,
-          value: 1,
-          observer: "_opacityChanged"
-        },
+
         // e.g. tap
         targetToggleEvent: {
           type: String,
@@ -120,21 +121,15 @@
 
         opened: {
           type: Boolean,
-          value: false,
-          reflectToAttribute: true,
-          observer: "_openedChanged"
+          value: false
         }
-      },
-
-      hostAttributes: {
-        tabindex: '0'
       },
 
       listeners: {
         'iron-resize': 'updatePosition',
         'focus': 'show',
         'keyup': '_keyHandler',
-        'transitionend': 'updatePosition'
+        'neon-animation-finish': '_onNeonAnimationFinish'
       },
 
       get target () {
@@ -177,31 +172,39 @@
       },
 
       show: function(e) {
-        this.removeAttribute('hidden');
-        this.setAttribute('opened', true);
+        this.opened = true;
+        this.style.display = 'flex';
         this.updatePosition();
+        this.playAnimation('entry');
       },
       hide: function(e) {
-        if (this.hasAttribute('opened'))
-          this.removeAttribute('opened');
+        this.opened = false;
+        this.playAnimation('exit');
+
       },
       toggle: function(e) {
-        if (this.hasAttribute('opened')) this.hide();
+        if (this.opened) this.hide();
         else this.show();
       },
 
-      _openedChanged: function() {
-        if (this.opened === true) this.show();
-        else this.hide();
+      open: function() {
+        this.show();
+      },
+      close: function() {
+        this.hide();
+      },
+
+      _onNeonAnimationFinish: function() {
+        this.updatePosition();
+        if (!this.opened) {
+          this.style.display = 'none';
+        }
       },
 
       _forChanged: function() {
         this._target = this.target;
       },
 
-      _opacityChanged: function() {
-        this.$.background.style.opacity = this.backgroundOpacity;
-      },
 
       updatePosition: function() {
         this.debounce("update-position", this._updatePosition, 15);

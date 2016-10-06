@@ -3,6 +3,8 @@
 <dom-module id="main-page">
 
   <template>
+  <style>
+  </style>
   <style include="main-page-style">
     :host {
       font-size: 1em;
@@ -33,7 +35,7 @@
       background: rgba(255,255,255,0.2);
     }
     #toolbarFooter:not([opened]) ::content > * {
-      display: none;
+      display: none !important;
     }
     #mainContent ::content .panel {
       height: 100%;
@@ -65,7 +67,7 @@
       display: flex;
     }
     #mainContent ::content .panel:not(.foreground) {
-      display: none;
+      display: none !important;
     }
     #mainContent ::content .panel.selected[animated] {
       transition: opacity 150ms ease, transform 300ms ease;
@@ -86,7 +88,7 @@
       flex-direction: column;
     }
     #groupingKeysLabelSelector ::content iron-selector.groupingKeySelector:not(.foreground){
-      display: none;
+      display: none !important;
     }
     #groupingKeysLabelSelector ::content radio-button-element {
       font-size: 0.9em;
@@ -111,7 +113,7 @@
     }
 
 		#control icon-button-element.tab-icon {
-			display: none;
+			display: none !important;
 		}
     @media all and (max-width: 520px) {
 			#toolbarHeader {
@@ -119,7 +121,7 @@
 			}
 			#labelsTabs {
 				align-self: flex-start;
-				display: none;
+				display: none !important;
 			}
 			#labelsTabs.tabs-opened {
 				display: inline-block;
@@ -165,9 +167,12 @@
         border-top: none;
       }
     }
+    [hidden] {
+      display: none !important;
+    }
   </style>
 
-    <logo-element id="logo" on-tap="backToMainMenu"></logo-element>
+    <logo-element id="logo" on-tap="backToIndex"></logo-element>
     <!-- TOOLBAR -->
     <section id="toolbar">
       <section id="toolbarBackground"></section>
@@ -249,8 +254,13 @@
             </section>
 
         <button-element class="sidemenu" on-tap="backToMainMenu">
+          <iron-icon icon="assessment" class="left"></iron-icon>
+          <section class="content">Konfigurationsauswahl</section>
+        </button-element>
+
+        <button-element class="sidemenu" on-tap="backToIndex">
           <iron-icon icon="arrow-back" class="left"></iron-icon>
-          <section class="content">Auswahl</section>
+          <section class="content">Index</section>
         </button-element>
 
       </section>
@@ -321,8 +331,7 @@
           value: false
         },
         currentLabel: {
-          type: Number,
-          value: 0,
+          type: String,
           observer: "_currentLabelChanged"
         },
         // Element Appearance
@@ -406,39 +415,38 @@
           type: Boolean,
           value: false,
           observer: '_handleExceeding'
+        },
+        isExceeding: {
+          type: Boolean,
+          value: false,
+          observer: '_handleExceeding'
+        },
+
+        nativeNotification: {
+          type: Boolean,
+          value: false,
+          observer: 'requestNotificationPermission'
         }
       },
 
       attached: function() {
         this.fire('resize');
-        var self = this;
+
         Polymer.dom(this.$.groupingKeysLabelSelector)
                .observeNodes(function(info) {
                  for (var i in info.addedNodes)
                   if (info.addedNodes[i].nodeName === "IRON-SELECTOR")
                     info.addedNodes[i].addEventListener("iron-select", function(e) {
-                      self._regroup(e.currentTarget.selected);
-                    });
-               });
+                      this.regroup(e.currentTarget.selected);
+                    }.bind(this));
+               }.bind(this));
         Polymer.dom(this.$.mainContent)
                .observeNodes( function(info) {
                  if (info.addedNodes.length > 0) {
-                    self.set("currentLabel", Labels[0]);
+                    // console.log(window.Labels);
+                    // self.set("currentLabel", Labels[0]);
                  }
                });
-        // Notifications
-        if (!("Notification" in window)) {
-          console.warn("This browser does not support desktop notification");
-        }
-        //  ask the user for permission
-        else if (Notification.permission !== 'denied') {
-          Notification.requestPermission(function (permission) {
-            // If the user accepts, let's create a notification
-            if (permission === "granted") {
-              var notification = new Notification("Notifikationen aktiv", {icon: '../../img/icons/webicon.png', body: '', tag: ''});
-            }
-          });
-        }
       },
 
       _handleExceeding: function(value) {
@@ -458,6 +466,9 @@
         this.closeToolbar();
         PageSelector.select("0");
       },
+      backToIndex: function() {
+        window.location.pathname = '/index';
+      },
       // Panel Control
       _currentLabelChanged: function(newLabel, oldLabel) {
         this._selectPanel(newLabel, oldLabel);
@@ -465,85 +476,72 @@
         this.fire("clear-selected-elements");
       },
       _selectPanel: function(newLabel, oldLabel) {
-        var newIndex = 0, oldIndex;
-        var content = this.$.mainContent.children;
-        var groupingkeys = this.$.groupingKeysLabelSelector.children;
+        var newpanel = this.queryEffectiveChildren.call(this.$.mainContent,'[label=' + newLabel + ']'),
+            newselector = this.queryEffectiveChildren.call(this.$.groupingKeysLabelSelector,'[label=' + newLabel + ']');
+        var oldpanel = this.queryEffectiveChildren.call(this.$.mainContent,'[label=' + oldLabel + ']'),
+            oldselector = this.queryEffectiveChildren.call(this.$.groupingKeysLabelSelector,'[label=' + oldLabel + ']');
 
-        for (var i = 0; i < content.length; i++) {
-          if (content[i].getAttribute('label') === newLabel)
-            newIndex = i;
-          else if (oldLabel && content[i].getAttribute('label') === oldLabel)
-            oldIndex = i;
+        if (newselector && newpanel) {
+          newselector.style.display = '';
+          newselector.classList.add("foreground");
+          newpanel.style.display = '';
+          newpanel.classList.add("foreground");
         }
 
-        if (groupingkeys[newIndex])
-          groupingkeys[newIndex].classList.add("foreground");
-        content[newIndex].classList.add("foreground");
-        if (oldIndex !== undefined && content[oldIndex].getAttribute('hidden') === "true") {
-          content[newIndex].classList.add("selected");
-          content[oldIndex].classList.remove("foreground");
-          content[oldIndex].classList.remove("selected");
-          if (groupingkeys[oldIndex])
-            groupingkeys[oldIndex].classList.remove("foreground");
-        }
-        else if (this.animated) {
-          if (oldIndex !== undefined) {
-              content[oldIndex].addEventListener("transitionend", function(e) {
-                content[newIndex].classList.add("selected");
-                content[oldIndex].classList.remove("foreground");
-                content[oldIndex].removeEventListener(e.type, arguments.callee);
-              });
-            content[oldIndex].classList.remove("selected");
-            if (groupingkeys[oldIndex])
-              groupingkeys[oldIndex].classList.remove("foreground");
+        if (this.animated) {
+          if (oldpanel) {
+            oldpanel.addEventListener("transitionend", function(e) {
+              if (newpanel)
+                newpanel.classList.add("selected");
+              oldpanel.classList.remove("foreground");
+              oldpanel.removeEventListener(e.type, arguments.callee);
+            });
+            oldpanel.classList.remove("selected");
+            if (oldselector)
+              oldselector.classList.remove("foreground");
           }
-          else
-            content[newIndex].classList.add("selected");
+          else if (newpanel) {
+            newpanel.classList.add("selected");
+          }
         }
         else {
-          content[newIndex].classList.add("selected");
-          if (oldIndex !== undefined) {
-            content[oldIndex].classList.remove("foreground");
-            content[oldIndex].classList.remove("selected");
-            if (groupingkeys[oldIndex])
-              groupingkeys[oldIndex].classList.remove("foreground");
+          if (newpanel)
+            newpanel.classList.add("selected");
+          if (oldpanel) {
+            oldpanel.classList.remove("foreground");
+            oldpanel.classList.remove("selected");
+            if (oldselector)
+              oldselector.classList.remove("foreground");
           }
         }
       },
       dissemblePanels: function(labels) {
-        var content = this.$.mainContent.children;
-        var tabs = this.$.labelSelector.children;
-        var groupingkeys = this.$.groupingKeysLabelSelector.children;
-        var newLabel;
+        var newlabel = labels[0];
+        var panelcontent = this.getEffectiveChildren.call(this.$.mainContent);
+        var groupingselectorcontent = this.getEffectiveChildren.call(this.$.groupingKeysLabelSelector);
 
+        // Toolbar controlls hidden when just there's just one selectable panel
         if (labels.length > 1) {
-          this.$.labelSelector.style.display = "initial";
-          this.$.tabsIcon.style.display = "inline-block";
+          this.$.labelSelector.style.display = "";
+          this.$.tabsIcon.style.display = "";
 				}
         else {
           this.$.labelSelector.style.display = "none";
 					this.$.tabsIcon.style.display = "none";
 				}
-        for (var i = 0; i < content.length; i++) {
-          if (labels.indexOf(content[i].getAttribute('label')) === -1) {
-            content[i].setAttribute("hidden", true);
-            tabs[i].setAttribute("hidden", true);
-            if (groupingkeys[i])
-              groupingkeys[i].setAttribute("hidden", true);
-          }
-          else {
-            if (!newLabel)
-              newLabel = content[i].getAttribute('label');
-            content[i].removeAttribute("hidden");
-            tabs[i].removeAttribute("hidden");
-            if (groupingkeys[i])
-              groupingkeys[i].removeAttribute("hidden");
-          }
-        }
-        this.set("currentLabel", newLabel);
+
+        Array.prototype.forEach.call(panelcontent, function(panel) {
+          if (panel.getAttribute('label') === newlabel) panel.style.display = '';
+          else panel.style.display = 'none';
+        })
+        Array.prototype.forEach.call(groupingselectorcontent, function(selector) {
+          if (selector.getAttribute('label') === newlabel) selector.style.display = '';
+          else selector.style.display = 'none';
+        })
+        this.set("currentLabel", newlabel);
       },
       // Grouping Options
-      _regroup: function(key) {
+      regroup: function(key) {
         var label = this.currentLabel;
         if (!label || !key || !Groups[label][key] || PreferedGroupingKeys[label] == key)
           return;
@@ -584,6 +582,22 @@
       _clearExceedingElementsFromList: function() {
         this.$.exceedingElementsList.clearExceedingElements();
         this.closeAlarmPanel();
+      },
+
+      requestNotificationPermission: function() {
+        // Notifications
+        if (!("Notification" in window)) {
+          console.warn("This browser does not support desktop notification");
+        }
+        //  ask the user for permission
+        else if (this.notification && Notification.permission !== 'denied') {
+          Notification.requestPermission(function (permission) {
+            // If the user accepts, let's create a notification
+            if (permission === "granted") {
+              var notification = new Notification("Notifikationen aktiv", {icon: '../../img/icons/webicon.png', body: '', tag: ''});
+            }
+          });
+        }
       },
 
       createAlarmNotification: function() {

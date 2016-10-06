@@ -1,6 +1,6 @@
 <link rel='import' href='../behaviors/element-behavior.html'>
 <dom-module id='table-element'>
-	<template>
+	<template strip-whitespace>
   <style>
     :host {
       /*height needs to be set by outer element*/
@@ -44,7 +44,7 @@
       overflow-y: scroll;
     }
 		.block {
-			display: none;
+			display: none !important;
 			position: relative;
 		}
 		.block:first-child {
@@ -93,6 +93,9 @@
 			border-bottom-width: thin;
 			border-color: inherit;
 			cursor: pointer;
+		}
+		[hidden] {
+			display: none !important;
 		}
   </style>
 
