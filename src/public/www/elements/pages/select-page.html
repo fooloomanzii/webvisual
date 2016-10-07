@@ -206,7 +206,7 @@
 
       _disableButton: function() {
         if (this.selectedLabels.length === 0)
-          this.$.submitButton.setAttribute('disabled', true);
+          this.$.submitButton.setAttribute('disabled', '');
         else {
           clearTimeout(this.start);
           this.$.submitButton.removeAttribute('disabled');

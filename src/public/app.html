@@ -5,8 +5,7 @@
     <script src="./www/components/webcomponentsjs/webcomponents-lite.js"></script>
       <script>
         window.Polymer = {
-          dom: 'shady',
-          lazyRegister: true
+          dom: 'shadow'
         };
       </script>
     <title>Webvisual Server</title>
@@ -38,9 +37,9 @@
             font-size: 16px;
             position: relative;
             display: flex;
-            height: 100%;
+            height: 100vh;
             overflow: hidden;
-            width: 100%;
+            width: 100vw;
           }
           app-drawer {
             --app-drawer-scrim-background: rgba(0,0,0, 0.25);
@@ -68,7 +67,7 @@
             box-sizing: border-box;
             width: 100vw;
           }
-          section#mainContent {
+          #mainContent {
             height: calc(100% - 54px);
             overflow: auto;
             position: relative;
@@ -84,16 +83,16 @@
             width: auto;
             flex: 1;
           }
-          section#drawer {
+          #drawer {
             display: flex;
             flex-direction: column;;
             align-items: stretch;
           }
-          section#drawer > button-element {
+          #drawer > button-element {
             width: 100%;
             margin: 0.25em 0em;
           }
-          section#configFiles {
+          #configFiles {
             background: #ddd;
             float: left;
             clear: both;
@@ -128,10 +127,14 @@
             flex-direction: column;
             font-size: 0.9em;
           }
+          dropdown-element, dropdown-selector {
+            --dropdown-background: rgba(255, 255, 255, 0.75);
+          }
           dropdown-element button-element, dropdown-selector button-element {
             /*color: #444;*/
-            font-size: 0.6em;
-            margin: 0;
+            font-size: 0.7em;
+            margin: 0.25em 0em !important;
+            padding: 0.5em !important;
             border: none;
             border-bottom: thin solid rgba(0, 0, 0, 0.12);
           }
@@ -142,11 +145,11 @@
             margin-left: 0.75em;
             height: 54px;
           }
-          section#log {
+          #log {
             padding: 0.35em;
             font-family: Fira Mono;
           }
-          section#tr {
+          #tr {
             margin-bottom: 0.25em;
             border: thin solid rgba(0, 0, 0, 0.25);
             background: #f1f1f1;
@@ -155,7 +158,7 @@
             width: 100%;
             align-items: stretch;
           }
-          section#td.date {
+          #td.date {
             border-bottom-left-radius: inherit;
             border-top-left-radius: inherit;
             background: #DDDDDD;
@@ -164,7 +167,7 @@
             font-size: 0.5em;
             white-space: pre-wrap;
           }
-          section#td.msg {
+          #td.msg {
             border-radius: inherit;
             padding: 0.15em 0.5em;
             font-size: 0.75em;
@@ -215,6 +218,7 @@
             </section>
           </app-drawer>
           <app-header-layout>
+
             <app-header fixed>
               <app-toolbar>
                 <icon-button-element id="menuButton" icon="menu" drawer-toggle></icon-button-element>
@@ -222,16 +226,20 @@
                 <section class="flex"></section>
               </app-toolbar>
             </app-header>
+
             <section id="mainContent">
               <section id="log">
                 <section id="body"></section>
               </section>
             </section>
+
             <app-toolbar id="toolbar">
+
               <icon-button-element id="clear" icon="delete" aria-label="löschen" on-tap="clearHistory"></icon-button-element>
               <section class="flex"></section>
               <icon-button-element id="toggleStartButton" toggles ipc-event="server-toggle" on-tap="sendEvent" icon="play-arrow" isRunning$="[[isRunning]]" aria-label="Server"></icon-button-element>
               <icon-button-element id="files" toggles icon="description" aria-label="Konfigurationsdateien"></icon-button-element>
+
               <dropdown-element id="dropdown" for="files" position="top" align="end" offset="6" target-toggle-event="tap">
                 <template is="dom-repeat" items="{{configFiles}}">
                   <button-element class="inline shim" on-tap="sendEvent">
@@ -241,11 +249,13 @@
                     <iron-icon class="right shim unshim" icon="edit" arg="{{item}}" on-tap="editUserConfigFile"></iron-icon>
                   </button-element>
                 </template>
+
                 <button-element for="userConfigDialog" on-tap="openDialog">
                   <iron-icon class="left" icon="note-add"></iron-icon>
                   <section class="spread">Konfigurationsdatei hinzufügen...</section>
                 </button-element>
               </dropdown-element>
+
             </app-toolbar>
           </app-header-layout>
         </app-drawer-layout>
@@ -263,19 +273,19 @@
                 <span>Authentifizierung</span>
               </toggle-button-element>
               <section class="inline">
-                <input-element id="certPath" label="Zertifikatdatei (ssl crt)" pattern="*" value="{{serverConfig.ssl.cert}}"></input-element>
+                <input-element id="certPath" label="Zertifikatdatei (ssl crt)" value="{{serverConfig.ssl.cert}}"></input-element>
                 <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="certPath" filter="crt" aria-label="Datei öffnen..."></icon-button-element>
               </section>
               <section class="inline">
-                <input-element id="keyPath" label="Schlüsseldatei (ssl key)" pattern="*" value="{{serverConfig.ssl.key}}"></input-element>
+                <input-element id="keyPath" label="Schlüsseldatei (ssl key)" value="{{serverConfig.ssl.key}}"></input-element>
                 <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="keyPath" filter="key" aria-label="Datei öffnen..."></icon-button-element>
               </section>
               <section class="inline">
-                <input-element id="passphrasePath" label="Passphrasendatei (ssl passphrase)" pattern="*" value="{{serverConfig.ssl.passphrase}}"></input-element>
+                <input-element id="passphrasePath" label="Passphrasendatei (ssl passphrase)" value="{{serverConfig.ssl.passphrase}}"></input-element>
                 <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="passphrasePath" filter="json" aria-label="Datei öffnen..."></icon-button-element>
               </section>
               <section class="inline">
-                <input-element id="certchainDir" label="certChain-Ordner (certchainDir)" pattern="*" value="{{serverConfig.ssl.certchaindir}}"></input-element>
+                <input-element id="certchainDir" label="certChain-Ordner (certchainDir)" value="{{serverConfig.ssl.certchaindir}}"></input-element>
                 <icon-button-element icon="folder-open" class="small-spread" on-tap="openFolderSelector" for="certchainDir" aria-label="Ordner öffnen..."></icon-button-element>
               </section>
             </section>
@@ -289,9 +299,9 @@
         <dialog-element id="userConfigDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
           <h3>Konfigurationsdatei</h3>
           <div class="dialog-content">
-            <input-element id="newConfigName" label="Anzeigename" pattern="*" required></input-element>
+            <input-element id="newConfigName" label="Anzeigename" required></input-element>
             <section class="inline">
-              <input-element id="newConfigPath" label="Pfad" pattern="*" required></input-element>
+              <input-element id="newConfigPath" label="Pfad" required></input-element>
               <icon-button-element icon="folder-open" class="spread" on-tap="openFileSelector" for="newConfigPath" filter="json" aria-label="Datei öffnen..."></icon-button-element>
             </section>
             <dropdown-selector id="fileRenderer" label="Rendereinheit" icon="view-agenda" class="inline" attr-for-selected="renderer" toggles position="bottom" align="start" required>
@@ -340,6 +350,12 @@
             }
           },
 
+          _body: Object,
+
+          attached: function() {
+            this._body = this.$.body;
+          },
+
           sendEvent: function(e) {
             this.$.dropdown.hide();
             var ipcEvent = e.currentTarget.getAttribute('ipc-event');
@@ -353,11 +369,13 @@
             switch (event) {
               case 'file-dialog':
                 if (arg) {
-                  var input = document.querySelector('#'+arg.for);
-                  input.value = arg.path;
+                  var input = this.$[arg.for];
+                  if (arg.path)
+                    input.value = arg.path;
                 }
                 break;
               case 'set-user-config':
+              console.log("configFiles", arg);
                 var values = [];
                 for (var c in arg) {
                   values.push({name: c, path: arg[c].path, renderer: arg[c].renderer});
@@ -444,10 +462,23 @@
           },
           clearHistory: function() {
             this.$.dropdown.hide();
-            var body = this.$.body;
-            while (body.lastChild) {
-              body.removeChild(body.lastChild);
+            while (this._body.lastChild) {
+              this._body.removeChild(this._body.lastChild);
             }
+          },
+          log: function(msg) {
+            let row = document.createElement('section');
+            row.id = "tr";
+            row.classList.add("webvisual-app");
+            let date = document.createElement('section');
+            date.id = "td"; date.className = "date";
+            let timestamp = new Date();
+            date.innerHTML = timestamp.toLocaleDateString() + '<br/>' + timestamp.toLocaleTimeString() + "." + timestamp.getMilliseconds();
+            let message = document.createElement('section');
+            message.id = "td"; message.className = "msg";
+            message.textContent = msg;
+            row.appendChild(date); row.appendChild(message);
+            this._body.insertBefore(row, this._body.childNodes[0]);
           }
         });
       </script>

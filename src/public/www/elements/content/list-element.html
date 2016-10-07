@@ -46,19 +46,19 @@
         box-sizing: border-box;
         line-height: 1;
       }
-      #sign.inrange {
+      #sign([status="inrange"]) {
         background: var(--element-state-inrange-color);
         color: var(--element-state-inrange-text-color);
       }
-      #sign.exceeds {
+      #sign[exceeds] {
         background: var(--element-state-exceeds-color);
         color: var(--element-state-exceeds-text-color);
       }
-      #sign.deceeds {
+      #sign[deceeds] {
         background: var(--element-state-deceeds-color);
         color: var(--element-state-deceeds-text-color);
       }
-      #sign.undefined {
+      #sign[undefined] {
         background: var(--element-state-undefined-color);
         color: var(--element-state-undefined-text-color);
       }
@@ -115,7 +115,7 @@
 
     <section id='label'>[[label]]</section>
 
-    <section id='sign' class='inrange'>
+    <section id='sign' status="inrange">
       <section hidden$="[[isBoolean]]">
         <section id='valueSection'></section>
         <section id='unitSection' hidden$="[[!unit]]">[[unit]]</section>
@@ -183,12 +183,12 @@
         var status;
         // set color of the sign
         switch (state) {
-          case 0: status = 'inrange'; break;
-          case -1: status = 'deceeds'; break;
-          case 1: status = 'exceeds'; break;
-          default: status = 'undefined';
+          case 0: status = "inrange"; break;
+          case -1: status = "deceeds"; break;
+          case 1: status = "exceeds"; break;
+          default: status = "undefined";
         }
-        this._sign.className = status + " style-scope list-element";
+        this._sign.setAttribute(status, '');
       },
 
       render: function(value) {

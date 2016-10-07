@@ -57,19 +57,6 @@ app.on("ready", () => {
 		// load server GUI
 		mainWindow.loadURL("file://" + __dirname + "/public/app.html");
 
-		mainWindow.webContents.on("dom-ready", () => {
-			// Log to main process
-			console.log = function() {
-				mainWindow.webContents.send("log", util.format.apply(null, arguments) + "\n");
-				process.stdout.write(util.format.apply(null, arguments) + "\n");
-			}
-			console.error = console.log;
-
-			mainWindow.webContents.send("event", "set-user-config", config.userConfigFiles);
-			mainWindow.webContents.send("event", "set-renderer", config.renderer);
-			mainWindow.webContents.send("event", "set-server-config", config.server);
-		});
-
 		webvisualserver = new WebvisualServer(config);
 		webvisualserver.on("error", (err, msg) => {
 			console.log("Error in", err, msg || "");
@@ -110,6 +97,17 @@ app.on("ready", () => {
 	// app quit
 	ipcMain.on("event", (e, event, arg) => {
 		switch (event) {
+			case "ready":
+				console.log = function() {
+					mainWindow.webContents.send("log", util.format.apply(null, arguments) + "\n");
+					process.stdout.write(util.format.apply(null, arguments) + "\n");
+				}
+				console.error = console.log;
+
+				mainWindow.webContents.send("event", "set-user-config", config.userConfigFiles);
+				mainWindow.webContents.send("event", "set-renderer", config.renderer);
+				mainWindow.webContents.send("event", "set-server-config", config.server);
+		    break;
 			case "server-start":
 				webvisualserver.connect();
 				break;

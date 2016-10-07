@@ -18,8 +18,9 @@
       pointer-events: all !important;
     }
     #toolbarFooter ::content > .toolbar-footer {
-      border-right: thin solid #BBBBBB;
-      border-color: #BBBBBB;
+      border-right-width: thin;
+      border-right-style: solid;
+      border-color: rgba(190, 190, 190, 0.6);
       border-radius: 8px;
       z-index: 100;
       height: auto;
@@ -29,7 +30,7 @@
       border-right: none;
     }
     #toolbarFooter ::content [dark] {
-      border-color: #808080;
+      border-color: rgba(255, 255, 255, 0.1);
     }
     #toolbarFooter ::content svg-element {
       background: rgba(255,255,255,0.2);
@@ -622,7 +623,7 @@
         }
         else {
           for (i = 0; i < elems.length; ++i) {
-            elems[i].setAttribute("dark", true);
+            elems[i].setAttribute("dark", '');
           }
           this.set("dark", true);
         }
@@ -658,7 +659,7 @@
           if (collapse.hasAttribute('opened')) {
             collapse.removeAttribute('opened')
           } else {
-            collapse.setAttribute('opened', true);
+            collapse.setAttribute('opened', '');
           }
           if (iconbutton) {
             if (iconbutton.icon === 'arrow-drop-down')

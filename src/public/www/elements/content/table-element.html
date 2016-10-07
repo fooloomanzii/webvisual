@@ -16,11 +16,9 @@
       z-index: auto;
       background: white;
       border-radius: inherit;
-      border-color: #BBBBBB;
     }
     :host[dark] {
       background: #a8a8a8;
-      border-color: #808080;
     }
     #table {
       display: inline-flex;
@@ -44,7 +42,7 @@
       overflow-y: scroll;
     }
 		.block {
-			display: none !important;
+			display: none;
 			position: relative;
 		}
 		.block:first-child {
@@ -60,21 +58,21 @@
 			clear: both;
 			width: 100%;
 		}
-		.tr, .tr.inrange {
+		.tr, .tr[inrange], #head.tr {
 			background: none; color: inherit;
 		}
-		.tr.inrange:nth-child(even) {
+		.tr:nth-child(even) {
 			background: rgba(137, 137, 137, 0.15);
 		}
-		.tr.exceeds {
+		.tr[exceeds] {
 			background: var(--element-state-exceeds-color);
 			color: var(--element-state-exceeds-text-color);
 		}
-		.tr.deceeds {
+		.tr[deceeds] {
 			background: var(--element-state-deceeds-color);
 			color: var(--element-state-deceeds-text-color);
 		}
-		.tr.undefined {
+		.tr[undefined] {
 			background: var(--element-state-undefined-color);
 			color: var(--element-state-undefined-text-color);
 		}
@@ -199,6 +197,8 @@
 				var row, tdX, tdY, isExceeding, status;
 
 				row = document.createElement('section');
+				row.className = 'tr style-scope table-element';
+
 				tdX = document.createElement('span');
 				tdX.className = 'style-scope table-element';
 				tdX.innerText = (this.showFullDate ? new Date(value.x).toLocaleString() : new Date(value.x).toLocaleTimeString());
@@ -210,14 +210,12 @@
 
 				if (this.highlightExceeding === true) {
 					switch (value.state) {
-						case 0: status = 'inrange'; break;
-						case -1: status = 'deceeds'; break;
-						case 1: status = 'exceeds'; break;
-						default: status = 'undefined';
+						case 0: status = "inrange"; break;
+						case -1: status = "deceeds"; break;
+						case 1: status = "exceeds"; break;
+						default: status = "undefined";
 					}
-					row.className = status + " tr style-scope table-element";
-				} else {
-					row.className = "tr style-scope table-element";
+					row.setAttribute(status, '');
 				}
 
 				row.appendChild(tdX);

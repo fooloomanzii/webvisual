@@ -52,19 +52,19 @@
       :host[dark] #sign{
         color: #d3d3d3;
       }
-      #sign.inrange {
+      #sign[inrange] {
         background: var(--element-state-inrange-color);
         color: var(--element-state-inrange-text-color);
       }
-      #sign.exceeds {
+      #sign[exceeds] {
         background: var(--element-state-exceeds-color);
         color: var(--element-state-exceeds-text-color);
       }
-      #sign.deceeds {
+      #sign[deceeds] {
         background: var(--element-state-deceeds-color);
         color: var(--element-state-deceeds-text-color);
       }
-      #sign.undefined {
+      #sign[undefined] {
         background: var(--element-state-undefined-color);
         color: var(--element-state-undefined-text-color);
       }
@@ -172,7 +172,7 @@
       }
     </style>
 
-    <section id='sign' class='inrange' on-click='select'>
+    <section id='sign' inrange on-click='select'>
       <paper-ripple hidden$='[[!selectable]]' id='ripple'></paper-ripple>
       <section class="value" hidden$="[[isBoolean]]">
         <section id='valueSection'></section>
@@ -261,12 +261,12 @@
       setExceedingStatus: function(state) {
         var status;
         switch (state) {
-          case 0: status='inrange'; break;
-          case -1: status='deceeds'; break;
-          case 1: status='exceeds'; break;
-          default: status='undefined';
+          case 0: status="inrange"; break;
+          case -1: status="deceeds"; break;
+          case 1: status="exceeds"; break;
+          default: status="undefined";
         }
-        this._sign.className = status + " style-scope sign-element";
+        this._sign.setAttribute(status, '');
       },
 
       render: function(value) {

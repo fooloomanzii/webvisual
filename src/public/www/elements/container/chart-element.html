@@ -758,6 +758,15 @@
           }
         }
 
+        if (this.yScale === "√" || this.yScale === "ln" || this.yScale === "log₁₀") {
+          if (domainY[0] <= 0) {
+            domainY[0] = 1e-15;
+          }
+          if (domainY[1] <= 0) {
+            domainY[1] = 1e-15;
+          }
+        }
+
         // rounding y-domains to the according decimal exponent
         if (domainY[0] === domainY[1] && domainY[0] && domainY[1]) {
           v = (domainY[0]).toExponential().split('e');
@@ -787,8 +796,8 @@
         this._yAxis = this._createAxis(this._y, 'left', this.yScale);
         this._chart.select('g.x.axis').transition(50).call(this._xAxis);
         this._chart.select('g.y.axis').transition(50).call(this._yAxis);
-        this._info.transition(33).attr('hidden', true);
-        this._focus.transition(33).attr('hidden', true);
+        this._info.transition(33).attr('hidden', '');
+        this._focus.transition(33).attr('hidden', '');
         this._svg.selectAll('g,line,text,path,rect')
           .classed('style-scope', true)
           .classed('chart-element', true);
@@ -823,7 +832,7 @@
         if (this.$.menu.hasAttribute('hidden')) {
           this.$.menu.removeAttribute('hidden');
         } else {
-          this.$.menu.setAttribute('hidden', true);
+          this.$.menu.setAttribute('hidden', '');
         }
       },
       changeInterpolation: function(interpolation, oldValue) {
@@ -835,22 +844,17 @@
       },
       changeScale: function(newValue, oldValue) {
         if (oldValue === undefined) return;
+        if (this._isZoomed === false) {
+          this._setDomains();
+        }
         var domainX = this._x.domain();
         var domainY = this._y.domain();
-        if (this.yScale === "ln" || this.yScale === "log₁₀") {
+        if (this.yScale === "√" || this.yScale === "ln" || this.yScale === "log₁₀") {
           if (domainY[0] <= 0) {
-            domainY[0] = d3.min(this._elements, function(g) {
-              if (g.hidden !== true)
-                if (g._rangeY[0] > 0)
-                  return g._rangeY[0]
-            });
+            domainY[0] = 1e-15;
           }
           if (domainY[1] <= 0) {
-            domainY[1] = d3.max(this._elements, function(g) {
-              if (g.hidden !== true)
-                if (g._rangeY[0] > 0)
-                  return g._rangeY[1]
-            });
+            domainY[1] = 1e-15;
           }
         }
         this._buildLayout();

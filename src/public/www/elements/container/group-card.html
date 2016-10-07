@@ -276,7 +276,7 @@
       factoryImpl: function(headline, svg, dark, withoutWindow, hideHeader) {
         this.set('headline', headline || '');
         if (dark) {
-          this.setAttribute('dark', true);
+          this.setAttribute('dark', '');
         }
         if (withoutWindow)
           this.swithoutWindow = true;
@@ -357,7 +357,7 @@
             return;
           }
           this.$.headline.classList.add('over-image');
-          this.$.header.setAttribute('opened', true);
+          this.$.header.setAttribute('opened', '');
         } else {
           this.$.headline.classList.remove('over-image');
           this.$.header.removeAttribute('opened');

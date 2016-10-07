@@ -396,7 +396,7 @@
 
     draggableChanged: function() {
       if (this.draggable === true) {
-        this.setAttribute('draggable', true);
+        this.setAttribute('draggable', '');
         var dragArea = this.dragArea || this;
         dragArea.addEventListener('dragstart', this.dragStart);
       }
@@ -408,7 +408,7 @@
     },
     droppableChanged: function() {
       if (this.droppable === true) {
-        this.setAttribute('droppable', true);
+        this.setAttribute('droppable', '');
         var dropArea = this.dropArea || this;
         dropArea.addEventListener('dragover', this.dragOver);
         dropArea.addEventListener('drop', this.dropped);
