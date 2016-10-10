@@ -28,7 +28,7 @@
   }
   #drawerPanel {
     position: absolute;
-    z-index: 200;
+    z-index: auto;
     top: 0;
     left: 0;
     height: 100%;
@@ -112,7 +112,7 @@
     border-radius: 0;
   }
   #backdrop {
-    z-index: 100;
+    z-index: auto;
     position: absolute;
     top: 0;
     right: 0;
@@ -189,13 +189,10 @@
   #toolbar[dark] {
     color: var(--highlight-color);
   }
-  #toolbarBackground {
-    @apply(--background);
-    flex: 1;
-    z-index: 100;
+  #toolbar > * {
     background: var(--primary-color);
   }
-  #toolbarBackground[dark] {
+  #toolbar[dark] > * {
     background: var(--dark-primary-color);
   }
   #toolbarHeader {
@@ -205,7 +202,9 @@
     flex-direction: row;
     z-index: 100;
   }
-
+  #toolbarHeader * {
+    z-index: inherit;
+  }
   #toolbarHeader icon-button-element.menu-icon {
 		margin: 12px 160px 12px 20px;
   }
@@ -224,27 +223,21 @@
   }
   #toolbarFooter {
     display: flex;
+    padding: 0px 4px 4px 4px;
     position: relative;
     box-sizing: border-box;
     background: var(--blur-overlay-background);
-		min-height: 0px;
-		max-height: 0px;
-		will-change: min-height;
-		will-change: max-height;
-		transition: min-height 100ms linear, max-height 100ms linear;
-    padding: 0;
-    flex-direction: row;
+		/*min-height: 0px;
+		max-height: 0px;*/
     width: 100%;
-    z-index: 100;
+    z-index: 50;
+    height: var(--app-toolbar-height);
   }
-  #toolbarFooter[opened] {
-    padding: 2px 6px 4px 6px;
-    min-height: var(--app-toolbar-height);
-    max-height: var(--app-toolbar-height);
+  #toolbarFooter:not([opened]) {
+    display: none;
   }
   #toolbarFooter[opened][expanded] {
-    min-height: var(--app-toolbar-expanded-height,calc(2 * var(--app-toolbar-height)));
-    max-height: var(--app-toolbar-expanded-height,calc(2 * var(--app-toolbar-height)));
+    height: var(--app-toolbar-expanded-height,calc(2 * var(--app-toolbar-height)));
   }
   </style>
   </template>

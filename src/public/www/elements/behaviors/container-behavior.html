@@ -29,19 +29,23 @@
 
       notify: {
         type: Boolean,
-        value: false
+        value: false,
+        observer: 'notifyChanged'
       },
       notifyParent: {
         type: Boolean,
-        value: false
+        value: false,
+        observer: 'notifyChanged'
       },
       noSelectNotify: {
         type: Boolean,
-        value: false
+        value: false,
+        observer: 'notifyChanged'
       },
       noExceedNotify: {
         type: Boolean,
-        value: false
+        value: false,
+        observer: 'notifyChanged'
       },
 
       multiSelect: {
@@ -137,6 +141,9 @@
     },
 
     attached: function() {
+    },
+
+    notifyChanged: function() {
       if (this.notify === true) {
         if (this.noSelectNotify === false) {
           this.listen(this, 'element-select', '__setSelectedElement');
@@ -158,10 +165,6 @@
           this.listen(this.rootElement, 'element-is-not-exceeding', '__unsetExceedingElement');
           this.listen(this.rootElement, 'clear-exceeding-elements', 'clearExceedingElements');
         }
-      }
-      if (this.reproducedAttribute && this[this.reproducedAttribute]) {
-        var e = {detail: {value: this[this.reproducedAttribute]}, type: this.reproducedAttribute}
-        this._reproduceAttribute(e);
       }
     },
 
@@ -351,7 +354,6 @@
     _reproduceAttribute: function(e) {
       var type = e.type.replace("-changed", "");
       var value = e.detail.value;
-
       if (this.reproduce === false) return;
       if (type) {
         var container = (this.reproductionContainer) ? Polymer.dom(this).querySelector('#' + this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);
@@ -371,11 +373,15 @@
     },
 
     _reproducedAttributeChanged: function(nValue, oValue) {
-      if (oValue && this[oValue]) {
+      if (oValue) {
         this.unlisten(this, Polymer.CaseMap.camelToDashCase(oValue) + '-changed', '_reproduceAttribute');
       }
-      if (nValue && this[nValue]) {
+      if (nValue) {
         this.listen(this, Polymer.CaseMap.camelToDashCase(nValue) + '-changed', '_reproduceAttribute');
+      }
+      if (this.reproducedAttribute && this[this.reproducedAttribute]) {
+        var e = {detail: {value: this[this.reproducedAttribute]}, type: this.reproducedAttribute}
+        this._reproduceAttribute(e);
       }
     },
 

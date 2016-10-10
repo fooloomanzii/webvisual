@@ -9,10 +9,11 @@
       box-sizing: border-box;
       position: relative;
     }
-    radio-button-element {
+    radio-button-element#legendEntry {
       --radio-button-label-color: currentColor;
+      padding: 0.25em;
     }
-    caption-element {
+    caption-element#legendCaption {
       --caption-background: transparent;
       --caption-dark-background: transparent;
       --caption-padding: 0;
@@ -20,7 +21,7 @@
   </style>
   <template>
     <radio-button-element id='legendEntry' checked='{{checked}}'>
-      <caption-element horizontal only-grouped-key grouped-key='[[groupedKey]]' keys='[[keys]]'></caption-element>
+      <caption-element id='legendCaption' horizontal only-grouped-key grouped-key='[[groupedKey]]' keys='[[keys]]'></caption-element>
     </radio-button-element>
   </template>
   <script>

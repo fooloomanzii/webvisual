@@ -22,6 +22,9 @@
         border-color: inherit !important;
         border-radius: inherit !important;
       }
+      :host:not([opened]) ::content > * {
+        display: none !important;
+      }
 
       :host([horizontal]) ::content > * {
         border-right-width: thin !important;

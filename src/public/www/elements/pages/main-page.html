@@ -17,12 +17,12 @@
       position: absolute;
       pointer-events: all !important;
     }
-    #toolbarFooter ::content > .toolbar-footer {
+    :host([opened]) #toolbarFooter ::content > .toolbar-footer {
       border-right-width: thin;
       border-right-style: solid;
       border-color: rgba(190, 190, 190, 0.6);
       border-radius: 8px;
-      z-index: 100;
+      z-index: inherit;
       height: auto;
       position: relative;
     }
@@ -34,9 +34,6 @@
     }
     #toolbarFooter ::content svg-element {
       background: rgba(255,255,255,0.2);
-    }
-    #toolbarFooter:not([opened]) ::content > * {
-      display: none !important;
     }
     #mainContent ::content .panel {
       height: 100%;
@@ -93,6 +90,7 @@
     }
     #groupingKeysLabelSelector ::content radio-button-element {
       font-size: 0.9em;
+      padding: 0.5em;
     }
     #labelsTabs {
       height: 34px;
@@ -173,10 +171,8 @@
     }
   </style>
 
-    <logo-element id="logo" on-tap="backToIndex"></logo-element>
     <!-- TOOLBAR -->
     <section id="toolbar">
-      <section id="toolbarBackground"></section>
       <section id="toolbarHeader">
         <icon-button-element icon="menu" class="menu-icon" on-tap="toggleDrawer"></icon-button-element>
 
@@ -192,13 +188,15 @@
 					</section>
           <icon-button-element icon="error-outline" class="error control" on-tap="toggleAlarmPanel" hidden$="[[!isExceeding]]"></icon-button-element>
           <section hidden$="[[!_computeOpened(opened, forceOpened)]]" style="display: flex;">
-            <icon-button-element icon="[[_computeExpandIcon(expanded)]]" class="expand-icon" on-tap="_toolbarExpand"></icon-button-element>
+            <icon-button-element icon="[[_computeExpandIcon(expanded)]]" class="expand-icon" on-tap="toolbarExpand"></icon-button-element>
             <icon-button-element icon="remove" hidden$="[[forceOpened]]" class="toggle-icon control" on-tap="clearSelectedElements"></icon-button-element>
           </section>
         </section>
       </section>
 
-      <section id="toolbarFooter" opened$="[[_computeOpened(opened, forceOpened)]]" expanded$="[[expanded]]">
+      <logo-element id="logo" on-tap="backToIndex"></logo-element>
+
+      <section id="toolbarFooter" expanded$="[[expanded]]">
         <content select=".toolbar-footer"></content>
       </section>
     </section>
@@ -219,10 +217,10 @@
         </section>
 
         <swipeable-container id="exceedingElementsList"
-                         is-exceeding="{{isExceeding}}"
-                         notify-parent="{{!noExceedNotify}}"
-                         no-select-notify
-                         no-auto-removal-exceeding-elements>
+           is-exceeding="{{isExceeding}}"
+           notify-parent="{{!noExceedNotify}}"
+           no-select-notify
+           no-auto-removal-exceeding-elements>
         </swipeable-container>
 
         <section style="padding: 0em 0.75em 0.75em 0.75em; float: right;"><a href="#" on-click="_clearExceedingElementsFromList">Liste leeren</a></section>
@@ -279,9 +277,10 @@
       is: 'main-page',
 
       behaviors: [
-        ContainerBehavior,
         Polymer.IronResizableBehavior,
-        Polymer.NeonSharedElementAnimatableBehavior
+        Polymer.NeonAnimationRunnerBehavior,
+        Polymer.NeonSharedElementAnimatableBehavior,
+        ContainerBehavior
       ],
 
       properties: {
@@ -316,13 +315,51 @@
                   name: 'scale-down-animation',
                   node: this
                 }
+              ],
+              'open-toolbar': [
+                {
+                  name: 'slide-from-top-animation',
+                  node: this.$.toolbarFooter
+                }
+              ],
+              'close-toolbar': [
+                {
+                  name: 'slide-up-animation',
+                  node: this.$.toolbarFooter
+                }
+              ],
+              'expand-toolbar': [
+                {
+                  name: 'hero-animation',
+                  fromPage: this,
+                  toPage: this,
+                  node: this.$.toolbarFooter,
+                  timing: {
+                    duration: 300
+                  }
+                }
+              ],
+              'contract-toolbar': [
+                {
+                  name: 'scale-down-animation',
+                  axis: 'y',
+                  node: this.$.toolbarFooter,
+                  timing: {
+                    duration: 300
+                  }
+                }
               ]
             }
           }
         },
 
         // Attribute for toolbar is opened
-
+        opened: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          observer: 'openedChanged'
+        },
         forceOpened: {
           type: Boolean,
           value: false
@@ -331,6 +368,7 @@
           type: Boolean,
           value: false
         },
+
         currentLabel: {
           type: String,
           observer: "_currentLabelChanged"
@@ -411,6 +449,10 @@
           type: String,
           value: 'toolbarFooter'
         },
+        reproducedAttribute: {
+          type: String,
+          value: 'opened'
+        },
 
         isExceeding: {
           type: Boolean,
@@ -428,6 +470,10 @@
           value: false,
           observer: 'requestNotificationPermission'
         }
+      },
+
+      listeners: {
+        'neon-animation-finish': '_onNeonAnimationFinish'
       },
 
       attached: function() {
@@ -670,18 +716,45 @@
         }
       },
       // Toolbar Actions
-      _toolbarExpand: function() {
+      openedChanged: function(opened, old) {
+        if (opened || this.forceOpened) {
+          this.$.toolbarFooter.setAttribute('opened', true);
+          this._reproduceAttribute({detail: {value: this.opened || this.forceOpened}, type: 'opened'});
+          this.playAnimation('open-toolbar');
+        } else if (old !== undefined){
+          this.playAnimation('close-toolbar');
+        }
+      },
+      toolbarExpand: function() {
         if (this.opened || this.forceOpened) {
-          this.set('expanded', !this.expanded);
-          this.toggleAttribute('expanded', this.expanded, this.$.toolbarFooter);
-          this._reproduceAttribute({detail: {value: !this.expanded}, type: 'horizontal'});
-          this.async(this.notifyResize, 100);
+          if (this.expanded) {
+            this.set('expanded', false);
+            this._reproduceAttribute({detail: {value: true}, type: 'horizontal'});
+            this.playAnimation('contract-toolbar');
+          } else {
+            this.set('expanded', true);
+            this.$.toolbarFooter.setAttribute('expanded', true);
+            this._reproduceAttribute({detail: {value: false}, type: 'horizontal'});
+            this.playAnimation('expand-toolbar');
+          }
         }
       },
       closeToolbar: function(newLabel, oldLabel) {
         this.clearSelectedElements();
         this.opened = false;
       },
+      _onNeonAnimationFinish: function() {
+        if (this.opened === false) {
+          this.$.toolbarFooter.removeAttribute('opened');
+          this._reproduceAttribute({detail: {value: null}, type: 'opened'});
+          this.debounce('resize', this.notifyResize);
+        }
+        if (this.expanded === false) {
+          this.$.toolbarFooter.removeAttribute('expanded');
+          this.debounce('resize', this.notifyResize);
+        }
+      },
+
       _computeOpened: function(opened, forceOpened) {
         return opened || forceOpened;
       },

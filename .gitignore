@@ -9,7 +9,7 @@ dist/*
 
 # Bower Components #
 node_modules/*
-src/public/www/components/*
+src/**/bower_components/*
 !src/public/www/components/README.md
 
 # Node Modules #

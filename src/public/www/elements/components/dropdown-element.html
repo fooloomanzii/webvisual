@@ -38,8 +38,6 @@
       ::content > * {
         border-radius: 0;
         border-width: 0;
-        padding: 0;
-        margin: 0;
         z-index: inherit;
       }
     </style>
@@ -64,12 +62,10 @@
           value: function() {
             return {
               'entry': {
-                // provided by neon-animation/animations/scale-up-animation.html
                 name: 'fade-in-animation',
                 node: this
               },
               'exit': {
-                // provided by neon-animation-animations/fade-out-animation.html
                 name: 'fade-out-animation',
                 node: this
               }
@@ -180,7 +176,6 @@
       hide: function(e) {
         this.opened = false;
         this.playAnimation('exit');
-
       },
       toggle: function(e) {
         if (this.opened) this.hide();
