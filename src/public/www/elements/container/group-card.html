@@ -18,7 +18,7 @@
                     0 1px 10px 0 rgba(0, 0, 0, 0.12),
                     0 2px 4px -1px rgba(0, 0, 0, 0.4);
       }
-      :host[dark] {
+      :host([dark]) {
         background: #959595;
         border-color: #444;
       }
@@ -76,7 +76,7 @@
         transition: max-height linear 150ms, min-height linear 150ms;
         min-height: 2.6em;
       }
-      :host[dark] > #header {
+      :host([dark]) > #header {
         background: var(--dark-primary-color);
         color: var(--highlight-color);
       }
@@ -112,7 +112,7 @@
         background: none !important;
         text-shadow: -1px 0px 1px #1f1f1f;
       }
-      :host[dark] #headline {
+      :host([dark]) #headline {
         color: var(--highlight-color);
       }
       #mainContent {

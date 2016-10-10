@@ -375,7 +375,6 @@
                 }
                 break;
               case 'set-user-config':
-              console.log("configFiles", arg);
                 var values = [];
                 for (var c in arg) {
                   values.push({name: c, path: arg[c].path, renderer: arg[c].renderer});

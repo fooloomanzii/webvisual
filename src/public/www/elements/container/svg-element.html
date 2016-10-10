@@ -66,8 +66,8 @@
     height: 100%;
     width: 100%;
   }
-  :host[is-fullscreen] #host {
-    background: var(--bright-primary-color);
+  :host([is-fullscreen]) #host, :-webkit-full-screen, :fullscreen {
+    background-color: #222;
   }
   #svgContainer {
     border-radius: inherit;
@@ -355,16 +355,6 @@
       ContainerBehavior
     ],
 
-    get rootElement () {
-      var rootNode = Polymer.dom(this).getOwnerRoot();
-      if (rootNode === null)
-        rootNode = Polymer.dom(this.parentNode).getOwnerRoot();
-      if (rootNode && rootNode.host)
-        return rootNode.host;
-      else
-        return this.parentNode;
-    },
-
     open: function(e) {
       this.setSvg(e.detail);
       this.set('opened', true);
@@ -398,21 +388,34 @@
 
     _sourceChanged: function() {
       if (this.source && this.recentSource !== this.source) {
-        if (!window.SvgSource[this.source]) { return; }
-        if (!window.SvgSource[this.source].node) { return; }
         this.recentSource = this.source;
         this._svg = d3.select(this.$.svgContainer).select('svg#main');
         if (this._svg && !this._svg.empty()) {
           this.$.svgContainer.removeChild(this._svg.node());
         }
         // import svg (came by data-socket-repeater)
-        this._registerXML(window.SvgSource[this.source].node, this.source);
+        this._loadSvgSources(this.source)
+            .then( function(xml) {
+                this._registerXML(xml);
+            }.bind(this));
       }
     },
 
-    _registerXML: function(xml, source) {
+    _loadSvgSources: function(source) {
+      return new Promise(function(resolve, reject) {
+        var req = new XMLHttpRequest();
+        req.onreadystatechange = function() {
+          if (this.readyState === 4) {
+            resolve(this.responseXML.documentElement);
+          }
+        }.bind(req);
+        req.open("GET", source);
+        req.send();
+      })
+    },
+
+    _registerXML: function(xml) {
       // import svg to document
-      var date = new Date();
       var svgNode = document.importNode(xml.cloneNode(true), true);
       // register zoom function
       this._d3Zoom = d3.zoom()
@@ -535,21 +538,22 @@
                     .text(function() {
                         return element.id;
                    });
-      for (var key in SvgSource[this.source].selectable)
-        this._mainG.selectAll(SvgSource[this.source].selectable[key])
-                  .classed('svg-element-selectable', true)  // for styling selectable
-                  .classed('style-scope', true).classed('svg-element', true) // for style-scoping in polymer
-                  .on('click dblclick',
-                    function() {
-                      self._zoomToElement(this);
-                      self._mainG.selectAll('.clicked')
-                                 .classed('clicked', false);
-                    })
-                  .classed('clicked', true)
-                  .append('title')
-                  .text(function() {
-                      return key;
-                   });
+      if (window.SvgSelectables)
+        for (var key in window.SvgSelectables[this.source])
+          this._mainG.selectAll(window.SvgSelectables[this.source][key])
+                    .classed('svg-element-selectable', true)  // for styling selectable
+                    .classed('style-scope', true).classed('svg-element', true) // for style-scoping in polymer
+                    .on('click dblclick',
+                      function() {
+                        self._zoomToElement(this);
+                        self._mainG.selectAll('.clicked')
+                                   .classed('clicked', false);
+                      })
+                    .classed('clicked', true)
+                    .append('title')
+                    .text(function() {
+                        return key;
+                     });
     },
 
     _zoom: function () {
@@ -734,23 +738,33 @@
         });
       }
       f.call(host);
+      this.$.host.style['background-color'] = '#333';
     },
 
     _exitFullscreen: function() {
       var f = document.exitFullscreen || document.mozCancelFullScreen || document.webkitCancelFullScreen || document.msExitFullscreen;
       f.call(document);
+      this.$.host.style['background-color'] = '';
     },
 
     _fullScreenChanged: function() {
       if (document.fullscreen || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
-        this.zoomPartition /= 2;
-        this.maxZoom /= 2;
-        this.minZoom /= 2;
+        this.old = { zoomPartition: this.zoomPartition,
+                     maxZoom: this.maxZoom,
+                     minZoom: this.minZoom }
+        this.zoomPartition *= 3;
+        this.maxZoom *= 1.25;
+        this.minZoom = 1;
         this.isFullscreen = true;
+        if (document.webkitIsFullScreen) {
+
+        }
       } else {
-        this.zoomPartition *= 2;
-        this.maxZoom *= 2;
-        this.minZoom *= 2;
+        if (this.old) {
+          this.zoomPartition = this.old.zoomPartition;
+          this.maxZoom = this.old.maxZoom;
+          this.minZoom = this.old.minZoom;
+        }
         this.isFullscreen = false;
       }
       this._debounceResetZoom();

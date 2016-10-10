@@ -25,7 +25,7 @@
       :host:focus {
         border-color: rgba(0,0,0,.25);
       }
-      :host[checked] {
+      :host([checked]) {
         border-color: rgba(52, 84, 117, 0.4);
       }
       #sign {
@@ -49,7 +49,7 @@
         border-bottom-width: thin;
         border-bottom-style: solid;
       }
-      :host[dark] #sign{
+      :host([dark]) #sign{
         color: #d3d3d3;
       }
       #sign[inrange] {
@@ -151,10 +151,10 @@
       [hidden] {
         pointer-events: none;
       }
-      :host[horizontal] {
+      :host([horizontal]) {
         flex-direction: row;
       }
-      :host[horizontal] #sign {
+      :host([horizontal]) #sign {
         border-top-left-radius: inherit; border-top-right-radius: 0; border-bottom-left-radius: inherit; border-bottom-right-radius: 0;
         border-bottom-width: 0;
         border-right-width: thin;
@@ -163,7 +163,7 @@
         border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: inherit; border-bottom-right-radius: inherit;
         --caption-padding: 0.3em 0.5em 0.5em 0.5em;
       }
-      :host[horizontal] caption-element {
+      :host([horizontal]) caption-element {
         border-top-left-radius: 0; border-top-right-radius: inherit; border-bottom-left-radius: 0; border-bottom-right-radius: inherit;
         --caption-padding: 0.6em;
       }

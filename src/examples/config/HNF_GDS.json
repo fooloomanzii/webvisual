@@ -30,23 +30,14 @@
 		},
 
     "svg": {
-      "E0": {
-        "src": "/img/HNF-GDS/E0_gaskabinet.svg",
-        "selectable": {
-          "Cabinets": "g#Cabinets path"
-        }
+      "/img/HNF-GDS/E0_gaskabinet.svg": {
+        "Cabinets": "g#Cabinets path"
       },
-      "E1": {
-        "src": "/img/HNF-GDS/E1_bypack.svg",
-        "selectable": {
-          "Cabinets": "g#Cabinets path"
-        }
+      "/img/HNF-GDS/E1_bypack.svg": {
+        "Cabinets": "g#Cabinets path"
       },
-      "E2": {
-        "src": "/img/HNF-GDS/E2_reinraum.svg",
-        "selectable": {
-          "Cabinets": "g#Cabinets path"
-        }
+      "/img/HNF-GDS/E2_reinraum.svg": {
+        "Cabinets": "g#Cabinets path"
       }
     },
 
@@ -84,7 +75,7 @@
           },
           "svg": {
             "path": "path#path4514,path#path4512",
-            "source": "E0"
+            "source": "/img/HNF-GDS/E0_gaskabinet.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -103,7 +94,7 @@
           },
           "svg": {
             "path": "path#path4514,path#path4512",
-            "source": "E0"
+            "source": "/img/HNF-GDS/E0_gaskabinet.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -121,7 +112,7 @@
           },
           "svg": {
             "path": "path#path5110-0,path#path5112-1,path#path5114-4",
-            "source": "E1"
+            "source": "/img/HNF-GDS/E1_bypack.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -139,7 +130,7 @@
           },
           "svg": {
             "path": "path#path5110-0,path#path5112-1,path#path5114-4",
-            "source": "E1"
+            "source": "/img/HNF-GDS/E1_bypack.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -157,7 +148,7 @@
           },
           "svg": {
             "path": "g#H2 path",
-            "source": "E2"
+            "source": "/img/HNF-GDS/E2_reinraum.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -175,7 +166,7 @@
           },
           "svg": {
             "path": "g#H2 path",
-            "source": "E2"
+            "source": "/img/HNF-GDS/E2_reinraum.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -191,7 +182,7 @@
           },
           "svg": {
             "path": "g#H2 path",
-            "source": "E2"
+            "source": "/img/HNF-GDS/E2_reinraum.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -256,7 +247,7 @@
           },
           "svg": {
             "path": "g#HBR path, g#CL2 path",
-            "source": "E0"
+            "source": "/img/HNF-GDS/E0_gaskabinet.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -275,7 +266,7 @@
           },
           "svg": {
             "path": "g#NH3 path, g#SIH4 path",
-            "source": "E0"
+            "source": "/img/HNF-GDS/E0_gaskabinet.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -293,7 +284,7 @@
           },
           "svg": {
             "path": "g#CL2 path,g#HBR path, g#HCL path,g#NH3 path, g#SIH4 path",
-            "source": "E1"
+            "source": "/img/HNF-GDS/E1_bypack.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -311,7 +302,7 @@
           },
           "svg": {
             "path": "g#CL2 path,g#HBR path, g#HCL path,g#NH3 path, g#SIH4 path",
-            "source": "E2"
+            "source": "/img/HNF-GDS/E2_reinraum.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -329,7 +320,7 @@
           },
           "svg": {
             "path": "g#HBR path",
-            "source": "E2"
+            "source": "/img/HNF-GDS/E2_reinraum.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -371,7 +362,7 @@
           },
           "svg": {
             "path": "g#CL2 path",
-            "source": "E1"
+            "source": "/img/HNF-GDS/E1_bypack.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -390,7 +381,7 @@
           },
           "svg": {
             "path": "path#path4476,path#path4478",
-            "source": "E0"
+            "source": "/img/HNF-GDS/E0_gaskabinet.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -409,7 +400,7 @@
           },
           "svg": {
             "path": "path#path4472,path#path4470",
-            "source": "E0"
+            "source": "/img/HNF-GDS/E0_gaskabinet.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -451,7 +442,7 @@
           },
           "svg": {
             "path": "g#NH3 path",
-            "source": "E2"
+            "source": "/img/HNF-GDS/E2_reinraum.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -469,7 +460,7 @@
           },
           "svg": {
             "path": "",
-            "source": "E1"
+            "source": "/img/HNF-GDS/E1_bypack.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -490,7 +481,7 @@
           },
           "svg": {
             "path": "path#path4508,path#path4510",
-            "source": "E0"
+            "source": "/img/HNF-GDS/E0_gaskabinet.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -508,7 +499,7 @@
           },
           "svg": {
             "path": "g#BCL3 path",
-            "source": "E2"
+            "source": "/img/HNF-GDS/E2_reinraum.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -526,7 +517,7 @@
           },
           "svg": {
             "path": "g#BCL3 path",
-            "source": "E2"
+            "source": "/img/HNF-GDS/E2_reinraum.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -544,7 +535,7 @@
           },
           "svg": {
             "path": "g#HBR path",
-            "source": "E1"
+            "source": "/img/HNF-GDS/E1_bypack.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -562,7 +553,7 @@
           },
           "svg": {
             "path": "g#SIH4 path",
-            "source": "E2"
+            "source": "/img/HNF-GDS/E2_reinraum.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -580,7 +571,7 @@
           },
           "svg": {
             "path": "g#SIH4 path",
-            "source": "E1"
+            "source": "/img/HNF-GDS/E1_bypack.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -599,7 +590,7 @@
           },
           "svg": {
             "path": "path#path4504,path#path4506",
-            "source": "E0"
+            "source": "/img/HNF-GDS/E0_gaskabinet.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -617,7 +608,7 @@
           },
           "svg": {
             "path": "g#CL2 path",
-            "source": "E2"
+            "source": "/img/HNF-GDS/E2_reinraum.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -637,7 +628,7 @@
           },
           "svg": {
             "path": "g#CL2 path",
-            "source": "E2"
+            "source": "/img/HNF-GDS/E2_reinraum.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -655,7 +646,7 @@
           },
           "svg": {
             "path": "g#HBR path",
-            "source": "E1"
+            "source": "/img/HNF-GDS/E1_bypack.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -674,7 +665,7 @@
           },
           "svg": {
             "path": "path#path4474,path#path4470",
-            "source": "E0"
+            "source": "/img/HNF-GDS/E0_gaskabinet.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -693,7 +684,7 @@
           },
           "svg": {
             "path": "g#O2 path",
-            "source": "E2"
+            "source": "/img/HNF-GDS/E2_reinraum.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -712,7 +703,7 @@
           },
           "svg": {
             "path": "g#O2 path",
-            "source": "E2"
+            "source": "/img/HNF-GDS/E2_reinraum.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -731,7 +722,7 @@
           },
           "svg": {
             "path": "g#O2 path",
-            "source": "E2"
+            "source": "/img/HNF-GDS/E2_reinraum.svg"
           },
           "isBoolean": true,
           "threshold": {
@@ -750,7 +741,7 @@
           },
           "svg": {
             "path": "g#O2 path",
-            "source": "E2"
+            "source": "/img/HNF-GDS/E2_reinraum.svg"
           },
           "isBoolean": true,
           "threshold": {

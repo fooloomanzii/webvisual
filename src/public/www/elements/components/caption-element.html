@@ -21,7 +21,7 @@
         align-items: flex-start;
         justify-content: center;
       }
-      :host[dark] {
+      :host([dark]) {
         background: var(--caption-dark-background, #B0B0B0);
       }
       .captions {
@@ -32,12 +32,12 @@
         word-wrap: break-word;
         word-break: break-all;
       }
-      :host[horizontal] {
+      :host([horizontal]) {
         flex-direction: row;
         align-items: center;
         line-height: 0;
       }
-      :host[horizontal] .captions {
+      :host([horizontal]) .captions {
         margin-left: 0.5em;
       }
       .captions:first-child {

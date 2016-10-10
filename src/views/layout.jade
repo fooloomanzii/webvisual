@@ -15,21 +15,21 @@ html
       };
     link(rel='import', href='components/polymer/polymer.html')
     link(rel="import", href="style/app-theme.html")
-    
+
     script(type='text/javascript').
       // notificiations
       var activeTimeoutForNotification;
       function createMessage(type, msg, hideafter) {
         var div = document.querySelector('div#message');
         var img = div.querySelector('img');
-        
+
         switch (type) {
           case 'error':
             img.src = 'img/icons/warning.png'; break;
           default:
             img.src = 'img/icons/webicon.png';
         }
-        
+
         if (div) {
           if (activeTimeoutForNotification)
             clearTimeout(activeTimeoutForNotification);
@@ -40,7 +40,7 @@ html
         }
       };
     block HeadContent
-    
+
   style.
     body, .fullbleed {
       height: 100%;
@@ -96,7 +96,7 @@ html
     section.outer:nth-child(3), section.outer:nth-child(3) > svg { animation-delay: 1.6s; fill: #E4D61A; }
     section.outer:nth-child(4), section.outer:nth-child(4) > svg { animation-delay: 2.4s; fill: #E45D1A; }
     section.outer:nth-child(5), section.outer:nth-child(5) > svg { animation-delay: 3.2s; fill: #E41A1A; }
-    
+
     @keyframes inner-animation {
       0%   {transform: rotate(0deg) scale(0.5);}
       50%  {transform: rotate(180deg) scale(1);}
@@ -147,7 +147,7 @@ html
       background: #80ABD7 !important;
     }
   block StyleContent
-  
+
   body
     //- START-ANIMATION
     #background.fullbleed

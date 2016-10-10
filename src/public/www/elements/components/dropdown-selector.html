@@ -22,16 +22,16 @@
       align-items: center;
       box-sizing: border-box;
     }
-    :host[position="bottom"] {
+    :host([position="bottom"]) {
       border-bottom: 1px solid rgba(0,0,0, 0.12);
     }
-    :host[position="left"] {
+    :host([position="left"]) {
       border-left: 1px solid rgba(0,0,0, 0.12);
     }
-    :host[position="top"] {
+    :host([position="top"]) {
       border-top: 1px solid rgba(0,0,0, 0.12);
     }
-    :host[position="right"] {
+    :host([position="right"]) {
       border-right: 1px solid rgba(0,0,0, 0.12);
     }
     :host([no-focusline]) {
@@ -89,12 +89,12 @@
       top: 45%;
     }
 
-    :host:focus .focusline[position="bottom"], :host:focus .focusline[position="top"], :host[active] .focusline[position="bottom"], :host[active] .focusline[position="top"] {
+    :host:focus .focusline[position="bottom"], :host:focus .focusline[position="top"], :host([active]) .focusline[position="bottom"], :host([active]) .focusline[position="top"] {
       visibility: visible;
       width: 100%;
       left: 0;
     }
-    :host:focus .focusline[position="left"], :host:focus .focusline[position="right"], :host[active] .focusline[position="left"], :host[active] .focusline[position="right"] {
+    :host:focus .focusline[position="left"], :host:focus .focusline[position="right"], :host([active]) .focusline[position="left"], :host([active]) .focusline[position="right"] {
       visibility: visible;
       height: 100%;
       top: 0;

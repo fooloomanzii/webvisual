@@ -131,7 +131,15 @@ class fileConfigLoader extends EventEmitter {
 				configuration.groups[label] = dataConfig[label].groups;
 				configuration.elements[label] = dataConfig[label].elements;
 				configuration.valueType[label] = dataConfig[label].valueType;
-				configuration.svg[label] = dataConfig[label].svg;
+
+				// deep merge of selectable paths in svg-source
+				for (var path in dataConfig[label].svg) {
+					if (!configuration.svg[path])
+						configuration.svg[path] = {};
+					for (var id in dataConfig[label].svg[path]) {
+						configuration.svg[path][id] = dataConfig[label].svg[path][id];
+					}
+				}
 
 				connection[label] = data[label].connections;
 				clientRequest[label] = data[label].clientRequest;
@@ -145,7 +153,7 @@ class fileConfigLoader extends EventEmitter {
 
 		} catch (e) {
 			err = e;
-			console.log(e);
+			this.emit('error', 'File Configuration: \n' + name + '\n' + err);
 		} finally {
 			if (!err)
 				this.emit('changed', name);
@@ -253,7 +261,7 @@ class fileConfigLoader extends EventEmitter {
 						}
 					}
 				}
-				if (sameSource && svg && svg[source]) {
+				if (sameSource) {
 					groups[group][subgroup].svg = {
 						source: source
 					}
@@ -262,18 +270,17 @@ class fileConfigLoader extends EventEmitter {
 		}
 
 		// Setting Global SVG-Selectables
-		if (svg)
-			for (var id in elements) {
-				if (elements[id] && elements[id].svg && elements[id].svg.source) {
-					source = elements[id].svg.source
-					if (svg[source]) {
-						if (!svg[source].selectable)
-							svg[source].selectable = {};
-						if (elements[id].svg.path)
-							svg[source].selectable[id] = elements[id].svg.path;
-					}
-				}
+		for (var id in elements) {
+			if (elements[id] && elements[id].svg && elements[id].svg.source) {
+				source = elements[id].svg.source
+				if (!svg)
+					svg = {};
+				if (!svg[source])
+					svg[source] = {};
+				if (elements[id].svg.path)
+					svg[source][id] = elements[id].svg.path;
 			}
+		}
 
 		return {
 			label: label,

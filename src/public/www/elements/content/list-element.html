@@ -24,10 +24,10 @@
         z-index: auto;
         transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
       }
-      :host[dark] {
+      :host([dark]) {
         background: #C1C1C1;
       }
-      :host[checked] {
+      :host([checked]) {
         @apply(--shadow-elevation-2dp);
       }
       .list-element {
@@ -46,7 +46,7 @@
         box-sizing: border-box;
         line-height: 1;
       }
-      #sign([status="inrange"]) {
+      #sign[inrange] {
         background: var(--element-state-inrange-color);
         color: var(--element-state-inrange-text-color);
       }

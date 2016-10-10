@@ -17,7 +17,7 @@
       background: white;
       border-radius: inherit;
     }
-    :host[dark] {
+    :host([dark]) {
       background: #a8a8a8;
     }
     #table {
@@ -58,7 +58,7 @@
 			clear: both;
 			width: 100%;
 		}
-		.tr, .tr[inrange], #head.tr {
+		.tr, .tr[inrange] {
 			background: none; color: inherit;
 		}
 		.tr:nth-child(even) {
@@ -91,6 +91,7 @@
 			border-bottom-width: thin;
 			border-color: inherit;
 			cursor: pointer;
+			background: none;
 		}
 		[hidden] {
 			display: none !important;

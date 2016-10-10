@@ -1,6 +1,5 @@
 // globals
 var Selector = '[updatable]';
-window.SvgSource = {};
 window.maxValues = 5400; // 3/2h for every second update
 
 // SOCKET
@@ -29,6 +28,7 @@ function DataSocketHandler(socketName, name) {
 				window.PreferedGroupingKeys = settings.preferedGroupingKeys;
 				window.DatabaseForSocket = {};
 				window.DatabaseForElements = {};
+				window.SvgSelectables = settings.svg;
 				window.Content = window.Content || settings.elements;
 				window.Cache = {};
 				for (var label in window.Content) {
@@ -40,8 +40,6 @@ function DataSocketHandler(socketName, name) {
 						// window.DatabaseForSocket[label][ids[i]] = new DatabaseClient();
 					}
 				}
-				if (settings.svg)
-					this._loadSvgSources(settings.svg);
 			} else {
 				this.connect(window.selectedLabels);
 			}
@@ -163,31 +161,6 @@ DataSocketHandler.prototype = {
 				}
 			}
 		})
-	},
-	_loadSvgSources: function(sources) {
-		var xhttp = [];
-		var req;
-		for (var label in sources) {
-			for (var id in sources[label]) {
-				// import svg
-				// prevents multible reloading after creation time
-				if (!sources[label][id].src || (SvgSource[id] && SvgSource[id].src && SvgSource[id].src === sources[label][id].src))
-					continue;
-				window.SvgSource[id] = {
-					selectable: sources[label][id].selectable,
-					src: sources[label][id].src
-				};
-				req = new XMLHttpRequest();
-				req.onreadystatechange = function(index) {
-					if (this.readyState === 4 && this.status === 200) {
-						window.SvgSource[index].node = this.responseXML.documentElement;
-					}
-				}.bind(req, id);
-				req.open("GET", sources[label][id].src, true);
-				req.send();
-				xhttp.push(req);
-			}
-		}
 	},
 	_update: function(message) {
 		if (Array.isArray(message)) // if message is an Array
