@@ -1,0 +1,55 @@
+<script>
+
+  Polymer({
+
+    is: 'from-to-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      if (!config.node) return;
+
+      var toRect, fromRect;
+      if (config.toRect) {
+        toRect = config.toRect;
+      } else {
+        toRect = config.node.getBoundingClientRect();
+      }
+
+      if (config.fromRect) {
+        fromRect = config.fromRect;
+      }
+      else if (config.node.oldBounds) {
+        fromRect = config.node.oldBounds;
+      } else {
+        fromRect = { left: toRect.left, top: toRect.top, width: 0, height: 0};
+      }
+
+      var deltaLeft = fromRect.left - toRect.left;
+      var deltaTop = fromRect.top - toRect.top;
+      var deltaWidth = fromRect.width / toRect.width;
+      var deltaHeight = fromRect.height / toRect.height;
+
+      this._effect = new KeyframeEffect(config.node, [
+        {'transform': 'translate(' + deltaLeft + 'px,' + deltaTop + 'px) scale(' + deltaWidth + ',' + deltaHeight + ')'},
+        {'transform': 'none'}
+      ], this.timingFromConfig(config));
+
+      this.setPrefixedProperty(config.node, 'transformOrigin', '0 0');
+
+      config.node.oldBounds = toRect;
+
+      return this._effect;
+    },
+
+    complete: function(config) {
+      if (config && typeof config.callback === 'function') {
+        config.callback(config);
+      }
+    }
+
+  });
+
+</script>

@@ -3,7 +3,7 @@ html
   head
     title !{title}
     meta(name='viewport', charset='utf-8', content='width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.8')
-    script(src='components/webcomponentsjs/webcomponents-lite.js')
+    script(src='bower_components/webcomponentsjs/webcomponents-lite.js')
     script(type='text/javascript').
       window.addEventListener('WebComponentsReady', function(e) {
         var el = document.getElementById('spinner');
@@ -13,7 +13,7 @@ html
         dom: 'shadow',
         lazyRegister: true
       };
-    link(rel='import', href='components/polymer/polymer.html')
+    link(rel='import', href='bower_components/polymer/polymer.html')
     link(rel="import", href="style/app-theme.html")
 
     script(type='text/javascript').

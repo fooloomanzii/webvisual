@@ -17,7 +17,13 @@
       position: absolute;
       pointer-events: all !important;
     }
-    :host([opened]) #toolbarFooter ::content > .toolbar-footer {
+    #toolbarFooterContent {
+      display: flex;
+      flex-direction: row;
+      height: 100%;
+      width: 100%;
+    }
+    :host([opened]) #toolbarFooterContent ::content > .toolbar-footer {
       border-right-width: thin;
       border-right-style: solid;
       border-color: rgba(190, 190, 190, 0.6);
@@ -26,13 +32,13 @@
       height: auto;
       position: relative;
     }
-    #toolbarFooter ::content > .toolbar-footer:last-child {
+    #toolbarFooterContent ::content > .toolbar-footer:last-child {
       border-right: none;
     }
-    #toolbarFooter ::content [dark] {
+    #toolbarFooterContent ::content [dark] {
       border-color: rgba(255, 255, 255, 0.1);
     }
-    #toolbarFooter ::content svg-element {
+    #toolbarFooterContent ::content svg-element {
       background: rgba(255,255,255,0.2);
     }
     #mainContent ::content .panel {
@@ -197,7 +203,9 @@
       <logo-element id="logo" on-tap="backToIndex"></logo-element>
 
       <section id="toolbarFooter" expanded$="[[expanded]]">
-        <content select=".toolbar-footer"></content>
+        <section id="toolbarFooterContent">
+          <content select=".toolbar-footer"></content>
+        </section>
       </section>
     </section>
 
@@ -330,12 +338,10 @@
               ],
               'expand-toolbar': [
                 {
-                  name: 'hero-animation',
-                  fromPage: this,
-                  toPage: this,
+                  name: 'from-to-animation',
                   node: this.$.toolbarFooter,
                   timing: {
-                    duration: 300
+                    duration: 1000
                   }
                 }
               ],
@@ -727,16 +733,24 @@
       },
       toolbarExpand: function() {
         if (this.opened || this.forceOpened) {
-          if (this.expanded) {
-            this.set('expanded', false);
-            this._reproduceAttribute({detail: {value: true}, type: 'horizontal'});
-            this.playAnimation('contract-toolbar');
-          } else {
-            this.set('expanded', true);
-            this.$.toolbarFooter.setAttribute('expanded', true);
-            this._reproduceAttribute({detail: {value: false}, type: 'horizontal'});
+            this.animationConfig['expand-toolbar'] = [];
+            var toolbarcontent = this.queryAllEffectiveChildren.call(this.$.toolbarFooterContent,'.toolbar-footer');
+
+            Array.prototype.forEach.call(toolbarcontent,
+              function(elem) {
+                if (elem.oldBounds === undefined) {
+                  elem.oldBounds = elem.getBoundingClientRect();
+                }
+                this.animationConfig['expand-toolbar'].push (
+                  { name: 'from-to-animation',
+                    // fromRect: fromRect,
+                    node: elem
+                  });
+              }.bind(this));
+            this.set('expanded', !this.expanded);
+            this.$.toolbarFooter.setAttribute('expanded', this.expanded);
+            this._reproduceAttribute({detail: {value: !this.expanded}, type: 'horizontal'});
             this.playAnimation('expand-toolbar');
-          }
         }
       },
       closeToolbar: function(newLabel, oldLabel) {
