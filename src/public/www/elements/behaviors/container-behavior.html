@@ -101,6 +101,7 @@
       }
     },
     _elements: [],
+    _attributeObserver: {},
 
     hostAttributes: {
       container: true
@@ -263,9 +264,9 @@
 
     _handleExceeding: function(value) {},
 
-    _reproductionSelectRepeat: function(changeRecord) {
+    _reproductionSelectRepeat: function(cr) {
       if (this.reproduce === false) return;
-      if (changeRecord && changeRecord.indexSplices) {
+      if (cr && cr.indexSplices) {
 
         var container = (this.reproductionContainer) ? Polymer.dom(this).querySelector('#' + this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);
 
@@ -281,9 +282,9 @@
           return el.hasAttribute('container');
         });
 
-        for (var i = 0; i < changeRecord.indexSplices.length; i++) {
-          for (var j = 0; j < changeRecord.indexSplices[i].removed.length; j++) {
-            item = changeRecord.indexSplices[i].removed[j];
+        for (var i = 0; i < cr.indexSplices.length; i++) {
+          for (var j = 0; j < cr.indexSplices[i].removed.length; j++) {
+            item = cr.indexSplices[i].removed[j];
 
             elements.filter(function(el) {
                 return el.id === item.id && el.label === item.label;
@@ -300,9 +301,9 @@
             }, this);
           }
 
-          for (var j = 0; j < changeRecord.indexSplices[i].addedCount; j++) {
-            index = changeRecord.indexSplices[i].index + j;
-            item = changeRecord.indexSplices[i].object[index];
+          for (var j = 0; j < cr.indexSplices[i].addedCount; j++) {
+            index = cr.indexSplices[i].index + j;
+            item = cr.indexSplices[i].object[index];
             var element = item.getElement();
 
             // if (this.multiSelect === false)
@@ -317,9 +318,9 @@
         }
       }
     },
-    _reproductionExceedsRepeat: function(changeRecord) { // just the container
+    _reproductionExceedsRepeat: function(cr) { // just the container
       if (this.reproduce === false) return;
-      if (changeRecord && changeRecord.indexSplices) {
+      if (cr && cr.indexSplices) {
 
         var container = (this.reproductionContainer) ? Polymer.dom(this).querySelector('#' + this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);
 
@@ -332,16 +333,16 @@
           return el.hasAttribute('container');
         });
 
-        for (var i = 0; i < changeRecord.indexSplices.length; i++) {
-          for (var j = 0; j < changeRecord.indexSplices[i].removed.length; j++) {
-            item = changeRecord.indexSplices[i].removed[j];
+        for (var i = 0; i < cr.indexSplices.length; i++) {
+          for (var j = 0; j < cr.indexSplices[i].removed.length; j++) {
+            item = cr.indexSplices[i].removed[j];
             containers.forEach(function(el) {
               el.unsetExceedingElement(item);
             }, this);
           }
-          for (var j = 0; j < changeRecord.indexSplices[i].addedCount; j++) {
-            index = changeRecord.indexSplices[i].index + j;
-            item = changeRecord.indexSplices[i].object[index];
+          for (var j = 0; j < cr.indexSplices[i].addedCount; j++) {
+            index = cr.indexSplices[i].index + j;
+            item = cr.indexSplices[i].object[index];
 
             containers.forEach(function(el) {
               el.setExceedingElement(item);
@@ -352,35 +353,67 @@
     },
 
     _reproduceAttribute: function(e) {
-      var type = e.type.replace("-changed", "");
+      var type = e.type;
       var value = e.detail.value;
+      var animatableAttributes = this.animatableAttributes;
       if (this.reproduce === false) return;
       if (type) {
-        var container = (this.reproductionContainer) ? Polymer.dom(this).querySelector('#' + this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);
+        var container = (this.reproductionContainer) ? Polymer.dom(this.root).querySelector('#' + this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);
 
         var items = Polymer.dom(container).getEffectiveChildNodes().filter(function(el) {
           return (el.nodeType === Node.ELEMENT_NODE && (el.hasAttribute('element') || el.hasAttribute('container')));
         });
 
-        items.forEach(
-          function(el) {
-            if (type && value)
-              el.setAttribute(type, value);
-            else if (el.hasAttribute(type))
-              el.removeAttribute(type);
-          });
+        var el, p = [];
+
+        for (var j in animatableAttributes) {
+          for (var i in items) {
+            // console.log(this, animatableAttribute, el.createAnimatableObserver, !el._initialized);
+            if (!items[i].animatableAttributes || items[i].animatableAttributes.indexOf(animatableAttributes[j]) === -1)
+                p.push(items[i]);
+            else
+              p.push(items[i].prepareAttributeAnimation.call(items[i], animatableAttributes[j]));
+          }
+        }
+
+        Promise.all(p)
+               .then( function(elems) {
+                 console.log(type, value, elems, items);
+                 if (value) {
+                   for (var i in elems) {
+                     elems[i].setAttribute(type, value);
+                   }
+                 }
+                 else {
+                   for (var i in elems) {
+                     if (elems[i].hasAttribute(type))
+                       elems[i].removeAttribute(type);
+                   }
+                 }
+               })
       }
     },
 
     _reproducedAttributeChanged: function(nValue, oValue) {
-      if (oValue) {
-        this.unlisten(this, Polymer.CaseMap.camelToDashCase(oValue) + '-changed', '_reproduceAttribute');
+      if (oValue && this._attributeObserver && this._attributeObserver[oValue]) {
+        this._attributeObserver[oValue].disconnect();
       }
       if (nValue) {
-        this.listen(this, Polymer.CaseMap.camelToDashCase(nValue) + '-changed', '_reproduceAttribute');
+        this._attributeObserver[nValue] = new MutationObserver(function(mutations) {
+          this._reproduceAttribute({detail: {value: this[this.reproducedAttribute]}, type: this.reproducedAttribute});
+        }.bind(this));
+
+        var observerConfig = {
+          attributes: true,
+          childList: false,
+          characterData: false,
+          attributeFilter: [nValue]
+        };
+
+        this._attributeObserver[nValue].observe(this, observerConfig);
       }
       if (this.reproducedAttribute && this[this.reproducedAttribute]) {
-        var e = {detail: {value: this[this.reproducedAttribute]}, type: this.reproducedAttribute}
+        var e = {detail: {value: this[this.reproducedAttribute]}, type: this.reproducedAttribute};
         this._reproduceAttribute(e);
       }
     },

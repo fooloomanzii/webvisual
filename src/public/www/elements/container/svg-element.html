@@ -39,7 +39,7 @@
     display: flex;
     position: relative;
     width: auto;
-    height: auto;
+    height: 0;
   	/*overflow: hidden;*/
     visibility: visible;
     font-family: inherit;
@@ -51,6 +51,9 @@
          -moz-user-select: none !important;
           -ms-user-select: none !important;
               user-select: none !important;
+  }
+  :host([opened]) {
+    height: auto;
   }
   svg {
     border-radius: inherit;
@@ -183,9 +186,9 @@
 
 </style>
   <div id='host'>
-    <div id='svgContainer' hidden$="[[_computeHidden(opened, forceOpened)]]">
+    <div id='svgContainer'>
     </div>
-    <div id='control' top$='[[isFullscreen]]' hidden$="[[_computeHidden(opened, forceOpened)]]">
+    <div id='control' top$='[[isFullscreen]]'>
       <svg class='icon' viewBox='0 -4 16 24' on-tap='_debounceResetZoom'><title>focus</title><g id='focus'> <path d='M 16,5.5 13,8 16,10.5 Z' /> <path d='M 10.5,16 8,13 5.5,16 Z' /> <path d='M 0,10.5 3,7.9999999 0,5.5 Z' /><path d='M 5.5,0 8,3 10.5,0 Z'/><circle r='1.5' cx='8' cy='8' /></g></svg>
       <svg class='icon' viewBox='0 0 24 24' hidden$='[[isFullscreen]]' on-tap='_requestFullscreen'><title>fullscreen</title><g id='fullscreen'><path d='M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z'/></g></svg>
       <svg class='icon' viewBox='0 0 24 24' hidden$='[[!isFullscreen]]' on-tap='_exitFullscreen'><title>close</title><g id='fullscreen-exit'><path d='M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z'/></g></svg>

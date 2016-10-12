@@ -17,28 +17,26 @@
       position: absolute;
       pointer-events: all !important;
     }
-    #toolbarFooterContent {
+    /*#toolbarFooter {
       display: flex;
       flex-direction: row;
       height: 100%;
       width: 100%;
-    }
-    :host([opened]) #toolbarFooterContent ::content > .toolbar-footer {
-      border-right-width: thin;
-      border-right-style: solid;
-      border-color: rgba(190, 190, 190, 0.6);
+    }*/
+    :host([opened]) #toolbarFooter ::content > .toolbar-footer {
+      border: none;
+      border-color: rgba(0, 0, 0, 0.3);
       border-radius: 8px;
+      box-sizing: border-box;
+      padding-right: 1px;
       z-index: inherit;
       height: auto;
       position: relative;
     }
-    #toolbarFooterContent ::content > .toolbar-footer:last-child {
-      border-right: none;
+    #toolbarFooter ::content > .toolbar-footer:last-child {
+      padding-right: 0;
     }
-    #toolbarFooterContent ::content [dark] {
-      border-color: rgba(255, 255, 255, 0.1);
-    }
-    #toolbarFooterContent ::content svg-element {
+    #toolbarFooter ::content svg-element {
       background: rgba(255,255,255,0.2);
     }
     #mainContent ::content .panel {
@@ -147,7 +145,6 @@
         margin-left: 12px;
       }
       logo-element#logo {
-        width: 44px !important;
         left: 64px !important;
       }
     }
@@ -202,10 +199,8 @@
 
       <logo-element id="logo" on-tap="backToIndex"></logo-element>
 
-      <section id="toolbarFooter" expanded$="[[expanded]]">
-        <section id="toolbarFooterContent">
-          <content select=".toolbar-footer"></content>
-        </section>
+      <section id="toolbarFooter">
+        <content select=".toolbar-footer"></content>
       </section>
     </section>
 
@@ -286,8 +281,8 @@
 
       behaviors: [
         Polymer.IronResizableBehavior,
-        Polymer.NeonAnimationRunnerBehavior,
         Polymer.NeonSharedElementAnimatableBehavior,
+        AnimatableAttributeRunnerBehavior,
         ContainerBehavior
       ],
 
@@ -363,7 +358,6 @@
         opened: {
           type: Boolean,
           value: false,
-          reflectToAttribute: true,
           observer: 'openedChanged'
         },
         forceOpened: {
@@ -458,6 +452,12 @@
         reproducedAttribute: {
           type: String,
           value: 'opened'
+        },
+        animatableAttributes: {
+          type: Array,
+          value: function() {
+            return ['opened', 'horizontal']
+          }
         },
 
         isExceeding: {
@@ -723,32 +723,36 @@
       },
       // Toolbar Actions
       openedChanged: function(opened, old) {
-        if (opened || this.forceOpened) {
-          this.$.toolbarFooter.setAttribute('opened', true);
+        // if (opened || this.forceOpened) {
+        //   this.$.toolbarFooter.setAttribute('opened', true);
           this._reproduceAttribute({detail: {value: this.opened || this.forceOpened}, type: 'opened'});
-          this.playAnimation('open-toolbar');
-        } else if (old !== undefined){
-          this.playAnimation('close-toolbar');
-        }
+        //   this.playAnimation('open-toolbar');
+        // } else if (old !== undefined){
+        //   this.playAnimation('close-toolbar');
+        // }
       },
       toolbarExpand: function() {
         if (this.opened || this.forceOpened) {
-            this.animationConfig['expand-toolbar'] = [];
-            var toolbarcontent = this.queryAllEffectiveChildren.call(this.$.toolbarFooterContent,'.toolbar-footer');
-
-            Array.prototype.forEach.call(toolbarcontent,
-              function(elem) {
-                if (elem.oldBounds === undefined) {
-                  elem.oldBounds = elem.getBoundingClientRect();
-                }
-                this.animationConfig['expand-toolbar'].push (
-                  { name: 'from-to-animation',
-                    // fromRect: fromRect,
-                    node: elem
-                  });
-              }.bind(this));
-            this.set('expanded', !this.expanded);
-            this.$.toolbarFooter.setAttribute('expanded', this.expanded);
+            // this.animationConfig['expand-toolbar'] = [];
+            // var toolbarcontent = this.queryAllEffectiveChildren.call(this.$.toolbarFooter,'.toolbar-footer');
+            //
+            // Array.prototype.forEach.call(toolbarcontent,
+            //   function(elem) {
+            //     if (elem.oldBounds === undefined) {
+            //       elem.oldBounds = elem.getBoundingClientRect();
+            //     }
+            //     this.animationConfig['expand-toolbar'].push (
+            //       { name: 'from-to-animation',
+            //         // fromRect: fromRect,
+            //         node: elem
+            //       });
+            //   }.bind(this));
+            this.expanded = !this.expanded;
+            var toolbarFooter = this.$.toolbarFooter;
+            if (this.expanded)
+              toolbarFooter.setAttribute('expanded', this.expanded);
+            else if (this.$.toolbarFooter.hasAttribute('expanded'))
+              toolbarFooter.removeAttribute('expanded');
             this._reproduceAttribute({detail: {value: !this.expanded}, type: 'horizontal'});
             // this.playAnimation('expand-toolbar');
         }

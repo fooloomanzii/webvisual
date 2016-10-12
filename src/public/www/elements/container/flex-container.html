@@ -5,30 +5,30 @@
         display: inline-flex;
         flex-direction: column;
         position: relative;
+        overflow: hidden;
       }
       :host([horizontal]) {
         flex-direction: row;
       }
       :host ::content > * {
+        box-sizing: border-box;
         flex: 1 0 auto;
-        border: none !important;
-        border-right-style: solid !important;
-        border-right-width: 0 !important;
-        border-right-color: inherit !important;
-        border-bottom-width: thin !important;
-        border-bottom-style: solid !important;
-        border-bottom-color: inherit !important;
+        border: none;
+        padding-right: 0;
+        padding-bottom: 1px;
         border-radius: 0 !important;
         border-color: inherit !important;
         border-radius: inherit !important;
       }
-      :host:not([opened]) ::content > * {
-        display: none !important;
+      :host(:not([opened])) ::content > * {
+        height: 0;
+        padding: 0;
+        margin: 0;
       }
 
       :host([horizontal]) ::content > * {
-        border-right-width: thin !important;
-        border-bottom-width: 0 !important;
+        padding-right: 1px;
+        padding-bottom: 0;
       }
 
       :host ::content > *:first-child {
@@ -42,8 +42,8 @@
         border-top-right-radius: 0 !important;
         border-bottom-right-radius: inherit !important;
         border-bottom-left-radius: inherit !important;
-        border-right-width: 0 !important;
-        border-bottom-width: 0 !important;
+        padding-right: 0;
+        padding-bottom: 0;
       }
       :host([horizontal]) ::content > *:first-child {
         border-top-left-radius: inherit !important;
@@ -67,14 +67,17 @@
       is: 'flex-container',
 
       behaviors: [
+        AnimatableAttributeRunnerBehavior,
         ContainerBehavior
       ],
 
       properties: {
+        animatableAttributes: {
+          type: Array,
+          value: function(){ return ['horizontal', 'opened']}
+        },
         horizontal: {
-          type: Boolean,
-          value: false,
-          notify: true
+          type: Boolean
         },
 
         multiSelect: {
@@ -112,15 +115,6 @@
           type: String,
           value: 'horizontal'
         }
-      },
-
-      _onSwipe: function(e) {
-        this.unsetExceedingElement(e);
-        this.async(function(){
-          if(this.$.content.children.length === 0) {
-            this.clearExceedingElements();
-          }
-        }, 16)
       }
     });
   </script>

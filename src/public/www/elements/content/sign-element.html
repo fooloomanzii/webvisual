@@ -20,14 +20,20 @@
         height: auto;
         align-self: stretch;
         border-radius: 2px 2px 2px 3px;
-        border: thin solid rgba(0,0,0,.15);
+        border-style: solid;
+        border-width: thin;
+        border-color: rgba(0,0,0,.2);
         transition: box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
       }
       :host:focus {
-        border-color: rgba(0,0,0,.25);
+        border-color: rgba(0,0,0,.5);
       }
       :host([checked]) {
-        border-color: rgba(52, 84, 117, 0.4);
+        border-color: rgba(52, 84, 117, 0.5);
+      }
+      :host([horizontal]) {
+        border-right-width: thin !important;
+        border-bottom-width: 0 !important;
       }
       #sign {
         height: auto;
@@ -44,7 +50,7 @@
         min-height: 4em;
         min-width: 4em;
         box-sizing: border-box;
-        border-color: rgba(0,0,0,.12);
+        border-color: inherit;;
         border-right-width: 0;
         border-right-style: solid;
         border-bottom-width: thin;
@@ -173,7 +179,7 @@
       }
     </style>
 
-    <section id='sign' inrange on-click='select'>
+    <section id='sign' animatable inrange on-click='select'>
       <paper-ripple hidden$='[[!selectable]]' id='ripple'></paper-ripple>
       <section class="value" hidden$="[[isBoolean]]">
         <section id='valueSection'></section>
@@ -190,7 +196,7 @@
       </svg>
     </section>
 
-    <caption-element id="caption" grouped-key='[[groupedKey]]' keys='[[keys]]'  without-grouped-key></caption-element>
+    <caption-element id="caption" animatable grouped-key='[[groupedKey]]' keys='[[keys]]'  without-grouped-key></caption-element>
 
     <dropdown-element id='tooltip' hiding-event="mouseleave" position="right" align="center">
       <div class='title'>Alarmphasen</div>
@@ -216,24 +222,16 @@
       ],
 
       properties: {
-        animatableAttribute: {
-          type: String,
-          value: 'horizontal'
-        },
-        animatableNodesById: {
+        animatableAttributes: {
           type: Array,
-          value: function() {
-            return ['sign', 'caption'];
-          }
+          value: function(){ return ['horizontal', 'opened']}
         },
         showDate: {
           type: Boolean,
           value: false
         },
         horizontal: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true
+          type: Boolean
         },
         showCaption: {
           type: Boolean,

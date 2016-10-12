@@ -166,13 +166,14 @@
   }
 
   logo-element#logo {
-    position: fixed;
+    position: absolute;
     height: 48px;
     top: 8px;
-    bottom: auto;
     left: 80px;
+    bottom: auto;
+    right: auto;
     z-index: 200;
-    width: 148px;
+    width: auto;
   }
 
   #toolbar {
@@ -233,10 +234,12 @@
     z-index: 50;
     height: var(--app-toolbar-height);
   }
-  #toolbarFooter:not([opened]) {
-    display: none;
+  :host(:not([opened])) #toolbarFooter {
+    /*display: none;*/
+    height: 0;
+    padding: 0;
   }
-  #toolbarFooter[opened][expanded] {
+  :host([opened]) #toolbarFooter[expanded] {
     height: var(--app-toolbar-expanded-height,calc(2 * var(--app-toolbar-height)));
   }
   </style>
