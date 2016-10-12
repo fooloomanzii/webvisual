@@ -211,11 +211,21 @@
         ColorBehavior,
         CheckedAndSelectBehavior,
         DragAndDropBehavior,
-        ElementBehavior,
-        Polymer.NeonAnimationRunnerBehavior
+        AnimatableAttributeRunnerBehavior,
+        ElementBehavior
       ],
 
       properties: {
+        animatableAttribute: {
+          type: String,
+          value: 'horizontal'
+        },
+        animatableNodesById: {
+          type: Array,
+          value: function() {
+            return ['sign', 'caption'];
+          }
+        },
         showDate: {
           type: Boolean,
           value: false
@@ -223,8 +233,7 @@
         horizontal: {
           type: Boolean,
           value: false,
-          reflectToAttribute: true,
-          observer: 'animationPreperation'
+          reflectToAttribute: true
         },
         showCaption: {
           type: Boolean,
@@ -238,14 +247,7 @@
           type: Boolean,
           value: false,
           readOnly: true
-        },
-        animationConfig: {
-          value: function() {
-            return {
-              'fromTo': [ ]
-            }
-          }
-        },
+        }
       },
 
       hostAttributes: {
@@ -327,36 +329,6 @@
         e.preventDefault();
         this._tooltip.toggle();
         e.stopPropagation();
-      },
-
-      animationPreperation: function(horizontal, old) {
-        if (this.offsetHeight === 0) return;
-
-        this.animationConfig = {fromTo: []};
-        // var parentRect = this.parentNode.getBoundingClientRect();
-        var elems = [this.$.sign, this.$.caption];
-
-        elems.forEach(function(elem) {
-          if (elem.oldBounds === undefined) {
-            elem.oldBounds = elem.getBoundingClientRect();
-          }
-          // var toRect = elem.getBoundingClientRect();
-          this.animationConfig.fromTo.push(
-            { name: 'from-to-animation',
-              // fromRect: elem.oldBounds,
-              // toRect: toRect,
-              node: elem
-            });
-          // elem.oldBounds = toRect;
-        }.bind(this));
-
-        // if (horizontal) {
-        //
-        // } else {
-        //
-        // }
-
-        this.playAnimation('fromTo');
       }
     });
   </script>

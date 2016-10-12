@@ -1,0 +1,93 @@
+<script>
+  AnimatableAttributeRunnerBehaviorImpl = {
+
+    properties: {
+      animatableAttribute: {
+        type: Boolean,
+        observer: 'animatableAttributeChanged'
+      },
+      animatableNodesById: {
+        type: Array,
+        observer: 'prepareAttributeAnimation'
+      },
+      attributeAnimationTiming: {
+        type: Object,
+        value: function() {
+          return {
+            duration: 1000
+          };
+        }
+      },
+      animationConfig: {
+        type: Object,
+        value: function() {
+          return {};
+        }
+      }
+    },
+
+    animatableAttributeChanged: function(attr) {
+      if (!attr) return;
+
+      if (this._observer)
+        this._observer.disconnect();
+
+      // Object.defineProperty(this, attr, {
+      //   configurable: true,
+      //   set: function(value) {
+      //     this.prepareAttributeAnimation();
+      //   }
+      // });
+
+      this._observer = new MutationObserver(function(mutations) {
+      	// For the sake of...observation...let's output the mutation to console to see how this all works
+      	mutations.forEach(function(mutation) {
+          this.startAttributeAnimation();
+      	}.bind(this));
+      }.bind(this));
+
+      var observerConfig = {
+      	attributes: true,
+      	childList: false,
+      	characterData: false,
+        attributeFilter: [attr]
+      };
+
+      this._observer.observe(this, observerConfig);
+    },
+
+    startAttributeAnimation: function() {
+      if (this.offsetHeight === 0)
+        return;
+      this.playAnimation('attributeAnimation');
+    },
+
+    prepareAttributeAnimation: function() {
+      this.animationConfig.attributeAnimation = [];
+      this.animatableNodesById.forEach(function(id) {
+        var node = this.$[id];
+        if (!node) return;
+        if (node.playAnimation) {
+          this.animationConfig.attributeAnimation.push( {
+            type: 'attribute-animation',
+            animatable: node
+          });
+        } else {
+          var oldBounds = node.getBoundingClientRect();
+          this.animationConfig.attributeAnimation.push( {
+            name: 'attribute-animation',
+            // fromRect: oldBounds,
+            node: node,
+            timing: this.attributeAnimationTiming
+          });
+          node.oldBounds = oldBounds;
+        }
+      }.bind(this));
+    }
+  };
+
+  AnimatableAttributeRunnerBehavior = [
+    Polymer.NeonAnimationRunnerBehavior,
+    AnimatableAttributeRunnerBehaviorImpl
+  ]
+</script>

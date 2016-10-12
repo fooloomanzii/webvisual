@@ -2,7 +2,7 @@
 
   Polymer({
 
-    is: 'from-to-animation',
+    is: 'attribute-animation',
 
     behaviors: [
       Polymer.NeonAnimationBehavior
@@ -10,8 +10,8 @@
 
     configure: function(config) {
       if (!config.node) return;
-
       var toRect, fromRect;
+
       if (config.toRect) {
         toRect = config.toRect;
       } else {
@@ -24,8 +24,10 @@
       else if (config.node.oldBounds) {
         fromRect = config.node.oldBounds;
       } else {
-        fromRect = { left: toRect.left, top: toRect.top, width: 0, height: 0};
+        fromRect = { left: toRect.left + toRect.width/2, top: toRect.top + toRect.width/2, width: toRect.width/2, height: toRect.height/2};
       }
+
+      console.log(fromRect, toRect, config);
 
       var deltaLeft = fromRect.left - toRect.left;
       var deltaTop = fromRect.top - toRect.top;
