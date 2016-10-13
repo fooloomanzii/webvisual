@@ -181,6 +181,15 @@
 
       setExceedingStatus: function(state) {
         var status;
+        
+        if (this._sign.hasAttribute("inrange"))
+          this._sign.removeAttribute("inrange");
+        if (this._sign.hasAttribute("deceeds"))
+          this._sign.removeAttribute("deceeds");
+        if (this._sign.hasAttribute("exceeds"))
+          this._sign.removeAttribute("exceeds");
+        if (this._sign.hasAttribute("undefined"))
+          this._sign.removeAttribute("undefined");
         // set color of the sign
         switch (state) {
           case 0: status = "inrange"; break;

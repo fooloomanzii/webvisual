@@ -2,6 +2,10 @@
   AnimatableAttributeRunnerBehaviorImpl = {
 
     properties: {
+      animatable: {
+        type: Boolean
+        // reflectToAttribute: true
+      },
       attributeAnimationTiming: {
         type: Object,
         value: function() {
@@ -16,18 +20,18 @@
           return {};
         }
       },
+      animatableAttributeAlias: {
+        type: Object,
+        value: function() {
+          return {};
+        }
+      },
       animatableAttributes: {
         type: Array,
         value: function() {
           return [];
         },
         observer: 'createAnimatableObserver'
-      },
-      animatableAttributeAlias: {
-        type: Object,
-        value: function() {
-          return {};
-        }
       }
     },
 
@@ -47,23 +51,40 @@
       for (var j in attrs) {
 
         this.attributeObserver[attrs[j]] = new MutationObserver(function(mutations) {
-          this.prepareAttributeAnimation(attrs[j])
-              .then( function(nodes) {
-                var p = [];
-                var alias = this.animatableAttributeAlias[attrs[j]] || attrs[j];
-                for (var i in nodes) {
-                  p.push( this.reproduceAttribute.call(this, {
-                      detail: {
-                        value: this[attrs[j]],
-                        node: nodes[i]
-                      },
-                      type: alias
-                    } )
-                  );
+          if (this.animatable) {
+            this.prepareAttributeAnimation(attrs[j])
+                .then( function(nodes) {
+                  var p = [];
+                  var alias = this.animatableAttributeAlias[attrs[j]] || attrs[j];
+                  for (var i in nodes) {
+                    p.push( this.reproduceAttribute.call(this, {
+                        detail: {
+                          value: this[attrs[j]],
+                          node: nodes[i]
+                        },
+                        type: alias
+                      } )
+                    );
+                  }
+                  Promise.all(p)
+                         .then(this.startAttributeAnimation.call(this, attrs[j]))
+                }.bind(this));
+          } else {
+            var nodes = this.getAnimatableNodes();
+            var alias = this.animatableAttributeAlias[attrs[j]] || attrs[j];
+            for (var i in nodes) {
+              this.reproduceAttribute( {
+                  detail: {
+                    value: this[attrs[j]],
+                    node: nodes[i]
+                  },
+                  type: alias
                 }
-                Promise.all(p)
-                       .then(this.startAttributeAnimation.call(this, attrs[j]))
-              }.bind(this));
+              );
+            }
+          }
+
+
         }.bind(this));
 
         var observerConfig = {
@@ -83,7 +104,7 @@
     },
 
     startAttributeAnimation: function(attr) {
-      console.log('should play', this.nodeName, attr, this.animationConfig);
+      // console.log('should play', this.nodeName, attr, this.animationConfig);
       if (this.offsetHeight === 0 || !attr)
         return;
       this.playAnimation(attr + '-changed-runner');
@@ -91,19 +112,23 @@
 
     prepareAttributeAnimation: function(attr) {
       return new Promise( function(resolve, reject) {
+        // console.log(this.nodeName, attr, this.animatableAttributeAlias[attr]);
         if (!this.attributeObserver[attr])
           reject(this.nodeName + ': observer for animatable runner is not existing: '+ attr);
 
         var animatables = this.getAnimatableNodes();
+        // var attr = this.animatableAttributeAlias[attr] || attr;
 
         this.animationConfig[attr + '-changed-runner'] = [];
         for (var i in animatables) {
           var node = animatables[i];
-          if (node.prepareAttributeAnimation && node.animatableAttributes.indexOf(attr) !== -1) {
+          node.style.display = '';
+          if (node.animatable && node.prepareAttributeAnimation && node.animatableAttributes.indexOf(attr) !== -1) {
+            // console.log('isrunner', node.nodeName, attr, node.animatableAttributeAlias);
             // Set the animatableAttribute to underlaying animatable node
-            if (node.animatableAttributes.indexOf(attr) === -1) {
-              node.animatableAttributes.push(attr);
-            }
+            // if (node.animatableAttributes.indexOf(attr) === -1) {
+            //   node.animatableAttributes.push(attr);
+            // }
             node.prepareAttributeAnimation(attr);
             // Configure the Animation to Run the underlaying Animation
             this.animationConfig[attr + '-changed-runner'].push( {

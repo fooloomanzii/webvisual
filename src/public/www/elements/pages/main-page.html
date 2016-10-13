@@ -24,7 +24,7 @@
       width: 100%;
     }*/
     :host([opened]) #toolbarFooter ::content > .toolbar-footer {
-      border: none;
+      border-width: 0;
       border-color: rgba(0, 0, 0, 0.3);
       border-radius: 8px;
       box-sizing: border-box;
@@ -71,10 +71,10 @@
     #mainContent ::content .panel:not(.foreground) {
       display: none !important;
     }
-    #mainContent ::content .panel.selected[animated] {
+    #mainContent ::content .panel.selected[animatable] {
       transition: opacity 150ms ease, transform 300ms ease;
     }
-    #mainContent ::content .panel:not(.selected)[animated] {
+    #mainContent ::content .panel:not(.selected)[animatable] {
       transition: opacity 300ms ease, transform 150ms ease;
       opacity: 0;
       transform: translateY(25%);
@@ -363,7 +363,8 @@
         },
         forceOpened: {
           type: Boolean,
-          value: false
+          value: false,
+          observer: 'forceOpenedChanged'
         },
         expanded: {
           type: Boolean,
@@ -395,12 +396,6 @@
         noGrouping: {
           type: Boolean,
           value: false
-        },
-
-        animated: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true
         },
 
         openOnSelect: {
@@ -452,6 +447,10 @@
           value: 'toolbarFooter'
         },
 
+        animatable: {
+          type: Boolean,
+          reflectToAttribute: true
+        },
         animatableAttributes: {
           type: Array,
           value: function() {
@@ -509,6 +508,14 @@
                });
       },
 
+      getAnimatableNodes: function() {
+        return this.getEffectiveChildNodes
+                     .call(this.$.toolbarFooter)
+                     .filter(function(el) {
+                       return (el.nodeType === Node.ELEMENT_NODE);
+                     });
+      },
+
       _handleExceeding: function(value) {
         if(value && !(this.$.alarmPanel.classList.contains("alarm-panel-opened"))) {
           this.openAlarmPanel();
@@ -548,7 +555,7 @@
           newpanel.classList.add("foreground");
         }
 
-        if (this.animated) {
+        if (this.animatable) {
           if (oldpanel) {
             oldpanel.addEventListener("transitionend", function(e) {
               if (newpanel)
@@ -730,13 +737,28 @@
       },
       // Toolbar Actions
       openedChanged: function(opened, old) {
-        // if (opened || this.forceOpened) {
+        if (opened || this.forceOpened) {
+          if (this.opened === false) {
+            this.opened = true;
+          }
         //   this.$.toolbarFooter.setAttribute('opened', true);
           // this._reproduceAttribute({detail: {value: this.opened || this.forceOpened}, type: 'opened'});
         //   this.playAnimation('open-toolbar');
         // } else if (old !== undefined){
         //   this.playAnimation('close-toolbar');
-        // }
+        }
+      },
+      forceOpenedChanged: function() {
+        if (this.opened || this.forceOpened) {
+          if (this.opened === false) {
+            this.opened = true;
+          }
+        //   this.$.toolbarFooter.setAttribute('opened', true);
+          // this._reproduceAttribute({detail: {value: this.opened || this.forceOpened}, type: 'opened'});
+        //   this.playAnimation('open-toolbar');
+        // } else if (old !== undefined){
+        //   this.playAnimation('close-toolbar');
+        }
       },
       toolbarExpand: function() {
         if (this.opened || this.forceOpened) {
@@ -769,15 +791,16 @@
         this.opened = false;
       },
       _onNeonAnimationFinish: function() {
-        if (this.opened === false) {
-          // this.$.toolbarFooter.removeAttribute('opened');
-          // this._reproduceAttribute({detail: {value: null}, type: 'opened'});
-          this.debounce('resize', this.notifyResize);
-        }
-        if (this.expanded === false) {
-          this.$.toolbarFooter.removeAttribute('expanded');
-          this.debounce('resize', this.notifyResize);
-        }
+        // if (this.opened === false) {
+        //   // this.$.toolbarFooter.removeAttribute('opened');
+        //   // this._reproduceAttribute({detail: {value: null}, type: 'opened'});
+        //   this.debounce('resize', this.notifyResize);
+        // }
+        // if (this.expanded === false) {
+        //   this.$.toolbarFooter.removeAttribute('expanded');
+        //   this.debounce('resize', this.notifyResize);
+        // }
+        this.debounce('resize', this.notifyResize);
       },
 
       _computeOpened: function(opened, forceOpened) {

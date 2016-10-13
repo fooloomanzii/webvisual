@@ -23,18 +23,18 @@
         border-style: solid;
         border-width: thin;
         border-color: rgba(0,0,0,.2);
-        transition: box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       }
-      :host:focus {
-        border-color: rgba(0,0,0,.5);
+      :host(:focus:not([checked])) {
+        border-color: rgba(0,0,0, 0.3);
       }
       :host([checked]) {
-        border-color: rgba(52, 84, 117, 0.5);
+        box-shadow: 0 2px 1px 0px rgba(0, 0, 0, 0.08),
+                    0 1px 2px 0px rgba(0, 0, 0, 0.06),
+                    0 2px 1px -1px rgba(0, 0, 0, 0.10);
       }
       :host([vertical]) {
         flex-direction: column;
-        border-right-width: thin !important;
-        border-bottom-width: 0 !important;
       }
       #sign {
         height: auto;
@@ -50,7 +50,7 @@
         min-height: 4em;
         min-width: 4em;
         box-sizing: border-box;
-        border-color: inherit;;
+        border-color: inherit;
         border-right-width: thin;
         border-right-style: solid;
         border-bottom-width: 0;
@@ -270,12 +270,23 @@
 
       setExceedingStatus: function(state) {
         var status;
+
+        if (this._sign.hasAttribute("inrange"))
+          this._sign.removeAttribute("inrange");
+        if (this._sign.hasAttribute("deceeds"))
+          this._sign.removeAttribute("deceeds");
+        if (this._sign.hasAttribute("exceeds"))
+          this._sign.removeAttribute("exceeds");
+        if (this._sign.hasAttribute("undefined"))
+          this._sign.removeAttribute("undefined");
+
         switch (state) {
           case 0: status="inrange"; break;
           case -1: status="deceeds"; break;
           case 1: status="exceeds"; break;
           default: status="undefined";
         }
+
         this._sign.setAttribute(status, '');
       },
 

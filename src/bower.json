@@ -7,11 +7,13 @@
     "fooloomanzii <hannes-b@web.de>"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer",
     "iron-elements": "PolymerElements/iron-elements",
     "paper-elements": "PolymerElements/paper-elements",
     "app-layout": "PolymerElements/app-layout",
-    "neon-animation": "PolymerElements/neon-animation",
-    "d3": "v4.2.3"
+    "neon-animation": "PolymerElements/neon-animation"
+  },
+  "devDependencies": {
+    "polymer": "Polymer/polymer#1.7.0",
+    "d3": "*"    
   }
 }

@@ -17,15 +17,15 @@ block BodyContent
                 radio-button-element.labelButton(label!= Label)
                     != Label
         //- MAIN-PAGE
-        main-page.fullbleed(animated!= (!mobile), reproduce, notify, open-on-select, no-auto-removal-exceeding-elements, native-notifications)
+        main-page.fullbleed(animatable!= (!mobile), reproduce, notify, open-on-select, no-auto-removal-exceeding-elements, native-notifications)
             //- TABS
             each Label in config.labels
                 tab-element.label(label!= Label)
                     != Label
 
             //- Elements for TOOLBAR
-            flex-container.toolbar-footer()
-              sign-element()
+            flex-container.toolbar-footer(animatable!= (!mobile))
+              sign-element(animatable!= (!mobile))
               table-element(highlight-exceeding)
             svg-element.toolbar-footer(initially-zoom-to-selected, notify-parent, open-on-select)
 
@@ -38,7 +38,7 @@ block BodyContent
 
             //- PANELS
             each Label, I in config.labels
-                section.panel(label!= Label, animated!= (!mobile))
+                section.panel(label!= Label, animatable!= (!mobile))
                     each Subgroup, Name in config.groups[Label][config.preferedGroupingKeys[Label]]
                         group-card(headline= Name,
                             svg= JSON.stringify(Subgroup.svg),

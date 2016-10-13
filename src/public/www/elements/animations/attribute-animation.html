@@ -29,16 +29,16 @@
 
       var deltaLeft = fromRect.left - toRect.left;
       var deltaTop = fromRect.top - toRect.top;
-      var deltaWidth = (toRect.width > 1) ? fromRect.width / toRect.width : 1e12;
-      var deltaHeight = (toRect.height > 1) ? fromRect.height / toRect.height : 1e12;
+      var deltaWidth = (toRect.width > 1) ? fromRect.width / toRect.width : 0;
+      var deltaHeight = (toRect.height > 1) ? fromRect.height / toRect.height : 0;
 
-      console.log('translate(' + deltaLeft + 'px,' + deltaTop + 'px) scale(' + deltaWidth + ',' + deltaHeight + ')');
+      // console.log('translate(' + deltaLeft + 'px,' + deltaTop + 'px) scale(' + deltaWidth + ',' + deltaHeight + ')');
       this._effect = new KeyframeEffect(config.node, [
         {'transform': 'translate(' + deltaLeft + 'px,' + deltaTop + 'px) scale(' + deltaWidth + ',' + deltaHeight + ')'},
         {'transform': 'none'}
       ], this.timingFromConfig(config));
 
-      this.setPrefixedProperty(config.node, 'transformOrigin', '0 0');
+      this.setPrefixedProperty(config.node, 'transformOrigin', '50% 0');
 
       config.node.oldBounds = toRect;
 
@@ -46,7 +46,11 @@
     },
 
     complete: function(config) {
+      var height = window.getComputedStyle(config.node,null).getPropertyValue("height");
+      if (!height)
+        config.node.style.display = 'none';
       if (config && typeof config.callback === 'function') {
+        console.log(config.callback);
         config.callback(config);
       }
     }
