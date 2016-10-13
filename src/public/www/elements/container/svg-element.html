@@ -39,7 +39,7 @@
     display: flex;
     position: relative;
     width: auto;
-    height: 0;
+    height: auto;
   	/*overflow: hidden;*/
     visibility: visible;
     font-family: inherit;
@@ -52,8 +52,8 @@
           -ms-user-select: none !important;
               user-select: none !important;
   }
-  :host([opened]) {
-    height: auto;
+  :host(:not([opened])) {
+    height: 0;
   }
   svg {
     border-radius: inherit;

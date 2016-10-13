@@ -44,7 +44,6 @@
     animatableNodes: [],
 
     createAnimatableObserver: function(attrs) {
-      console.log(attrs);
       for (var j in attrs) {
 
         this.attributeObserver[attrs[j]] = new MutationObserver(function(mutations) {
@@ -96,7 +95,6 @@
           reject(this.nodeName + ': observer for animatable runner is not existing: '+ attr);
 
         var animatables = this.getAnimatableNodes();
-        console.log(animatables);
 
         this.animationConfig[attr + '-changed-runner'] = [];
         for (var i in animatables) {

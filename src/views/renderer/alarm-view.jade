@@ -24,10 +24,10 @@ block BodyContent
                     != Label
 
             //- Elements for TOOLBAR
-            flex-container.toolbar-footer(animatable, horizontal)
-              sign-element(animatable, horizontal)
-              table-element(animatable, highlight-exceeding)
-            svg-element.toolbar-footer(animatable, initially-zoom-to-selected, notify-parent, open-on-select)
+            flex-container.toolbar-footer()
+              sign-element()
+              table-element(highlight-exceeding)
+            svg-element.toolbar-footer(initially-zoom-to-selected, notify-parent, open-on-select)
 
             //- GROUPINGKEY SELECTORS
             each Label in config.labels
@@ -56,6 +56,6 @@ block BodyContent
                                         color!= config.elements[Label][Id].color,
                                         bubbles,
                                         exceedable!= config.elements[Label][Id].exceedable,
-                                        selectable
-                                        tooltip)
-    
+                                        selectable,
+                                        tooltip,
+                                        vertical)
