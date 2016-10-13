@@ -27,13 +27,12 @@
         fromRect = { left: toRect.left + toRect.width/2, top: toRect.top + toRect.width/2, width: toRect.width/2, height: toRect.height/2};
       }
 
-      console.log(fromRect, toRect, config);
-
       var deltaLeft = fromRect.left - toRect.left;
       var deltaTop = fromRect.top - toRect.top;
-      var deltaWidth = fromRect.width / toRect.width;
-      var deltaHeight = fromRect.height / toRect.height;
+      var deltaWidth = (toRect.width > 1) ? fromRect.width / toRect.width : 1e12;
+      var deltaHeight = (toRect.height > 1) ? fromRect.height / toRect.height : 1e12;
 
+      console.log('translate(' + deltaLeft + 'px,' + deltaTop + 'px) scale(' + deltaWidth + ',' + deltaHeight + ')');
       this._effect = new KeyframeEffect(config.node, [
         {'transform': 'translate(' + deltaLeft + 'px,' + deltaTop + 'px) scale(' + deltaWidth + ',' + deltaHeight + ')'},
         {'transform': 'none'}
