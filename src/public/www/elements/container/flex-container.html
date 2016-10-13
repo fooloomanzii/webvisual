@@ -3,32 +3,38 @@
     <style>
       :host {
         display: inline-flex;
-        flex-direction: column;
+        flex-direction: row;
         position: relative;
         overflow: hidden;
+        height: 100%;
       }
-      :host([horizontal]) {
-        flex-direction: row;
+      :host([vertical]) {
+        flex-direction: column;
       }
       :host ::content > * {
         box-sizing: border-box;
         flex: 1 0 auto;
         border: none;
-        padding-right: 0;
-        padding-bottom: 1px;
+        padding-right: 1px;
+        padding-bottom: 0;
         border-radius: 0 !important;
         border-color: inherit !important;
         border-radius: inherit !important;
+      }
+      /*:host(:not([opened])) {
+        height: 0;
+        padding: 0;
+        margin: 0;
       }
       :host(:not([opened])) ::content > * {
         height: 0;
         padding: 0;
         margin: 0;
-      }
+      }*/
 
-      :host([horizontal]) ::content > * {
-        padding-right: 1px;
-        padding-bottom: 0;
+      :host([vertical]) ::content > * {
+        padding-right: 0;
+        padding-bottom: 1px;
       }
 
       :host ::content > *:first-child {
@@ -45,13 +51,13 @@
         padding-right: 0;
         padding-bottom: 0;
       }
-      :host([horizontal]) ::content > *:first-child {
+      :host(:not([vertical])) ::content > *:first-child {
         border-top-left-radius: inherit !important;
         border-top-right-radius: 0 !important;
         border-bottom-right-radius: 0 !important;
         border-bottom-left-radius: inherit !important;
       }
-      :host([horizontal]) ::content > *:last-child {
+      :host(:not([vertical])) ::content > *:last-child {
         border-top-left-radius: 0 !important;
         border-top-right-radius: inherit !important;
         border-bottom-right-radius: inherit !important;
@@ -74,9 +80,19 @@
       properties: {
         animatableAttributes: {
           type: Array,
-          value: function(){ return ['horizontal', 'opened']}
+          value: function() {
+            return ['vertical']
+          }
         },
-        horizontal: {
+        animatableAttributeAlias: {
+          type: Array,
+          value: function() {
+            return {
+              'expanded': 'vertical'
+            }
+          }
+        },
+        vertical: {
           type: Boolean
         },
 
@@ -113,7 +129,7 @@
         },
         reproducedAttribute: {
           type: String,
-          value: 'horizontal'
+          value: 'vertical'
         }
       }
     });

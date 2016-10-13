@@ -2,18 +2,6 @@
   AnimatableAttributeRunnerBehaviorImpl = {
 
     properties: {
-
-      animatableAttributes: {
-        type: Array,
-        value: function() {
-          return [];
-        },
-        observer: 'createAnimatableObserver'
-      },
-      attributeForAnimatable: {
-        type: String,
-        value: 'animatable'
-      },
       attributeAnimationTiming: {
         type: Object,
         value: function() {
@@ -27,38 +15,76 @@
         value: function() {
           return {};
         }
+      },
+      animatableAttributes: {
+        type: Array,
+        value: function() {
+          return [];
+        },
+        observer: 'createAnimatableObserver'
+      },
+      animatableAttributeAlias: {
+        type: Object,
+        value: function() {
+          return {};
+        }
       }
     },
 
+    getAnimatableNodes: function() {
+      this._reproductionContainerNode = (this.reproductionContainer) ? Polymer.dom(this.root).querySelector('#' + this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);
+      this.animatableNodes = Polymer.dom(this._reproductionContainerNode).getEffectiveChildNodes().filter(function(el) {
+        return (el.nodeType === Node.ELEMENT_NODE);
+      });
+      return this.animatableNodes;
+    },
+
     _initialized: {},
-    _attributeAnimationObserver: {},
+    attributeObserver: {},
+    animatableNodes: [],
 
-    createAnimatableObserver: function(cr) {
-      for (var j in cr) {
-        let attr = cr[j];
+    createAnimatableObserver: function(attrs) {
+      console.log(attrs);
+      for (var j in attrs) {
 
-        this._attributeAnimationObserver[cr[j]] = new MutationObserver(function(mutations) {
-          this.startAttributeAnimation(cr[j]);
+        this.attributeObserver[attrs[j]] = new MutationObserver(function(mutations) {
+          this.prepareAttributeAnimation(attrs[j])
+              .then( function(nodes) {
+                var p = [];
+                var alias = this.animatableAttributeAlias[attrs[j]] || attrs[j];
+                for (var i in nodes) {
+                  p.push( this.reproduceAttribute.call(this, {
+                      detail: {
+                        value: this[attrs[j]],
+                        node: nodes[i]
+                      },
+                      type: alias
+                    } )
+                  );
+                }
+                Promise.all(p)
+                       .then(this.startAttributeAnimation.call(this, attrs[j]))
+              }.bind(this));
         }.bind(this));
 
         var observerConfig = {
           attributes: true,
           childList: false,
           characterData: false,
-          attributeFilter: [cr[j]]
+          attributeFilter: [attrs[j]]
         };
 
-        this._attributeAnimationObserver[cr[j]].observe(this, observerConfig);
+        this.attributeObserver[attrs[j]].observe(this, observerConfig);
 
-        // if (!this._initialized[attr]) {
-        //   this.prepareAttributeAnimation(attr);
-        // }
+        if (!this._initialized[attrs[j]] && this.animationConfig) {
+          this.prepareAttributeAnimation(attrs[j]);
+        }
       }
 
     },
 
     startAttributeAnimation: function(attr) {
-      console.log('should play', attr);
+      console.log('should play', this.nodeName, attr, this.animationConfig);
       if (this.offsetHeight === 0 || !attr)
         return;
       this.playAnimation(attr + '-changed-runner');
@@ -66,21 +92,21 @@
 
     prepareAttributeAnimation: function(attr) {
       return new Promise( function(resolve, reject) {
-        if (!(this.animatableAttributes && this.animatableAttributes.length) || !this.attributeForAnimatable)
-          reject('missing attributes for AttributeAnimation for', attr, this);
+        if (!this.attributeObserver[attr])
+          reject(this.nodeName + ': observer for animatable runner is not existing: '+ attr);
 
-        var animatables = Array.prototype.concat.call(
-                            Polymer.dom(this.root).querySelectorAll('[' + this.attributeForAnimatable + ']'),
-                            this.queryAllEffectiveChildren('[' + this.attributeForAnimatable + ']'));
+        var animatables = this.getAnimatableNodes();
+        console.log(animatables);
 
         this.animationConfig[attr + '-changed-runner'] = [];
         for (var i in animatables) {
           var node = animatables[i];
-          if (node.prepareAttributeAnimation) {
+          if (node.prepareAttributeAnimation && node.animatableAttributes.indexOf(attr) !== -1) {
             // Set the animatableAttribute to underlaying animatable node
-            if (node.animatableAttributes && node.animatableAttributes.indexOf(attr) === -1) {
+            if (node.animatableAttributes.indexOf(attr) === -1) {
               node.animatableAttributes.push(attr);
             }
+            node.prepareAttributeAnimation(attr);
             // Configure the Animation to Run the underlaying Animation
             this.animationConfig[attr + '-changed-runner'].push( {
               type: 'attribute-animation',
@@ -88,23 +114,47 @@
             });
           } else {
             // set the fromRect for giving an Rect to transition from
-            var oldBounds = node.getBoundingClientRect();
-            this.animationConfig[attr + '-changed-runner'].push( {
-              name: 'attribute-animation',
-              fromRect: oldBounds,
-              node: node,
-              timing: this.attributeAnimationTiming
-            });
+            this.prepareAnimationOnNode(attr, node);
             // node.oldBounds = oldBounds;
           }
         }
-        console.log(this.nodeName, this.animationConfig);
         if (!this._initialized[attr]) {
           this._initialized[attr] = true;
-          this.startAttributeAnimation(attr);
+          // this.startAttributeAnimation(attr);
         }
-        resolve(this);
+        resolve(animatables);
       }.bind(this))
+    },
+
+    prepareAnimationOnNode: function(attr, node) {
+      // var oldBounds = node.getBoundingClientRect();
+      this.animationConfig[attr + '-changed-runner'].push( {
+        name: 'attribute-animation',
+        // fromRect: oldBounds,
+        node: node,
+        timing: this.attributeAnimationTiming
+      });
+    },
+
+    reproduceAttribute: function(e) {
+      return new Promise( function(resolve, reject) {
+        var type = e.type;
+        var value = e.detail.value;
+        var node = e.detail.node;
+
+        if (type && node) {
+          if (value) {
+            node.setAttribute(type, value);
+          }
+          else {
+            if (node.hasAttribute(type))
+              node.removeAttribute(type);
+          }
+          resolve(node)
+        } else {
+          reject('no given node or type for reproducing attribute');
+        }
+      })
     }
   };
 

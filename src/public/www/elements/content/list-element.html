@@ -127,7 +127,7 @@
       </section>
     </section>
 
-    <caption-element horizontal$="[[horizontal]]" grouped-key='[[groupedKey]]' keys='[[keys]]'></caption-element>
+    <caption-element vertical$="[[vertical]]" grouped-key='[[groupedKey]]' keys='[[keys]]'></caption-element>
 
     <section id='dateSection' hidden$='[[!showDate]]'></section>
   </template>
@@ -153,9 +153,9 @@
           type: Boolean,
           value: true
         },
-        horizontal: {
+        vertical: {
           type: Boolean,
-          value: true
+          value: false
         },
         updateEveryValue: {
           type: Boolean,

@@ -4,8 +4,7 @@
     properties: {
       opened: {
         type: Boolean,
-        value: false,
-        reflectToAttribute: true
+        value: false
       },
       openOnSelect: {
         type: Boolean,
@@ -69,10 +68,6 @@
       reproductionContainer: {
         type: String
       },
-      reproducedAttribute: {
-        type: String,
-        observer: '_reproducedAttributeChanged'
-      },
 
       selectedElements: {
         type: Array,
@@ -101,7 +96,6 @@
       }
     },
     _elements: [],
-    _attributeObserver: {},
 
     hostAttributes: {
       container: true
@@ -349,72 +343,6 @@
             }, this);
           }
         }
-      }
-    },
-
-    _reproduceAttribute: function(e) {
-      var type = e.type;
-      var value = e.detail.value;
-      var animatableAttributes = this.animatableAttributes;
-      if (this.reproduce === false) return;
-      if (type) {
-        var container = (this.reproductionContainer) ? Polymer.dom(this.root).querySelector('#' + this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);
-
-        var items = Polymer.dom(container).getEffectiveChildNodes().filter(function(el) {
-          return (el.nodeType === Node.ELEMENT_NODE && (el.hasAttribute('element') || el.hasAttribute('container')));
-        });
-
-        var el, p = [];
-
-        for (var j in animatableAttributes) {
-          for (var i in items) {
-            // console.log(this, animatableAttribute, el.createAnimatableObserver, !el._initialized);
-            if (!items[i].animatableAttributes || items[i].animatableAttributes.indexOf(animatableAttributes[j]) === -1)
-                p.push(items[i]);
-            else
-              p.push(items[i].prepareAttributeAnimation.call(items[i], animatableAttributes[j]));
-          }
-        }
-
-        Promise.all(p)
-               .then( function(elems) {
-                 console.log(type, value, elems, items);
-                 if (value) {
-                   for (var i in elems) {
-                     elems[i].setAttribute(type, value);
-                   }
-                 }
-                 else {
-                   for (var i in elems) {
-                     if (elems[i].hasAttribute(type))
-                       elems[i].removeAttribute(type);
-                   }
-                 }
-               })
-      }
-    },
-
-    _reproducedAttributeChanged: function(nValue, oValue) {
-      if (oValue && this._attributeObserver && this._attributeObserver[oValue]) {
-        this._attributeObserver[oValue].disconnect();
-      }
-      if (nValue) {
-        this._attributeObserver[nValue] = new MutationObserver(function(mutations) {
-          this._reproduceAttribute({detail: {value: this[this.reproducedAttribute]}, type: this.reproducedAttribute});
-        }.bind(this));
-
-        var observerConfig = {
-          attributes: true,
-          childList: false,
-          characterData: false,
-          attributeFilter: [nValue]
-        };
-
-        this._attributeObserver[nValue].observe(this, observerConfig);
-      }
-      if (this.reproducedAttribute && this[this.reproducedAttribute]) {
-        var e = {detail: {value: this[this.reproducedAttribute]}, type: this.reproducedAttribute};
-        this._reproduceAttribute(e);
       }
     },
 
