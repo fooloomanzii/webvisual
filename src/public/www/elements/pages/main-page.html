@@ -318,37 +318,6 @@
                   name: 'scale-down-animation',
                   node: this
                 }
-              ],
-              'open-toolbar': [
-                {
-                  name: 'slide-from-top-animation',
-                  node: this.$.toolbarFooter
-                }
-              ],
-              'close-toolbar': [
-                {
-                  name: 'slide-up-animation',
-                  node: this.$.toolbarFooter
-                }
-              ],
-              'expand-toolbar': [
-                {
-                  name: 'from-to-animation',
-                  node: this.$.toolbarFooter,
-                  timing: {
-                    duration: 1000
-                  }
-                }
-              ],
-              'contract-toolbar': [
-                {
-                  name: 'scale-down-animation',
-                  axis: 'y',
-                  node: this.$.toolbarFooter,
-                  timing: {
-                    duration: 300
-                  }
-                }
               ]
             }
           }
@@ -451,18 +420,10 @@
           type: Boolean,
           reflectToAttribute: true
         },
-        animatableAttributes: {
+        repeatedAttributes: {
           type: Array,
           value: function() {
             return ['opened', 'expanded']
-          }
-        },
-        animatableAttributeAlias: {
-          type: Array,
-          value: function() {
-            return {
-              'expanded': 'vertical'
-            }
           }
         },
 
