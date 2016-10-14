@@ -17,28 +17,28 @@
       position: absolute;
       pointer-events: all !important;
     }
-    /*#toolbarFooter {
-      display: flex;
-      flex-direction: row;
-      height: 100%;
-      width: 100%;
-    }*/
-    :host([opened]) #toolbarFooter ::content > .toolbar-footer {
+    #toolbarFooter ::content .toolbar-footer {
       border-width: 0;
       border-color: rgba(0, 0, 0, 0.3);
       border-radius: 8px;
       box-sizing: border-box;
+      padding: 0;
       padding-right: 1px;
+      margin: 0;
       z-index: inherit;
-      height: auto;
+      height: 0;
       position: relative;
     }
-    #toolbarFooter ::content > .toolbar-footer:last-child {
+    #toolbarFooter ::content .toolbar-footer[opened] {
+      height: 100%;
+    }
+    #toolbarFooter ::content .toolbar-footer:last-child {
       padding-right: 0;
     }
     #toolbarFooter ::content svg-element {
       background: rgba(255,255,255,0.2);
     }
+
     #mainContent ::content .panel {
       height: 100%;
       width: 100%;
@@ -136,11 +136,6 @@
         display: block;
         padding: 0em;
       }
-      group-card {
-        padding: 0em;
-        border-radius: 0em;
-        width: 100%;
-      }
       #toolbarHeader icon-button-element.menu-icon {
         margin-left: 12px;
       }
@@ -154,19 +149,6 @@
       }
       logo-element#logo {
         left: 72px !important;
-      }
-    }
-    @media all and (max-width: 600px) {
-      :host {
-        font-size: 0.9em;
-      }
-    }
-    @media all and (min-width: 601px) {
-      #toolbarFooter[dark] .caption {
-        border-top: none;
-      }
-      #toolbarFooter .caption {
-        border-top: none;
       }
     }
     [hidden] {
@@ -282,7 +264,7 @@
       behaviors: [
         Polymer.IronResizableBehavior,
         Polymer.NeonSharedElementAnimatableBehavior,
-        AnimatableAttributeRunnerBehavior,
+        AttributeRepeatAnimationBehavior,
         ContainerBehavior
       ],
 
@@ -426,6 +408,17 @@
             return ['opened', 'expanded']
           }
         },
+        attributeAnimations: {
+          type: Object,
+          value: function() {
+            return {
+              // 'opened': {
+              //   'entry': 'slide-from-top-animation',
+              //   'exit': 'fade-out-animation'
+              // }
+            };
+          }
+        },
 
         isExceeding: {
           type: Boolean,
@@ -450,7 +443,7 @@
       },
 
       attached: function() {
-        this.fire('resize');
+        // this.fire('resize');
 
         Polymer.dom(this.$.groupingKeysLabelSelector)
                .observeNodes(function(info) {
@@ -460,13 +453,13 @@
                       this.regroup(e.currentTarget.selected);
                     }.bind(this));
                }.bind(this));
-        Polymer.dom(this.$.mainContent)
-               .observeNodes( function(info) {
-                 if (info.addedNodes.length > 0) {
-                    // console.log(window.Labels);
-                    // self.set("currentLabel", Labels[0]);
-                 }
-               });
+        // Polymer.dom(this.$.mainContent)
+        //        .observeNodes( function(info) {
+        //          if (info.addedNodes.length > 0) {
+        //             // console.log(window.Labels);
+        //             // self.set("currentLabel", Labels[0]);
+        //          }
+        //        });
       },
 
       getAnimatableNodes: function() {
@@ -702,11 +695,6 @@
           if (this.opened === false) {
             this.opened = true;
           }
-        //   this.$.toolbarFooter.setAttribute('opened', true);
-          // this._reproduceAttribute({detail: {value: this.opened || this.forceOpened}, type: 'opened'});
-        //   this.playAnimation('open-toolbar');
-        // } else if (old !== undefined){
-        //   this.playAnimation('close-toolbar');
         }
       },
       forceOpenedChanged: function() {
@@ -714,37 +702,16 @@
           if (this.opened === false) {
             this.opened = true;
           }
-        //   this.$.toolbarFooter.setAttribute('opened', true);
-          // this._reproduceAttribute({detail: {value: this.opened || this.forceOpened}, type: 'opened'});
-        //   this.playAnimation('open-toolbar');
-        // } else if (old !== undefined){
-        //   this.playAnimation('close-toolbar');
         }
       },
       toolbarExpand: function() {
         if (this.opened || this.forceOpened) {
-            // this.animationConfig['expand-toolbar'] = [];
-            // var toolbarcontent = this.queryAllEffectiveChildren.call(this.$.toolbarFooter,'.toolbar-footer');
-            //
-            // Array.prototype.forEach.call(toolbarcontent,
-            //   function(elem) {
-            //     if (elem.oldBounds === undefined) {
-            //       elem.oldBounds = elem.getBoundingClientRect();
-            //     }
-            //     this.animationConfig['expand-toolbar'].push (
-            //       { name: 'from-to-animation',
-            //         // fromRect: fromRect,
-            //         node: elem
-            //       });
-            //   }.bind(this));
-            this.expanded = !this.expanded;
-            var toolbarFooter = this.$.toolbarFooter;
-            if (this.expanded)
-              toolbarFooter.setAttribute('expanded', this.expanded);
-            else if (this.$.toolbarFooter.hasAttribute('expanded'))
-              toolbarFooter.removeAttribute('expanded');
-            // this._reproduceAttribute({detail: {value: !this.expanded}, type: 'vertical'});
-            // this.playAnimation('expand-toolbar');
+          this.expanded = !this.expanded;
+          var toolbarFooter = this.$.toolbarFooter;
+          if (this.expanded)
+            toolbarFooter.setAttribute('expanded', this.expanded);
+          else if (this.$.toolbarFooter.hasAttribute('expanded'))
+            toolbarFooter.removeAttribute('expanded');
         }
       },
       closeToolbar: function(newLabel, oldLabel) {
@@ -761,7 +728,7 @@
         //   this.$.toolbarFooter.removeAttribute('expanded');
         //   this.debounce('resize', this.notifyResize);
         // }
-        this.debounce('resize', this.notifyResize);
+        // this.debounce('resize', this.notifyResize);
       },
 
       _computeOpened: function(opened, forceOpened) {

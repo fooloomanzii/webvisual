@@ -1,11 +1,11 @@
 <script>
-  AnimatableAttributeRunnerBehaviorImpl = {
+  AttributeRepeatAnimationBehaviorImpl = {
 
     properties: {
       animatable: {
         type: Boolean
-        // reflectToAttribute: true
       },
+
       attributeAnimationTiming: {
         type: Object,
         value: function() {
@@ -21,6 +21,12 @@
         }
       },
       attributeAlias: {
+        type: Object,
+        value: function() {
+          return {};
+        }
+      },
+      attributeAnimations: {
         type: Object,
         value: function() {
           return {};
@@ -51,9 +57,9 @@
       for (var j in attrs) {
         var attr = attrs[j];
         var alias = this.attributeAlias[attr] || attr;
-        this.attributeObserver[attr] = new MutationObserver(function(attr, alias, mutations) {
+        this.attributeObserver[attr] = new MutationObserver( function(attr, alias, mutations) {
           if (this.animatable) {
-            this.prepareAttributeAnimation(alias)
+            this.prepareAttributeAnimation(alias, this[attr])
                 .then( function(nodes) {
                   var p = [];
 
@@ -62,6 +68,7 @@
                       alias = nodes[i].attributeAlias[attr] || attr;
                     p.push( this.reproduceAttribute.call(this, nodes[i], alias, this[attr]) );
                   }
+
                   Promise.all(p)
                          .then(this.startAttributeAnimation.call(this, attr))
                 }.bind(this));
@@ -86,14 +93,14 @@
         this.attributeObserver[attr].observe(this, observerConfig);
 
         if (!this._initialized[attr] && this.animationConfig) {
-          this.prepareAttributeAnimation(attr);
+          this.prepareAttributeAnimation(attr, this[attr]);
         }
       }
 
     },
 
     startAttributeAnimation: function(attr) {
-      console.log('should play', this.nodeName, attr, this.animationConfig);
+      // console.log('should play', this.nodeName, attr, this.animationConfig);
       if (this.offsetHeight === 0 || !attr)
         return;
       this.playAnimation(attr + '-changed-runner');
@@ -101,29 +108,23 @@
 
     prepareAttributeAnimation: function(attr) {
       return new Promise( function(resolve, reject) {
-        // console.log(this.nodeName, attr, this.attributeAlias[attr]);
         if (!this.attributeObserver[attr])
           reject(this.nodeName + ': observer for animatable runner is not existing: '+ attr);
 
         var animatables = this.getAnimatableNodes();
-        // var attr = this.attributeAlias[attr] || attr;
 
         this.animationConfig[attr + '-changed-runner'] = [];
         for (var i in animatables) {
           var node = animatables[i];
           node.style.display = '';
           if (node.animatable && node.prepareAttributeAnimation && node.repeatedAttributes.indexOf(attr) !== -1) {
-            // console.log('isrunner', node.nodeName, attr, node.attributeAlias);
-            // Set the animatableAttribute to underlaying animatable node
-            // if (node.repeatedAttributes.indexOf(attr) === -1) {
-            //   node.repeatedAttributes.push(attr);
-            // }
-            node.prepareAttributeAnimation(attr);
             // Configure the Animation to Run the underlaying Animation
-            this.animationConfig[attr + '-changed-runner'].push( {
-              type: 'attribute-animation',
-              animatable: node
-            });
+            node.prepareAttributeAnimation(attr, this[attr]);
+
+            // this.animationConfig[attr + '-changed-runner'].push( {
+            //   type: this.attributeAnimations[attr] ? (this[attr] ? this.attributeAnimations[attr].entry : this.attributeAnimations[attr].exit) : 'attribute-animation',
+            //   animatable: node
+            // });
           } else {
             // set the fromRect for giving an Rect to transition from
             this.prepareAnimationOnNode(attr, node);
@@ -141,7 +142,7 @@
     prepareAnimationOnNode: function(attr, node) {
       // var oldBounds = node.getBoundingClientRect();
       this.animationConfig[attr + '-changed-runner'].push( {
-        name: 'attribute-animation',
+        name: this.attributeAnimations[attr] ? (this[attr] ? this.attributeAnimations[attr].entry : this.attributeAnimations[attr].exit) : 'attribute-animation',
         // fromRect: oldBounds,
         node: node,
         timing: this.attributeAnimationTiming
@@ -166,8 +167,8 @@
     }
   };
 
-  AnimatableAttributeRunnerBehavior = [
+  AttributeRepeatAnimationBehavior = [
     Polymer.NeonAnimationRunnerBehavior,
-    AnimatableAttributeRunnerBehaviorImpl
+    AttributeRepeatAnimationBehaviorImpl
   ]
 </script>

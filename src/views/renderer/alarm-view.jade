@@ -27,7 +27,7 @@ block BodyContent
             flex-container.toolbar-footer(animatable!= (!mobile))
               sign-element(animatable!= (!mobile))
               table-element(highlight-exceeding)
-            svg-element.toolbar-footer(initially-zoom-to-selected, notify-parent, open-on-select)
+            svg-element.toolbar-footer(initially-zoom-to-selected)
 
             //- GROUPINGKEY SELECTORS
             each Label in config.labels

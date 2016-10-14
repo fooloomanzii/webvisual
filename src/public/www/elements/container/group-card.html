@@ -100,11 +100,6 @@
         width: auto;
         bottom: 0;
         left: 0;
-        background: none !important;
-        text-shadow: -1px 0px 1px #1f1f1f;
-      }
-      #headline:hover {
-        text-shadow: -1px 1px 0px #1f1f1f;
       }
       :host([dark]) #headline {
         color: var(--highlight-color);
@@ -139,11 +134,18 @@
         flex: 1;
         position: relative;
       }
-      svg-element {
-        background: none;
+      :host([opened]) #header {
         height: calc(15vh + 120px);
         max-height: 40vh;
       }
+      svg-element {
+        background: none;
+        /*height: 0%;*/
+      }
+      /*svg-element[opened] {
+        height: 100%;
+      }*/
+
       #header[hidden] ~ #mainContent {
         border-top-left-radius: inherit;
         border-top-right-radius: inherit;
@@ -170,7 +172,7 @@
         <section id="background"></section>
         <content select='.header'></content>
         <!-- <template is="dom-if" if="[[svg.source]]"> -->
-          <svg-element id='svgElement' hidden$="[[!svg.source]]" style="display:none" source="[[svg.source]]" initially-zoom-to-selected exceeding-elements="[[exceedingElements]]" open-on-exceed></svg-element>
+          <svg-element id='svgElement' hidden$="[[!svg.source]]" source="[[svg.source]]" initially-zoom-to-selected exceeding-elements="[[exceedingElements]]" open-on-exceed></svg-element>
         <!-- </template> -->
         <section id='headline' on-tap='toggle'>[[headline]]</section>
       </section>
@@ -185,23 +187,26 @@
       is: 'group-card',
 
       behaviors: [
-        Polymer.NeonAnimationRunnerBehavior,
-        Polymer.IronResizableBehavior,
+        AttributeRepeatAnimationBehavior,
         ContainerBehavior
       ],
 
       properties: {
+        animatable: {
+          type: Boolean,
+          value: true
+        },
         animationConfig: {
           value: function() {
             return {
-              'entry': {
-                name: 'scale-up-animation',
-                node: this.$.svgElement
-              },
-              'exit': {
-                name: 'scale-down-animation',
-                node: this.$.svgElement
-              }
+              // 'entry': {
+              //   name: 'scale-up-animation',
+              //   node: this.$.svgElement
+              // },
+              // 'exit': {
+              //   name: 'scale-down-animation',
+              //   node: this.$.svgElement
+              // }
             }
           }
         },
@@ -277,6 +282,30 @@
         droppable: {
           type: Boolean,
           value: true
+        },
+
+        attributeAlias: {
+          type: Array,
+          value: function() {
+            return { };
+          }
+        },
+        attributeAnimations: {
+          type: Object,
+          value: function() {
+            return {
+              'opened': {
+                'entry': 'scale-up-animation',
+                'exit': 'fade-out-animation'
+              }
+            };
+          }
+        },
+        repeatedAttributes: {
+          type: Array,
+          value: function() {
+            return ['opened'];
+          }
         }
       },
 
@@ -294,6 +323,76 @@
           this.hideHeader = true;
       },
 
+      observers: [
+        '_exceedingChanged(exceedingElements.splices)'
+      ],
+
+      listeners: {
+        'neon-animation-finish': '_onNeonAnimationFinish'
+      },
+
+      toggle: function() {
+        if (!this.opened) {
+          this.open();
+        }
+        else {
+          this.close();
+        }
+      },
+
+      open: function() {
+        if (this.svg === undefined || this.svg.source === undefined) return;
+        this.opened = true;
+      },
+
+      close: function() {
+        this.opened = false;
+      },
+
+      openedChanged: function() {
+        if (this.svg === undefined || this.svg.source === undefined) {
+          this.opened = false;
+          return;
+        }
+        if (this.opened === true) {
+          // this.$.svgElement.style.display = '';
+          // this.$.svgElement.setAttribute('opened', true);
+          // this.playAnimation('entry');
+          this.$.headline.setAttribute('overlay', '');
+        } else {
+          // this.playAnimation('exit');
+          this.$.headline.removeAttribute('overlay');
+        }
+      },
+      _onNeonAnimationFinish: function() {
+        if (!this.opened) {
+          // this.$.svgElement.style.display = 'none';
+          // this.$.svgElement.setAttribute('opened', false);
+
+        }
+      },
+
+      _headlineChanged: function(text) {
+        this.$.header.setAttribute('aria-label', this.headline);
+      },
+
+      _hideheadline: function(headline, withoutWindow, hideHeader) {
+        if (headline == '*' || withoutWindow || hideHeader)
+          return true;
+        else
+          return false;
+      },
+
+      _exceedingChanged: function(changeRecord) {
+        if(this.exceedingElements > 0)
+          this.open()
+        else
+          this.close();
+      },
+
+      getAnimatableNodes: function() {
+        return [this.$.svgElement];
+      }
       // // EXPERIMENTAL RESIZING
       // listeners: {
       //   'iron-resize': 'resized'
@@ -337,71 +436,6 @@
       //   }
       // },
 
-      observers: [
-        '_exceedingChanged(exceedingElements.splices)'
-      ],
-
-      listeners: {
-        'neon-animation-finish': '_onNeonAnimationFinish'
-      },
-
-      toggle: function() {
-        if (!this.opened) {
-          this.open();
-        }
-        else {
-          this.close();
-        }
-      },
-
-      open: function() {
-        if (this.svg === undefined || this.svg.source === undefined) return;
-        this.opened = true;
-      },
-
-      close: function() {
-        this.opened = false;
-      },
-
-      openedChanged: function() {
-        if (this.svg === undefined || this.svg.source === undefined) {
-          this.opened = false;
-          return;
-        }
-        if (this.opened === true) {
-          this.$.svgElement.style.display = '';
-          this.$.svgElement.setAttribute('opened', true);
-          this.playAnimation('entry');
-          this.$.headline.setAttribute('overlay', '');
-        } else {
-          this.playAnimation('exit');
-        }
-      },
-      _onNeonAnimationFinish: function() {
-        if (!this.opened) {
-          this.$.svgElement.style.display = 'none';
-          this.$.svgElement.setAttribute('opened', false);
-          this.$.headline.removeAttribute('overlay');
-        }
-      },
-
-      _headlineChanged: function(text) {
-        // this.$.header.setAttribute('aria-label', this.headline);
-      },
-
-      _hideheadline: function(headline, withoutWindow, hideHeader) {
-        if (headline == '*' || withoutWindow || hideHeader)
-          return true;
-        else
-          return false;
-      },
-
-      _exceedingChanged: function(changeRecord) {
-        if(this.exceedingElements > 0)
-          this.open()
-        else
-          this.close();
-      }
     });
   </script>
 </dom-module>
