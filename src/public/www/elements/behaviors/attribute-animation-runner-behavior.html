@@ -49,43 +49,43 @@
 
     createAnimatableObserver: function(attrs) {
       for (var j in attrs) {
-        var attr = this.animatableAttributeAlias[attrs[j]] || attrs[j];
-        this.attributeObserver[attr] = new MutationObserver(function(attr, mutations) {
+
+        this.attributeObserver[attrs[j]] = new MutationObserver(function(mutations) {
           if (this.animatable) {
-            this.prepareAttributeAnimation(attr)
+            this.prepareAttributeAnimation(attrs[j])
                 .then( function(nodes) {
                   var p = [];
-                  var value = this[this.animatableAttributeAlias[attr]] || this[attr];
+                  var alias = this.animatableAttributeAlias[attrs[j]] || attrs[j];
                   for (var i in nodes) {
                     p.push( this.reproduceAttribute.call(this, {
                         detail: {
-                          value: value,
+                          value: this[attrs[j]],
                           node: nodes[i]
                         },
-                        type: attr
+                        type: alias
                       } )
                     );
                   }
                   Promise.all(p)
-                         .then(this.startAttributeAnimation.call(this, attr))
+                         .then(this.startAttributeAnimation.call(this, attrs[j]))
                 }.bind(this));
           } else {
             var nodes = this.getAnimatableNodes();
-
+            var alias = this.animatableAttributeAlias[attrs[j]] || attrs[j];
             for (var i in nodes) {
               this.reproduceAttribute( {
                   detail: {
-                    value: this[attr],
+                    value: this[attrs[j]],
                     node: nodes[i]
                   },
-                  type: attr
+                  type: alias
                 }
               );
             }
           }
 
 
-        }.bind(this, attrs[j]));
+        }.bind(this));
 
         var observerConfig = {
           attributes: true,
@@ -104,7 +104,7 @@
     },
 
     startAttributeAnimation: function(attr) {
-      console.log('should play', this.nodeName, attr, this.animationConfig);
+      // console.log('should play', this.nodeName, attr, this.animationConfig);
       if (this.offsetHeight === 0 || !attr)
         return;
       this.playAnimation(attr + '-changed-runner');
@@ -123,8 +123,7 @@
         for (var i in animatables) {
           var node = animatables[i];
           node.style.display = '';
-          if (node.animatable && node.prepareAttributeAnimation &&
-              (node.animatableAttributes.indexOf(attr) !== -1 || node.animatableAttributeAlias[attr]) ) {
+          if (node.animatable && node.prepareAttributeAnimation && node.animatableAttributes.indexOf(attr) !== -1) {
             // console.log('isrunner', node.nodeName, attr, node.animatableAttributeAlias);
             // Set the animatableAttribute to underlaying animatable node
             // if (node.animatableAttributes.indexOf(attr) === -1) {
@@ -136,7 +135,6 @@
               type: 'attribute-animation',
               animatable: node
             });
-            console.log(node.nodeName, node.animationConfig);
           } else {
             // set the fromRect for giving an Rect to transition from
             this.prepareAnimationOnNode(attr, node);
