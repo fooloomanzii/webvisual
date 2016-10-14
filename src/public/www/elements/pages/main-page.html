@@ -402,29 +402,22 @@
           type: Boolean,
           reflectToAttribute: true
         },
+        // attributeAlias: {
+        //   type: Array,
+        //   value: function() {
+        //     return {
+        //       'expanded': 'vertical'
+        //     }
+        //   }
+        // },
+
         repeatedAttributes: {
           type: Array,
           value: function() {
             return ['opened', 'expanded']
           }
         },
-        attributeAnimations: {
-          type: Object,
-          value: function() {
-            return {
-              // 'opened': {
-              //   'entry': 'slide-from-top-animation',
-              //   'exit': 'fade-out-animation'
-              // }
-            };
-          }
-        },
 
-        isExceeding: {
-          type: Boolean,
-          value: false,
-          observer: '_handleExceeding'
-        },
         isExceeding: {
           type: Boolean,
           value: false,
