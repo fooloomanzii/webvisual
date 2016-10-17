@@ -387,6 +387,8 @@
     _openedChanged: function() {
       if (!this.source) return;
       this._debounceSourceChanged();
+      if (!this._inialized)
+        this._initialize();
     },
 
     open: function(e) {
@@ -476,9 +478,13 @@
       this._width  = viewBox[2] - viewBox[0];
       this._height = viewBox[3] - viewBox[1];
 
-      this._debounceSelectable();
-      this.debounce('select', this._selectSelected, 50);;
-      this.debounce('select-exceeds', this._selectExceeds, 50);;
+      this._initialize();
+    },
+
+    _initialize: function() {
+      this._selectableChanged();
+      this.debounce('select', this._selectSelected, 50);
+      this.debounce('select-exceeds', this._selectExceeds, 50);
       this.debounce('resetZoom', this._resetZoom, 100);
     },
 
@@ -515,71 +521,73 @@
     },
 
     _selectableChanged: function() {
-      if (!this._mainG.node || !this.source) return;
+        if (!this._mainG.node || !this.source) return;
 
-      var self = this;
-      this._svg.on('contextmenu',
-        (function () {
-          d3.event.preventDefault();
-          this.debounce('resetZoom', this._resetZoom, 33);
-        }).bind(self));
+        var self = this;
+        this._svg.on('contextmenu',
+          (function () {
+            d3.event.preventDefault();
+            this.debounce('resetZoom', this._resetZoom, 33);
+          }).bind(self));
 
-      // previous selectable elements: remove 'svg-element-selectable' class and click listener
-      this._mainG.selectAll('.svg-element-selectable')
-                .classed('svg-element-selectable', false)
-                .on('click dblclick', null);
-      this._mainG.selectAll('.clicked')
-                 .classed('clicked', false);
+        // previous selectable elements: remove 'svg-element-selectable' class and click listener
+        this._mainG.selectAll('.svg-element-selectable')
+                  .classed('svg-element-selectable', false)
+                  .on('click dblclick', null);
+        this._mainG.selectAll('.clicked')
+                   .classed('clicked', false);
 
-      // add 'svg-element-selectable' class and click listener
-      for (var element in this.selectedElements)
-        if(element.svg && element.svg.path && element.svg.source === this.source )
-          this._mainG.selectAll(element.svg.path)
-                    .classed('svg-element-selectable', true)  // for styling selectable
-                    .classed('style-scope', true).classed('svg-element', true) // for style-scoping in polymer
-                    .on('click dblclick',
-                      function() {
-                        self._zoomToElement(this);
-                        self._mainG.selectAll('.clicked')
-                                   .classed('clicked', false);
-                      }.bind(this))
-                    .classed('clicked', true)
-                    .append('title')
-                    .text(function() {
-                        return element.id;
-                   });
-      for (var element in this.exceedingElements)
-        if(element.svg && element.svg.path && element.svg.source === this.source)
-          this._mainG.selectAll(element.svg.path)
-                    .classed('svg-element-selectable', true)  // for styling selectable
-                    .classed('style-scope', true).classed('svg-element', true) // for style-scoping in polymer
-                    .on('click dblclick',
-                      function() {
-                        self._zoomToElement(this);
-                        self._mainG.selectAll('.clicked')
-                                   .classed('clicked', false);
-                      })
-                    .classed('clicked', true)
-                    .append('title')
-                    .text(function() {
-                        return element.id;
-                   });
-      if (window.SvgSelectables)
-        for (var key in window.SvgSelectables[this.source])
-          this._mainG.selectAll(window.SvgSelectables[this.source][key])
-                    .classed('svg-element-selectable', true)  // for styling selectable
-                    .classed('style-scope', true).classed('svg-element', true) // for style-scoping in polymer
-                    .on('click dblclick',
-                      function() {
-                        self._zoomToElement(this);
-                        self._mainG.selectAll('.clicked')
-                                   .classed('clicked', false);
-                      })
-                    .classed('clicked', true)
-                    .append('title')
-                    .text(function() {
-                        return key;
+        // add 'svg-element-selectable' class and click listener
+        for (var element in this.selectedElements)
+          if(element.svg && element.svg.path && element.svg.source === this.source )
+            this._mainG.selectAll(element.svg.path)
+                      .classed('svg-element-selectable', true)  // for styling selectable
+                      .classed('style-scope', true).classed('svg-element', true) // for style-scoping in polymer
+                      .on('click dblclick',
+                        function() {
+                          self._zoomToElement(this);
+                          self._mainG.selectAll('.clicked')
+                                     .classed('clicked', false);
+                        }.bind(this))
+                      .classed('clicked', true)
+                      .append('title')
+                      .text(function() {
+                          return element.id;
                      });
+        for (var element in this.exceedingElements)
+          if(element.svg && element.svg.path && element.svg.source === this.source)
+            this._mainG.selectAll(element.svg.path)
+                      .classed('svg-element-selectable', true)  // for styling selectable
+                      .classed('style-scope', true).classed('svg-element', true) // for style-scoping in polymer
+                      .on('click dblclick',
+                        function() {
+                          self._zoomToElement(this);
+                          self._mainG.selectAll('.clicked')
+                                     .classed('clicked', false);
+                        })
+                      .classed('clicked', true)
+                      .append('title')
+                      .text(function() {
+                          return element.id;
+                     });
+        if (window.SvgSelectables){
+          for (var key in window.SvgSelectables[this.source])
+            this._mainG.selectAll(window.SvgSelectables[this.source][key])
+                      .classed('svg-element-selectable', true)  // for styling selectable
+                      .classed('style-scope', true).classed('svg-element', true) // for style-scoping in polymer
+                      .on('click dblclick',
+                        function() {
+                          self._zoomToElement(this);
+                          self._mainG.selectAll('.clicked')
+                                     .classed('clicked', false);
+                        })
+                      .classed('clicked', true)
+                      .append('title')
+                      .text(function() {
+                          return key;
+                       });
+          this._inialized = true;
+        }
     },
 
     _zoom: function () {
@@ -611,10 +619,6 @@
 
     _debounceSourceChanged: function() {
       this.debounce('source', this._sourceChanged, 50);
-    },
-
-    _debounceSelectable: function() {
-      this.debounce('selectable', this._selectableChanged, 50);
     },
 
     _selectSelected: function() {
