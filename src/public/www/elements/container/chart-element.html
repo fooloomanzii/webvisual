@@ -7,7 +7,7 @@
         display: inline-flex;
 				padding: 4px;
         width: 100%;
-        height: auto;
+        height: 100%;
         flex: 1;
         position: relative;
         align-self: stretch;
@@ -27,13 +27,12 @@
               -ms-user-select: none !important;
                   user-select: none !important;
       }
-      :host #svgContainer {
+      #svgContainer {
         display: inline-flex;
         flex: 1;
         position: relative;
       }
-      :host #svgchart {
-
+      #svgchart {
         width: 100%;
         height: auto;
         position: relative;
@@ -115,10 +114,10 @@
         shape-rendering: crispEdges;
         stroke-width: 1px;
       }
-      g#brush > rect.overlay {
+      g#brush rect.overlay {
         cursor: default;
       }
-      g#brush > rect.selection {
+      g#brush rect.selection {
         stroke: #345475;
         fill: #111;
         stroke-opacity: 0.5;
@@ -144,17 +143,10 @@
         pointer-events: none;
         mix-blend-mode: color;
       }
-      g#graphs circle.dot {
+      g#graphs circle {
         cursor: pointer;
         pointer-events: all;
-        mix-blend-mode: lighten;
         transform-origin: center;
-        fill: #FFF;
-        fill-opacity: 0.75;
-        transition: fill-opacity 200ms ease, r 200ms ease;
-      }
-      g#graphs circle.dot:hover {
-        fill-opacity: 1;
       }
       g#zoom rect.overlay {
         fill: none;
@@ -181,6 +173,9 @@
       }
       [hidden] {
         display: none !important;
+      }
+      g.axis, g.grid, g#focus, rect.plot {
+        pointer-events: none;
       }
     </style>
 
@@ -351,7 +346,7 @@
         noAreas: {
           type: Boolean,
           value: false
-        },
+        }
       },
 
       _width: 0,
@@ -443,6 +438,10 @@
         this._sizeChanged();
       },
 
+      _onNeonAnimationFinish: function() {
+        this._sizeChanged();
+      },
+
       __processNewNodes: function(nodes) {
         for (var i in nodes) {
           if (!(nodes[i] in this._elements)) {
@@ -465,6 +464,7 @@
       },
 
       _buildLayout: function() {
+        // performance.mark('build start');
         this.assignParentResizable(this.rootElement);
 
         this._svg = d3.select(this.$.svgchart).attr('preserveAspectRatio', 'xMinYMin meet')
@@ -504,21 +504,18 @@
           }.bind(this))
           .on('touchmove', this._resetZoom.bind(this));
 
-        // if (this.xScale === 'time') this.$.xbutton.set('icon', 't');
-        // else this.$.xbutton.set('icon', 'x');
-        //
-        // if (this.yScale === 'time') this.$.ybutton.icon = 't';
-        // else this.$.ybutton.set('icon', 'y');
-
         this._svg.selectAll('g,line,text,path,rect')
           .classed('style-scope', true)
           .classed('chart-element', true);
 
         this._svg.on('contextmenu', this._resetZoom.bind(this));
+        // performance.mark('build end');
+        // performance.measure('build', 'build start', 'build end');
         this._sizeChanged();
       },
 
       _sizeLayout: function() {
+        // performance.mark('size start');
         var bRect = this.$.svgchart.getBoundingClientRect();
         if (bRect.height === 0 || bRect.width === 0) return;
 
@@ -540,11 +537,11 @@
         this._chart.attr('transform', 'translate(' + this._margin.left + ',' + (this._margin.top) + ')');
 
         // Limiting Projection to Margin
-        this._chart.selectAll('clipPath#clip rect')
+        this._chart.select('clipPath#clip rect')
           .attr('width', this._width)
           .attr('height', this._height);
 
-        this._chart.selectAll('rect.plot')
+        this._chart.select('rect.plot')
           .attr('width', this._width)
           .attr('height', this._height);
 
@@ -585,7 +582,8 @@
           .classed('style-scope', true)
           .classed('chart-element', true);
         this._focusY.attr('y1', this._height);
-
+        // performance.mark('size end');
+        // performance.measure('size', 'size start', 'size end');
         this._redraw();
       },
 

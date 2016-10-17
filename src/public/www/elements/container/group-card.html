@@ -69,6 +69,7 @@
         background: var(--bright-primary-color);
         color: var(--bright-text-color);
         font-size: 1em;
+        height: auto;
       }
       :host([dark]) > #header {
         background: var(--dark-primary-color);
@@ -129,12 +130,12 @@
         margin: 0 0.5em 0.5em 0;
         border-radius: 12px;
       }
-      #header ::content .header {
+      #headerContent ::content .header {
         display: flex;
         flex: 1;
         position: relative;
       }
-      :host([opened]) #header {
+      #headerContent[opened] {
         height: calc(15vh + 120px);
         max-height: 40vh;
       }
@@ -170,9 +171,12 @@
 
       <section id='header' hidden$='[[_hideheadline(headline,withoutWindow,hideHeader)]]'>
         <section id="background"></section>
-        <content select='.header'></content>
+
         <!-- <template is="dom-if" if="[[svg.source]]"> -->
+        <section id="headerContent" style="display: none;">
+          <content select='.header'></content>
           <svg-element id='svgElement' hidden$="[[!svg.source]]" source="[[svg.source]]" initially-zoom-to-selected exceeding-elements="[[exceedingElements]]" open-on-exceed></svg-element>
+        </section>
         <!-- </template> -->
         <section id='headline' on-tap='toggle'>[[headline]]</section>
       </section>
@@ -192,24 +196,6 @@
       ],
 
       properties: {
-        animatable: {
-          type: Boolean,
-          value: true
-        },
-        animationConfig: {
-          value: function() {
-            return {
-              // 'entry': {
-              //   name: 'scale-up-animation',
-              //   node: this.$.svgElement
-              // },
-              // 'exit': {
-              //   name: 'scale-down-animation',
-              //   node: this.$.svgElement
-              // }
-            }
-          }
-        },
         headline: {
           type: String,
           value: '',
@@ -284,27 +270,14 @@
           value: true
         },
 
-        attributeAlias: {
-          type: Array,
-          value: function() {
-            return { };
-          }
-        },
-        attributeAnimations: {
-          type: Object,
-          value: function() {
-            return {
-              'opened': {
-                'entry': 'scale-up-animation',
-                'exit': 'fade-out-animation'
-              }
-            };
-          }
+        animatable: {
+          type: Boolean,
+          value: false
         },
         repeatedAttributes: {
           type: Array,
           value: function() {
-            return ['opened'];
+            return [ 'opened' ];
           }
         }
       },
@@ -355,19 +328,17 @@
           return;
         }
         if (this.opened === true) {
-          // this.$.svgElement.style.display = '';
-          // this.$.svgElement.setAttribute('opened', true);
-          // this.playAnimation('entry');
+          this.$.headerContent.style.display = '';
           this.$.headline.setAttribute('overlay', '');
         } else {
-          // this.playAnimation('exit');
           this.$.headline.removeAttribute('overlay');
         }
       },
       _onNeonAnimationFinish: function() {
         if (!this.opened) {
-          // this.$.svgElement.style.display = 'none';
-          // this.$.svgElement.setAttribute('opened', false);
+          this.$.headerContent.style.display = 'none';
+          // if (this.$.header.hasAttribute('opened'))
+          //   this.$.header.removeAttribute('opened', false);
 
         }
       },
@@ -391,7 +362,7 @@
       },
 
       getAnimatableNodes: function() {
-        return [this.$.svgElement];
+        return [this.$.headerContent, this.$.svgElement];
       }
       // // EXPERIMENTAL RESIZING
       // listeners: {

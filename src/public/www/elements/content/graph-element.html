@@ -103,6 +103,7 @@
 
       attached: function() {
         var containerRoot = this.containerRoot;
+        performance.mark('graph attached start');
 
         if (containerRoot.nodeName !== 'CHART-ELEMENT') {
           console.warn(this.id, 'Graph is not attached to a container');
@@ -160,7 +161,12 @@
           .attr("hidden", this.noDots ? true : null);
 
         this._isAttached = true;
+        performance.mark('graph attached end');
+        performance.measure('graph attached', 'graph attached start', 'graph attached end');
+        performance.mark('insert start');
         this.insertValues();
+        performance.mark('insert end');
+        performance.measure('values insert', 'insert start', 'insert end');
         this.chartElement.redraw();
       },
 
@@ -193,7 +199,7 @@
 
       redraw: function() {
         if (this._hidden === true) return;
-
+        // performance.mark('graph redraw start');
         var self = this;
         var data = this.values.filter(this._defined.bind(this)) || [];
 
@@ -220,28 +226,28 @@
               return (i % everyOverlappingDot < 1);
             })
             var strokewidth = this.lineWidth*2/3;
-            var dots = this._dots.selectAll('circle.dot')
+            var dots = this._dots.selectAll('circle')
               .data(data);
             // update current dots
             dots.attr('cx', function(d, i) {
-                return self.chartElement._x(d.x)
-              })
+                return this.chartElement._x(d.x)
+              }.bind(this))
               .attr('cy', function(d, i) {
-                return self.chartElement._y(d.y)
-              })
-              .attr('hidden', null);
+                return this.chartElement._y(d.y)
+              }.bind(this));
             // enter new dots
             dots.enter()
               .append('circle')
               .attr('r', this.dotRadius)
               .attr('stroke', this.color).attr('stroke-width', strokewidth)
+              .attr('fill', '#fff')
               .attr('cx', function(d, i) {
-                return self.chartElement._x(d.x)
-              })
+                return this.chartElement._x(d.x)
+              }.bind(this))
               .attr('cy', function(d, i) {
-                return self.chartElement._y(d.y)
-              })
-              .classed('dot style-scope chart-element', true)
+                return this.chartElement._y(d.y)
+              }.bind(this))
+              .classed('style-scope', true).classed('chart-element', true)
               .on('mouseenter', function(d) {
                 this.setAttribute('r', self.dotRadius * 1.5);
                 self.chartElement._showInfo(d);
@@ -251,19 +257,22 @@
                 self.chartElement._hideInfo();
               })
               .on('click', function(d, i) {
-                var offset = self.dotRadius * 5;
-                var x = self.chartElement._x(d.x);
-                var y = self.chartElement._y(d.y);
+                var offset = this.dotRadius * 5;
+                var x = this.chartElement._x(d.x);
+                var y = this.chartElement._y(d.y);
                 d3.event.selection = [
                   [x - offset, y - offset],
                   [x + offset, y + offset]
                 ];
-                self.chartElement._brushed();
-              });
+                this.chartElement._brushed();
+              }.bind(this));
             //  remove old dots
             dots.exit()
                 .remove();
         }
+
+        // performance.mark('graph redraw end');
+        // performance.measure('graph redraw', 'graph redraw start', 'graph redraw end');
         // TODO(?): update line, animated http://bl.ocks.org/benjchristensen/1148374
       },
 

@@ -24,7 +24,7 @@
       else if (config.node.oldBounds) {
         fromRect = config.node.oldBounds;
       } else {
-        fromRect = { left: toRect.left + toRect.width/2, top: toRect.top + toRect.width/2, width: toRect.width/2, height: toRect.height/2};
+        fromRect = { left: toRect.left, top: toRect.top, width: toRect.width/2, height: toRect.height/2};
       }
 
       var deltaLeft = fromRect.left - toRect.left;

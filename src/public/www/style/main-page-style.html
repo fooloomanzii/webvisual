@@ -227,16 +227,16 @@
     position: relative;
     box-sizing: border-box;
     background: var(--blur-overlay-background);
-    padding: 0px 4px 4px 4px;
     width: 100%;
     z-index: 50;
-    height: var(--app-toolbar-height);
-  }
-  :host(:not([opened])) #toolbarFooter {
     height: 0;
     padding: 0;
   }
-  :host([opened]) #toolbarFooter[expanded] {
+  #toolbarFooter[opened] {
+    padding: 0px 4px 4px 4px;
+    height: var(--app-toolbar-height);
+  }
+  #toolbarFooter[expanded][opened] {
     height: var(--app-toolbar-expanded-height,calc(2 * var(--app-toolbar-height)));
   }
   </style>

@@ -10,7 +10,8 @@
         type: Object,
         value: function() {
           return {
-            duration: 500
+            duration: 500,
+            fill: 'forwards'
           };
         }
       },
@@ -100,9 +101,9 @@
     },
 
     startAttributeAnimation: function(attr) {
-      // console.log('should play', this.nodeName, attr, this.animationConfig);
       if (this.offsetHeight === 0 || !attr)
         return;
+      // console.log('should play', this.nodeName, attr, this.animationConfig);
       this.playAnimation(attr + '-changed-runner');
     },
 
@@ -121,14 +122,9 @@
             // Configure the Animation to Run the underlaying Animation
             node.prepareAttributeAnimation(attr, this[attr]);
 
-            // this.animationConfig[attr + '-changed-runner'].push( {
-            //   type: this.attributeAnimations[attr] ? (this[attr] ? this.attributeAnimations[attr].entry : this.attributeAnimations[attr].exit) : 'attribute-animation',
-            //   animatable: node
-            // });
           } else {
             // set the fromRect for giving an Rect to transition from
             this.prepareAnimationOnNode(attr, node);
-            // node.oldBounds = oldBounds;
           }
         }
         if (!this._initialized[attr]) {
@@ -141,12 +137,27 @@
 
     prepareAnimationOnNode: function(attr, node) {
       // var oldBounds = node.getBoundingClientRect();
-      this.animationConfig[attr + '-changed-runner'].push( {
-        name: this.attributeAnimations[attr] ? (this[attr] ? this.attributeAnimations[attr].entry : this.attributeAnimations[attr].exit) : 'attribute-animation',
-        // fromRect: oldBounds,
-        node: node,
-        timing: this.attributeAnimationTiming
-      });
+      if (this.attributeAnimations[attr] && ((this[attr] && this.attributeAnimations[attr].entry) || (!this[attr] && this.attributeAnimations[attr].exit))) {
+        var animation = (this[attr] ? this.attributeAnimations[attr].entry : this.attributeAnimations[attr].exit);
+        if (Array.isArray(animation)) {
+          for (var i in animation) {
+            if (!animation[i].node) animation[i].node = node;
+            if (!animation[i].timing) animation[i].timing = this.attributeAnimationTiming;
+            this.animationConfig[attr + '-changed-runner'].push( animation[i] );
+          }
+        } else {
+          if (!animation.node) animation.node = node;
+          if (!animation.timing) animation.timing = this.attributeAnimationTiming;
+          this.animationConfig[attr + '-changed-runner'].push( animation );
+        }
+      } else {
+        this.animationConfig[attr + '-changed-runner'].push( {
+          name: 'attribute-animation',
+          // fromRect: oldBounds,
+          node: node,
+          timing: this.attributeAnimationTiming
+        });
+      }
     },
 
     reproduceAttribute: function(node, attr, value) {
@@ -159,7 +170,7 @@
             if (node.hasAttribute(attr))
               node.removeAttribute(attr);
           }
-          resolve(node);
+          resolve(node)
         } else {
           reject('no given node or attribute for reproducing attribute');
         }

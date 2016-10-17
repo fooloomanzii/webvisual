@@ -40,7 +40,6 @@
     position: relative;
     width: auto;
     height: 100%;
-  	/*overflow: hidden;*/
     visibility: visible;
     font-family: inherit;
     font-weight: inherit;
@@ -52,9 +51,6 @@
           -ms-user-select: none !important;
               user-select: none !important;
   }
-  :host(:not([opened])) {
-    height: 0;
-  }
   svg {
     border-radius: inherit;
     -webkit-touch-callout: none !important;
@@ -64,7 +60,7 @@
           -ms-user-select: none !important;
               user-select: none !important;
   }
-  div#host {
+  #host {
     border-radius: inherit;
     display: flex;
     flex: 1;
@@ -185,7 +181,7 @@
   }
 
 </style>
-  <div id='host'>
+  <!-- <div id='host'> -->
     <div id='svgContainer'>
     </div>
     <div id='control' top$='[[isFullscreen]]'>
@@ -193,7 +189,7 @@
       <svg class='icon' viewBox='0 0 24 24' hidden$='[[isFullscreen]]' on-tap='_requestFullscreen'><title>fullscreen</title><g id='fullscreen'><path d='M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z'/></g></svg>
       <svg class='icon' viewBox='0 0 24 24' hidden$='[[!isFullscreen]]' on-tap='_exitFullscreen'><title>close</title><g id='fullscreen-exit'><path d='M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z'/></g></svg>
     </div>
-  </div>
+  <!-- </div> -->
 </template>
 
 <script>
@@ -294,33 +290,47 @@
         value: 4
       },
 
-      /**
-       * from ContainerBehavior
-       */
-       notify: {
-         type: Boolean,
-         value: false
-       },
-       notifyParent: {
-         type: Boolean,
-         value: false
-       },
-       noSelectNotify: {
-         type: Boolean,
-         value: false
-       },
-       noExceedNotify: {
-         type: Boolean,
-         value: false
-       },
+      animatable: {
+        type: Boolean,
+        value: true
+      },
 
-       reproduce: {
-         type: Boolean,
-         value: false
-       },
-       reproductionContainer: {
-         type: String
-       }
+      attributeAnimations: {
+        type: Object,
+        value: function() {
+          return {
+            'opened': {
+              'entry': [
+                {
+                  name: 'fade-in-animation',
+                  timing: {
+                    duration: 250
+                  }
+                }
+              ],
+              'exit': [ {
+                  name: 'fade-out-animation',
+                  timing: {
+                    duration: 250
+                  }
+                }, {
+                  name: 'scale-down-animation',
+                  node: this,
+                  timing: {
+                    duration: 300
+                  }
+                }
+              ]
+            }
+          };
+        }
+      },
+      repeatedAttributes: {
+        type: Array,
+        value: function() {
+          return [ 'opened' ];
+        }
+      }
     },
 
     /**
@@ -350,6 +360,7 @@
     ],
 
     listeners: {
+      'neon-animation-finish': '_onNeonAnimationFinish',
       'mozfullscreenchange': '_fullScreenChanged',
       'webkitfullscreenchange': '_fullScreenChanged',
       'mozfullscreenchange': '_fullScreenChanged',
@@ -357,22 +368,38 @@
     },
 
     behaviors: [
+      AttributeRepeatAnimationBehavior,
       ContainerBehavior
     ],
 
+    getAnimatableNodes: function() {
+      return [ this.$.svgContainer ];
+    },
+
+    _onNeonAnimationFinish: function() {
+      if (!this.opened) {
+        this.$.svgContainer.style.display = 'none';
+      } else {
+        this.debounce('resetZoom', this._resetZoom, 50);
+      }
+    },
+
+    _openedChanged: function() {
+      if (!this.source) return;
+      this._debounceSourceChanged();
+    },
+
     open: function(e) {
       this.setSvg(e.detail);
-      this.set('opened', true);
+      this.opened = true;
     },
 
     close: function() {
-      this.set('opened', false);
+      this.opened = false;
     },
 
-    factoryImpl: function(svg, opened) {
+    factoryImpl: function(svg) {
       this.setSvg(svg);
-      if (opened)
-        this.toggleAttribute('opened', true)
     },
 
     getSvg: function() {
@@ -453,12 +480,6 @@
       this.debounce('select', this._selectSelected, 50);;
       this.debounce('select-exceeds', this._selectExceeds, 50);;
       this.debounce('resetZoom', this._resetZoom, 100);
-    },
-
-    _openedChanged: function(opened) {
-      if (!this.source) return;
-      this._debounceSourceChanged();
-      this.debounce('resetZoom', this._resetZoom, 500);
     },
 
     _selectedChanged: function(changeRecord) {
@@ -647,7 +668,7 @@
 
     _calcCenterZoom: function(elem) {
       // get view height and width
-      var view = this.$.host.getClientRects()[0];
+      var view = this.getClientRects()[0];
       if (view === undefined || elem === undefined || view.height === 0 || view.width === 0)
         return {x: 0, y: 0, k: 1};
 
@@ -696,6 +717,7 @@
     },
 
     _resetZoom: function() {
+      // console.log('resetZoom', this.opened);
       if (!this._mainG || !this._mainG.node || !this.opened) return;
 
       // zoom to selectedItems
@@ -726,22 +748,20 @@
       if (document.fullscreen || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
         this._exitFullscreen();
       }
-      var host = this.$.host;
       var f = this.requestFullscreen;
       if (!f) {
         ['mozRequestFullScreen',
          'msRequestFullscreen',
          'webkitRequestFullScreen'].forEach(function (req) {
-           f = f || host[req];
-        });
+           f = f || this[req];
+        }.bind(this));
       }
-      f.call(host);
+      f.call(this);
     },
 
     _exitFullscreen: function() {
       var f = document.exitFullscreen || document.mozCancelFullScreen || document.webkitCancelFullScreen || document.msExitFullscreen;
       f.call(document);
-      this.$.host.style['background-color'] = '';
     },
 
     _fullScreenChanged: function() {
@@ -753,9 +773,6 @@
         this.maxZoom *= 1.25;
         this.minZoom = 1;
         this.isFullscreen = true;
-        if (document.webkitIsFullScreen) {
-          this.$.host.style['background-color'] = '#555555';
-        }
       } else {
         if (this.old) {
           this.zoomPartition = this.old.zoomPartition;
