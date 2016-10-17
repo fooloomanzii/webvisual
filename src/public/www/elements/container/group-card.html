@@ -222,9 +222,6 @@
           value: false,
           reflectToAttribute: true
         },
-        svg: {
-          type: Object
-        },
 
         notify: {
           type: Boolean,
@@ -245,11 +242,13 @@
 
         openOnSelect: {
           type: Boolean,
-          value: false
+          value: false,
+          observer: 'sourceChanged'
         },
         openOnExceed: {
           type: Boolean,
-          value: false
+          value: false,
+          observer: 'sourceChanged'
         },
 
         reproduce: {
@@ -268,6 +267,12 @@
         droppable: {
           type: Boolean,
           value: true
+        },
+
+        svg: {
+          type: Object,
+          value: {},
+          observer: 'sourceChanged'
         },
 
         animatable: {
@@ -296,6 +301,10 @@
           this.hideHeader = true;
       },
 
+      attached: function() {
+          this.sourceChanged();
+      },
+
       observers: [
         '_exceedingChanged(exceedingElements.splices)'
       ],
@@ -314,20 +323,32 @@
       },
 
       open: function() {
-        if (this.svg === undefined || this.svg.source === undefined) return;
-        this.opened = true;
+        if (this.svg && this.svg.source)
+          this.opened = true;
+        else
+          this.opened = false;
       },
 
       close: function() {
         this.opened = false;
       },
 
-      openedChanged: function() {
-        if (this.svg === undefined || this.svg.source === undefined) {
-          this.opened = false;
-          return;
+      sourceChanged: function() {
+        if (!this._initial) {
+          this._initial = {openOnSelect: this.openOnSelect, openOnExceed: this.openOnExceed};
         }
-        if (this.opened === true) {
+        if (this.svg && this.svg.source) {
+          this.openOnSelect = this._initial.openOnSelect;
+          this.openOnExceed = this._initial.openOnExceed;
+        } else {
+          this.opened = false;
+          this.openOnSelect = false;
+          this.openOnExceed = false;
+        }
+      },
+
+      openedChanged: function() {
+        if (this.opened) {
           this.$.headerContent.style.display = '';
           this.$.headline.setAttribute('overlay', '');
         } else {

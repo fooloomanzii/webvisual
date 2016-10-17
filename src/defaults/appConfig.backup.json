@@ -46,7 +46,7 @@
     },
     "Tests": {
       "path": "D:\\Github\\webvisual\\src\\examples\\config\\test.json",
-      "renderer": "Alarmzustände"
+      "renderer": "Diagrammansicht"
     }
   },
   "renderer": {
