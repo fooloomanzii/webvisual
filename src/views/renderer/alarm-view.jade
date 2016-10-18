@@ -38,7 +38,7 @@ block BodyContent
 
             //- PANELS
             each Label, I in config.labels
-                section.panel(label!= Label, animatable!= (!mobile))
+                panel-page.panel(label!= Label, animatable!= (!mobile))
                     each Subgroup, Name in config.groups[Label][config.preferedGroupingKeys[Label]]
                         group-card(headline= Name,
                             svg= JSON.stringify(Subgroup.svg),

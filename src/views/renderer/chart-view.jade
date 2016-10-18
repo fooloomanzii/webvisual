@@ -52,7 +52,7 @@ block BodyContent
 
             //- PANELS
             each Label in config.labels
-                section.panel(label!= Label, animatable!= (!mobile))
+                panel-page.panel(label!= Label, animatable!= (!mobile))
                     each Subgroup, Titel in config.groups[Label][config.preferedGroupingKeys[Label]]
                         group-card(headline= Titel)
                             each Id, i in Subgroup.ids

@@ -65,6 +65,7 @@
         type: Boolean,
         value: false
       },
+
       reproductionContainer: {
         type: String
       },
@@ -93,9 +94,17 @@
         value: false,
         reflectToAttribute: true,
         observer: 'droppableChanged'
+      },
+      _elements: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      },
+      _elementObserver: {
+        type: Object
       }
     },
-    _elements: [],
 
     hostAttributes: {
       container: true
@@ -119,12 +128,38 @@
         if (!sel) break;
       }
       this.setAttribute('uniqueid', uniqueid);
+
+      this._elementObserver =
+        Polymer.dom(this).observeNodes((function(info) {
+          this.__processNewNodes(info.addedNodes);
+          this.__processRemovedNodes(info.removedNodes);
+        }).bind(this));
+    },
+
+    __processNewNodes: function(nodes) {
+      for (var i in nodes) {
+        if (!(nodes[i] in this._elements)) {
+          this._elements.push(nodes[i]);
+        }
+      }
+    },
+
+    __processRemovedNodes: function(nodes) {
+      var pos;
+      for (var i in nodes) {
+        if ((pos = this._elements.indexOf(nodes[i])) !== -1) {
+          this._elements.splice(pos, 1);
+        }
+      }
     },
 
     observers: [
       '_reproductionSelectRepeat(selectedElements.splices)',
       '_reproductionExceedsRepeat(exceedingElements.splices)'
     ],
+
+    attached: function() {
+    },
 
     detached: function() {
       this.unlisten(this, 'element-select', '__setSelectedElement');
@@ -133,9 +168,7 @@
       this.unlisten(this.rootElement, 'element-deselect', '__unsetSelectedElement');
       this.unlisten(this.rootElement, 'clear-selected-elements', 'clearSelectedElements');
       this.unlisten(this.rootElement, 'clear-exceeding-elements-elements', 'clearExceedingElements');
-    },
-
-    attached: function() {
+      Polymer.dom(this).unobserveNodes(this._elementObserver);
     },
 
     notifyChanged: function() {

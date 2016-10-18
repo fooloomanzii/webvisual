@@ -39,7 +39,7 @@
       background: rgba(255,255,255,0.2);
     }
 
-    #mainContent ::content .panel {
+    /*#mainContent ::content .panel {
       height: 100%;
       width: 100%;
       top: 0;
@@ -80,7 +80,7 @@
       transform: translateY(25%);
       pointer-events: none;
       z-index: 51;
-    }
+    }*/
     #groupingKeysLabelSelector {
       display: flex;
       flex-direction: column;
@@ -188,9 +188,9 @@
 
     <section id="mainView">
         <!-- Content -->
-        <section id="mainContent">
+        <neon-animated-pages id="mainContent" selected="{{currentLabel}}" attr-for-selected="label">
           <content select=".panel"></content>
-        </section>
+        </neon-animated-pages>
 
         <section id="backdrop" on-tap="closeDrawer"></section>
         <section id="dropShadow" class="has-shadow"></section>
@@ -226,9 +226,9 @@
                 <iron-icon icon="arrow-drop-down" class="right" id="grouping"></iron-icon>
               </button-element>
               <section id="groupingKeysButtons" class="sidemenu indention collapse grouping">
-                <section id="groupingKeysLabelSelector">
+                <iron-selector id="groupingKeysLabelSelector" selected="[[currentLabel]]" attr-for-selected="label" selected-class="foreground">
                   <content select="iron-selector.groupingKeySelector"></content>
-                </section>
+                </iron-selector>
               </section>
 
               <toggle-button-element class="sidemenu" on-change="toggleDateView"><iron-icon icon="date-range"></iron-icon>Zeit anzeigen</toggle-button-element>
@@ -248,10 +248,6 @@
         </button-element>
 
       </section>
-    </section>
-
-    <section id="overlay">
-      <content select=".overlay"></content>
     </section>
 
   </template>
@@ -527,7 +523,7 @@
       },
       // Panel Control
       _currentLabelChanged: function(newLabel, oldLabel) {
-        this._selectPanel(newLabel, oldLabel);
+        // this._selectPanel(newLabel, oldLabel);
         this.clearSelectedElements();
         this.fire("clear-selected-elements");
       },
@@ -571,68 +567,12 @@
           }
         }
       },
-      dissemblePanels: function(labels) {
-        var newlabel = labels[0];
-        var panelcontent = this.getEffectiveChildren.call(this.$.mainContent);
-        var groupingselectorcontent = this.getEffectiveChildren.call(this.$.groupingKeysLabelSelector);
-
-        // Toolbar controlls hidden when just there's just one selectable panel
-        if (labels.length > 1) {
-          this.$.labelSelector.style.display = "";
-          this.$.tabsIcon.style.display = "";
-				}
-        else {
-          this.$.labelSelector.style.display = "none";
-					this.$.tabsIcon.style.display = "none";
-				}
-
-        Array.prototype.forEach.call(panelcontent, function(panel) {
-          if (panel.getAttribute('label') === newlabel) panel.style.display = '';
-          else panel.style.display = 'none';
-        })
-        Array.prototype.forEach.call(groupingselectorcontent, function(selector) {
-          if (selector.getAttribute('label') === newlabel) selector.style.display = '';
-          else selector.style.display = 'none';
-        })
-        this.set("currentLabel", newlabel);
-      },
       // Grouping Options
       regroup: function(key) {
         var label = this.currentLabel;
-        if (!label || !key || !Groups[label][key] || PreferedGroupingKeys[label] == key)
-          return;
-
-        PreferedGroupingKeys[label] = key;
         var panel = this.queryEffectiveChildren('.panel[label="'+label+'"]');
-        var oldgroupcards = Polymer.dom(panel).getEffectiveChildNodes();
-
-        var elements = [];
-        for (var i = 0; i < oldgroupcards.length; i++) {
-          elements = elements.concat([].slice.call(oldgroupcards[i].querySelectorAll('[element]')));
-        }
-        var hideHeader = oldgroupcards[0].hideHeader;
-        var withoutWindow = oldgroupcards[0].withoutWindow;
-        // console.log(oldgroupcards[0].attributes, oldgroupcards[0].attribute, oldgroupcards[0].properties);
-
-        var newgroupcards = {};
-        for (var subgroup in Groups[label][key]) {
-          newgroupcards[subgroup] = new GroupCard(subgroup, Groups[label][key][subgroup].svg, this.dark, withoutWindow, hideHeader);
-          Polymer.dom(panel).appendChild(newgroupcards[subgroup]);
-          for (var i in Groups[label][key][subgroup].ids) {
-            for (var j = 0; j < elements.length; j++) {
-              if (elements[j].id === Groups[label][key][subgroup].ids[i]) {
-                elements[j].groupedKey = key;
-                elements[j].style.order = '';
-                Polymer.dom(newgroupcards[subgroup]).appendChild(elements[j]);
-                break;
-              }
-            }
-          }
-        }
-        for (var i=0; i < oldgroupcards.length; i++) {
-           Polymer.dom(panel).removeChild(oldgroupcards[i]);
-        }
-        Polymer.dom.flush();
+        if (panel)
+          panel.groupedKey = key;
       },
 
       _clearExceedingElementsFromList: function() {
@@ -753,7 +693,7 @@
       activeChanged: function() {
         var preconf = JSON.parse(localStorage.getItem(window.Name));
         if (this.active === true && preconf && preconf.selectedLabels) {
-            this.dissemblePanels(preconf.selectedLabels);
+          this.$.mainContent.select(preconf.selectedLabels[0]);
         }
         this.notifyResize();
       }

@@ -85,14 +85,16 @@
       </section>
     </section>
 
-    <cookie-element id="labelsCookie" name="selected-label"></cookie-element>
   </template>
 
   <script>
     Polymer({
       is: 'select-page',
 
-      behaviors: [Polymer.NeonSharedElementAnimatableBehavior, Polymer.NeonAnimationRunnerBehavior],
+      behaviors: [
+        Polymer.NeonSharedElementAnimatableBehavior,
+        Polymer.NeonAnimationRunnerBehavior
+      ],
 
       properties: {
         active: {

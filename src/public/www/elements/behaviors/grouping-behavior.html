@@ -1,0 +1,127 @@
+<script>
+  GroupingBehaviorImpl = {
+
+    properties: {
+      animatable: {
+        type: Boolean
+      },
+
+      animationTiming: {
+        type: Object,
+        value: function() {
+          return {
+            duration: 500,
+            fill: 'forwards'
+          };
+        }
+      },
+
+      animationConfig: {
+        type: Object,
+        value: function() {
+          return {};
+        }
+      },
+      groupedKey: {
+        type: String,
+        value: '',
+        observer: 'regroup'
+      },
+      groupedValueDefault: {
+        type: String,
+        value: 'Verschiedene'
+      },
+      groupAttribute: {
+        type: String,
+        value: 'keys'
+      },
+      groupElementSelector: {
+        type: String,
+        value: '[element]'
+      }
+    },
+
+    attached: function() {
+    },
+
+    regroup: function(groupedKey, old) {
+      var oldgroups = this.queryAllEffectiveChildren('group-card');
+      if (oldgroups.length === 0) return;
+
+      console.log(this.animatable);
+
+      var elements = [];
+      for (var i in oldgroups) {
+        oldgroups[i].oldBounds = oldgroups[i].getBoundingClientRect();
+        elements = elements.concat([].slice.call(oldgroups[i].querySelectorAll(this.groupElementSelector)));
+      }
+
+      if (elements.length === 0) return;
+
+      var groupAttr = this.groupAttribute;
+      var groups = {};
+
+      elements.map( function(elem) {
+                      var obj = {};
+                      if (elem[groupAttr]) {
+                        obj.type = elem[groupAttr][groupedKey] || this.groupedValueDefault;
+                        obj.node = elem;
+                      }
+                      return obj;
+                    }.bind(this) )
+              .forEach(function(item) {
+                if (!groups[item.type])
+                  groups[item.type] = [];
+                groups[item.type].push(item.node);
+              });
+
+      if (this.animatable) {
+        this.animationConfig['group-transition'] = [];
+
+        elements.forEach( function(elem, index) {
+          this.animationConfig['group-transition'].push( {
+            name: 'attribute-animation',
+            fromRect: elem.getBoundingClientRect(),
+            node: elem,
+            timing: this.animationTiming
+          })
+        }.bind(this));
+      }
+
+      var newgroupcards = [], index = -1;
+
+      for (var subgroup in groups) {
+        newgroupcards.push(new GroupCard(subgroup, null, this.dark, null, null));
+        index++;
+        Polymer.dom(this).appendChild(newgroupcards[index]);
+        for (var i in groups[subgroup]) {
+          groups[subgroup][i].groupedKey = groupedKey;
+          groups[subgroup][i].style.order = '';
+          Polymer.dom(newgroupcards[index]).appendChild(groups[subgroup][i]);
+        }
+      }
+
+      for (var i in oldgroups) {
+        if (this.animatable && newgroupcards[i]) {
+          this.animationConfig['group-transition'].push( {
+            name: 'attribute-animation',
+            fromRect: oldgroups[i].oldBounds,
+            node: newgroupcards[i],
+            timing: this.animationTiming
+          })
+        }
+        Polymer.dom(this).removeChild(oldgroups[i]);
+      }
+      Polymer.dom.flush();
+
+      if (this.animatable) {
+        this.playAnimation('group-transition');
+      }
+    }
+  };
+
+  GroupingBehavior = [
+    Polymer.NeonAnimationRunnerBehavior,
+    GroupingBehaviorImpl
+  ];
+</script>

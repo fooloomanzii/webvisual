@@ -22,7 +22,6 @@
         border: thin solid rgba(0,0,0,.16);
         background: white;
         z-index: auto;
-        transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
       }
       :host([dark]) {
         background: #C1C1C1;
@@ -181,7 +180,7 @@
 
       setExceedingStatus: function(state) {
         var status;
-        
+
         if (this._sign.hasAttribute("inrange"))
           this._sign.removeAttribute("inrange");
         if (this._sign.hasAttribute("deceeds"))

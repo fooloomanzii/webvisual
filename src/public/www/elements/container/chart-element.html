@@ -390,9 +390,6 @@
       formatMonth: Function,
       formatYear: Function,
 
-      _elements: [],
-      _containing: {},
-
       get _self() {
         return this;
       },
@@ -429,34 +426,8 @@
         this._buildLayout();
       },
 
-      attached: function() {
-        this._observer =
-          Polymer.dom(this.$.collector).observeNodes((function(info) {
-            this.__processNewNodes(info.addedNodes);
-            this.__processRemovedNodes(info.removedNodes);
-          }).bind(this));
-        this._sizeChanged();
-      },
-
       _onNeonAnimationFinish: function() {
         this._sizeChanged();
-      },
-
-      __processNewNodes: function(nodes) {
-        for (var i in nodes) {
-          if (!(nodes[i] in this._elements)) {
-            this._elements.push(nodes[i]);
-          }
-        }
-      },
-
-      __processRemovedNodes: function(nodes) {
-        var pos;
-        for (var i in nodes) {
-          if ((pos = this._elements.indexOf(nodes[i])) !== -1) {
-            this._elements.splice(pos, 1);
-          }
-        }
       },
 
       _sizeChanged: function(e) {
@@ -682,7 +653,8 @@
         if (this._elements.length > 0) {
           this._elements.forEach(function(g) {
             // performance.mark('start');
-            g.redraw();
+            if (g.redraw)
+              g.redraw();
             // performance.mark('end');
             // performance.measure(g.id, 'start', 'end');
           });

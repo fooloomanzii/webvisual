@@ -10,7 +10,9 @@
 
     configure: function(config) {
       if (!config.node) return;
+      
       var toRect, fromRect;
+      config.node.style.display = '';
 
       if (config.toRect) {
         toRect = config.toRect;

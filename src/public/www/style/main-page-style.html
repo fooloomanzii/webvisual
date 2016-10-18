@@ -223,7 +223,7 @@
     margin-left: 8px;
   }
   #toolbarFooter {
-    display: flex;
+    display: none;
     position: relative;
     box-sizing: border-box;
     background: var(--blur-overlay-background);
@@ -233,6 +233,7 @@
     padding: 0;
   }
   #toolbarFooter[opened] {
+    display: flex;
     padding: 0px 4px 4px 4px;
     height: var(--app-toolbar-height);
   }

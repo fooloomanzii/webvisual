@@ -1,0 +1,110 @@
+<dom-module id="panel-page">
+  <template>
+    <style>
+      :host {
+        height: 100%;
+        width: 100%;
+        top: 0;
+        left: 0;
+        position: absolute;
+        overflow-y: auto;
+        overflow-x: hidden;
+        box-sizing: border-box;
+        background: linear-gradient(rgba(255, 255, 255, 0),rgba(255,255,255,0.15));
+        color: currentColor;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        align-content: flex-start;
+        justify-content: space-around;
+        -webkit-overflow-scrolling: touch;
+        -ms-flex: 1 1 0.000000001px; -webkit-flex: 1; flex: 1;
+        flex-basis: 0.000000001px; -webkit-flex-basis: 0.000000001px;
+        padding: 0.5em;
+        opacity: 1;
+      }
+      :host ::content > * {
+        margin: 0.4em;
+      }
+    </style>
+
+    <content></content>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'panel-page',
+
+      behaviors: [
+        Polymer.NeonSharedElementAnimatableBehavior,
+        GroupingBehavior
+      ],
+
+      properties: {
+        animatable: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        animationTiming: {
+          type: Object,
+          value: function() {
+            return {
+              duration: 250
+            };
+          }
+        },
+        sharedElements: {
+          type: Object,
+          value: function() {
+            return { }
+          }
+        },
+        animationConfig: {
+          value: function() {
+            return {
+              'entry': [ ],
+              'exit': [ ]
+            }
+          }
+        }
+      },
+
+      start: undefined,
+
+      created: function() {
+        Polymer.dom(this)
+               .observeNodes(function(info) {
+                 info.addedNodes
+                       .filter(function(node) {
+                          return (node.nodeType === Node.ELEMENT_NODE)
+                        })
+                       .forEach(this.addToAnimation.bind(this))
+               }.bind(this));
+      },
+
+      addToAnimation: function(node) {
+        var pos = Array.prototype.indexOf.call(node.parentNode.children, node);
+
+        this.sharedElements['hero-animation-' + pos] = node;
+        this.animationConfig.entry.push(
+          {
+            name: 'hero-animation',
+            id: 'hero-animation-' + pos,
+            toPage: this,
+            timing: this.animationTiming
+          });
+        this.animationConfig.exit.push(
+          {
+            name: 'hero-animation',
+            id: 'hero-animation-' + pos,
+            fromPage: this,
+            timing: this.animationTiming
+          });
+      }
+    });
+  </script>
+
+</dom-module>
