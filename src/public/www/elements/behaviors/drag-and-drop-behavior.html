@@ -43,6 +43,7 @@
       }
     },
     dragStart: function(e) {
+      console.log(this);
       e.dataTransfer.setData("text", "[uniqueid='" + e.target.getAttribute('uniqueid') + "']");
       e.dataTransfer.effectAllowed = "move";
     },
@@ -55,6 +56,7 @@
       var selector = e.dataTransfer.getData("text");
       if (selector) {
         var elem = document.querySelector(selector);
+        console.log(selector, elem);
         if (elem) {
           var elemParent = elem.parentNode;
           var elemSibling = elem.nextSibling;

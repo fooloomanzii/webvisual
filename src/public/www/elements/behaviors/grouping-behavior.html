@@ -10,7 +10,7 @@
         type: Object,
         value: function() {
           return {
-            duration: 500,
+            duration: 1500,
             fill: 'forwards'
           };
         }
@@ -26,18 +26,6 @@
         type: String,
         value: '',
         observer: 'regroup'
-      },
-      groupedValueDefault: {
-        type: String,
-        value: 'Verschiedene'
-      },
-      groupAttribute: {
-        type: String,
-        value: 'keys'
-      },
-      groupElementSelector: {
-        type: String,
-        value: '[element]'
       }
     },
 
@@ -45,74 +33,59 @@
     },
 
     regroup: function(groupedKey, old) {
-      var oldgroups = this.queryAllEffectiveChildren('group-card');
-      if (oldgroups.length === 0) return;
+      const label = this.getAttribute('label');
 
-      console.log(this.animatable);
+      if (!label || !groupedKey || !Groups[label] || !Groups[label][groupedKey] || PreferedGroupingKeys[groupedKey] === groupedKey)
+        return;
 
-      var elements = [];
-      for (var i in oldgroups) {
-        oldgroups[i].oldBounds = oldgroups[i].getBoundingClientRect();
-        elements = elements.concat([].slice.call(oldgroups[i].querySelectorAll(this.groupElementSelector)));
+      let oldgroups = this.queryAllEffectiveChildren('group-card');
+      let elements = {};
+
+      for (let i in oldgroups) {
+        Array.prototype.forEach.call(oldgroups[i].querySelectorAll('[element]'), function(elem) {
+          elem.oldBounds = elem.getBoundingClientRect();
+          elements[elem.id] = elem;
+        });
       }
 
-      if (elements.length === 0) return;
+      if (oldgroups.length === 0 || elements.length === 0) return;
 
-      var groupAttr = this.groupAttribute;
-      var groups = {};
+      let id, index = 0, currentgroup;
+      const subgroups = Groups[label][groupedKey];
+      PreferedGroupingKeys[label] = groupedKey;
 
-      elements.map( function(elem) {
-                      var obj = {};
-                      if (elem[groupAttr]) {
-                        obj.type = elem[groupAttr][groupedKey] || this.groupedValueDefault;
-                        obj.node = elem;
-                      }
-                      return obj;
-                    }.bind(this) )
-              .forEach(function(item) {
-                if (!groups[item.type])
-                  groups[item.type] = [];
-                groups[item.type].push(item.node);
-              });
+      this.animationConfig['group-transition'] = [];
 
       if (this.animatable) {
-        this.animationConfig['group-transition'] = [];
-
-        elements.forEach( function(elem, index) {
+        for (let id in elements) {
           this.animationConfig['group-transition'].push( {
             name: 'attribute-animation',
-            fromRect: elem.getBoundingClientRect(),
-            node: elem,
+            node: elements[id],
             timing: this.animationTiming
           })
-        }.bind(this));
+        }
       }
 
-      var newgroupcards = [], index = -1;
-
-      for (var subgroup in groups) {
-        newgroupcards.push(new GroupCard(subgroup, null, this.dark, null, null));
+      for (let subgroup in subgroups) {
+        if (oldgroups[index]) {
+          oldgroups[index].title = subgroup;
+          oldgroups[index].svg = subgroups[subgroup].svg;
+          currentgroup = oldgroups[index];
+        } else {
+          currentgroup = new GroupCard(subgroup, subgroups[subgroup].svg);
+          this.appendChild(currentgroup);
+        }
+        for (let i in subgroups[subgroup].ids) {
+          id = Groups[label][groupedKey][subgroup].ids[i];
+          elements[id].groupedKey = groupedKey;
+          elements[id].style.order = '';
+          currentgroup.appendChild(elements[id]);
+        }
         index++;
-        Polymer.dom(this).appendChild(newgroupcards[index]);
-        for (var i in groups[subgroup]) {
-          groups[subgroup][i].groupedKey = groupedKey;
-          groups[subgroup][i].style.order = '';
-          Polymer.dom(newgroupcards[index]).appendChild(groups[subgroup][i]);
-        }
       }
-
-      for (var i in oldgroups) {
-        if (this.animatable && newgroupcards[i]) {
-          this.animationConfig['group-transition'].push( {
-            name: 'attribute-animation',
-            fromRect: oldgroups[i].oldBounds,
-            node: newgroupcards[i],
-            timing: this.animationTiming
-          })
-        }
+      for (let i = index; i < oldgroups.length; i++) {
         Polymer.dom(this).removeChild(oldgroups[i]);
       }
-      Polymer.dom.flush();
 
       if (this.animatable) {
         this.playAnimation('group-transition');

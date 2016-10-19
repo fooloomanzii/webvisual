@@ -25,12 +25,7 @@
         font-size: var(--dropdown-fontsize, 0.8em);
         color: var(--dropdown-text-color, --primary-text-color);
         background: var(--dropdown-background, transparent);
-        --dropdown-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-                           0 1px 5px 0 rgba(0, 0, 0, 0.12),
-                           0 3px 1px -2px rgba(0, 0, 0, 0.2);
-      }
-      :host([shadow]) {
-        box-shadow: var(--dropdown-shadow);
+        transition: transform 300ms ease;
       }
       :host([horizontal]) {
         flex-direction: row;
@@ -209,11 +204,11 @@
         if (!this._target || !this.offsetParent)
           return;
 
-        var offset = this.offset;
-        var parentRect = this.offsetParent.getBoundingClientRect();
-        var targetRect = this._target.getBoundingClientRect();
-        var thisRect = this.getBoundingClientRect();
-        var horizontalOffset, verticalOffset;
+        const offset = this.offset;
+        const parentRect = this.offsetParent.getBoundingClientRect();
+        const targetRect = this._target.getBoundingClientRect();
+        const thisRect = this.getBoundingClientRect();
+        let horizontalOffset, verticalOffset;
 
         switch (this.align) {
           case 'start':
@@ -243,9 +238,9 @@
             break;
         }
 
-        var targetLeft = targetRect.left - parentRect.left;
-        var targetTop = targetRect.top - parentRect.top;
-        var dropdownLeft, dropdownTop;
+        let targetLeft = targetRect.left - parentRect.left;
+        let targetTop = targetRect.top - parentRect.top;
+        let dropdownLeft, dropdownTop;
 
         switch (this.position) {
           case 'top':
@@ -268,36 +263,20 @@
 
         // Clip the left/right side.
         if (dropdownLeft + parentRect.left + thisRect.width> window.innerWidth) {
-          this.style.right = 'auto';
-          this.style.left = (window.innerWidth - (parentRect.left + thisRect.width + offset)) + 'px';
+          dropdownLeft = window.innerWidth - (parentRect.left + thisRect.width + offset);
         } else if (dropdownLeft + targetRect.left < 0) {
-          this.style.left = (-targetRect.left) + 'px';
-          this.style.right = 'auto';
-        } else {
-          this.style.left = dropdownLeft + 'px';
-          this.style.right = 'auto';
+          dropdownLeft = -targetRect.left;
         }
 
         // Clip the top/bottom side.
         if (dropdownTop + thisRect.height > window.innerHeight) {
-          this.style.bottom = 'auto';
-          this.style.top = (window.innerHeight - (thisRect.height + targetRect.top + offset)) + "px";
+          dropdownTop= window.innerHeight - (thisRect.height + targetRect.top + offset);
         } else if (dropdownTop > targetRect.top) {
-          this.style.top = (targetRect.top) + 'px';
-          this.style.bottom = 'auto';
-        } else {
-          this.style.top = dropdownTop + 'px';
-          this.style.bottom = 'auto';
+          dropdownTop = targetRect.top;
         }
-      },
-
-      _keyHandler: function(e) {
-        switch (e.which) {
-          case 37:
-          case 39:
-          case 27: this.hide(); break;
-        }
+        this.style.transform  = `translate(${dropdownLeft}px, ${dropdownTop}px)`;
       }
+
     });
   </script>
 </dom-module>

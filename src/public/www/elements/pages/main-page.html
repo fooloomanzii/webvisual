@@ -38,49 +38,6 @@
     #toolbarFooter ::content svg-element {
       background: rgba(255,255,255,0.2);
     }
-
-    /*#mainContent ::content .panel {
-      height: 100%;
-      width: 100%;
-      top: 0;
-      left: 0;
-      position: absolute;
-      overflow-y: auto;
-      overflow-x: hidden;
-      box-sizing: border-box;
-      background: linear-gradient(rgba(255, 255, 255, 0),rgba(255,255,255,0.15));
-      color: currentColor;
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      align-content: flex-start;
-      justify-content: space-around;
-      -webkit-overflow-scrolling: touch;
-      -ms-flex: 1 1 0.000000001px; -webkit-flex: 1; flex: 1;
-      flex-basis: 0.000000001px; -webkit-flex-basis: 0.000000001px;
-      padding: 0.5em;
-      opacity: 1;
-    }
-    #mainContent ::content .panel > * {
-      margin: 0.4em;
-    }
-    #mainContent ::content .panel.foreground {
-      display: flex;
-    }
-    #mainContent ::content .panel:not(.foreground) {
-      display: none !important;
-    }
-    #mainContent ::content .panel.selected[animatable] {
-      transition: opacity 150ms ease, transform 300ms ease;
-    }
-    #mainContent ::content .panel:not(.selected)[animatable] {
-      transition: opacity 300ms ease, transform 150ms ease;
-      opacity: 0;
-      transform: translateY(25%);
-      pointer-events: none;
-      z-index: 51;
-    }*/
     #groupingKeysLabelSelector {
       display: flex;
       flex-direction: column;
@@ -130,9 +87,9 @@
 				display: inline-block;
 			}
 			#control icon-button-element.tab-icon {
-				display: inline-block;;
+				display: inline-block !important;
 			}
-      #mainContent ::content .panel {
+      #panelSelector ::content .panel {
         display: block;
         padding: 0em;
       }
@@ -188,7 +145,7 @@
 
     <section id="mainView">
         <!-- Content -->
-        <neon-animated-pages id="mainContent" selected="{{currentLabel}}" attr-for-selected="label">
+        <neon-animated-pages id="panelSelector" selected="{{currentLabel}}" attr-for-selected="label">
           <content select=".panel"></content>
         </neon-animated-pages>
 
@@ -237,7 +194,7 @@
               <toggle-button-element class="sidemenu" id="colorschema" on-change="toggleTheme"><iron-icon icon="settings-brightness"></iron-icon>Farbschema</toggle-button-element>
             </section>
 
-        <button-element class="sidemenu" on-tap="backToMainMenu">
+        <button-element class="sidemenu" on-tap="backToSelectPage">
           <iron-icon icon="assessment" class="left"></iron-icon>
           <section class="content">Konfigurationsauswahl</section>
         </button-element>
@@ -258,6 +215,7 @@
       is: 'main-page',
 
       behaviors: [
+        Polymer.IronA11yKeysBehavior,
         Polymer.IronResizableBehavior,
         Polymer.NeonSharedElementAnimatableBehavior,
         AttributeRepeatAnimationBehavior,
@@ -439,8 +397,15 @@
         'neon-animation-finish': '_onNeonAnimationFinish'
       },
 
-      attached: function() {
+      keyBindings: {
+         'left': 'previousPanel', // same as 'space:keydown'
+         'right': 'nextPanel',
+         'down': 'contractToolbar',
+         'up': 'expandToolbar',
+         'esc': 'backToSelectPage'
+       },
 
+      attached: function() {
         Polymer.dom(this.$.groupingKeysLabelSelector)
                .observeNodes(function(info) {
                  for (var i in info.addedNodes)
@@ -475,7 +440,21 @@
       },
       toolbarExpandToggle: function() {
         if (this.opened || this.forceOpened) {
-          this.expanded = !this.expanded;
+          if (this.expanded) {
+            this.contractToolbar();
+          } else {
+            this.expandToolbar();
+          }
+        }
+      },
+      contractToolbar: function() {
+        this.expanded = false;
+      },
+      expandToolbar: function() {
+        if (this.opened || this.forceOpened) {
+          this.expanded = true
+        } else {
+          this.opened = true;
         }
       },
       closeToolbar: function(newLabel, oldLabel) {
@@ -489,6 +468,14 @@
           }
         }
         this.notifyResize();
+      },
+
+      previousPanel: function() {
+        this.$.panelSelector.selectPrevious();
+      },
+
+      nextPanel: function() {
+        this.$.panelSelector.selectNext();
       },
 
       _computeOpened: function(opened, forceOpened) {
@@ -511,7 +498,7 @@
         }
       },
       // app Control
-      backToMainMenu: function() {
+      backToSelectPage: function() {
         this.clearSelectedElements();
         this.fire("clear-selected-elements");
         this.closeDrawer();
@@ -528,9 +515,9 @@
         this.fire("clear-selected-elements");
       },
       _selectPanel: function(newLabel, oldLabel) {
-        var newpanel = this.queryEffectiveChildren.call(this.$.mainContent,'[label=' + newLabel + ']'),
+        var newpanel = this.queryEffectiveChildren.call(this.$.panelSelector,'[label=' + newLabel + ']'),
             newselector = this.queryEffectiveChildren.call(this.$.groupingKeysLabelSelector,'[label=' + newLabel + ']');
-        var oldpanel = this.queryEffectiveChildren.call(this.$.mainContent,'[label=' + oldLabel + ']'),
+        var oldpanel = this.queryEffectiveChildren.call(this.$.panelSelector,'[label=' + oldLabel + ']'),
             oldselector = this.queryEffectiveChildren.call(this.$.groupingKeysLabelSelector,'[label=' + oldLabel + ']');
 
         if (newselector && newpanel) {
@@ -693,7 +680,7 @@
       activeChanged: function() {
         var preconf = JSON.parse(localStorage.getItem(window.Name));
         if (this.active === true && preconf && preconf.selectedLabels) {
-          this.$.mainContent.select(preconf.selectedLabels[0]);
+          this.$.panelSelector.select(preconf.selectedLabels[0]);
         }
         this.notifyResize();
       }

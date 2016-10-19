@@ -562,7 +562,7 @@
         .on('unlink', path => console.log(`File ${path} has been removed`))
         .on('error', error => {
           console.log(`File Error (module: filewatch.js, chokidar): ${error}`);
-          // wait_until_created(resFile);
+          wait_until_created(resFile);
         });
       callback();
     }

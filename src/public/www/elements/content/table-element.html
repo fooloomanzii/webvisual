@@ -8,6 +8,7 @@
       display: flex;
       height: 100%;
 			width: auto;
+			min-width: 10em;
       text-align: center;
       font-size: 0.75em;
       line-height: 1.5em;
@@ -36,7 +37,8 @@
       padding: 0em 1.5em;
     }
     #body {
-			flex: 1 1 50px;
+			display: flex;
+			flex: 1 0 50px;
       position: relative;
       overflow-x: hidden;
       overflow-y: scroll;
@@ -54,8 +56,6 @@
 		.tr {
 			position: relative;
 			display: flex;
-			float: left;
-			clear: both;
 			width: 100%;
 		}
 		.tr, .tr[inrange] {
@@ -81,6 +81,7 @@
     }
 		.tr span {
       font-size: 1em;
+			flex: 1 0 50%;
       position: relative;
       padding: 0em 0.75em;
     }
@@ -96,6 +97,13 @@
 		[hidden] {
 			display: none !important;
 		}
+		#list {
+			position: relative;
+			display: flex;
+			flex: 1 1 0.001px;
+			overflow-x: hidden !important;
+			overflow-y: auto;
+		}
   </style>
 
     <section id='table'>
@@ -104,9 +112,17 @@
         <span>Datum</span>
         <span>Wert <span hidden$="[[!unit]]" style="font-style:italic;">([[unit]])</span></span>
       </section>
-      <section id='body' on-scroll='scrollHandler'>
-				<section class='block'></section>
-      </section>
+      <!-- <section id='body' on-scroll='scrollHandler'> -->
+				<iron-list id='list' items="[[values]]" as="value">
+					<template>
+		        <div class="tr">
+			        <span>[[toDate(value.x)]]</span>
+			        <span>[[value.y]]</span>
+		        </div>
+		      </template>
+				</iron-list>
+				<!-- <section class='block'></section> -->
+      <!-- </section> -->
     </section>
   </template>
 
@@ -148,7 +164,7 @@
 					type: Boolean,
 					value: false
 				},
-				updateEveryValue: {
+				checkEveryValue: {
 					type: Boolean,
 					value: true,
 					readOnly: true
@@ -162,89 +178,111 @@
 
 			_map: Object,
 			_body: Object,
+			_list: Object,
 
 			attached: function() {
-				this._body = this.$.body;
-				if (this.hideOverflow) {
-					this._body.style.overflow = 'hidden';
-				}
+				// this._body = this.$.body;
+				// if (this.hideOverflow) {
+				// 	this._body.style.overflow = 'hidden';
+				// }
+				this._list = this.$.list;
+			},
+
+			insertValues: function(values) {
+				if (!this._list || !this._list.items || !values || !values.length) return;
+				let len = this._list.items.length;
+				console.log(values.length);
+				values.forEach(function(value) {
+					this.unshift('items', value)
+				}, this._list)
+				// this.push.apply(this._list, 'items', len, 0, values);
+			},
+
+			toDate: function(x) {
+				return this.showFullDate ? new Date(x).toLocaleString() : new Date(x).toLocaleTimeString();
+			},
+
+			spliceValues: function(splices) {
+				// if (!this._list || !this._list.items || !splices || splices.length === 0) return;
+				// console.log(splices.slice(0,splices.length), splices.length);
+				// this._list.splice.call(this._list, 'items', 0, splices.length - 1);
 			},
 
 			render: function(value, splices) {
-				if (value === undefined) {
-					if (Array.isArray(splices))
-						splices.forEach(function(v) {
-							if (this._map[v.x] && this._map[v.x].nodeType === 1)
-								this._map[v.x].parentNode.removeChild(this._map[v.x]);
-							this._map[v.x] = null;
-							delete this._map[v.x];
-						}, this)
-					else {
-						while (this._body.children[0])
-							this._body.removeChild(this._body.children[0]);
-						this._map = {};
-					}
-				} else {
-					for (var i = 0; i < value.length; i++) {
-						this.createRow(value[i]);
-					}
-				}
+				// if (value === undefined) {
+				// 	if (Array.isArray(splices))
+				// 		splices.forEach(function(v) {
+				// 			if (this._map[v.x] && this._map[v.x].nodeType === 1)
+				// 				this._map[v.x].parentNode.removeChild(this._map[v.x]);
+				// 			this._map[v.x] = null;
+				// 			delete this._map[v.x];
+				// 		}, this)
+				// 	else {
+				// 		while (this._body.children[0])
+				// 			this._body.removeChild(this._body.children[0]);
+				// 		this._map = {};
+				// 	}
+				// } else {
+				// 	for (var i = 0; i < value.length; i++) {
+				// 		this.createRow(value[i]);
+				// 	}
+				// }
 			},
 
 			createRow: function(value) {
-				if (this._map && this._map[value.x]) {
-					return;
-				}
-				var row, tdX, tdY, isExceeding, status;
-
-				row = document.createElement('section');
-				row.className = 'tr style-scope table-element';
-
-				tdX = document.createElement('span');
-				tdX.className = 'style-scope table-element';
-				tdX.innerText = (this.showFullDate ? new Date(value.x).toLocaleString() : new Date(value.x).toLocaleTimeString());
-
-				tdY = document.createElement('span');
-				tdY.className = 'style-scope table-element';
-				isExceeding = (value.state === 0) ? false : true;
-				tdY.innerText = (this.isBoolean ? (isExceeding ? '✗' : '✓') : value.y);
-
-				if (this.highlightExceeding === true) {
-					switch (value.state) {
-						case 0: status = "inrange"; break;
-						case -1: status = "deceeds"; break;
-						case 1: status = "exceeds"; break;
-						default: status = "undefined";
-					}
-					row.setAttribute(status, '');
-				}
-
-				row.appendChild(tdX);
-				row.appendChild(tdY);
-				// row.x = value.x;
-
-				this._map[value.x] = row;
-
-				if (this._body.children[0].children.length > this.maxProBlock) {
-					var block = document.createElement('section');
-					block.className = 'block style-scope table-element';
-					block.appendChild(row);
-					this._body.insertBefore(block, this._body.children[0]);
-				}
-				else
-					this._body.children[0].insertBefore(row, this._body.children[0].children[0]);
+				// if (this._map && this._map[value.x]) {
+				// 	return;
+				// }
+				// var row, tdX, tdY, isExceeding, status;
+				//
+				// row = document.createElement('section');
+				// row.className = 'tr style-scope table-element';
+				//
+				// tdX = document.createElement('span');
+				// tdX.className = 'style-scope table-element';
+				// tdX.innerText = (this.showFullDate ? new Date(value.x).toLocaleString() : new Date(value.x).toLocaleTimeString());
+				//
+				// tdY = document.createElement('span');
+				// tdY.className = 'style-scope table-element';
+				// isExceeding = (value.state === 0) ? false : true;
+				// tdY.innerText = (this.isBoolean ? (isExceeding ? '✗' : '✓') : value.y);
+				//
+				// if (this.highlightExceeding === true) {
+				// 	switch (value.state) {
+				// 		case 0: status = "inrange"; break;
+				// 		case -1: status = "deceeds"; break;
+				// 		case 1: status = "exceeds"; break;
+				// 		default: status = "undefined";
+				// 	}
+				// 	row.setAttribute(status, '');
+				// }
+				//
+				// row.appendChild(tdX);
+				// row.appendChild(tdY);
+				// // row.x = value.x;
+				//
+				// this._map[value.x] = row;
+				//
+				// if (this._body.children[0].children.length > this.maxProBlock) {
+				// 	var block = document.createElement('section');
+				// 	block.className = 'block style-scope table-element';
+				// 	block.appendChild(row);
+				// 	this._body.insertBefore(block, this._body.children[0]);
+				// }
+				// else
+				// 	this._body.children[0].insertBefore(row, this._body.children[0].children[0]);
 			},
 
 			scrollHandler: function(e) {
 				// console.log(e.target.offsetHeight, e.target.scrollTop, e.target.scrollHeight);
-				if (3 * e.target.offsetHeight + e.target.scrollTop > e.target.scrollHeight) {
-          for (var i = 0; i < this._body.children.length; i++) {
-						if (this._body.children[i].style.display !== 'block') {
-							this._body.children[i].style.display = 'block';
-							return;
-						}
-					}
-        }
+				// if (3 * e.target.offsetHeight + e.target.scrollTop > e.target.scrollHeight) {
+        //   for (var i = 0; i < this._body.children.length; i++) {
+				// 		if (this._body.children[i].style.display !== 'block') {
+				// 			this._body.children[i].style.display = 'block';
+				// 			return;
+				// 		}
+				// 	}
+        // }
 			},
 
 			compareFn: function(a, b) {
@@ -254,20 +292,20 @@
 			},
 
 			switchOrder: function() {
-				if (this.descendingOrder === true) {
-					this.$.body.classList.remove('reverse');
-					this.descendingOrder = false;
-				} else {
-					this.$.body.classList.add('reverse');
-					this.descendingOrder = true;
-				}
+				// if (this.descendingOrder === true) {
+				// 	this.$.body.classList.remove('reverse');
+				// 	this.descendingOrder = false;
+				// } else {
+				// 	this.$.body.classList.add('reverse');
+				// 	this.descendingOrder = true;
+				// }
 			},
 			setOrder: function(order) {
-				if (order === false) {
-					this.$.body.classList.remove('reverse');
-				} else {
-					this.$.body.classList.add('reverse');
-				}
+				// if (order === false) {
+				// 	this.$.body.classList.remove('reverse');
+				// } else {
+				// 	this.$.body.classList.add('reverse');
+				// }
 			}
 		});
 	</script>

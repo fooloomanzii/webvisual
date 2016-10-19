@@ -54,7 +54,7 @@ block BodyContent
             each Label in config.labels
                 panel-page.panel(label!= Label, animatable!= (!mobile))
                     each Subgroup, Titel in config.groups[Label][config.preferedGroupingKeys[Label]]
-                        group-card(headline= Titel)
+                        group-card(title= Titel)
                             each Id, i in Subgroup.ids
                                 if (config.elements[Label][Id])
                                     element-checkbox(label!= Label,

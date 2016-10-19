@@ -23,16 +23,8 @@
         border-style: solid;
         border-width: thin;
         border-color: rgba(0,0,0,.2);
-        transition: border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       }
-      :host(:focus:not([checked])) {
-        border-color: rgba(0,0,0, 0.3);
-      }
-      :host([checked]) {
-        box-shadow: 0 2px 1px 0px rgba(0, 0, 0, 0.08),
-                    0 1px 2px 0px rgba(0, 0, 0, 0.06),
-                    0 2px 1px -1px rgba(0, 0, 0, 0.10);
-      }
+
       :host([vertical]) {
         flex-direction: column;
       }
@@ -40,14 +32,15 @@
         height: auto;
         width: auto;
         display: flex;
-        flex: 1 0 auto;
         padding-bottom: 0.25em;
         background: var(--element-color);
         color: var(--element-text-color);
         cursor: pointer;
         position: relative;
         min-height: 4em;
-        min-width: 4em;
+        min-width: 5em;
+        width: 100%;
+        align-self: stretch;
         box-sizing: border-box;
         border-color: inherit;
         border-right-width: thin;
@@ -80,9 +73,11 @@
         padding: 0.5em;
         display: inline-flex;
         align-items: center;
-        height: auto;
-        width: 100%;
+        flex: 1 0 auto;
+        white-space: nowrap;
+        overflow: hidden;
         position: relative;
+        text-overflow: ellipsis;
         justify-content: center;
         box-sizing: border-box;
         background: linear-gradient(180deg,rgba(255,255,255,0),rgba(230,230,230,0.2),rgba(255,255,255,0));
@@ -165,6 +160,7 @@
         border-right-width: 0;
       }
       caption-element {
+        align-self: stretch;
         border-top-left-radius: 0; border-top-right-radius: inherit; border-bottom-left-radius: 0; border-bottom-right-radius: inherit;
         --caption-padding: 0.6em;
       }
@@ -194,7 +190,7 @@
       </svg>
     </section>
 
-    <caption-element id="caption" vertical animatable grouped-key='[[groupedKey]]' keys='[[keys]]'  without-grouped-key></caption-element>
+    <caption-element id="caption" animatable grouped-key='[[groupedKey]]' keys='[[keys]]'  without-grouped-key></caption-element>
 
     <dropdown-element id='tooltip' hiding-event="mouseleave" position="right" align="center">
       <div class='title'>Alarmphasen</div>

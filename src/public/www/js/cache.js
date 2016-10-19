@@ -1,6 +1,6 @@
 (function() {
 	'use strict';
-	var defaults = {
+	const defaults = {
 		size: 5400, // Length of each DataRow (by id in values)
 		is: 'Array', // TODO: +ArrayBuffer
 		type: 'Float64', // TODO: TypedArray
@@ -9,11 +9,11 @@
 
 	function CacheKey(options) {
 		// Set Options
-		for (var type in options) {
+		for (let type in options) {
 			this[type] = options[type];
 		}
 		// Merge Defaults
-		for (var type in defaults) {
+		for (let type in defaults) {
 			if (this[type] === undefined)
 				this[type] = defaults[type];
 		}
@@ -45,8 +45,6 @@
 			this._splices = Array.prototype;
 			Object.defineProperty(this, "splices", {
 				get: function() {
-					// var ret = this._splices.slice(0); // flat copy
-					// this._splices.length = 0; // clear array
 					return this._splices.splice(0, this._splices.length);
 				},
 				enumerable: false,
@@ -55,8 +53,6 @@
 			this._heap = Array.prototype;
 			Object.defineProperty(this, "heap", {
 				get: function() {
-					// var ret = this._heap.slice(0); // flat copy
-					// this._heap.length = 0; // clear array
 					return this._heap.splice(0,this._heap.length);
 				},
 				enumerable: false,
@@ -78,7 +74,7 @@
 		},
 
 		request: function(len) {
-			var start = (len >= 0 && len < this._cache.length) ? this._cache.length - len - 1 : 0;
+			const start = (len >= 0 && len < this._cache.length) ? this._cache.length - len - 1 : 0;
 			return this._cache.slice(start);
 		},
 
@@ -98,10 +94,10 @@
 	  },
 
 	  max: function(key) { // inspired by d3.array
-			var i = -1,
-		      n = this._cache.length,
+			let i = -1,
 		      a,
 		      b;
+			const n = this._cache.length;
 
 			while (++i < n) if ((b = this._cache[i][key]) !== null && b >= b) { a = b; break; }
 			while (++i < n) if ((b = this._cache[i][key]) !== null && a < b) { a = b; }
@@ -110,10 +106,10 @@
 	  },
 
 	  min: function(key) { // inspired by d3.array
-			var i = -1,
-		      n = this._cache.length,
+			let i = -1,
 		      a,
 		      b;
+			const n = this._cache.length;
 
 			while (++i < n) if ((b = this._cache[i][key]) !== null && b >= b) { a = b; break; }
 			while (++i < n) if ((b = this._cache[i][key]) !== null && a > b) a = b;
@@ -129,7 +125,7 @@
 	  },
 
 		append: function(data) {
-			var len = data.length;
+			let len = data.length;
 			if (len > this.size)
 				data = data.slice(len - this.size, len);
 			this._heap = this._heap.concat(data);
@@ -171,8 +167,8 @@
 			if (ids === undefined || !Array.isArray(ids)) {
 				ids = Object.keys(this._cache);
 			}
-			var ret = {};
-			for (var i in ids) {
+			let ret = {};
+			for (let i in ids) {
 				if (ids[i] in this._cache) {
 					ret[ids[i]] = this._cache[ids[i]].request(len);
 				}
@@ -181,10 +177,10 @@
 		},
 
 		_max: function(array) { // inspired by d3.array
-			var i = -1,
-		      n = array.length,
+			let i = -1,
 		      a,
 		      b;
+			const n = array.length;
 
 			while (++i < n) if ((b = array[i]) !== null && b >= b) { a = b; break; }
 			while (++i < n) if ((b = array[i]) !== null && a < b) a = b;
@@ -193,10 +189,10 @@
 	  },
 
 	  _min: function(array) { // inspired by d3.array
-			var i = -1,
-		      n = array.length,
+			let i = -1,
 		      a,
 		      b;
+			const n = array.length;
 
 			while (++i < n) if ((b = array[i]) !== null && b >= b) { a = b; break; }
 			while (++i < n) if ((b = array[i]) !== null && a > b) a = b;
@@ -208,8 +204,8 @@
 	    if (ids === undefined || !Array.isArray(ids)) {
 	      ids = Object.keys(this._cache);
 	    }
-	    var temp = [];
-	    for (var i in ids) {
+	    let temp = [];
+	    for (let i in ids) {
 	      if (ids[i] in this._cache) {
 	        temp.push(this._cache[ids[i]][func](key));
 	      }

@@ -26,11 +26,13 @@
         background: var(--caption-dark-background, #B0B0B0);
       }
       .captions {
+        position: relative;
         padding: 0;
         margin: 0;
         margin-left: 0.5em;
         font-weight: normal;
         font-size: 0.6em;
+        white-space: pre-wrap;
         word-wrap: break-word;
         word-break: break-all;
       }
@@ -41,6 +43,8 @@
       }
       :host([vertical]) .captions {
         margin-left: 0;
+        text-align: start;
+        text-indent: 0.5em;
       }
       .captions:first-of-type {
         margin-left: 0;

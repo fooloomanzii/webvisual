@@ -80,9 +80,10 @@
 
     --font-common-base: {
       font-family: Fira Sans Light;
-      font-size: 1em;
+      font-size: calc(0.75em + 0.5vmin);
+      line-height: calc(1em + 0.5vmin);
       text-align: left;
-      line-height: 1.4em;
+      /*line-height: 1.4em;*/
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
@@ -150,7 +151,7 @@
                   0  8px 10px -5px rgba(0, 0, 0, 0.4);
     };
   }
-  
+
   /* General styles */
   input, textarea, keygen, select, button {
     @apply(--font-common-base);
@@ -198,48 +199,6 @@
     font-style: normal;
    }
 
-   /* Font Sizes */
-   @media all and (max-width: 450px) {
-     :root {
-       font-size: 0.85em;
-     }
-   }
-   @media all (min-width: 451px) and (max-width: 600px) {
-     :root {
-       font-size: 0.9em;
-     }
-   }
-   @media all (min-width: 601px) and (max-width: 900px) {
-     :root {
-       font-size: 0.95em;
-     }
-   }
-   @media all and (min-width: 901px) and (max-width: 1300px) {
-     :host {
-       font-size: 1em;
-     }
-   }
-   @media all and (min-width: 1301px) and (max-width: 1600px) {
-     :host {
-       font-size: 1.05em;
-     }
-   }
-   @media all and (min-width: 1601px)  and (max-width: 2000px){
-     :host {
-       font-size: 1.1em;
-     }
-   }
-   @media all and (min-width: 2001px)  and (max-width: 2400px){
-     :host {
-       font-size: 1.2em;
-     }
-   }
-   @media all and (min-width: 2401px) {
-     :host {
-       font-size: 1.3em;
-     }
-   }
-
 </style>
-<template>
+</template>
 </dom-module>

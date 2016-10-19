@@ -40,7 +40,7 @@ block BodyContent
             each Label, I in config.labels
                 panel-page.panel(label!= Label, animatable!= (!mobile))
                     each Subgroup, Name in config.groups[Label][config.preferedGroupingKeys[Label]]
-                        group-card(headline= Name,
+                        group-card(title= Name,
                             svg= JSON.stringify(Subgroup.svg),
                             no-select-notify, notify, open-on-exceed)
                             each Id, i in Subgroup.ids

@@ -80,7 +80,7 @@
         left: 0; top: 0; right: 0; bottom: 0;
         background: linear-gradient(to top, rgba(255,255,255,0.05) 30%,rgba(255,255,255,0.25) 90%)
       }
-      #headline {
+      #title {
         cursor: pointer;
         position: relative;
         height: 100%;
@@ -95,14 +95,14 @@
         border-bottom-right-radius: 0px;
         text-transform: none;
       }
-      #headline[overlay] {
+      #title[overlay] {
         position: absolute;
         height: auto;
         width: auto;
         bottom: 0;
         left: 0;
       }
-      :host([dark]) #headline {
+      :host([dark]) #title {
         color: var(--highlight-color);
       }
       #mainContent {
@@ -151,16 +151,16 @@
         border-top-left-radius: inherit;
         border-top-right-radius: inherit;
       }
-      :host:not([headline]), :host([headline='*']), :host([without-window]) {
+      :host:not([title]), :host([title='*']), :host([without-window]) {
         background: transparent;
         border-radius: inherit;
         box-shadow: none;
         border-color: transparent;
       }
-      :host:not([headline]), :host([headline='*']) {
+      :host:not([title]), :host([title='*']) {
         max-width: none;
       }
-      :host:not([headline]) > #mainContent, :host([headline='*']) > #mainContent {
+      :host:not([title]) > #mainContent, :host([title='*']) > #mainContent {
         align-items: center;
         justify-content: flex-start;
       }
@@ -169,7 +169,7 @@
       }
     </style>
 
-      <section id='header' hidden$='[[_hideheadline(headline,withoutWindow,hideHeader)]]'>
+      <section id='header' hidden$='[[_hidetitle(title,withoutWindow,hideHeader)]]'>
         <section id="background"></section>
 
         <!-- <template is="dom-if" if="[[svg.source]]"> -->
@@ -178,7 +178,7 @@
           <svg-element id='svgElement' hidden$="[[!svg.source]]" source="[[svg.source]]" initially-zoom-to-selected exceeding-elements="[[exceedingElements]]" open-on-exceed></svg-element>
         </section>
         <!-- </template> -->
-        <section id='headline' on-tap='toggle'>[[headline]]</section>
+        <section id='title' on-tap='toggle'>[[title]]</section>
       </section>
 
       <section id='mainContent'>
@@ -196,11 +196,11 @@
       ],
 
       properties: {
-        headline: {
+        title: {
           type: String,
           value: '',
           reflectToAttribute: true,
-          observer: '_headlineChanged'
+          observer: '_titleChanged'
         },
         opened: {
           type: Boolean,
@@ -287,8 +287,8 @@
         }
       },
 
-      factoryImpl: function(headline, svg, dark, withoutWindow, hideHeader) {
-        this.set('headline', headline || '');
+      factoryImpl: function(title, svg, dark, withoutWindow, hideHeader) {
+        this.set('title', title || '');
         if (dark) {
           this.setAttribute('dark', '');
         }
@@ -350,9 +350,9 @@
       openedChanged: function() {
         if (this.opened) {
           this.$.headerContent.style.display = '';
-          this.$.headline.setAttribute('overlay', '');
+          this.$.title.setAttribute('overlay', '');
         } else {
-          this.$.headline.removeAttribute('overlay');
+          this.$.title.removeAttribute('overlay');
         }
       },
       _onNeonAnimationFinish: function() {
@@ -364,12 +364,19 @@
         }
       },
 
-      _headlineChanged: function(text) {
-        this.$.header.setAttribute('aria-label', this.headline);
+      _titleChanged: function(title) {
+        if (!title) {
+          this.title = 'unknown';
+          this.$.title.style.color = 'transparent';
+          return;
+        } else {
+          this.$.title.style.color = '';
+        }
+        this.setAttribute('aria-label', title);
       },
 
-      _hideheadline: function(headline, withoutWindow, hideHeader) {
-        if (headline == '*' || withoutWindow || hideHeader)
+      _hidetitle: function(title, withoutWindow, hideHeader) {
+        if (title == '*' || withoutWindow || hideHeader)
           return true;
         else
           return false;
