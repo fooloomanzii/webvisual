@@ -192,6 +192,7 @@
 				if (!this._list || !this._list.items || !values || !values.length) return;
 				let len = this._list.items.length;
 				console.log(values.length);
+				
 				values.forEach(function(value) {
 					this.unshift('items', value)
 				}, this._list)
