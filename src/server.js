@@ -15,7 +15,7 @@ const express = require("express"),
 	bodyParser = require("body-parser"),
 	cookieParser = require("cookie-parser"),
 	Router = require("./routes/index.js"),
-	https = require("https"),
+	spdy = require("spdy"),
 	http = require("http"),
 	app = express(),
 	redirectApp = express();
@@ -142,7 +142,7 @@ class WebvisualServer extends EventEmitter {
 											if (this.mainServer)
 												this.mainServer.close();
 
-											this.mainServer = https.createServer(sslOptions, app);
+											this.mainServer = spdy.createServer(sslOptions, app);
 											this.redirectServer = http.createServer(redirectApp);
 
 											// if Error: EADDRINUSE --> log in console

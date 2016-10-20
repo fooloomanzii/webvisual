@@ -21,12 +21,13 @@
     "activedirectory": "^0.7.1",
     "async": "*",
     "body-parser": "*",
-    "chokidar": "^1.6.0",
+    "chokidar": "*",
     "cookie-parser": "*",
     "dateformat": "*",
     "express": "*",
     "express-error-handler": "*",
     "express-session": "*",
+    "spdy": "*",
     "fs": "*",
     "jade": "*",
     "merge-defaults": "*",
@@ -35,13 +36,9 @@
     "passport-local": "^1.0.0",
     "socket.io": "*",
     "underscore": "*",
-    "watchr": "*",
     "x-frame-options": "*"
   },
   "devDependencies": {
-    "rollup": "^0.26.3",
-    "rollup-plugin-node-resolve": "^1.5.0",
-    "uglify-js": "^2.6.2"
   },
   "engines": {
     "node": ">= 5.0",
