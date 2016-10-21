@@ -7,9 +7,8 @@
       color: var(--primary-text-color);
       display: flex;
       height: 100%;
-			width: auto;
 			min-width: 10em;
-      text-align: center;
+      text-align: left;
       font-size: 0.75em;
       line-height: 1.5em;
 			flex-shrink: 2 !important;
@@ -21,6 +20,11 @@
     :host([dark]) {
       background: #a8a8a8;
     }
+		span {
+			font-size: 1em;
+			position: relative;
+			padding: 0em 0.75em;
+		}
     #table {
       display: inline-flex;
 			width: 100%;
@@ -36,93 +40,66 @@
       font-weight: bold;
       padding: 0em 1.5em;
     }
-    #body {
-			display: flex;
-			flex: 1 0 50px;
-      position: relative;
-      overflow-x: hidden;
-      overflow-y: scroll;
-    }
-		.block {
-			display: none;
-			position: relative;
-		}
-		.block:first-of-type {
-			display: block;
-		}
-		.block:nth-of-type(2) {
-			display: block;
-		}
 		.tr {
-			position: relative;
 			display: flex;
-			width: 100%;
+			justify-content: space-between;
 		}
-		.tr, .tr[inrange] {
+		.tr:not([state]), .tr[state="0"] {
 			background: none; color: inherit;
 		}
 		.tr:nth-of-type(even) {
 			background: rgba(137, 137, 137, 0.15);
 		}
-		.tr[exceeds] {
+		.tr[state="1"] {
 			background: var(--element-state-exceeds-color);
 			color: var(--element-state-exceeds-text-color);
 		}
-		.tr[deceeds] {
+		.tr[state="-1"] {
 			background: var(--element-state-deceeds-color);
 			color: var(--element-state-deceeds-text-color);
 		}
-		.tr[undefined] {
+		.tr[state="undefined"] {
 			background: var(--element-state-undefined-color);
 			color: var(--element-state-undefined-text-color);
 		}
-    #body.reverse {
-      flex-direction: column-reverse;
-    }
-		.tr span {
-      font-size: 1em;
-			flex: 1 0 50%;
-      position: relative;
-      padding: 0em 0.75em;
-    }
-		#head.tr {
-			display: block;
+		.tr[onlyfirstrow] > span:not(:first-of-type) {
+			display: none;
+		}
+		#head {
+			display: flex;
+			justify-content: space-around;
+			width: 100%;
 			line-height: 2em;
 			border-bottom-style: solid;
 			border-bottom-width: thin;
 			border-color: inherit;
 			cursor: pointer;
-			background: none;
+			text-align: center;
 		}
 		[hidden] {
 			display: none !important;
 		}
 		#list {
-			position: relative;
-			display: flex;
-			flex: 1 1 0.001px;
-			overflow-x: hidden !important;
-			overflow-y: auto;
+			height: auto;
+			width: 100%;
+			flex: 1 1 50px;
 		}
   </style>
 
     <section id='table'>
       <section id='caption'>[[caption]]</section>
-      <section id='head' class='tr' hidden$='[[hideHeader]]' on-tap='switchOrder'>
+      <section id='head' hidden$='[[hideHeader]]' on-tap='switchOrder'>
         <span>Datum</span>
-        <span>Wert <span hidden$="[[!unit]]" style="font-style:italic;">([[unit]])</span></span>
+        <span hidden$="[[onlyFirstRow]]">Wert <span hidden$="[[!unit]]" style="font-style:italic;">([[unit]])</span></span>
       </section>
-      <!-- <section id='body' on-scroll='scrollHandler'> -->
-				<iron-list id='list' items="[[values]]" as="value">
-					<template>
-		        <div class="tr">
-			        <span>[[toDate(value.x)]]</span>
-			        <span>[[value.y]]</span>
-		        </div>
-		      </template>
-				</iron-list>
-				<!-- <section class='block'></section> -->
-      <!-- </section> -->
+			<iron-list id='list' items="[[values]]" as="value">
+				<template>
+	        <div class="tr" state$="[[value.state]]" onlyfirstrow$="[[onlyFirstRow]]">
+		        <span>[[toDate(value.x)]]</span>
+		        <span>[[value.y]]</span>
+	        </div>
+	      </template>
+			</iron-list>
     </section>
   </template>
 
@@ -139,16 +116,7 @@
 					type: String,
 					value: ''
 				},
-				unit: {
-					type: String,
-					value: 'Wert'
-				},
-				descendingOrder: {
-					type: Boolean,
-					value: false,
-					observer: 'setOrder'
-				},
-				highlightExceeding: {
+				onlyFirstRow: {
 					type: Boolean,
 					value: false
 				},
@@ -159,44 +127,30 @@
 				showFullDate: {
 					type: Boolean,
 					value: false
-				},
-				hideOverflow: {
-					type: Boolean,
-					value: false
-				},
-				checkEveryValue: {
-					type: Boolean,
-					value: true,
-					readOnly: true
-				},
-
-				maxProBlock: {
-					type: Number,
-					value: 60
 				}
 			},
 
-			_map: Object,
-			_body: Object,
 			_list: Object,
 
 			attached: function() {
-				// this._body = this.$.body;
-				// if (this.hideOverflow) {
-				// 	this._body.style.overflow = 'hidden';
-				// }
 				this._list = this.$.list;
 			},
 
 			insertValues: function(values) {
 				if (!this._list || !this._list.items || !values || !values.length) return;
-				let len = this._list.items.length;
-				console.log(values.length);
-				
+
+				// console.log(this.values.length - values.length, values.length);
+				// this.notifySplices('values', [{
+				// 	index: this.values.length + 1 - values.length,
+				// 	addedCount: values.length,
+				// 	object: this.values,
+				// 	removed: [],
+				// 	type: 'splice'
+				// }]);
+
 				values.forEach(function(value) {
 					this.unshift('items', value)
 				}, this._list)
-				// this.push.apply(this._list, 'items', len, 0, values);
 			},
 
 			toDate: function(x) {
@@ -204,109 +158,9 @@
 			},
 
 			spliceValues: function(splices) {
-				// if (!this._list || !this._list.items || !splices || splices.length === 0) return;
-				// console.log(splices.slice(0,splices.length), splices.length);
-				// this._list.splice.call(this._list, 'items', 0, splices.length - 1);
-			},
-
-			render: function(value, splices) {
-				// if (value === undefined) {
-				// 	if (Array.isArray(splices))
-				// 		splices.forEach(function(v) {
-				// 			if (this._map[v.x] && this._map[v.x].nodeType === 1)
-				// 				this._map[v.x].parentNode.removeChild(this._map[v.x]);
-				// 			this._map[v.x] = null;
-				// 			delete this._map[v.x];
-				// 		}, this)
-				// 	else {
-				// 		while (this._body.children[0])
-				// 			this._body.removeChild(this._body.children[0]);
-				// 		this._map = {};
-				// 	}
-				// } else {
-				// 	for (var i = 0; i < value.length; i++) {
-				// 		this.createRow(value[i]);
-				// 	}
-				// }
-			},
-
-			createRow: function(value) {
-				// if (this._map && this._map[value.x]) {
-				// 	return;
-				// }
-				// var row, tdX, tdY, isExceeding, status;
-				//
-				// row = document.createElement('section');
-				// row.className = 'tr style-scope table-element';
-				//
-				// tdX = document.createElement('span');
-				// tdX.className = 'style-scope table-element';
-				// tdX.innerText = (this.showFullDate ? new Date(value.x).toLocaleString() : new Date(value.x).toLocaleTimeString());
-				//
-				// tdY = document.createElement('span');
-				// tdY.className = 'style-scope table-element';
-				// isExceeding = (value.state === 0) ? false : true;
-				// tdY.innerText = (this.isBoolean ? (isExceeding ? '✗' : '✓') : value.y);
-				//
-				// if (this.highlightExceeding === true) {
-				// 	switch (value.state) {
-				// 		case 0: status = "inrange"; break;
-				// 		case -1: status = "deceeds"; break;
-				// 		case 1: status = "exceeds"; break;
-				// 		default: status = "undefined";
-				// 	}
-				// 	row.setAttribute(status, '');
-				// }
-				//
-				// row.appendChild(tdX);
-				// row.appendChild(tdY);
-				// // row.x = value.x;
-				//
-				// this._map[value.x] = row;
-				//
-				// if (this._body.children[0].children.length > this.maxProBlock) {
-				// 	var block = document.createElement('section');
-				// 	block.className = 'block style-scope table-element';
-				// 	block.appendChild(row);
-				// 	this._body.insertBefore(block, this._body.children[0]);
-				// }
-				// else
-				// 	this._body.children[0].insertBefore(row, this._body.children[0].children[0]);
-			},
-
-			scrollHandler: function(e) {
-				// console.log(e.target.offsetHeight, e.target.scrollTop, e.target.scrollHeight);
-				// if (3 * e.target.offsetHeight + e.target.scrollTop > e.target.scrollHeight) {
-        //   for (var i = 0; i < this._body.children.length; i++) {
-				// 		if (this._body.children[i].style.display !== 'block') {
-				// 			this._body.children[i].style.display = 'block';
-				// 			return;
-				// 		}
-				// 	}
-        // }
-			},
-
-			compareFn: function(a, b) {
-				if (a.x > b.x) return 1;
-				if (a.x < b.x) return -1;
-				return 0;
-			},
-
-			switchOrder: function() {
-				// if (this.descendingOrder === true) {
-				// 	this.$.body.classList.remove('reverse');
-				// 	this.descendingOrder = false;
-				// } else {
-				// 	this.$.body.classList.add('reverse');
-				// 	this.descendingOrder = true;
-				// }
-			},
-			setOrder: function(order) {
-				// if (order === false) {
-				// 	this.$.body.classList.remove('reverse');
-				// } else {
-				// 	this.$.body.classList.add('reverse');
-				// }
+				splices.forEach(function(value) {
+					this.pop('items')
+				}, this._list)
 			}
 		});
 	</script>

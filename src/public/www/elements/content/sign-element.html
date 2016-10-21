@@ -142,6 +142,7 @@
       }
       #tooltipContent {
         display: flex;
+        height: 100%;
       }
       #tooltipContent table-element:first-child {
         border-right: solid thin #BBB;
@@ -149,7 +150,7 @@
       #tooltipContent table-element {
         background: transparent;
         color: #f1f1f1;
-        min-width: 6em;
+        min-width: 7em;
       }
       [hidden] {
         pointer-events: none;
@@ -195,8 +196,8 @@
     <dropdown-element id='tooltip' hiding-event="mouseleave" position="right" align="center">
       <div class='title'>Alarmphasen</div>
       <section id='tooltipContent'>
-        <table-element id='firstStateChangeTable' caption="start" hide-header no-socket-connection show-full-date is-boolean='[[isBoolean]]'></table-element>
-        <table-element id='lastStateChangeTable' caption="end" hide-header no-socket-connection is-boolean='[[isBoolean]]'></table-element>
+        <table-element id='firstStateChangeTable' caption="start" hide-header only-first-row no-socket-connection is-boolean='[[isBoolean]]'></table-element>
+        <table-element id='lastStateChangeTable' caption="end" hide-header only-first-row no-socket-connection is-boolean='[[isBoolean]]'></table-element>
       </section>
     </dropdown-element>
 
@@ -312,12 +313,12 @@
 
       setFirstStateChange: function(value) {
         this.firstStateChange.push(value);
-        this.$.firstStateChangeTable.createRow(value);
+        this.$.firstStateChangeTable.insertValues([value]);
       },
 
       setLastStateChange: function(value) {
         this.lastStateChange.push(value);
-        this.$.lastStateChangeTable.createRow(value);
+        this.$.lastStateChangeTable.insertValues([value]);
       },
 
       handleChecked: function(checked) {

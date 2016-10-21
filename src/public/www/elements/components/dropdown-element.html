@@ -45,6 +45,7 @@
       is: 'dropdown-element',
 
       behaviors: [
+        Polymer.IronResizableBehavior,
         Polymer.NeonAnimationRunnerBehavior
       ],
 
@@ -189,6 +190,7 @@
         if (!this.opened) {
           this.style.display = 'none';
         }
+        this.notifyResize();
       },
 
       _forChanged: function() {
