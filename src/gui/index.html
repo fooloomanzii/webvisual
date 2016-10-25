@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+      <script>
+        window.Polymer = {
+          dom: 'shadow'
+        };
+        const {ipcRenderer} = require('electron');
+        var app;
+        var body;
+
+        window.addEventListener('WebComponentsReady', function(e) {
+
+          app = document.querySelector('webvisual-app');
+
+          ipcRenderer.on("log", function(e, msg) {
+            app.log(msg);
+          });
+
+          ipcRenderer.on("event", function(e, event, arg) {
+            app.eventHandler(event, arg);
+          });
+
+          ipcRenderer.send("event", "ready");
+        });
+      </script>
+    <title>Webvisual Server</title>
+    <link rel='import' href='bower_components/polymer/polymer.html'/>
+    <link rel="import" href="style/app-theme.html"/>
+    <link rel="import" href="style/form-styles.html"/>
+    <link rel="import" href="bower_components/neon-animation/neon-animation.html">
+    <link rel="import" href="bower_components/paper-material/paper-material.html">
+    <link rel="import" href="bower_components/iron-icon/iron-icon.html"/>
+    <link rel="import" href="bower_components/iron-icons/iron-icons.html"/>
+    <link rel="import" href="bower_components/iron-form-element-behavior/iron-form-element-behavior.html">
+    <link rel="import" href="bower_components/iron-behaviors/iron-button-state.html">
+    <link rel="import" href="bower_components/iron-behaviors/iron-control-state.html">
+    <link rel="import" href="bower_components/paper-behaviors/paper-ripple-behavior.html">
+    <link rel="import" href="bower_components/paper-behaviors/paper-button-behavior.html">
+    <link rel="import" href="bower_components/paper-behaviors/paper-inky-focus-behavior.html">
+    <link rel="import" href="bower_components/paper-behaviors/paper-checked-element-behavior.html">
+    <link rel="import" href="bower_components/paper-ripple/paper-ripple.html">
+    <link rel="import" href="bower_components/iron-form/iron-form.html">
+    <link rel="import" href="bower_components/iron-list/iron-list.html">
+    <link rel="import" href="bower_components/iron-selector/iron-selector.html">
+    <link rel="import" href="bower_components/iron-swipeable-container/iron-swipeable-container.html">
+    <link rel="import" href="bower_components/paper-dialog/paper-dialog.html"/>
+    <link rel="import" href="bower_components/app-layout/app-layout.html"/>
+    <link rel="import" href="bower_components/app-layout/app-scroll-effects/effects/waterfall.html"/>
+    <link rel="import" href="components/logo-element.html"/>
+    <link rel="import" href="components/dialog-element.html"/>
+    <link rel="import" href="components/button-element.html"/>
+    <link rel="import" href="components/dropdown-element.html"/>
+    <link rel="import" href="components/icon-button-element.html"/>
+    <link rel="import" href="components/toggle-button-element.html"/>
+    <link rel="import" href="components/juelich-icon.html"/>
+  </head>
+  <style is="custom-style" include="app-theme">
+    body {
+      height: 100%;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+      background: var(--bright-primary-color);
+      font-family: Fira Sans Light;
+      font-weight: normal;
+    }
+  </style>
+  <body>
+
+    <dom-module id="webvisual-app">
+      <template>
+        <style include="form-styles"></style>
+        <style include="app-theme">
+          :host {
+            font-size: 16px;
+            position: relative;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            width: 100vw;
+          }
+          app-drawer {
+            --app-drawer-scrim-background: rgba(0,0,0, 0.25);
+            color: var(--primary-text-color);
+          }
+          app-header-layout {
+            font-size: 16px;
+            position: relative;
+            height: 100%;
+            display: flex;
+          }
+          app-header-layout > div#contentContainer {
+            width: 100%;
+          }
+          app-toolbar {
+            font-size: 16px;
+            background: var(--primary-color);
+            color: var(--bright-text-color);
+          }
+          app-toolbar > icon-button-element:not(:first-child) {
+            margin-left: 0.5em;
+          }
+          app-toolbar#toolbar {
+            height: 54px;
+            box-sizing: border-box;
+            width: 100vw;
+          }
+          #mainContent {
+            height: calc(100% - 54px);
+            overflow: auto;
+            position: relative;
+          }
+          button-element, dropdown-selector {
+            border: thin solid rgba(0, 0, 0, 0.12);
+            margin: 0.5em 0em;
+            border-radius: 4px;
+            font-size: 0.9em;
+          }
+          dropdown-selector {
+            padding: 0.5em;
+            width: auto;
+            flex: 1;
+          }
+          #drawer {
+            display: flex;
+            flex-direction: column;;
+            align-items: stretch;
+          }
+          #drawer > button-element {
+            width: 100%;
+            margin: 0.25em 0em;
+          }
+          #configFiles {
+            background: #ddd;
+            float: left;
+            clear: both;
+            width: 100%;
+          }
+          .inline {
+            display: inline-flex;
+            align-items: center;
+            float: left;
+            clear: both;
+            width: auto;
+          }
+          .flex {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: center;
+            flex: 1;
+            margin: auto 0.5em;
+          }
+          .flex > * {
+            margin-bottom: 0.5em;
+          }
+          .spread {
+            margin: 0.5em;
+          }
+          .small-spread {
+            margin: 0.25em;
+          }
+          .dialog-content {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.9em;
+          }
+          dropdown-element, dropdown-selector {
+            --dropdown-background: rgba(255, 255, 255, 0.75);
+          }
+          dropdown-element button-element, dropdown-selector button-element {
+            /*color: #444;*/
+            font-size: 0.7em;
+            margin: 0.25em 0em !important;
+            padding: 0.5em !important;
+            border: none;
+            border-bottom: thin solid rgba(0, 0, 0, 0.12);
+          }
+          dropdown-selector button-element {
+            font-size: 0.9em;
+          }
+          logo-element#logo {
+            margin-left: 0.75em;
+            height: 54px;
+          }
+          #log {
+            padding: 0.35em;
+            font-family: Fira Mono;
+          }
+          #tr {
+            margin-bottom: 0.25em;
+            border: thin solid rgba(0, 0, 0, 0.25);
+            background: #f1f1f1;
+            border-radius: 4px;
+            display: inline-flex;
+            width: 100%;
+            align-items: stretch;
+          }
+          #td.date {
+            border-bottom-left-radius: inherit;
+            border-top-left-radius: inherit;
+            background: #DDDDDD;
+            padding: 0.15em 0.5em;
+            border-right: thin solid rgba(0, 0, 0, 0.08);
+            font-size: 0.5em;
+            white-space: pre-wrap;
+          }
+          #td.msg {
+            border-radius: inherit;
+            padding: 0.15em 0.5em;
+            font-size: 0.75em;
+            white-space: pre-wrap;
+            word-break: break-all;
+          }
+          [isRunning] {
+            color: #52B13D;
+          }
+          .shim {
+            opacity: 0.75;
+          }
+          .unshim:hover {
+            opacity: 1;
+          }
+          icon-button-element {
+            opacity: 0.9;
+            margin: 0.25em;
+          }
+          icon-button-element:hover {
+            opacity: 1;
+          }
+          button-element.delete {
+            color:var(--form-invalid);
+          }
+          @font-face {
+           font-family: Fira Mono;
+           src: url('www/style/fonts/FiraMono-Regular.otf') format('truetype');
+           font-weight: normal;
+           font-style: normal;
+          }
+        </style>
+
+        <app-drawer-layout force-narrow fullbleed>
+          <app-drawer id="mainDrawer">
+            <section id="drawer">
+              <app-toolbar>
+                <iron-icon icon="juelich"></iron-icon>
+                <section title>
+                  Webvisual Server
+                </section>
+              </app-toolbar>
+              <br>
+              <button-element id="startButton" ipc-event="server-start" on-tap="sendEvent" isRunning$="[[isRunning]]" aria-label="Server starten"><iron-icon class="left" icon="play-arrow"></iron-icon>Start</button-element>
+              <button-element ipc-event="server-stop" on-tap="sendEvent"><iron-icon class="left" icon="stop" aria-label="Server anhalten"></iron-icon>Stopp</button-element>
+              <button-element ipc-event="server-restart" on-tap="sendEvent"><iron-icon class="left" icon="replay" aria-label="Server neustarten"></iron-icon>Neustart</button-element>
+              <br>
+              <button-element for="serverConfigDialog" on-tap="openDialog" aria-label="Einstellungen"><iron-icon class="left" icon="settings"></iron-icon>Einstellungen</button-element>
+            </section>
+          </app-drawer>
+          <app-header-layout>
+
+            <app-header fixed>
+              <app-toolbar>
+                <icon-button-element id="menuButton" icon="menu" drawer-toggle></icon-button-element>
+                <logo-element id="logo" show-always></logo-element>
+                <section class="flex"></section>
+              </app-toolbar>
+            </app-header>
+
+            <section id="mainContent">
+              <section id="log">
+                <section id="body"></section>
+              </section>
+            </section>
+
+            <app-toolbar id="toolbar">
+
+              <icon-button-element id="clear" icon="delete" aria-label="löschen" on-tap="clearHistory"></icon-button-element>
+              <section class="flex"></section>
+              <icon-button-element id="toggleStartButton" toggles ipc-event="server-toggle" on-tap="sendEvent" icon="play-arrow" isRunning$="[[isRunning]]" aria-label="Server"></icon-button-element>
+              <icon-button-element id="files" toggles icon="description" aria-label="Konfigurationsdateien"></icon-button-element>
+
+              <dropdown-element id="dropdown" for="files" position="top" align="end" offset="6" target-toggle-event="tap">
+                <template is="dom-repeat" items="{{configFiles}}">
+                  <button-element class="inline shim" on-tap="sendEvent">
+                    <iron-icon class="left" icon="description"></iron-icon>
+                    <section class="spread">{{item.name}}</section>
+                    <section class="spread" style="flex:1;text-align:left;">{{item.path}}</section>
+                    <iron-icon class="right shim unshim" icon="edit" arg="{{item}}" on-tap="editUserConfigFile"></iron-icon>
+                  </button-element>
+                </template>
+
+                <button-element for="userConfigDialog" on-tap="openDialog">
+                  <iron-icon class="left" icon="note-add"></iron-icon>
+                  <section class="spread">Konfigurationsdatei hinzufügen...</section>
+                </button-element>
+              </dropdown-element>
+
+            </app-toolbar>
+          </app-header-layout>
+        </app-drawer-layout>
+
+        <dialog-element id="serverConfigDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+          <h3>Servereinstellungen</h3>
+          <div class="dialog-content">
+            <section class="flex">
+              <div class="inputcontainer">
+                <input id="http2Port" aria-label="http2-Port" type="number" min="32" step="1" value="{{serverConfig.port.http2}}" required><div class="focusline"></div>
+                <div class="focusline"></div>
+                <label>http2-Port</label>
+              </div>
+
+              <toggle-button-element id="authRequired" checked="{{serverConfig.auth.required}}">
+                <iron-icon icon="lock-outline"></iron-icon>
+                <span hidden$="{{serverConfig.auth.required}}">ohne</span>
+                <span hidden$="{{!serverConfig.auth.required}}">mit</span>
+                <span>Authentifizierung</span>
+              </toggle-button-element>
+
+              <div class="inputcontainer">
+                <input id="certPath" aria-label="Zertifikatdatei (ssl crt)" value="{{serverConfig.ssl.cert}}" tab-index="0"></input>
+                <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="certPath" filter="crt" aria-label="Datei öffnen..."></icon-button-element>
+                <div class="focusline"></div>
+                <label>Zertifikatdatei (ssl crt)</label>
+              </div>
+
+              <div class="inputcontainer">
+                <input id="keyPath" aria-label="Schlüsseldatei (ssl key)" value="{{serverConfig.ssl.key}}" tab-index="0"></input>
+                <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="keyPath" filter="key" aria-label="Datei öffnen..."></icon-button-element>
+                <div class="focusline"></div>
+                <label>Schlüsseldatei (ssl key)</label>
+              </div>
+
+              <div class="inputcontainer">
+                <input id="passphrasePath" aria-label="Passphrasendatei (ssl passphrase)" value="{{serverConfig.ssl.passphrase}}"></input>
+                <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="passphrasePath" filter="json" aria-label="Datei öffnen..."></icon-button-element>
+                <div class="focusline"></div>
+                <label>Passphrasendatei (ssl passphrase)</label>
+              </div>
+
+            </section>
+          </div>
+          <div class="buttons">
+            <button-element dialog-dismiss class="small-spread">Abbrechen<iron-icon class="right" icon="close"></iron-icon></button-element>
+            <button-element dialog-confirm on-tap="commitServerFile" class="small-spread">Speichen<iron-icon class="right" icon="save"></iron-icon></button-element>
+          </div>
+        </dialog-element>
+
+        <dialog-element id="userConfigDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+          <h3>Konfigurationsdatei</h3>
+          <div class="dialog-content flex">
+            <div class="inputcontainer">
+              <input id="newConfigName" aria-label="Anzeigename" required></input>
+              <div class="focusline"></div>
+              <label>Anzeigename</label>
+            </div>
+            <div class="inputcontainer">
+              <input id="newConfigPath" aria-label="Pfad" required></input>
+              <icon-button-element icon="folder-open" class="spread" on-tap="openFileSelector" for="newConfigPath" filter="json" aria-label="Datei öffnen..."></icon-button-element>
+              <div class="focusline"></div>
+              <label>Pfad</label>
+            </div>
+            <dropdown-selector id="fileRenderer" label="Rendereinheit" icon="view-agenda" class="inline" attr-for-selected="renderer" toggles position="bottom" align="start" required>
+              <template is="dom-repeat" items="{{renderer}}">
+                <button-element class="inline" renderer="[[item.renderer]]">
+                  <iron-icon class="left" icon="[[item.icon]]"></iron-icon>
+                  <section class="spread">[[item.renderer]]</section>
+                </button-element>
+              </template>
+            </dropdown-selector>
+          </div>
+          <div class="buttons">
+            <button-element class="delete small-spread" dialog-dismiss style="padding:0.75em;height:auto;" icon="delete" on-tap="removeUserConfigFile"><iron-icon icon="delete"></iron-icon></button-element>
+            <button-element class="small-spread" dialog-dismiss>Abbrechen<iron-icon class="right" icon="close"></iron-icon></button-element>
+            <button-element class="small-spread" dialog-confirm on-tap="addUserConfigFile">Speichern<iron-icon class="right" icon="add"></iron-icon></button-element>
+          </div>
+        </dialog-element>
+      </template>
+
+      <script>
+        Polymer({
+          is: "webvisual-app",
+
+          properties: {
+            configFiles: {
+              type: Array,
+              value: function() {
+                return [];
+              }
+            },
+            serverConfig: {
+              type: Object,
+              value: function() {
+                return {};
+              }
+            },
+            renderer: {
+              type: Array,
+              value: function() {
+                return [];
+              }
+            },
+            isRunning: {
+              type: Boolean,
+              value: false
+            }
+          },
+
+          _body: Object,
+
+          attached: function() {
+            this._body = this.$.body;
+          },
+
+          sendEvent: function(e) {
+            this.$.dropdown.hide();
+            var ipcEvent = e.currentTarget.getAttribute('ipc-event');
+            if (ipcEvent) {
+              var arg = e.currentTarget.ipcArg;
+              ipcRenderer.send('event', ipcEvent, arg);
+              this.$.mainDrawer.close();
+            }
+          },
+          eventHandler: function(event, arg) {
+            switch (event) {
+              case 'file-dialog':
+                if (arg) {
+                  var input = this.$[arg.for];
+                  if (arg.path)
+                    input.value = arg.path;
+                }
+                break;
+              case 'set-user-config':
+                var values = [];
+                for (var c in arg) {
+                  values.push({name: c, path: arg[c].path, renderer: arg[c].renderer});
+                }
+                this.set("configFiles", values);
+                break;
+              case 'set-renderer':
+                for (var r in arg)
+                  this.push("renderer", {renderer: r, icon: arg[r].icon});
+                break;
+              case 'set-server-config':
+                this.set("serverConfig", arg);
+                break;
+              case 'server-start':
+                this.isRunning = true;
+                break;
+              case 'server-stop':
+                this.isRunning = false;
+                break;
+            }
+          },
+          openFileSelector: function(e) {
+            this.$.dropdown.hide();
+            var arg = {
+              for: e.currentTarget.getAttribute('for'),
+              filter: [ {name: e.currentTarget.getAttribute('filter'), extensions: [e.currentTarget.getAttribute('filter')]} ]
+            }
+            ipcRenderer.send('event', 'file-dialog', arg);
+          },
+          openFolderSelector: function(e) {
+            this.$.dropdown.hide();
+            var arg = {
+              for: e.currentTarget.getAttribute('for')
+            }
+            ipcRenderer.send('event', 'folder-dialog', arg);
+          },
+          editUserConfigFile: function(e) {
+            this.$.dropdown.hide();
+            var arg = e.currentTarget.arg;
+            if(arg) {
+              this.$.newConfigName.value = arg.name;
+              this.$.newConfigPath.value = arg.path;
+              this.$.fileRenderer.selected = arg.renderer;
+              this.$.userConfigDialog.open();
+            }
+          },
+          addUserConfigFile: function() {
+            var name = this.$.newConfigName.value;
+            var path = this.$.newConfigPath.value;
+            var renderer = this.$.fileRenderer.selected;
+            ipcRenderer.send('event', 'add-user-config', {name: name, path: path, renderer: renderer});
+          },
+          removeUserConfigFile: function() {
+            var name = this.$.newConfigName.value;
+            var path = this.$.newConfigPath.value;
+            var renderer = this.$.fileRenderer.selected;
+            ipcRenderer.send('event', 'remove-user-config', {name: name, file: path, renderer: renderer});
+          },
+          commitServerFile: function() {
+            this.set("serverConfig", {
+              auth: {
+                required: this.$.authRequired.checked
+              },
+              port: {
+                http2: +this.$.http2Port.value
+              },
+              ssl: {
+                cert: this.$.certPath.value,
+                key: this.$.keyPath.value,
+                passphrase: this.$.passphrasePath.value
+              }
+            });
+            ipcRenderer.send('event', 'set-server-config', this.serverConfig);
+          },
+          openDialog: function(e) {
+            this.$.mainDrawer.close();
+            this.$.dropdown.hide();
+            var For = e.currentTarget.getAttribute('for');
+            var dialog = this.$$('dialog-element#'+For);
+            if (dialog)
+              dialog.open();
+          },
+          clearHistory: function() {
+            this.$.dropdown.hide();
+            while (this._body.lastChild) {
+              this._body.removeChild(this._body.lastChild);
+            }
+          },
+          log: function(msg) {
+            let row = document.createElement('section');
+            row.id = "tr";
+            row.classList.add("webvisual-app");
+            let date = document.createElement('section');
+            date.id = "td"; date.className = "date";
+            let timestamp = new Date();
+            date.innerHTML = timestamp.toLocaleDateString() + '</br>' + timestamp.toLocaleTimeString() + "." + timestamp.getMilliseconds();
+            let message = document.createElement('section');
+            message.id = "td"; message.className = "msg";
+            message.textContent = msg;
+            row.appendChild(date); row.appendChild(message);
+            this._body.insertBefore(row, this._body.childNodes[0]);
+          }
+        });
+      </script>
+
+    </dom-module>
+
+    <webvisual-app></webvisual-app>
+
+  </body>
+</html>

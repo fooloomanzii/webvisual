@@ -1,0 +1,299 @@
+<link rel="import" href="../behaviors/color-behavior.html"/>
+<link rel="import" href="../behaviors/checked-and-select-behavior.html"/>
+<link rel="import" href="../behaviors/drag-and-drop-behavior.html"/>
+<link rel="import" href="../behaviors/element-behavior.html"/>
+<dom-module id="element-checkbox">
+  <template strip-whitespace>
+    <style>
+      :host {
+        display: inline-block;
+        position: relative;
+        line-height: 0;
+        --calculated-box-size: var(--box-size, 20px);
+        padding: 0.25em 0.5em;
+        transition: background-color 200ms ease;
+        cursor: pointer;
+      }
+
+      #container {
+        display: inline-flex;
+        white-space: nowrap;
+        position: relative;
+        @apply(--font-common-base);
+        line-height: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      #boxContainer {
+        display: inline-block;
+				align-self: center;
+        position: relative;
+        width: var(--calculated-box-size);
+        height: var(--calculated-box-size);
+        min-width: var(--calculated-box-size);
+        margin: var(--box-margin, initial);
+        vertical-align: var(--box-vertical-align, middle);
+        background-color: var(--box-unchecked-background-color, transparent);
+      }
+
+      #ripple {
+        position: absolute;
+        /* Center the ripple in the box by negative offsetting it by
+         * (rippleWidth - rippleWidth) / 2 */
+        top: calc(0px - (2.66 * var(--calculated-box-size) - var(--calculated-box-size)) / 2);
+        left: calc(0px - (2.66 * var(--calculated-box-size) - var(--calculated-box-size)) / 2);
+        width: calc(2.66 * var(--calculated-box-size));
+        height: calc(2.66 * var(--calculated-box-size));
+        color: var(--box-unchecked-ripple-color, --bright-text-color);
+        opacity: 0.25;
+        pointer-events: none;
+      }
+
+      #box {
+        opacity: 0.25;
+        position: relative;
+        box-sizing: border-box;
+        position: relative;
+        height: 100%;
+        border: solid var(--box-border, 2px);
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.9);
+        pointer-events: none;
+        -webkit-transition: background-color 150ms, border-color 150ms, opacity 150ms;
+        transition: background-color 150ms, border-color 150ms, opacity 150ms;
+      }
+
+      #arrow {
+        position: absolute;
+        width: 36%;
+        height: 70%;
+        border-style: solid;
+        border-top: none;
+        border-left: none;
+        border-right-width: calc(2/15 * var(--calculated-box-size));
+        border-bottom-width: calc(2/15 * var(--calculated-box-size));
+        border-color: var(--box-arrow-color, white);
+        -webkit-transform-origin: 97% 86%;
+        transform-origin: 97% 86%;
+        box-sizing: content-box; /* protect against page-level box-sizing */
+      }
+
+      caption-element {
+        --caption-background: transparent;
+        --caption-dark-background: transparent;
+        --caption-padding: 0 0 0 0.35em;
+      }
+
+      #container[state="0"] #box {
+        background-color: var(--element-color);
+      }
+      #container[state="1"] #box {
+        background-color: var(--element-state-exceeds-color);
+      }
+      #container[state="-1"] #box {
+        background-color: var(--element-state-deceeds-color);
+      }
+      #container[state="undefined"] #box {
+        background-color: var(--element-state-undefined-color);
+      }
+
+      #container[state="0"], #ripple {
+        color: var(---primary-text-color);
+      }
+      #container[state="1"], #ripple {
+        color: var(--element-state-exceeds-color);
+      }
+      #container[state="-1"], #ripple {
+        color: var(--element-state-deceeds-color);
+      }
+      #container[state="undefined"], #ripple {
+        color: var(--element-state-undefined-color);
+      }
+
+      :host([checked]) #box {
+        opacity: 1;
+      }
+
+      :host([checked]) {
+        background-color: var(--box-checked-background, rgba(255, 255, 255, 0.9));
+      }
+
+      :host(:focus) {
+        outline: 1px var(--bright-primary-color);
+      }
+
+      /* box checked animations */
+      :host([checked]) #arrow {
+        -webkit-animation: arrow-expand 150ms ease-out forwards;
+        animation: arrow-expand 150ms ease-out forwards;
+      }
+
+      @-webkit-keyframes arrow-expand {
+        0% {
+          -webkit-transform: scale(0, 0) rotate(45deg);
+        }
+        100% {
+          -webkit-transform: scale(1, 1) rotate(45deg);
+        }
+      }
+
+      @keyframes arrow-expand {
+        0% {
+          transform: scale(0, 0) rotate(45deg);
+        }
+        100% {
+          transform: scale(1, 1) rotate(45deg);
+        }
+      }
+
+      :host:not([checked]) caption-element {
+        font-weight: lighter;
+      }
+
+      :host([disabled]) #box {
+        opacity: 0.5;
+        border-color: var(--box-unchecked-color, --primary-text-color);
+      }
+      :host([disabled][checked]) #box {
+        background-color: var(--disabled-text-color, --primary-text-color);
+        opacity: 0.5;
+      }
+      :host([disabled]) caption-element  {
+        opacity: 0.65;
+      }
+
+      .value {
+        padding: 0.5em;
+        display: flex;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        box-sizing: border-box;
+        background: linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,0.12),rgba(255,255,255,0));
+        border-radius: inherit;
+      }
+      #valueSection {
+        font-size: 0.9em;
+        padding: 0 0.25em;
+        float: left;
+      }
+      #unitSection {
+        margin-left: 0.25em;
+        font-size: 0.7em;
+        float: right;
+      }
+      #dateSection {
+        font-size: 0.6em;
+        height: auto;
+        width: auto;
+        text-align: center;
+        position: relative;
+        padding: 0.75em;
+        pointer-events: none;
+      }
+      dropdown-element {
+        --dropdown-background: rgba(0, 0, 0, 0.5);
+        --dropdown-text-color: var(--bright-text-color);
+        border-radius: 4px;
+        min-height: 3em;
+        min-width: 3em;
+      }
+      iron-icon {
+        --icon-height: var(--calculated-box-size);
+        --icon-width: var(--calculated-box-size);
+      }
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+
+    <section id="container" state$="[[renderedValue.state]]" on-click='select'>
+      <section id="boxContainer">
+        <section id="box">
+          <section id="arrow" hidden$="[[!checked]]"></section>
+        </section>
+        <section id="ripple">
+          <paper-ripple></paper-ripple>
+        </section>
+      </section>
+
+      <caption-element vertical$="[[vertical]]" without-grouped-key grouped-key='[[groupedKey]]' data-keys='[[dataKeys]]'></caption-element>
+    </section>
+
+    <template is="dom-if" if="[[showLastValue]]">
+      <dropdown-element id="sign" for="boxContainer" target-showing-event="mouseover" target-hiding-event="mouseleave" hiding-event="tap" position="bottom" align="center" offset="4">
+        <template is="dom-if" if="[[!isBoolean]]">
+          <section class="value" hidden$="[[isBoolean]]">
+            <section id='valueSection'>[[getValue(renderedValue.y)]]</section>
+            <section id='unitSection'>[[unit]]</section>
+          </section>
+        </template>
+        <template is="dom-if" if="[[isBoolean]]">
+          <section class="value" hidden$="[[!isBoolean]]">
+            <svg id='icon' hidden$='[[!isExceeding]]' viewBox='0 0 24 24'>
+              <g id='error-outline'><path d='M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z'/></g>
+            </svg>
+          </section>
+        </template>
+        <section id='dateSection' hidden$='[[!showDate]]'>[[toDate(renderedValue.x)]]</section>
+      </dropdown-element>
+    </template>
+  </template>
+
+  <script>
+    ElementCheckbox = Polymer({
+      is: 'element-checkbox',
+
+      behaviors: [
+        ColorBehavior,
+        CheckedAndSelectBehavior,
+        DragAndDropBehavior,
+        ElementBehavior
+      ],
+
+      properties: {
+        showDate: {
+          type: Boolean,
+          value: false
+        },
+        showLastValue: {
+          type: Boolean,
+          value: false
+        },
+        vertical: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        singleValue: {
+          type: Boolean,
+          value: true,
+          readOnly: true
+        }
+      },
+
+      attached: function() {
+        this.insertValues();
+      },
+
+      renderInsertedValues: function(value) {
+        if (value === undefined) {
+          if (this.values && this.values.length) {
+            value = this.values[this.values.length - 1];
+          } else {
+            return;
+          }
+        }
+
+        this.renderedValue = value;
+      }
+    });
+  </script>
+</dom-module>

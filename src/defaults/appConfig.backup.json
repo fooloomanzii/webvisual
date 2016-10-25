@@ -2,22 +2,19 @@
   "server": {
     "auth": {
       "required": false,
-      "req": true,
       "ldap": {
         "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
-        "url": "ldap:\\\\ibn-net.kfa-juelich.de"
+        "url": "ldap://ibn-net.kfa-juelich.de"
       },
       "suffix": "@fz-juelich.de"
     },
     "port": {
-      "http": 80,
-      "https": 443
+      "http2": 443
     },
     "ssl": {
-      "cert": "D:\\Github\\webvisual\\ssl\\ca.crt",
-      "certchaindir": "D:\\Github\\webvisual\\ssl\\cert_chain",
-      "key": "D:\\Github\\webvisual\\ssl\\ca.key",
-      "passphrase": "D:\\Github\\webvisual\\ssl\\ca.pw.json"
+      "cert": "D:/Github/webvisual/ssl/ca.crt",
+      "key": "D:/Github/webvisual/ssl/ca.key",
+      "passphrase": "D:/Github/webvisual/ssl/ca.pw.json"
     },
     "logs": {
       "http_server_log": "./logs/http-error.log",
@@ -37,15 +34,15 @@
   },
   "userConfigFiles": {
     "Cryostat": {
-      "path": "D:\\Github\\webvisual\\src\\examples\\config\\cryostat_visu.json",
+      "path": "D:/Github/webvisual/src/examples/config/cryostat_visu.json",
       "renderer": "Diagrammansicht"
     },
     "HNF-GDS": {
-      "path": "D:\\Github\\webvisual\\src\\examples\\config\\HNF_GDS.json",
+      "path": "D:/Github/webvisual/src/examples/config/HNF_GDS.json",
       "renderer": "Alarmzustände"
     },
     "Tests": {
-      "path": "D:\\Github\\webvisual\\src\\examples\\config\\test.json",
+      "path": "D:/Github/webvisual/src/examples/config/test.json",
       "renderer": "Alarmzustände"
     }
   },

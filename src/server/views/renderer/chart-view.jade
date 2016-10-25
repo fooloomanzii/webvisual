@@ -1,0 +1,70 @@
+include ./includes/default
+
+block StyleContent
+    style(is="custom-style", include="app-theme").
+        body {
+            background: var(--bright-primary-color, #005B82);
+        }
+        div#background {
+            background: var(--primary-color-background);
+        }
+        chart-element {
+            background: var(--background-1);
+            color: var(--primary-text-color);
+            width: 100%;
+        }
+        chart-element[dark] {
+            background: #a9a9a9;
+        }
+        main-page.chartview {
+            --app-content-background: #a9a9a9;
+            --dark-app-content-background: #708090;
+            --app-toolbar-height: calc(50vh - 64px);
+            --app-toolbar-expanded-height: calc(100vh - 64px);
+        }
+
+block BodyContent
+
+    neon-animated-pages#PageSelector.fullbleed(hidden, selected-attribute="active")
+        //- LABEL SELECTION PAGE
+        select-page.fullbleed()
+            each Label in config.labels
+                radio-button-element.labelButton(data-label!= Label)
+                    != Label
+        //- MAIN-PAGE
+        main-page.fullbleed.chartview(animatable!= (!mobile), force-opened)
+            //- TABS
+            each Label in config.labels
+                tab-element.label(data-label!= Label)
+                    != Label
+
+            //- Elements for TOOLBAR
+            chart-element.toolbar-footer(notify-parent, multi-select, toggles, no-exceed-notify, no-dots!= (mobile), no-areas!= (mobile))
+            //- div#selectedTable.toolbar-footer
+            //-   table-element()
+
+            //- GROUPINGKEY SELECTORS
+            each Label in config.labels
+                iron-selector.groupingKeySelector(data-label!= Label, attr-for-selected= "groupingkey", selected-attribute= "checked", selected!= config.preferedGroupingKeys[Label], fallback-selection!= config.preferedGroupingKeys[Label], activate-event="change")
+                    each GroupingKey in config.groupingKeys[Label]
+                        radio-button-element.lightcontext.groupingKey(groupingkey!= GroupingKey)
+                            != GroupingKey
+
+            //- PANELS
+            each Label in config.labels
+                panel-page.panel(data-label!= Label, animatable!= (!mobile))
+                    each Subgroup, Titel in config.groups[Label][config.preferedGroupingKeys[Label]]
+                        group-card(title= Titel)
+                            each Id, i in Subgroup.ids
+                                if (config.elements[Label][Id])
+                                    element-checkbox(data-label!= Label,
+                                        data-id!= Id,
+                                        is-boolean!= config.elements[Label][Id].isBoolean,
+                                        unit!= config.elements[Label][Id].unit,
+                                        data-keys= JSON.stringify(config.elements[Label][Id].keys),
+                                        grouped-key!= config.preferedGroupingKeys[Label],
+                                        show-last-value!= (!mobile),
+                                        show-date!= (!mobile),
+                                        color!= config.elements[Label][Id].color,
+                                        exceedable!= (config.elements[Label][Id].exceedable),
+                                        selectable)

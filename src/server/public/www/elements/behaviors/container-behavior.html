@@ -1,0 +1,459 @@
+<script>
+  ContainerBehavior = {
+
+    properties: {
+      opened: {
+        type: Boolean,
+        value: false
+      },
+      openOnSelect: {
+        type: Boolean,
+        value: false
+      },
+      openOnExceed: {
+        type: Boolean,
+        value: false
+      },
+      forceOpened: {
+        type: Boolean,
+        value: false
+      },
+
+      isExceeding: {
+        type: Boolean,
+        value: false,
+        notify: true,
+        observer: "_handleExceeding"
+      },
+
+      notify: {
+        type: Boolean,
+        value: false,
+        observer: 'notifyChanged'
+      },
+      notifyParent: {
+        type: Boolean,
+        value: false,
+        observer: 'notifyChanged'
+      },
+      noSelectNotify: {
+        type: Boolean,
+        value: false,
+        observer: 'notifyChanged'
+      },
+      noExceedNotify: {
+        type: Boolean,
+        value: false,
+        observer: 'notifyChanged'
+      },
+
+      multiSelect: {
+        type: Boolean,
+        value: false
+      },
+      toggles: {
+        type: Boolean,
+        value: false
+      },
+
+      noAutoRemovalExceedingElements: {
+        type: Boolean,
+        value: false
+      },
+
+      reproduce: {
+        type: Boolean,
+        value: false
+      },
+
+      reproductionContainer: {
+        type: String
+      },
+
+      selectedElements: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      },
+      exceedingElements: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      },
+
+      draggable: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true,
+        observer: 'draggableChanged'
+      },
+      droppable: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true,
+        observer: 'droppableChanged'
+      },
+      _elements: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      },
+      _elementObserver: {
+        type: Object
+      }
+    },
+
+    hostAttributes: {
+      container: true
+    },
+
+    get rootElement() {
+      var rootNode = Polymer.dom(this).getOwnerRoot();
+      if (rootNode === null)
+        rootNode = Polymer.dom(this.parentNode).getOwnerRoot();
+      if (rootNode && rootNode.host)
+        return rootNode.host;
+      else
+        return this.parentNode;
+    },
+
+    created: function() {
+      var sel, uniqueid;
+      while (true) {
+        uniqueid = String(Math.random().toString(16).slice(2));
+        sel = document.querySelector("[uniqueid='" + uniqueid + "']");
+        if (!sel) break;
+      }
+      this.setAttribute('uniqueid', uniqueid);
+
+      this._elementObserver =
+        Polymer.dom(this).observeNodes((function(info) {
+          this.__processNewNodes(info.addedNodes);
+          this.__processRemovedNodes(info.removedNodes);
+        }).bind(this));
+    },
+
+    __processNewNodes: function(nodes) {
+      for (var i in nodes) {
+        if (!(nodes[i] in this._elements)) {
+          this._elements.push(nodes[i]);
+        }
+      }
+    },
+
+    __processRemovedNodes: function(nodes) {
+      var pos;
+      for (var i in nodes) {
+        if ((pos = this._elements.indexOf(nodes[i])) !== -1) {
+          this._elements.splice(pos, 1);
+        }
+      }
+    },
+
+    observers: [
+      '_reproductionSelectRepeat(selectedElements.splices)',
+      '_reproductionExceedsRepeat(exceedingElements.splices)'
+    ],
+
+    attached: function() {
+    },
+
+    detached: function() {
+      this.unlisten(this, 'element-select', '__setSelectedElement');
+      this.unlisten(this, 'element-deselect', '__unsetSelectedElement');
+      this.unlisten(this.rootElement, 'element-select', '__setSelectedElement');
+      this.unlisten(this.rootElement, 'element-deselect', '__unsetSelectedElement');
+      this.unlisten(this.rootElement, 'clear-selected-elements', 'clearSelectedElements');
+      this.unlisten(this.rootElement, 'clear-exceeding-elements-elements', 'clearExceedingElements');
+      Polymer.dom(this).unobserveNodes(this._elementObserver);
+    },
+
+    notifyChanged: function() {
+      if (this.notify === true) {
+        if (this.noSelectNotify === false) {
+          this.listen(this, 'element-select', '__setSelectedElement');
+          this.listen(this, 'element-deselect', '__unsetSelectedElement');
+        }
+        if (this.noExceedNotify === false) {
+          this.listen(this, 'element-is-exceeding', '__setExceedingElement');
+          this.listen(this, 'element-is-not-exceeding', '__unsetExceedingElement');
+        }
+      }
+      if (this.notifyParent === true) {
+        if (this.noSelectNotify === false) {
+          this.listen(this.rootElement, 'element-select', '__setSelectedElement');
+          this.listen(this.rootElement, 'element-deselect', '__unsetSelectedElement');
+          this.listen(this.rootElement, 'clear-selected-elements', 'clearSelectedElements');
+        }
+        if (this.noExceedNotify === false) {
+          this.listen(this.rootElement, 'element-is-exceeding', '__setExceedingElement');
+          this.listen(this.rootElement, 'element-is-not-exceeding', '__unsetExceedingElement');
+          this.listen(this.rootElement, 'clear-exceeding-elements', 'clearExceedingElements');
+        }
+      }
+    },
+
+    __setSelectedElement: function(e) {
+      if (e && e.detail && e.detail.target) {
+        this.setSelectedElement(e.detail.target);
+      }
+      else return;
+    },
+
+    setSelectedElement: function(element) {
+      if (this.noSelectNotify === true) return;
+      if (this.multiSelect === true) {
+        if (this.indexOf(this.selectedElements, element) === -1) {
+          this.push("selectedElements", element);
+        } else if (this.toggles === true)
+          this.unsetSelectedElement(element);
+      } else {
+        this.splice("selectedElements", 0, this.selectedElements.length);
+        this.push('selectedElements', element);
+      }
+
+      this.opened = this.forceOpened || (this.openOnSelect === true && this.selectedElements.length > 0) ? true : false;
+    },
+
+    __unsetSelectedElement: function(e) {
+      if (e && e.detail && e.detail.target) {
+        this.unsetSelectedElement(e.detail.target);
+      }
+      else return;
+    },
+
+    unsetSelectedElement: function(element) {
+      if (this.noSelectNotify === true) return;
+
+      var pos = this.indexOf(this.selectedElements, element);
+      if (pos !== -1) {
+        if (this.multiSelect === false) {
+          this.selectedElements.forEach(function(item) {
+            item.checked = false
+          });
+        } else {
+          this.selectedElements[pos].checked = false;
+        }
+        this.splice("selectedElements", pos, 1);
+      }
+
+      this.opened = this.forceOpened || (this.openOnSelect === true && this.selectedElements.length > 0) ? true : false;
+    },
+
+    clearSelectedElements: function() {
+      this.selectedElements.forEach(function(item) {
+        item.checked = false;
+        item.unsetElement();
+      });
+      this.splice("selectedElements", 0, this.selectedElements.length);
+    },
+
+    __setExceedingElement: function(e) {
+      if (e && e.detail && e.detail.target) {
+        this.setExceedingElement(e.detail.target);
+      }
+      else return;
+    },
+
+    setExceedingElement: function(element) {
+      var pos = this.indexOf(this.exceedingElements, element);
+      if (pos === -1)
+        this.push("exceedingElements", element);
+
+      this.isExceeding = (this.exceedingElements.length > 0) ? true : false;
+      this.opened = this.opened || this.forceOpened || (this.openOnExceed === true && this.isExceeding);
+    },
+
+    __unsetExceedingElement: function(e) {
+      if (e && e.detail && e.detail.target) {
+        this.unsetExceedingElement(e.detail.target);
+      }
+      else return;
+    },
+
+    unsetExceedingElement: function(element) {
+      if (this.noAutoRemovalExceedingElements === true) return;
+      var pos = this.indexOf(this.exceedingElements, element);
+      if (pos !== -1)
+        this.splice("exceedingElements", pos, 1);
+
+      this.isExceeding = (this.exceedingElements.length > 0) ? true : false;
+      this.opened = this.opened || this.forceOpened || (this.openOnExceed === true && this.isExceeding);
+    },
+
+    clearExceedingElements: function() {
+      this.splice("exceedingElements", 0, this.exceedingElements.length);
+      this.isExceeding = false;
+    },
+
+    _handleExceeding: function(value) {},
+
+    _reproductionSelectRepeat: function(cr) {
+      if (this.reproduce === false) return;
+      if (cr && cr.indexSplices) {
+
+        var container = (this.reproductionContainer) ? Polymer.dom(this).querySelector('#' + this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);
+
+        var index, items, item;
+        var items = Polymer.dom(container).getEffectiveChildNodes().filter(function(el) {
+          return el.nodeType === Node.ELEMENT_NODE;
+        });
+
+        var elements = items.filter(function(el) {
+          return el.hasAttribute('element');
+        });
+        var containers = items.filter(function(el) {
+          return el.hasAttribute('container');
+        });
+
+        for (var i = 0; i < cr.indexSplices.length; i++) {
+          for (var j = 0; j < cr.indexSplices[i].removed.length; j++) {
+            item = cr.indexSplices[i].removed[j];
+
+            elements.filter(function(el) {
+                return el.dataId === item.dataId && el.dataLabel === item.dataLabel;
+              })
+              .forEach(function(el) {
+                el.unsetElement();
+              }, this);
+            this._elements = this._elements.filter(function(el) {
+              return !(el.dataId === item.dataId && el.dataLabel === item.dataLabel);
+            })
+            containers.forEach(function(el) {
+              // containers should notify themselfes? "item.unsetSelectedElement(del);"
+              el.unsetSelectedElement(item);
+            }, this);
+          }
+
+          for (var j = 0; j < cr.indexSplices[i].addedCount; j++) {
+            index = cr.indexSplices[i].index + j;
+            item = cr.indexSplices[i].object[index];
+            var element = item.getElement();
+
+            // if (this.multiSelect === false)
+            elements.forEach(function(el) {
+              el.setElement(element);
+            });
+
+            containers.forEach(function(el) {
+              el.setSelectedElement(item);
+            }, this);
+          }
+        }
+      }
+    },
+    _reproductionExceedsRepeat: function(cr) { // just the container
+      if (this.reproduce === false) return;
+      if (cr && cr.indexSplices) {
+
+        var container = (this.reproductionContainer) ? Polymer.dom(this).querySelector('#' + this.reproductionContainer) || Polymer.dom(this) : Polymer.dom(this);
+
+        var index, items, item;
+        var items = Polymer.dom(container).getEffectiveChildNodes().filter(function(el) {
+          return el.nodeType === Node.ELEMENT_NODE;
+        });
+
+        var containers = items.filter(function(el) {
+          return el.hasAttribute('container');
+        });
+
+        for (var i = 0; i < cr.indexSplices.length; i++) {
+          for (var j = 0; j < cr.indexSplices[i].removed.length; j++) {
+            item = cr.indexSplices[i].removed[j];
+            containers.forEach(function(el) {
+              el.unsetExceedingElement(item);
+            }, this);
+          }
+          for (var j = 0; j < cr.indexSplices[i].addedCount; j++) {
+            index = cr.indexSplices[i].index + j;
+            item = cr.indexSplices[i].object[index];
+
+            containers.forEach(function(el) {
+              el.setExceedingElement(item);
+            }, this);
+          }
+        }
+      }
+    },
+
+    _openedChanged: function() {
+      this.fire('resize');
+    },
+
+    indexOf: function(elements, item) {
+      var id = item.dataId;
+      var label = item.dataLabel;
+      for (var i in elements) {
+        if (elements[i].dataId === id && elements[i].dataLabel === label) {
+          return i;
+        }
+      }
+      return -1;
+    },
+
+    draggableChanged: function() {
+      if (this.draggable === true) {
+        this.setAttribute('draggable', '');
+        var dragArea = this.dragArea || this;
+        dragArea.addEventListener('dragstart', this.dragStart);
+      }
+      else if (this.draggable === false && this.hasAttribute('draggable')) {
+        this.removeAttribute('draggable');
+        var dragArea = this.dragArea || this;
+        dragArea.removeEventListener('dragstart', this.dragStart);
+      }
+    },
+    droppableChanged: function() {
+      if (this.droppable === true) {
+        this.setAttribute('droppable', '');
+        var dropArea = this.dropArea || this;
+        dropArea.addEventListener('dragover', this.dragOver);
+        dropArea.addEventListener('drop', this.dropped);
+      }
+      else if (this.droppable === false && this.hasAttribute('droppable')) {
+        this.removeAttribute('droppable');
+        var dropArea = this.dropArea || this;
+        dropArea.removeEventListener('dragover', this.dragOver);
+        dropArea.removeEventListener('drop', this.dropped);
+      }
+    },
+    dragStart: function(e) {
+      e.dataTransfer.setData("text", "[uniqueid='" + e.target.getAttribute('uniqueid') + "']");
+      e.dataTransfer.effectAllowed = "move";
+    },
+    dragOver: function(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move"
+    },
+    dropped: function(e) {
+      e.preventDefault();
+      var selector = e.dataTransfer.getData("text");
+      if (selector) {
+        var elem = document.querySelector(selector);
+        if (elem) {
+          var elemParent = elem.parentNode;
+          var thisParent = this.parentNode;
+          if (elemParent === thisParent) {
+            var elemSibling = elem.nextSibling;
+            if (elemSibling === this) {
+              Polymer.dom(elemParent).insertBefore(this, elem);
+            } else {
+              Polymer.dom(thisParent).insertBefore(elem, this);
+              if (elemSibling) {
+                Polymer.dom(elemParent).insertBefore(this, elemSibling);
+              } else {
+                Polymer.dom(elemParent).appendChild(this);
+              }
+            }
+          } else {
+            Polymer.dom(this).appendChild(elem);
+          }
+        }
+      }
+      e.stopPropagation();
+    }
+  };
+</script>

@@ -1,6 +1,6 @@
 {
   "name": "webvisual",
-  "version": "0.7.2",
+  "version": "0.7.5",
   "description": "Visualisierung von Sensordaten",
   "private": "true",
   "homepage": "https://github.com/fooloomanzoo/webvisual",
@@ -11,9 +11,9 @@
     "Alexander Diener",
     "Sascha Wolff"
   ],
-  "main": "main.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node index.js",
     "stop": "taskkill /IM node.exe /F",
     "postinstall": "bower update"
   },
@@ -34,7 +34,7 @@
     "merge-defaults": "*",
     "net": "*",
     "passport": "*",
-    "passport-local": "^1.0.0",
+    "passport-local": "*",
     "socket.io": "*",
     "underscore": "*",
     "x-frame-options": "*"
@@ -42,7 +42,7 @@
   "devDependencies": {
   },
   "engines": {
-    "node": ">= 5.0",
+    "node": ">= 6.0",
     "npm": "*"
   }
 }

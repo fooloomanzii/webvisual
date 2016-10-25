@@ -1,0 +1,350 @@
+<link rel="import" href="../behaviors/color-behavior.html"/>
+<link rel="import" href="../behaviors/checked-and-select-behavior.html"/>
+<link rel="import" href="../behaviors/drag-and-drop-behavior.html"/>
+<link rel="import" href="../behaviors/element-behavior.html"/>
+
+<dom-module id='sign-element'>
+  <template>
+    <style>
+      :host {
+        position: relative;
+        box-sizing: border-box;
+        flex-direction: row;
+        display: inline-flex;
+        outline: none;
+        -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+        -webkit-touch-callout: none; -webkit-tap-highlight-color: rgba(0,0,0,0);
+        background: transparent;
+        font-size: 1em;
+        line-height: 1;
+        height: auto;
+        align-self: stretch;
+        border-radius: 2px 2px 2px 3px;
+        border-style: solid;
+        border-width: thin;
+        border-color: rgba(0,0,0,.2);
+      }
+
+      :host([vertical]) {
+        flex-direction: column;
+      }
+      #sign {
+        height: auto;
+        width: auto;
+        display: flex;
+        padding-bottom: 0.25em;
+        background: var(--element-color);
+        color: var(--element-text-color);
+        cursor: pointer;
+        position: relative;
+        min-height: 4em;
+        min-width: 5em;
+        width: 100%;
+        align-self: stretch;
+        box-sizing: border-box;
+        border-color: inherit;
+        border-right-width: thin;
+        border-right-style: solid;
+        border-bottom-width: 0;
+        border-bottom-style: solid;
+        border-top-left-radius: inherit; border-top-right-radius: 0; border-bottom-left-radius: inherit; border-bottom-right-radius: 0;
+        transition: background 300ms cubic-bezier(0.3, 0, 0.15, 1);
+      }
+      :host([dark]) #sign{
+        color: #d3d3d3;
+      }
+      #sign[state="0"] {
+        background: var(--element-state-inrange-color);
+        color: var(--element-state-inrange-text-color);
+      }
+      #sign[state="1"] {
+        background: var(--element-state-exceeds-color);
+        color: var(--element-state-exceeds-text-color);
+      }
+      #sign[state="-1"] {
+        background: var(--element-state-deceeds-color);
+        color: var(--element-state-deceeds-text-color);
+      }
+      #sign[state="undefined"] {
+        background: var(--element-state-undefined-color);
+        color: var(--element-state-undefined-text-color);
+      }
+      .value {
+        padding: 0.5em;
+        display: flex;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        box-sizing: border-box;
+        background: linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,0.12),rgba(255,255,255,0));
+        border-radius: inherit;
+      }
+      .value::after {
+        position: absolute;
+        content: "";
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        background: linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,0.06),rgba(255,255,255,0));
+      }
+      #sign[state="1"] .value, #sign[state="-1"] .value {
+        background: transparent;
+      }
+      #sign[state="1"] .value::after, #sign[state="-1"] .value::after {
+        animation-name: sign-background-rotate;
+        animation-duration: 1800ms;
+        animation-fill-mode: both;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+        top: -75%;
+        bottom: -75%;
+        right: 0%;
+        left: 0%;
+        background: linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,0.12),rgba(255,255,255,0));
+      }
+      @keyframes sign-background-rotate {
+        0%   { transform: rotate(0deg);  }
+        100% { transform: rotate(360deg); }
+      }
+      #valueSection {
+        font-size: 1em;
+        padding: 0 0.25em;
+        float: left;
+      }
+      #unitSection {
+        margin-left: 0.25em;
+        font-size: 0.8em;
+        float: right;
+      }
+      #dateSection {
+        font-size: 0.6em;
+        text-align: center;
+        position: absolute;
+        left: 0; right: 0; bottom: 0;
+        padding: 0.5em;
+        pointer-events: none;
+      }
+      svg#icon {
+        height: 1.5em;
+        width: 1.5em;
+        fill: currentColor;
+      }
+      paper-ripple#ripple {
+        color: #1d1d1d;
+      }
+      #bookmark {
+        padding: 4px;
+        cursor: pointer;
+        outline: none;
+        position: absolute;
+        right: -5px;
+        top: -5px;
+        height: 1.25em;
+        width: 1.25em;
+        fill: #1f1f1f;
+        stroke: rgba(255, 255, 255, 0.25);
+        stroke-width: 0.5px;
+        opacity: 0.75;
+        transform-origin: center;
+        transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      #bookmark:hover {
+        transform: scale(1.4);
+        opacity: 1;
+      }
+      #tooltip {
+        --dropdown-background: rgba(77,77,77, 0.8);
+        border-radius: 5px;
+      }
+      #tooltip .title {
+        color: #f1f1f1;
+        font-size: 0.6em;
+        font-weight: normal;
+        padding: 0.5em;
+        text-align: center;
+      }
+      #tooltipContent {
+        display: flex;
+        height: 100%;
+      }
+      #tooltipContent table-element:first-child {
+        border-right: solid thin #BBB;
+      }
+      #tooltipContent table-element {
+        background: transparent;
+        color: #f1f1f1;
+        min-width: 7em;
+      }
+      [hidden] {
+        pointer-events: none;
+      }
+      #sign[vertical] {
+        border-top-left-radius: inherit; border-top-right-radius: inherit; border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+        border-bottom-width: thin;
+        border-right-width: 0;
+      }
+      caption-element {
+        align-self: stretch;
+        border-top-left-radius: 0; border-top-right-radius: inherit; border-bottom-left-radius: 0; border-bottom-right-radius: inherit;
+        --caption-padding: 0.6em;
+      }
+      caption-element[vertical] {
+        border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: inherit; border-bottom-right-radius: inherit;
+        --caption-padding: 0.3em 0.5em 0.5em 0.5em;
+      }
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+
+    <section id='sign' animatable state$="[[renderedValue.state]]" on-click='select'>
+      <paper-ripple hidden$='[[!selectable]]' id='ripple'></paper-ripple>
+      <template is="dom-if" if="[[!isBoolean]]">
+        <section class="value">
+          <section id='valueSection'>[[getValue(renderedValue.y)]]</section>
+          <section id='unitSection' hidden$="[[!unit]]">[[unit]]</section>
+        </section>
+      </template>
+      <template is="dom-if" if="[[isBoolean]]">
+        <section class="value">
+          <svg id='icon' hidden$='[[!isExceeding]]' viewBox='0 0 24 24'>
+            <g id='error-outline'><path d='M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z'/></g>
+          </svg>
+        </section>
+      </template>
+      <section id='dateSection' hidden$='[[!showDate]]'>[[toDate(renderedValue.x)]]</section>
+      <svg id='bookmark' hidden$='[[!hasTooltip(hasExceeded)]]' viewBox='0 0 24 24' aria-label='Alarme' on-click="toggleTooltip">
+        <g id='announcement'><path d='M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 9h-2V5h2v6zm0 4h-2v-2h2v2z'/></g>
+      </svg>
+    </section>
+
+    <caption-element id="caption" animatable grouped-key='[[groupedKey]]' data-keys='[[dataKeys]]'  without-grouped-key></caption-element>
+
+    <dropdown-element id='tooltip' hiding-event="mouseleave" position="right" align="center">
+      <div class='title'>Alarmphasen</div>
+      <section id='tooltipContent'>
+        <table-element id='firstStateChangeTable' caption="start" hide-header only-first-row no-socket-connection is-boolean='[[isBoolean]]'></table-element>
+        <table-element id='lastStateChangeTable' caption="end" hide-header only-first-row no-socket-connection is-boolean='[[isBoolean]]'></table-element>
+      </section>
+    </dropdown-element>
+
+  </template>
+
+  <script>
+
+    SignElement = Polymer({
+      is: 'sign-element',
+
+      behaviors: [
+        ColorBehavior,
+        CheckedAndSelectBehavior,
+        DragAndDropBehavior,
+        AttributeRepeatAnimationBehavior,
+        ElementBehavior
+      ],
+
+      properties: {
+        repeatedAttributes: {
+          type: Array,
+          value: function(){ return ['vertical']}
+        },
+        showDate: {
+          type: Boolean,
+          value: false
+        },
+        vertical: {
+          type: Boolean,
+          reflectToAttribute: true
+        },
+        showCaption: {
+          type: Boolean,
+          value: true
+        },
+        tooltip: {
+          type: Boolean,
+          value: false
+        },
+        singleValue: {
+          type: Boolean,
+          value: true,
+          readOnly: true
+        },
+        renderedValue: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        }
+      },
+
+      hostAttributes: {
+        tabindex: '0'
+      },
+
+      _tooltip: Object,
+
+      attached: function() {
+        this._tooltip = this.$.tooltip;
+
+        if (this.tooltip)
+          this._setTooltip();
+        this.insertValues();
+      },
+
+      renderInsertedValues: function(value) {
+        if (value === undefined) {
+          if (this.values && this.values.length) {
+            value = this.values[this.values.length - 1];
+          } else {
+            return;
+          }
+        }
+
+        this.renderedValue = value;
+      },
+
+      _setTooltip: function() {
+        this.$.firstStateChangeTable.insertValues(this.firstStateChange);
+        this.$.lastStateChangeTable.insertValues(this.lastStateChange);
+      },
+
+      setFirstStateChange: function(value) {
+        this.firstStateChange.push(value);
+        this.$.firstStateChangeTable.insertValues([value]);
+      },
+
+      setLastStateChange: function(value) {
+        this.lastStateChange.push(value);
+        this.$.lastStateChangeTable.insertValues([value]);
+      },
+
+      handleChecked: function(checked) {
+        if (checked)
+          this._tooltip.hide();
+      },
+
+      hasTooltip: function(hasExceeded) {
+        return hasExceeded && this.tooltip;
+      },
+
+      toggleTooltip: function(e) {
+        e.preventDefault();
+        this._tooltip.toggle();
+        e.stopPropagation();
+      },
+
+      getAnimatableNodes: function() {
+        return [this.$.sign, this.$.caption];
+      },
+    });
+  </script>
+
+</dom-module>

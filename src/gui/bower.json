@@ -1,0 +1,18 @@
+{
+  "name": "webvisual",
+  "version": "0.7.5",
+  "license": "MIT",
+  "homepage": "https://github.com/fooloomanzii/webvisual",
+  "authors": [
+    "fooloomanzoo <hannes-b@web.de>"
+  ],
+  "dependencies": {
+    "app-layout": "PolymerElements/app-layout",
+    "paper-behaviors": "PolymerElements/paper-behaviors",
+    "iron-elements": "PolymerElements/iron-elements",
+    "paper-elements": "PolymerElements/paper-elements#^1.0.7"
+  },
+  "devDependencies": {
+    "polymer": "Polymer/polymer#1.7.0"
+  }
+}
