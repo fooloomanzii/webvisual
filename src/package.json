@@ -21,6 +21,7 @@
     "activedirectory": "^0.7.1",
     "async": "*",
     "body-parser": "*",
+    "child_process": "^1.0.2",
     "chokidar": "*",
     "compression": "*",
     "cookie-parser": "*",
@@ -28,7 +29,6 @@
     "express": "*",
     "express-error-handler": "*",
     "express-session": "*",
-    "spdy": "*",
     "fs": "*",
     "jade": "*",
     "merge-defaults": "*",
@@ -36,11 +36,11 @@
     "passport": "*",
     "passport-local": "*",
     "socket.io": "*",
+    "spdy": "*",
     "underscore": "*",
     "x-frame-options": "*"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "engines": {
     "node": ">= 6.0",
     "npm": "*"

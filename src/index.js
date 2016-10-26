@@ -16,11 +16,33 @@ const electron = require('electron')
 const { dialog } = require('electron');
 const { ipcMain } = require('electron');
 
-const WebvisualServer = require('./server')
+
+const fork = require('child_process').fork;
+
+const server = fork( __dirname + '/server/index.js', [], { env: process.env } )
     , Settings = require('./settings');
 
+server.on('message', (arg) => {
+  console.log(arg);
+  for (var type in arg) {
+    switch (type) {
+      case 'event':
+        if (mainWindow)
+          mainWindow.webContents.send( 'event', arg[type] );
+        break;
+      case 'error':
+        console.error( arg[type] );
+        break;
+      case 'log':
+      default:
+        console.log( arg[type] )
+    }
+  }
+});
+
+server.send({test: 'test'});
+
 var appConfigLoader = {}
-  , server
   , mainWindow = null
   , config;
 
@@ -40,11 +62,11 @@ app.on('ready', () => {
   appConfigLoader = new Settings(app);
 
   appConfigLoader.on('error', (err) => {
-    console.log('Error in Config', err);
+    console.error('Error in AppConfig', err);
   });
 
   appConfigLoader.on('ready', (msg, settings) => {
-    console.log(msg);
+    console.info(msg);
 
     config = settings;
     mainWindow = new BrowserWindow(config.app);
@@ -52,21 +74,8 @@ app.on('ready', () => {
     // load server GUI
     mainWindow.loadURL('file://' + __dirname + '/gui/index.html');
 
-    server = new WebvisualServer(config);
-    server.on('error', (err, msg) => {
-      console.log('Error in', err, msg || '');
-    });
-    server.on('log', (arg, msg) => {
-      console.log(arg, msg || '');
-    });
-    server.on('server-start', () => {
-      mainWindow.webContents.send('event', 'server-start');
-    });
-    server.on('server-stop', () => {
-      mainWindow.webContents.send('event', 'server-stop');
-    });
     // Open the DevTools.
-    // mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
 
     // Emitted when the window is going to be closed.
     mainWindow.on('close', () => {
@@ -75,7 +84,7 @@ app.on('ready', () => {
       config.app.height = bounds.height;
       config.app.x = bounds.x;
       config.app.y = bounds.y;
-      appConfigLoader.save(config);
+      appConfigLoader.save( config );
     });
     // Emitted when the window is closed.
     mainWindow.on('closed', () => {
@@ -84,9 +93,8 @@ app.on('ready', () => {
   });
 
   appConfigLoader.on('change', (settings) => {
-    if (server.isRunning === true) {
-      server.reconnect(settings);
-    }
+    config = settings;
+    server.send( { reconnect: config } );
   });
 
   // app quit
@@ -97,23 +105,23 @@ app.on('ready', () => {
           mainWindow.webContents.send('log', util.format.apply(null, arguments) + '\n');
           process.stdout.write(util.format.apply(null, arguments) + '\n');
         }
-        console.error = console.log;
+        console.info = console.warn = console.error = console.log;
 
         mainWindow.webContents.send('event', 'set-user-config', config.userConfigFiles);
         mainWindow.webContents.send('event', 'set-renderer', config.renderer);
         mainWindow.webContents.send('event', 'set-server-config', config.server);
         break;
       case 'server-start':
-        server.connect();
+        server.send( { connect: config } );
         break;
       case 'server-restart':
-        server.reconnect();
+        server.send( { reconnect: config } );
         break;
       case 'server-stop':
-        server.disconnect();
+        server.send( { disconnect: {} } );
         break;
       case 'server-toggle':
-        server.toggle();
+        server.send( { toggle: config } );
         break;
       case 'file-dialog':
         dialog.showOpenDialog({

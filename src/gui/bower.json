@@ -11,8 +11,5 @@
     "paper-behaviors": "PolymerElements/paper-behaviors",
     "iron-elements": "PolymerElements/iron-elements",
     "paper-elements": "PolymerElements/paper-elements#^1.0.7"
-  },
-  "devDependencies": {
-    "polymer": "Polymer/polymer#1.7.0"
   }
 }
