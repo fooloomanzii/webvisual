@@ -6,14 +6,15 @@
 //    'test-error'
 //    'file-error'
 
-var fs = require('fs');
-var path = require('path');
-var util = require('util');
-var EventEmitter = require('events').EventEmitter;
+const fs = require('fs')
+    , path = require('path')
+    , util = require('util')
+    , EventEmitter = require('events').EventEmitter
+    , mergeDeep = require('merge-defaults');
+
 var appConfigFilePath;
 var appUserDataFolder;
 var app;
-var mergeDeep = require('merge-defaults');
 
 const defaults = {
   "server": {
@@ -21,7 +22,7 @@ const defaults = {
       "required": false,
       "ldap": {
         "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
-        "url": "ldap:\\\\ibn-net.kfa-juelich.de"
+        "url": "ldap://ibn-net.kfa-juelich.de"
       },
       "suffix": "@fz-juelich.de"
     },
@@ -30,7 +31,6 @@ const defaults = {
     },
     "ssl": {
       "cert": "",
-      "certchaindir": "",
       "key": "",
       "passphrase": ""
     }

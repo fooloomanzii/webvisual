@@ -1,5 +1,5 @@
 {
-  "name": "webvisual-gui",
+  "name": "webvisual",
   "version": "0.7.6",
   "description": "gui for webvisual-server",
   "private": "true",
@@ -11,13 +11,16 @@
   ],
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "electron .",
     "stop": "taskkill /IM node.exe /F",
-    "postinstall": "bower update | npm run sub-install",
-    "sub-install": "cd server && npm install"
+    "postinstall": "npm run bower-update && npm run sub-install",
+    "sub-install": "cd server && npm install",
+    "bower-update": "bower update"
   },
   "dependencies": {
-    "child_process": "*"
+    "child_process": "*",
+    "electron": "*",
+    "merge-defaults": "*"
   },
   "devDependencies": {},
   "engines": {

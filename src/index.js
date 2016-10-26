@@ -1,50 +1,61 @@
-'use strict';
-
-require('events').EventEmitter.prototype._maxListeners = 0;
-
+// require('events').EventEmitter.prototype._maxListeners = 0;
 
 const fs = require('fs'),
       path = require('path'),
       util = require('util');
 
-const electron = require('electron')
-    , remote = require('electron').remote
-    , shell = require('electron').shell
-    , app = electron.app
-    , BrowserWindow = electron.BrowserWindow;
-
-const { dialog } = require('electron');
-const { ipcMain } = require('electron');
-
+const electron = require('electron');
+const { dialog, ipcMain, app, BrowserWindow } = require('electron');
 
 const fork = require('child_process').fork;
 
-const server = fork( __dirname + '/server/index.js', [], { env: process.env } )
-    , Settings = require('./settings');
+let Settings = require('./settings');
+let Server;
 
-server.on('message', (arg) => {
-  console.log(arg);
-  for (var type in arg) {
-    switch (type) {
-      case 'event':
-        if (mainWindow)
-          mainWindow.webContents.send( 'event', arg[type] );
-        break;
-      case 'error':
-        console.error( arg[type] );
-        break;
-      case 'log':
-      default:
-        console.log( arg[type] )
-    }
-  }
-});
-
-server.send({test: 'test'});
-
-var appConfigLoader = {}
-  , mainWindow = null
+let configLoader = {}
+  , win = null
   , config;
+
+function createWindow (config) {
+  // Create the browser window.
+  win = new BrowserWindow(config)
+
+  // and load the index.html of the app.
+  win.loadURL(`file://${__dirname}/gui/index.html`)
+
+  // Open the DevTools.
+  win.webContents.openDevTools()
+
+  // Emitted when the window is going to be closed.
+  win.on('close', () => {
+    let bounds = win.getBounds();
+    config.app.width = bounds.width;
+    config.app.height = bounds.height;
+    config.app.x = bounds.x;
+    config.app.y = bounds.y;
+    configLoader.save( config );
+  });
+
+  // Emitted when the window is closed.
+  win.on('closed', () => {
+    win = null
+  })
+}
+
+function createServer (config) {
+  var env = JSON.parse(JSON.stringify(process.env));
+  env['WEBVISUALSERVER'] = config;
+  Server = fork( __dirname + '/server/index.js', [], { env: env, cwd: __dirname + '/server' } );
+  Server.on('message', (arg) => {
+    if (win) {
+      for (var type in arg) {
+        win.webContents.send( type, arg[type] );
+      }
+    } else {
+      console.log( arg[type] );
+    }
+  });
+}
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -54,74 +65,67 @@ app.on('window-all-closed', () => {
   }
 });
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
+app.on('activate', function () {
+  if (mainWindow === null) {
+    createWindow()
+  }
+})
 
 app.on('ready', () => {
   // Create the browser window.
-  appConfigLoader = new Settings(app);
+  configLoader = new Settings(app);
 
-  appConfigLoader.on('error', (err) => {
+  configLoader.on('error', (err) => {
     console.error('Error in AppConfig', err);
   });
 
-  appConfigLoader.on('ready', (msg, settings) => {
-    console.info(msg);
-
+  configLoader.on('ready', (msg, settings) => {
     config = settings;
-    mainWindow = new BrowserWindow(config.app);
-
-    // load server GUI
-    mainWindow.loadURL('file://' + __dirname + '/gui/index.html');
-
-    // Open the DevTools.
-    mainWindow.webContents.openDevTools();
-
-    // Emitted when the window is going to be closed.
-    mainWindow.on('close', () => {
-      let bounds = mainWindow.getBounds();
-      config.app.width = bounds.width;
-      config.app.height = bounds.height;
-      config.app.x = bounds.x;
-      config.app.y = bounds.y;
-      appConfigLoader.save( config );
-    });
-    // Emitted when the window is closed.
-    mainWindow.on('closed', () => {
-      mainWindow = null;
-    });
+    createServer(config);
+    createWindow(config);
   });
 
-  appConfigLoader.on('change', (settings) => {
+  configLoader.on('change', (settings) => {
     config = settings;
-    server.send( { reconnect: config } );
+    Server.send( { reconnect: config } );
   });
 
-  // app quit
+  // ipc beetween gui and process
   ipcMain.on('event', (e, event, arg) => {
     switch (event) {
       case 'ready':
         console.log = function() {
-          mainWindow.webContents.send('log', util.format.apply(null, arguments) + '\n');
+          win.webContents.send('log', util.format.apply(null, arguments) + '\n');
           process.stdout.write(util.format.apply(null, arguments) + '\n');
         }
-        console.info = console.warn = console.error = console.log;
+        console.info = function() {
+          win.webContents.send('info', util.format.apply(null, arguments) + '\n');
+          process.stdout.write(util.format.apply(null, arguments) + '\n');
+        }
+        console.warn = function() {
+          win.webContents.send('warn', util.format.apply(null, arguments) + '\n');
+          process.stdout.write(util.format.apply(null, arguments) + '\n');
+        }
+        console.error = function() {
+          win.webContents.send('error', util.format.apply(null, arguments) + '\n');
+          process.stdout.write(util.format.apply(null, arguments) + '\n');
+        }
 
-        mainWindow.webContents.send('event', 'set-user-config', config.userConfigFiles);
-        mainWindow.webContents.send('event', 'set-renderer', config.renderer);
-        mainWindow.webContents.send('event', 'set-server-config', config.server);
+        win.webContents.send('event', 'set-user-config', config.userConfigFiles);
+        win.webContents.send('event', 'set-renderer', config.renderer);
+        win.webContents.send('event', 'set-server-config', config.server);
         break;
       case 'server-start':
-        server.send( { connect: config } );
+        Server.send( { connect: config } );
         break;
       case 'server-restart':
-        server.send( { reconnect: config } );
+        Server.send( { reconnect: config } );
         break;
       case 'server-stop':
-        server.send( { disconnect: {} } );
+        Server.send( { disconnect: {} } );
         break;
       case 'server-toggle':
-        server.send( { toggle: config } );
+        Server.send( { toggle: config } );
         break;
       case 'file-dialog':
         dialog.showOpenDialog({
@@ -145,64 +149,64 @@ app.on('ready', () => {
         removeConfigFile(arg);
         break;
       case 'set-server-config':
-        appConfigLoader.setEntry({
+        configLoader.setEntry({
           server: arg
         });
         break;
     }
   });
+});
 
-  // addConfigFile
-  function sendPath(files, arg) {
-    mainWindow.webContents.send('event', 'file-dialog', {
-      for: arg.for,
-      path: (files && files.length > 0) ? files[0] : ''
-    });
+// addConfigFile
+function sendPath(files, arg) {
+  win.webContents.send('event', 'file-dialog', {
+    for: arg.for,
+    path: (files && files.length > 0) ? files[0] : ''
+  });
+}
+
+function addConfigFile(arg) {
+  if (!arg.name)
+    arg.name = 'tests';
+  if (arg.path) {
+    config.userConfigFiles[arg.name] = {
+      path: arg.path,
+      renderer: arg.renderer
+    };
+    configLoader.set(config);
+    win.webContents.send('event', 'set-user-config', config.userConfigFiles);
   }
+}
 
-  function addConfigFile(arg) {
-    if (!arg.name)
-      arg.name = 'tests';
-    if (arg.path) {
-      config.userConfigFiles[arg.name] = {
-        path: arg.path,
-        renderer: arg.renderer
-      };
-      appConfigLoader.set(config);
-      mainWindow.webContents.send('event', 'set-user-config', config.userConfigFiles);
-    }
+function removeConfigFile(arg) {
+  if (arg.name) {
+    delete config.userConfigFiles[arg.name];
+    configLoader.set(config);
+    win.webContents.send('event', 'set-user-config', config.userConfigFiles);
   }
+}
 
-  function removeConfigFile(arg) {
-    if (arg.name) {
-      delete config.userConfigFiles[arg.name];
-      appConfigLoader.set(config);
-      mainWindow.webContents.send('event', 'set-user-config', config.userConfigFiles);
-    }
-  }
+/*
+ * Handle process events
+ */
 
-  /*
-   * Handle process events
-   */
+process.on('uncaughtException', (err) => {
+  console.log('uncaughtException', err);
+  // Server.reconnect();
+});
 
-  process.on('uncaughtException', (err) => {
-    console.log('uncaughtException', err);
-    // server.reconnect();
-  });
+process.on('ECONNRESET', (err) => {
+  console.log('connection reset (ECONNRESET)', err);
+  // Server.reconnect();
+});
 
-  process.on('ECONNRESET', (err) => {
-    console.log('connection reset (ECONNRESET)', err);
-    // server.reconnect();
-  });
+process.on('SIGINT', (err) => {
+  console.log('close webvisual (SIGINT)');
+  // Server.disconnect();
+  process.exit(0);
+});
 
-  process.on('SIGINT', (err) => {
-    console.log('close webvisual (SIGINT)');
-    // server.disconnect();
-    process.exit(0);
-  });
-
-  process.on('exit', (err) => {
-    console.log('close webvisual (EXIT)');
-    // server.disconnect();
-  });
+process.on('exit', (err) => {
+  console.log('close webvisual (EXIT)');
+  // Server.disconnect();
 });
