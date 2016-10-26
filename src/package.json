@@ -1,44 +1,23 @@
 {
-  "name": "webvisual",
-  "version": "0.7.5",
-  "description": "Visualisierung von Sensordaten",
+  "name": "webvisual-gui",
+  "version": "0.7.6",
+  "description": "gui for webvisual-server",
   "private": "true",
   "homepage": "https://github.com/fooloomanzoo/webvisual",
   "author": "Johannes Brautzsch <hannes-b@web.de>",
   "owner": "Forschungszentrum Jülich GmbH",
   "contributors": [
-    "Johannes Brautzsch <hannes-b@web.de>",
-    "Alexander Diener",
-    "Sascha Wolff"
+    "Johannes Brautzsch <hannes-b@web.de>"
   ],
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "stop": "taskkill /IM node.exe /F",
-    "postinstall": "bower update"
+    "postinstall": "bower update | npm run sub-install",
+    "sub-install": "cd server && npm install"
   },
   "dependencies": {
-    "activedirectory": "^0.7.1",
-    "async": "*",
-    "body-parser": "*",
-    "child_process": "^1.0.2",
-    "chokidar": "*",
-    "compression": "*",
-    "cookie-parser": "*",
-    "dateformat": "*",
-    "express": "*",
-    "express-error-handler": "*",
-    "express-session": "*",
-    "fs": "*",
-    "jade": "*",
-    "merge-defaults": "*",
-    "net": "*",
-    "passport": "*",
-    "passport-local": "*",
-    "socket.io": "*",
-    "spdy": "*",
-    "underscore": "*",
-    "x-frame-options": "*"
+    "child_process": "*"
   },
   "devDependencies": {},
   "engines": {

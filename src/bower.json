@@ -1,6 +1,6 @@
 {
-  "name": "webvisual",
-  "version": "0.7.5",
+  "name": "webvisual-gui",
+  "version": "0.7.6",
   "license": "MIT",
   "homepage": "https://github.com/fooloomanzii/webvisual",
   "authors": [
@@ -10,6 +10,6 @@
     "app-layout": "PolymerElements/app-layout",
     "paper-behaviors": "PolymerElements/paper-behaviors",
     "iron-elements": "PolymerElements/iron-elements",
-    "paper-elements": "PolymerElements/paper-elements#^1.0.7"
+    "paper-elements": "PolymerElements/paper-elements"
   }
 }

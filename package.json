@@ -21,9 +21,9 @@
     "iconUrl": "https://github.com/fooloomanzii/webvisual/tree/electron-app/build/icon.ico"
   },
   "publish": "never",
-  "devDependencies": {
+  "dependencies": {
     "electron-builder": "*",
-    "electron-prebuilt": "*"
+    "electron": "*"
   },
   "engines": {
     "node": ">= 5.0",
