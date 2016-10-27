@@ -8,7 +8,7 @@ echo Enter a Message for the Commit
 set /p CommitMessage=
 echo.
 git commit -m "%CommitMessage%"
-git submodule foreach echo "git commit -m %CommitMessage%"
+git submodule foreach echo "git commit -m '%CommitMessage%'"
 echo.
 git push --recurse-submodules=on-demand
 
