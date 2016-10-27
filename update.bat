@@ -17,6 +17,9 @@ echo node.js is not installed! Please install it!
 exit
 
 :UPDATE
+echo Pull Newest Version. This can take a moment ...
+cmd /C "cd %~dp0 & git stash"
+cmd /C "cd %~dp0 & git pull"
 echo Update Global Modules. This can take a moment ...
 cmd /C "cd %~dp0 & npm.cmd update -g"
 echo Update Submodules. This can take a moment ...
