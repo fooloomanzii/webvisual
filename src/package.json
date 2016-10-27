@@ -13,9 +13,9 @@
   "scripts": {
     "start": "electron .",
     "stop": "taskkill /IM node.exe /F",
-    "postinstall": "npm run sub-dep-install && npm run bower-update",
-    "sub-dep-install": "git submodule foreach echo npm install",
-    "bower-update": "bower update"
+    "postinstall": "npm run subdepinstall && npm run bowerupdate",
+    "subdepinstall": "git submodule foreach npm install",
+    "bowerupdate": "bower update"
   },
   "dependencies": {
     "child_process": "*",
