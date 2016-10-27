@@ -20,7 +20,8 @@
   "dependencies": {
     "child_process": "*",
     "electron": "*",
-    "merge-defaults": "*"
+    "merge-defaults": "*",
+    "mkdirp": "*"
   },
   "devDependencies": {},
   "engines": {

@@ -10,7 +10,8 @@ const fs = require('fs')
     , path = require('path')
     , util = require('util')
     , EventEmitter = require('events').EventEmitter
-    , mergeDeep = require('merge-defaults');
+    , mergeDeep = require('merge-defaults')
+    , mkdirp = require('mkdirp');
 
 var appConfigFilePath;
 var appUserDataFolder;
@@ -194,7 +195,7 @@ class configLoader extends EventEmitter {
   }
 
   loadBackup(callback) {
-    this.mkdirp(path.join(appUserDataFolder, 'config'));
+    mkdirp(path.join(appUserDataFolder, 'config'));
     this.copyFile(path.join(process.cwd(), 'defaults', 'appConfig.backup.json'),
                   appConfigFilePath,
                   (function(err) {
@@ -214,12 +215,6 @@ class configLoader extends EventEmitter {
       } else {
         // It isn't accessible
       }
-    });
-  }
-
-  mkdirp(path, callback) {
-    fs.mkdir(path, '0o777', function(err) {
-      if (callback) callback(err);
     });
   }
 
