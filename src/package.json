@@ -13,8 +13,8 @@
   "scripts": {
     "start": "electron .",
     "stop": "taskkill /IM node.exe /F",
-    "postinstall": "npm run bower-update && npm run sub-install",
-    "sub-install": "cd server && npm install",
+    "postinstall": "npm run sub-dep-install && npm run bower-update",
+    "sub-dep-install": "cd server && npm install",
     "bower-update": "bower update"
   },
   "dependencies": {
