@@ -45,6 +45,7 @@ function createWindow (config) {
 function createServer (config) {
   var env = JSON.parse(JSON.stringify(process.env));
   env['WEBVISUALSERVER'] = config;
+  env.port = config.server.port;
   Server = fork( __dirname + '/server/index.js', [], { env: env, cwd: __dirname + '/server' } );
   Server.on('message', (arg) => {
     if (win) {

@@ -27,9 +27,7 @@ const defaults = {
       },
       "suffix": "@fz-juelich.de"
     },
-    "port": {
-      "http2": 443
-    },
+    "port": 443,
     "ssl": {
       "cert": "",
       "key": "",

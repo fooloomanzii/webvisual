@@ -1,16 +1,14 @@
 {
   "server": {
     "auth": {
-      "required": false,
+      "required": true,
       "ldap": {
         "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
-        "url": "ldap:////ibn-net.kfa-juelich.de"
+        "url": "ldap://ibn-net.kfa-juelich.de"
       },
       "suffix": "@fz-juelich.de"
     },
-    "port": {
-      "http2": 443
-    },
+    "port": 8080,
     "ssl": {
       "cert": "./defaults/ssl/ca.crt",
       "key": "./defaults/ssl/ca.key",

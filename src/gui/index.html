@@ -334,7 +334,7 @@
       <div class="dialog-content">
         <section class="flex">
           <div class="inputcontainer">
-            <input id="http2Port" aria-label="http2-Port" type="number" min="32" step="1" value="{{serverConfig.port.http2}}" required>
+            <input id="port" aria-label="http2-Port" type="number" min="32" step="1" value="{{serverConfig.port}}" required>
             <div class="focusline"></div>
             <label>http2-Port</label>
           </div>
@@ -551,9 +551,7 @@
             auth: {
               required: this.$.authRequired.checked
             },
-            port: {
-              http2: +this.$.http2Port.value
-            },
+            port: +this.$.port.value,
             ssl: {
               cert: this.$.certPath.value,
               key: this.$.keyPath.value,
