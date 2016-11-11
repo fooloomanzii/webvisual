@@ -5,6 +5,7 @@ git stash
 git pull
 git submodule update --recursive
 
+pause
 goto:eof
 
 :END

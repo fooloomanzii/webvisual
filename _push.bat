@@ -13,6 +13,7 @@ git commit -m "%CommitMessage%"
 echo.
 git push --recurse-submodules=on-demand
 
+pause
 goto:eof
 
 :END
