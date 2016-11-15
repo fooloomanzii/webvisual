@@ -113,7 +113,7 @@ app.on('ready', () => {
         }
 
         win.webContents.send('event', 'set-user-config', config.userConfigFiles);
-        win.webContents.send('event', 'set-renderer', config.renderer);
+        // win.webContents.send('event', 'set-renderer', config.renderer);
         win.webContents.send('event', 'set-server-config', config.server);
         break;
       case 'server-start':
@@ -167,16 +167,27 @@ function sendPath(files, arg) {
 }
 
 function addConfigFile(arg) {
-  if (!arg.name)
-    arg.name = 'tests';
-  if (arg.path) {
-    config.userConfigFiles[arg.name] = {
-      path: arg.path,
-      renderer: arg.renderer
-    };
-    configLoader.set(config);
-    win.webContents.send('event', 'set-user-config', config.userConfigFiles);
+  if (!arg.name || !arg.title || !arg.path)
+    return;
+
+  for (var i in config.userConfigFiles) {
+    if (config.userConfigFiles[i].name === arg.name) {
+      config.userConfigFiles[i].title = arg.title;
+      config.userConfigFiles[i].path = arg.path;
+      configLoader.set(config);
+      win.webContents.send('event', 'set-user-config', config.userConfigFiles);
+      return;
+    }
   }
+
+  config.userConfigFiles.push({
+    name: arg.name,
+    title: arg.title,
+    path: arg.path
+  });
+  configLoader.set(config);
+  win.webContents.send('event', 'set-user-config', config.userConfigFiles);
+
 }
 
 function removeConfigFile(arg) {

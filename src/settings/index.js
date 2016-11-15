@@ -45,18 +45,8 @@ const defaults = {
     "x": 932,
     "y": 143
   },
-  "userConfigFiles": {
-  },
-  "renderer": {
-    "Alarmzustände": {
-      "icon": "juelich:alarm",
-      "path": "alarm-view.jade"
-    },
-    "Diagrammansicht": {
-      "icon": "juelich:graph",
-      "path": "chart-view.jade"
-    }
-  },
+  "userConfigFiles": [
+  ],
   "database": {}
 }
 

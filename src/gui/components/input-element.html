@@ -4,18 +4,13 @@
   <template strip-whitespace>
     <style include="paper-material">
       :host {
-
       }
-
-
 
       paper-ripple {
         color: var(--ripple-color, currentColor);
       }
 
-
-
-</style>
+      </style>
 
   <input id="input" type="[[type]]" name="input" pattern="[[pattern]]" on-change="_float" value="{{value}}" min="{{min}}" max="{{max}}" step="{{step}}" required$="[[required]]" readonly$="[[readonly]]"/>
   <label hidden="[[!label]]" for="input" noFloat$="[[noFloat]]">[[label]]</label>

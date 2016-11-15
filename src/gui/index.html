@@ -36,7 +36,9 @@
       ipcRenderer.send("event", "ready");
     });
   </script>
+
   <title>Webvisual Server</title>
+
   <link rel='import' href='bower_components/polymer/polymer.html' />
   <link rel="import" href="style/app-theme.html" />
   <link rel="import" href="style/form-styles.html" />
@@ -67,6 +69,7 @@
   <link rel="import" href="components/toggle-button-element.html" />
   <link rel="import" href="components/juelich-icon.html" />
 </head>
+
 <style is="custom-style" include="app-theme">
   body {
     height: 100%;
@@ -383,9 +386,14 @@
       <h3>Konfigurationsdatei</h3>
       <div class="dialog-content flex">
         <div class="inputcontainer">
-          <input id="newConfigName" aria-label="Anzeigename" required></input>
+          <input id="newConfigName" aria-label="Name" required></input>
           <div class="focusline"></div>
-          <label>Anzeigename</label>
+          <label>Name</label>
+        </div>
+        <div class="inputcontainer">
+          <input id="newConfigTitle" aria-label="Titel" required></input>
+          <div class="focusline"></div>
+          <label>Titel</label>
         </div>
         <div class="inputcontainer">
           <input id="newConfigPath" aria-label="Pfad" required></input>
@@ -393,14 +401,14 @@
           <div class="focusline"></div>
           <label>Pfad</label>
         </div>
-        <dropdown-selector id="fileRenderer" label="Rendereinheit" icon="view-agenda" class="inline" attr-for-selected="renderer" toggles position="bottom" align="start" required>
+        <!-- <dropdown-selector id="fileRenderer" label="Rendereinheit" icon="view-agenda" class="inline" attr-for-selected="renderer" toggles position="bottom" align="start" required>
           <template is="dom-repeat" items="{{renderer}}">
                 <button-element class="inline" renderer="[[item.renderer]]">
                   <iron-icon class="left" icon="[[item.icon]]"></iron-icon>
                   <section class="spread">[[item.renderer]]</section>
                 </button-element>
               </template>
-        </dropdown-selector>
+        </dropdown-selector> -->
       </div>
       <div class="buttons">
         <button-element class="delete small-spread" dialog-dismiss style="padding:0.75em;height:auto;" icon="delete" on-tap="removeUserConfigFile">
@@ -433,12 +441,12 @@
               return {};
             }
           },
-          renderer: {
-            type: Array,
-            value: function() {
-              return [];
-            }
-          },
+          // renderer: {
+          //   type: Array,
+          //   value: function() {
+          //     return [];
+          //   }
+          // },
           isRunning: {
             type: Boolean,
             value: false
@@ -470,23 +478,15 @@
               }
               break;
             case 'set-user-config':
-              var values = [];
-              for (var c in arg) {
-                values.push({
-                  name: c,
-                  path: arg[c].path,
-                  renderer: arg[c].renderer
-                });
-              }
-              this.set("configFiles", values);
+              this.set("configFiles", arg);
               break;
-            case 'set-renderer':
-              for (var r in arg)
-                this.push("renderer", {
-                  renderer: r,
-                  icon: arg[r].icon
-                });
-              break;
+            // case 'set-renderer':
+            //   for (var r in arg)
+            //     this.push("renderer", {
+            //       renderer: r,
+            //       icon: arg[r].icon
+            //     });
+            //   break;
             case 'set-server-config':
               this.set("serverConfig", arg);
               break;
@@ -521,29 +521,29 @@
           var arg = e.currentTarget.arg;
           if (arg) {
             this.$.newConfigName.value = arg.name;
+            this.$.newConfigTitle.value = arg.title;
             this.$.newConfigPath.value = arg.path;
-            this.$.fileRenderer.selected = arg.renderer;
             this.$.userConfigDialog.open();
           }
         },
         addUserConfigFile: function() {
           var name = this.$.newConfigName.value;
+          var title = this.$.newConfigTitle.value;
           var path = this.$.newConfigPath.value;
-          var renderer = this.$.fileRenderer.selected;
           ipcRenderer.send('event', 'add-user-config', {
             name: name,
-            path: path,
-            renderer: renderer
+            title: title,
+            path: path
           });
         },
         removeUserConfigFile: function() {
           var name = this.$.newConfigName.value;
+          var title = this.$.newConfigTitle.value;
           var path = this.$.newConfigPath.value;
-          var renderer = this.$.fileRenderer.selected;
           ipcRenderer.send('event', 'remove-user-config', {
             name: name,
-            file: path,
-            renderer: renderer
+            title: title,
+            path: path
           });
         },
         commitServerFile: function() {
