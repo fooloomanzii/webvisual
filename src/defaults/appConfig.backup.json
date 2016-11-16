@@ -1,7 +1,7 @@
 {
   "server": {
     "auth": {
-      "required": true,
+      "required": false,
       "ldap": {
         "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
         "url": "ldap://ibn-net.kfa-juelich.de"
@@ -30,17 +30,17 @@
     {
       "name": "Cryostat",
       "title": "Cryostat",
-      "path": "D:/Github/webvisual/src/server/examples/config/cryostat_visu.json"
+      "path": "C:/Github/webvisual/src/server/examples/config/cryostat_visu.json"
     },
     {
       "name": "HNF",
       "title": "HNF",
-      "path": "D:/Github/webvisual/src/server/examples/config/HNF_GDS.json"
+      "path": "C:/Github/webvisual/src/server/examples/config/HNF_GDS.json"
     },
     {
       "name": "Test",
       "title": "Test",
-      "path": "D:/Github/webvisual/src/server/examples/config/test.json"
+      "path": "C:/Github/webvisual/src/server/examples/config/test.json"
     }
   ],
   "database": {}

@@ -24,7 +24,7 @@ function createWindow (config) {
   win.loadURL(`file://${__dirname}/gui/index.html`)
 
   // Open the DevTools.
-  win.webContents.openDevTools()
+  // win.webContents.openDevTools()
 
   // Emitted when the window is going to be closed.
   win.on('close', () => {
@@ -203,22 +203,19 @@ function removeConfigFile(arg) {
  */
 
 process.on('uncaughtException', (err) => {
-  console.log('uncaughtException', err);
-  // Server.reconnect();
+  console.log('WEBVISUAL GUI (uncaughtException)', err || '');
 });
 
 process.on('ECONNRESET', (err) => {
-  console.log('connection reset (ECONNRESET)', err);
+  console.log('WEBVISUAL GUI (ECONNRESET)', err || '');
   // Server.reconnect();
 });
 
 process.on('SIGINT', (err) => {
-  console.log('close webvisual (SIGINT)');
-  // Server.disconnect();
+  console.log('WEBVISUAL GUI (SIGINT)', err || '');
   process.exit(0);
 });
 
 process.on('exit', (err) => {
-  console.log('close webvisual (EXIT)');
-  // Server.disconnect();
+  console.log('WEBVISUAL GUI (EXIT)', err || '');
 });
