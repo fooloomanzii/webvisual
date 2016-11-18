@@ -43,8 +43,8 @@ function createWindow (config) {
 }
 
 function createServer (config) {
-  var env = JSON.parse(JSON.stringify(process.env));
-  env['WEBVISUALSERVER'] = config;
+  var env = {};
+  env['WEBVISUALSERVER'] = JSON.stringify(config);
   env.port = config.server.port;
   Server = fork( __dirname + '/server/index.js', [], { env: env, cwd: __dirname + '/server' } );
   Server.on('message', (arg) => {
@@ -82,7 +82,6 @@ app.on('ready', () => {
 
   configLoader.on('ready', (msg, settings) => {
     config = settings;
-    createServer(config);
     createWindow(config);
   });
 
@@ -117,16 +116,28 @@ app.on('ready', () => {
         win.webContents.send('event', 'set-server-config', config.server);
         break;
       case 'server-start':
-        Server.send( { connect: config } );
+        if (Server && Server.send) {
+          Server.send( { connect: config } );
+        } else {
+          createServer(config);
+        }
         break;
       case 'server-restart':
-        Server.send( { reconnect: config } );
+        if (Server && Server.send) {
+          Server.send( { reconnect: config } );
+        } else {
+          createServer(config);
+        }
         break;
       case 'server-stop':
         Server.send( { disconnect: {} } );
         break;
       case 'server-toggle':
-        Server.send( { toggle: config } );
+        if (Server && Server.send) {
+          Server.send( { toggle: config } );
+        } else {
+          createServer(config);
+        }
         break;
       case 'file-dialog':
         dialog.showOpenDialog({
@@ -203,19 +214,19 @@ function removeConfigFile(arg) {
  */
 
 process.on('uncaughtException', (err) => {
-  console.log('WEBVISUAL GUI (uncaughtException)', err || '');
+  console.log(`WEBVISUAL GUI (uncaughtException)\n ${err}`);
 });
 
 process.on('ECONNRESET', (err) => {
-  console.log('WEBVISUAL GUI (ECONNRESET)', err || '');
-  // Server.reconnect();
+  console.log(`WEBVISUAL GUI (ECONNRESET)\n ${err}`);
+  Server.reconnect();
 });
 
 process.on('SIGINT', (err) => {
-  console.log('WEBVISUAL GUI (SIGINT)', err || '');
+  console.log(`WEBVISUAL GUI (SIGINT)\n ${err}`);
   process.exit(0);
 });
 
 process.on('exit', (err) => {
-  console.log('WEBVISUAL GUI (EXIT)', err || '');
+  console.log(`WEBVISUAL GUI (EXIT)\n ${err}`);
 });
