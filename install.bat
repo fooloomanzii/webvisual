@@ -24,6 +24,7 @@ cmd /C "cd %~dp0 & npm.cmd install -g --force electron"
 echo Update Submodules. This can take a moment ...
 cmd /C "cd %~dp0 & git submodule update --init --recursive"
 echo Install node dependencies. This can take a moment ...
+cmd /C "cd %~dp0/src & npm.cmd update -g"
 cmd /C "cd %~dp0/src & npm.cmd install"
 goto:eof
 

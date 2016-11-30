@@ -10,7 +10,7 @@ const { dialog, ipcMain, app, BrowserWindow } = require('electron');
 const fork = require('child_process').fork;
 
 let Settings = require('./settings');
-let Server;
+let server;
 
 let configLoader = {}
   , win = null
@@ -46,8 +46,8 @@ function createServer (config) {
   var env = {};
   env['WEBVISUALSERVER'] = JSON.stringify(config);
   env.port = config.server.port;
-  Server = fork( __dirname + '/server/index.js', [], { env: env, cwd: __dirname + '/server' } );
-  Server.on('message', (arg) => {
+  server = fork( __dirname + '/server/index.js', [], { env: env, cwd: __dirname + '/server' } );
+  server.on('message', (arg) => {
     if (win) {
       for (var type in arg) {
         win.webContents.send( type, arg[type] );
@@ -87,7 +87,7 @@ app.on('ready', () => {
 
   configLoader.on('change', (settings) => {
     config = settings;
-    Server.send( { reconnect: config } );
+    server.send( { reconnect: config } );
   });
 
   // ipc beetween gui and process
@@ -116,25 +116,25 @@ app.on('ready', () => {
         win.webContents.send('event', 'set-server-config', config.server);
         break;
       case 'server-start':
-        if (Server && Server.send) {
-          Server.send( { connect: config } );
+        if (server && server.send) {
+          server.send( { connect: config } );
         } else {
           createServer(config);
         }
         break;
       case 'server-restart':
-        if (Server && Server.send) {
-          Server.send( { reconnect: config } );
+        if (server && server.send) {
+          server.send( { reconnect: config } );
         } else {
           createServer(config);
         }
         break;
       case 'server-stop':
-        Server.send( { disconnect: {} } );
+        server.send( { disconnect: {} } );
         break;
       case 'server-toggle':
-        if (Server && Server.send) {
-          Server.send( { toggle: config } );
+        if (server && server.send) {
+          server.send( { toggle: config } );
         } else {
           createServer(config);
         }
@@ -215,11 +215,16 @@ function removeConfigFile(arg) {
 
 process.on('uncaughtException', (err) => {
   console.log(`WEBVISUAL GUI (uncaughtException)\n ${err}`);
+  setTimeout(() => {
+    server.reconnect();
+  }, 2000)
 });
 
 process.on('ECONNRESET', (err) => {
   console.log(`WEBVISUAL GUI (ECONNRESET)\n ${err}`);
-  Server.reconnect();
+  setTimeout(() => {
+    server.reconnect();
+  }, 2000)
 });
 
 process.on('SIGINT', (err) => {

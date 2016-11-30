@@ -25,6 +25,7 @@ cmd /C "cd %~dp0 & npm.cmd update -g"
 echo Update Submodules. This can take a moment ...
 cmd /C "cd %~dp0/src & git submodule update --recursive"
 echo Install node dependencies. This can take a moment ...
+cmd /C "cd %~dp0/src & npm.cmd update -g"
 cmd /C "cd %~dp0/src & npm.cmd install"
 goto:eof
 
