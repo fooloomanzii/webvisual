@@ -216,14 +216,14 @@ function removeConfigFile(arg) {
 process.on('uncaughtException', (err) => {
   console.log(`WEBVISUAL GUI (uncaughtException)\n ${err}`);
   setTimeout(() => {
-    server.reconnect();
+    server.send( { reconnect: config } );
   }, 2000)
 });
 
 process.on('ECONNRESET', (err) => {
   console.log(`WEBVISUAL GUI (ECONNRESET)\n ${err}`);
   setTimeout(() => {
-    server.reconnect();
+    server.send( { reconnect: config } );
   }, 2000)
 });
 
