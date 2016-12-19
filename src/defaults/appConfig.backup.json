@@ -10,9 +10,9 @@
     },
     "port": 443,
     "ssl": {
-      "cert": "./defaults/ssl/ca.crt",
-      "key": "./defaults/ssl/ca.key",
-      "passphrase": "./defaults/ssl/ca.pw.json"
+      "cert": "./defaultss/ssl/ca.crt",
+      "key": "./defaultss/ssl/ca.key",
+      "passphrase": "./defaultss/ssl/ca.pw.json"
     }
   },
   "app": {
