@@ -44,6 +44,11 @@
       "title": "Test",
       "path": "D:/Github/webvisual/src/server/examples/config/test.json",
       "renderer": "Alarmzustände"
+    },
+    {
+      "name": "fvsdf",
+      "title": "sdfsdf",
+      "path": "D:\\Github\\webvisual\\src\\server\\examples\\config\\HNF_GDS.json"
     }
   ],
   "database": {}

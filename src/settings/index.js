@@ -45,8 +45,7 @@ const defaults = {
     "x": 932,
     "y": 143
   },
-  "userConfigFiles": [
-  ],
+  "userConfigFiles": [ ],
   "database": {}
 }
 

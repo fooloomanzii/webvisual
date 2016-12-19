@@ -180,6 +180,8 @@ function sendPath(files, arg) {
 function addConfigFile(arg) {
   if (!arg.name || !arg.title || !arg.path)
     return;
+    
+  config.userConfigFiles = config.userConfigFiles || [];
 
   for (var i in config.userConfigFiles) {
     if (config.userConfigFiles[i].name === arg.name) {
