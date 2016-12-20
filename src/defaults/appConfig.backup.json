@@ -10,9 +10,9 @@
     },
     "port": 443,
     "ssl": {
-      "cert": "./defaultss/ssl/ca.crt",
-      "key": "./defaultss/ssl/ca.key",
-      "passphrase": "./defaultss/ssl/ca.pw.json"
+      "cert": "./defaults/ssl/ca.crt",
+      "key": "./defaults/ssl/ca.key",
+      "passphrase": "./defaults/ssl/ca.pw.json"
     }
   },
   "app": {
@@ -46,10 +46,16 @@
       "renderer": "Alarmzustände"
     },
     {
-      "name": "fvsdf",
-      "title": "sdfsdf",
-      "path": "D:\\Github\\webvisual\\src\\server\\examples\\config\\HNF_GDS.json"
+      "name": "Demo",
+      "title": "Demo",
+      "path": "D:/Github/webvisual/src/server/examples/config/test.json"
     }
   ],
-  "database": {}
+  "database": [
+    {
+      "name": "redis",
+      "port": 6379,
+      "url": "localhost"
+    }
+  ]
 }

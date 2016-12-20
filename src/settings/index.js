@@ -46,7 +46,13 @@ const defaults = {
     "y": 143
   },
   "userConfigFiles": [ ],
-  "database": {}
+  "database": [
+    {
+      "name": "redis",
+      "port": 6379,
+      "url": "localhost"
+    }
+  ]
 }
 
 class configLoader extends EventEmitter {
@@ -106,22 +112,12 @@ class configLoader extends EventEmitter {
 
   testConfig(config, callback) {
     JSON.parse(JSON.stringify(config));
-    let missing = [];
-    if(!config.app)
-      missing.push("app")
-    if(!config.server)
-      missing.push("server")
-    if(!config.app)
-      missing.push("userConfigFiles")
-    // if(!config.database)
-    //   missing.push("database")
-    if (missing.length > 0)
-      throw {
-        name: "MissingArgumentsError",
-        message: "\nIn config are missing entries: " + missing.toString(),
-        toString: function() { return this.name + ": " + this.message; }
-      };
-    else if (callback)
+    for (var opt in defaults) { // using defaults, if toplevel entry not as expected
+      if (!config.hasOwnProperty(opt) || (config[opt] && Array.isArray(defaults[opt]) && !Array.isArray(config[opt]))) {
+        config[opt] = defaults[opt]
+      }
+    }
+    if (callback)
       callback(config);
   }
 

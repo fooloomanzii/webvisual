@@ -87,7 +87,9 @@ app.on('ready', () => {
 
   configLoader.on('change', (settings) => {
     config = settings;
-    server.send( { reconnect: config } );
+    if (server && server.send) {
+      server.send( { reconnect: config } );
+    }
   });
 
   // ipc beetween gui and process
@@ -130,7 +132,9 @@ app.on('ready', () => {
         }
         break;
       case 'server-stop':
-        server.send( { disconnect: {} } );
+        if (server && server.send) {
+          server.send( { disconnect: {} } );
+        }
         break;
       case 'server-toggle':
         if (server && server.send) {
@@ -180,10 +184,10 @@ function sendPath(files, arg) {
 function addConfigFile(arg) {
   if (!arg.name || !arg.title || !arg.path)
     return;
-    
+
   config.userConfigFiles = config.userConfigFiles || [];
 
-  for (var i in config.userConfigFiles) {
+  for (var i = 0; i < config.userConfigFiles.length; i++) {
     if (config.userConfigFiles[i].name === arg.name) {
       config.userConfigFiles[i].title = arg.title;
       config.userConfigFiles[i].path = arg.path;
@@ -204,8 +208,18 @@ function addConfigFile(arg) {
 }
 
 function removeConfigFile(arg) {
+  if (!config.userConfigFiles) {
+    config.userConfigFiles = [];
+  }
   if (arg.name) {
-    delete config.userConfigFiles[arg.name];
+    let pos;
+    for (var i = 0; i < config.userConfigFiles.length; i++) {
+      if (config.userConfigFiles[i].name === arg.name) {
+        pos = i;
+        break;
+      }
+    }
+    config.userConfigFiles.splice(pos, 1);
     configLoader.set(config);
     win.webContents.send('event', 'set-user-config', config.userConfigFiles);
   }
@@ -218,15 +232,19 @@ function removeConfigFile(arg) {
 process.on('uncaughtException', (err) => {
   console.log(`WEBVISUAL GUI (uncaughtException)\n ${err}`);
   setTimeout(() => {
-    server.send( { reconnect: config } );
-  }, 2000)
+    if (server) {
+      server.send( { reconnect: config } );
+    }
+  }, 3000)
 });
 
 process.on('ECONNRESET', (err) => {
   console.log(`WEBVISUAL GUI (ECONNRESET)\n ${err}`);
   setTimeout(() => {
-    server.send( { reconnect: config } );
-  }, 2000)
+    if (server) {
+      server.send( { reconnect: config } );
+    }
+  }, 3000)
 });
 
 process.on('SIGINT', (err) => {

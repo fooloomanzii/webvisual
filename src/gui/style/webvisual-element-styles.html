@@ -1,0 +1,23 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="webvisual-element-styles">
+  <template>
+    <style>
+      :host {
+        --element-color: #12B8C3;
+        --element-text-color: #252525;
+        --element-state-inrange-color: #51cc41;
+        --element-state-deceeds-color: #920bad;
+        --element-state-exceeds-color: #D91B1B;
+        --element-state-inrange-text-color: var(--primary-text-color);
+        --element-state-deceeds-text-color: var(--bright-text-color);
+        --element-state-exceeds-text-color: var(--bright-text-color);
+      }
+
+      :host([dark]) {
+        --element-state-inrange-text-color: #000;
+        --element-text-color: #000;
+      }
+    </style>
+  </template>
+</dom-module>
