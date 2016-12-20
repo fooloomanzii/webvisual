@@ -114,7 +114,7 @@ app.on('ready', () => {
         }
 
         win.webContents.send('event', 'set-user-config', config.userConfigFiles);
-        // win.webContents.send('event', 'set-renderer', config.renderer);
+        win.webContents.send('event', 'set-database', config.database);
         win.webContents.send('event', 'set-server-config', config.server);
         break;
       case 'server-start':
@@ -167,6 +167,11 @@ app.on('ready', () => {
       case 'set-server-config':
         configLoader.setEntry({
           server: arg
+        });
+        break;
+      case 'set-database':
+        configLoader.setEntry({
+          database: arg
         });
         break;
     }

@@ -8,7 +8,9 @@
     window.Polymer = {
       dom: 'shadow'
     };
-    const { ipcRenderer } = require('electron');
+    const {
+      ipcRenderer
+    } = require('electron');
     var app;
     var body;
 
@@ -89,7 +91,7 @@
 
   <dom-module id="webvisual-app">
     <template>
-        <style include="form-styles"></style>
+      <style include="form-styles"></style>
         <style include="app-theme">
           :host {
             font-size: 16px;
@@ -170,16 +172,27 @@
           .flex {
             display: flex;
             flex-direction: column;
-            align-items: stretch;
+            align-items: center;
             justify-content: center;
             flex: 1;
             margin: auto 0.5em;
+            box-sizing: border-box;
           }
           .flex > * {
+            box-sizing: border-box;
+            position: relative;
+            flex: 1 0 auto;
+            width: 100%;
             margin-bottom: 0.5em;
           }
           .spread {
             margin: 0.5em;
+          }
+          webvisual-selectbox {
+            justify-content: space-around;
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5em;
           }
           .small-spread {
             margin: 0.25em;
@@ -289,7 +302,14 @@
               <button-element ipc-event="server-stop" on-tap="sendEvent"><iron-icon class="left" icon="stop" aria-label="Server anhalten"></iron-icon>Stopp</button-element>
               <button-element ipc-event="server-restart" on-tap="sendEvent"><iron-icon class="left" icon="replay" aria-label="Server neustarten"></iron-icon>Neustart</button-element>
               <br>
-              <button-element for="serverConfigDialog" on-tap="openDialog" aria-label="Einstellungen"><iron-icon class="left" icon="settings"></iron-icon>Einstellungen</button-element>
+              <button-element for="serverConfigDialog" on-tap="openDialog" aria-label="Servereinstellungen" title="Servereinstellungen">
+                <iron-icon class="left" icon="settings"></iron-icon>
+                <span>Servereinstellungen</span>
+              </button-element>
+              <button-element for="databaseConfigDialog" on-tap="openDialog" aria-label="Datenbankeinstellungen" title="Datenbankeinstellungen">
+                <iron-icon class="left" icon="assessment"></iron-icon>
+                <span>Datenbankeinstellungen</span>
+              </button-element>
             </section>
           </app-drawer>
           <app-header-layout>
@@ -325,107 +345,140 @@
                   </button-element>
                 </template>
 
-    <button-element for="userConfigDialog" on-tap="openDialog">
-      <iron-icon class="left" icon="note-add"></iron-icon>
-      <section class="spread">Konfigurationsdatei hinzufügen...</section>
-    </button-element>
-    </dropdown-element>
-
-    </app-toolbar>
-    </app-header-layout>
-    </app-drawer-layout>
-
-    <dialog-element id="serverConfigDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-      <h3>Servereinstellungen</h3>
-      <div class="dialog-content">
-        <section class="flex">
-          <div class="inputcontainer">
-            <input id="port" aria-label="http2-Port" type="number" min="32" step="1" value="{{serverConfig.port}}" required>
-            <div class="focusline"></div>
-            <label>http2-Port</label>
-          </div>
-
-          <toggle-button-element id="authRequired" checked="{{serverConfig.auth.required}}">
-            <iron-icon icon="lock-outline"></iron-icon>
-            <span hidden$="{{serverConfig.auth.required}}">ohne</span>
-            <span hidden$="{{!serverConfig.auth.required}}">mit</span>
-            <span>Authentifizierung</span>
-          </toggle-button-element>
-
-          <div class="inputcontainer">
-            <input id="certPath" aria-label="Zertifikatdatei (ssl crt)" value="{{serverConfig.ssl.cert}}" tab-index="0"></input>
-            <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="certPath" filter="crt" aria-label="Datei öffnen..."></icon-button-element>
-            <div class="focusline"></div>
-            <label>Zertifikatdatei (ssl crt)</label>
-          </div>
-
-          <div class="inputcontainer">
-            <input id="keyPath" aria-label="Schlüsseldatei (ssl key)" value="{{serverConfig.ssl.key}}" tab-index="0"></input>
-            <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="keyPath" filter="key" aria-label="Datei öffnen..."></icon-button-element>
-            <div class="focusline"></div>
-            <label>Schlüsseldatei (ssl key)</label>
-          </div>
-
-          <div class="inputcontainer">
-            <input id="passphrasePath" aria-label="Passphrasendatei (ssl passphrase)" value="{{serverConfig.ssl.passphrase}}"></input>
-            <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="passphrasePath" filter="json" aria-label="Datei öffnen..."></icon-button-element>
-            <div class="focusline"></div>
-            <label>Passphrasendatei (ssl passphrase)</label>
-          </div>
-
-        </section>
-      </div>
-      <div class="buttons">
-        <button-element dialog-dismiss class="small-spread">Abbrechen
-          <iron-icon class="right" icon="close"></iron-icon>
-        </button-element>
-        <button-element dialog-confirm on-tap="commitServerFile" class="small-spread">Speichen
-          <iron-icon class="right" icon="save"></iron-icon>
-        </button-element>
-      </div>
-    </dialog-element>
-
-    <dialog-element id="userConfigDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-      <h3>Konfigurationsdatei</h3>
-      <div class="dialog-content flex">
-        <div class="inputcontainer">
-          <input id="newConfigName" aria-label="Name" required></input>
-          <div class="focusline"></div>
-          <label>Name</label>
-        </div>
-        <div class="inputcontainer">
-          <input id="newConfigTitle" aria-label="Titel" required></input>
-          <div class="focusline"></div>
-          <label>Titel</label>
-        </div>
-        <div class="inputcontainer">
-          <input id="newConfigPath" aria-label="Pfad" required></input>
-          <icon-button-element icon="folder-open" class="spread" on-tap="openFileSelector" for="newConfigPath" filter="json" aria-label="Datei öffnen..."></icon-button-element>
-          <div class="focusline"></div>
-          <label>Pfad</label>
-        </div>
-        <!-- <dropdown-selector id="fileRenderer" label="Rendereinheit" icon="view-agenda" class="inline" attr-for-selected="renderer" toggles position="bottom" align="start" required>
-          <template is="dom-repeat" items="{{renderer}}">
-                <button-element class="inline" renderer="[[item.renderer]]">
-                  <iron-icon class="left" icon="[[item.icon]]"></iron-icon>
-                  <section class="spread">[[item.renderer]]</section>
+                <button-element for="userConfigDialog" on-tap="openDialog">
+                  <iron-icon class="left" icon="note-add"></iron-icon>
+                  <section class="spread">Konfigurationsdatei hinzufügen...</section>
                 </button-element>
+              </dropdown-element>
+
+            </app-toolbar>
+          </app-header-layout>
+        </app-drawer-layout>
+
+        <dialog-element id="serverConfigDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+          <h3>Servereinstellungen</h3>
+          <div class="dialog-content">
+            <section class="flex">
+              <div class="inputcontainer">
+                <input id="port" aria-label="http2-Port" type="number" min="32" step="1" value="{{serverConfig.port::input}}" required>
+                <div class="focusline"></div>
+                <label>http2-Port</label>
+              </div>
+
+              <toggle-button-element id="authRequired" checked="{{serverConfig.auth.required}}">
+                <iron-icon icon="lock-outline"></iron-icon>
+                <span hidden$="{{serverConfig.auth.required}}">ohne</span>
+                <span hidden$="{{!serverConfig.auth.required}}">mit</span>
+                <span>Authentifizierung</span>
+              </toggle-button-element>
+
+              <div class="inputcontainer">
+                <input id="certPath" aria-label="Zertifikatdatei (ssl crt)" value="{{serverConfig.ssl.cert::input}}" tab-index="0"></input>
+                <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="certPath" filter="crt" aria-label="Datei öffnen..."></icon-button-element>
+                <div class="focusline"></div>
+                <label>Zertifikatdatei (ssl crt)</label>
+              </div>
+
+              <div class="inputcontainer">
+                <input id="keyPath" aria-label="Schlüsseldatei (ssl key)" value="{{serverConfig.ssl.key::input}}" tab-index="0"></input>
+                <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="keyPath" filter="key" aria-label="Datei öffnen..."></icon-button-element>
+                <div class="focusline"></div>
+                <label>Schlüsseldatei (ssl key)</label>
+              </div>
+
+              <div class="inputcontainer">
+                <input id="passphrasePath" aria-label="Passphrasendatei (ssl passphrase)" value="{{serverConfig.ssl.passphrase::input}}"></input>
+                <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="passphrasePath" filter="json" aria-label="Datei öffnen..."></icon-button-element>
+                <div class="focusline"></div>
+                <label>Passphrasendatei (ssl passphrase)</label>
+              </div>
+
+            </section>
+          </div>
+          <div class="buttons">
+            <button-element dialog-dismiss class="small-spread">Abbrechen
+              <iron-icon class="right" icon="close"></iron-icon>
+            </button-element>
+            <button-element dialog-confirm on-tap="commitServerFile" class="small-spread">Speichen
+              <iron-icon class="right" icon="save"></iron-icon>
+            </button-element>
+          </div>
+        </dialog-element>
+
+        <dialog-element id="databaseConfigDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+          <h3>Datenbankeinstellungen</h3>
+
+          <div class="dialog-content">
+            <section class="flex">
+              <webvisual-selectbox title="Datenbanktyp">
+                <iron-icon icon="assessment"></iron-icon>
+                <span>Datenbanktyp</span>
+                <select value="{{databaseConfig.type::input}}">
+                  <option value="">-</option>
+                  <option value="redis">redis</option>
+                </select>
+              </webvisual-selectbox>
+
+              <template is="dom-if" if="[[databaseConfig.type]]">
+                <div class="inputcontainer">
+                  <input id="dbUrl" aria-label="database-url" type="url" value="{{databaseConfig.url::input}}">
+                  <div class="focusline"></div>
+                  <label>Datenbank-URL</label>
+                </div>
+
+                <div class="inputcontainer">
+                  <input id="dbPort" aria-label="database-port" type="number" min="32" step="1" value="{{databaseConfig.port::input}}" required>
+                  <div class="focusline"></div>
+                  <label>Datenbank-Port</label>
+                </div>
               </template>
-        </dropdown-selector> -->
-      </div>
-      <div class="buttons">
-        <button-element class="delete small-spread" dialog-dismiss style="padding:0.75em;height:auto;" icon="delete" on-tap="removeUserConfigFile">
-          <iron-icon icon="delete"></iron-icon>
-        </button-element>
-        <button-element class="small-spread" dialog-dismiss>Abbrechen
-          <iron-icon class="right" icon="close"></iron-icon>
-        </button-element>
-        <button-element class="small-spread" dialog-confirm on-tap="addUserConfigFile">Speichern
-          <iron-icon class="right" icon="add"></iron-icon>
-        </button-element>
-      </div>
-    </dialog-element>
-    </template>
+            </section>
+          </div>
+
+          <div class="buttons">
+            <button-element dialog-dismiss class="small-spread">Abbrechen
+              <iron-icon class="right" icon="close"></iron-icon>
+            </button-element>
+            <button-element dialog-confirm on-tap="commitDatabase" class="small-spread">Speichen
+              <iron-icon class="right" icon="save"></iron-icon>
+            </button-element>
+          </div>
+        </dialog-element>
+
+        <dialog-element id="userConfigDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+          <h3>Konfigurationsdatei</h3>
+          <div class="dialog-content flex">
+            <div class="inputcontainer">
+              <input id="newConfigName" aria-label="Name" required></input>
+              <div class="focusline"></div>
+              <label>Name</label>
+            </div>
+            <div class="inputcontainer">
+              <input id="newConfigTitle" aria-label="Titel" required></input>
+              <div class="focusline"></div>
+              <label>Titel</label>
+            </div>
+            <div class="inputcontainer">
+              <input id="newConfigPath" aria-label="Pfad" required></input>
+              <icon-button-element icon="folder-open" class="spread" on-tap="openFileSelector" for="newConfigPath" filter="json" aria-label="Datei öffnen..."></icon-button-element>
+              <div class="focusline"></div>
+              <label>Pfad</label>
+            </div>
+          </div>
+          <div class="buttons">
+            <button-element class="delete small-spread" dialog-dismiss style="padding:0.75em;height:auto;" icon="delete" on-tap="removeUserConfigFile">
+              <iron-icon icon="delete"></iron-icon>
+            </button-element>
+            <button-element class="small-spread" dialog-dismiss>Abbrechen
+              <iron-icon class="right" icon="close"></iron-icon>
+            </button-element>
+            <button-element class="small-spread" dialog-confirm on-tap="addUserConfigFile">Speichern
+              <iron-icon class="right" icon="add"></iron-icon>
+            </button-element>
+          </div>
+        </dialog-element>
+
+      </template>
 
     <script>
       Polymer({
@@ -444,12 +497,12 @@
               return {};
             }
           },
-          // renderer: {
-          //   type: Array,
-          //   value: function() {
-          //     return [];
-          //   }
-          // },
+          databaseConfig: {
+            type: Object,
+            value: function() {
+              return {};
+            }
+          },
           isRunning: {
             type: Boolean,
             value: false
@@ -483,13 +536,10 @@
             case 'set-user-config':
               this.set("configFiles", arg);
               break;
-            // case 'set-renderer':
-            //   for (var r in arg)
-            //     this.push("renderer", {
-            //       renderer: r,
-            //       icon: arg[r].icon
-            //     });
-            //   break;
+            case 'set-database':
+              this.set("databaseConfig", arg);
+              console.log(arg);
+              break;
             case 'set-server-config':
               this.set("serverConfig", arg);
               break;
@@ -548,6 +598,10 @@
             title: title,
             path: path
           });
+        },
+        commitDatabase: function() {
+          this.set("serverConfig", this.databaseConfig);
+          ipcRenderer.send('event', 'set-database', this.databaseConfig);
         },
         commitServerFile: function() {
           this.set("serverConfig", {

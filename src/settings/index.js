@@ -46,13 +46,11 @@ const defaults = {
     "y": 143
   },
   "userConfigFiles": [ ],
-  "database": [
-    {
-      "name": "redis",
-      "port": 6379,
-      "url": "localhost"
-    }
-  ]
+  "database": {
+    "type": "redis",
+    "port": 6379,
+    "url": "localhost"
+  }
 }
 
 class configLoader extends EventEmitter {
@@ -79,7 +77,7 @@ class configLoader extends EventEmitter {
       err = true
     } finally {
       if (err)
-        this.loadBackup(this.ready);
+        this.loadBackup(this.ready.bind(this));
       else {
         this.settings = settings;
         this.emit('ready', 'AppConfigFile loaded: ' + appConfigFilePath, this.settings);
@@ -98,7 +96,7 @@ class configLoader extends EventEmitter {
         }
       }
       if (err) {
-        this.loadBackup(this.ready);
+        this.loadBackup(this.ready.bind(this));
       }
       else if (callback) {
         callback.call(this, appConfigFilePath, this.ready);
@@ -112,11 +110,20 @@ class configLoader extends EventEmitter {
 
   testConfig(config, callback) {
     JSON.parse(JSON.stringify(config));
+
+    let missing = [];
     for (var opt in defaults) { // using defaults, if toplevel entry not as expected
-      if (!config.hasOwnProperty(opt) || (config[opt] && Array.isArray(defaults[opt]) && !Array.isArray(config[opt]))) {
-        config[opt] = defaults[opt]
+      if (!config.hasOwnProperty(opt) || (config[opt] && (Array.isArray(defaults[opt]) !== Array.isArray(config[opt])))) {
+        missing.push(opt)
+        config[opt] = defaults[opt];
       }
     }
+    if (!callback && missing.length > 0)
+      throw {
+        name: "MissingArgumentsError",
+        message: "\nIn config are missing entries: " + missing.toString(),
+        toString: function() { return this.name + ": " + this.message; }
+      };
     if (callback)
       callback(config);
   }
@@ -188,7 +195,7 @@ class configLoader extends EventEmitter {
                       return;
                     }
                   }).bind(this));
-    this.readFromFile.call(this, path.join(process.cwd(), 'defaults', 'appConfig.backup.json'), callback);
+    this.readFromFile.call(this, path.join(process.cwd(), 'defaults', 'appConfig.backup.json'), this.testConfig, callback);
   }
 
   checkFolder(path_folder, callback) {
@@ -222,7 +229,7 @@ class configLoader extends EventEmitter {
     }
   }
 
-  readFromFile(filepath, callback) {
+  readFromFile(filepath, callback, next) {
     var obj;
     try {
       var file = fs.readFileSync(filepath)
@@ -232,7 +239,7 @@ class configLoader extends EventEmitter {
       return {};
     }
     if (callback) {
-      callback.call(this, obj)
+      callback.call(this, obj, next)
     }
     else
       return obj || {};

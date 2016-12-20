@@ -1,4 +1,10 @@
 {
+  "database": {
+    "kind": "redis",
+    "port": 6379,
+    "type": "redis",
+    "url": "https://localhost"
+  },
   "server": {
     "auth": {
       "required": true,
@@ -40,22 +46,9 @@
       "renderer": "Alarmzustände"
     },
     {
-      "name": "Test",
-      "title": "Test",
-      "path": "D:/Github/webvisual/src/server/examples/config/test.json",
-      "renderer": "Alarmzustände"
-    },
-    {
       "name": "Demo",
       "title": "Demo",
       "path": "D:/Github/webvisual/src/server/examples/config/test.json"
-    }
-  ],
-  "database": [
-    {
-      "name": "redis",
-      "port": 6379,
-      "url": "localhost"
     }
   ]
 }
