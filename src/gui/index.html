@@ -393,6 +393,13 @@
                 <label>Passphrasendatei (ssl passphrase)</label>
               </div>
 
+              <div class="inputcontainer">
+                <input id="certchain" aria-label="Certchain-Verzeichnis (certchain-folder)" value="{{serverConfig.ssl.ca::input}}"></input>
+                <icon-button-element icon="folder-open" class="small-spread" on-tap="openFolderSelector" for="certchain" filter="json" aria-label="Verzeichnis öffnen..."></icon-button-element>
+                <div class="focusline"></div>
+                <label>Certchain-Verzeichnis (certchain-folder)</label>
+              </div>
+
             </section>
           </div>
           <div class="buttons">
@@ -612,7 +619,8 @@
             ssl: {
               cert: this.$.certPath.value,
               key: this.$.keyPath.value,
-              passphrase: this.$.passphrasePath.value
+              passphrase: this.$.passphrasePath.value,
+              ca: this.$.certchain.value
             }
           });
           ipcRenderer.send('event', 'set-server-config', this.serverConfig);

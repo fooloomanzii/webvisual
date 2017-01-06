@@ -31,7 +31,8 @@ const defaults = {
     "ssl": {
       "cert": "",
       "key": "",
-      "passphrase": ""
+      "passphrase": "",
+      "ca": ""
     }
   },
   "app": {
