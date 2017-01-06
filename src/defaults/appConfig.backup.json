@@ -1,4 +1,11 @@
 {
+  "database": {
+    "host": "http://127.0.0.1",
+    "kind": "redis",
+    "port": 6379,
+    "type": "redis",
+    "url": "https://localhost"
+  },
   "server": {
     "auth": {
       "required": true,
@@ -15,12 +22,6 @@
       "key": "./defaults/ssl/ca.key",
       "passphrase": "./defaults/ssl/ca.pw.json"
     }
-  },
-  "database": {
-    "kind": "redis",
-    "port": 6379,
-    "type": "",
-    "url": "https://localhost"
   },
   "app": {
     "width": 800,

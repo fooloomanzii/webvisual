@@ -428,9 +428,9 @@
 
               <template is="dom-if" if="[[databaseConfig.type]]">
                 <div class="inputcontainer">
-                  <input id="dbUrl" aria-label="database-url" type="url" value="{{databaseConfig.url::input}}">
+                  <input id="dbHost" aria-label="database-host" type="url" value="{{databaseConfig.host::input}}">
                   <div class="focusline"></div>
-                  <label>Datenbank-URL</label>
+                  <label>Datenbank-Host</label>
                 </div>
 
                 <div class="inputcontainer">
@@ -607,7 +607,8 @@
           });
         },
         commitDatabase: function() {
-          this.set("serverConfig", this.databaseConfig);
+          console.log(this.databaseConfig);
+          this.set("databaseConfig", this.databaseConfig);
           ipcRenderer.send('event', 'set-database', this.databaseConfig);
         },
         commitServerFile: function() {

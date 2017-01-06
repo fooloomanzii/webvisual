@@ -50,7 +50,7 @@ const defaults = {
   "database": {
     "type": "redis",
     "port": 6379,
-    "url": "localhost"
+    "host": "localhost"
   }
 }
 
