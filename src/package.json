@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "child_process": "*",
-    "electron": "*",
     "merge-defaults": "*",
     "mkdirp": "*"
   },
