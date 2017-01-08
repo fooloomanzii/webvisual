@@ -332,7 +332,9 @@
 
               <icon-button-element id="clear" icon="delete" aria-label="löschen" on-tap="clearHistory"></icon-button-element>
               <section class="flex"></section>
+
               <icon-button-element id="toggleStartButton" toggles ipc-event="server-toggle" on-tap="sendEvent" icon="play-arrow" isRunning$="[[isRunning]]" aria-label="Server"></icon-button-element>
+              
               <icon-button-element id="files" toggles icon="description" aria-label="Konfigurationsdateien"></icon-button-element>
 
               <dropdown-element id="dropdown" for="files" position="top" align="end" offset="6" target-toggle-event="tap">

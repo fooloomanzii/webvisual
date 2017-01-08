@@ -14,7 +14,8 @@ let server;
 
 let configLoader = {}
   , win = null
-  , config;
+  , config
+  , activeErrorRestartJob;
 
 function createWindow (config) {
   // Create the browser window.
@@ -119,6 +120,10 @@ app.on('ready', () => {
         break;
       case 'server-start':
         if (server && server.send) {
+          if (activeErrorRestartJob) {
+            clearTimeout(activeErrorRestartJob);
+            activeErrorRestartJob = null;
+          }
           server.send( { connect: config } );
         } else {
           createServer(config);
@@ -126,7 +131,12 @@ app.on('ready', () => {
         break;
       case 'server-restart':
         if (server && server.send) {
-          server.send( { reconnect: config } );
+          if (activeErrorRestartJob) {
+            clearTimeout(activeErrorRestartJob);
+            activeErrorRestartJob = null;
+          } else {
+            server.send( { reconnect: config } );
+          }
         } else {
           createServer(config);
         }
@@ -135,10 +145,20 @@ app.on('ready', () => {
         if (server && server.send) {
           server.send( { disconnect: {} } );
         }
+        if (activeErrorRestartJob) {
+          clearTimeout(activeErrorRestartJob);
+          activeErrorRestartJob = null;
+        }
         break;
       case 'server-toggle':
         if (server && server.send) {
-          server.send( { toggle: config } );
+          if (activeErrorRestartJob) {
+            clearTimeout(activeErrorRestartJob);
+            activeErrorRestartJob = null;
+            server.send( { disconnect: {} } );
+          } else {
+            server.send( { toggle: config } );
+          }
         } else {
           createServer(config);
         }
@@ -236,7 +256,11 @@ function removeConfigFile(arg) {
 
 process.on('uncaughtException', (err) => {
   console.log(`WEBVISUAL GUI (uncaughtException)\n ${err}`);
-  setTimeout(() => {
+  if (activeErrorRestartJob) {
+    clearTimeout(activeErrorRestartJob);
+    activeErrorRestartJob = null;
+  }
+  activeErrorRestartJob = setTimeout(() => {
     if (server) {
       server.send( { reconnect: config } );
     }
@@ -245,7 +269,11 @@ process.on('uncaughtException', (err) => {
 
 process.on('ECONNRESET', (err) => {
   console.log(`WEBVISUAL GUI (ECONNRESET)\n ${err}`);
-  setTimeout(() => {
+  if (activeErrorRestartJob) {
+    clearTimeout(activeErrorRestartJob);
+    activeErrorRestartJob = null;
+  }
+  activeErrorRestartJob = setTimeout(() => {
     if (server) {
       server.send( { reconnect: config } );
     }
