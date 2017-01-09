@@ -1,5 +1,5 @@
 // require('events').EventEmitter.prototype._maxListeners = 0;
-
+process
 const fs = require('fs'),
       path = require('path'),
       util = require('util');
@@ -47,6 +47,7 @@ function createServer (config) {
   var env = {};
   env['WEBVISUALSERVER'] = JSON.stringify(config);
   env.port = config.server.port;
+  server = null;
   server = fork( __dirname + '/server/index.js', [], { env: env, cwd: __dirname + '/server' } );
   server.on('message', (arg) => {
     if (win) {
@@ -64,7 +65,7 @@ function createServer (config) {
       activeErrorRestartJob = null;
     }
     activeErrorRestartJob = setTimeout(() => {
-      if (server) {
+      if (server && server.connected) {
         server.send( { disconnect: config } );
         server.kill();
       }
