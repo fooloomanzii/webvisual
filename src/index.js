@@ -1,5 +1,6 @@
 // require('events').EventEmitter.prototype._maxListeners = 0;
-process
+process.env.NODE_ENV = 'production';
+
 const fs = require('fs'),
       path = require('path'),
       util = require('util');
