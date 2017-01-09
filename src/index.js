@@ -57,6 +57,20 @@ function createServer (config) {
       console.log( arg[type] );
     }
   });
+  server.on('exit', (code) => {
+    console.log(`WEBVISUAL-SERVER (exit)\n ${code}`);
+    if (activeErrorRestartJob) {
+      clearTimeout(activeErrorRestartJob);
+      activeErrorRestartJob = null;
+    }
+    activeErrorRestartJob = setTimeout(() => {
+      if (server) {
+        server.send( { disconnect: config } );
+        server.kill();
+      }
+      createServer(config);
+    }, 3000)
+  });
 }
 
 // Quit when all windows are closed.
@@ -262,8 +276,10 @@ process.on('uncaughtException', (err) => {
   }
   activeErrorRestartJob = setTimeout(() => {
     if (server) {
-      server.send( { reconnect: config } );
+      server.send( { disconnect: config } );
+      server.kill();
     }
+    createServer(config);
   }, 3000)
 });
 
