@@ -1,12 +1,14 @@
 {
   "database": {
     "host": "http://127.0.0.1",
-    "port": "6379",
-    "type": "redis"
+    "kind": "redis",
+    "port": 6379,
+    "type": "redis",
+    "url": "https://localhost"
   },
   "server": {
     "auth": {
-      "required": false,
+      "required": true,
       "ldap": {
         "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
         "url": "ldap://ibn-net.kfa-juelich.de"
@@ -15,7 +17,7 @@
     },
     "port": 443,
     "ssl": {
-      "ca": "C:\\Github\\webvisual\\src\\server\\defaults\\ssl\\ca",
+      "ca": "D:\\Github\\webvisual\\src\\server\\defaults\\ssl\\ca",
       "cert": "./defaults/ssl/ca.crt",
       "key": "./defaults/ssl/ca.key",
       "passphrase": "./defaults/ssl/ca.pw.json"
@@ -29,24 +31,26 @@
     "webPreferences": {
       "webSecurity": true
     },
-    "x": 724,
-    "y": 131
+    "x": 440,
+    "y": 205
   },
   "userConfigFiles": [
     {
       "name": "Cryostat",
       "title": "Cryostat",
-      "path": "C:/Github/webvisual/src/server/examples/config/cryostat_visu.json"
+      "path": "D:\\Github\\webvisual\\src\\server\\examples\\config\\cryostat_visu.json",
+      "renderer": "Diagrammansicht"
     },
     {
       "name": "HNF",
       "title": "HNF",
-      "path": "C:/Github/webvisual/src/server/examples/config/HNF_GDS.json"
+      "path": "D:/Github/webvisual/src/server/examples/config/HNF_GDS.json",
+      "renderer": "Alarmzustände"
     },
     {
-      "name": "Test",
-      "title": "Test",
-      "path": "C:/Github/webvisual/src/server/examples/config/test.json"
+      "name": "Demo",
+      "title": "Demo",
+      "path": "D:/Github/webvisual/src/server/examples/config/test.json"
     }
   ]
 }
