@@ -8,6 +8,8 @@ const fs = require('fs'),
 const electron = require('electron');
 const { dialog, ipcMain, app, BrowserWindow } = require('electron');
 
+app.commandLine.appendSwitch("js-flags", "--max_old_space_size=8000");
+
 const fork = require('child_process').fork;
 
 let Settings = require('./settings');
