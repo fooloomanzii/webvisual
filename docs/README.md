@@ -43,7 +43,7 @@ Eine Visualisierung von Messdaten von Messgeräten bietet Anwendern die Möglich
 
 Node.js verfügt über ein vielfältiges Modulsystem, das lauffähige Skripte und Erweiterungen in den Code integrieren kann, zum Beispiel in dem sie über den Paketmanager _npm_ installieren werden. Ebenso sind verschiedene Grundfunktionen modularisiert implementiert, wie zum Beispiel die Netzwerkkommunikation _net_, der vereinfachte Serveraufbau mittels _express_ und das Dateisystem über _fs_. Es ist möglich Module nicht nur in Javascript zu schreiben, sondern auch in Python und C++, sofern man plattformspezifisch entsprechende Compiler beziehungsweise Interpreter installiert hat, um die Module dann für die Plattform kompilieren beziehungsweise ausführen zu können. Ein Beispiel, welches eine HTTP-Anfrage darstellt:
 
-```
+```javascript
 // Lade geeignetes Modul
 var http = require('http');
 var port = 3000;
@@ -71,13 +71,6 @@ server.on('error', (err) => {
   .once('listening', () => {
     console.log( `HTTP Server is listening on port ${port}` );
   });
-```
-
-Aufruf der Applikation:
-
-```
-PS C:\node\src> node app.js
-HTTP Server is listening on port 3000
 ```
 
 ### HTTP/2
@@ -114,7 +107,7 @@ Um Aktualisierungen auf der Webseite zu propagieren, werden Websockets in der Im
 
 Mithilfe von Websockets werden die Informationen zwischen Client und Server möglichst in Echtzeit ausgetauscht, da es das oben erwähnte -System benutzt und für diesen Zweck parallel zur HTTP-Anfrage des Browsers eine weitere Verbindung zum Server herstellt, die permanent für die gesamte Dauer des Seitenbesuchs bestehen bleibt. Oft benutzen Browser eine eigene Implementierung von Transportschichten, weshalb hier das Modul _socket.io_ benutzt wird. Dieses Modul stellt eine Art von dar und verwendet die Transportmethoden, die im aktuellen Browser vorhanden sind. Socket.io wird sowohl auf der Server- wie auch auf der Clientseite ausgeführt. Ein Beispiel für das Senden von Server zum Client ist wie folgt:
 
-```
+```javascript
 // Empfange neue Daten
 var newdata = getData();
 
@@ -124,7 +117,7 @@ socket.emit('data', newdata);
 
 Entsprechender Empfang der Daten auf der Clientseite:
 
-```
+```javascript
 // Ein Listener für die Daten
 socket.on('data', function(newdata) {
   processData(newdata);
@@ -145,7 +138,7 @@ Ein Polyfill ist ein Code-Baustein, der eine nicht unterstützte Funktion mittel
 
 [polymer] ist ein Client-Template-Framework, mit dem man innerhalb der DOM erleichtert neue Objekte erzeugen kann, Attribute setzen, Daten verknüpfen und einfacher Events erzeugen kann. Es basiert auf dem Konzept von _webcomponents_, einer Weiterentwicklung von _angular.js_, und es ermöglicht eigene HTML-Elemente zu definieren. Dazu wird eine definierte Vorlage (_Template_) benutzt, um ein entsprechendes Abbild in der DOM zu erzeugen. Einige Browser unterstützen dieses Modell auch nativ, und in diesem Fall wird eine sogenannte _Shadow-DOM_ um das _Template_ erzeugt, dass dieses Element vor dem Zugriff von außen isoliert und eine eigene Stilisierungsumgebung für _css_ erzeugt. Für andere Browser unterstützt _polymer_ eine -Bibliothek.
 
-```
+```html
 <dom-module id="example-element">
   <template>
     <style>
@@ -199,7 +192,7 @@ Ein [Promise] ist ein wichtiges Konzept in _Javascript_, um asynchron ausgeführ
 
 Ein Beispiel für einen _promise_:
 
-```
+```javascript
 fetchFacilityList()
   .then(function(facilities) {
   // Promise erfolgreich
@@ -299,7 +292,7 @@ data-label="fig:appmodel"></span>](img/startvorgang.png)
 
 Der Server erstellt über das _express_-Modul und das _spdy_-Modul einen -Server und verbindet die Untermodule:
 
-```
+```javascript
 // System Modules
 const express = require('express'),
 // Processing Modules
@@ -369,7 +362,7 @@ class WebvisualServer {
 
 Die Websockets werden auf Anfrage eines Clients aufgebaut und einem Messsystem zugeordnet. Initial werden die letzten Daten eines gesamten Messsystems an den Client geschickt. Der Client hat die Möglichkeit bestimmte Bereiche an Messdaten abzurufen.
 
-```
+```javascript
 // ... DataModule ...
 setServer(server) {
     this.io.listen(server);
@@ -415,7 +408,7 @@ setServer(server) {
 
 Registriert das Dateiüberwachungsmodel Änderungen, werden die Daten an das Datenmodel angepasst, an das Datenbankmodul gesendet und über den Websocket zum Client verschickt.
 
-```
+```javascript
 // ... DataModule ...
 connect(settings, facilily) {
     for (let system in settings[facility]) {
@@ -456,7 +449,7 @@ connect(settings, facilily) {
 
 Die serverseitige Datenbank wurde über realisiert. Redis bietet die Möglichkeit über _ZADD_ sortierte Listen [anzulegen][^5], wobei es einen _SCORE_ gibt, der den Index repräsentiert, über den sortiert wird. Der _SCORE_ eignet sich für Datumswerte, die in Javascript in einen _Integer_-Wert umgewandelt werden können, der den Millisekunden ab 1\. Januar 1970 [entspricht][^4], und so eine Sortierung hergestellt werden kann. Da in _Sets_ die Werte _unique_ sein müssen, sind die Werteobjekte als ganzes (mit der Zeitindizierung) als _String_ s gespeichert. Über Promises wird sichergestellt, dass die Operationen teilweise synchronisiert ausgeführt werden können, da bei sehr großen Datenmengen der Arbeitsspeicher überfordert werden kann. Über den Befehl _MULTI_ können Anfragen und Übertragungen in in atomaren Prozessen ausgeführt werden. Über ein Limit bei der Abfrage über `getAll` und `range` wird verhindert, dass der Client mehr Messdaten gesendet bekommt, als für das entsprechende Hardwaresystem sinnvoll ist.
 
-```
+```javascript
 const DBInterface = require('../interface/index.js');
 const redis = require("redis");
 // REDIS Client
@@ -579,7 +572,7 @@ class RedisClientDB extends DBInterface {
 
 Für die Erstellung der Webapplikation wurden verschiedene Template-Dateien für das _polymer_-Framework nach der [PRPL]-Modellierung erstellt. Die Appshell bietet dem Client den Einstieg in den Ladevorgang:
 
-```
+```html
 <!doctype html>
 <html>
     <head>
@@ -666,7 +659,7 @@ Für die Erstellung der Webapplikation wurden verschiedene Template-Dateien für
 
 Die Fragmente sind beispielhaft an der Listendarstellung wie folgt umgesetzt:
 
-```
+```html
 <dom-module id="webvisual-list">
     <template>
         <style include="shared-styles page-layout"></style>
@@ -714,7 +707,7 @@ Die Fragmente sind beispielhaft an der Listendarstellung wie folgt umgesetzt:
 
 Die statischen Dateien werden durch eine Hilfsbibliothek (_polymer-build_) in ihre einzelnen Codeteile (_HTML_, _CSS_, _Javascript_) aufgetrennt und durch bestimmte Module optimiert und wieder zusammengesetzt den Distrubutionsordner ausgegeben.
 
-```
+```javascript
 function source() {
     return project.splitSource()!
         .pipe(gulpif(/.js$/, new streamOptimizer.JSOptimizeStream(config.optimizeOptions.js)))
@@ -727,7 +720,7 @@ function source() {
 
 Zur Generierung des Service Workers wurde das Modul [sw-toolbox] verwendet. Anhand einer Konfigurationsdatei kann man bestimmen, welche Dateien wie gespeichert werden sollen und mit welcher Strategie versucht werden soll, sie abzurufen. Wie man im Beispiel sehen kann, werden die Schriftarten und die Bilder in verschiedenen Caches abgelegt, wobei die Schriftarten bevorzugt aus dem Cache entnommen werden:
 
-```
+```javascript
 module.exports = {
     staticFileGlobs: [
         '/index.html',
@@ -770,7 +763,7 @@ Ein Webworker baut die Verbindung über den Websocket mit dem Service Worker auf
 ![Ablauf der Aktualierung von Messdaten<span
 data-label="fig:dataupdate"></span>](img/dataupdate.png)
 
-```
+```javascript
 var socket
 , cache = new ClientCache()
 , dbMap = new Map()
