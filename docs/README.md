@@ -29,7 +29,7 @@ Webvisual: |-
 
 # Motivation
 
-Eine Visualisierung von Messdaten von Messgeräten bietet Anwendern die Möglichkeit, über eine Browseroberfläche Messwerte in Echtzeit zu überwachen. Dies gibt den Vorteil, einen schnellen Eindruck über den Zustand von Experimenten oder Messzuständen zu gewinnen. Das Projekt findet Anwendung in der Überwachung einer Gaswarnanlage und einer Tieftemperaturmessanlage, in denen in verschiedenen Laboren bestimmte Geräte sequentiell Messdaten verschiedenartige Daten aufnehmen. So nimmt zum Beispiel die Gaswarnanlage nur Alarmzustände war, die durch die Konzentration von Gasen in den entsprechenden Laborräumen ausgelöst werden, und die Tieftemperaturmessanlage an ihren Geräten direkte physikalische Messgrößen wie Temperatur und Druck auf. Für die Umsetzung des Projekts ist die Zuordnung der Eigenschaften in der Darstellung und die Aufnahme der Messwerte elementar für die Visualisierung und die Datenerfassung. Des weiteren ist die Erreichbarkeit der Visualisierung ein zentraler Punkt. Zum einen muss der Server stets verfügbar sein. Fehlerhafte Messwerte oder Messdateien dürfen die Prozesse nicht unterbrechen oder terminieren. Der Server muss über sehr lange Zeiträume laufen, da die Prozesse gegebenenfalls nicht direkt gewartet werden, und es für Anwender der Webplattform eventuell nicht ersichtlich ist, ob die Verarbeitungsprozesse funktionstüchtig sind, da die Bereitstellung der Webseite tadellos durchgeführt werden kann, aber durch einen serverinternen Fehler die Auswertung unterbrochen sein könnte. Auch soll ein Administrator die Möglichkeit haben, im laufenden Prozess Bezeichnungen, Zuordnungen und auch Servereinstellungen ändern zu können, ohne dass der Server ausfällt. Der Server muss sich daher zum Teil selbstständig verwalten können, das heißt dass sich Prozesse ausreichend gegen fehlerhafte Konfigurationen und Messdaten abgesichert sein sollen, gegebenenfalls auf Backups und Defaultwerte zurückgreifen, sich bei Ausnahmefehlern auch zurücksetzen und Unterprozesse selbstständig neu starten können. Hierfür bietet die verwendete Node.js-Plattform eine gute Grundlage, da man in der Lage ist einzelne Prozesse auslagern und untergliedern zu können, eine Interprozesskommunikation auszuführen und ein stabile Fehlerüberwachung durchzusetzen kann. Ein weiterer wichtiger Punkt der Erreichbarkeit ist die Plattform, mittels welcher ein Benutzer die Visualisierung anzeigen wird. Die Hardwareplattformen sind in diesem Fall stationäre PCs und Geräte, auf denen Betriebssystem laufen, die für die mobile Benutzung, wie _Android_, konzipiert sind. Als Softwareplattform sind Browser vorgesehen, die ausreichend aktualisiert und sicher sind, in diesem Fall _Firefox_ ab Version 38, _Chrome_ ab Version 41, _Opera_ ab Version 28 und _Internet Explorer_ ab Version 11, also Browserversionen ab Mitte 2015\. _Safari_ ist aufgrund fehlender Geräteverfügbarkeiten in den Instituten nicht testbar und erforderlich, auch da Apple die Weiterentwicklung von Safari auf Linux- und Windows-Systemen seit 2012 nicht fortführt. Die Stabilität des Codes stellt eine große Herausforderung dar, weil sich die verschiedenen Browseranbieter trotz eines vorhandenen Standardisierungsgremiums für Javascript und HTML (_World Wide Web Consortium_) zum einen unterschiedliche Ansätze in der Implementierung der Standards nutzen, was zu unterschiedlichem Verhalten der Webseitendarstellung führt, und zum anderen Standards nicht oder stark verzögert implementieren, wie zum Beispiel die -Funktionen und _class_-Implementierung des -Standards oder die Implementierung sämtlicher _input-types_ des -Standards, wie zum Beispiel _date_. Die Herstellung eines möglichst kompatiblen Codes ist daher eine wichtige Aufgabe der Erzeugung einer Webseite, was durch die Verwendung eines älteren, bereits allgemein implementierten Standards erreicht werden kann oder durch die Verwendung von sogenannten -Bibliotheken. Die Geschwindigkeit, mit der sich die Visualisierung auf dem Anwendergerät aufbauen kann, ist ein auch ein Kriterium der Erreichbarkeit. Zum einen ist die Verbindung zum Gerät zu berücksichtigen, da sich ein Gerät, dass über den Mobilfunk eine Verbindung zum Server aufbaut, mit starken Latenzen und Bandbreiteneinschränkungen unterliegen kann. Es kann ein Ansatz in modernen Browsern sein, Offlinecaches anzulegen, die neben dem schon vorhandenem Browsercache, sogenannte s erzeugen, die es ermöglicht verschiedene Ressourcen dauerhaft zu speichern, um den Aufbau von Webseiten zu beschleunigen, da diese Ressourcen nicht doppelt abgefragt werden müssen. Dies gilt allerdings nur bedingt für Messdaten, da diese auf Konsistenz und Lückenhaftigkeit überprüft werden müssten, was leistungsschwächere Geräte überfordern könnte. Auch können modernere Möglichkeiten durch die Verwendung von Möglichkeiten eröffnen, Inhalte schneller zu übertragen. Da die Messwerte permanent aktualisiert werden können, muss eine persistente Verbindung mit den Benutzergeräten hergestellt sein, damit die Darstellung mit den Geräten aktualisiert werden können, was vor allem im Fall der Gaswarnanlage wichtig ist. Dies lässt sich durch die Verbindung mit Websockets realisieren. Das genutzte Serversystem der Visualisierung war vor der Umsetzung der Seminararbeit in dem Zustand, Messdateien überwachen und verarbeiten zu können, aus Konfigurationsdateien serverseitig über eine Jade-Template-Umsetzung eine Webseite generieren zu können, die ein Benutzer nach einer Authentifizierung über einen _LDAP_-Server abrufen und über eine Websocketimplementierung aktualisiert werden konnte. Dazu wurden auch Vorteile eines clientseitigen Templatemodels (_polymer_) ausgenutzt. Dies führte nur teilweise zu einer guten Verfügbarkeit und Geschwindigkeit, vor allem nur eingeschränkt auf mobilen Plattformen. Das Ziel der Seminararbeit ist es, die Verfügbarkeit zu verbessern, den Webseitenaufbau zu erhöhen, bereits empfangene Ressourcen offline verfügbar zu machen, Datenbankabfragen für vergangene Messdaten einzuführen, Authentifizierungsrichtlinien der Messdaten weiterhin zu gewährleisten, die Webseite über _HTTP/2_ bereitzustellen und die Kompatibilität zu erhöhen.
+Eine Visualisierung von Messdaten von Messgeräten bietet Anwendern die Möglichkeit, über eine Browseroberfläche Messwerte in Echtzeit zu überwachen. Dies gibt den Vorteil, einen schnellen Eindruck über den Zustand von Experimenten oder Messzuständen zu gewinnen. Das Projekt findet Anwendung in der Überwachung einer Gaswarnanlage und einer Tieftemperaturmessanlage, in denen in verschiedenen Laboren bestimmte Geräte sequentiell Messdaten verschiedenartige Daten aufnehmen. So nimmt zum Beispiel die Gaswarnanlage nur Alarmzustände war, die durch die Konzentration von Gasen in den entsprechenden Laborräumen ausgelöst werden, und die Tieftemperaturmessanlage an ihren Geräten direkte physikalische Messgrößen wie Temperatur und Druck auf. Für die Umsetzung des Projekts ist die Zuordnung der Eigenschaften in der Darstellung und die Aufnahme der Messwerte elementar für die Visualisierung und die Datenerfassung. Des weiteren ist die Erreichbarkeit der Visualisierung ein zentraler Punkt. Zum einen muss der Server stets verfügbar sein. Fehlerhafte Messwerte oder Messdateien dürfen die Prozesse nicht unterbrechen oder terminieren. Der Server muss über sehr lange Zeiträume laufen, da die Prozesse gegebenenfalls nicht direkt gewartet werden, und es für Anwender der Webplattform eventuell nicht ersichtlich ist, ob die Verarbeitungsprozesse funktionstüchtig sind, da die Bereitstellung der Webseite tadellos durchgeführt werden kann, aber durch einen serverinternen Fehler die Auswertung unterbrochen sein könnte. Auch soll ein Administrator die Möglichkeit haben, im laufenden Prozess Bezeichnungen, Zuordnungen und auch Servereinstellungen ändern zu können, ohne dass der Server ausfällt. Der Server muss sich daher zum Teil selbstständig verwalten können, das heißt dass sich Prozesse ausreichend gegen fehlerhafte Konfigurationen und Messdaten abgesichert sein sollen, gegebenenfalls auf Backups und Defaultwerte zurückgreifen, sich bei Ausnahmefehlern auch zurücksetzen und Unterprozesse selbstständig neu starten können. Hierfür bietet die verwendete Node.js-Plattform eine gute Grundlage, da man in der Lage ist einzelne Prozesse auslagern und untergliedern zu können, eine Interprozesskommunikation auszuführen und ein stabile Fehlerüberwachung durchzusetzen kann. Ein weiterer wichtiger Punkt der Erreichbarkeit ist die Plattform, mittels welcher ein Benutzer die Visualisierung anzeigen wird. Die Hardwareplattformen sind in diesem Fall stationäre PCs und Geräte, auf denen Betriebssystem laufen, die für die mobile Benutzung, wie _Android_, konzipiert sind. Als Softwareplattform sind Browser vorgesehen, die ausreichend aktualisiert und sicher sind, in diesem Fall _Firefox_ ab Version 38, _Chrome_ ab Version 41, _Opera_ ab Version 28 und _Internet Explorer_ ab Version 11, also Browserversionen ab Mitte 2015\. _Safari_ ist aufgrund fehlender Geräteverfügbarkeiten in den Instituten nicht testbar und erforderlich, auch da Apple die Weiterentwicklung von Safari auf Linux- und Windows-Systemen seit 2012 nicht fortführt. Die Stabilität des Codes stellt eine große Herausforderung dar, weil sich die verschiedenen Browseranbieter trotz eines vorhandenen Standardisierungsgremiums für Javascript und HTML (_World Wide Web Consortium_) zum einen unterschiedliche Ansätze in der Implementierung der Standards nutzen, was zu unterschiedlichem Verhalten der Webseitendarstellung führt, und zum anderen Standards nicht oder stark verzögert implementieren, wie zum Beispiel die -Funktionen und _class_-Implementierung des -Standards oder die Implementierung sämtlicher _input-types_ des -Standards, wie zum Beispiel _date_. Die Herstellung eines möglichst kompatiblen Codes ist daher eine wichtige Aufgabe der Erzeugung einer Webseite, was durch die Verwendung eines älteren, bereits allgemein implementierten Standards erreicht werden kann oder durch die Verwendung von sogenannten -Bibliotheken. Die Geschwindigkeit, mit der sich die Visualisierung auf dem Anwendergerät aufbauen kann, ist ein auch ein Kriterium der Erreichbarkeit. Zum einen ist die Verbindung zum Gerät zu berücksichtigen, da sich ein Gerät, dass über den Mobilfunk eine Verbindung zum Server aufbaut, mit starken Latenzen und Bandbreiteneinschränkungen unterliegen kann. Es kann ein Ansatz in modernen Browsern sein, Offlinecaches anzulegen, die neben dem schon vorhandenem Browsercache, sogenannte Appcaches erzeugen, die es ermöglicht verschiedene Ressourcen dauerhaft zu speichern, um den Aufbau von Webseiten zu beschleunigen, da diese Ressourcen nicht doppelt abgefragt werden müssen. Dies gilt allerdings nur bedingt für Messdaten, da diese auf Konsistenz und Lückenhaftigkeit überprüft werden müssten, was leistungsschwächere Geräte überfordern könnte. Auch können modernere Möglichkeiten durch die Verwendung von Möglichkeiten eröffnen, Inhalte schneller zu übertragen. Da die Messwerte permanent aktualisiert werden können, muss eine persistente Verbindung mit den Benutzergeräten hergestellt sein, damit die Darstellung mit den Geräten aktualisiert werden können, was vor allem im Fall der Gaswarnanlage wichtig ist. Dies lässt sich durch die Verbindung mit Websockets realisieren. Das genutzte Serversystem der Visualisierung war vor der Umsetzung der Seminararbeit in dem Zustand, Messdateien überwachen und verarbeiten zu können, aus Konfigurationsdateien serverseitig über eine Jade-Template-Umsetzung eine Webseite generieren zu können, die ein Benutzer nach einer Authentifizierung über einen _LDAP_-Server abrufen und über eine Websocketimplementierung aktualisiert werden konnte. Dazu wurden auch Vorteile eines clientseitigen Templatemodels (_polymer_) ausgenutzt. Dies führte nur teilweise zu einer guten Verfügbarkeit und Geschwindigkeit, vor allem nur eingeschränkt auf mobilen Plattformen. Das Ziel der Seminararbeit ist es, die Verfügbarkeit zu verbessern, den Webseitenaufbau zu erhöhen, bereits empfangene Ressourcen offline verfügbar zu machen, Datenbankabfragen für vergangene Messdaten einzuführen, Authentifizierungsrichtlinien der Messdaten weiterhin zu gewährleisten, die Webseite über _HTTP/2_ bereitzustellen und die Kompatibilität zu erhöhen.
 
 # Grundlagen
 
@@ -37,11 +37,11 @@ Eine Visualisierung von Messdaten von Messgeräten bietet Anwendern die Möglich
 
 ### Node.js
 
-Node.js[^1] stellt eine Serverengine dar, die den Betrieb von Netzwerkanwendungen ermöglicht und insbesondere zur Realisation von Webservern geeignet ist. Es basiert auf der V8 JavaScript[^2] Engine, welche in C geschrieben ist und auf der Javascript-Engine _V8_ basiert, die von Google für das _chromium_-Project entwickelt wird. Die Architektur von node.js ist ereignisgesteuert. Das heißt, dass sämtliche Ereignisse ("") in eine eingereiht werden, wo sie auf ihre Verarbeitung warten. Zusätzlich läuft ein einzelner Prozess, der so genannte "", in einer endlosen Schleife und behandelt die vorliegenden . Wenn ein weitere auslöst, werden diese wiederum in die eingereiht. Es können auch node-Prozesse durch einen Hauptprozess initiiert werden, als sogenannte _child_-Prozesse, die über eine Interprozesskommunikation () gesteuert werden können. Eine solche Architektur erlaubt Node.js eine Blockierung des Prozesses zu verhindern. Die potenziell blockierende Funktionen (z.B. Benutzerabfragen) können als Argument eine "" erhalten, die alle nötigen Ergebnisse von der Funktion bekommt und in die eingereiht wird. Der "" beschäftigt sich in der Zwischenzeit mit anderen , was zu keinen unnötigen Wartezeiten führt. Eine alternative Umsetzung ist über sogenannte ""s möglich. Dieses Verfahren erlaubt die Entwicklung schneller Echtzeit-Anwendungen. Es macht das asynchrone Abarbeiten von Ereignissen ohne Multithreading möglich, was zu einer hohen Speichereffizienz führt. In den Grundeinstellungen haben node.js Prozesse eine begrenzte Verfügbarkeit an Arbeitsspeicher, welche sich allerdings erweitern lässt[^3]. Node.js unterstützt alle gängigen Betriebssysteme (Windows, Linux und Mac OS) und wird über die Kommandozeile bedient. Es existieren auch Derivate, die es ermöglichen, Grafische Serveroberflächen zu erzeugen, wie z.B. _electron_[^4], welches auch in diesem Projekt eingesetzt wurde, um grundlegende Serverkonfigurationen erleichternd durchzuführen. Um eine Applikation auszuführen, wird eine Datei mit auszuführenden Code an Node.js übergeben. Vorherige Kompilierung ist nicht notwendig, da sich JavaScript um eine -Sprache handelt.
+[Node.js] stellt eine Serverengine dar, die den Betrieb von Netzwerkanwendungen ermöglicht und insbesondere zur Realisation von Webservern geeignet ist. Es basiert auf der V8 [Javascript] Engine, welche in C geschrieben ist und auf der Javascript-Engine _V8_ basiert, die von Google für das _chromium_-Project entwickelt wird. Die Architektur von node.js ist ereignisgesteuert. Das heißt, dass sämtliche Ereignisse in eine eingereiht Eventloop werden, wo sie auf ihre Verarbeitung warten. Es können auch node-Prozesse durch einen Hauptprozess initiiert werden, als sogenannte _child_-Prozesse, die über eine Interprozesskommunikation (IPC) gesteuert werden können. Eine solche Architektur erlaubt Node.js eine Blockierung des Prozesses zu verhindern. Die potenziell blockierende Funktionen (z.B. Benutzerabfragen) können als Argument eine Callback-Funktion erhalten, die alle nötigen Ergebnisse von der Funktion bekommt und in die eingereiht wird. Es macht das asynchrone Abarbeiten von Ereignissen ohne Multithreading möglich, was zu einer hohen Speichereffizienz führt. In den Grundeinstellungen haben node.js Prozesse eine begrenzte Verfügbarkeit an [Arbeitsspeicher][^3], welche sich allerdings erweitern lässt [Node.js] unterstützt alle gängigen Betriebssysteme (Windows, Linux und Mac OS) und wird über die Kommandozeile bedient. Es existieren auch Derivate, die es ermöglichen, Grafische Serveroberflächen zu erzeugen, wie z.B. [electron], welches auch in diesem Projekt eingesetzt wurde, um grundlegende Serverkonfigurationen erleichternd durchzuführen. Um eine Applikation auszuführen, wird eine Datei mit auszuführenden Code an Node.js übergeben. Vorherige Kompilierung ist nicht notwendig, da sich JavaScript um eine -Sprache handelt.
 
 ### Module von Node.js
 
-Node.js verfügt über ein vielfältiges Modulsystem, das lauffähige Skripte und Erweiterungen in den Code integrieren kann, zum Beispiel in dem sie über den Paketmanager _npm_ installieren werden. Module erweitern die Funktionalitäten des Servers. Node.js stellt Programmierern die Möglichkeit, Module für verschiedene Fälle zu schreiben und Einheiten öffentlich mit anderen zu teilen oder gemeinschaftlich zu bearbeiten, wie zum Beispiel über die Plattform _github_. So existiert im Internet eine große Auswahl an Modulen, die man verwenden kann. Ebenso sind verschiedene Grundfunktionen modularisiert implementiert, wie zum Beispiel die Netzwerkkommunikation _net_, der vereinfachte Serveraufbau mittels _express_ und das Dateisystem über _fs_. Es ist möglich Module nicht nur in Javascript zu schreiben, sondern auch in Python und C++, sofern man plattformspezifisch entsprechende Compiler beziehungsweise Interpreter installiert hat, um die Module dann für die Plattform kompilieren beziehungsweise ausführen zu können. Ein Beispiel, welches eine HTTP-Anfrage unter der Adresse (<http://localhost:3000>) darstellt:
+Node.js verfügt über ein vielfältiges Modulsystem, das lauffähige Skripte und Erweiterungen in den Code integrieren kann, zum Beispiel in dem sie über den Paketmanager _npm_ installieren werden. Ebenso sind verschiedene Grundfunktionen modularisiert implementiert, wie zum Beispiel die Netzwerkkommunikation _net_, der vereinfachte Serveraufbau mittels _express_ und das Dateisystem über _fs_. Es ist möglich Module nicht nur in Javascript zu schreiben, sondern auch in Python und C++, sofern man plattformspezifisch entsprechende Compiler beziehungsweise Interpreter installiert hat, um die Module dann für die Plattform kompilieren beziehungsweise ausführen zu können. Ein Beispiel, welches eine HTTP-Anfrage darstellt:
 
 ```
 // Lade geeignetes Modul
@@ -82,7 +82,7 @@ HTTP Server is listening on port 3000
 
 ### HTTP/2
 
-_HTTP/2_[^5], kurz auch _H2_, ist eine Weiterentwicklung des Netzwerkprotokolls HTTP 1.1 und ist von dem Projekt _SPDY_ ausgegangen. Es gibt einige Unterschiede zu HTTP 1.1, wie z.B.:
+[HTTP/2], kurz auch _H2_, ist eine Weiterentwicklung des Netzwerkprotokolls HTTP 1.1 und ist von dem Projekt _SPDY_ ausgegangen. Es gibt einige Unterschiede zu HTTP 1.1, wie z.B.:
 
 - die Reihenfolge, mit der das Paket bzw. ihre Teile den Empfänger erreichen, sind nicht mehr zwingend
 
@@ -100,11 +100,11 @@ Die Möglichkeit durch den Server Verbindungen zu initiieren, ermöglichen vielf
 
 ### Redis
 
-Redis[^6] ist ein eigenständiges serverseitiges Datenbanksystem für verschiedene Plattformen mit einer einfachen Schlüssel-Werte-Datenstruktur und ist Teil der Familie der _NoSQL_-Datenbanken. Es ist eher für einfachere als für komplexe Datenstrukturen geeignet. Für sequentielle Daten kann man _Redis_ verwenden, wenn man die Datenstrukturen abflachen kann, zum Beispiel in sortierten Listen mittels _ZADD_. Redis gilt als sehr performant. Es existieren diverse Implementierungen für verschiedene Umgebungen, ebenso für node.js[^7]. Die direkte Kommunikation über das HTTP-Protokoll ist auch möglich.
+[Redis] ist ein eigenständiges serverseitiges Datenbanksystem für verschiedene Plattformen mit einer einfachen Schlüssel-Werte-Datenstruktur und ist Teil der Familie der _NoSQL_-Datenbanken. Es ist eher für einfachere als für komplexe Datenstrukturen geeignet. Für sequentielle Daten kann man _Redis_ verwenden, wenn man die Datenstrukturen abflachen kann, zum Beispiel in sortierten Listen mittels _ZADD_. Redis gilt als sehr performant. Es existieren diverse Implementierungen für verschiedene Umgebungen, ebenso für [node.js][^6] Die direkte Kommunikation über das HTTP-Protokoll ist auch möglich.
 
 ### Websockets
 
-Um Aktualisierungen auf der Webseite zu propagieren, werden Websockets in der Implementierung von _socket.io_[^8] benutzt. Diese ermöglicht verschiedene Namespaces, die Verschlüsselung der Verbindung und das automatische komprimieren und entpacken der Datenpakete. Die allgemeine Vorgehensweise von Websockets geht in folgenden Schritten von statten:
+Um Aktualisierungen auf der Webseite zu propagieren, werden Websockets in der Implementierung von [socket.io] benutzt. Diese ermöglicht verschiedene Namespaces, die Verschlüsselung der Verbindung und das automatische komprimieren und entpacken der Datenpakete. Die allgemeine Vorgehensweise von Websockets geht in folgenden Schritten von statten:
 
 - ein Client sendet _handshake request_
 
@@ -139,11 +139,11 @@ Ein Polyfill ist ein Code-Baustein, der eine nicht unterstützte Funktion mittel
 
 ### D3.js
 
-_d3.js_[^9] ist ein Framework, mit dem sich erleichtert Vektorgrafik-Elemente (_svg_) DOM-Elemente erzeugen lassen. In _d3.js_ sind vielfältige Interpolationsfunktionen und Darstellungsmöglichkeiten von zeitlichen Werten integriert. Es eignet sich vor allem für die Erzeugung von Diagrammen, wofür es hier auch benutzt wird, aber auch für die Darstellung von Raumplänen.
+[d3.js] ist ein Framework, mit dem sich erleichtert Vektorgrafik-Elemente (_svg_) DOM-Elemente erzeugen lassen. In _d3.js_ sind vielfältige Interpolationsfunktionen und Darstellungsmöglichkeiten von zeitlichen Werten integriert. Es eignet sich vor allem für die Erzeugung von Diagrammen, wofür es hier auch benutzt wird, aber auch für die Darstellung von Raumplänen.
 
 ### Polymer
 
-polymer[^10] ist ein Client-Template-Framework, mit dem man innerhalb der DOM erleichtert neue Objekte erzeugen kann, Attribute setzen, Daten verknüpfen und einfacher Events erzeugen kann. Es basiert auf dem Konzept von _webcomponents_, einer Weiterentwicklung von _angular.js_, und es ermöglicht eigene HTML-Elemente zu definieren. Dazu wird eine definierte Vorlage (_Template_) benutzt, um ein entsprechendes Abbild in der DOM zu erzeugen. Einige Browser unterstützen dieses Modell auch nativ, und in diesem Fall wird eine sogenannte _Shadow-DOM_ um das _Template_ erzeugt, dass dieses Element vor dem Zugriff von außen isoliert und eine eigene Stilisierungsumgebung für _css_ erzeugt. Für andere Browser unterstützt _polymer_ eine -Bibliothek.
+[polymer] ist ein Client-Template-Framework, mit dem man innerhalb der DOM erleichtert neue Objekte erzeugen kann, Attribute setzen, Daten verknüpfen und einfacher Events erzeugen kann. Es basiert auf dem Konzept von _webcomponents_, einer Weiterentwicklung von _angular.js_, und es ermöglicht eigene HTML-Elemente zu definieren. Dazu wird eine definierte Vorlage (_Template_) benutzt, um ein entsprechendes Abbild in der DOM zu erzeugen. Einige Browser unterstützen dieses Modell auch nativ, und in diesem Fall wird eine sogenannte _Shadow-DOM_ um das _Template_ erzeugt, dass dieses Element vor dem Zugriff von außen isoliert und eine eigene Stilisierungsumgebung für _css_ erzeugt. Für andere Browser unterstützt _polymer_ eine -Bibliothek.
 
 ```
 <dom-module id="example-element">
@@ -185,11 +185,11 @@ polymer[^10] ist ein Client-Template-Framework, mit dem man innerhalb der DOM er
 
 ### Webworker
 
-Ein _Webworker_[^11] ist ein ausgeführtes Skript in Javascript, das in einem separatem _Thread_ läuft, und so den Hauptprozess nicht blockiert. Die Kommunikation findet über einen _Messaging_-Prozess statt. Es existieren neben dem Standard-_Webworker_ verschiedene Arten von _Webworkern_, die erweiterte Möglichkeiten bieten, wie zum Beispiel der _Service-Worker_[^12] oder der _Shared-Worker_. Der _Service-Worker_ ermöglicht es (nur bei einer gesicherten, authentifizierten Verbindung) sich permanent zu installieren, einen Appcache zu öffnen und so Dateien auch _Offline_ verfügbar zu machen[^13] und _Push_-Notifikationen des Servers entgegenzunehmen, selbst wenn die Webseite nicht aktiv ist. Da dies eine sicherheitsrelevante Bedeutung hat, ist es möglich, dass der Funktionsumfang des _Service-Worker_s in Zukunft auch variieren kann, zumal er nicht in allen aktuellen Browser vollständig implementiert ist. In dem Projekt wird die Funktionalität durch _sw-toolbox_[^14] hergestellt, welches eine Bibliothek ist, die automatisch entsprechend einer Konfigurationsdatei für die Dateien verschiedene Caches und Datenbanken anlegt. Das Skript entscheidet beim Seitenaufbau, ob Dateien zum Beispiel zu erst aus dem Cache geladen werden oder durch das Netzwerk abgefragt werden sollen. Ein _Service-Worker_ wird in dem Projekt benutzt, um die einzelnen Dateien, die zum Aufbau der Seite benötigt werden in einen _Appcache_ zu speichern, wie zum Beispiel die _HTML-Imports_ der _polymer_-Elemente, Bilddateien, Messrauminformationen und Schriftarten. Ein Standard-_Webworker_ kann dafür verwendet werden, die Verbindung des _Websockets_ herzustellen, die Daten an den Hauptprozess zu leiten, einen Cache für die Daten zu erzeugen und eine clientseitige Datenbank zu erzeugen und zu verwalten, damit der Hauptprozess nicht belastet wird, da Webworker in parallelen _Threads_ (sofern verfügbar) ausgeführt werden. _Webworker_ haben nicht Zugriff auf sämtliche Browser-_API_s, wie zum Beispiel _LocalStorage_.
+Ein [Webworker] ist ein ausgeführtes Skript in Javascript, das in einem separatem _Thread_ läuft, und so den Hauptprozess nicht blockiert. Die Kommunikation findet über einen _Messaging_-Prozess statt. Es existieren neben dem Standard-_Webworker_ verschiedene Arten von _Webworkern_, die erweiterte Möglichkeiten bieten, wie zum Beispiel der [Service Worker][] oder der _Shared-Worker_. Der _Service-Worker_ ermöglicht es (nur bei einer gesicherten, authentifizierten Verbindung) sich permanent zu installieren, einen Appcache zu öffnen und so Dateien auch _Offline_ verfügbar zu [machen][^1] und _Push_-Notifikationen des Servers entgegenzunehmen, selbst wenn die Webseite nicht aktiv ist. Da dies eine sicherheitsrelevante Bedeutung hat, ist es möglich, dass der Funktionsumfang des _Service-Worker_ s in Zukunft auch variieren kann, zumal er nicht in allen aktuellen Browser vollständig implementiert ist. In dem Projekt wird die Funktionalität durch [sw-toolbox] hergestellt, welches eine Bibliothek ist, die automatisch entsprechend einer Konfigurationsdatei für die Dateien verschiedene Caches und Datenbanken anlegt. Das Skript entscheidet beim Seitenaufbau, ob Dateien zum Beispiel zu erst aus dem Cache geladen werden oder durch das Netzwerk abgefragt werden sollen. Ein _Service-Worker_ wird in dem Projekt benutzt, um die einzelnen Dateien, die zum Aufbau der Seite benötigt werden in einen _Appcache_ zu speichern, wie zum Beispiel die _HTML-Imports_ der _polymer_-Elemente, Bilddateien, Messrauminformationen und Schriftarten. Ein Standard-_Webworker_ kann dafür verwendet werden, die Verbindung des _Websockets_ herzustellen, die Daten an den Hauptprozess zu leiten, einen Cache für die Daten zu erzeugen und eine clientseitige Datenbank zu erzeugen und zu verwalten, damit der Hauptprozess nicht belastet wird, da Webworker in parallelen _Threads_ (sofern verfügbar) ausgeführt werden. _Webworker_ haben nicht Zugriff auf sämtliche Browser-_API_s, wie zum Beispiel _LocalStorage_.
 
 ### Promise
 
-Ein _Promise_[^15] ist ein wichtiges Konzept in _Javascript_, um asynchron ausgeführten Code synchron zu behandeln, das heißt wenn eine Aufgabe mittels eines Promise ausgeführt wird und wenn die Aufgabe erfolgreich ausgeführt worden ist, kann eine Funktion mit dem Resultat fortfahren, oder eine andere auf die Fehlermeldung reagieren, sobald sich der Zustand ändert. Alternativen zu diesem Modell sind das _callback_-Modell und das neuere _async-await_-Modell. Ein _promise_ hat folgende Zustände:
+Ein [Promise] ist ein wichtiges Konzept in _Javascript_, um asynchron ausgeführten Code synchron zu behandeln, das heißt wenn eine Aufgabe mittels eines Promise ausgeführt wird und wenn die Aufgabe erfolgreich ausgeführt worden ist, kann eine Funktion mit dem Resultat fortfahren, oder eine andere auf die Fehlermeldung reagieren, sobald sich der Zustand ändert. Alternativen zu diesem Modell sind das _callback_-Modell und das neuere _async-await_-Modell. Ein _promise_ hat folgende Zustände:
 
 - wartend: initialer Status, weder erfüllt noch abgelehnt.
 
@@ -233,25 +233,25 @@ function fetchFacilityList() {
 
 ### IndexedDB
 
-_IndexedDB_[^16] ist eine clientseitige Browserdatenbank, die es ermöglicht, große Datenmengen abzulegen. Die Datenpunkte können indiziert werden, wodurch eine Ordnung der Daten hergestellt wird, die es erleichtert Daten abzurufen. Werte können sowohl einfache Datentypen haben, _JSON_-Objekte sein, wie auch Bilddateien oder andere Objekt, sogenannte _Binary Large Objects (BLOBS)_. Im Projekt werden zum einen die erhaltenen Datenpunkte durch den Standard-_Webworker_ gespeichert, und zum anderen die Bild- und weiteren Webseitendateien durch den _Service-Worker_ in einer _IndexedDB_ gespeichert. Browser haben eine sehr unterschiedliche Speicherbegrenzung für IndexedDB-Datenbanken. So wird bei einigen die Dateigröße begrenzt und andere begrenzen den Anteil am verwendeten Gesamtspeicher[^17]. In der Regel werden bei Überschreitung des Limits, die Datenpunkte gelöscht, die am längsten nicht abgerufen wurden (_LRU_).
+[IndexedDB] ist eine clientseitige Browserdatenbank, die es ermöglicht, große Datenmengen abzulegen. Die Datenpunkte können indiziert werden, wodurch eine Ordnung der Daten hergestellt wird, die es erleichtert Daten abzurufen. Werte können sowohl einfache Datentypen haben, _JSON_-Objekte sein, wie auch Bilddateien oder andere Objekt, sogenannte _Binary Large Objects (BLOBS)_. Im Projekt werden zum einen die erhaltenen Datenpunkte durch den Standard-_Webworker_ gespeichert, und zum anderen die Bild- und weiteren Webseitendateien durch den _Service-Worker_ in einer _IndexedDB_ gespeichert. Browser haben eine sehr unterschiedliche Speicherbegrenzung für IndexedDB-Datenbanken. So wird bei einigen die Dateigröße begrenzt und andere begrenzen den Anteil am verwendeten [Gesamtspeicher][^2] In der Regel werden bei Überschreitung des Limits, die Datenpunkte gelöscht, die am längsten nicht abgerufen wurden (_LRU_).
 
 ### Single Page Application
 
-Eine _Single Page Application_[^18] wird eine Webanwendung bezeichnet, die aus einem einzigen HTML-Dokument besteht, die eine durch ihre Skriptumgebung erzeugtes _Page Routing_ besitzen kann und deren Inhalte dynamisch nachgeladen werden. Sie wird verwendet, wenn die Tiefe der Anwendungsschicht nicht sehr hoch ist und sich Erleichterungen im Umgang mit DOM-Elementen oder der Verwendung von clientseitigen Templatesystemen wie _React_ oder _Polymer_ ergeben. Auch ist es möglich, dass serverseitig ein Grundzustand erzeugt wird, der clientseitig nur erweitert wird, wie es in _Messaging_-Applikationen der Fall sein kann. Eine bestimmte Form ist das **PRPL**-Model[^19], bei dem:\
+Eine [Single Page Application] wird eine Webanwendung bezeichnet, die aus einem einzigen HTML-Dokument [besteht][^16], die eine durch ihre Skriptumgebung erzeugtes _Page Routing_ besitzen kann und deren Inhalte dynamisch nachgeladen werden. Sie wird verwendet, wenn die Tiefe der Anwendungsschicht nicht sehr hoch ist und sich Erleichterungen im Umgang mit DOM-Elementen oder der Verwendung von clientseitigen Templatesystemen wie _React_ oder _Polymer_ ergeben. Auch ist es möglich, dass serverseitig ein Grundzustand erzeugt wird, der clientseitig nur erweitert wird, wie es in _Messaging_-Applikationen der Fall sein kann. Eine bestimmte Form ist das [PRPL]-Model, bei dem:\
 
-- aufwändige Webseitendateien an den Client gepusht werden (**P**ush critical resources for the initial route),
+- aufwändige Webseitendateien an den Client gepusht werden (**P** ush critical resources for the initial route),
 
-- die initiale Route gerendert wird(**R**ender initial route),
+- die initiale Route gerendert wird(**R** ender initial route),
 
-- einen Cache für die verbleibenden Routen erzeugen(**P**re-cache remaining routes),
+- einen Cache für die verbleibenden Routen erzeugen(**P** re-cache remaining routes),
 
-- verbleibende Routen unter priorisiert nachladen und erzeugen (**L**azy-load and create remaining routes on demand).
+- verbleibende Routen unter priorisiert nachladen und erzeugen (**L** azy-load and create remaining routes on demand).
 
 # Umsetzung
 
 ## Vorgehensweise
 
-Die Einführung eines **Datenbanksystem**s auf der Seite des Servers führte zur Wahl eines -Servers. Zur Anbindung wurde das node-package _redis-client_ verwendet, das einzelne Befehlsketten zu Strings konkateniert und Verbindungen zum Datenbankserver etablieren kann. Zu dem wurde ein Interface erstellt, mit dem sich zu einem späteren Zeitpunkt auch ein anderes Datenbanksystem verwenden lassen lässt und für den Webserver die gleiche Schnittstelle liefert.
+Die Einführung eines **Datenbanksystem** s auf der Seite des Servers führte zur Wahl eines -Servers. Zur Anbindung wurde das node-package _redis-client_ verwendet, das einzelne Befehlsketten zu Strings konkateniert und Verbindungen zum Datenbankserver etablieren kann. Zu dem wurde ein Interface erstellt, mit dem sich zu einem späteren Zeitpunkt auch ein anderes Datenbanksystem verwenden lassen lässt und für den Webserver die gleiche Schnittstelle liefert.
 
 ![image](img/dbserver.png)
 
@@ -287,17 +287,13 @@ Das Serversystem besteht aus verschiedenen Einheiten, die für die Seminararbeit
 ![Aufbau der Webseite<span
 data-label="fig:website"></span>](img/website.png)
 
-Die Umsetzung der Offline-Implementierung setzt Anforderungen an die Trennung von Inhalten und Dateien voraus, die zur Darstellung der Inhalte benötigt werden. Ein Benutzer, der offline auf eine Applikation zugreifen möchte, hat nicht die Möglichkeit, sich nicht zu authentifizieren. In diesem Fall sind bei der Umsetzung eine clientseitige Datenbank für die Messwerte und eine separate Datenbank für die Webseitendateien als -Datenbank verwendet worden. Ein behandelt die Webseitendateien und ein separater Webworker verarbeitet die Messdaten. Die Modellierung erfolgte in der -Modellierung[^20][^18] im _**_-Model. Ein Eintrittspunkt verlangt eine minimale Grundlage, um dem Benutzer einen Ladezustand zu rendern. Die Appshell stellt ein Grundgerüst dar, von der sich verschiedene fragmentale Darstellungen der Webseite aufgliedern. Diese Fragmente werden wie ihre Abhängigkeiten versetzt nachgeladen[^21][^19], um die initiale Darstellung von Inhalten zu beschleunigen. Daten des geschützten Bereichs sind nur nach einer Authentifizierung verfügbar.
-
-<span>0.7</span>
+Die Umsetzung der Offline-Implementierung setzt Anforderungen an die Trennung von Inhalten und Dateien voraus, die zur Darstellung der Inhalte benötigt werden. Ein Benutzer, der offline auf eine Applikation zugreifen möchte, hat nicht die Möglichkeit, sich nicht zu authentifizieren. In diesem Fall sind bei der Umsetzung eine clientseitige Datenbank für die Messwerte und eine separate Datenbank für die Webseitendateien als -Datenbank verwendet worden. Ein behandelt die Webseitendateien und ein separater Webworker verarbeitet die Messdaten. Die Modellierung erfolgte in der [SPA][single page application]-Modellierung im PRPL-Model. Ein Eintrittspunkt verlangt eine minimale Grundlage, um dem Benutzer einen Ladezustand zu rendern. Die Appshell stellt ein Grundgerüst dar, von der sich verschiedene fragmentale Darstellungen der Webseite aufgliedern. Diese Fragmente werden wie ihre Abhängigkeiten versetzt [nachgeladen][prpl], um die initiale Darstellung von Inhalten zu beschleunigen. Daten des geschützten Bereichs sind nur nach einer Authentifizierung verfügbar.
 
 ![Modellierung der Webseite<span
-data-label="fig:appmodel"></span>](img/webpagemodel.png "fig:")
-
-<span>0.7</span>
+data-label="fig:appmodel"></span>](img/webpagemodel.png)
 
 ![Modellierung der Webseite<span
-data-label="fig:appmodel"></span>](img/startvorgang.png "fig:")
+data-label="fig:appmodel"></span>](img/startvorgang.png)
 
 ## Webserver
 
@@ -436,9 +432,9 @@ connect(settings, facilily) {
                 let mergedData = mergeData(data, facility, system, this.settings[facility][system]);
 
                 // Speicherung im Stack des Caches
-                this.cache[facility][system].values = mergedData.values;
+                this.cache[facility][systemvalues = mergedData.values;
                 // Senden der Daten an Datenbank-Client
-                this.db[facility][system].place( mergedData.values );
+                this.db[facility][systemplace( mergedData.values );
 
                 // Senden der Daten über den Websocket an alle Clients im Namensraum
                 this.dataSocket.to(facility + '/' + system)
@@ -451,14 +447,14 @@ connect(settings, facilily) {
         listener: listeners
     });
     // Starten der Überwachung der Messdatei
-    this.dataFiles[facility][system].connect();
+    this.dataFiles[facility][systemconnect();
 }
 // ...
 ```
 
 ## Server-Datenbank
 
-Die serverseitige Datenbank wurde über realisiert. Redis bietet die Möglichkeit über _ZADD_ sortierte Listen anzulegen[^22], wobei es einen _SCORE_ gibt, der den Index repräsentiert, über den sortiert wird. Der _SCORE_ eignet sich für Datumswerte, die in Javascript in einen _Integer_-Wert umgewandelt werden können, der den Millisekunden ab 1\. Januar 1970 entspricht[^23], und so eine Sortierung hergestellt werden kann. Da in _Sets_ die Werte _unique_ sein müssen, sind die Werteobjekte als ganzes (mit der Zeitindizierung) als _String_s gespeichert. Über s wird sichergestellt, dass die Operationen teilweise synchronisiert ausgeführt werden können, da bei sehr großen Datenmengen der Arbeitsspeicher überfordert werden kann. Über den Befehl _MULTI_ können Anfragen und Übertragungen in in atomaren Prozessen ausgeführt werden. Über ein Limit bei der Abfrage über `getAll` und `range` wird verhindert, dass der Client mehr Messdaten gesendet bekommt, als für das entsprechende Hardwaresystem sinnvoll ist.
+Die serverseitige Datenbank wurde über realisiert. Redis bietet die Möglichkeit über _ZADD_ sortierte Listen [anzulegen][^5], wobei es einen _SCORE_ gibt, der den Index repräsentiert, über den sortiert wird. Der _SCORE_ eignet sich für Datumswerte, die in Javascript in einen _Integer_-Wert umgewandelt werden können, der den Millisekunden ab 1\. Januar 1970 [entspricht][^4], und so eine Sortierung hergestellt werden kann. Da in _Sets_ die Werte _unique_ sein müssen, sind die Werteobjekte als ganzes (mit der Zeitindizierung) als _String_ s gespeichert. Über Promises wird sichergestellt, dass die Operationen teilweise synchronisiert ausgeführt werden können, da bei sehr großen Datenmengen der Arbeitsspeicher überfordert werden kann. Über den Befehl _MULTI_ können Anfragen und Übertragungen in in atomaren Prozessen ausgeführt werden. Über ein Limit bei der Abfrage über `getAll` und `range` wird verhindert, dass der Client mehr Messdaten gesendet bekommt, als für das entsprechende Hardwaresystem sinnvoll ist.
 
 ```
 const DBInterface = require('../interface/index.js');
@@ -515,7 +511,7 @@ class RedisClientDB extends DBInterface {
             Promise.all(p)
             .then((result) => {
                 for (var i = 0; i < result.length; i++) {
-                    ret[result[i].mount] = result[i].values;
+                    ret[result[imount] = result[ivalues;
                 }
                 resolve(ret);
             }) });
@@ -581,7 +577,7 @@ class RedisClientDB extends DBInterface {
 
 ## Webapplikation
 
-Für die Erstellung der Webapplikation wurden verschiedene Template-Dateien für das _polymer_-Framework nach der -Modellierung[^24][^19] erstellt. Die Appshell bietet dem Client den Einstieg in den Ladevorgang:
+Für die Erstellung der Webapplikation wurden verschiedene Template-Dateien für das _polymer_-Framework nach der [PRPL]-Modellierung erstellt. Die Appshell bietet dem Client den Einstieg in den Ladevorgang:
 
 ```
 <!doctype html>
@@ -721,15 +717,15 @@ Die statischen Dateien werden durch eine Hilfsbibliothek (_polymer-build_) in ih
 ```
 function source() {
     return project.splitSource()!
-        .pipe(gulpif(/\.js$/, new streamOptimizer.JSOptimizeStream(config.optimizeOptions.js)))
-        .pipe(gulpif(/\.css$/, new streamOptimizer.CSSOptimizeStream(config.optimizeOptions.css)))
-        .pipe(gulpif(/\.html$/, new streamOptimizer.HTMLOptimizeStream(config.optimizeOptions.html)))
+        .pipe(gulpif(/.js$/, new streamOptimizer.JSOptimizeStream(config.optimizeOptions.js)))
+        .pipe(gulpif(/.css$/, new streamOptimizer.CSSOptimizeStream(config.optimizeOptions.css)))
+        .pipe(gulpif(/.html$/, new streamOptimizer.HTMLOptimizeStream(config.optimizeOptions.html)))
         .pipe(gulpif('**/*.{png,gif,jpg,svg}', images.minify()))
         .pipe(project.rejoin()); // Call rejoin when you're finished
 }
 ```
 
-Zur Generierung des s wurde das Modul _sw-toolbox_[^25][^14] verwendet. Anhand einer Konfigurationsdatei kann man bestimmen, welche Dateien wie gespeichert werden sollen und mit welcher Strategie versucht werden soll, sie abzurufen. Wie man im Beispiel sehen kann, werden die Schriftarten und die Bilder in verschiedenen Caches abgelegt, wobei die Schriftarten bevorzugt aus dem Cache entnommen werden:
+Zur Generierung des Service Workers wurde das Modul [sw-toolbox] verwendet. Anhand einer Konfigurationsdatei kann man bestimmen, welche Dateien wie gespeichert werden sollen und mit welcher Strategie versucht werden soll, sie abzurufen. Wie man im Beispiel sehen kann, werden die Schriftarten und die Bilder in verschiedenen Caches abgelegt, wobei die Schriftarten bevorzugt aus dem Cache entnommen werden:
 
 ```
 module.exports = {
@@ -744,7 +740,7 @@ module.exports = {
         '/icons/*'
     ],
     navigateFallback: '/index.html',
-    navigateFallbackWhitelist: [/^(?!.*\.html$|\/data\/$|\/auth\/).*/],
+    navigateFallbackWhitelist: [/^(?!.*.html$|\/data\/$|\/auth\/).*/],
     runtimeCaching: [ {
         urlPattern: /\/images\/.*/,
         handler: 'fastest',
@@ -873,8 +869,8 @@ self._updateClient = function(message) {
     // entfernt werden
     for (var mount in message.values) {
         ret[mount] = {};
-        ret[mount].splices = this.cache.get(mount).splices;
-        ret[mount].values = this.cache.get(mount).heap;
+        ret[mountsplices = this.cache.get(mount).splices;
+        ret[mountvalues = this.cache.get(mount).heap;
     }
 
     // Verbindung zum Hauptprozess
@@ -891,9 +887,9 @@ self._updateDatabase = function(message) {
         }
         var idbMap = dbMap.get(mount);
         // Löschen der Splices
-        idbMap.delete('x', message[mount].splices);
+        idbMap.delete('x', message[mountsplices);
         // Setzen der neuen Werte
-        idbMap.place('x', message[mount].values);
+        idbMap.place('x', message[mountvalues);
     }
 }
 
@@ -935,53 +931,45 @@ self.requestToServer = function(opt) {
 
 Die Umsetzung der Seminararbeit führte auf Clientseite zu folgenden Webseitenfragmenten:
 
-<span>0.32</span>
+![Oberfläche der Webapplikation<span
+data-label="fig:interface"></span>](img/website-loginview.png)
 
 ![Oberfläche der Webapplikation<span
-data-label="fig:interface"></span>](img/website-loginview.png "fig:")
-
-<span>0.32</span>
+data-label="fig:interface"></span>](img/website-homeview.png)
 
 ![Oberfläche der Webapplikation<span
-data-label="fig:interface"></span>](img/website-homeview.png "fig:")
-
-<span>0.32</span>
-
-![Oberfläche der Webapplikation<span
-data-label="fig:interface"></span>](img/website-uielements.png "fig:")
+data-label="fig:interface"></span>](img/website-uielements.png)
 
 Über das `Benutzerlogin` kann sich der Benutzer am Webserver authentifizieren. Der Server stellt eine Verbindung mit einem LDAP-Server her, um die Eingaben abzugleichen. Der Webserver wird bei Erfolg, den Routingbereich für `\data` freigeben, sodass die Webapplikation die Auswahlelemente und schließlich auch die Visualisierungselemente der Messgeräte erstellen kann. In der `Auswahlansicht` wählt der Benutzer einen Einrichtung aus, die Messgeräte anbietet, und dann ein Messsystem. Über die Auswahl wird die Abfrage der Messdaten initiiert. Die Darstellung der `Steuerung der Oberfläche` zeigt das Seitenmenü, in dem der Benutzer die Sprache der Oberfläche, die Darstellung der Oberfläche und die ausgewählte Ansicht ändern kann.
 
 ![Visualisierung der Messgeräte<span
-data-label="fig:fragments"></span>](img/website-listview.png "fig:")
+data-label="fig:fragments"></span>](img/website-listview.png)
 
 ![Visualisierung der Messgeräte<span
-data-label="fig:fragments"></span>](img/website-groupview.png "fig:")
+data-label="fig:fragments"></span>](img/website-groupview.png)
 
 ![Visualisierung der Messgeräte<span
-data-label="fig:fragments"></span>](img/website-detailview.png "fig:")
+data-label="fig:fragments"></span>](img/website-detailview.png)
 
 Die `Listendarstellung` stellt sämtliche Messgeräte in einer Liste dar, aktuelle Messwerte werden repliziert. Die `Gruppenansicht` stellt die Geräte in einer gruppierten Anordnung dar, gemäß der gewählten Gruppierungseigenschaft. In den Gruppentitel werden vom Nutzer auswählte Elemente visualisiert, eine hinterlegt Karte, ein Diagramm oder eine Tabelle der Messwerte. Die `Detailansicht` zeigt sämtliche Elemente direkt in einer Auswahlansicht dar, sodass entsprechend direkt die Karte, das Diagramm und die Tabelle visualisiert werden. Ein Ergebnis der Seminararbeit ist, dass die Webseite zügiger auf Benutzereingaben reagiert. Der Webworker entlastet den Hauptprozess und so blockieren Updates der Daten nicht die Benutzerinteraktionen, da sie in einem separatem _Thread_ ausgeführt werden. Auch zeigt das -Konzept einige Vorteile innerhalb der Benutzung, da nun für jedes Element automatisch eine Routingadresse existiert, die nicht explizit vom Server konfiguriert werden muss. Der Benutzer kann so _Links_ für de ausgewählten Darstellung anlegen und sie erleichtert wieder aufrufen. Die Möglichkeit nun offline bzw. in schlechten Netzwerkbedingungen durch die Verwendung von _Appcaches_, _Datenbanken_ und _Service Worker_ n erweitert die Benutzerfreundlichkeit. Bei schlechten Netzwerkbedingungen greift der Service Worker zuerst auf die gespeicherten Daten zurück und die Webseite wird in der gleichen Geschwindigkeit aufgebaut, als würde das darstellende Gerät gute Netzwerkbedingungen unterliegen. Dadurch dass auch die letzten Messdaten in der -Datenbank abgespeichert werden, rendert die Webseite auch die letzte bekannte Darstellung, was eine wirkliche Offline-Nutzung möglich macht. In Tests ergab sich für das erstmalige Laden der Webseite bei der Simulation von 3G-Netzwerkbedingungen (`Latenz: 100ms, Download: 750kb/s, Upload: 250kb/s`) in _Chrome (57.0 canary)_ eine vollständige Ladezeit von `7.95s` bei `1.3MByte` an Daten. Wenn die Webseite nun neu geladen wird, sind alle Daten aus den Caches abrufbar und für das initiale Rendern wird auf sie zurückgegriffen. Der Abgleich wird versetzt durchgeführt, nur dann wenn der Client online ist, und anhand der Dateieigenschaften bzw. Headereinträge geprüft, ob die Daten nachgeladen werden müssen. Diese Operation hatte eine vollständige Ladezeit von `955ms` bei `1kByte` an Daten. Die benötigte Zeit unter diesen Bedingungen beträgt im Vergleich zur Installation `8.32%` und keine Daten wurden nachgeladen.
 
 ![Performance beim Seitenaufbau mit Service Worker und
 HTTP/2<span
-data-label="fig:performancesw"></span>](img/performance3gserviceworkerinstall1,2MB.png "fig:")
+data-label="fig:performancesw"></span>](img/performance3gserviceworkerinstall1,2MB.png)
 
 ![Performance beim Seitenaufbau mit Service Worker und
 HTTP/2<span
-data-label="fig:performancesw"></span>](img/performance3gserviceworker1KB.png "fig:")
+data-label="fig:performancesw"></span>](img/performance3gserviceworker1KB.png)
 
 Im Vergleich zu der vorherigen Version ohne _Service Worker_ bei gleichen Bedingungen ergab sich eine vollständige Ladezeit von `15.53s` bei `1.7MByte` an Daten und für wiederholtes Laden eine Ladezeit von `2.66s` bei `42kByte` an Daten. Dass auch hier weniger Daten geladen werden, ist auf das Verhalten des Browsers zurückzuführen, sofern nicht deaktiviert, automatisch Daten zu cachen, welche allerdings dann nicht offline verfügbar sind und auch nicht sichergestellt ist, wie lange sie im Cache verbleiben.
 
 ![Performance beim Seitenaufbau ohne Service Worker und
 HTTP 1.1<span
-data-label="fig:performance"></span>](img/performance3gwithoutserviceworker1,7MB.png "fig:")
-
-<span>0.8</span>
+data-label="fig:performance"></span>](img/performance3gwithoutserviceworker1,7MB.png)
 
 ![Performance beim Seitenaufbau ohne Service Worker und
 HTTP 1.1<span
-data-label="fig:performance"></span>](img/performance3greloadwithoutserviceworker43KB.png "fig:")
+data-label="fig:performance"></span>](img/performance3greloadwithoutserviceworker43KB.png)
 
 Der Vergleich der Leistung der Webseite ohne _Service Worker_ und mit HTTP 1.1 zeigt, dass die neue Webseite beim initialen Laden `50.22%` und für wiederholte Laden `35.82%` der Zeit benötigt, obwohl sich der Funktionsumfang durch die Datenbanken für die Messdaten erweitert hat. Unter schlechteren Netzwerkbedingungen würde sich der positive Effekt verstärken. Das deutlich schnellere Nachladen, die Offline-Funktion, das bessere Bedienverhalten durch ausgelagerte _Threads_ und die erweiterten Möglichkeiten durch die Datenbanken haben die Webseite verbessert.
 
@@ -992,28 +980,24 @@ Als nächster Schritt der Erweiterung des Webservers ist die Datenanalyse der Me
 ![Diagrammdarstellung<span
 data-label="fig:website-graph"></span>](img/website-graph.png)
 
-[^1]: [http://www.nodejs.org].
-[^10]: [https://www.polymer-project.org].
-[^11]: [https://www.html5rocks.com/en/tutorials/workers/basics].
-[^12]: [https://developers.google.com/web/fundamentals/getting-started/primers/service-workers].
-[^13]: [https://jakearchibald.com/2014/offline-cookbook].
-[^14]: [https://github.com/GoogleChrome/sw-toolbox].
-[^15]: [https://developer.mozilla.org/de/docs/Promise].
-[^16]: [@indexedDB:lit].
-[^17]: [https://developer.mozilla.org/de/docs/Web/API/IndexedDB_API/Browser_storage_limits_and_eviction_criteria].
-[^18]: [https://developer.mozilla.org/de/docs/IndexedDB].
-[^19]: [https://developers.google.com/web/fundamentals/performance/prpl-pattern].
-[^2]: [http://developer.mozilla.org/de/docs/Web/JavaScript].
-[^20]: [https://de.wikipedia.org/wiki/Single-Page-Webanwendung].
-[^21]: [https://de.wikipedia.org/wiki/Single-Page-Webanwendung].
-[^22]: [https://github.com/kaw393939/plp/wiki/Event-Driven-Programming-with-Node.js-and-Redis].
-[^23]: [https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Date/valueOf].
-[^24]: [https://developers.google.com/web/fundamentals/performance/prpl-pattern].
-[^25]: [https://github.com/GoogleChrome/sw-toolbox].
-[^3]: [http://prestonparry.com/articles/IncreaseNodeJSMemorySize].
-[^4]: [http://electron.atom.io].
-[^5]: [https://developers.google.com/web/fundamentals/performance/http2/].
-[^6]: [https://redis.io].
-[^7]: [https://github.com/NodeRedis/node_redis].
-[^8]: [http://socket.io].
-[^9]: [https://github.com/d3/d3/wiki].
+[^1]: https://jakearchibald.com/2014/offline-cookbook
+[^2]: https://developer.mozilla.org/de/docs/Web/API/IndexedDB_API/Browser_storage_limits_and_eviction_criteria
+[^3]: http://prestonparry.com/articles/IncreaseNodeJSMemorySize
+[^4]: https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Date/valueOf
+[^5]: https://redislabs.com/solutions/redis-for-timeseries-data
+[^6]: https://github.com/NodeRedis/node_redis
+[d3.js]: https://github.com/d3/d3/wiki
+[electron]: http://electron.atom.io
+[http/2]: https://developers.google.com/web/fundamentals/performance/http2/
+[indexeddb]: https://developer.mozilla.org/de/docs/IndexedDB
+[javascript]: http://developer.mozilla.org/de/docs/Web/JavaScript
+[node.js]: http://www.nodejs.org.
+[polymer]: https://www.polymer-project.org
+[promise]: https://developer.mozilla.org/de/docs/Promise
+[prpl]: https://developers.google.com/web/fundamentals/performance/prpl-pattern
+[redis]: https://redis.io
+[serviceworker]: https://developers.google.com/web/fundamentals/getting-started/primers/service-workers
+[single page application]: https://de.wikipedia.org/wiki/Single-Page-Webanwendung
+[socket.io]: http://socket.io
+[sw-toolbox]: https://github.com/GoogleChrome/sw-toolbox
+[webworker]: https://www.html5rocks.com/en/tutorials/workers/basics
