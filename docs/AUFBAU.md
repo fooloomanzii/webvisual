@@ -1,6 +1,6 @@
 # Projekt
 
-Für das Projekt „Betrieb einer Gaswarnanlage", habe ich an dem bestehenden Projekt „webvisual" weitergearbeitet und dieses ausgebaut und modularisiert. Grundlage des Projekts ist die Überwachung einer Datei an Messwerten, die durch ein externes Programm erzeugt bzw. beschrieben wird, welches eine Verbindung zu verschiedenen Messgeräten aufbaut und die Messzustände in diese Datei schreibt, hier in einer Labview-Umgebung. Die Aufgabe des Projekts „webvisual" ist es, Änderungen an der Datei zu detektieren und durch einen selbsterzeugten Server über das Netzwerk die Zustände der Messgeräte über eine Webseite zu visualisieren.
+Die Aufgabe des Projekts „webvisual" ist es, Änderungen einer CSV-Datei zu detektieren und durch einen selbsterzeugten Server über das Netzwerk die Zustände der Messgeräte über eine Webseite zu visualisieren.
 
 ## Grundaufbau
 

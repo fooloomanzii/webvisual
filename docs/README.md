@@ -22,7 +22,7 @@ Webvisual: |-
   und performant zu gestalten, sodass sich die Darstellung auf weniger
   leistungsfähigen Geräten, wie Smartphones zufriedenstellend bedienen und
   zügig verfügbar machen lässt?
-  Die Seminararbeit beschäftigt sich mit der Beantwortung dieser Fragen.
+  Dieses Projekt beschäftigt sich mit der Beantwortung dieser Fragen.
 ---
 
 <https://github.com/fooloomanzoo/webvisual>
