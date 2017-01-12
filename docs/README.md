@@ -1,14 +1,12 @@
 ---
-Webvisual: |-
-  Das Institut ICS-TAE (Institut of Complex Systems – Technische und
-  Administrative Infrastruktur – Elektronik und Datenverarbeitung)
-  beschäftigt sich mit Entwicklung von Hard- und Softwarekomponenten zur
-  Erfassung, Übertragung und Verarbeitung von Daten sowie dem Aufbau von
-  Anlagensteuerungen und Messdatenerfassungssystemen. Es ist Teil des
-  Forschungszentrums Jülich. Webvisual ist ein Webserver-Projekt auf Basis des
-  JavaScript-Server-Engine Node.js, dass Messdaten visualisiert, die durch
-  die Überwachung einer CSV-Datei oder einer UDP-Verbindung erhalten werden,
-  die ein eingebundenes Laborsystem liefert.
+Webvisual: >-
+  Das Institut ICS-TAE beschäftigt sich mit Entwicklung von Hard- und
+  Softwarekomponenten zur Erfassung, Übertragung und Verarbeitung von Daten
+  sowie dem Aufbau von Anlagensteuerungen und Messdatenerfassungssystemen. Es
+  ist Teil des Forschungszentrums Jülich. Webvisual ist ein Webserver-Projekt
+  auf Basis des JavaScript-Server-Engine Node.js, dass Messdaten visualisiert,
+  die durch die Überwachung einer CSV-Datei oder einer UDP-Verbindung erhalten
+  werden, die ein eingebundenes Laborsystem liefert.
 ---
 
 <https://github.com/fooloomanzoo/webvisual>
