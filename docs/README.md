@@ -228,7 +228,7 @@ Eine [Single Page Application] wird eine Webanwendung bezeichnet, die aus einem 
 
 ## Vorgehensweise
 
-Die Einführung eines **Datenbanksystem** s auf der Seite des Servers führte zur Wahl eines -Servers. Zur Anbindung wurde das node-package _redis-client_ verwendet, das einzelne Befehlsketten zu Strings konkateniert und Verbindungen zum Datenbankserver etablieren kann. Zu dem wurde ein Interface erstellt, mit dem sich zu einem späteren Zeitpunkt auch ein anderes Datenbanksystem verwenden lassen lässt und für den Webserver die gleiche Schnittstelle liefert.
+Die Einführung eines **Datenbanksystem** s auf der Seite des Servers führte zur Wahl eines -Servers. Zur Anbindung wurde das node-package _redis-client_ verwendet, das einzelne Befehlsketten zu Strings konkateniert und Verbindungen zum Datenbankserver etablieren kann. Zu dem wurde ein Interface erstellt, mit dem sich zu einem späteren Zeitpunkt auch ein anderes Datenbanksystem verwenden lassen lässt und für den Webserver die gleiche Schnittstelle liefert. Als Alternative ist auch ein Cache implementiert, der eine Datenbankverbindung emuliert.
 
 ![image](img/dbserver.png)
 
@@ -259,7 +259,7 @@ Das Serversystem besteht aus verschiedenen Einheiten, die für die Seminararbeit
 
 - Das **Cache**-Modul erzeugt einen temporären Cache für die Messwerte.
 
-- Das **Datenbank**-Modul erzeugt eine Datenbankschnittstelle für die Messwerte.
+- Das **Datenbank**-Modul erzeugt eine Datenbankschnittstelle zu einem Datenbankserver für die Messwerte. Alternativ zum Redis-Client, lässt sich ein Cache verwenden, der die Daten im Arbeitsspeicher speichert und eine Datenbankverbindung emuliert.
 
 ![Aufbau der Webseite<span
 data-label="fig:website"></span>](img/website.png)

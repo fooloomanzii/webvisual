@@ -334,7 +334,7 @@
               <section class="flex"></section>
 
               <icon-button-element id="toggleStartButton" toggles ipc-event="server-toggle" on-tap="sendEvent" icon="play-arrow" isRunning$="[[isRunning]]" aria-label="Server"></icon-button-element>
-              
+
               <icon-button-element id="files" toggles icon="description" aria-label="Konfigurationsdateien"></icon-button-element>
 
               <dropdown-element id="dropdown" for="files" position="top" align="end" offset="6" target-toggle-event="tap">
@@ -423,8 +423,8 @@
                 <iron-icon icon="assessment"></iron-icon>
                 <span>Datenbanktyp</span>
                 <select value="{{databaseConfig.type::input}}">
-                  <option value="">-</option>
-                  <option value="redis">redis</option>
+                  <option value="cache">(Cache)</option>
+                  <option value="redis">Redis</option>
                 </select>
               </webvisual-selectbox>
 
