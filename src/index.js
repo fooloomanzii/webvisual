@@ -8,7 +8,8 @@ const fs = require('fs'),
 const electron = require('electron');
 const { dialog, ipcMain, app, BrowserWindow } = require('electron');
 
-app.commandLine.appendSwitch("js-flags", "--max_old_space_size=8000");
+// change RAM-limit
+app.commandLine.appendSwitch("js-flags", "--max_old_space_size=6000");
 
 const fork = require('child_process').fork;
 
@@ -50,6 +51,7 @@ function createServer (config) {
   var env = {};
   env['WEBVISUALSERVER'] = JSON.stringify(config);
   env.port = config.server.port;
+  env.NODE_ENV = 'production';
   server = null;
   server = fork( __dirname + '/server/index.js', [], { env: env, cwd: __dirname + '/server' } );
   server.on('message', (arg) => {
@@ -102,6 +104,10 @@ app.on('ready', () => {
   configLoader.on('ready', (msg, settings) => {
     config = settings;
     createWindow(config);
+    // Autostart
+    if (process.argv[2] === 'start') {
+      createServer(config);
+    }
   });
 
   configLoader.on('change', (settings) => {
