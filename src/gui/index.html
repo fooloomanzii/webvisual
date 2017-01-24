@@ -362,7 +362,7 @@
           <div class="dialog-content">
             <section class="flex">
               <div class="inputcontainer">
-                <input id="port" aria-label="http2-Port" type="number" min="32" step="1" value="{{serverConfig.port::input}}" required>
+                <input id="port" aria-label="http2-Port" type="number" min="0" max="65535" step="1" value="{{serverConfig.port::input}}" required>
                 <div class="focusline"></div>
                 <label>http2-Port</label>
               </div>
@@ -430,15 +430,21 @@
 
               <template is="dom-if" if="[[databaseConfig.type]]">
                 <div class="inputcontainer">
-                  <input id="dbHost" aria-label="database-host" type="url" value="{{databaseConfig.host::input}}">
+                  <input id="dbHost" aria-label="database-host" type="text" value="{{databaseConfig.host::input}}">
                   <div class="focusline"></div>
                   <label>Datenbank-Host</label>
                 </div>
 
                 <div class="inputcontainer">
-                  <input id="dbPort" aria-label="database-port" type="number" min="32" step="1" value="{{databaseConfig.port::input}}" required>
+                  <input id="dbPort" aria-label="database-port" type="number" min="0" max="65535" step="1" value="{{databaseConfig.port::input}}" required>
                   <div class="focusline"></div>
                   <label>Datenbank-Port</label>
+                </div>
+
+                <div class="inputcontainer">
+                  <input id="dbMaxCount" aria-label="database-max-count" type="number" min="1" max="10000000" step="100" value="{{databaseConfig.maxCount::input}}" required>
+                  <div class="focusline"></div>
+                  <label>maximale Messdatenanzahl pro Messgerät</label>
                 </div>
               </template>
             </section>

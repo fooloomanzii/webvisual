@@ -1,10 +1,9 @@
 {
   "database": {
-    "host": "http://127.0.0.1",
-    "kind": "redis",
+    "host": "localhost",
+    "maxCount": "300001",
     "port": 6379,
-    "type": "redis",
-    "url": "https://localhost"
+    "type": "redis"
   },
   "server": {
     "auth": {

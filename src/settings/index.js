@@ -50,7 +50,8 @@ const defaults = {
   "database": {
     "type": "redis",
     "port": 6379,
-    "host": "localhost"
+    "host": "localhost",
+    "maxCount": 3600 * 24 * 3
   }
 }
 
