@@ -662,6 +662,9 @@
           row.appendChild(date);
           row.appendChild(message);
           this._body.insertBefore(row, this._body.childNodes[0]);
+          for (var i = this._body.childNodes.length - 1 ; i > 1000 ; i--) {
+            this._body.removeChild(this._body.childNodes[i]);
+          }
         }
       });
     </script>
