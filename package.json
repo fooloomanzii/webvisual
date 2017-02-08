@@ -14,7 +14,7 @@
   },
   "build": {
     "win": {
-      "msi": false,
+      "msi": true,
       "owners": "Forschungszentrum Jülich"
     },
     "asar": false,
