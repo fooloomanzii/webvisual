@@ -16,7 +16,7 @@
     },
     "port": 443,
     "ssl": {
-      "ca": "D:\\Github\\webvisual\\src\\server\\defaults\\ssl\\ca",
+      "ca": "./defaults/ssl/ca",
       "cert": "./defaults/ssl/ca.crt",
       "key": "./defaults/ssl/ca.key",
       "passphrase": "./defaults/ssl/ca.pw.json"

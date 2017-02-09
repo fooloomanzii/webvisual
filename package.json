@@ -13,13 +13,18 @@
     "dist:win": "build --windows"
   },
   "build": {
+    "appId": "fz-juelich.webvisual.server",
     "win": {
       "msi": true,
+      "publish": ["github"],
+      "icon": "build/icon.ico",
       "owners": "Forschungszentrum Jülich"
     },
     "asar": false,
     "compression": "store",
-    "iconUrl": "https://github.com/fooloomanzii/webvisual/tree/electron-app/build/icon.ico"
+    "remoteReleases": true,
+    "iconUrl": "https://github.com/fooloomanzoo/webvisual/blob/master/build/icon.ico?raw=true",
+    "loadingGif": "build/install-spinner.gif"
   },
   "publish": "never",
   "devDependencies": {
@@ -27,7 +32,7 @@
     "electron": "*"
   },
   "engines": {
-    "node": ">= 5.0",
+    "node": ">= 6.0",
     "npm": "*"
   },
   "directories": {

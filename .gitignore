@@ -48,9 +48,6 @@ src/ssl/*
 !src/ssl/README.md
 ssl/*
 
-# Distributions #
-dist/*
-
 *.prefs
 
 *.workspace
