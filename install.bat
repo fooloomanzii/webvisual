@@ -13,7 +13,8 @@ call :SETUP
 goto END
 
 :NONODE
-echo node.js is not installed! Please install it!
+echo node.js is not installed or in PATH!
+echo %PATHEXT%
 exit
 
 :SETUP

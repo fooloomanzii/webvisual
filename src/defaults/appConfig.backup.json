@@ -1,7 +1,8 @@
 {
   "database": {
+    "cleanInterval": "60000",
     "host": "localhost",
-    "maxCount": "300001",
+    "maxCount": "3000",
     "port": 6379,
     "type": "redis"
   },

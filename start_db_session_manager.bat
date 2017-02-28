@@ -19,5 +19,7 @@ EXIT /B
 
 :NOREDIS
 echo REDIS needs to be installed and in "$PATH"
+echo %PATH%
 echo if REDIS is not installed please goto https://github.com/MSOpenTech/redis/releases
+cmd /C explorer "https://github.com/MSOpenTech/redis/releases"
 EXIT /B
