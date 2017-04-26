@@ -446,6 +446,12 @@
                   <div class="focusline"></div>
                   <label>maximale Messdatenanzahl pro Messgerät</label>
                 </div>
+
+                <div class="inputcontainer">
+                  <input id="dbCleanInterval" aria-label="database-clean-interval" type="number" min="60000" step="1000" value="{{databaseConfig.cleanInterval::input}}" required>
+                  <div class="focusline"></div>
+                  <label>Aufräumintervall in ms</label>
+                </div>
               </template>
             </section>
           </div>

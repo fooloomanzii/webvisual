@@ -1,7 +1,8 @@
 {
   "database": {
+    "cleanInterval": "60000",
     "host": "localhost",
-    "maxCount": "300001",
+    "maxCount": "3000",
     "port": 6379,
     "type": "redis"
   },
@@ -16,7 +17,7 @@
     },
     "port": 443,
     "ssl": {
-      "ca": "D:\\Github\\webvisual\\src\\server\\defaults\\ssl\\ca",
+      "ca": "./defaults/ssl/ca",
       "cert": "./defaults/ssl/ca.crt",
       "key": "./defaults/ssl/ca.key",
       "passphrase": "./defaults/ssl/ca.pw.json"
