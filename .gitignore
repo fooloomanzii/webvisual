@@ -6,6 +6,7 @@ dist/*
 .settings/*
 .jshintrc
 .project
+*backup*
 
 # Bower Components #
 node_modules/*
