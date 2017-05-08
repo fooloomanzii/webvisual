@@ -29,24 +29,30 @@ const defaults = {
     },
     "port": 443,
     "ssl": {
-      "cert": "",
-      "key": "",
-      "passphrase": "",
-      "ca": ""
+      "ca": "./defaults/ssl/ca",
+      "cert": "./defaults/ssl/ca.crt",
+      "key": "./defaults/ssl/ca.key",
+      "passphrase": "./defaults/ssl/ca.pw.json"
     }
   },
   "app": {
-    "width": 576,
-    "height": 692,
+    "width": 480,
+    "height": 640,
     "autoHideMenuBar": true,
     "acceptFirstMouse": true,
     "webPreferences": {
       "webSecurity": true
     },
-    "x": 932,
-    "y": 143
+    "x": 200,
+    "y": 100
   },
-  "userConfigFiles": [ ],
+  "userConfigFiles": [
+    {
+      "name": "Demo",
+      "title": "Demo",
+      "path": "./examples/config/test.json"
+    }
+  ],
   "database": {
     "type": "redis",
     "port": 6379,
@@ -83,6 +89,7 @@ class configLoader extends EventEmitter {
       else {
         this.settings = settings;
         this.emit('ready', 'AppConfigFile loaded: ' + appConfigFilePath, this.settings);
+        this.saveBackup(this.settings);
       }
     }
   }
@@ -177,7 +184,7 @@ class configLoader extends EventEmitter {
       this.emit('error', '\nError saving AppConfig:\n' + err);
       return;
     }
-    fs.writeFile(path.join(process.cwd(), 'defaults', 'appConfig.backup.json'), JSON.stringify(data, null, 2), (err) => {
+    fs.writeFile(path.join(process.cwd(), 'appConfig.backup.json'), JSON.stringify(data, null, 2), (err) => {
       if (err) {
         console.log('Error saving DefaultAppConfig:', err);
         this.emit('error', 'Error saving DefaultAppConfig:', err);
@@ -188,7 +195,7 @@ class configLoader extends EventEmitter {
 
   loadBackup(callback) {
     mkdirp(path.join(appUserDataFolder, 'config'));
-    this.copyFile(path.join(process.cwd(), 'defaults', 'appConfig.backup.json'),
+    this.copyFile(path.join(process.cwd(), 'appConfig.backup.json'),
                   appConfigFilePath,
                   (function(err) {
                     if (err) {
@@ -197,7 +204,7 @@ class configLoader extends EventEmitter {
                       return;
                     }
                   }).bind(this));
-    this.readFromFile.call(this, path.join(process.cwd(), 'defaults', 'appConfig.backup.json'), this.testConfig, callback);
+    this.readFromFile.call(this, path.join(process.cwd(),  'appConfig.backup.json'), this.testConfig, callback);
   }
 
   checkFolder(path_folder, callback) {
