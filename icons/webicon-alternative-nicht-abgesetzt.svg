@@ -13,11 +13,11 @@
    viewBox="0 0 256 256"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.1 r15371"
    sodipodi:docname="webicon-alternative-nicht-abgesetzt.svg"
-   inkscape:export-filename="C:\Github\webvisual\src\server\views\icons\app-icon-32.png"
-   inkscape:export-xdpi="11.25"
-   inkscape:export-ydpi="11.25">
+   inkscape:export-filename="D:\Github\webvisual\src\server\views\icons\app-icon-96.png"
+   inkscape:export-xdpi="36.000004"
+   inkscape:export-ydpi="36.000004">
   <metadata
      id="metadata12">
     <rdf:RDF>
@@ -31,6 +31,18 @@
   </metadata>
   <defs
      id="defs10">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4509">
+      <stop
+         style="stop-color:#2a333b;stop-opacity:1"
+         offset="0"
+         id="stop4505" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0"
+         offset="1"
+         id="stop4507" />
+    </linearGradient>
     <linearGradient
        inkscape:collect="always"
        id="linearGradient4160">
@@ -88,12 +100,21 @@
        inkscape:collect="always"
        xlink:href="#linearGradient4160"
        id="radialGradient4182"
-       cx="105.87135"
-       cy="146.43849"
-       fx="105.87135"
-       fy="146.43849"
+       cx="106.21057"
+       cy="56.118538"
+       fx="106.21057"
+       fy="56.118538"
        r="97.95269"
-       gradientTransform="matrix(-0.18149659,1.3323555,-1.2179389,-0.16591046,307.12774,-21.304964)"
+       gradientTransform="matrix(-1.2978368,0.66023875,-0.20925959,-0.41134333,278.12967,79.332544)"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4509"
+       id="linearGradient4511"
+       x1="139.38983"
+       y1="147.52542"
+       x2="142.64407"
+       y2="136.67796"
        gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
@@ -105,22 +126,22 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1323"
-     inkscape:window-height="792"
+     inkscape:window-width="1680"
+     inkscape:window-height="988"
      id="namedview8"
      showgrid="false"
-     inkscape:zoom="0.921875"
-     inkscape:cx="-109.01695"
-     inkscape:cy="128"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="0"
+     inkscape:zoom="1.84375"
+     inkscape:cx="26.301727"
+     inkscape:cy="123.25114"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
      inkscape:current-layer="svg2" />
   <path
-     style="fill:#005b8c;stroke:#0c1020;stroke-width:5.05200005;stroke-opacity:0.87058824;filter:url(#filter5252)"
+     style="fill:#005b8c;stroke:#0c1020;stroke-width:5.17142439;stroke-opacity:0.87058824;filter:url(#filter5252)"
      id="path4862"
      d="m 172.857,1003.79 -100.73,-1.245 -49.285,-87.857 51.444,-86.612 100.73,1.246 49.284,87.858 z"
-     transform="matrix(0.97568093,-0.56964089,0.57400474,1.0053902,-517.77521,-722.47659)"
+     transform="matrix(0.94966474,-0.55852815,0.55869911,0.98577673,-501.08903,-706.31655)"
      inkscape:connector-curvature="0" />
   <path
      d="M 222.69877,186.41339 127.54071,240.8261 32.842324,182.41194 33.301058,69.585632 128.45967,15.1739 l 94.698,58.415683 z"
@@ -138,8 +159,8 @@
      style="opacity:1;fill:none;stroke:url(#radialGradient4182);stroke-width:5.57736635;stroke-opacity:1"
      inkscape:connector-curvature="0" />
   <path
-     d="m 46.048,165.63605 43.373038,-33.44939 14.539192,17.19542 34.30381,-40.06378 16.82394,24.97916 29.89233,-67.269952 0,98.608542"
+     d="m 54.725966,170.51741 43.373038,-33.44939 14.539186,17.19542 34.30381,-40.06378 16.82394,24.97916 29.89233,-67.269957 v 98.608547"
      id="path6"
      inkscape:connector-curvature="0"
-     style="fill:#f2f2f2;fill-rule:evenodd" />
+     style="fill:#f2f2f2;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient4511)" />
 </svg>
