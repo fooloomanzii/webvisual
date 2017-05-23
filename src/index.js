@@ -302,6 +302,8 @@ process.on('ECONNRESET', (err) => {
   activeErrorRestartJob = setTimeout(() => {
     if (server) {
       server.send( { reconnect: config } );
+    } else {
+      createServer(config);
     }
   }, 3000)
 });
