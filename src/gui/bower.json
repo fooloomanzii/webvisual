@@ -1,0 +1,10 @@
+{
+  "name": "webvisual-gui",
+  "homepage": "https://github.com/fooloomanzoo/webvisual",
+  "authors": [
+    "fooloomanzoo <hannes-b@web.de>"
+  ],
+  "description": "gui for the electron process of webvisual-server",
+  "main": "index.html",
+  "license": "MIT"
+}
