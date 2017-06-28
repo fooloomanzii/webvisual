@@ -17,6 +17,7 @@ src/**/bower_components/*
 node_modules/*
 src/node_modules/*
 !src/node_modules/README.md
+package-lock.json
 
 # DB #
 data/db/*

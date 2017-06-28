@@ -30,7 +30,7 @@
   },
   "publish": "never",
   "dependencies": {
-    "electron": "^1.7.3",
+    "electron": "*",
     "electron-builder": "*"
   },
   "engines": {
