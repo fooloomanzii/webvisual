@@ -1,0 +1,43 @@
+{
+  "server": {
+    "auth": {
+      "required": false,
+      "ldap": {
+        "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
+        "url": "ldap://ibn-net.kfa-juelich.de"
+      },
+      "suffix": "@fz-juelich.de"
+    },
+    "port": 443,
+    "ssl": {
+      "ca": "./defaults/ssl/ca",
+      "cert": "./defaults/ssl/ca.crt",
+      "key": "./defaults/ssl/ca.key",
+      "passphrase": "./defaults/ssl/ca.pw.json"
+    }
+  },
+  "app": {
+    "width": 480,
+    "height": 640,
+    "autoHideMenuBar": true,
+    "acceptFirstMouse": true,
+    "webPreferences": {
+      "webSecurity": true
+    },
+    "x": 200,
+    "y": 100
+  },
+  "userConfigFiles": [
+    {
+      "name": "Demo",
+      "title": "Demo",
+      "path": "./examples/config/test.json"
+    }
+  ],
+  "database": {
+    "type": "redis",
+    "port": 6379,
+    "host": "localhost",
+    "maxCount": 100000
+  }
+}
