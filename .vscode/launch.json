@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Electron Main",
+            "runtimeExecutable": "${workspaceRoot}/src/node_modules/.bin/electron",
+            "windows": {
+                "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+            },
+            "program": "${workspaceRoot}/src/index.js",
+            "cwd": "${workspaceRoot}/src",
+            "runtimeArgs": [
+                ".",
+                "start",
+                "--enable-logging"
+            ],
+            "protocol": "inspector"
+        }
+    ]
+}

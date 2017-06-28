@@ -1,0 +1,43 @@
+{
+  "server": {
+    "auth": {
+      "required": false,
+      "ldap": {
+        "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
+        "url": "ldap://ibn-net.kfa-juelich.de"
+      },
+      "suffix": "@fz-juelich.de"
+    },
+    "port": 443,
+    "ssl": {
+      "cert": "./defaults/ssl/ca.crt",
+      "key": "./defaults/ssl/ca.key",
+      "passphrase": "./defaults/ssl/ca.pw.json",
+      "ca": "./defaults/ssl/ca",
+      "requestCert": true,
+      "rejectUnauthorized": false
+    }
+  },
+  "database": {
+    "port": 6379,
+    "type": "redis",
+    "host": "localhost"
+  },
+  "userConfigFiles": [
+    {
+      "name": "Cryostat",
+      "title": "Cryostat",
+      "path": "./examples/config/cryostat_visu.json"
+    },
+    {
+      "name": "HNF",
+      "title": "HNF",
+      "path": "./examples/config/HNF_GDS.json"
+    },
+    {
+      "name": "Demo",
+      "title": "Demo",
+      "path": "./examples/config/test.json"
+    }
+  ]
+}

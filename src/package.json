@@ -13,13 +13,13 @@
   "scripts": {
     "start": "electron . start",
     "stop": "taskkill /IM node.exe /F",
-    "postinstall": "npm run subdepinstall && npm run bowerupdate",
-    "subdepinstall": "git submodule foreach npm install",
+    "postinstall": "npm run bowerupdate",
     "bowerupdate": "bower update"
   },
   "dependencies": {
     "child_process": "*",
     "merge-defaults": "*",
+    "webvisual-server": "github:fooloomanzoo/webvisual-server",
     "mkdirp": "*"
   },
   "devDependencies": {},

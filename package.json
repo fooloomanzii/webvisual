@@ -16,7 +16,9 @@
     "appId": "fz-juelich.webvisual.server",
     "win": {
       "msi": true,
-      "publish": ["github"],
+      "publish": [
+        "github"
+      ],
       "icon": "build/icon.ico",
       "owners": "Forschungszentrum Jülich"
     },
@@ -27,9 +29,9 @@
     "loadingGif": "build/install-spinner.gif"
   },
   "publish": "never",
-  "devDependencies": {
-    "electron-builder": "*",
-    "electron": "*"
+  "dependencies": {
+    "electron": "^1.7.3",
+    "electron-builder": "*"
   },
   "engines": {
     "node": ">= 6.0",
