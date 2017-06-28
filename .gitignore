@@ -56,3 +56,4 @@ ssl/*
 *.tern-port
 *.log
 tools/test.txt
+package-lock.json
