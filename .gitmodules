@@ -1,3 +1,0 @@
-[submodule "src/server"]
-	path = src/server
-	url = https://github.com/fooloomanzoo/webvisual-server.git
