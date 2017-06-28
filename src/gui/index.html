@@ -3,11 +3,8 @@
 
 <head>
   <meta charset="utf-8">
-  <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script>
   <script>
-    window.Polymer = {
-      dom: 'shadow'
-    };
     const {
       ipcRenderer
     } = require('electron');
@@ -41,23 +38,17 @@
 
   <title>Webvisual Server</title>
 
-  <link rel="import" href="bower_components/polymer/polymer.html"/>
+  <link rel="import" href="bower_components/polymer/polymer.html">
   <link rel="import" href="style/app-theme.html" />
   <link rel="import" href="style/form-styles.html" />
   <link rel="import" href="style/webvisual-button.html" />
   <link rel="import" href="style/webvisual-input.html" />
   <link rel="import" href="style/webvisual-selectbox.html" />
-  <link rel="import" href="bower_components/neon-animation/neon-animation.html">
-  <link rel="import" href="bower_components/paper-material/paper-material.html">
-  <link rel="import" href="bower_components/iron-icon/iron-icon.html" />
+  <link rel="import" href="bower_components/neon-animation/neon-animations.html">
+  <link rel="import" href="bower_components/paper-button/paper-button.html">
+  <link rel="import" href="bower_components/paper-toggle-button/paper-toggle-button.html">
+  <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
   <link rel="import" href="bower_components/iron-icons/iron-icons.html" />
-  <link rel="import" href="bower_components/iron-form-element-behavior/iron-form-element-behavior.html">
-  <link rel="import" href="bower_components/iron-behaviors/iron-button-state.html">
-  <link rel="import" href="bower_components/iron-behaviors/iron-control-state.html">
-  <link rel="import" href="bower_components/paper-behaviors/paper-ripple-behavior.html">
-  <link rel="import" href="bower_components/paper-behaviors/paper-button-behavior.html">
-  <link rel="import" href="bower_components/paper-behaviors/paper-inky-focus-behavior.html">
-  <link rel="import" href="bower_components/paper-behaviors/paper-checked-element-behavior.html">
   <link rel="import" href="bower_components/paper-ripple/paper-ripple.html">
   <link rel="import" href="bower_components/iron-form/iron-form.html">
   <link rel="import" href="bower_components/iron-list/iron-list.html">
@@ -68,10 +59,7 @@
   <link rel="import" href="bower_components/app-layout/app-scroll-effects/effects/waterfall.html" />
   <link rel="import" href="components/logo-element.html" />
   <link rel="import" href="components/dialog-element.html" />
-  <link rel="import" href="components/button-element.html" />
   <link rel="import" href="components/dropdown-element.html" />
-  <link rel="import" href="components/icon-button-element.html" />
-  <link rel="import" href="components/toggle-button-element.html" />
   <link rel="import" href="components/juelich-icon.html" />
 </head>
 
@@ -123,7 +111,7 @@
             background: var(--primary-color);
             color: var(--bright-text-color);
           }
-          app-toolbar > icon-button-element:not(:first-child) {
+          app-toolbar > paper-icon-button:not(:first-child) {
             margin-left: 0.5em;
           }
           app-toolbar#toolbar {
@@ -136,7 +124,7 @@
             overflow: auto;
             position: relative;
           }
-          button-element, dropdown-selector {
+          paper-button, dropdown-selector {
             border: thin solid rgba(0, 0, 0, 0.12);
             margin: 0.5em 0em;
             border-radius: 4px;
@@ -152,7 +140,7 @@
             flex-direction: column;;
             align-items: stretch;
           }
-          #drawer > button-element {
+          #drawer > paper-button {
             width: 100%;
             margin: 0.25em 0em;
           }
@@ -205,7 +193,7 @@
           dropdown-element, dropdown-selector {
             --dropdown-background: rgba(255, 255, 255, 0.75);
           }
-          dropdown-element button-element, dropdown-selector button-element {
+          dropdown-element paper-button, dropdown-selector paper-button {
             /*color: #444;*/
             font-size: 0.7em;
             margin: 0.25em 0em !important;
@@ -213,7 +201,7 @@
             border: none;
             border-bottom: thin solid rgba(0, 0, 0, 0.12);
           }
-          dropdown-selector button-element {
+          dropdown-selector paper-button {
             font-size: 0.9em;
           }
           logo-element#logo {
@@ -270,26 +258,27 @@
           .unshim:hover {
             opacity: 1;
           }
-          icon-button-element {
+          paper-icon-button {
             opacity: 0.9;
             margin: 0.25em;
           }
-          icon-button-element:hover {
+          paper-icon-button:hover {
             opacity: 1;
           }
-          button-element.delete {
+          paper-button.delete {
             color:var(--form-invalid);
           }
           @font-face {
            font-family: Fira Mono;
-           src: url('www/style/fonts/FiraMono-Regular.otf') format('truetype');
+           src: url('style/fonts/FiraMono-Regular.otf') format('truetype');
            font-weight: normal;
            font-style: normal;
           }
         </style>
 
         <app-drawer-layout force-narrow fullbleed>
-          <app-drawer id="mainDrawer">
+
+          <app-drawer id="mainDrawer"  slot="drawer">
             <section id="drawer">
               <app-toolbar>
                 <iron-icon icon="juelich"></iron-icon>
@@ -298,25 +287,25 @@
                 </section>
               </app-toolbar>
               <br>
-              <button-element id="startButton" ipc-event="server-start" on-tap="sendEvent" isRunning$="[[isRunning]]" aria-label="Server starten"><iron-icon class="left" icon="play-arrow"></iron-icon>Start</button-element>
-              <button-element ipc-event="server-stop" on-tap="sendEvent"><iron-icon class="left" icon="stop" aria-label="Server anhalten"></iron-icon>Stopp</button-element>
-              <button-element ipc-event="server-restart" on-tap="sendEvent"><iron-icon class="left" icon="replay" aria-label="Server neustarten"></iron-icon>Neustart</button-element>
+              <paper-button id="startButton" ipc-event="server-start" on-tap="sendEvent" isRunning$="[[isRunning]]" aria-label="Server starten"><iron-icon class="left" icon="play-arrow"></iron-icon>Start</paper-button>
+              <paper-button ipc-event="server-stop" on-tap="sendEvent"><iron-icon class="left" icon="stop" aria-label="Server anhalten"></iron-icon>Stopp</paper-button>
+              <paper-button ipc-event="server-restart" on-tap="sendEvent"><iron-icon class="left" icon="replay" aria-label="Server neustarten"></iron-icon>Neustart</paper-button>
               <br>
-              <button-element for="serverConfigDialog" on-tap="openDialog" aria-label="Servereinstellungen" title="Servereinstellungen">
+              <paper-button for="serverConfigDialog" on-tap="openDialog" aria-label="Servereinstellungen" title="Servereinstellungen">
                 <iron-icon class="left" icon="settings"></iron-icon>
                 <span>Servereinstellungen</span>
-              </button-element>
-              <button-element for="databaseConfigDialog" on-tap="openDialog" aria-label="Datenbankeinstellungen" title="Datenbankeinstellungen">
+              </paper-button>
+              <paper-button for="databaseConfigDialog" on-tap="openDialog" aria-label="Datenbankeinstellungen" title="Datenbankeinstellungen">
                 <iron-icon class="left" icon="assessment"></iron-icon>
                 <span>Datenbankeinstellungen</span>
-              </button-element>
+              </paper-button>
             </section>
           </app-drawer>
-          <app-header-layout>
 
-            <app-header fixed>
+          <app-header-layout has-scrolling-region>
+            <app-header fixed slot="header">
               <app-toolbar>
-                <icon-button-element id="menuButton" icon="menu" drawer-toggle></icon-button-element>
+                <paper-icon-button id="menuButton" icon="menu" drawer-toggle></paper-icon-button>
                 <logo-element id="logo" show-always></logo-element>
                 <section class="flex"></section>
               </app-toolbar>
@@ -330,27 +319,27 @@
 
             <app-toolbar id="toolbar">
 
-              <icon-button-element id="clear" icon="delete" aria-label="löschen" on-tap="clearHistory"></icon-button-element>
+              <paper-icon-button id="clear" icon="delete" aria-label="löschen" on-tap="clearHistory"></paper-icon-button>
               <section class="flex"></section>
 
-              <icon-button-element id="toggleStartButton" toggles ipc-event="server-toggle" on-tap="sendEvent" icon="play-arrow" isRunning$="[[isRunning]]" aria-label="Server"></icon-button-element>
+              <paper-icon-button id="toggleStartButton" toggles ipc-event="server-toggle" on-tap="sendEvent" icon="play-arrow" isRunning$="[[isRunning]]" aria-label="Server"></paper-icon-button>
 
-              <icon-button-element id="files" toggles icon="description" aria-label="Konfigurationsdateien"></icon-button-element>
+              <paper-icon-button id="files" toggles icon="description" aria-label="Konfigurationsdateien"></paper-icon-button>
 
               <dropdown-element id="dropdown" for="files" position="top" align="end" offset="6" target-toggle-event="tap">
                 <template is="dom-repeat" items="{{configFiles}}">
-                  <button-element class="inline shim" on-tap="sendEvent">
+                  <paper-button class="inline shim" on-tap="sendEvent">
                     <iron-icon class="left" icon="description"></iron-icon>
                     <section class="spread">{{item.name}}</section>
                     <section class="spread" style="flex:1;text-align:left;">{{item.path}}</section>
                     <iron-icon class="right shim unshim" icon="edit" arg="{{item}}" on-tap="editUserConfigFile"></iron-icon>
-                  </button-element>
+                  </paper-button>
                 </template>
 
-                <button-element for="userConfigDialog" on-tap="openDialog">
+                <paper-button for="userConfigDialog" on-tap="openDialog">
                   <iron-icon class="left" icon="note-add"></iron-icon>
                   <section class="spread">Konfigurationsdatei hinzufügen...</section>
-                </button-element>
+                </paper-button>
               </dropdown-element>
 
             </app-toolbar>
@@ -367,37 +356,37 @@
                 <label>http2-Port</label>
               </div>
 
-              <toggle-button-element id="authRequired" checked="{{serverConfig.auth.required}}">
+              <paper-toggle-button id="authRequired" checked="{{serverConfig.auth.required}}">
                 <iron-icon icon="lock-outline"></iron-icon>
                 <span hidden$="{{serverConfig.auth.required}}">ohne</span>
                 <span hidden$="{{!serverConfig.auth.required}}">mit</span>
                 <span>Authentifizierung</span>
-              </toggle-button-element>
+              </paper-toggle-button>
 
               <div class="inputcontainer">
                 <input id="certPath" aria-label="Zertifikatdatei (ssl crt)" value="{{serverConfig.ssl.cert::input}}" tab-index="0"></input>
-                <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="certPath" filter="crt" aria-label="Datei öffnen..."></icon-button-element>
+                <paper-icon-button icon="folder-open" class="small-spread" on-tap="openFileSelector" for="certPath" filter="crt" aria-label="Datei öffnen..."></paper-icon-button>
                 <div class="focusline"></div>
                 <label>Zertifikatdatei (ssl crt)</label>
               </div>
 
               <div class="inputcontainer">
                 <input id="keyPath" aria-label="Schlüsseldatei (ssl key)" value="{{serverConfig.ssl.key::input}}" tab-index="0"></input>
-                <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="keyPath" filter="key" aria-label="Datei öffnen..."></icon-button-element>
+                <paper-icon-button icon="folder-open" class="small-spread" on-tap="openFileSelector" for="keyPath" filter="key" aria-label="Datei öffnen..."></paper-icon-button>
                 <div class="focusline"></div>
                 <label>Schlüsseldatei (ssl key)</label>
               </div>
 
               <div class="inputcontainer">
                 <input id="passphrasePath" aria-label="Passphrasendatei (ssl passphrase)" value="{{serverConfig.ssl.passphrase::input}}"></input>
-                <icon-button-element icon="folder-open" class="small-spread" on-tap="openFileSelector" for="passphrasePath" filter="json" aria-label="Datei öffnen..."></icon-button-element>
+                <paper-icon-button icon="folder-open" class="small-spread" on-tap="openFileSelector" for="passphrasePath" filter="json" aria-label="Datei öffnen..."></paper-icon-button>
                 <div class="focusline"></div>
                 <label>Passphrasendatei (ssl passphrase)</label>
               </div>
 
               <div class="inputcontainer">
                 <input id="certchain" aria-label="Certchain-Verzeichnis (certchain-folder)" value="{{serverConfig.ssl.ca::input}}"></input>
-                <icon-button-element icon="folder-open" class="small-spread" on-tap="openFolderSelector" for="certchain" filter="json" aria-label="Verzeichnis öffnen..."></icon-button-element>
+                <paper-icon-button icon="folder-open" class="small-spread" on-tap="openFolderSelector" for="certchain" filter="json" aria-label="Verzeichnis öffnen..."></paper-icon-button>
                 <div class="focusline"></div>
                 <label>Certchain-Verzeichnis (certchain-folder)</label>
               </div>
@@ -405,12 +394,12 @@
             </section>
           </div>
           <div class="buttons">
-            <button-element dialog-dismiss class="small-spread">Abbrechen
+            <paper-button dialog-dismiss class="small-spread">Abbrechen
               <iron-icon class="right" icon="close"></iron-icon>
-            </button-element>
-            <button-element dialog-confirm on-tap="commitServerFile" class="small-spread">Speichen
+            </paper-button>
+            <paper-button dialog-confirm on-tap="commitServerFile" class="small-spread">Speichen
               <iron-icon class="right" icon="save"></iron-icon>
-            </button-element>
+            </paper-button>
           </div>
         </dialog-element>
 
@@ -457,12 +446,12 @@
           </div>
 
           <div class="buttons">
-            <button-element dialog-dismiss class="small-spread">Abbrechen
+            <paper-button dialog-dismiss class="small-spread">Abbrechen
               <iron-icon class="right" icon="close"></iron-icon>
-            </button-element>
-            <button-element dialog-confirm on-tap="commitDatabase" class="small-spread">Speichen
+            </paper-button>
+            <paper-button dialog-confirm on-tap="commitDatabase" class="small-spread">Speichen
               <iron-icon class="right" icon="save"></iron-icon>
-            </button-element>
+            </paper-button>
           </div>
         </dialog-element>
 
@@ -481,21 +470,21 @@
             </div>
             <div class="inputcontainer">
               <input id="newConfigPath" aria-label="Pfad" required></input>
-              <icon-button-element icon="folder-open" class="spread" on-tap="openFileSelector" for="newConfigPath" filter="json" aria-label="Datei öffnen..."></icon-button-element>
+              <paper-icon-button icon="folder-open" class="spread" on-tap="openFileSelector" for="newConfigPath" filter="json" aria-label="Datei öffnen..."></paper-icon-button>
               <div class="focusline"></div>
               <label>Pfad</label>
             </div>
           </div>
           <div class="buttons">
-            <button-element class="delete small-spread" dialog-dismiss style="padding:0.75em;height:auto;" icon="delete" on-tap="removeUserConfigFile">
+            <paper-button class="delete small-spread" dialog-dismiss style="padding:0.75em;height:auto;" icon="delete" on-tap="removeUserConfigFile">
               <iron-icon icon="delete"></iron-icon>
-            </button-element>
-            <button-element class="small-spread" dialog-dismiss>Abbrechen
+            </paper-button>
+            <paper-button class="small-spread" dialog-dismiss>Abbrechen
               <iron-icon class="right" icon="close"></iron-icon>
-            </button-element>
-            <button-element class="small-spread" dialog-confirm on-tap="addUserConfigFile">Speichern
+            </paper-button>
+            <paper-button class="small-spread" dialog-confirm on-tap="addUserConfigFile">Speichern
               <iron-icon class="right" icon="add"></iron-icon>
-            </button-element>
+            </paper-button>
           </div>
         </dialog-element>
 
@@ -533,7 +522,7 @@
         _body: Object,
 
         attached: function() {
-          this._body = this.$.body;
+          this._body = this.$$('#body');
         },
 
         sendEvent: function(e) {
@@ -656,14 +645,14 @@
         },
         log: function(flag, msg) {
           let row = document.createElement('section');
-          row.classList.add('tr');
+          row.classList.add('tr', 'style-scope', 'webvisual-app');
           row.setAttribute('flag', flag);
           let date = document.createElement('section');
-          date.classList.add('td', 'date');
+          date.classList.add('td', 'date', 'style-scope', 'webvisual-app');
           let timestamp = new Date();
           date.innerHTML = timestamp.toLocaleDateString() + '</br>' + timestamp.toLocaleTimeString() + "." + timestamp.getMilliseconds();
           let message = document.createElement('section');
-          message.classList.add('td', 'msg');
+          message.classList.add('td', 'msg', 'style-scope', 'webvisual-app');
           message.textContent = msg;
           row.appendChild(date);
           row.appendChild(message);

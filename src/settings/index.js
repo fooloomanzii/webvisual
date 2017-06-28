@@ -10,71 +10,25 @@ const fs = require('fs')
     , path = require('path')
     , util = require('util')
     , EventEmitter = require('events').EventEmitter
-    , mergeDeep = require('merge-defaults')
+    , mergeDeep = require('merge-options')
     , mkdirp = require('mkdirp');
-
-var appConfigFilePath;
-var appUserDataFolder;
-var app;
-
-const defaults = {
-  "server": {
-    "auth": {
-      "required": false,
-      "ldap": {
-        "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
-        "url": "ldap://ibn-net.kfa-juelich.de"
-      },
-      "suffix": "@fz-juelich.de"
-    },
-    "port": 443,
-    "ssl": {
-      "ca": "./defaults/ssl/ca",
-      "cert": "./defaults/ssl/ca.crt",
-      "key": "./defaults/ssl/ca.key",
-      "passphrase": "./defaults/ssl/ca.pw.json"
-    }
-  },
-  "app": {
-    "width": 480,
-    "height": 640,
-    "autoHideMenuBar": true,
-    "acceptFirstMouse": true,
-    "webPreferences": {
-      "webSecurity": true
-    },
-    "x": 200,
-    "y": 100
-  },
-  "userConfigFiles": [
-    {
-      "name": "Demo",
-      "title": "Demo",
-      "path": "./examples/config/test.json"
-    }
-  ],
-  "database": {
-    "type": "redis",
-    "port": 6379,
-    "host": "localhost",
-    "maxCount": 3600 * 24 * 3
-  }
-}
 
 class configLoader extends EventEmitter {
 
-  constructor(app) {
+  constructor(folder, fileName, defaults) {
 
     super();
     // check User Data and folder
-    appUserDataFolder = app.getPath('userData');
-    appConfigFilePath = path.join(appUserDataFolder, 'config', 'appConfig.json');
+    this.defaults = defaults || {};
+    this.folder = folder;
+    this.fileName = fileName;
+    this.filePath = path.join(this.folder, this.fileName);
 
-    this.load(appConfigFilePath);
+    this.load(this.filePath);
   }
 
-  load(appConfigFilePath) {
-    this.testAccess(appConfigFilePath, this.readFromFile.bind(this));
+  load(filePath) {
+    this.testAccess(filePath, this.readFromFile.bind(this, ...arguments));
   }
 
   ready(settings) {
@@ -88,17 +42,17 @@ class configLoader extends EventEmitter {
         this.loadBackup(this.ready.bind(this));
       else {
         this.settings = settings;
-        this.emit('ready', 'AppConfigFile loaded: ' + appConfigFilePath, this.settings);
+        this.emit('ready', 'AppConfigFile loaded: ' + this.filePath, this.settings);
         this.saveBackup(this.settings);
       }
     }
   }
 
-  testAccess(appConfigFilePath, callback) {
-    return fs.access(appConfigFilePath, fs.F_OK, (function(err) {
+  testAccess(filePath, callback) {
+    return fs.access(filePath, fs.F_OK, (function(err) {
       if (!err) {
         try {
-          this.testRead(appConfigFilePath);
+          this.testRead(filePath);
         } catch (e) {
           this.emit('error', '\nError parsing AppConfigFile. Loading Backup Settings ... \n' + e);
           err = true;
@@ -108,23 +62,23 @@ class configLoader extends EventEmitter {
         this.loadBackup(this.ready.bind(this));
       }
       else if (callback) {
-        callback.call(this, appConfigFilePath, this.ready);
+        callback.call(this, filePath, this.ready);
       }
     }).bind(this));
   };
 
-  testRead(appConfigFilePath) {
-    JSON.parse(fs.readFileSync(appConfigFilePath));
+  testRead(filePath) {
+    JSON.parse(fs.readFileSync(filePath));
   }
 
   testConfig(config, callback) {
-    JSON.parse(JSON.stringify(config));
+    config = JSON.parse(JSON.stringify(config || {}));
 
     let missing = [];
-    for (var opt in defaults) { // using defaults, if toplevel entry not as expected
-      if (!config.hasOwnProperty(opt) || (config[opt] && (Array.isArray(defaults[opt]) !== Array.isArray(config[opt])))) {
+    for (var opt in this.defaults) { // using defaults, if toplevel entry not as expected
+      if (!config.hasOwnProperty(opt) || (config[opt] && (Array.isArray(this.defaults[opt]) !== Array.isArray(config[opt])))) {
         missing.push(opt)
-        config[opt] = defaults[opt];
+        config[opt] = this.defaults[opt];
       }
     }
     if (!callback && missing.length > 0)
@@ -150,7 +104,7 @@ class configLoader extends EventEmitter {
   }
 
   setEntry(config) {
-    this.settings = mergeDeep(config, this.settings);
+    this.settings = mergeOptions(config, this.settings);
     this.emit('change', this.settings);
     this.save(this.settings);
     this.saveBackup(this.settings);
@@ -164,15 +118,15 @@ class configLoader extends EventEmitter {
       this.emit('error', '\nError in AppConfig:\n' + err);
       return;
     }
-    fs.writeFile(appConfigFilePath, JSON.stringify(data, null, 2), (err) => {
+    fs.writeFile(this.filePath, JSON.stringify(data, null, 2), (err) => {
       if (err) {
         console.log('\nError saving AppConfig:', err);
         this.emit('error', '\nError saving AppConfig:\n' + err);
         return;
       }
     });
-    console.log('\nAppConfig saved to file:', appConfigFilePath);
-    this.emit('saved', '\nAppConfig saved to file:', appConfigFilePath);
+    console.log('\nAppConfig saved to file:', this.filePath);
+    this.emit('saved', '\nAppConfig saved to file:', this.filePath);
   }
 
   saveBackup(config) {
@@ -184,7 +138,7 @@ class configLoader extends EventEmitter {
       this.emit('error', '\nError saving AppConfig:\n' + err);
       return;
     }
-    fs.writeFile(path.join(process.cwd(), 'appConfig.backup.json'), JSON.stringify(data, null, 2), (err) => {
+    fs.writeFile(this.filePath + '.backup', JSON.stringify(data, null, 2), (err) => {
       if (err) {
         console.log('Error saving DefaultAppConfig:', err);
         this.emit('error', 'Error saving DefaultAppConfig:', err);
@@ -194,17 +148,21 @@ class configLoader extends EventEmitter {
   }
 
   loadBackup(callback) {
-    mkdirp(path.join(appUserDataFolder, 'config'));
-    this.copyFile(path.join(process.cwd(), 'appConfig.backup.json'),
-                  appConfigFilePath,
-                  (function(err) {
-                    if (err) {
-                      this.emit('error', '\nError copying Backup', err);
-                      callback.call(this, defaults);
-                      return;
-                    }
-                  }).bind(this));
-    this.readFromFile.call(this, path.join(process.cwd(),  'appConfig.backup.json'), this.testConfig, callback);
+    if (this.folder && this.filePath) {
+      mkdirp(path.join(this.folder));
+      this.copyFile(this.filePath + '.backup',
+                    this.filePath,
+                    err => {
+                      if (err) {
+                        this.emit('error', '\nError copying Backup', err);
+                        callback.call(this, this.defaults);
+                        return;
+                      }
+                      this.readFromFile.call(this, this.filePath + '.backup', this.testConfig, callback);
+                    });
+    } else {
+      callback.call(this, this.defaults);
+    }
   }
 
   checkFolder(path_folder, callback) {
@@ -245,10 +203,11 @@ class configLoader extends EventEmitter {
       obj = JSON.parse(file);
     } catch (err) {
       this.emit('error', '\nReading File Failed: ', filepath,'\n', err)
-      return {};
     }
-    if (callback) {
+    if (typeof callback === 'function') {
       callback.call(this, obj, next)
+    } else if (typeof next === 'function') {
+      next.call(this, obj)
     }
     else
       return obj || {};

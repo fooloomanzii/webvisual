@@ -5,6 +5,8 @@ const fs = require('fs'),
       path = require('path'),
       util = require('util');
 
+const PATH_DEFAULT = path.resolve(__dirname, 'defaults/appConfig.json')
+let defaults = require(PATH_DEFAULT)
 const electron = require('electron')
 const { dialog, ipcMain, app, BrowserWindow } = require('electron')
 
@@ -20,6 +22,7 @@ let configLoader = {}
   , win = null
   , config
   , activeErrorRestartJob
+
 
 function createWindow (config) {
   // Create the browser window.
@@ -49,15 +52,19 @@ function createWindow (config) {
 
 function createServer (config) {
   var env = {}
-  env['WEBVISUALSERVER'] = JSON.stringify(config)
-  env.port = config.server.port
+  var settings = config
   env.NODE_ENV = 'production'
   server = null
   server = fork( __dirname + '/node_modules/webvisual-server/index.js', [], { env: env })
   server.on('message', (arg) => {
     if (win) {
-      if (typeof arg === 'string')
-        console.log(arg)
+      if (typeof arg === 'string') {
+        if (arg === 'ready') {
+          server.send({ connect: settings });
+        } else {
+          console.log(arg)
+        }
+      }
       else
         for (var type in arg) {
           win.webContents.send( type, arg[type] )
@@ -105,7 +112,7 @@ app.on('activate', function () {
 
 app.on('ready', () => {
   // Create the browser window.
-  configLoader = new Settings(app)
+  configLoader = new Settings(path.resolve(app.getPath('userData'),'config'), 'config.json', defaults)
 
   configLoader.on('error', (err) => {
     console.error('Error in AppConfig', err)

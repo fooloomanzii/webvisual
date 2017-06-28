@@ -18,9 +18,11 @@
   },
   "dependencies": {
     "child_process": "*",
+    "jsonfile": "^3.0.0",
     "merge-defaults": "*",
-    "webvisual-server": "github:fooloomanzoo/webvisual-server",
-    "mkdirp": "*"
+    "merge-options": "^1.0.0",
+    "mkdirp": "*",
+    "webvisual-server": "github:fooloomanzoo/webvisual-server"
   },
   "devDependencies": {},
   "engines": {
