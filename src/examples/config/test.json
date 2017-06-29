@@ -1,0 +1,824 @@
+[
+  {
+    "name": "Berlin",
+    "title": "Population of Berlin City Quarters",
+
+    "connections": {
+      "file": {
+        "mode": "append",
+        "path": "examples/datafile/berlin-population.txt",
+        "format": {
+          "dateFormat": "DD.MM.YYYY",
+          "decimalSeparator": ".",
+          "valueSeparator": ";",
+          "dimensions": 1
+        },
+				"ignoredFirstLines": 0
+      }
+    },
+
+    "database": {
+      "type": "redis",
+      "maxCount": 30
+    },
+
+    "svgSource": {
+      "origin": "examples/svg",
+      "paths": {
+        "berlin.svg": {
+          "items": {
+          },
+          "minZoom": 1,
+          "maxZoom": 10,
+          "zoomPartition": 2
+        }
+      }
+    },
+
+    "clientRequest": {
+      "initial": {
+        "mobile": 300,
+        "stationary": 1000
+      }
+    },
+
+    "locals": {
+      "ignore": [],
+      "items": [
+        {
+          "id": "Berlin",
+          "keys": {
+            "name": "Berlin",
+            "area": "891.68km²",
+            "type": "gesamt"
+          },
+          "svg": {
+            "selector": "g#ortsteil path",
+            "path": "berlin.svg"
+          },
+          "color": "#2FC6FC"
+        }, {
+          "id": "Mitte",
+          "keys": {
+            "name": "Mitte",
+            "area": "0-50km²",
+            "type": "Bezirk"
+          },
+          "svg": {
+            "selector": "path#path1364-8",
+            "path": "berlin.svg"
+          },
+          "color": "#2FC6FC"
+        }, {
+          "id": "Friedrichshain-Kreuzberg",
+          "keys": {
+            "name": "Friedrichshain-Kreuzberg",
+            "area": "0-50km²",
+            "type": "Bezirk"
+          },
+          "svg": {
+            "selector": "path#path1358-1",
+            "path": "berlin.svg"
+          },
+          "color": "#0dcf78"
+        }, {
+          "id": "Pankow",
+          "keys": {
+            "name": "Pankow",
+            "area": "100-150km²",
+            "type": "Bezirk"
+          },
+          "svg": {
+            "selector": "path#path1368-8",
+            "path": "berlin.svg"
+          },
+          "color": "#7D2FFC"
+        }, {
+          "id": "Charlottenburg-Wilmersdorf",
+          "keys": {
+            "name": "Charlottenburg-Wilmersdorf",
+            "area": "50-100km²",
+            "type": "Bezirk"
+          },
+          "svg": {
+            "selector": "path#path1356-7",
+            "path": "berlin.svg"
+          },
+          "color": "#FC2F41"
+        }, {
+          "id": "Spandau",
+          "keys": {
+            "name": "Spandau",
+            "area": "50-100km²",
+            "type": "Bezirk"
+          },
+          "svg": {
+            "selector": "path#path1372-3",
+            "path": "berlin.svg"
+          },
+          "color": "#b2e620"
+        }, {
+          "id": "Steglitz-Zehlendorf",
+          "keys": {
+            "name": "Steglitz-Zehlendorf",
+            "area": "100-150km²",
+            "type": "Bezirk"
+          },
+          "svg": {
+            "selector": "path#path1374-1",
+            "path": "berlin.svg"
+          },
+          "color": "#FC602F"
+        }, {
+          "id": "Tempelhof-Schöneberg",
+          "keys": {
+            "name": "Tempelhof-Schöneberg",
+            "area": "50-100km²",
+            "type": "Bezirk"
+          },
+          "svg": {
+            "selector": "path#path1376-0",
+            "path": "berlin.svg",
+            "type": "Bezirk"
+          },
+          "color": "#FC2F2F"
+        }, {
+          "id": "Neukölln",
+          "keys": {
+            "name": "Neukölln",
+            "area": "0-50km²",
+            "type": "Bezirk"
+          },
+          "svg": {
+            "selector": "path#path1366-4",
+            "path": "berlin.svg",
+            "type": "Bezirk"
+          },
+          "color": "#2FFCF0"
+        }, {
+          "id": "Treptow-Köpenick",
+          "keys": {
+            "name": "Treptow-Köpenick",
+            "area": "150-200km²",
+            "type": "Bezirk"
+          },
+          "svg": {
+            "selector": "path#path1378-6",
+            "path": "berlin.svg"
+          },
+          "color": "#83FC2F"
+        }, {
+          "id": "Marzahn-Hellersdorf",
+          "keys": {
+            "name": "Marzahn-Hellersdorf",
+            "area": "50-100km²",
+            "type": "Bezirk"
+          },
+          "svg": {
+            "selector": "path#path1362-1",
+            "path": "berlin.svg"
+          },
+          "color": "#2FFC5C"
+        }, {
+          "id": "Lichtenberg",
+          "keys": {
+            "name": "Lichtenberg",
+            "area": "50-100km²",
+            "type": "Bezirk"
+          },
+          "svg": {
+            "selector": "path#path1360-4",
+            "path": "berlin.svg"
+          },
+          "color": "#FCD52F"
+        }, {
+          "id": "Reinickendorf",
+          "keys": {
+            "name": "Reinickendorf",
+            "area": "50-100km²",
+            "type": "Bezirk"
+          },
+          "svg": {
+            "selector": "path#path1370-3",
+            "path": "berlin.svg"
+          },
+          "color": "#2F43FC"
+        }
+      ],
+
+      "unnamedItem": {
+        "id": "id",
+        "unit": "Ew."
+      },
+
+      "valueModel": {
+        "x": null,
+        "y": 0
+      },
+
+      "groupingKeys": ["type", "area"],
+      "preferedGroupingKey": "type",
+
+      "exclusiveGroups": {
+      }
+    }
+  }, {
+    "name": "Bor",
+    "title": "particles of the element Bor",
+    "connections": {
+      "file": {
+        "mode": "append",
+        "path": "examples/datafile/bor-atom.txt",
+        "format": {
+          "dateFormat": "DD.MM.YYYY hh:mm:ss",
+          "decimalSeparator": ".",
+          "valueSeparator": ";",
+          "dimensions": 1
+        },
+				"ignoredFirstLines": 0
+      }
+    },
+
+    "database": {
+      "type": "redis",
+      "maxCount": 30
+    },
+
+    "svgSource": {
+      "origin": "examples/svg",
+      "paths": {
+        "bor-atom-modell.svg": {
+          "items": {},
+          "minZoom": 2,
+          "maxZoom": 10,
+          "zoomPartition": 6
+        }
+      }
+    },
+
+    "clientRequest": {
+      "initial": {
+        "mobile": 300,
+        "stationary": 1000
+      }
+    },
+
+    "locals": {
+      "ignore": [],
+      "items": [
+        {
+          "id": "p1",
+          "keys": {
+            "name": "p1",
+            "type": "proton"
+          },
+          "svg": {
+            "selector": "ellipse#ellipse4802",
+            "path": "bor-atom-modell.svg"
+          }
+        }, {
+          "id": "p2",
+          "keys": {
+            "name": "p2",
+            "type": "proton"
+          },
+          "svg": {
+            "selector": "ellipse#ellipse4804",
+            "path": "bor-atom-modell.svg"
+          }
+        }, {
+          "id": "p3",
+          "keys": {
+            "name": "p3",
+            "type": "proton"
+          },
+          "svg": {
+            "selector": "ellipse#ellipse4806",
+            "path": "bor-atom-modell.svg"
+          }
+        }, {
+          "id": "p4",
+          "keys": {
+            "name": "p4",
+            "type": "proton"
+          },
+          "svg": {
+            "selector": "ellipse#ellipse4808",
+            "path": "bor-atom-modell.svg"
+          }
+        }, {
+          "id": "p5",
+          "keys": {
+            "name": "p5",
+            "type": "proton"
+          },
+          "svg": {
+            "selector": "ellipse#ellipse4810",
+            "path": "bor-atom-modell.svg"
+          }
+        }, {
+          "id": "n1",
+          "keys": {
+            "name": "n1",
+            "type": "neutron"
+          },
+          "svg": {
+            "selector": "circle#circle4812",
+            "path": "bor-atom-modell.svg"
+          }
+        }, {
+          "id": "n2",
+          "keys": {
+            "name": "n2",
+            "type": "neutron"
+          },
+          "svg": {
+            "selector": "circle#circle4814",
+            "path": "bor-atom-modell.svg"
+          }
+        }, {
+          "id": "n3",
+          "keys": {
+            "name": "n3",
+            "type": "neutron"
+          },
+          "svg": {
+            "selector": "circle#circle4816",
+            "path": "bor-atom-modell.svg"
+          }
+        }, {
+          "id": "n4",
+          "keys": {
+            "name": "n4",
+            "type": "neutron"
+          },
+          "svg": {
+            "selector": "circle#circle4818",
+            "path": "bor-atom-modell.svg"
+          }
+        }, {
+          "id": "n5",
+          "keys": {
+            "name": "n5",
+            "type": "neutron"
+          },
+          "svg": {
+            "selector": "circle#circle4820",
+            "path": "bor-atom-modell.svg"
+          }
+        }, {
+          "id": "e1",
+          "keys": {
+            "name": "e1",
+            "type": "electron",
+            "orbital": "s1"
+          },
+          "svg": {
+            "selector": "ellipse#ellipse4851",
+            "path": "bor-atom-modell.svg"
+          }
+        }, {
+          "id": "e2",
+          "keys": {
+            "name": "e2",
+            "type": "electron",
+            "orbital": "s2"
+          },
+          "svg": {
+            "selector": "ellipse#ellipse4853",
+            "path": "bor-atom-modell.svg"
+          }
+        }, {
+          "id": "e3",
+          "keys": {
+            "name": "e3",
+            "type": "electron",
+            "orbital": "p1"
+          },
+          "svg": {
+            "selector": "ellipse#ellipse4855",
+            "path": "bor-atom-modell.svg"
+          }
+        }, {
+          "id": "e4",
+          "keys": {
+            "name": "e4",
+            "type": "electron",
+            "orbital": "p2"
+          },
+          "svg": {
+            "selector": "ellipse#ellipse4857",
+            "path": "bor-atom-modell.svg"
+          }
+        }, {
+          "id": "e5",
+          "keys": {
+            "name": "e5",
+            "type": "electron",
+            "orbital": "p3"
+          },
+          "svg": {
+            "selector": "ellipse#ellipse4859",
+            "path": "bor-atom-modell.svg"
+          }
+        }
+      ],
+
+      "unnamedItem": {
+        "id": "id",
+        "unit": "MeV"
+      },
+
+      "valueModel": {
+        "x": null,
+        "y": 0
+      },
+
+      "groupingKeys": ["type"],
+      "preferedGroupingKey": "type",
+
+      "exclusiveGroups": {
+      }
+    }
+  }, {
+    "name": "Boxes",
+    "title": "boxes",
+    "connections": {
+      "file": {
+        "mode": "append",
+        "path": "examples/datafile/test.txt",
+        "format": {
+          "dateFormat": "DD.MM.YYYY hh:mm:ss",
+          "decimalSeparator": ".",
+          "valueSeparator": ";",
+          "dimensions": 1
+        },
+				"ignoredFirstLines": 0
+      }
+    },
+
+    "database": {
+      "type": "redis",
+      "host": "localhost",
+      "port": 6379,
+      "maxCount": 1000
+    },
+
+    "svgSource": {
+      "origin": "examples/svg",
+      "paths": {
+        "boxes.svg": {
+          "items": {},
+          "minZoom": 0.75,
+          "maxZoom": 3,
+          "zoomPartition": 4
+        }
+      }
+    },
+
+    "clientRequest": {
+      "initial": {
+        "mobile": 300,
+        "stationary": 1000
+      }
+    },
+
+    "locals": {
+      "ignore": [],
+      "items": [
+        {
+          "id": "box1",
+          "keys": {
+            "name": "box1",
+            "distance": "4",
+            "group": "left-bottom"
+          },
+          "svg": {
+            "selector": "g#g783 polygon",
+            "path": "boxes.svg"
+          },
+          "threshold": {
+            "from": -18,
+            "to": 18
+          }
+        }, {
+          "id": "box2",
+          "keys": {
+            "name": "box2",
+            "distance": "3",
+            "group": "left-bottom"
+          },
+          "svg": {
+            "selector": "g#g744 polygon",
+            "path": "boxes.svg"
+          },
+          "threshold": {
+            "from": -18,
+            "to": 18
+          }
+        }, {
+          "id": "box3",
+          "keys": {
+            "name": "box3",
+            "distance": "2",
+            "group": "left-bottom"
+          },
+          "svg": {
+            "selector": "g#g627 polygon",
+            "path": "boxes.svg"
+          },
+          "threshold": {
+            "from": -18,
+            "to": 18
+          }
+        }, {
+          "id": "box4",
+          "keys": {
+            "name": "box4",
+            "distance": "1",
+            "group": "left-bottom"
+          },
+          "svg": {
+            "selector": "g#g510 polygon",
+            "path": "boxes.svg"
+          },
+          "threshold": {
+            "from": -18,
+            "to": 18
+          }
+        }, {
+          "id": "box5",
+          "keys": {
+            "name": "box5",
+            "distance": "4",
+            "group": "left-top"
+          },
+          "svg": {
+            "selector": "g#g81 polygon",
+            "path": "boxes.svg"
+          }
+        }, {
+          "id": "box6",
+          "keys": {
+            "name": "box6",
+            "distance": "3",
+            "group": "left-top"
+          },
+          "svg": {
+            "selector": "g#g120 polygon",
+            "path": "boxes.svg"
+          }
+        }, {
+          "id": "box7",
+          "keys": {
+            "name": "box7",
+            "distance": "2",
+            "group": "left-top"
+          },
+          "svg": {
+            "selector": "g#g315 polygon",
+            "path": "boxes.svg"
+          },
+          "threshold": {
+            "from": -18,
+            "to": 18
+          }
+        }, {
+          "id": "box8",
+          "keys": {
+            "name": "box8",
+            "distance": "1",
+            "group": "left-top"
+          },
+          "svg": {
+            "selector": "g#g393 polygon",
+            "path": "boxes.svg"
+          }
+        }, {
+          "id": "box9",
+          "keys": {
+            "name": "box9",
+            "distance": "4",
+            "group": "top"
+          },
+          "svg": {
+            "selector": "g#g939 polygon",
+            "path": "boxes.svg"
+          },
+          "threshold": {
+            "from": -18,
+            "to": 18
+          }
+        }, {
+          "id": "box10",
+          "keys": {
+            "name": "box10",
+            "distance": "3",
+            "group": "top"
+          },
+          "svg": {
+            "selector": "g#g900 polygon",
+            "path": "boxes.svg"
+          }
+        }, {
+          "id": "box11",
+          "keys": {
+            "name": "box11",
+            "distance": "2",
+            "group": "top"
+          },
+          "svg": {
+            "selector": "g#g705 polygon",
+            "path": "boxes.svg"
+          }
+        }, {
+          "id": "box12",
+          "keys": {
+            "name": "box12",
+            "distance": "1",
+            "group": "top"
+          },
+          "svg": {
+            "selector": "g#g588 polygon",
+            "path": "boxes.svg"
+          },
+          "threshold": {
+            "from": -18,
+            "to": 18
+          }
+        }, {
+          "id": "box13",
+          "keys": {
+            "name": "box13",
+            "distance": "4",
+            "group": "right-bottom"
+          },
+          "svg": {
+            "selector": "g#g861 polygon",
+            "path": "boxes.svg"
+          }
+        }, {
+          "id": "box14",
+          "keys": {
+            "name": "box14",
+            "distance": "3",
+            "group": "right-bottom"
+          },
+          "svg": {
+            "selector": "g#g822 polygon",
+            "path": "boxes.svg"
+          },
+          "threshold": {
+            "from": -18,
+            "to": 18
+          }
+        }, {
+          "id": "box15",
+          "keys": {
+            "name": "box15",
+            "distance": "2",
+            "group": "right-bottom"
+          },
+          "svg": {
+            "selector": "g#g666 polygon",
+            "path": "boxes.svg"
+          }
+        }, {
+          "id": "box16",
+          "keys": {
+            "name": "box16",
+            "distance": "1",
+            "group": "right-bottom"
+          },
+          "svg": {
+            "selector": "g#g549 polygon",
+            "path": "boxes.svg"
+          }
+        }, {
+          "id": "box17",
+          "keys": {
+            "name": "box17",
+            "distance": "4",
+            "group": "right-top"
+          },
+          "svg": {
+            "selector": "g#g159 polygon",
+            "path": "boxes.svg"
+          }
+        }, {
+          "id": "box18",
+          "keys": {
+            "name": "box18",
+            "distance": "3",
+            "group": "right-top"
+          },
+          "svg": {
+            "selector": "g#g198 polygon",
+            "path": "boxes.svg"
+          },
+          "threshold": {
+            "from": -18,
+            "to": 18
+          }
+        }, {
+          "id": "box19",
+          "keys": {
+            "name": "box19",
+            "distance": "2",
+            "group": "right-top"
+          },
+          "svg": {
+            "selector": "g#g276 polygon",
+            "path": "boxes.svg"
+          }
+        }, {
+          "id": "box20",
+          "keys": {
+            "name": "box20",
+            "distance": "1",
+            "group": "right-top"
+          },
+          "svg": {
+            "selector": "g#g432 polygon",
+            "path": "boxes.svg"
+          }
+        }, {
+          "id": "box21",
+          "keys": {
+            "name": "box21",
+            "distance": "4",
+            "group": "bottom"
+          },
+          "svg": {
+            "selector": "g#g939 polygon",
+            "path": "boxes.svg"
+          }
+        }, {
+          "id": "box22",
+          "keys": {
+            "name": "box22",
+            "distance": "3",
+            "group": "bottom"
+          },
+          "svg": {
+            "selector": "g#g900 polygon",
+            "path": "boxes.svg"
+          }
+        }, {
+          "id": "box23",
+          "keys": {
+            "name": "box23",
+            "distance": "2",
+            "group": "bottom"
+          },
+          "svg": {
+            "selector": "g#g705 polygon",
+            "path": "boxes.svg"
+          }
+        }, {
+          "id": "box24",
+          "keys": {
+            "name": "box24",
+            "distance": "1",
+            "group": "bottom"
+          },
+          "svg": {
+            "selector": "g#g588 polygon",
+            "path": "boxes.svg"
+          }
+        }, {
+          "id": "box25",
+          "keys": {
+            "name": "box25",
+            "distance": "0",
+            "group": "center"
+          },
+          "svg": {
+            "selector": "g#g471 polygon",
+            "path": "boxes.svg"
+          },
+          "threshold": {
+            "from": -18,
+            "to": 18
+          }
+        }
+      ],
+
+      "unnamedItem": {
+        "id": "id",
+        "unit": "cm"
+      },
+
+      "valueModel": {
+        "x": null,
+        "y": 0
+      },
+
+      "groupingKeys": ["group", "distance"],
+      "preferedGroupingKey": "group",
+
+      "exclusiveGroups": {
+      }
+    }
+  }
+]
