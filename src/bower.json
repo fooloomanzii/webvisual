@@ -8,8 +8,12 @@
   ],
   "dependencies": {
     "app-layout": "PolymerElements/app-layout",
-    "paper-behaviors": "PolymerElements/paper-behaviors",
     "iron-elements": "PolymerElements/iron-elements",
-    "paper-elements": "PolymerElements/paper-elements"
+    "paper-elements": "PolymerElements/paper-elements",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0",
+    "webcomponentsjs": "Polymer/polymer#^2.0.1"
+  },
+  "resolutions": {
+    "webcomponentsjs": "^1.0.0"
   }
 }
