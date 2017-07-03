@@ -212,6 +212,7 @@ app.on('ready', () => {
         })
         break
       case 'add-user-config':
+        console.log(arg)
         addConfigFile(arg)
         break
       case 'remove-user-config':
@@ -246,12 +247,13 @@ function addConfigFile(arg) {
   config.userConfigFiles = config.userConfigFiles || []
 
   for (var i = 0; i < config.userConfigFiles.length; i++) {
-    if (config.userConfigFiles[i].name === arg.name) {
+    if (config.userConfigFiles[i].name === arg.name || config.userConfigFiles[i].path === arg.path) {
+      config.userConfigFiles[i].name = arg.name
       config.userConfigFiles[i].title = arg.title
       config.userConfigFiles[i].path = arg.path
       configLoader.set(config)
       win.webContents.send('event', 'set-user-config', config.userConfigFiles)
-      return
+      break
     }
   }
 
