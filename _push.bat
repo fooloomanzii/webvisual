@@ -6,8 +6,6 @@ echo.
 echo Enter a Message for the Commit
 set /p CommitMessage=
 echo.
-git submodule foreach "git commit -m '%CommitMessage%'"
-echo.
 git add .
 git commit -m "%CommitMessage%"
 echo.
