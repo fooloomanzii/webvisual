@@ -50,14 +50,13 @@ function createWindow (config) {
 function createServer (config) {
   var env = {}
   env['WEBVISUALSERVER'] = JSON.stringify(config)
-  env.port = config.server.port
   env.NODE_ENV = 'production'
   server = null
   server = fork( __dirname + '/node_modules/webvisual-server/index.js', [], { env: env })
   server.on('message', (arg) => {
     if (win) {
-      if (typeof arg === 'string')
-        console.log(arg)
+      if (typeof arg === 'string' && arg === 'ready' && config)
+        server.send( { connect: config } )
       else
         for (var type in arg) {
           win.webContents.send( type, arg[type] )
