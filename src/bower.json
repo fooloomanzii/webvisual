@@ -1,19 +1,19 @@
 {
   "name": "webvisual-gui",
-  "version": "0.7.6",
+  "version": "0.7.8",
   "license": "MIT",
   "homepage": "https://github.com/fooloomanzii/webvisual",
   "authors": [
     "fooloomanzoo <hannes-b@web.de>"
   ],
   "dependencies": {
+    "webcomponentsjs": "Polymer/polymer#^2.0.1",
     "app-layout": "PolymerElements/app-layout",
     "iron-elements": "PolymerElements/iron-elements",
     "paper-elements": "PolymerElements/paper-elements",
-    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0",
-    "webcomponentsjs": "Polymer/polymer#^2.0.1"
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.1"
   },
   "resolutions": {
-    "webcomponentsjs": "^1.0.0"
+    "webcomponentsjs": "^1.0.1"
   }
 }

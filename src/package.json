@@ -19,8 +19,8 @@
   "dependencies": {
     "child_process": "*",
     "merge-defaults": "*",
-    "webvisual-server": "github:fooloomanzoo/webvisual-server",
-    "mkdirp": "*"
+    "mkdirp": "*",
+    "webvisual-server": "github:fooloomanzoo/webvisual-server"
   },
   "devDependencies": {},
   "engines": {
