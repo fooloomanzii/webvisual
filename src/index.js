@@ -22,9 +22,10 @@ let configLoader = {}
   , window_main
   , window_configfiles
   , window_serverconfig
-  , window_databaseconfig;
+  , window_databaseconfig
+  , window_bounds = {};
 
-function createWindow (config, url) {
+function createWindow (config, url, title = 'app') {
   // Create the browser window.
   var window = new BrowserWindow(config)
 
@@ -36,12 +37,7 @@ function createWindow (config, url) {
 
   // Emitted when the window is going to be closed.
   window.on('close', () => {
-    let bounds = window.getBounds()
-    config.app.width = bounds.width
-    config.app.height = bounds.height
-    config.app.x = bounds.x
-    config.app.y = bounds.y
-    configLoader.save( config )
+    window_bounds[title] = window.getBounds()
   })
 
   return window
@@ -53,6 +49,7 @@ function createServer (config) {
   env.NODE_ENV = 'production'
   server = null
   server = fork( __dirname + '/node_modules/webvisual-server/index.js', [], { env: env })
+  // console.log(config)
   server.on('message', (arg) => {
     if (window_main) {
       if (typeof arg === 'string' && arg === 'ready' && config)
@@ -90,6 +87,12 @@ function createServer (config) {
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
+  config.app.width = bounds.app.width
+  config.app.height = bounds.app.height
+  config.app.x = bounds.app.x
+  config.app.y = bounds.app.y
+  configLoader.save( config )
+
   // OS X
   if (process.platform != 'darwin') {
     app.quit()
@@ -108,8 +111,8 @@ app.on('ready', () => {
     config = settings
     console.log('ready')
     if (!window_main) {
-      window_main = createWindow(config, `file://${__dirname}/gui/main.html`)
       window_configfiles = createWindow(config, `file://${__dirname}/gui/settings.html`)
+      window_main = createWindow(config, `file://${__dirname}/gui/main.html`)
     }
     // Autostart
     if (!server && process.argv[2] === 'start') {
@@ -148,7 +151,8 @@ app.on('ready', () => {
         window_main.webContents.send('event', 'set-user-config', config.userConfigFiles)
         window_main.webContents.send('event', 'set-database', config.database)
         window_main.webContents.send('event', 'set-server-config', config.server)
-        window_configfiles.webContents.send('set', {title: 'Konfigurationsdateien', schema: require('./schema/server.json')});
+
+        window_configfiles.webContents.send('set', {title: 'Servereinstellungen', schema: require('./defaults/schema/server.json')});
         break
       case 'server-start':
         if (server && server.send) {

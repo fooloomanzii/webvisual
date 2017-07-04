@@ -31,6 +31,11 @@ const defaults = {
       "cert": "./defaults/ssl/ca.crt",
       "key": "./defaults/ssl/ca.key",
       "passphrase": "./defaults/ssl/ca.pw.json"
+    },
+    "sessionStore": {
+      "type": "redis",
+      "port": 6379,
+      "host": "localhost"
     }
   },
   "app": {

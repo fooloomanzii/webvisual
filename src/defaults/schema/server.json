@@ -95,7 +95,10 @@
           "maximum": 65535
         },
         "type": {
-          "type": "string"
+          "enum": [
+            "redis",
+            "null"
+          ]
         },
         "host": {
           "type": "string",
@@ -128,6 +131,11 @@
       "ca": "./defaults/ssl/ca",
       "requestCert": true,
       "rejectUnauthorized": false
+    },
+    "sessionStore": {
+      "type": "redis",
+      "port": 6379,
+      "host": "localhost"
     }
   }
 }
