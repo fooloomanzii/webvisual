@@ -67,7 +67,7 @@ class configLoader extends EventEmitter {
     // check User Data and folder
     this.userDataFolder = app.getPath('userData');
     this.configFilePathName = configFilePathName;
-    this.configFilePath = path.join(this.userDataFolder, 'config', configFilePathName, '.json');
+    this.configFilePath = path.join(this.userDataFolder, 'config', configFilePathName + '.json');
 
     this.load(this.configFilePath);
   }

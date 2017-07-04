@@ -23,12 +23,14 @@
               "type": "string"
             },
             "url": {
-              "type": "string"
+              "type": "string",
+              "format": "uri"
             },
             "suffix": {
               "type": "string"
             }
           },
+          "additionalProperties": false,
           "required": [
             "baseDN",
             "url",
@@ -45,10 +47,16 @@
       "type": "object",
       "properties": {
         "cert": {
-          "type": "string"
+          "type": "string",
+          "format": "uri"
         },
         "key": {
-          "type": "string"
+          "type": "string",
+          "format": "uri"
+        },
+        "passphrase": {
+          "type": "string",
+          "format": "uri"
         },
         "ca": {
           "type": [
@@ -71,6 +79,7 @@
           "default": false
         }
       },
+      "additionalProperties": false,
       "required": [
         "cert",
         "key",
@@ -89,16 +98,36 @@
           "type": "string"
         },
         "host": {
-          "type": [
-            "string",
-            "null"
-          ],
+          "type": "string",
+          "format": "uri",
           "default": "localhost"
         }
       },
+      "additionalProperties": false,
       "required": [
         "type"
       ]
+    }
+  },
+  "additionalProperties": false,
+  "default": {
+    "auth": {
+      "required": false,
+      "type": {
+        "type": "ldap",
+        "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
+        "url": "ldap://ibn-net.kfa-juelich.de",
+        "suffix": "@fz-juelich.de"
+      }
+    },
+    "port": 443,
+    "ssl": {
+      "cert": "./defaults/ssl/ca.crt",
+      "key": "./defaults/ssl/ca.key",
+      "passphrase": "./defaults/ssl/ca.pw.json",
+      "ca": "./defaults/ssl/ca",
+      "requestCert": true,
+      "rejectUnauthorized": false
     }
   }
 }

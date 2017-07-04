@@ -3,9 +3,9 @@
 
   <head>
     <meta charset="utf-8">
-    <script src="bower_components/jsoneditor/dist/jsoneditor.min.js"></script>
+    <script src="bower_components/jsoneditor/dist/jsoneditor.js"></script>
     <script src="scripts/ajv.min.js"></script>
-    <link rel="stylesheet" href="bower_components/jsoneditor/dist/jsoneditor.min.css">
+    <link rel="stylesheet" href="style/jsoneditor.css">
     <script>
       const {
         ipcRenderer
@@ -18,18 +18,13 @@
   <style>
     @font-face {
       font-family: 'FiraSans-Light';
-      src: url('style/fonts/FiraSans-Light.ttf') format('truetype');
+      src: url('./style/fonts/FiraSans-Light.ttf') format('truetype');
     }
     @font-face {
       font-family: 'FiraMono-Regular';
-      src: url('style/fonts/FiraMono-Regular.ttf') format('truetype');
+      src: url('./style/fonts/FiraMono-Regular.ttf') format('truetype');
     }
     body {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
       height: 100%;
       width: 100%;
       padding: 0;
@@ -38,48 +33,46 @@
       background: var(--bright-primary-color);
       font-family: FiraSans-Light;
       font-weight: normal;
-      display: flex;
-      flex-direction: column;
     }
     body > * {
       position: relative;
     }
-    #title {
-      padding: 0 1em;
-    }
     #container {
-      flex: 1;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      box-sizing: border-box;
     }
   </style>
 
   <body>
-    <header>
-      <h2 id="title"></h2>
-    </header>
     <div id="container"></div>
   </body>
 
   <script type="text/javascript">
     var container = document.querySelector('#container');
-    var header = document.querySelector('#title');
-    var json, editor, schema;
+    var json, editor, schema, ajv, defaults = {};
 
     ipcRenderer.on("set", function(e, arg) {
       console.log(arg)
       if (arg.title) {
         window.title = arg.title;
-        header.textContent = arg.title;
       }
       if (!editor) {
-        editor = new JSONEditor(container, Ajv({ useDefaults: true }));
+        ajv = new Ajv({ useDefaults: true });
+        editor = new JSONEditor(container, {mode: 'tree', modes: ['tree', 'text'], ajv: ajv, search: false, name: arg.title, sortObjectKeys: false});
       }
       if (arg.schema) {
         schema = arg.schema || schema;
         editor.setSchema(schema);
+        editor.set(schema.default);
       }
       if (arg.value) {
         editor.set(arg.value);
       }
+      editor.expandAll()
     });
     ipcRenderer.on("get", function(e, arg) {
       if (editor) {
