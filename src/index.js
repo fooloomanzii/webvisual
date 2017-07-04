@@ -87,10 +87,10 @@ function createServer (config) {
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
-  config.app.width = bounds.app.width
-  config.app.height = bounds.app.height
-  config.app.x = bounds.app.x
-  config.app.y = bounds.app.y
+  config.app.width = window_bounds.app.width
+  config.app.height = window_bounds.app.height
+  config.app.x = window_bounds.app.x
+  config.app.y = window_bounds.app.y
   configLoader.save( config )
 
   // OS X
@@ -109,7 +109,6 @@ app.on('ready', () => {
 
   configLoader.on('ready', (msg, settings) => {
     config = settings
-    console.log('ready')
     if (!window_main) {
       window_configfiles = createWindow(config, `file://${__dirname}/gui/settings.html`)
       window_main = createWindow(config, `file://${__dirname}/gui/main.html`)
