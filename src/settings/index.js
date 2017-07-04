@@ -22,8 +22,7 @@ const defaults = {
       "ldap": {
         "baseDN": "dc=ibn-net,dc=kfa-juelich,dc=de",
         "url": "ldap://ibn-net.kfa-juelich.de"
-      },
-      "suffix": "@fz-juelich.de"
+      }
     },
     "port": 443,
     "ssl": {
