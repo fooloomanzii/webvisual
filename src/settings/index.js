@@ -13,8 +13,6 @@ const fs = require('fs')
     , mergeDeep = require('merge-defaults')
     , mkdirp = require('mkdirp');
 
-var appConfigFilePath;
-var appUserDataFolder;
 var app;
 
 const defaults = {
@@ -63,18 +61,19 @@ const defaults = {
 
 class configLoader extends EventEmitter {
 
-  constructor(app) {
+  constructor(app, configFilePathName = 'config') {
 
     super();
     // check User Data and folder
-    appUserDataFolder = app.getPath('userData');
-    appConfigFilePath = path.join(appUserDataFolder, 'config', 'appConfig.json');
+    this.userDataFolder = app.getPath('userData');
+    this.configFilePathName = configFilePathName;
+    this.configFilePath = path.join(this.userDataFolder, 'config', configFilePathName, '.json');
 
-    this.load(appConfigFilePath);
+    this.load(this.configFilePath);
   }
 
-  load(appConfigFilePath) {
-    this.testAccess(appConfigFilePath, this.readFromFile.bind(this));
+  load(configFilePath) {
+    this.testAccess(configFilePath, this.readFromFile.bind(this));
   }
 
   ready(settings) {
@@ -82,25 +81,27 @@ class configLoader extends EventEmitter {
     try {
       this.testConfig(settings);
     } catch(e) {
-      err = true
+      err = e
     } finally {
-      if (err)
+      if (err) {
+        this.emit('error', 'Error in Loaded Config: ' + err.stack)
         this.loadBackup(this.ready.bind(this));
+      }
       else {
         this.settings = settings;
-        this.emit('ready', 'AppConfigFile loaded: ' + appConfigFilePath, this.settings);
+        this.emit('ready', 'AppConfigFile loaded: ' + this.configFilePath, this.settings);
         this.saveBackup(this.settings);
       }
     }
   }
 
-  testAccess(appConfigFilePath, callback) {
-    return fs.access(appConfigFilePath, fs.F_OK, (function(err) {
+  testAccess(configFilePath, callback) {
+    return fs.access(configFilePath, fs.F_OK, (function(err) {
       if (!err) {
         try {
-          this.testRead(appConfigFilePath);
+          this.testRead(configFilePath);
         } catch (e) {
-          this.emit('error', '\nError parsing AppConfigFile. Loading Backup Settings ... \n' + e);
+          this.emit('error', '\nError parsing AppConfigFile. Loading Backup Settings ... \n' + e.stack);
           err = true;
         }
       }
@@ -108,13 +109,13 @@ class configLoader extends EventEmitter {
         this.loadBackup(this.ready.bind(this));
       }
       else if (callback) {
-        callback.call(this, appConfigFilePath, this.ready);
+        callback.call(this, configFilePath, this.ready);
       }
     }).bind(this));
   };
 
-  testRead(appConfigFilePath) {
-    JSON.parse(fs.readFileSync(appConfigFilePath));
+  testRead(configFilePath) {
+    JSON.parse(fs.readFileSync(configFilePath));
   }
 
   testConfig(config, callback) {
@@ -161,18 +162,18 @@ class configLoader extends EventEmitter {
     try {
       this.testConfig(data);
     } catch (err) {
-      this.emit('error', '\nError in AppConfig:\n' + err);
+      this.emit('error', '\nError in AppConfig:\n' + err.stack);
       return;
     }
-    fs.writeFile(appConfigFilePath, JSON.stringify(data, null, 2), (err) => {
+    fs.writeFile(this.configFilePath, JSON.stringify(data, null, 2), (err) => {
       if (err) {
-        console.log('\nError saving AppConfig:', err);
-        this.emit('error', '\nError saving AppConfig:\n' + err);
+        console.log('\nError saving AppConfig:', err.stack);
+        this.emit('error', '\nError saving AppConfig:\n' + err.stack);
         return;
       }
     });
-    console.log('\nAppConfig saved to file:', appConfigFilePath);
-    this.emit('saved', '\nAppConfig saved to file:', appConfigFilePath);
+    console.log('\nAppConfig saved to file:', this.configFilePath);
+    this.emit('saved', '\nAppConfig saved to file:', this.configFilePath);
   }
 
   saveBackup(config) {
@@ -181,30 +182,31 @@ class configLoader extends EventEmitter {
     try {
       this.testConfig(data);
     } catch (err) {
-      this.emit('error', '\nError saving AppConfig:\n' + err);
+      this.emit('error', '\nError saving AppConfig:\n' + err.stack);
       return;
     }
-    fs.writeFile(path.join(process.cwd(), 'appConfig.backup.json'), JSON.stringify(data, null, 2), (err) => {
+    fs.writeFile( path.join(this.userDataFolder, 'config', this.configFilePathName + '.backup.json'), JSON.stringify(data, null, 2), err => {
       if (err) {
-        console.log('Error saving DefaultAppConfig:', err);
-        this.emit('error', 'Error saving DefaultAppConfig:', err);
+        console.log('Error saving DefaultAppConfig:', err.stack);
+        this.emit('error', 'Error saving DefaultAppConfig:', err.stack);
         return;
       }
     });
   }
 
   loadBackup(callback) {
-    mkdirp(path.join(appUserDataFolder, 'config'));
-    this.copyFile(path.join(process.cwd(), 'appConfig.backup.json'),
-                  appConfigFilePath,
+    mkdirp(path.join(this.userDataFolder, 'config'));
+
+    this.copyFile( path.join(this.userDataFolder, 'config', this.configFilePathName + '.backup.json'),
+                  this.configFilePath,
                   (function(err) {
                     if (err) {
-                      this.emit('error', '\nError copying Backup', err);
+                      this.emit('error', '\nError copying Backup', err.stack);
                       callback.call(this, defaults);
                       return;
                     }
                   }).bind(this));
-    this.readFromFile.call(this, path.join(process.cwd(),  'appConfig.backup.json'), this.testConfig, callback);
+    this.readFromFile.call(this, path.join(this.userDataFolder, 'config', this.configFilePathName + '.backup.json'), this.testConfig, callback);
   }
 
   checkFolder(path_folder, callback) {
@@ -244,7 +246,7 @@ class configLoader extends EventEmitter {
       var file = fs.readFileSync(filepath)
       obj = JSON.parse(file);
     } catch (err) {
-      this.emit('error', '\nReading File Failed: ', filepath,'\n', err)
+      this.emit('error', '\nReading File Failed: ', filepath,'\n', err.stack)
       return {};
     }
     if (callback) {

@@ -1,0 +1,104 @@
+{
+  "type": "object",
+  "properties": {
+    "auth": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": false
+        },
+        "type": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "enum": [
+                "ldap"
+              ]
+            },
+            "baseDN": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "baseDN",
+            "url",
+            "suffix"
+          ]
+        }
+      }
+    },
+    "port": {
+      "type": "number",
+      "default": 443
+    },
+    "ssl": {
+      "type": "object",
+      "properties": {
+        "cert": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "ca": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "requestCert": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": true
+        },
+        "rejectUnauthorized": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": false
+        }
+      },
+      "required": [
+        "cert",
+        "key",
+        "passphrase"
+      ]
+    },
+    "sessionStore": {
+      "type": "object",
+      "properties": {
+        "port": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "type": {
+          "type": "string"
+        },
+        "host": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": "localhost"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    }
+  }
+}

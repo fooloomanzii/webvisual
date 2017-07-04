@@ -11,7 +11,8 @@
     "app-layout": "PolymerElements/app-layout",
     "iron-elements": "PolymerElements/iron-elements",
     "paper-elements": "PolymerElements/paper-elements",
-    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.1"
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.1",
+    "jsoneditor": "jsoneditor"
   },
   "resolutions": {
     "webcomponentsjs": "^1.0.1"

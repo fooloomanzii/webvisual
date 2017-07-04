@@ -17,23 +17,26 @@ let Settings = require('./settings')
 let server
 
 let configLoader = {}
-  , win = null
   , config
   , activeErrorRestartJob
+  , window_main
+  , window_configfiles
+  , window_serverconfig
+  , window_databaseconfig;
 
-function createWindow (config) {
+function createWindow (config, url) {
   // Create the browser window.
-  win = new BrowserWindow(config)
+  var window = new BrowserWindow(config)
 
-  // and load the index.html of the app.
-  win.loadURL(`file://${__dirname}/gui/index.html`)
+  // and load the main.html of the app.
+  window.loadURL(url)
 
   // Open the DevTools.
-  // win.webContents.openDevTools()
+  // window_main.webContents.openDevTools()
 
   // Emitted when the window is going to be closed.
-  win.on('close', () => {
-    let bounds = win.getBounds()
+  window.on('close', () => {
+    let bounds = window.getBounds()
     config.app.width = bounds.width
     config.app.height = bounds.height
     config.app.x = bounds.x
@@ -41,10 +44,7 @@ function createWindow (config) {
     configLoader.save( config )
   })
 
-  // Emitted when the window is closed.
-  win.on('closed', () => {
-    win = null
-  })
+  return window
 }
 
 function createServer (config) {
@@ -54,20 +54,20 @@ function createServer (config) {
   server = null
   server = fork( __dirname + '/node_modules/webvisual-server/index.js', [], { env: env })
   server.on('message', (arg) => {
-    if (win) {
+    if (window_main) {
       if (typeof arg === 'string' && arg === 'ready' && config)
         server.send( { connect: config } )
       else
         for (var type in arg) {
-          win.webContents.send( type, arg[type] )
+          window_main.webContents.send( type, arg[type] )
         }
     } else {
       console.log( arg[type] )
     }
   })
   server.on('error', function(error) {
-    if (win) {
-      win.webContents.send( "error", error.stack )
+    if (window_main) {
+      window_main.webContents.send( "error", error.stack )
     } else {
       console.log( error.stack )
     }
@@ -96,12 +96,6 @@ app.on('window-all-closed', () => {
   }
 })
 
-app.on('activate', function () {
-  if (mainWindow === null) {
-    createWindow()
-  }
-})
-
 app.on('ready', () => {
   // Create the browser window.
   configLoader = new Settings(app)
@@ -112,9 +106,13 @@ app.on('ready', () => {
 
   configLoader.on('ready', (msg, settings) => {
     config = settings
-    createWindow(config)
+    console.log('ready')
+    if (!window_main) {
+      window_main = createWindow(config, `file://${__dirname}/gui/main.html`)
+      window_configfiles = createWindow(config, `file://${__dirname}/gui/settings.html`)
+    }
     // Autostart
-    if (process.argv[2] === 'start') {
+    if (!server && process.argv[2] === 'start') {
       createServer(config)
     }
   })
@@ -131,25 +129,26 @@ app.on('ready', () => {
     switch (event) {
       case 'ready':
         console.log = function() {
-          win.webContents.send('log', util.format.apply(null, arguments) + '\n')
+          window_main.webContents.send('log', util.format.apply(null, arguments) + '\n')
           process.stdout.write(util.format.apply(null, arguments) + '\n')
         }
         console.info = function() {
-          win.webContents.send('info', util.format.apply(null, arguments) + '\n')
+          window_main.webContents.send('info', util.format.apply(null, arguments) + '\n')
           process.stdout.write(util.format.apply(null, arguments) + '\n')
         }
         console.warn = function() {
-          win.webContents.send('warn', util.format.apply(null, arguments) + '\n')
+          window_main.webContents.send('warn', util.format.apply(null, arguments) + '\n')
           process.stdout.write(util.format.apply(null, arguments) + '\n')
         }
         console.error = function() {
-          win.webContents.send('error', util.format.apply(null, arguments) + '\n')
+          window_main.webContents.send('error', util.format.apply(null, arguments) + '\n')
           process.stdout.write(util.format.apply(null, arguments) + '\n')
         }
 
-        win.webContents.send('event', 'set-user-config', config.userConfigFiles)
-        win.webContents.send('event', 'set-database', config.database)
-        win.webContents.send('event', 'set-server-config', config.server)
+        window_main.webContents.send('event', 'set-user-config', config.userConfigFiles)
+        window_main.webContents.send('event', 'set-database', config.database)
+        window_main.webContents.send('event', 'set-server-config', config.server)
+        window_configfiles.webContents.send('set', {title: 'Konfigurationsdateien', schema: require('./schema/server.json')});
         break
       case 'server-start':
         if (server && server.send) {
@@ -234,7 +233,7 @@ app.on('ready', () => {
 
 // addConfigFile
 function sendPath(files, arg) {
-  win.webContents.send('event', 'file-dialog', {
+  window_main.webContents.send('event', 'file-dialog', {
     for: arg.for,
     path: (files && files.length > 0) ? files[0] : ''
   })
@@ -252,7 +251,7 @@ function addConfigFile(arg) {
       config.userConfigFiles[i].title = arg.title
       config.userConfigFiles[i].path = arg.path
       configLoader.set(config)
-      win.webContents.send('event', 'set-user-config', config.userConfigFiles)
+      window_main.webContents.send('event', 'set-user-config', config.userConfigFiles)
       break
     }
   }
@@ -263,7 +262,7 @@ function addConfigFile(arg) {
     path: arg.path
   })
   configLoader.set(config)
-  win.webContents.send('event', 'set-user-config', config.userConfigFiles)
+  window_main.webContents.send('event', 'set-user-config', config.userConfigFiles)
 
 }
 
@@ -281,7 +280,7 @@ function removeConfigFile(arg) {
     }
     config.userConfigFiles.splice(pos, 1)
     configLoader.set(config)
-    win.webContents.send('event', 'set-user-config', config.userConfigFiles)
+    window_main.webContents.send('event', 'set-user-config', config.userConfigFiles)
   }
 }
 

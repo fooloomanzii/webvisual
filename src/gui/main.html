@@ -72,17 +72,29 @@
   <link rel="import" href="style/webvisual-selectbox.html">
 </head>
 
-<style is="custom-style" include="app-theme">
-  body {
-    height: 100%;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    background: var(--bright-primary-color);
-    font-family: Fira Sans Light;
-    font-weight: normal;
-  }
-</style>
+  <style is="custom-style" include="app-theme">
+    @font-face {
+      font-family: 'FiraSans-Light';
+      src: url('style/fonts/FiraSans-Light.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'FiraMono-Regular';
+      src: url('style/fonts/FiraMono-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    body {
+      height: 100%;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+      background: var(--bright-primary-color);
+      font-family: 'FiraSans-Light';
+      font-weight: normal;
+    }
+  </style>
 
 <body>
 
@@ -219,7 +231,7 @@
           }
           #log {
             padding: 0.35em;
-            font-family: Fira Mono;
+            font-family: 'FiraMono-Regular';
           }
           .tr {
             background: white;
@@ -276,12 +288,6 @@
           }
           paper-button.delete {
             color:var(--form-invalid);
-          }
-          @font-face {
-           font-family: Fira Mono;
-           src: url('style/fonts/FiraMono-Regular.otf') format('truetype');
-           font-weight: normal;
-           font-style: normal;
           }
         </style>
 

@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "properties": {
+    "port": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "type": {
+      "enum": [ "redis" ]
+    },
+    "host": {
+      "type": ["string", "null"],
+      "default": "localhost"
+    }
+  },
+  "required": [
+    "port", "type"
+  ]
+}
