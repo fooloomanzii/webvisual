@@ -49,7 +49,7 @@ const defaults = {
     "x": 200,
     "y": 100
   },
-  "userConfigFiles": [
+  "configFiles": [
     {
       "name": "Demo",
       "title": "Demo",
@@ -101,10 +101,15 @@ class configLoader extends EventEmitter {
   }
 
   testAccess(configFilePath, callback) {
-    return fs.access(configFilePath, fs.F_OK, (function(err) {
+    return fs.access(configFilePath, fs.F_OK, err => {
       if (!err) {
         try {
-          this.testRead(configFilePath);
+          var json = fs.readFileSync(configFilePath, {encoding:'utf8'});
+          if (!json) {
+            err = true;
+          } else {
+            JSON.parse(err);
+          }
         } catch (e) {
           this.emit('error', '\nError parsing AppConfigFile. Loading Backup Settings ... \n' + e.stack);
           err = true;
@@ -116,12 +121,8 @@ class configLoader extends EventEmitter {
       else if (callback) {
         callback.call(this, configFilePath, this.ready);
       }
-    }).bind(this));
+    });
   };
-
-  testRead(configFilePath) {
-    JSON.parse(fs.readFileSync(configFilePath));
-  }
 
   testConfig(config, callback) {
     JSON.parse(JSON.stringify(config));
@@ -201,17 +202,30 @@ class configLoader extends EventEmitter {
 
   loadBackup(callback) {
     mkdirp(path.join(this.userDataFolder, 'config'));
+    var backupPath = path.join(this.userDataFolder, 'config', this.configFilePathName + '.backup.json');
+    var json;
 
-    this.copyFile( path.join(this.userDataFolder, 'config', this.configFilePathName + '.backup.json'),
-                  this.configFilePath,
-                  (function(err) {
-                    if (err) {
-                      this.emit('error', '\nError copying Backup', err.stack);
-                      callback.call(this, defaults);
-                      return;
-                    }
-                  }).bind(this));
-    this.readFromFile.call(this, path.join(this.userDataFolder, 'config', this.configFilePathName + '.backup.json'), this.testConfig, callback);
+    fs.access(backupPath, fs.F_OK, err => {
+      if (!err) {
+        try {
+          json = fs.readFileSync(backupPath, {encoding:'utf8'});
+          if (!json) {
+            err = true;
+          } else {
+            JSON.parse(json);
+          }
+        } catch (e) {
+          this.emit('error', '\nError parsing BackupFile. Loading Default Settings ... \n' + e.stack);
+          err = true;
+        }
+      }
+      if (err) {
+        json = defaults;
+      }
+      if (callback) {
+        callback.call(this, defaults);
+      }
+    });
   }
 
   checkFolder(path_folder, callback) {

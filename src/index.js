@@ -70,7 +70,7 @@ function createServer (config) {
     }
   })
   server.on('exit', function() {
-    console.log(`WEBVISUAL-SERVER (exit)`, ...arguments)
+    console.log(`WEBVISUAL-SERVER (EXIT)`, ...arguments)
     if (activeErrorRestartJob) {
       clearTimeout(activeErrorRestartJob)
       activeErrorRestartJob = null
@@ -147,7 +147,7 @@ app.on('ready', () => {
           process.stdout.write(util.format.apply(null, arguments) + '\n')
         }
 
-        window_main.webContents.send('event', 'set-user-config', config.userConfigFiles)
+        window_main.webContents.send('event', 'set-user-config', config.configFiles)
         window_main.webContents.send('event', 'set-database', config.database)
         window_main.webContents.send('event', 'set-server-config', config.server)
 
@@ -221,11 +221,13 @@ app.on('ready', () => {
         removeConfigFile(arg)
         break
       case 'set-server-config':
+        config.server = arg;
         configLoader.setEntry({
           server: arg
         })
         break
       case 'set-database':
+        config.database = arg;
         configLoader.setEntry({
           database: arg
         })
@@ -246,44 +248,44 @@ function addConfigFile(arg) {
   if (!arg.name || !arg.title || !arg.path)
     return
 
-  config.userConfigFiles = config.userConfigFiles || []
+  config.configFiles = config.configFiles || []
 
-  for (var i = 0; i < config.userConfigFiles.length; i++) {
-    if (config.userConfigFiles[i].name === arg.name || config.userConfigFiles[i].path === arg.path) {
-      config.userConfigFiles[i].name = arg.name
-      config.userConfigFiles[i].title = arg.title
-      config.userConfigFiles[i].path = arg.path
+  for (var i = 0; i < config.configFiles.length; i++) {
+    if (config.configFiles[i].name === arg.name || config.configFiles[i].path === arg.path) {
+      config.configFiles[i].name = arg.name
+      config.configFiles[i].title = arg.title
+      config.configFiles[i].path = arg.path
       configLoader.set(config)
-      window_main.webContents.send('event', 'set-user-config', config.userConfigFiles)
+      window_main.webContents.send('event', 'set-user-config', config.configFiles)
       break
     }
   }
 
-  config.userConfigFiles.push({
+  config.configFiles.push({
     name: arg.name,
     title: arg.title,
     path: arg.path
   })
   configLoader.set(config)
-  window_main.webContents.send('event', 'set-user-config', config.userConfigFiles)
+  window_main.webContents.send('event', 'set-user-config', config.configFiles)
 
 }
 
 function removeConfigFile(arg) {
-  if (!config.userConfigFiles) {
-    config.userConfigFiles = []
+  if (!config.configFiles) {
+    config.configFiles = []
   }
   if (arg.name) {
     let pos
-    for (var i = 0; i < config.userConfigFiles.length; i++) {
-      if (config.userConfigFiles[i].name === arg.name) {
+    for (var i = 0; i < config.configFiles.length; i++) {
+      if (config.configFiles[i].name === arg.name) {
         pos = i
         break
       }
     }
-    config.userConfigFiles.splice(pos, 1)
+    config.configFiles.splice(pos, 1)
     configLoader.set(config)
-    window_main.webContents.send('event', 'set-user-config', config.userConfigFiles)
+    window_main.webContents.send('event', 'set-user-config', config.configFiles)
   }
 }
 
