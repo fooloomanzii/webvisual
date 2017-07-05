@@ -22,7 +22,7 @@
       "host": "localhost"
     }
   },
-  "configFiles": [
+  "configfiles": [
     {
       "name": "Cryostat",
       "title": "Cryostat",

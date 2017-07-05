@@ -1,81 +1,64 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="utf-8">
+    <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script>
+    <script>
+      const {
+        ipcRenderer
+      } = require('electron');
+      var app;
+      var body;
 
-<head>
-  <meta charset="utf-8">
-  <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script>
-  <script>
-    const {
-      ipcRenderer
-    } = require('electron');
-    var app;
-    var body;
+      window.addEventListener('WebComponentsReady', function(e) {
 
-    window.addEventListener('WebComponentsReady', function(e) {
+        app = document.querySelector('webvisual-gui');
 
-      app = document.querySelector('webvisual-app');
+        ipcRenderer.on("log", function(e, msg) {
+          app.log('log', msg);
+        });
+        ipcRenderer.on("warn", function(e, msg) {
+          app.log('warn', msg);
+        });
+        ipcRenderer.on("info", function(e, msg) {
+          app.log('info', msg);
+        });
+        ipcRenderer.on("error", function(e, msg) {
+          app.log('error', msg);
+        });
 
-      ipcRenderer.on("log", function(e, msg) {
-        app.log('log', msg);
+        ipcRenderer.on("event", function(e, event, arg) {
+          app.eventHandler(event, arg);
+        });
+
+        ipcRenderer.send("event", "ready");
       });
-      ipcRenderer.on("warn", function(e, msg) {
-        app.log('warn', msg);
-      });
-      ipcRenderer.on("info", function(e, msg) {
-        app.log('info', msg);
-      });
-      ipcRenderer.on("error", function(e, msg) {
-        app.log('error', msg);
-      });
+    </script>
 
-      ipcRenderer.on("event", function(e, event, arg) {
-        app.eventHandler(event, arg);
-      });
+    <title>Webvisual Server</title>
 
-      ipcRenderer.send("event", "ready");
-    });
-  </script>
-
-  <title>Webvisual Server</title>
-
-  <link rel="import" href="bower_components/polymer/polymer.html"/>
-  <link rel="import" href="bower_components/neon-animation/neon-animation.html">
-  <link rel="import" href="bower_components/paper-material/paper-material.html">
-  <link rel="import" href="bower_components/iron-icon/iron-icon.html">
-  <link rel="import" href="bower_components/iron-icons/iron-icons.html">
-  <link rel="import" href="bower_components/iron-form-element-behavior/iron-form-element-behavior.html">
-  <link rel="import" href="bower_components/iron-behaviors/iron-button-state.html">
-  <link rel="import" href="bower_components/iron-behaviors/iron-control-state.html">
-  <link rel="import" href="bower_components/paper-behaviors/paper-ripple-behavior.html">
-  <link rel="import" href="bower_components/paper-behaviors/paper-button-behavior.html">
-  <link rel="import" href="bower_components/paper-behaviors/paper-inky-focus-behavior.html">
-  <link rel="import" href="bower_components/paper-behaviors/paper-checked-element-behavior.html">
-  <link rel="import" href="bower_components/paper-ripple/paper-ripple.html">
-  <link rel="import" href="bower_components/iron-form/iron-form.html">
-  <link rel="import" href="bower_components/iron-list/iron-list.html">
-  <link rel="import" href="bower_components/iron-selector/iron-selector.html">
-  <link rel="import" href="bower_components/iron-swipeable-container/iron-swipeable-container.html">
-  <link rel="import" href="bower_components/paper-dialog/paper-dialog.html">
-  <link rel="import" href="bower_components/app-layout/app-layout.html">
-  <link rel="import" href="bower_components/app-layout/app-scroll-effects/effects/waterfall.html">
-  <link rel="import" href="bower_components/paper-button/paper-button.html">
-  <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
-  <link rel="import" href="bower_components/paper-toggle-button/paper-toggle-button.html">
-  <link rel="import" href="components/logo-element.html">
-  <link rel="import" href="components/dialog-element.html">
-  <link rel="import" href="components/juelich-icon.html">
-  <link rel="import" href="components/dropdown-element.html">
-  <link rel="import" href="style/app-theme.html">
-  <link rel="import" href="style/form-styles.html">
-  <link rel="import" href="style/webvisual-button.html">
-  <link rel="import" href="style/webvisual-input.html">
-  <link rel="import" href="style/webvisual-selectbox.html">
-</head>
+    <link rel="import" href="bower_components/polymer/polymer.html"/>
+    <link rel="import" href="bower_components/iron-icon/iron-icon.html">
+    <link rel="import" href="bower_components/iron-icons/iron-icons.html">
+    <link rel="import" href="bower_components/iron-icons/av-icons.html">
+    <link rel="import" href="bower_components/paper-ripple/paper-ripple.html">
+    <link rel="import" href="bower_components/iron-selector/iron-selector.html">
+    <link rel="import" href="bower_components/iron-swipeable-container/iron-swipeable-container.html">
+    <link rel="import" href="bower_components/app-layout/app-layout.html">
+    <link rel="import" href="bower_components/paper-button/paper-button.html">
+    <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+    <link rel="import" href="bower_components/paper-toggle-button/paper-toggle-button.html">
+    <link rel="import" href="components/custom-icons.html">
+    <link rel="import" href="style/app-theme.html">
+    <link rel="import" href="style/webvisual-button.html">
+    <link rel="import" href="style/webvisual-input.html">
+    <link rel="import" href="style/webvisual-selectbox.html">
+  </head>
 
   <style is="custom-style" include="app-theme">
     @font-face {
-      font-family: 'FiraSans-Light';
-      src: url('style/fonts/FiraSans-Light.ttf') format('truetype');
+      font-family: 'FiraSans-Regular';
+      src: url('style/fonts/FiraSans-Regular.ttf') format('truetype');
       font-weight: normal;
       font-style: normal;
     }
@@ -91,16 +74,14 @@
       padding: 0;
       margin: 0;
       background: var(--bright-primary-color);
-      font-family: 'FiraSans-Light';
+      font-family: 'FiraSans-Regular';
       font-weight: normal;
     }
   </style>
 
-<body>
-
-  <dom-module id="webvisual-app">
-    <template>
-      <style include="form-styles"></style>
+  <body>
+    <dom-module id="webvisual-gui">
+      <template>
         <style include="app-theme">
           :host {
             font-size: 16px;
@@ -145,16 +126,11 @@
             overflow: auto;
             position: relative;
           }
-          paper-button, dropdown-selector {
+          paper-button{
             border: thin solid rgba(0, 0, 0, 0.12);
             margin: 0.5em 0em;
             border-radius: 4px;
             font-size: 0.9em;
-          }
-          dropdown-selector {
-            padding: 0.5em;
-            width: auto;
-            flex: 1;
           }
           #drawer {
             display: flex;
@@ -165,66 +141,6 @@
             width: 100%;
             margin: 0.25em 0em;
           }
-          #configFiles {
-            background: #ddd;
-            float: left;
-            clear: both;
-            width: 100%;
-          }
-          .inline {
-            display: inline-flex;
-            align-items: center;
-            float: left;
-            clear: both;
-            width: auto;
-          }
-          .flex {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex: 1;
-            margin: auto 0.5em;
-            box-sizing: border-box;
-          }
-          .flex > * {
-            box-sizing: border-box;
-            position: relative;
-            flex: 1 0 auto;
-            width: 100%;
-            margin-bottom: 0.5em;
-          }
-          .spread {
-            margin: 0.5em;
-          }
-          webvisual-selectbox {
-            justify-content: space-around;
-            display: inline-flex;
-            align-items: center;
-            padding: 0.5em;
-          }
-          .small-spread {
-            margin: 0.25em;
-          }
-          .dialog-content {
-            display: flex;
-            flex-direction: column;
-            font-size: 0.9em;
-          }
-          dropdown-element, dropdown-selector {
-            --dropdown-background: rgba(255, 255, 255, 0.75);
-          }
-          dropdown-element paper-button, dropdown-selector paper-button {
-            /*color: #444;*/
-            font-size: 0.7em;
-            margin: 0.25em 0em !important;
-            padding: 0.5em !important;
-            border: none;
-            border-bottom: thin solid rgba(0, 0, 0, 0.12);
-          }
-          dropdown-selector paper-button {
-            font-size: 0.9em;
-          }
           logo-element#logo {
             margin-left: 0.75em;
             height: 54px;
@@ -232,6 +148,9 @@
           #log {
             padding: 0.35em;
             font-family: 'FiraMono-Regular';
+          }
+          .flex {
+            flex: 1;
           }
           .tr {
             background: white;
@@ -279,15 +198,32 @@
           .unshim:hover {
             opacity: 1;
           }
+          .title, [logo] {
+            padding: 0 0.5em;
+          }
+          [logo] {
+            width: 40px;
+            height: 40px;
+          }
+          .left {
+            margin-right: 0.75em;
+          }
+          .spacer {
+            width: 0.5em;
+          }
           paper-icon-button {
             opacity: 0.9;
-            margin: 0.25em;
+            margin-left: 0.5em !important;
           }
           paper-icon-button:hover {
             opacity: 1;
           }
-          paper-button.delete {
-            color:var(--form-invalid);
+          paper-icon-button.delete {
+            color: var(--form-invalid);
+          }
+          paper-button {
+            text-transform: none;
+            padding: 0.75em 1em;
           }
         </style>
 
@@ -295,23 +231,31 @@
           <app-drawer slot="drawer" id="mainDrawer">
             <section id="drawer">
               <app-toolbar>
-                <iron-icon icon="juelich"></iron-icon>
-                <section title>
-                  Webvisual Server
-                </section>
+                <iron-icon logo icon="custom:logo"></iron-icon>
+                <section class="title">Webvisual</section>
               </app-toolbar>
               <br>
-              <paper-button id="startButton" ipc-event="server-start" on-tap="sendEvent" isRunning$="[[isRunning]]" aria-label="Server starten"><iron-icon class="left" icon="play-arrow"></iron-icon>Start</paper-button>
-              <paper-button ipc-event="server-stop" on-tap="sendEvent"><iron-icon class="left" icon="stop" aria-label="Server anhalten"></iron-icon>Stopp</paper-button>
-              <paper-button ipc-event="server-restart" on-tap="sendEvent"><iron-icon class="left" icon="replay" aria-label="Server neustarten"></iron-icon>Neustart</paper-button>
-              <br>
-              <paper-button for="serverConfigDialog" on-tap="openDialog" aria-label="Servereinstellungen" title="Servereinstellungen">
-                <iron-icon class="left" icon="settings"></iron-icon>
-                <span>Servereinstellungen</span>
+              <paper-button id="startButton" ipc-event="server-start" on-tap="sendEvent" isRunning$="[[isRunning]]" aria-label="Server starten"><iron-icon class="left" icon="av:play-arrow"></iron-icon>
+                <span class="flex">Start</span>
               </paper-button>
-              <paper-button for="databaseConfigDialog" on-tap="openDialog" aria-label="Datenbankeinstellungen" title="Datenbankeinstellungen">
-                <iron-icon class="left" icon="assessment"></iron-icon>
-                <span>Datenbankeinstellungen</span>
+              <paper-button ipc-event="server-stop" on-tap="sendEvent"><iron-icon class="left" icon="av:stop" aria-label="Server anhalten"></iron-icon>
+                <span class="flex">Stop</span>
+              </paper-button>
+              <paper-button ipc-event="server-restart" on-tap="sendEvent"><iron-icon class="left" icon="av:replay" aria-label="Server neustarten"></iron-icon>
+                <span class="flex">Neustart</span>
+              </paper-button>
+              <br>
+              <paper-button ipc-event="edit-config" ipc-arg="server" on-tap="sendEvent" aria-label="Servereinstellungen" title="Servereinstellungen">
+                <iron-icon class="left" icon="settings"></iron-icon>
+                <span class="flex">Servereinstellungen</span>
+              </paper-button>
+              <paper-button ipc-event="edit-config" ipc-arg="database" on-tap="sendEvent" aria-label="Datenbankeinstellungen" title="Datenbankeinstellungen">
+                <iron-icon class="left" icon="perm-data-setting"></iron-icon>
+                <span class="flex">Datenbankeinstellungen</span>
+              </paper-button>
+              <paper-button ipc-event="edit-config" ipc-arg="configfiles" on-tap="sendEvent" aria-label="Konfigurationsdateien" title="Konfigurationsdateien">
+                <iron-icon class="left" icon="folder-open"></iron-icon>
+                <span class="flex">Konfigurationsdateien</span>
               </paper-button>
             </section>
           </app-drawer>
@@ -320,8 +264,8 @@
             <app-header slot="header" fixed>
               <app-toolbar>
                 <paper-icon-button id="menuButton" icon="menu" drawer-toggle></paper-icon-button>
-                <logo-element id="logo" show-always></logo-element>
-                <section class="flex"></section>
+                <iron-icon logo icon="custom:logo"></iron-icon>
+                <section class="title">Webvisual</section>
               </app-toolbar>
             </app-header>
 
@@ -332,196 +276,40 @@
             </section>
 
             <app-toolbar id="toolbar">
-
-              <paper-icon-button id="clear" icon="delete" aria-label="löschen" on-tap="clearHistory"></paper-icon-button>
+              <paper-icon-button id="clear" icon="delete-sweep" aria-label="löschen" title="löschen" on-tap="clearHistory"></paper-icon-button>
               <section class="flex"></section>
 
-              <paper-icon-button id="toggleStartButton" toggles ipc-event="server-toggle" on-tap="sendEvent" icon="play-arrow" isRunning$="[[isRunning]]" aria-label="Server"></paper-icon-button>
-
-              <paper-icon-button id="files" toggles icon="description" aria-label="Konfigurationsdateien"></paper-icon-button>
-
-              <dropdown-element id="dropdown" for="files" position="top" align="end" offset="6" target-toggle-event="tap">
-                <template is="dom-repeat" items="{{configFiles}}">
-                  <paper-button class="inline shim" on-tap="sendEvent">
-                    <iron-icon class="left" icon="description"></iron-icon>
-                    <section class="spread">{{item.name}}</section>
-                    <section class="spread" style="flex:1;text-align:left;">{{item.path}}</section>
-                    <iron-icon class="right shim unshim" icon="edit" arg="{{item}}" on-click="editUserConfigFile"></iron-icon>
-                  </paper-button>
-                </template>
-
-                <paper-button for="userConfigDialog" on-tap="openDialog">
-                  <iron-icon class="left" icon="note-add"></iron-icon>
-                  <section class="spread">Konfigurationsdatei hinzufügen...</section>
-                </paper-button>
-              </dropdown-element>
-
+              <paper-icon-button id="toggleStartButton" ipc-event="server-toggle" on-tap="sendEvent" icon="av:play-arrow" isRunning$="[[isRunning]]" aria-label="Server"></paper-icon-button>
+              <div class="spacer"></div>
+              <paper-icon-button ipc-event="edit-config" ipc-arg="server" on-tap="sendEvent" icon="settings-ethernet" aria-label="Servereinstellungen" title="Servereinstellungen"></paper-icon-button>
+              <div class="spacer"></div>
+              <paper-icon-button ipc-event="edit-config" ipc-arg="database" on-tap="sendEvent" icon="perm-data-setting" aria-label="Datenbankeinstellungen" title="Datenbankeinstellungen"></paper-icon-button>
+              <div class="spacer"></div>
+              <paper-icon-button ipc-event="edit-config" ipc-arg="configfiles" on-tap="sendEvent" icon="description" aria-label="Konfigurationsdateien" title="Konfigurationsdateien"></paper-icon-button>
             </app-toolbar>
           </app-header-layout>
         </app-drawer-layout>
-
-        <dialog-element id="serverConfigDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-          <h3>Servereinstellungen</h3>
-          <div class="dialog-content">
-            <section class="flex">
-              <div class="inputcontainer">
-                <input id="port" aria-label="http2-Port" type="number" min="0" max="65535" step="1" value="{{serverConfig.port::input}}" required>
-                <div class="focusline"></div>
-                <label>http2-Port</label>
-              </div>
-
-              <paper-toggle-button id="authRequired" checked="{{serverConfig.auth.required}}">
-                <iron-icon icon="lock-outline"></iron-icon>
-                <span hidden$="{{serverConfig.auth.required}}">ohne</span>
-                <span hidden$="{{!serverConfig.auth.required}}">mit</span>
-                <span>Authentifizierung</span>
-              </paper-toggle-button>
-
-              <div class="inputcontainer">
-                <input id="certPath" aria-label="Zertifikatdatei (ssl crt)" value="{{serverConfig.ssl.cert::input}}" tab-index="0"></input>
-                <paper-icon-button icon="folder-open" class="small-spread" on-tap="openFileSelector" for="certPath" filter="crt" aria-label="Datei öffnen..."></paper-icon-button>
-                <div class="focusline"></div>
-                <label>Zertifikatdatei (ssl crt)</label>
-              </div>
-
-              <div class="inputcontainer">
-                <input id="keyPath" aria-label="Schlüsseldatei (ssl key)" value="{{serverConfig.ssl.key::input}}" tab-index="0"></input>
-                <paper-icon-button icon="folder-open" class="small-spread" on-tap="openFileSelector" for="keyPath" filter="key" aria-label="Datei öffnen..."></paper-icon-button>
-                <div class="focusline"></div>
-                <label>Schlüsseldatei (ssl key)</label>
-              </div>
-
-              <div class="inputcontainer">
-                <input id="passphrasePath" aria-label="Passphrasendatei (ssl passphrase)" value="{{serverConfig.ssl.passphrase::input}}"></input>
-                <paper-icon-button icon="folder-open" class="small-spread" on-tap="openFileSelector" for="passphrasePath" filter="json" aria-label="Datei öffnen..."></paper-icon-button>
-                <div class="focusline"></div>
-                <label>Passphrasendatei (ssl passphrase)</label>
-              </div>
-
-              <div class="inputcontainer">
-                <input id="certchain" aria-label="Certchain-Verzeichnis (certchain-folder)" value="{{serverConfig.ssl.ca::input}}"></input>
-                <paper-icon-button icon="folder-open" class="small-spread" on-tap="openFolderSelector" for="certchain" filter="json" aria-label="Verzeichnis öffnen..."></paper-icon-button>
-                <div class="focusline"></div>
-                <label>Certchain-Verzeichnis (certchain-folder)</label>
-              </div>
-
-            </section>
-          </div>
-          <div class="buttons">
-            <paper-button dialog-dismiss class="small-spread">Abbrechen
-              <iron-icon class="right" icon="close"></iron-icon>
-            </paper-button>
-            <paper-button dialog-confirm on-tap="commitServerFile" class="small-spread">Speichen
-              <iron-icon class="right" icon="save"></iron-icon>
-            </paper-button>
-          </div>
-        </dialog-element>
-
-        <dialog-element id="databaseConfigDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-          <h3>Datenbankeinstellungen</h3>
-
-          <div class="dialog-content">
-            <section class="flex">
-              <webvisual-selectbox title="Datenbanktyp">
-                <iron-icon icon="assessment"></iron-icon>
-                <span>Datenbanktyp</span>
-                <select value="{{databaseConfig.type::input}}">
-                  <option value="cache">(Cache)</option>
-                  <option value="redis">Redis</option>
-                </select>
-              </webvisual-selectbox>
-
-              <template is="dom-if" if="[[databaseConfig.type]]">
-                <div class="inputcontainer">
-                  <input id="dbHost" aria-label="database-host" type="text" value="{{databaseConfig.host::input}}">
-                  <div class="focusline"></div>
-                  <label>Datenbank-Host</label>
-                </div>
-
-                <div class="inputcontainer">
-                  <input id="dbPort" aria-label="database-port" type="number" min="0" max="65535" step="1" value="{{databaseConfig.port::input}}" required>
-                  <div class="focusline"></div>
-                  <label>Datenbank-Port</label>
-                </div>
-
-                <div class="inputcontainer">
-                  <input id="dbMaxCount" aria-label="database-max-count" type="number" min="1" max="10000000" step="100" value="{{databaseConfig.maxCount::input}}" required>
-                  <div class="focusline"></div>
-                  <label>maximale Messdatenanzahl pro Messgerät</label>
-                </div>
-
-                <div class="inputcontainer">
-                  <input id="dbCleanInterval" aria-label="database-clean-interval" type="number" min="60000" step="1000" value="{{databaseConfig.cleanInterval::input}}" required>
-                  <div class="focusline"></div>
-                  <label>Aufräumintervall in ms</label>
-                </div>
-              </template>
-            </section>
-          </div>
-
-          <div class="buttons">
-            <paper-button dialog-dismiss class="small-spread">Abbrechen
-              <iron-icon class="right" icon="close"></iron-icon>
-            </paper-button>
-            <paper-button dialog-confirm on-tap="commitDatabase" class="small-spread">Speichen
-              <iron-icon class="right" icon="save"></iron-icon>
-            </paper-button>
-          </div>
-        </dialog-element>
-
-        <dialog-element id="userConfigDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-          <h3>Konfigurationsdatei</h3>
-          <div class="dialog-content flex">
-            <div class="inputcontainer">
-              <input id="newConfigName" aria-label="Name" required></input>
-              <div class="focusline"></div>
-              <label>Name</label>
-            </div>
-            <div class="inputcontainer">
-              <input id="newConfigTitle" aria-label="Titel" required></input>
-              <div class="focusline"></div>
-              <label>Titel</label>
-            </div>
-            <div class="inputcontainer">
-              <input id="newConfigPath" aria-label="Pfad" required></input>
-              <paper-icon-button icon="folder-open" class="spread" on-tap="openFileSelector" for="newConfigPath" filter="json" aria-label="Datei öffnen..."></paper-icon-button>
-              <div class="focusline"></div>
-              <label>Pfad</label>
-            </div>
-          </div>
-          <div class="buttons">
-            <paper-button class="delete small-spread" dialog-dismiss style="padding:0.75em;height:auto;" icon="delete" on-tap="removeUserConfigFile">
-              <iron-icon icon="delete"></iron-icon>
-            </paper-button>
-            <paper-button class="small-spread" dialog-dismiss>Abbrechen
-              <iron-icon class="right" icon="close"></iron-icon>
-            </paper-button>
-            <paper-button class="small-spread" dialog-confirm on-tap="addUserConfigFile">Speichern
-              <iron-icon class="right" icon="add"></iron-icon>
-            </paper-button>
-          </div>
-        </dialog-element>
 
       </template>
 
     <script>
       Polymer({
-        is: "webvisual-app",
+        is: "webvisual-gui",
 
         properties: {
-          configFiles: {
+          configfiles: {
             type: Array,
             value: function() {
               return [];
             }
           },
-          serverConfig: {
+          server: {
             type: Object,
             value: function() {
               return {};
             }
           },
-          databaseConfig: {
+          database: {
             type: Object,
             value: function() {
               return {};
@@ -538,35 +326,16 @@
         attached: function() {
           this._body = this.$.body;
         },
-
         sendEvent: function(e) {
-          this.$.dropdown.hide();
           var ipcEvent = e.currentTarget.getAttribute('ipc-event');
           if (ipcEvent) {
-            var arg = e.currentTarget.ipcArg;
+            var arg = e.currentTarget.getAttribute('ipc-arg');
             ipcRenderer.send('event', ipcEvent, arg);
             this.$.mainDrawer.close();
           }
         },
         eventHandler: function(event, arg) {
           switch (event) {
-            case 'file-dialog':
-              if (arg) {
-                var input = this.$[arg.for];
-                if (arg.path)
-                  input.value = arg.path;
-              }
-              break;
-            case 'set-user-config':
-              this.set("configFiles", arg);
-              break;
-            case 'set-database':
-              this.set("databaseConfig", arg);
-              console.log(arg);
-              break;
-            case 'set-server-config':
-              this.set("serverConfig", arg);
-              break;
             case 'server-start':
               this.isRunning = true;
               break;
@@ -575,101 +344,21 @@
               break;
           }
         },
-        openFileSelector: function(e) {
-          this.$.dropdown.hide();
-          var arg = {
-            for: e.currentTarget.getAttribute('for'),
-            filter: [{
-              name: e.currentTarget.getAttribute('filter'),
-              extensions: [e.currentTarget.getAttribute('filter')]
-            }]
-          }
-          ipcRenderer.send('event', 'file-dialog', arg);
-        },
-        openFolderSelector: function(e) {
-          this.$.dropdown.hide();
-          var arg = {
-            for: e.currentTarget.getAttribute('for')
-          }
-          ipcRenderer.send('event', 'folder-dialog', arg);
-        },
-        editUserConfigFile: function(e) {
-          this.$.dropdown.hide();
-          var arg = e.currentTarget.arg;
-          console.log(arg)
-          if (arg) {
-            this.$.newConfigName.value = arg.name;
-            this.$.newConfigTitle.value = arg.title;
-            this.$.newConfigPath.value = arg.path;
-            var dialog = this.$$('dialog-element#userConfigDialog');
-            if (dialog)
-              dialog.open();
-          }
-        },
-        addUserConfigFile: function() {
-          var name = this.$.newConfigName.value;
-          var title = this.$.newConfigTitle.value;
-          var path = this.$.newConfigPath.value;
-          ipcRenderer.send('event', 'add-user-config', {
-            name: name,
-            title: title,
-            path: path
-          });
-        },
-        removeUserConfigFile: function() {
-          var name = this.$.newConfigName.value;
-          var title = this.$.newConfigTitle.value;
-          var path = this.$.newConfigPath.value;
-          ipcRenderer.send('event', 'remove-user-config', {
-            name: name,
-            title: title,
-            path: path
-          });
-        },
-        commitDatabase: function() {
-          console.log(this.databaseConfig);
-          this.set("databaseConfig", this.databaseConfig);
-          ipcRenderer.send('event', 'set-database', this.databaseConfig);
-        },
-        commitServerFile: function() {
-          this.set("serverConfig", {
-            auth: {
-              required: this.$.authRequired.checked
-            },
-            port: +this.$.port.value,
-            ssl: {
-              cert: this.$.certPath.value,
-              key: this.$.keyPath.value,
-              passphrase: this.$.passphrasePath.value,
-              ca: this.$.certchain.value
-            }
-          });
-          ipcRenderer.send('event', 'set-server-config', this.serverConfig);
-        },
-        openDialog: function(e) {
-          this.$.mainDrawer.close();
-          this.$.dropdown.hide();
-          var For = e.currentTarget.getAttribute('for');
-          var dialog = this.$$('dialog-element#' + For);
-          if (dialog)
-            dialog.open();
-        },
         clearHistory: function() {
-          this.$.dropdown.hide();
           while (this._body.lastChild) {
             this._body.removeChild(this._body.lastChild);
           }
         },
         log: function(flag, msg) {
           let row = document.createElement('section');
-          row.classList.add('tr', 'webvisual-app', 'style-scope');
+          row.classList.add('tr', 'webvisual-gui', 'style-scope');
           row.setAttribute('flag', flag);
           let date = document.createElement('section');
-          date.classList.add('td', 'date', 'webvisual-app', 'style-scope');
+          date.classList.add('td', 'date', 'webvisual-gui', 'style-scope');
           let timestamp = new Date();
           date.innerHTML = timestamp.toLocaleDateString() + '</br>' + timestamp.toLocaleTimeString() + "." + timestamp.getMilliseconds();
           let message = document.createElement('section');
-          message.classList.add('td', 'msg', 'webvisual-app', 'style-scope');
+          message.classList.add('td', 'msg', 'webvisual-gui', 'style-scope');
           message.textContent = msg;
           row.appendChild(date);
           row.appendChild(message);
@@ -683,7 +372,7 @@
 
   </dom-module>
 
-  <webvisual-app></webvisual-app>
+  <webvisual-gui></webvisual-gui>
 
 </body>
 

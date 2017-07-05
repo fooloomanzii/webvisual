@@ -3,61 +3,72 @@ process.env.NODE_ENV = 'production'
 
 const fs = require('fs'),
       path = require('path'),
-      util = require('util');
+      util = require('util'),
+      mergeOptions = require('merge-options');
 
-const electron = require('electron')
 const { dialog, ipcMain, app, BrowserWindow } = require('electron')
+const fork = require('child_process').fork
+const Settings = require('./settings')
+const schema = require('webvisual-schemas')
+
+const WINDOW_DEFAULTS = {
+  autoHideMenuBar: true,
+  acceptFirstMouse: true,
+  center: true,
+  width: 600,
+  webPreferences: {
+    nodeIntegration: true,
+    webSecurity: true
+  }
+}
+const USER_DATA_FOLDER = path.join( app.getPath('userData'), 'config' )
+const USER_DATA_CONFIGS = ['server', 'database', 'configfiles']
 
 // change RAM-limit
 app.commandLine.appendSwitch("js-flags", "--max_old_space_size=6000")
 
-const fork = require('child_process').fork
-
-let Settings = require('./settings')
 let server
+let configHandler = new Map()
 
-let configLoader = {}
-  , config
-  , activeErrorRestartJob
+let config = {}
+  , activeRestartJob
   , window_main
-  , window_configfiles
-  , window_serverconfig
-  , window_databaseconfig
+  , modal
   , window_bounds = {};
 
-function createWindow (config, url, title = 'app') {
+function createWindow (conf = {}, url, firstSendEvents = []) {
   // Create the browser window.
-  var window = new BrowserWindow(config)
+  // config = mergeOptions(config, WINDOW_DEFAULTS)
+  title = conf.title || 'app'
+  var window = new BrowserWindow(mergeOptions(conf, WINDOW_DEFAULTS))
 
   // and load the main.html of the app.
   window.loadURL(url)
 
   // Open the DevTools.
-  // window_main.webContents.openDevTools()
-
-  // Emitted when the window is going to be closed.
-  window.on('close', () => {
-    window_bounds[title] = window.getBounds()
-  })
+  // window.openDevTools()
 
   return window
 }
 
-function createServer (config) {
+function createServer(config) {
+  if (server && server.send) {
+    server.send( { disconnect: config } )
+    server.kill()
+    server = null
+  }
   var env = {}
   env['WEBVISUALSERVER'] = JSON.stringify(config)
   env.NODE_ENV = 'production'
-  server = null
   server = fork( __dirname + '/node_modules/webvisual-server/index.js', [], { env: env })
   // console.log(config)
   server.on('message', (arg) => {
-    if (window_main) {
-      if (typeof arg === 'string' && arg === 'ready' && config)
-        server.send( { connect: config } )
-      else
-        for (var type in arg) {
-          window_main.webContents.send( type, arg[type] )
-        }
+    if (typeof arg === 'string' && arg === 'ready' && config)
+      server.send( { connect: config } )
+    else if (window_main) {
+      for (var type in arg) {
+        window_main.webContents.send( type, arg[type] )
+      }
     } else {
       console.log( arg[type] )
     }
@@ -71,27 +82,45 @@ function createServer (config) {
   })
   server.on('exit', function() {
     console.log(`WEBVISUAL-SERVER (EXIT)`, ...arguments)
-    if (activeErrorRestartJob) {
-      clearTimeout(activeErrorRestartJob)
-      activeErrorRestartJob = null
-    }
-    activeErrorRestartJob = setTimeout(() => {
-      if (server && server.connected) {
-        server.send( { disconnect: config } )
-        server.kill()
-      }
-      createServer(config)
-    }, 3000)
+    startServer(config, true)
   })
 }
 
-// Quit when all windows are closed.
+function startServer(config, kill) {
+  if (activeRestartJob) {
+    clearTimeout(activeRestartJob)
+    activeRestartJob = null
+  }
+  if (!kill && server && server.send) {
+    activeRestartJob = setTimeout(() => {
+      server.send( { reconnect: config } )
+    }, 3000)
+  } else {
+    activeRestartJob = setTimeout(() => {
+      createServer(config)
+    }, 3000)
+  }
+}
+
+function stopServer(config, kill) {
+  if (activeRestartJob) {
+    clearTimeout(activeRestartJob)
+    activeRestartJob = null
+  }
+  if (server && server.send) {
+    server.send( { disconnect: config } )
+    if (kill) {
+      server.kill()
+      server = null
+    }
+  }
+}
+
+// Quit when all modals are closed.
 app.on('window-all-closed', () => {
-  config.app.width = window_bounds.app.width
-  config.app.height = window_bounds.app.height
-  config.app.x = window_bounds.app.x
-  config.app.y = window_bounds.app.y
-  configLoader.save( config )
+  configHandler.forEach( (ch, name) => {
+    ch.save(config[name]);
+  })
 
   // OS X
   if (process.platform != 'darwin') {
@@ -101,33 +130,56 @@ app.on('window-all-closed', () => {
 
 app.on('ready', () => {
   // Create the browser window.
-  configLoader = new Settings(app)
 
-  configLoader.on('error', (err) => {
-    console.error('Error in AppConfig', err)
+  USER_DATA_CONFIGS.forEach( name => {
+    configHandler.set(name,
+      new Settings(USER_DATA_FOLDER, name, '.json', schema[name])
+        .on('ready', settings => {
+          console.error(`Config loaded (${name})`)
+          config[name] = settings
+
+          let shouldStart = true
+          for (let i = 0; i < USER_DATA_CONFIGS.length; i++) {
+            if (!config.hasOwnProperty(USER_DATA_CONFIGS[i])) {
+              shouldStart = false;
+              break;
+            }
+          }
+          if (shouldStart) {
+            if (!window_main) {
+              window_main = createWindow({title: 'Webvisual'}, `file://${__dirname}/gui/main.html`).
+              on('close', () => {
+                if (modal) {
+                  modal.close();
+                }
+              })
+            }
+            // Autostart
+            if (!server && process.argv[2] === 'start') {
+              startServer(config)
+            }
+          }
+        })
+        .on('change', settings => {
+          console.error(`Config changed (${name})`)
+          config[name] = settings
+          if (server && server.send) {
+            server.send( { reconnect: config } )
+          }
+        })
+        .on('error', err => {
+          console.error(`Error in ${name} config`, err)
+        })
+      )
   })
 
-  configLoader.on('ready', (msg, settings) => {
-    config = settings
-    if (!window_main) {
-      window_configfiles = createWindow(config, `file://${__dirname}/gui/settings.html`)
-      window_main = createWindow(config, `file://${__dirname}/gui/main.html`)
-    }
-    // Autostart
-    if (!server && process.argv[2] === 'start') {
-      createServer(config)
-    }
-  })
-
-  configLoader.on('change', (settings) => {
-    config = settings
-    if (server && server.send) {
-      server.send( { reconnect: config } )
-    }
+  configHandler.get('server').on('change', settings => {
+    config.server = settings
+    startServer(config)
   })
 
   // ipc beetween gui and process
-  ipcMain.on('event', (e, event, arg) => {
+  ipcMain.on('event', (e, event, arg, arg2) => {
     switch (event) {
       case 'ready':
         console.log = function() {
@@ -146,56 +198,37 @@ app.on('ready', () => {
           window_main.webContents.send('error', util.format.apply(null, arguments) + '\n')
           process.stdout.write(util.format.apply(null, arguments) + '\n')
         }
-
-        window_main.webContents.send('event', 'set-user-config', config.configFiles)
-        window_main.webContents.send('event', 'set-database', config.database)
-        window_main.webContents.send('event', 'set-server-config', config.server)
-
-        window_configfiles.webContents.send('set', {title: 'Servereinstellungen', schema: require('./defaults/schema/server.json')});
+        // window_configfiles.webContents.send('set', {title: 'Servereinstellungen', schema: require('./defaults/schema/server.json')});
         break
       case 'server-start':
-        if (server && server.send) {
-          if (activeErrorRestartJob) {
-            clearTimeout(activeErrorRestartJob)
-            activeErrorRestartJob = null
-          }
-          server.send( { connect: config } )
-        } else {
-          createServer(config)
-        }
-        break
+      case 'server-toggle':
       case 'server-restart':
-        if (server && server.send) {
-          if (activeErrorRestartJob) {
-            clearTimeout(activeErrorRestartJob)
-            activeErrorRestartJob = null
-          } else {
-            server.send( { reconnect: config } )
-          }
-        } else {
-          createServer(config)
-        }
+        startServer(config)
         break
       case 'server-stop':
-        if (server && server.send) {
-          server.send( { disconnect: {} } )
-        }
-        if (activeErrorRestartJob) {
-          clearTimeout(activeErrorRestartJob)
-          activeErrorRestartJob = null
-        }
+        stopServer(config)
         break
-      case 'server-toggle':
-        if (server && server.send) {
-          if (activeErrorRestartJob) {
-            clearTimeout(activeErrorRestartJob)
-            activeErrorRestartJob = null
-            server.send( { disconnect: {} } )
-          } else {
-            server.send( { toggle: config } )
-          }
-        } else {
-          createServer(config)
+      case 'edit-config':
+        if (typeof arg !== 'string') {
+          return
+        }
+        modal = new BrowserWindow({parent: window_main, title: 'Settings', width: 400, modal: true, show: false, autoHideMenuBar: true})
+        modal.loadURL(`file://${__dirname}/gui/settings.html`)
+        modal.once('ready-to-show', () => {
+          modal.webContents.send('set', schema[arg], config[arg], arg)
+          modal.show()
+        })
+        modal.on('close', () => {
+          modal = null;
+        })
+        break
+      case 'set-config':
+        if (typeof arg !== 'string') {
+          return
+        }
+        config[arg] = arg2
+        if (configHandler && configHandler.has(arg)) {
+          configHandler.get(arg).save(arg2)
         }
         break
       case 'file-dialog':
@@ -213,24 +246,24 @@ app.on('ready', () => {
           sendPath(folder, arg)
         })
         break
-      case 'add-user-config':
-        console.log(arg)
+      case 'add-config-files':
         addConfigFile(arg)
         break
-      case 'remove-user-config':
+      case 'remove-config-files':
         removeConfigFile(arg)
         break
       case 'set-server-config':
         config.server = arg;
-        configLoader.setEntry({
-          server: arg
-        })
+        configHandler.get('server').set(arg)
         break
       case 'set-database':
         config.database = arg;
-        configLoader.setEntry({
-          database: arg
-        })
+        configHandler.get('database').set(arg)
+        break
+      case 'close':
+        if (modal) {
+          modal.close();
+        }
         break
     }
   })
@@ -248,44 +281,44 @@ function addConfigFile(arg) {
   if (!arg.name || !arg.title || !arg.path)
     return
 
-  config.configFiles = config.configFiles || []
+  config.configfiles = config.configfiles || []
+  var isNew = true
 
-  for (var i = 0; i < config.configFiles.length; i++) {
-    if (config.configFiles[i].name === arg.name || config.configFiles[i].path === arg.path) {
-      config.configFiles[i].name = arg.name
-      config.configFiles[i].title = arg.title
-      config.configFiles[i].path = arg.path
-      configLoader.set(config)
-      window_main.webContents.send('event', 'set-user-config', config.configFiles)
+  for (var i = 0; i < config.configfiles.length; i++) {
+    if (config.configfiles[i].name === arg.name || config.configfiles[i].path === arg.path) {
+      config.configfiles[i].name = arg.name
+      config.configfiles[i].title = arg.title
+      config.configfiles[i].path = arg.path
+      isNew = false
       break
     }
   }
 
-  config.configFiles.push({
-    name: arg.name,
-    title: arg.title,
-    path: arg.path
-  })
-  configLoader.set(config)
-  window_main.webContents.send('event', 'set-user-config', config.configFiles)
+  if (isNew === true) {
+    config.configfiles.push({
+      name: arg.name,
+      title: arg.title,
+      path: arg.path
+    })
+  }
 
+  configHandler.get('configfiles').set(config.configfiles)
+  window_main.webContents.send('event', 'set-config-files', config.configfiles)
 }
 
 function removeConfigFile(arg) {
-  if (!config.configFiles) {
-    config.configFiles = []
-  }
-  if (arg.name) {
-    let pos
-    for (var i = 0; i < config.configFiles.length; i++) {
-      if (config.configFiles[i].name === arg.name) {
-        pos = i
-        break
-      }
+  config.configfiles = config.configfiles = []
+  let pos = -1
+  for (var i = 0; i < config.configfiles.length; i++) {
+    if (config.configfiles[i].name === arg.name || config.configfiles[i].path === arg.path) {
+      pos = i
+      break
     }
-    config.configFiles.splice(pos, 1)
-    configLoader.set(config)
-    window_main.webContents.send('event', 'set-user-config', config.configFiles)
+  }
+  if (pos !== -1) {
+    config.configfiles.splice(pos, 1)
+    configHandler.get('configfiles').set(config)
+    window_main.webContents.send('event', 'set-config-files', config.configfiles)
   }
 }
 
@@ -293,41 +326,21 @@ function removeConfigFile(arg) {
  * Handle process events
  */
 
-process.on('uncaughtException', (err) => {
+process.on('uncaughtException', err => {
   console.log(`WEBVISUAL GUI (uncaughtException)\n ${err}`)
-  if (activeErrorRestartJob) {
-    clearTimeout(activeErrorRestartJob)
-    activeErrorRestartJob = null
-  }
-  activeErrorRestartJob = setTimeout(() => {
-    if (server) {
-      server.send( { disconnect: config } )
-      server.kill()
-    }
-    createServer(config)
-  }, 3000)
+  startServer(config, true)
 })
 
-process.on('ECONNRESET', (err) => {
+process.on('ECONNRESET', err => {
   console.log(`WEBVISUAL GUI (ECONNRESET)\n ${err}`)
-  if (activeErrorRestartJob) {
-    clearTimeout(activeErrorRestartJob)
-    activeErrorRestartJob = null
-  }
-  activeErrorRestartJob = setTimeout(() => {
-    if (server) {
-      server.send( { reconnect: config } )
-    } else {
-      createServer(config)
-    }
-  }, 3000)
+  startServer(config, true)
 })
 
-process.on('SIGINT', (err) => {
+process.on('SIGINT', err => {
   console.log(`WEBVISUAL GUI (SIGINT)\n ${err}`)
   process.exit(0)
 })
 
-process.on('exit', (err) => {
+process.on('exit', err => {
   console.log(`WEBVISUAL GUI (EXIT)\n ${err}`)
 })

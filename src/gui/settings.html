@@ -3,83 +3,164 @@
 
   <head>
     <meta charset="utf-8">
-    <script src="scripts/jsoneditor.min.js"></script>
-    <script src="scripts/ajv.min.js"></script>
-    <link rel="stylesheet" href="style/jsoneditor.css">
+
     <script>
       const {
         ipcRenderer
       } = require('electron');
     </script>
+    <!-- <script src="scripts/ajv.min.js"></script> -->
+    <script src="scripts/jsoneditor.min.js"></script>
+    <link rel="stylesheet" href="style/jsoneditor.css">
 
-    <title></title>
+    <script type="text/javascript">
+      var container, editor;
+      var schema = JSON.parse(localStorage.getItem('schema')) || null,
+        defaults = JSON.parse(localStorage.getItem('defaults') || '{}'),
+        json = JSON.parse(localStorage.getItem('value') || '{}'),
+        name = localStorage.getItem('name') || '';
+
+      create();
+
+      function create() {
+        if (!container) {
+           container = document.querySelector('#container');
+           if (!container) {
+             return;
+           }
+           editor = new JSONEditor(container,
+             {
+              search: false,
+              name: name,
+              sortObjectKeys: false
+             });
+           editor.setSchema(schema);
+           editor.set(json);
+        }
+      }
+
+      ipcRenderer.on("set", function(e, s, v, n) {
+        create();
+        if (n) {
+          name = n;
+        }
+        if (s) {
+          schema = s || schema;
+          localStorage.setItem('schema', JSON.stringify(schema));
+          editor.setSchema(schema);
+          if (s.default) {
+            defaults = s.default
+          }
+        }
+        if (v) {
+          json = v;
+          editor.set(json);
+          localStorage.setItem('value', JSON.stringify(json));
+        } else {
+          editor.set(defaults);
+        }
+        editor.expandAll()
+      });
+
+      ipcRenderer.on("get", function(e, arg) {
+        if (editor) {
+          json = editor.get();
+          ipcRenderer.send("event", "set-config", name, json);
+        }
+      });
+
+      function saveAndClose() {
+        json = editor.get();
+        // TODO: validation
+        localStorage.setItem('value', JSON.stringify(json));
+        ipcRenderer.send("event", "set-config", name, json);
+        ipcRenderer.send("event", "close");
+      }
+    </script>
   </head>
 
   <style>
     @font-face {
-      font-family: 'FiraSans-Light';
-      src: url('./style/fonts/FiraSans-Light.ttf') format('truetype');
+      font-family: 'FiraSans-Regular';
+      src: url('style/fonts/FiraSans-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
     }
     @font-face {
       font-family: 'FiraMono-Regular';
-      src: url('./style/fonts/FiraMono-Regular.ttf') format('truetype');
+      src: url('style/fonts/FiraMono-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
     }
     body {
-      height: 100%;
-      width: 100%;
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      bottom: 0;
       padding: 0;
       margin: 0;
       box-sizing: border-box;
-      background: var(--bright-primary-color);
-      font-family: FiraSans-Light;
+      font-family: 'FiraSans-Regular';
       font-weight: normal;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      align-content: stretch;
+      overflow-x: hidden;
+      overflow-y: auto;
+      --app-primary-color: #5899B8;
     }
     body > * {
       position: relative;
+      box-sizing: border-box;
     }
     #container {
+      flex: 1 1 1px;
+      font-family: 'FiraMono-Regular';
+      max-height: calc(100% - 2.5em);
+    }
+    .bottom {
+      height: 2.5em;
+      padding: 0.75em 1em;
+      display: inline-flex;
+      flex-shrink: 0;
+      align-items: center;
+      background-color: var(--app-primary-color);
+      justify-content: flex-end;
+    }
+    .notification {
+      display: block;
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
+      left: calc(50% - 19vw);
+      right: calc(50% - 19vw);
       bottom: 0;
-      box-sizing: border-box;
+      background-color: var(--app-primary-color);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      color: white;
+      width: 62vw;
+      padding:  0.75em 1em;
+      visibility: hidden;
+      text-align: center;
+      will-change: transform;
+      -webkit-transform: translate3d(0, 100%, 0);
+      transform: translate3d(0, 100%, 0);
+      transition-property: visibility, -webkit-transform, opacity;
+      transition-property: visibility, transform, opacity;
+      transition-duration: 0.2s;
+    }
+    .notification.opened {
+      visibility: visible;
+      -webkit-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
     }
   </style>
 
   <body>
     <div id="container"></div>
+    <div class="bottom">
+      <button type="button" name="button" onclick="saveAndClose()">Speichern</button>
+    </div>
+    <div class="notification"></div>
   </body>
-
-  <script type="text/javascript">
-    var container = document.querySelector('#container');
-    var json, editor, schema, ajv, defaults = {};
-
-    ipcRenderer.on("set", function(e, arg) {
-      console.log(arg)
-      if (arg.title) {
-        window.title = arg.title;
-      }
-      if (!editor) {
-        ajv = new Ajv({ useDefaults: true });
-        editor = new JSONEditor(container, {mode: 'tree', modes: ['tree', 'text'], ajv: ajv, search: false, name: arg.title, sortObjectKeys: false});
-      }
-      if (arg.schema) {
-        schema = arg.schema || schema;
-        editor.setSchema(schema);
-        editor.set(schema.default);
-      }
-      if (arg.value) {
-        editor.set(arg.value);
-      }
-      editor.expandAll()
-    });
-    ipcRenderer.on("get", function(e, arg) {
-      if (editor) {
-        json = editor.get();
-        ipcRenderer.send("set", json);
-      }
-    });
-    ipcRenderer.send("event", "ready");
-  </script>
 </html>

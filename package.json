@@ -31,7 +31,8 @@
   "publish": "never",
   "dependencies": {
     "electron": "*",
-    "electron-builder": "*"
+    "electron-builder": "*",
+    "webvisual-schemas": "github:fooloomanzoo/webvisual-schemas"
   },
   "engines": {
     "node": ">= 6.0",
