@@ -214,7 +214,7 @@ app.on('ready', () => {
         if (typeof arg !== 'string') {
           return
         }
-        modal = new BrowserWindow({parent: window_main, title: 'Settings', width: 400, modal: true, fullscreenable: false, type: 'toolbar', show: false, autoHideMenuBar: true})
+        modal = new BrowserWindow({parent: window_main, title: 'Einstellungen', width: 400, modal: true, fullscreenable: false, type: 'toolbar', show: false, autoHideMenuBar: true})
         modal.loadURL(`file://${__dirname}/gui/settings.html`)
         modal.once('ready-to-show', () => {
           modal.webContents.send('set', schema[arg], config[arg], arg)
@@ -231,6 +231,9 @@ app.on('ready', () => {
         config[arg] = arg2
         if (configHandler && configHandler.has(arg)) {
           configHandler.get(arg).save(arg2)
+        }
+        if (server && server.send) {
+          server.send( { reconnect: config } )
         }
         break
       case 'get-config':
