@@ -3,80 +3,12 @@
 
   <head>
     <meta charset="utf-8">
-
-    <script>
-      const {
-        ipcRenderer
-      } = require('electron');
-    </script>
     <!-- <script src="scripts/ajv.min.js"></script> -->
-    <script src="scripts/jsoneditor.min.js"></script>
-    <link rel="stylesheet" href="style/jsoneditor.css">
+    <script src="bower_components/react/react.min.js"></script>
+    <script src="bower_components/react/react-dom.min.js"></script>
+    <script src="scripts/react-jsonschema-form.js"></script>
+    <link rel="stylesheet" href="style/bootstrap.min.css">
 
-    <script type="text/javascript">
-      var container, editor;
-      var schema = JSON.parse(localStorage.getItem('schema')) || null,
-        defaults = JSON.parse(localStorage.getItem('defaults') || '{}'),
-        json = JSON.parse(localStorage.getItem('value') || '{}'),
-        name = localStorage.getItem('name') || '';
-
-      create();
-
-      function create() {
-        if (!container) {
-           container = document.querySelector('#container');
-           if (!container) {
-             return;
-           }
-           editor = new JSONEditor(container,
-             {
-              search: false,
-              name: name,
-              sortObjectKeys: false
-             });
-           editor.setSchema(schema);
-           editor.set(json);
-        }
-      }
-
-      ipcRenderer.on("set", function(e, s, v, n) {
-        create();
-        if (n) {
-          name = n;
-        }
-        if (s) {
-          schema = s || schema;
-          localStorage.setItem('schema', JSON.stringify(schema));
-          editor.setSchema(schema);
-          if (s.default) {
-            defaults = s.default
-          }
-        }
-        if (v) {
-          json = v;
-          editor.set(json);
-          localStorage.setItem('value', JSON.stringify(json));
-        } else {
-          editor.set(defaults);
-        }
-        editor.expandAll()
-      });
-
-      ipcRenderer.on("get", function(e, arg) {
-        if (editor) {
-          json = editor.get();
-          ipcRenderer.send("event", "set-config", name, json);
-        }
-      });
-
-      function saveAndClose() {
-        json = editor.get();
-        // TODO: validation
-        localStorage.setItem('value', JSON.stringify(json));
-        ipcRenderer.send("event", "set-config", name, json);
-        ipcRenderer.send("event", "close");
-      }
-    </script>
   </head>
 
   <style>
@@ -101,7 +33,6 @@
       padding: 0;
       margin: 0;
       box-sizing: border-box;
-      font-family: 'FiraSans-Regular';
       font-weight: normal;
       display: flex;
       flex-direction: column;
@@ -117,24 +48,23 @@
     }
     #container {
       flex: 1 1 1px;
+      font-size: 0.75em;
+      padding: 1em;
       font-family: 'FiraMono-Regular';
-      max-height: calc(100% - 2.5em);
     }
-    .bottom {
-      height: 2.5em;
-      padding: 0.75em 1em;
-      display: inline-flex;
-      flex-shrink: 0;
-      align-items: center;
-      background-color: var(--app-primary-color);
-      justify-content: flex-end;
+    legend {
+      font-family: 'FiraSans-Regular';
+      font-size: 1.5em;
+    }
+    .form-group {
+      padding-left: 1em;
     }
     .notification {
       display: block;
       position: fixed;
       left: calc(50% - 19vw);
       right: calc(50% - 19vw);
-      bottom: 0;
+      top: 0;
       background-color: var(--app-primary-color);
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
       color: white;
@@ -143,24 +73,145 @@
       visibility: hidden;
       text-align: center;
       will-change: transform;
-      -webkit-transform: translate3d(0, 100%, 0);
-      transform: translate3d(0, 100%, 0);
-      transition-property: visibility, -webkit-transform, opacity;
+      transform: translate3d(0, -100%, 0);
       transition-property: visibility, transform, opacity;
       transition-duration: 0.2s;
+    }
+    .fileselect {
+      position: relative;
+      color: white;
+      background-color: #3D78B6;
+      transition: 200ms background linear;
+      transition: 200ms box-shadow linear;
+      overflow: hidden;
+      padding: 9px 12px;
+      font-size: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .fileselect:hover {
+      background-color: #2C7ED4;
+      box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.14),
+                  0 1px 8px 0 rgba(0, 0, 0, 0.12),
+                  0 3px 3px -2px rgba(0, 0, 0, 0.4);
+    }
+    .fileselect input {
+      opacity: 0;
+      width: 100%;
+      cursor: pointer;
+      position: absolute;
+      left: 0; right: 0; top: 0; bottom: 0;
     }
     .notification.opened {
       visibility: visible;
       -webkit-transform: translate3d(0, 0, 0);
       transform: translate3d(0, 0, 0);
     }
+    .btn.array-item-remove, .btn.btn-add {
+      height: 32px;
+      width: 32px;
+      flex: 0 1 auto !important
+      margin-right: auto;
+    }
   </style>
 
   <body>
     <div id="container"></div>
-    <div class="bottom">
-      <button type="button" name="button" onclick="saveAndClose()">Speichern</button>
-    </div>
     <div class="notification"></div>
+
+    <script type="text/javascript">
+      const { ipcRenderer } = require('electron');
+      const Form = JSONSchemaForm.default;
+
+      var Schema, Value, Name;
+
+      const log = (type) => console.log.bind(console, type);
+
+      function processFile(files) {
+        return new Promise((resolve, reject) => {
+          if (files && files[0] && files[0].path)
+            resolve(files[0].path);
+          resolve('');
+        });
+      }
+
+      const FileWidget = (props) => {
+        const {options} = props;
+        const {accept, directory} = options;
+        return (React.createElement("div", {className: 'fileselect'},
+          ' 📂 ', props.value,
+          React.createElement("input", {
+            type: "file",
+            accept: accept,
+            directory: directory,
+            onChange: (event) => processFile(event.target.files).then(props.onChange)})
+        ))
+      };
+
+      let uiSchema = {
+         _tmpDir: {
+           "ui:widget": "hidden"
+         },
+         ssl: {
+           cert: {
+             'ui:widget': FileWidget
+           },
+           key: {
+             'ui:widget': FileWidget
+           },
+           passphrase: {
+             'ui:widget': FileWidget
+           },
+           ca: {
+             'ui:widget': FileWidget,
+             'ui:options': {
+               directory: true
+             }
+           }
+         },
+         items: {
+            path: {
+             'ui:widget': FileWidget,
+             'ui:options': {
+               accept: '.json'
+            }
+          }
+        }
+      };
+
+      ipcRenderer.on("set", (event, schema, value, name) => {
+        Schema = schema;
+        Value = value;
+        Name = name;
+
+        ReactDOM.render((
+          React.createElement(Form,
+            {
+              schema: Schema,
+              formData: Value,
+              onChange: log("changed"),
+              onSubmit: saveAndClose,
+              onError: log("errors"),
+              liveValidate: true,
+              uiSchema: uiSchema
+            },
+            React.createElement("div", null,
+              React.createElement("button", {type: "submit"}, "Speichern"),
+              React.createElement("button", {type: "button", onClick: reset}, "Zurücksetzen")
+            ))
+        ), document.getElementById("container"));
+
+      });
+
+      function reset() {
+        ipcRenderer.send("event", "get-config", Name);
+      }
+
+      function saveAndClose() {
+        ipcRenderer.send("event", "set-config", Name, Value);
+        ipcRenderer.send("event", "close");
+      }
+    </script>
+
   </body>
 </html>

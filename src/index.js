@@ -214,7 +214,7 @@ app.on('ready', () => {
         if (typeof arg !== 'string') {
           return
         }
-        modal = new BrowserWindow({parent: window_main, title: 'Settings', width: 400, modal: true, show: false, autoHideMenuBar: true})
+        modal = new BrowserWindow({parent: window_main, title: 'Settings', width: 400, modal: true, fullscreenable: false, type: 'toolbar', show: false, autoHideMenuBar: true})
         modal.loadURL(`file://${__dirname}/gui/settings.html`)
         modal.once('ready-to-show', () => {
           modal.webContents.send('set', schema[arg], config[arg], arg)
@@ -233,34 +233,11 @@ app.on('ready', () => {
           configHandler.get(arg).save(arg2)
         }
         break
-      case 'file-dialog':
-        dialog.showOpenDialog({
-          properties: ['openFile'],
-          filters: arg.filter
-        }, (files) => {
-          sendPath(files, arg)
-        })
-        break
-      case 'folder-dialog':
-        dialog.showOpenDialog({
-          properties: ['openDirectory']
-        }, (folder) => {
-          sendPath(folder, arg)
-        })
-        break
-      case 'add-config-files':
-        addConfigFile(arg)
-        break
-      case 'remove-config-files':
-        removeConfigFile(arg)
-        break
-      case 'set-server-config':
-        config.server = arg;
-        configHandler.get('server').set(arg)
-        break
-      case 'set-database':
-        config.database = arg;
-        configHandler.get('database').set(arg)
+      case 'get-config':
+        if (!modal || typeof arg !== 'string') {
+          return
+        }
+        modal.webContents.send('set', schema[arg], config[arg], arg)
         break
       case 'close':
         if (modal) {
@@ -270,59 +247,6 @@ app.on('ready', () => {
     }
   })
 })
-
-// addConfigFile
-function sendPath(files, arg) {
-  window_main.webContents.send('event', 'file-dialog', {
-    for: arg.for,
-    path: (files && files.length > 0) ? files[0] : ''
-  })
-}
-
-function addConfigFile(arg) {
-  if (!arg.name || !arg.title || !arg.path)
-    return
-
-  config.configfiles = config.configfiles || []
-  var isNew = true
-
-  for (var i = 0; i < config.configfiles.length; i++) {
-    if (config.configfiles[i].name === arg.name || config.configfiles[i].path === arg.path) {
-      config.configfiles[i].name = arg.name
-      config.configfiles[i].title = arg.title
-      config.configfiles[i].path = arg.path
-      isNew = false
-      break
-    }
-  }
-
-  if (isNew === true) {
-    config.configfiles.push({
-      name: arg.name,
-      title: arg.title,
-      path: arg.path
-    })
-  }
-
-  configHandler.get('configfiles').set(config.configfiles)
-  window_main.webContents.send('event', 'set-config-files', config.configfiles)
-}
-
-function removeConfigFile(arg) {
-  config.configfiles = config.configfiles = []
-  let pos = -1
-  for (var i = 0; i < config.configfiles.length; i++) {
-    if (config.configfiles[i].name === arg.name || config.configfiles[i].path === arg.path) {
-      pos = i
-      break
-    }
-  }
-  if (pos !== -1) {
-    config.configfiles.splice(pos, 1)
-    configHandler.get('configfiles').set(config)
-    window_main.webContents.send('event', 'set-config-files', config.configfiles)
-  }
-}
 
 /*
  * Handle process events
