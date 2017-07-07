@@ -6,7 +6,7 @@
     "connections": {
       "file": {
         "mode": "append",
-        "path": "examples/datafile/berlin-population.txt",
+        "path": "./examples/datafile/berlin-population.txt",
         "format": {
           "dateFormat": "DD.MM.YYYY",
           "decimalSeparator": ".",
@@ -23,7 +23,7 @@
     },
 
     "svgSource": {
-      "origin": "examples/svg",
+      "origin": "./examples/svg",
       "paths": {
         "berlin.svg": {
           "items": {
@@ -228,7 +228,7 @@
     "connections": {
       "file": {
         "mode": "append",
-        "path": "examples/datafile/bor-atom.txt",
+        "path": "./examples/datafile/bor-atom.txt",
         "format": {
           "dateFormat": "DD.MM.YYYY hh:mm:ss",
           "decimalSeparator": ".",
@@ -245,7 +245,7 @@
     },
 
     "svgSource": {
-      "origin": "examples/svg",
+      "origin": "./examples/svg",
       "paths": {
         "bor-atom-modell.svg": {
           "items": {},
@@ -446,7 +446,7 @@
     "connections": {
       "file": {
         "mode": "append",
-        "path": "examples/datafile/test.txt",
+        "path": "./examples/datafile/test.txt",
         "format": {
           "dateFormat": "DD.MM.YYYY hh:mm:ss",
           "decimalSeparator": ".",
@@ -465,7 +465,7 @@
     },
 
     "svgSource": {
-      "origin": "examples/svg",
+      "origin": "./examples/svg",
       "paths": {
         "boxes.svg": {
           "items": {},

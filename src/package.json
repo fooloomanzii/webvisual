@@ -19,7 +19,7 @@
   "dependencies": {
     "ajv": "^5.2.0",
     "child_process": "*",
-    "merge-defaults": "*",
+    "merge-options": "*",
     "mkdirp": "*",
     "webvisual-schemas": "github:fooloomanzoo/webvisual-schemas",
     "webvisual-server": "github:fooloomanzoo/webvisual-server"

@@ -21,8 +21,9 @@ const WINDOW_DEFAULTS = {
     webSecurity: true
   }
 }
-const USER_DATA_FOLDER = path.join( app.getPath('userData'), 'config' )
-const USER_DATA_CONFIGS = ['server', 'database', 'configfiles']
+const USER_CONFIG_FOLDER = path.join( app.getPath('userData'), 'config' )
+const USER_DATA_FOLDER = app.getPath('userData')
+const APP_CONFIGS = ['server', 'database', 'configfiles']
 
 // change RAM-limit
 app.commandLine.appendSwitch("js-flags", "--max_old_space_size=6000")
@@ -131,20 +132,21 @@ app.on('window-all-closed', () => {
 app.on('ready', () => {
   // Create the browser window.
 
-  USER_DATA_CONFIGS.forEach( name => {
+  APP_CONFIGS.forEach( name => {
     configHandler.set(name,
-      new Settings(USER_DATA_FOLDER, name, '.json', schema[name])
+      new Settings(USER_CONFIG_FOLDER, name, '.json', schema[name])
         .on('ready', settings => {
           console.error(`Config loaded (${name})`)
           config[name] = settings
 
           let shouldStart = true
-          for (let i = 0; i < USER_DATA_CONFIGS.length; i++) {
-            if (!config.hasOwnProperty(USER_DATA_CONFIGS[i])) {
+          for (let i = 0; i < APP_CONFIGS.length; i++) {
+            if (!config.hasOwnProperty(APP_CONFIGS[i])) {
               shouldStart = false;
               break;
             }
           }
+
           if (shouldStart) {
             if (!window_main) {
               window_main = createWindow({title: 'Webvisual'}, `file://${__dirname}/gui/main.html`).
@@ -155,7 +157,7 @@ app.on('ready', () => {
               })
             }
             // Autostart
-            if (!server && process.argv[2] === 'start') {
+            if (process.argv[2] === 'start') {
               startServer(config)
             }
           }
@@ -173,9 +175,9 @@ app.on('ready', () => {
       )
   })
 
-  configHandler.get('server').on('change', settings => {
+  configHandler.get('server').on('ready', settings => {
+    settings._tmpDir = path.join(USER_DATA_FOLDER, 'tmp')
     config.server = settings
-    startServer(config)
   })
 
   // ipc beetween gui and process
