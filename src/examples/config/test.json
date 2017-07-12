@@ -23,9 +23,8 @@
     },
 
     "svgSource": {
-      "origin": "./examples/svg",
       "paths": {
-        "berlin.svg": {
+        "./examples/berlin.svg": {
           "items": {
           },
           "minZoom": 1,
@@ -54,7 +53,7 @@
           },
           "svg": {
             "selector": "g#ortsteil path",
-            "path": "berlin.svg"
+            "path": "./examples/svg/berlin.svg"
           },
           "color": "#2FC6FC"
         }, {
@@ -66,7 +65,7 @@
           },
           "svg": {
             "selector": "path#path1364-8",
-            "path": "berlin.svg"
+            "path": "./examples/svg/berlin.svg"
           },
           "color": "#2FC6FC"
         }, {
@@ -78,7 +77,7 @@
           },
           "svg": {
             "selector": "path#path1358-1",
-            "path": "berlin.svg"
+            "path": "./examples/svg/berlin.svg"
           },
           "color": "#0dcf78"
         }, {
@@ -90,7 +89,7 @@
           },
           "svg": {
             "selector": "path#path1368-8",
-            "path": "berlin.svg"
+            "path": "./examples/svg/berlin.svg"
           },
           "color": "#7D2FFC"
         }, {
@@ -102,7 +101,7 @@
           },
           "svg": {
             "selector": "path#path1356-7",
-            "path": "berlin.svg"
+            "path": "./examples/svg/berlin.svg"
           },
           "color": "#FC2F41"
         }, {
@@ -114,7 +113,7 @@
           },
           "svg": {
             "selector": "path#path1372-3",
-            "path": "berlin.svg"
+            "path": "./examples/svg/berlin.svg"
           },
           "color": "#b2e620"
         }, {
@@ -126,7 +125,7 @@
           },
           "svg": {
             "selector": "path#path1374-1",
-            "path": "berlin.svg"
+            "path": "./examples/svg/berlin.svg"
           },
           "color": "#FC602F"
         }, {
@@ -138,7 +137,7 @@
           },
           "svg": {
             "selector": "path#path1376-0",
-            "path": "berlin.svg",
+            "path": "./examples/svg/berlin.svg",
             "type": "Bezirk"
           },
           "color": "#FC2F2F"
@@ -151,7 +150,7 @@
           },
           "svg": {
             "selector": "path#path1366-4",
-            "path": "berlin.svg",
+            "path": "./examples/svg/berlin.svg",
             "type": "Bezirk"
           },
           "color": "#2FFCF0"
@@ -164,7 +163,7 @@
           },
           "svg": {
             "selector": "path#path1378-6",
-            "path": "berlin.svg"
+            "path": "./examples/svg/berlin.svg"
           },
           "color": "#83FC2F"
         }, {
@@ -176,7 +175,7 @@
           },
           "svg": {
             "selector": "path#path1362-1",
-            "path": "berlin.svg"
+            "path": "./examples/svg/berlin.svg"
           },
           "color": "#2FFC5C"
         }, {
@@ -188,7 +187,7 @@
           },
           "svg": {
             "selector": "path#path1360-4",
-            "path": "berlin.svg"
+            "path": "./examples/svg/berlin.svg"
           },
           "color": "#FCD52F"
         }, {
@@ -200,7 +199,7 @@
           },
           "svg": {
             "selector": "path#path1370-3",
-            "path": "berlin.svg"
+            "path": "./examples/svg/berlin.svg"
           },
           "color": "#2F43FC"
         }
@@ -245,7 +244,6 @@
     },
 
     "svgSource": {
-      "origin": "./examples/svg",
       "paths": {
         "bor-atom-modell.svg": {
           "items": {},
@@ -274,7 +272,7 @@
           },
           "svg": {
             "selector": "ellipse#ellipse4802",
-            "path": "bor-atom-modell.svg"
+            "path": "./examples/svg/bor-atom-modell.svg"
           }
         }, {
           "id": "p2",
@@ -284,7 +282,7 @@
           },
           "svg": {
             "selector": "ellipse#ellipse4804",
-            "path": "bor-atom-modell.svg"
+            "path": "./examples/svg/bor-atom-modell.svg"
           }
         }, {
           "id": "p3",
@@ -294,7 +292,7 @@
           },
           "svg": {
             "selector": "ellipse#ellipse4806",
-            "path": "bor-atom-modell.svg"
+            "path": "./examples/svg/bor-atom-modell.svg"
           }
         }, {
           "id": "p4",
@@ -304,7 +302,7 @@
           },
           "svg": {
             "selector": "ellipse#ellipse4808",
-            "path": "bor-atom-modell.svg"
+            "path": "./examples/svg/bor-atom-modell.svg"
           }
         }, {
           "id": "p5",
@@ -314,7 +312,7 @@
           },
           "svg": {
             "selector": "ellipse#ellipse4810",
-            "path": "bor-atom-modell.svg"
+            "path": "./examples/svg/bor-atom-modell.svg"
           }
         }, {
           "id": "n1",
@@ -324,7 +322,7 @@
           },
           "svg": {
             "selector": "circle#circle4812",
-            "path": "bor-atom-modell.svg"
+            "path": "./examples/svg/bor-atom-modell.svg"
           }
         }, {
           "id": "n2",
@@ -334,7 +332,7 @@
           },
           "svg": {
             "selector": "circle#circle4814",
-            "path": "bor-atom-modell.svg"
+            "path": "./examples/svg/bor-atom-modell.svg"
           }
         }, {
           "id": "n3",
@@ -344,7 +342,7 @@
           },
           "svg": {
             "selector": "circle#circle4816",
-            "path": "bor-atom-modell.svg"
+            "path": "./examples/svg/bor-atom-modell.svg"
           }
         }, {
           "id": "n4",
@@ -354,7 +352,7 @@
           },
           "svg": {
             "selector": "circle#circle4818",
-            "path": "bor-atom-modell.svg"
+            "path": "./examples/svg/bor-atom-modell.svg"
           }
         }, {
           "id": "n5",
@@ -364,7 +362,7 @@
           },
           "svg": {
             "selector": "circle#circle4820",
-            "path": "bor-atom-modell.svg"
+            "path": "./examples/svg/bor-atom-modell.svg"
           }
         }, {
           "id": "e1",
@@ -375,7 +373,7 @@
           },
           "svg": {
             "selector": "ellipse#ellipse4851",
-            "path": "bor-atom-modell.svg"
+            "path": "./examples/svg/bor-atom-modell.svg"
           }
         }, {
           "id": "e2",
@@ -386,7 +384,7 @@
           },
           "svg": {
             "selector": "ellipse#ellipse4853",
-            "path": "bor-atom-modell.svg"
+            "path": "./examples/svg/bor-atom-modell.svg"
           }
         }, {
           "id": "e3",
@@ -397,7 +395,7 @@
           },
           "svg": {
             "selector": "ellipse#ellipse4855",
-            "path": "bor-atom-modell.svg"
+            "path": "./examples/svg/bor-atom-modell.svg"
           }
         }, {
           "id": "e4",
@@ -408,7 +406,7 @@
           },
           "svg": {
             "selector": "ellipse#ellipse4857",
-            "path": "bor-atom-modell.svg"
+            "path": "./examples/svg/bor-atom-modell.svg"
           }
         }, {
           "id": "e5",
@@ -419,7 +417,7 @@
           },
           "svg": {
             "selector": "ellipse#ellipse4859",
-            "path": "bor-atom-modell.svg"
+            "path": "./examples/svg/bor-atom-modell.svg"
           }
         }
       ],
@@ -465,7 +463,6 @@
     },
 
     "svgSource": {
-      "origin": "./examples/svg",
       "paths": {
         "boxes.svg": {
           "items": {},
@@ -495,7 +492,7 @@
           },
           "svg": {
             "selector": "g#g783 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           },
           "threshold": {
             "from": -18,
@@ -510,7 +507,7 @@
           },
           "svg": {
             "selector": "g#g744 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           },
           "threshold": {
             "from": -18,
@@ -525,7 +522,7 @@
           },
           "svg": {
             "selector": "g#g627 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           },
           "threshold": {
             "from": -18,
@@ -540,7 +537,7 @@
           },
           "svg": {
             "selector": "g#g510 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           },
           "threshold": {
             "from": -18,
@@ -555,7 +552,7 @@
           },
           "svg": {
             "selector": "g#g81 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           }
         }, {
           "id": "box6",
@@ -566,7 +563,7 @@
           },
           "svg": {
             "selector": "g#g120 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           }
         }, {
           "id": "box7",
@@ -577,7 +574,7 @@
           },
           "svg": {
             "selector": "g#g315 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           },
           "threshold": {
             "from": -18,
@@ -592,7 +589,7 @@
           },
           "svg": {
             "selector": "g#g393 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           }
         }, {
           "id": "box9",
@@ -603,7 +600,7 @@
           },
           "svg": {
             "selector": "g#g939 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           },
           "threshold": {
             "from": -18,
@@ -618,7 +615,7 @@
           },
           "svg": {
             "selector": "g#g900 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           }
         }, {
           "id": "box11",
@@ -629,7 +626,7 @@
           },
           "svg": {
             "selector": "g#g705 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           }
         }, {
           "id": "box12",
@@ -640,7 +637,7 @@
           },
           "svg": {
             "selector": "g#g588 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           },
           "threshold": {
             "from": -18,
@@ -655,7 +652,7 @@
           },
           "svg": {
             "selector": "g#g861 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           }
         }, {
           "id": "box14",
@@ -666,7 +663,7 @@
           },
           "svg": {
             "selector": "g#g822 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           },
           "threshold": {
             "from": -18,
@@ -681,7 +678,7 @@
           },
           "svg": {
             "selector": "g#g666 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           }
         }, {
           "id": "box16",
@@ -692,7 +689,7 @@
           },
           "svg": {
             "selector": "g#g549 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           }
         }, {
           "id": "box17",
@@ -703,7 +700,7 @@
           },
           "svg": {
             "selector": "g#g159 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           }
         }, {
           "id": "box18",
@@ -714,7 +711,7 @@
           },
           "svg": {
             "selector": "g#g198 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           },
           "threshold": {
             "from": -18,
@@ -729,7 +726,7 @@
           },
           "svg": {
             "selector": "g#g276 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           }
         }, {
           "id": "box20",
@@ -740,7 +737,7 @@
           },
           "svg": {
             "selector": "g#g432 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           }
         }, {
           "id": "box21",
@@ -751,7 +748,7 @@
           },
           "svg": {
             "selector": "g#g939 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           }
         }, {
           "id": "box22",
@@ -762,7 +759,7 @@
           },
           "svg": {
             "selector": "g#g900 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           }
         }, {
           "id": "box23",
@@ -773,7 +770,7 @@
           },
           "svg": {
             "selector": "g#g705 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           }
         }, {
           "id": "box24",
@@ -784,7 +781,7 @@
           },
           "svg": {
             "selector": "g#g588 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           }
         }, {
           "id": "box25",
@@ -795,7 +792,7 @@
           },
           "svg": {
             "selector": "g#g471 polygon",
-            "path": "boxes.svg"
+            "path": "./examples/svg/boxes.svg"
           },
           "threshold": {
             "from": -18,
