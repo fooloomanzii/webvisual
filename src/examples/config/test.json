@@ -18,7 +18,9 @@
     "connections": {
       "file": {
         "mode": "append",
-        "path": "./examples/datafile/berlin-population.txt",
+        "path": [
+          "./examples/datafile/berlin-population.txt"
+        ],
         "format": {
           "dateFormat": "DD.MM.YYYY",
           "decimalSeparator": ".",
@@ -41,7 +43,7 @@
       "id": "Berlin",
       "keys": {
         "name": "Berlin",
-        "area": "891.68km²",
+        "area": "850-900km²",
         "type": "gesamt"
       },
       "svg": {
@@ -227,7 +229,9 @@
     "connections": {
       "file": {
         "mode": "append",
-        "path": "./examples/datafile/bor-atom.txt",
+        "path": [
+          "./examples/datafile/bor-atom.txt"
+        ],
         "format": {
           "dateFormat": "DD.MM.YYYY hh:mm:ss",
           "decimalSeparator": ".",
@@ -433,8 +437,10 @@
   "locals": [ {
     "connections": {
       "file": {
-        "mode": "append",
-        "path": "./examples/datafile/test.txt",
+        "mode": "once",
+        "path": [
+          "./examples/datafile/test.txt"
+        ],
         "format": {
           "dateFormat": "DD.MM.YYYY hh:mm:ss",
           "decimalSeparator": ".",
