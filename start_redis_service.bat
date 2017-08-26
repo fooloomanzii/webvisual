@@ -1,6 +1,6 @@
 @echo off
 
-echo Starting REDIS for Session Manager
+echo Starting REDIS
 goto CHECKREDIS
 
 :CHECKREDIS
