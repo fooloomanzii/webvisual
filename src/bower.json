@@ -7,11 +7,14 @@
     "fooloomanzoo <hannes-b@web.de>"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.9.2",
+    "polymer": "Polymer/polymer",
     "app-layout": "PolymerElements/app-layout",
     "iron-elements": "PolymerElements/iron-elements",
     "paper-elements": "PolymerElements/paper-elements",
-    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.1",
+    "webcomponentsjs": "webcomponents/webcomponentsjs",
     "react": "^15.6.1"
+  },
+  "resolutions": {
+    "polymer": "1.9 - 2"
   }
 }

@@ -139,15 +139,15 @@ app.on('ready', () => {
           console.error(`Config loaded (${name})`)
           config[name] = settings
 
-          let shouldStart = true
+          const configComplete = true
           for (let i = 0; i < APP_CONFIGS.length; i++) {
             if (!config.hasOwnProperty(APP_CONFIGS[i])) {
-              shouldStart = false;
+              configComplete = false;
               break;
             }
           }
 
-          if (shouldStart) {
+          if (configComplete) {
             if (!window_main) {
               window_main = createWindow({title: 'Webvisual'}, `file://${__dirname}/gui/main.html`).
               on('close', () => {
@@ -166,7 +166,7 @@ app.on('ready', () => {
           console.error(`Config changed (${name})`)
           config[name] = settings
           if (server && server.send) {
-            server.send( { reconnect: config } )
+            server.send( { setConfig: config } )
           }
         })
         .on('error', err => {
@@ -233,7 +233,7 @@ app.on('ready', () => {
           configHandler.get(arg).save(arg2)
         }
         if (server && server.send) {
-          server.send( { reconnect: config } )
+          server.send( { setConfig: config } )
         }
         break
       case 'get-config':
