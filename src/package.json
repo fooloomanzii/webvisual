@@ -18,7 +18,7 @@
     "bowerupdate": "bower update"
   },
   "dependencies": {
-    "ajv": "^5.2.2",
+    "ajv": "^5.5.2",
     "child_process": "*",
     "merge-options": "*",
     "mkdirp": "*",
